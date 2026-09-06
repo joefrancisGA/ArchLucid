@@ -5,9 +5,9 @@ import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-ro
 
 export const SPONSOR_KPI_DRILL_THROUGH = {
   resolvedFindings30d: "/architecture/reviews",
-  newlyDiscoveredFindings30d: "/governance/findings",
+  newlyDiscoveredFindings30d: "/governance/findings?filter=open",
   staleArchitectureRisks: "/governance/findings?filter=stale",
-  decisionsNeeded: "/governance/findings",
+  decisionsNeeded: "/governance/findings?filter=needs-decision",
   expiringWaivers: "/governance/exceptions",
   findingsRemediated30d: "/governance/findings",
   costEvidenceFreshness: "/insights/sponsor-report",

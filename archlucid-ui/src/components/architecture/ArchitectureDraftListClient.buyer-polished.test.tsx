@@ -35,10 +35,10 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 }));
 
 function entry(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Healthcare Claims Platform",
     customerStatus: overrides.customerStatus ?? "ready-for-review",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -57,7 +57,7 @@ describe("ArchitectureDraftListClient buyer-polished shell", () => {
   });
 
   it("hides vocabulary rails and shows draft id disclosure", () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "draft-abc-123" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "draft-abc-123" })]);
 
     render(<ArchitectureDraftListClient />);
 

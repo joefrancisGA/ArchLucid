@@ -64,9 +64,9 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
 
           return (
             <li
-              key={entry.architectureId}
+              key={entry.draftId}
               className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
-              data-testid={`architecture-creation-resume-draft-${entry.architectureId}`}
+              data-testid={`architecture-creation-resume-draft-${entry.draftId}`}
             >
               <p className={cn("m-0 line-clamp-2 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {entry.displayName}
@@ -78,12 +78,12 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
               </p>
               <div className="mt-2">
                 <ArchitectureDraftResumeControl
-                  architectureId={entry.architectureId}
+                  draftId={entry.draftId}
                   label={CONTINUE_DRAFT_LABEL}
                   source="architectures-new"
                   variant="primary"
                   title={entry.displayName}
-                  testId={`architecture-creation-resume-draft-continue-${entry.architectureId}`}
+                  testId={`architecture-creation-resume-draft-continue-${entry.draftId}`}
                 />
               </div>
             </li>

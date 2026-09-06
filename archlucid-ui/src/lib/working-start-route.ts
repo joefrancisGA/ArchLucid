@@ -1,6 +1,7 @@
 import {
   ARCHITECTURES_NEW_PATH,
   architectureDraftPath,
+  architectureIdentityPath,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
 
@@ -9,7 +10,9 @@ export type ResolveWorkingStartHrefInput = {
   readonly inFlightReviewId?: string | null;
   /** Last-open review from server or recent-views cache. */
   readonly lastOpenReviewId?: string | null;
-  /** Last-open draft architecture id (editor surface). */
+  /** Last-open durable architecture identity desk. */
+  readonly lastOpenArchitectureId?: string | null;
+  /** Last-open draft id (editor surface). */
   readonly lastOpenDraftId?: string | null;
   /**
    * When set, the draft spawned a review — Start must open the review, not the draft editor (spawn lock).
@@ -19,7 +22,13 @@ export type ResolveWorkingStartHrefInput = {
 
 export type ResolveWorkingStartHrefResult = {
   readonly href: string;
-  readonly reason: "in-flight-review" | "spawn-locked-review" | "last-open-review" | "last-open-draft" | "new-draft";
+  readonly reason:
+    | "in-flight-review"
+    | "spawn-locked-review"
+    | "last-open-review"
+    | "last-open-architecture"
+    | "last-open-draft"
+    | "new-draft";
 };
 
 function trimmedId(value: string | null | undefined): string | null {
@@ -32,6 +41,7 @@ function trimmedId(value: string | null | undefined): string | null {
 export function resolveWorkingStartHref(input: ResolveWorkingStartHrefInput): ResolveWorkingStartHrefResult {
   const inFlightReviewId = trimmedId(input.inFlightReviewId);
   const lastOpenReviewId = trimmedId(input.lastOpenReviewId);
+  const lastOpenArchitectureId = trimmedId(input.lastOpenArchitectureId);
   const lastOpenDraftId = trimmedId(input.lastOpenDraftId);
   const spawnLockedReviewId = trimmedId(input.spawnLockedReviewId);
 
@@ -53,6 +63,13 @@ export function resolveWorkingStartHref(input: ResolveWorkingStartHrefInput): Re
     return {
       href: reviewDetailPath(lastOpenReviewId),
       reason: "last-open-review",
+    };
+  }
+
+  if (lastOpenArchitectureId !== null) {
+    return {
+      href: architectureIdentityPath(lastOpenArchitectureId),
+      reason: "last-open-architecture",
     };
   }
 

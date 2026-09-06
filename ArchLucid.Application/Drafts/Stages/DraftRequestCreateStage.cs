@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -66,19 +67,18 @@ public sealed class DraftRequestCreateStage(
             document,
             cancellationToken);
 
-        await _architectureIdentityService.EnsureForDraftAsync(
+        string displayName = !string.IsNullOrWhiteSpace(document.SystemName)
+            ? document.SystemName
+            : intent;
+
+        ArchitectureIdentityRecord identity = await _architectureIdentityService.EnsureForDraftAsync(
             scope,
             created.DraftId,
-            document.SystemName,
-            cancellationToken).ConfigureAwait(false);
+            displayName,
+            cancellationToken);
 
-        DraftRequestResponse? refreshed = await _draftRepository.GetAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            created.DraftId,
-            cancellationToken).ConfigureAwait(false);
+        created.ArchitectureId = identity.ArchitectureId;
 
-        return refreshed ?? created;
+        return created;
     }
 }

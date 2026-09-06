@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminArchitectureIdentityBackfillController.cs",
+      "class_name": "AdminArchitectureIdentityBackfillController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
       "class_name": "AdminAuthDiagnosticsController",
       "route_template": "v{version:apiVersion}/admin",
@@ -708,6 +718,16 @@
       "normalized_prefix": "/v1/analytics",
       "commercial_tier": "none",
       "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Architecture/ArchitecturesController.cs",
+      "class_name": "ArchitecturesController",
+      "route_template": "v{version:apiVersion}/architectures",
+      "normalized_prefix": "/v1/architectures",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },

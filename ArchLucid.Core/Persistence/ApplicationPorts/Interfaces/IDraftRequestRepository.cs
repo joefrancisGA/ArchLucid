@@ -97,12 +97,39 @@ public interface IDraftRequestRepository
         string spawnedRunId,
         CancellationToken cancellationToken);
 
-    /// <summary>Sets the parent architecture FK when still null or matching the existing value.</summary>
-    Task<bool> TrySetArchitectureIdAsync(
+    /// <summary>Lists drafts linked to <paramref name="architectureId" /> in scope, newest <c>UpdatedUtc</c> first.</summary>
+    Task<IReadOnlyList<DraftRequestResponse>> ListByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
+
+    /// <summary>Counts drafts linked to <paramref name="architectureId" /> in scope.</summary>
+    Task<int> CountByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
+
+    /// <summary>Sets <c>ArchitectureId</c> on a scoped draft when the identity is first ensured.</summary>
+    Task<bool> SetArchitectureIdAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
         Guid draftId,
         Guid architectureId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Lists drafts in scope with null <see cref="DraftRequestResponse.ArchitectureId" />,
+    ///     oldest <c>CreatedUtc</c> first (stable backfill order).
+    /// </summary>
+    Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
         CancellationToken cancellationToken);
 }

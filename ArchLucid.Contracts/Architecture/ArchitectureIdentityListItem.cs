@@ -1,6 +1,6 @@
 namespace ArchLucid.Contracts.Architecture;
 
-/// <summary>One row in a scoped architecture identity list.</summary>
+/// <summary>Summary row for tenant-scoped architecture identity portfolio lists (ADR 0074).</summary>
 public sealed class ArchitectureIdentityListItem
 {
     public Guid ArchitectureId
@@ -13,15 +13,21 @@ public sealed class ArchitectureIdentityListItem
     {
         get;
         set;
-    } = string.Empty;
+    } = ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
 
-    public string? Description
+    public DateTime UpdatedUtc
     {
         get;
         set;
     }
 
-    public DateTime UpdatedUtc
+    public Guid? CurrentDraftId
+    {
+        get;
+        set;
+    }
+
+    public Guid? LatestReviewId
     {
         get;
         set;
@@ -33,9 +39,15 @@ public sealed class ArchitectureIdentityListItem
         set;
     }
 
-    public ArchitectureIdentityChildPointers ChildPointers
+    public int DraftCount
     {
         get;
         set;
-    } = new();
+    }
+
+    public int ReviewCount
+    {
+        get;
+        set;
+    }
 }

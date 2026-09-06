@@ -34,6 +34,12 @@ internal sealed class InMemoryDraftRequestStoredDraft
         set;
     } = string.Empty;
 
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public DraftRequestStatus Status
     {
         get;
@@ -71,12 +77,6 @@ internal sealed class InMemoryDraftRequestStoredDraft
     }
 
     public byte[]? SpawnedDocumentContentHashSha256
-    {
-        get;
-        set;
-    }
-
-    public Guid? ArchitectureId
     {
         get;
         set;

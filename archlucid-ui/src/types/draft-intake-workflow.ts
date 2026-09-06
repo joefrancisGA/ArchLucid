@@ -25,6 +25,7 @@ export type DraftRequestSummaryPage = {
 
 export type DraftRequestResponse = {
   draftId: string;
+  /** Durable architecture identity when ensure-on-create has run (ADR 0074). */
   architectureId?: string | null;
   tenantId: string;
   workspaceId: string;

@@ -286,4 +286,25 @@ public interface IRunRepository
         string actorUserId,
         DateTime occurredUtc,
         CancellationToken ct);
+
+    /// <summary>Lists non-archived runs for <paramref name="architectureId" />, newest <c>CreatedUtc</c> first.</summary>
+    Task<IReadOnlyList<RunRecord>> ListByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>Counts non-archived runs for <paramref name="architectureId" /> in scope.</summary>
+    Task<int> CountByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Lists non-archived runs in <paramref name="scope" /> with null <see cref="RunRecord.ArchitectureId" />,
+    ///     oldest <c>CreatedUtc</c> first (stable backfill order).
+    /// </summary>
+    Task<IReadOnlyList<RunRecord>> ListWithNullArchitectureIdAsync(
+        ScopeContext scope,
+        int take,
+        CancellationToken ct);
 }

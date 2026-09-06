@@ -21,6 +21,8 @@ Companion to [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE28.md`](ARCHITECTURE_REVIEW_RO
 
 Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave29ArchitectureTests.cs`.
 
+Wave 30 Tier 1 continuation: [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE30.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE30.md).
+
 **Hasher baseline note:** wave 29 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** remediation-instance guards (infra-evidence plane without run-scoped golden manifest), outbox metadata stretch (339–344), and infra-evidence cross-plane batch (345–350) remain for wave 30+.
+**Deferred:** remediation-instance guards (infra-evidence plane without run-scoped golden manifest), outbox metadata stretch (339–344), and infra-evidence cross-plane batch (345–350) remain for wave 30+. Wave 30 Tier 1 in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE30.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE30.md).

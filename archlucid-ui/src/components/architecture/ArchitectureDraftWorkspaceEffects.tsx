@@ -17,13 +17,13 @@ import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 export type UseArchitectureDraftWorkspaceEffectsArgs = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly isNewDraft: boolean;
   readonly loading: boolean;
   readonly draft: DraftRequestResponse | null;
   readonly linkedReviewId: string | null;
   readonly saveState: ArchitectureDraftSaveState;
-  readonly effectiveArchitectureId: string;
+  readonly effectiveDraftId: string;
   readonly applyLoadedDraftToForm: (loaded: DraftRequestResponse) => ArchitectureDraftFieldState;
   readonly acceptServerBaselineRef: React.MutableRefObject<
     (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void
@@ -62,8 +62,8 @@ export function useArchitectureDraftWorkspaceEffects(
     const syncPromise = (async () => {
       try {
         const loaded = await queryClient.fetchQuery({
-          queryKey: operatorQueryKeys.architectureDraft(args.architectureId),
-          queryFn: () => getDraftRequest(args.architectureId),
+          queryKey: operatorQueryKeys.architectureDraft(args.draftId),
+          queryFn: () => getDraftRequest(args.draftId),
           staleTime: OPERATOR_QUERY_STALE_MS,
         });
         const prior = draftLifecycleRef.current;

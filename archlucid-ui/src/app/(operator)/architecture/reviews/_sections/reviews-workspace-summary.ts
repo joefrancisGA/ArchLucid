@@ -1,5 +1,5 @@
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { resolveRunFindingCountDisplay, resolveRunWarningCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
+import { filterTenantOverviewRuns } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import type { RunSummary } from "@/types/authority";
 
 export type ReviewsWorkspaceSummary = {
@@ -18,43 +18,16 @@ function finiteCount(value: number | null | undefined): number {
   return Math.max(0, Math.trunc(value));
 }
 
-function runFindingCount(run: RunSummary): number {
-  const wire = finiteCount(run.findingCount);
-
-  if (wire > 0) {
-    return wire;
-  }
-
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount;
-  }
-
-  return run.hasFindingsSnapshot === true ? 1 : 0;
-}
-
-function runRiskCount(run: RunSummary): number {
-  const wire = finiteCount(run.warningCount);
-
-  if (wire > 0) {
-    return wire;
-  }
-
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount;
-  }
-
-  return run.hasWarnings === true || run.hasGovernanceWarnings === true ? 1 : 0;
-}
-
 /** Compact workspace counters for the `/architecture/reviews` hub summary row. */
 export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): ReviewsWorkspaceSummary {
+  const tenantRuns = filterTenantOverviewRuns(runs);
   let inProgress = 0;
   let committed = 0;
   let findings = 0;
   let openRisks = 0;
   let readyForGovernance = 0;
 
-  for (const run of runs) {
+  for (const run of tenantRuns) {
     if (run.hasGoldenManifest === true) {
       committed += 1;
       readyForGovernance += 1;
@@ -62,8 +35,19 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
       inProgress += 1;
     }
 
-    findings += runFindingCount(run);
-    openRisks += runRiskCount(run);
+    const findingCount = resolveRunFindingCountDisplay(run);
+
+    if (findingCount !== null) {
+      findings += findingCount;
+    }
+
+    const warningCount = resolveRunWarningCountDisplay(run);
+
+    if (warningCount !== null) {
+      openRisks += warningCount;
+    } else if (run.hasWarnings === true || run.hasGovernanceWarnings === true) {
+      openRisks += 1;
+    }
   }
 
   return {
@@ -74,3 +58,5 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
     readyForGovernance,
   };
 }
+
+export { finiteCount as reviewsWorkspaceFiniteCount };

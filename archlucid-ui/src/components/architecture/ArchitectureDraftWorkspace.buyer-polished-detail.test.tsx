@@ -129,7 +129,7 @@ beforeEach(() => {
 
 describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
   it("renders buyer subtitle with drafting scope, sources strip, and hides guidance disclosure", async () => {
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toHaveTextContent("Claims intake");

@@ -27,8 +27,11 @@ import {
 } from "@/components/resolve-run-detail-last-failure-summary";
 import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
+import { ReviewFailureTechnicalMetadataDisclosure } from "@/components/reviews/ReviewFailureTechnicalMetadataDisclosure";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -112,6 +115,8 @@ export type ReviewPackageDoThisNextStripProps = {
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
   readonly failureRecordedAtUtc?: string | null;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly pipelineSummary?: RunSummary | null;
 };
 
 function ReviewFailureAdminHandoffPanel(props: {
@@ -253,6 +258,10 @@ function ReviewFailureRecoveryDetails(props: {
   readonly canConfigureWorkspaceAi: boolean;
   readonly usesCustomerAiConnection: boolean;
   readonly lastFailureSummary?: RunDetailLastFailureSummary | null;
+  readonly failureRecordedAtUtc?: string | null;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
+  readonly pipelineSummary?: RunSummary | null;
+  readonly retryCount?: number | null;
   readonly actionRow: React.ReactNode;
   readonly showRecoverySteps: boolean;
 }): React.JSX.Element {
@@ -264,6 +273,10 @@ function ReviewFailureRecoveryDetails(props: {
     canConfigureWorkspaceAi,
     usesCustomerAiConnection,
     lastFailureSummary,
+    failureRecordedAtUtc,
+    pipelineDiagnosticContext,
+    pipelineSummary,
+    retryCount,
     actionRow,
     showRecoverySteps,
   } = props;
@@ -289,6 +302,15 @@ function ReviewFailureRecoveryDetails(props: {
           </p>
         </div>
       ) : null}
+
+      <ReviewFailureTechnicalMetadataDisclosure
+        runId={runId}
+        lastFailureSummary={lastFailureSummary ?? null}
+        diagnosticContext={pipelineDiagnosticContext ?? null}
+        pipelineSummary={pipelineSummary ?? null}
+        failureRecordedAtUtc={failureRecordedAtUtc ?? null}
+        retryCount={retryCount ?? null}
+      />
 
       {showDetail ? (
         <Callout>
@@ -390,6 +412,8 @@ export function ReviewPackageDoThisNextStrip(
     usesCustomerAiConnection = false,
     lastFailureSummary = null,
     failureRecordedAtUtc = null,
+    pipelineDiagnosticContext = null,
+    pipelineSummary = null,
   } = props;
   const buttonVariant = next.buttonVariant ?? "primary";
   const blockRerun = next.kind === "rerun-review" && sessionAiReadiness.blocksExecute;
@@ -533,6 +557,10 @@ export function ReviewPackageDoThisNextStrip(
           canConfigureWorkspaceAi={canConfigureWorkspaceAi}
           usesCustomerAiConnection={usesCustomerAiConnection}
           lastFailureSummary={lastFailureSummary}
+          failureRecordedAtUtc={failureRecordedAtUtc}
+          pipelineDiagnosticContext={pipelineDiagnosticContext}
+          pipelineSummary={pipelineSummary}
+          retryCount={retryCount}
           actionRow={actionRow}
           showRecoverySteps={showFailureRecoverySteps}
         />

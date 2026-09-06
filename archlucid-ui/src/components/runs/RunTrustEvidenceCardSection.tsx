@@ -1,6 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FindingEvidenceTrailLink } from "@/components/usability/FindingEvidenceTrailLink";
@@ -15,6 +19,11 @@ import { splitTrustEvidenceDetail } from "@/lib/trust-evidence-technical-detail"
 import {
   resolveTrustEvidenceDiagnosticsApiPath,
 } from "@/lib/trust-evidence-product-links";
+import {
+  parseTrustEvidenceFieldsOpenFromSearch,
+  parseTrustEvidenceTechOpenFromSearch,
+  runTrustEvidenceDisclosureHrefFromSearch,
+} from "@/lib/runs/run-trust-evidence-disclosure-url";
 import type { RunTrustEvidenceCard } from "@/types/authority";
 
 import { RunTrustEvidenceFieldRow } from "./RunTrustEvidenceFieldRows";
@@ -36,7 +45,59 @@ export function RunTrustEvidenceCardSection(props: {
   readonly approvalBlocked?: boolean;
 }): ReactElement {
   const { card, evidenceAskRunId, runId, blockingFindingId, blockingFindingTitle, approvalBlocked } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const trustEvidenceFieldsOpenParam = searchParams.get("trustEvidenceFieldsOpen");
+  const trustEvidenceTechOpenParam = searchParams.get("trustEvidenceTechOpen");
+  const [fieldsOpen, setFieldsOpenState] = useState(() =>
+    parseTrustEvidenceFieldsOpenFromSearch(trustEvidenceFieldsOpenParam),
+  );
+  const [technicalOpen, setTechnicalOpenState] = useState(() =>
+    parseTrustEvidenceTechOpenFromSearch(trustEvidenceTechOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const syncTrustEvidencePanelsToUrl = useCallback(
+    (state: { fieldsOpen: boolean; technicalOpen: boolean }) => {
+      router.replace(runTrustEvidenceDisclosureHrefFromSearch(searchParams.toString(), state, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFieldsOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setFieldsOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncTrustEvidencePanelsToUrl({ fieldsOpen: next, technicalOpen });
+
+        return next;
+      });
+    },
+    [syncTrustEvidencePanelsToUrl, technicalOpen],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setTechnicalOpenState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncTrustEvidencePanelsToUrl({ fieldsOpen, technicalOpen: next });
+
+        return next;
+      });
+    },
+    [fieldsOpen, syncTrustEvidencePanelsToUrl],
+  );
+
+  useEffect(() => {
+    setFieldsOpenState(parseTrustEvidenceFieldsOpenFromSearch(trustEvidenceFieldsOpenParam));
+  }, [trustEvidenceFieldsOpenParam]);
+
+  useEffect(() => {
+    setTechnicalOpenState(parseTrustEvidenceTechOpenFromSearch(trustEvidenceTechOpenParam));
+  }, [trustEvidenceTechOpenParam]);
 
   const trimmedAskRun =
     buyerPolishedShell && typeof evidenceAskRunId === "string" ? evidenceAskRunId.trim() : "";
@@ -139,7 +200,8 @@ export function RunTrustEvidenceCardSection(props: {
             title="All evidence fields"
             headingLevel={4}
             summaryLine={`${readiness.satisfied.length} field${readiness.satisfied.length === 1 ? "" : "s"} need no attention`}
-            defaultOpen={false}
+            open={fieldsOpen}
+            onToggle={setFieldsOpen}
             sectionTestId="trust-evidence-satisfied-fields"
           >
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,7 +226,8 @@ export function RunTrustEvidenceCardSection(props: {
             title="Technical details (diagnostics)"
             headingLevel={4}
             summaryLine="Identifiers, versions, and API routes for support and audit"
-            defaultOpen={false}
+            open={technicalOpen}
+            onToggle={setTechnicalOpen}
             sectionTestId="trust-evidence-technical-details"
           >
             {technicalRows.length > 0 ? (

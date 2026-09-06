@@ -84,7 +84,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureKnowledgeModelIntakeBuilder, ArchitectureKnowledgeModelIntakeBuilder>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IArchitectureIdentityService, ArchitectureIdentityService>();
-        services.AddScoped<IArchitectureIdentityCustomerService, ArchitectureIdentityCustomerService>();
+        services.AddScoped<IArchitectureIdentityBackfillService, ArchitectureIdentityBackfillService>();
         services.AddScoped<IArchitectureVersionService, ArchitectureVersionService>();
         services.AddSingleton<IEvidenceGraphMaterializer, EvidenceGraphMaterializer>();
         services.AddScoped<IRunPolicyPackPinService, RunPolicyPackPinService>();

@@ -25,7 +25,7 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "linkedReviewTitle"
   | "intakeModeActive"
   | "draft"
-  | "effectiveArchitectureId"
+  | "effectiveDraftId"
   | "canUnlockBrief"
   | "unlockBusy"
   | "onUnlockBrief"
@@ -48,7 +48,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     linkedReviewTitle,
     intakeModeActive,
     draft,
-    effectiveArchitectureId,
+    effectiveDraftId,
     canUnlockBrief,
     unlockBusy,
     onUnlockBrief,
@@ -71,7 +71,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
-          architectureId={effectiveArchitectureId}
+          draftId={effectiveDraftId}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
         />
@@ -80,7 +80,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
           status={draft?.status}
-          continueHref={startReviewFromArchitectureHref(effectiveArchitectureId)}
+          continueHref={startReviewFromArchitectureHref(effectiveDraftId)}
           canUnlock={canUnlockBrief}
           unlockBusy={unlockBusy}
           onUnlock={onUnlockBrief}

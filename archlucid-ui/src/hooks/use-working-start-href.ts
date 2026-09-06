@@ -7,7 +7,11 @@ import { architectureDraftHasLinkedReview } from "@/lib/architecture/architectur
 import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { getUserPreferences, readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import { defaultDeskContinuityDto, type DeskContinuityDto } from "@/lib/api/user-preferences-types";
-import { mergeDeskContinuity, readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
+import {
+  mergeDeskContinuity,
+  readCachedDeskContinuity,
+  readCachedLastOpenArchitectureId,
+} from "@/lib/desk-continuity-preference";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import {
   getInFlightOperations,
@@ -92,7 +96,8 @@ export function useWorkingStartHref(runs: readonly RunSummary[] = []): string {
     return resolveWorkingStartHref({
       inFlightReviewId,
       lastOpenReviewId: continueLastReview?.runId ?? null,
-      lastOpenDraftId: continueLastDraft?.architectureId ?? null,
+      lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+      lastOpenDraftId: continueLastDraft?.draftId ?? null,
       spawnLockedReviewId,
     }).href;
   }, [deskContinuity.lastOpenDraftId, deskContinuity.lastOpenReviewId, drafts, inFlightReviewId, runs]);

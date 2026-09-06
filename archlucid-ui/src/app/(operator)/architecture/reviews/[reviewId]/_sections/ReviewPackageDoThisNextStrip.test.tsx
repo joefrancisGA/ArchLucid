@@ -488,4 +488,47 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(sponsorAction).toHaveTextContent("Send to sponsor");
     expect(sponsorAction.className).toContain("border-neutral-300");
   });
+
+  it("shows structured failure metadata in Do this next for terminal failures", () => {
+    useReviewPipelineReRunInFlightMock.mockReturnValue(false);
+
+    render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={false}
+        commitBlockedReason={null}
+        sessionAiReadiness={loadedReadySessionAiReadiness}
+        lastFailureSummary={{
+          failureClass: "invalidOperation",
+          reasonCode: "NoScheduledAgentTasks",
+        }}
+        pipelineDiagnosticContext={{
+          legacyRunStatus: "Failed",
+          lastFailureReason:
+            '{"schemaVersion":1,"failureClass":"invalidOperation","reasonCode":"NoScheduledAgentTasks"}',
+          otelTraceId: "637db8b7-0000-4000-8000-000000000001",
+        }}
+        pipelineSummary={{
+          runId: "run-1",
+          hasContextSnapshot: false,
+          hasGraphSnapshot: false,
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }}
+        next={{
+          kind: "rerun-review",
+          sentence: "Execution failed before the first pipeline stage — re-run the review to retry with the same intake.",
+          actionLabel: "Re-run review",
+          href: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          failureRecovery: failureRecoveryFixture,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-failure-technical-metadata")).toBeInTheDocument();
+    expect(screen.getByText("Failure metadata")).toBeInTheDocument();
+    expect(screen.getByText("Reason code")).toBeInTheDocument();
+    expect(screen.getByText("NoScheduledAgentTasks")).toBeInTheDocument();
+    expect(screen.getByText("Likely cause")).toBeInTheDocument();
+  });
 });

@@ -4,7 +4,6 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.Stages;
 using ArchLucid.Application.Drafts.QuestionSelection;
-using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
@@ -48,7 +47,7 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
             new DraftRequestCreateStage(
                 repository,
                 Mock.Of<IPriorPackageSemanticMergeService>(),
-                ArchitectureIdentityServiceTestDoubles.NoOpInstance),
+                Mock.Of<IArchitectureIdentityService>()),
             new DraftRequestMutateStage(repository, Mock.Of<IQuestionSelectionEngine>(), guard.Object),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 

@@ -251,7 +251,54 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     }
 
     /// <inheritdoc />
-    public Task<bool> TrySetArchitectureIdAsync(
+    public Task<IReadOnlyList<DraftRequestResponse>> ListByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                stored.ArchitectureId == architectureId
+                && DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+            .OrderByDescending(stored => stored.UpdatedUtc)
+            .ThenByDescending(stored => stored.DraftId)
+            .Select(Map)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountByArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        int count = _drafts.Values.Count(stored =>
+            stored.ArchitectureId == architectureId
+            && DraftRequestRepositoryCore.MatchesProjectScope(
+                tenantId,
+                workspaceId,
+                projectId,
+                stored.TenantId,
+                stored.WorkspaceId,
+                stored.ProjectId));
+
+        return Task.FromResult(count);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> SetArchitectureIdAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -271,13 +318,40 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
                 stored.ProjectId))
             return Task.FromResult(false);
 
-        if (stored.ArchitectureId.HasValue && stored.ArchitectureId.Value != architectureId)
-            return Task.FromResult(false);
-
         stored.ArchitectureId = architectureId;
         stored.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListWithNullArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        if (take <= 0)
+            return Task.FromResult<IReadOnlyList<DraftRequestResponse>>([]);
+
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                !stored.ArchitectureId.HasValue
+                && DraftRequestRepositoryCore.MatchesProjectScope(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    stored.TenantId,
+                    stored.WorkspaceId,
+                    stored.ProjectId))
+            .OrderBy(stored => stored.CreatedUtc)
+            .ThenBy(stored => stored.DraftId)
+            .Take(take)
+            .Select(Map)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
     }
 
     private static DraftRequestResponse Map(InMemoryDraftRequestStoredDraft stored) =>

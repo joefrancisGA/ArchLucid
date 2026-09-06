@@ -1,67 +1,89 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 
-import { listArchitectureIdentities } from "@/lib/api/architecture-identities-api";
+import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
-import { isApiRequestError } from "@/lib/api-request-error";
+import {
+  ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY,
+  ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE,
+  ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL,
+  ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN,
+  ARCHITECTURE_IDENTITY_TABLE_NAME_COLUMN,
+  ARCHITECTURE_IDENTITY_TABLE_REVIEWS_COLUMN,
+  ARCHITECTURE_IDENTITY_TABLE_UPDATED_COLUMN,
+} from "@/lib/architecture/architecture-identity-desk-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 
+/** Working-mode architecture portfolio — server identity list (ADR 0074 / DA-04). */
 export function ArchitectureIdentityListClient(): React.JSX.Element {
-  const query = useQuery({
-    queryKey: ["architecture-identities", "list"],
-    queryFn: () => listArchitectureIdentities({ page: 1, pageSize: 50 }),
-  });
+  const query = useArchitectureIdentitiesListQuery();
+  const items = query.data?.items ?? [];
 
   if (query.isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading architectures…</p>;
-  }
-
-  if (query.isError) {
-    const message = isApiRequestError(query.error)
-      ? query.error.message
-      : "Could not load architecture identities.";
-
-    return <p className="text-sm text-destructive">{message}</p>;
-  }
-
-  const items = query.data?.items ?? [];
-  const totalCount = query.data?.totalCount ?? 0;
-
-  if (items.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No architecture identities yet. Start a draft to create your first named system.
+      <p className={OPERATOR_TYPOGRAPHY.body} data-testid="architecture-identity-list-loading">
+        {ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL}
       </p>
     );
   }
 
+  if (query.isError) {
+    return (
+      <div className="space-y-2" data-testid="architecture-identity-list-error">
+        <p className={OPERATOR_TYPOGRAPHY.body}>Could not load architectures.</p>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <EnterpriseCompactEmptyState
+        title={ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE}
+        description={ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY}
+        testId="architecture-identity-list-empty"
+      />
+    );
+  }
+
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Showing {items.length} of {totalCount} architecture{totalCount === 1 ? "" : "s"}
-      </p>
-      <ul className="divide-y rounded-md border">
+    <EnterpriseTable ariaLabel="Architecture portfolio" data-testid="architecture-identity-list-table">
+      <EnterpriseTableHead>
+        <EnterpriseTableHeadRow>
+          <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_NAME_COLUMN}</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_UPDATED_COLUMN}</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_REVIEWS_COLUMN}</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>{ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN}</EnterpriseTableHeaderCell>
+        </EnterpriseTableHeadRow>
+      </EnterpriseTableHead>
+      <EnterpriseTableBody>
         {items.map((item) => (
-          <li key={item.architectureId} className="flex items-center justify-between gap-4 px-4 py-3">
-            <div>
-              <Link
-                className="font-medium text-primary hover:underline"
-                href={architectureIdentityPath(item.architectureId)}
-              >
+          <EnterpriseTableRow
+            key={item.architectureId}
+            data-testid={`architecture-identity-row-${item.architectureId}`}
+          >
+            <EnterpriseTableCell>
+              <Link href={architectureIdentityPath(item.architectureId)} className={OPERATOR_LINK.nav}>
                 {item.displayName}
               </Link>
-              <p className="text-xs text-muted-foreground">
-                {item.childPointers.draftCount} draft{item.childPointers.draftCount === 1 ? "" : "s"} ·{" "}
-                {item.childPointers.reviewCount} review{item.childPointers.reviewCount === 1 ? "" : "s"}
-              </p>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              Updated {new Date(item.updatedUtc).toLocaleString()}
-            </span>
-          </li>
+            </EnterpriseTableCell>
+            <EnterpriseTableCell>{formatInventoryUpdatedAtCell(item.updatedUtc).display}</EnterpriseTableCell>
+            <EnterpriseTableCell>{item.reviewCount}</EnterpriseTableCell>
+            <EnterpriseTableCell>{item.draftCount}</EnterpriseTableCell>
+          </EnterpriseTableRow>
         ))}
-      </ul>
-    </div>
+      </EnterpriseTableBody>
+    </EnterpriseTable>
   );
 }

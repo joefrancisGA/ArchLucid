@@ -20,8 +20,8 @@ export function isAdvisoryDraftOperationId(operationId: string): boolean {
   return operationId.trim().startsWith(ADVISORY_DRAFT_OPERATION_ID_PREFIX);
 }
 
-export function advisoryDraftDetailHref(architectureId: string): string {
-  const trimmed = architectureId.trim();
+export function advisoryDraftDetailHref(draftId: string): string {
+  const trimmed = draftId.trim();
 
   if (trimmed.length === 0 || trimmed === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
     return ARCHITECTURES_NEW_PATH;
@@ -32,7 +32,7 @@ export function advisoryDraftDetailHref(architectureId: string): string {
 
 export type TrackAdvisoryDraftInFlightInput = {
   readonly operationId: string;
-  readonly architectureId?: string | null;
+  readonly draftId?: string | null;
 };
 
 /**
@@ -53,13 +53,13 @@ export function trackAdvisoryDraftInFlight(
     return null;
   }
 
-  const architectureId = input.architectureId?.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
+  const draftId = input.draftId?.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
 
   trackInFlightOperation({
     operationId,
     title: ADVISORY_DRAFT_IN_FLIGHT_TITLE,
-    href: advisoryDraftDetailHref(architectureId),
-    architectureId,
+    href: advisoryDraftDetailHref(draftId),
+    architectureId: draftId,
     runId: null,
     stepLabel: "Queued",
     state: "Pending",
@@ -70,16 +70,16 @@ export function trackAdvisoryDraftInFlight(
 }
 
 export function findTrackedAdvisoryDraftForArchitecture(
-  architectureId: string,
+  draftId: string,
 ): TrackedInFlightOperation | null {
-  const href = advisoryDraftDetailHref(architectureId);
-  const normalizedArchitectureId = architectureId.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
+  const href = advisoryDraftDetailHref(draftId);
+  const normalizedDraftId = draftId.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
   const matches = getInFlightOperations().filter((row) => {
     if (!isAdvisoryDraftOperationId(row.operationId)) {
       return false;
     }
 
-    if (row.architectureId === normalizedArchitectureId) {
+    if (row.architectureId === normalizedDraftId) {
       return true;
     }
 
@@ -97,11 +97,11 @@ export function findTrackedAdvisoryDraftForArchitecture(
 
 /** Keeps Open pointed at the saved draft after deferred create replaces `/architectures/new`. */
 export function retargetAdvisoryDraftInFlightArchitecture(
-  fromArchitectureId: string,
-  toArchitectureId: string,
+  fromDraftId: string,
+  toDraftId: string,
 ): void {
-  const fromHref = advisoryDraftDetailHref(fromArchitectureId);
-  const toTrimmed = toArchitectureId.trim();
+  const fromHref = advisoryDraftDetailHref(fromDraftId);
+  const toTrimmed = toDraftId.trim();
 
   if (toTrimmed.length === 0) {
     return;
@@ -114,11 +114,11 @@ export function retargetAdvisoryDraftInFlightArchitecture(
       continue;
     }
 
-    const matchesFromArchitecture =
-      row.architectureId === (fromArchitectureId.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT)
+    const matchesFromDraft =
+      row.architectureId === (fromDraftId.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT)
       || row.href === fromHref;
 
-    if (!matchesFromArchitecture) {
+    if (!matchesFromDraft) {
       continue;
     }
 

@@ -14,7 +14,7 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type ArchitectureDraftHandoffBannerProps = {
-  readonly architectureId: string;
+  readonly draftId: string;
   readonly linkedReviewId: string;
   readonly linkedReviewTitle: string;
 };
@@ -35,7 +35,7 @@ export function ArchitectureDraftHandoffBanner(
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-review">
           <Link href={reviewDetailPath(props.linkedReviewId)}>Continue in review</Link>
         </Button>
-        <ArchitectureDraftCloneSnapshotControl architectureId={props.architectureId} />
+        <ArchitectureDraftCloneSnapshotControl draftId={props.draftId} />
       </div>
     </div>
   );

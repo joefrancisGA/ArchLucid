@@ -51,7 +51,7 @@ describe("ConsultingDocxExportButton", () => {
   it("downloads when permission is present", () => {
     nav.permissionClaimValues = [CONSULTING_DOCX_EXPORT_PERMISSION];
     downloadMock.mockResolvedValue(undefined);
-    render(<ConsultingDocxExportButton runId="run-abc" />);
+    render(<ConsultingDocxExportButton runId="run-abc" manifestVersion="manifest-abc" />);
     fireEvent.click(screen.getByTestId("consulting-docx-export-button"));
     expect(downloadMock).toHaveBeenCalledWith("run-abc");
   });

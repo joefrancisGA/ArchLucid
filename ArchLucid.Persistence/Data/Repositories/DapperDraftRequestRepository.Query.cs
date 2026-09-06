@@ -34,6 +34,7 @@ public sealed partial class DapperDraftRequestRepository
                                TenantId,
                                WorkspaceId,
                                ProjectId,
+                               ArchitectureId,
                                Status,
                                DocumentJson,
                                ReadModelJson,
@@ -86,6 +87,9 @@ public sealed partial class DapperDraftRequestRepository
 
             if (snapshot is not null && string.IsNullOrWhiteSpace(snapshot.CreatedByUserId))
                 snapshot.CreatedByUserId = row.CreatedByUserId;
+
+            if (snapshot is not null && !snapshot.ArchitectureId.HasValue)
+                snapshot.ArchitectureId = row.ArchitectureId;
 
             return snapshot;
         }

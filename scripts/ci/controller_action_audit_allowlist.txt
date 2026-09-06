@@ -35,6 +35,8 @@ ArchLucid.Api.Controllers.Admin.AdminTenantsController.StartTenantErasureOffboar
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.RestoreTenantErasureQuarantineAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.SetTenantErasureLegalHoldPlatformAsync
 ArchLucid.Api.Controllers.Admin.AdminTenantsController.ClearTenantErasureLegalHoldAsync
+# Platform admin one-shot architecture identity backfill (DA-12); report payload is the durable outcome surface.
+ArchLucid.Api.Controllers.Admin.AdminArchitectureIdentityBackfillController.BackfillScopeAsync
 ArchLucid.Api.Controllers.Tenancy.TenantErasureLegalHoldController.SetLegalHoldAsync
 ArchLucid.Api.Controllers.Advisory.AdvisorySchedulingController.RunNow
 ArchLucid.Api.Controllers.Alerts.AlertsController.AcknowledgeBatch

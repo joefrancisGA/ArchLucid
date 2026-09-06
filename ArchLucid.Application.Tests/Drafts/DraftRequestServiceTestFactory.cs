@@ -47,7 +47,7 @@ internal static class DraftRequestServiceTestFactory
             new DraftRequestCreateStage(
                 repository,
                 priorPackageSemanticMergeService,
-                ArchitectureIdentityServiceTestDoubles.NoOpInstance),
+                Mock.Of<IArchitectureIdentityService>()),
             new DraftRequestMutateStage(repository, questionSelectionEngine, workspaceSystemNameCollisionGuard),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 

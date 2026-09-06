@@ -6,6 +6,8 @@ using ArchLucid.ContextIngestion.Diagram;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -19,13 +21,19 @@ public sealed class VisionDiagramIngestService : IVisionDiagramIngestService
 
     private readonly SimulatorVisionDiagramInterpreter simulatorInterpreter;
     private readonly IArchitectureDiagramModelRepository repository;
+    private readonly IAuthorityQueryService authorityQueryService;
+    private readonly IManifestHashService manifestHashService;
 
     public VisionDiagramIngestService(
         SimulatorVisionDiagramInterpreter simulatorInterpreter,
-        IArchitectureDiagramModelRepository repository)
+        IArchitectureDiagramModelRepository repository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService)
     {
         this.simulatorInterpreter = simulatorInterpreter;
         this.repository = repository;
+        this.authorityQueryService = authorityQueryService;
+        this.manifestHashService = manifestHashService;
     }
 
     public async Task<VisionDiagramIngestResult> IngestAsync(
@@ -38,6 +46,13 @@ public sealed class VisionDiagramIngestService : IVisionDiagramIngestService
         ArgumentNullException.ThrowIfNull(request);
 
         ValidateRequest(request);
+
+        await VisionDiagramIngestSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            this.authorityQueryService,
+            this.manifestHashService,
+            cancellationToken);
 
         if (!request.UseSimulator)
         {

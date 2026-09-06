@@ -8,6 +8,8 @@ export type RunsListClientProps = {
   totalCount: number;
   /** From keyset `GET .../runs`; required on Next for page 2+ when the API uses cursor paging. */
   nextCursor?: string | null;
+  /** When the hub continue strip already surfaces this run, collapse duplicate resume primaries. */
+  continueStripRunId?: string | null;
 };
 
 export type SortOrder = "createdDesc" | "createdAsc";

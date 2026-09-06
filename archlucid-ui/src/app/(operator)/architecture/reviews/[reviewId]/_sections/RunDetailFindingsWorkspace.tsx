@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
+import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsHiddenFilterHonestyBand";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingMergeConflictListCue } from "@/components/findings/FindingMergeConflictListCue";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
@@ -33,6 +34,7 @@ import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-r
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-visibility-state";
 import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
+import { deriveFindingsHiddenFilterHonesty } from "@/lib/findings/findings-hidden-filter-honesty";
 import {
   filterReviewDetailFindingsHideGeneric,
   sortReviewDetailFindingsBySignal,
@@ -95,6 +97,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     hideGenericLowDensity,
     setShowLowConfidence,
     setShowAdvisory,
+    setHideGenericLowDensity,
   } = useReviewFindingsVisibilityState();
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
@@ -157,6 +160,32 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const listFindings = architectWorkspaceChrome
     ? sortReviewDetailFindingsBySignal(bandScopedFindings)
     : sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
+  const visibleFindingIds = useMemo(() => new Set(listFindings.map((row) => row.findingId)), [listFindings]);
+  const hiddenByFilterFindings = useMemo(
+    () => toolbarScopedFindings.filter((row) => !visibleFindingIds.has(row.findingId)),
+    [toolbarScopedFindings, visibleFindingIds],
+  );
+  const hiddenFilterHonesty = useMemo(
+    () =>
+      deriveFindingsHiddenFilterHonesty({
+        toolbarFilteredCount: toolbarScopedFindings.length,
+        visibleCount: listFindings.length,
+        hiddenFindings: hiddenByFilterFindings,
+      }),
+    [hiddenByFilterFindings, listFindings.length, toolbarScopedFindings.length],
+  );
+  const showAllFilteredFindings = () => {
+    toolbar.setFilter("all");
+    toolbar.setSearchQuery("");
+    toolbar.clearOwnerFilter();
+    toolbar.clearDomainFilter();
+    toolbar.setOriginFilter("all");
+    toolbar.setGroundingFilter("all");
+    setClassificationBand("all");
+    setShowLowConfidence(true);
+    setShowAdvisory(true);
+    setHideGenericLowDensity(false);
+  };
   const { visibleFindings: confidenceGatedForCounts } = applyFindingsConfidenceVisibility(
     filterFindingsForToolbar(
       props.findings,
@@ -306,6 +335,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       ) : null}
       {metricCountEl}
+      {hiddenFilterHonesty.hasHidden ? (
+        <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
+      ) : null}
       <ReviewAssumptionConfirmationStrip
         runId={props.runId}
         findings={props.findings}

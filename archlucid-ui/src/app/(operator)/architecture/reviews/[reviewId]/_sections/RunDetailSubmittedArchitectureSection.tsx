@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureNarrativeMarkdownView } from "@/components/architecture/ArchitectureNarrativeMarkdownView";
 import { ArchitectureStructuredContentPanel } from "@/components/architecture/ArchitectureStructuredContentPanel";
@@ -12,6 +13,10 @@ import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/arch
 import { prepareArchitectureNarrativeForPresentation } from "@/lib/architecture/architecture-narrative-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  parseSubmittedArchitectureOpenFromSearch,
+  submittedArchitectureDisclosureHrefFromSearch,
+} from "@/lib/reviews/submitted-architecture-disclosure-url";
 
 const PREVIEW_LINE_COUNT = 4;
 
@@ -74,8 +79,15 @@ export type RunDetailSubmittedArchitectureSectionProps = {
 export function RunDetailSubmittedArchitectureSection(
   props: RunDetailSubmittedArchitectureSectionProps,
 ): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const submittedArchitectureOpenParam = searchParams.get("submittedArchitectureOpen");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
+  const [sectionOpen, setSectionOpenState] = useState(() =>
+    parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam),
+  );
   const text = props.architectureText?.trim() ?? "";
   const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
   const helperText =
@@ -85,6 +97,27 @@ export function RunDetailSubmittedArchitectureSection(
     () => resolveUserAssertions(props.runId ?? null, props.userAssertions ?? null),
     [props.runId, props.userAssertions],
   );
+
+  const syncSectionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(submittedArchitectureDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSectionOpen = useCallback(
+    (open: boolean) => {
+      setSectionOpenState(open);
+      syncSectionOpenToUrl(open);
+    },
+    [syncSectionOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSectionOpenState(parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam));
+  }, [submittedArchitectureOpenParam]);
 
   const copyText = useCallback(async () => {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -116,7 +149,8 @@ export function RunDetailSubmittedArchitectureSection(
       <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-empty">
         <CollapsibleSection
           title={sectionTitle}
-          defaultOpen={false}
+          open={sectionOpen}
+          onToggle={setSectionOpen}
           sectionTestId="submitted-architecture-collapsible"
         >
           <ArchitectureNarrativeMarkdownView
@@ -135,7 +169,10 @@ export function RunDetailSubmittedArchitectureSection(
           className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
           data-testid="submitted-architecture-collapsible"
           data-workspace-disclosure
-          open
+          open={sectionOpen}
+          onToggle={(event) => {
+            setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary
             className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -174,6 +211,10 @@ export function RunDetailSubmittedArchitectureSection(
         className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
         data-testid="submitted-architecture-collapsible"
         data-workspace-disclosure
+        open={sectionOpen}
+        onToggle={(event) => {
+          setSectionOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}

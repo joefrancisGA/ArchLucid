@@ -41,11 +41,13 @@ function SummaryMetricCard(props: {
           >
             <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
             <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>this workspace</p>
           </button>
         ) : (
           <>
             <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>{props.label}</p>
             <p className={cn("m-0 mt-1 tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.kpiValue)}>{props.value}</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>this workspace</p>
           </>
         )}
       </CardContent>

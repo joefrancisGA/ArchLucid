@@ -40,7 +40,7 @@ export type UseStructuredBriefSuggestionsInput = {
   readonly freeTextIntent: string;
   readonly systemName?: string;
   readonly businessOutcome?: string;
-  readonly architectureId?: string;
+  readonly draftId?: string;
   readonly disabled?: boolean;
   readonly blocksLlmExecution?: boolean;
   readonly suggestFromOverviewNonce?: number;
@@ -138,7 +138,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     setEvidenceContradictedAssumptions({});
   }, [input.freeTextIntent]);
 
-  const architectureId = input.architectureId?.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
+  const draftId = input.draftId?.trim() || ARCHITECTURE_NEW_DRAFT_SEGMENT;
   const resumeStartedRef = useRef(false);
   const suggestAbortRef = useRef<AbortController | null>(null);
 
@@ -223,7 +223,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
           confirmedAssumptions: brief.confirmedAssumptions,
         },
         {
-          architectureId,
+          draftId,
           signal: abortController.signal,
           onUpdate: (operationUpdate) => {
             setSuggestStageLabel(operationUpdate.stepLabel);
@@ -237,7 +237,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
         return;
       }
 
-      const tracked = findTrackedAdvisoryDraftForArchitecture(architectureId);
+      const tracked = findTrackedAdvisoryDraftForArchitecture(draftId);
 
       if (tracked !== null) {
         markAdvisoryDraftInFlightConsumed(tracked.operationId);
@@ -260,7 +260,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
       setSuggestBusy(false);
       setSuggestStageLabel(null);
     }
-  }, [applySuggestResponse, architectureId, brief, input]);
+  }, [applySuggestResponse, draftId, brief, input]);
 
   const suggestFromOverviewMutation = useMutation({
     mutationFn: runSuggestFromOverview,
@@ -285,7 +285,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
       return;
     }
 
-    const tracked = findTrackedAdvisoryDraftForArchitecture(architectureId);
+    const tracked = findTrackedAdvisoryDraftForArchitecture(draftId);
 
     if (tracked === null) {
       return;
@@ -306,7 +306,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
     void (async () => {
       try {
         const { response } = await resumeDraftArchitectureRequestWithPoll(operationId, {
-          architectureId,
+          draftId,
           signal: abortController.signal,
           onUpdate: (operationUpdate) => {
             setSuggestStageLabel(operationUpdate.stepLabel);
@@ -339,7 +339,7 @@ export function useStructuredBriefSuggestions(input: UseStructuredBriefSuggestio
         setSuggestStageLabel(null);
       }
     })();
-  }, [applySuggestResponse, architectureId, brief, input]);
+  }, [applySuggestResponse, draftId, brief, input]);
 
   async function onSuggestFailureMode(): Promise<void> {
     if (!canSuggestFailureMode) {

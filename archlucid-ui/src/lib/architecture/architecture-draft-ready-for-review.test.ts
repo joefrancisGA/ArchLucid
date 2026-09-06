@@ -50,9 +50,9 @@ describe("architecture-draft-ready-for-review", () => {
 
   it("filters to the same eligible drafts used for counts", () => {
     const entries = [
-      { linkedReviewId: null, customerStatus: "draft" as const, architectureId: "a1" },
-      { linkedReviewId: null, customerStatus: "archived" as const, architectureId: "a2" },
-      { linkedReviewId: "r1", customerStatus: "ready-for-review" as const, architectureId: "a3" },
+      { linkedReviewId: null, customerStatus: "draft" as const, draftId: "a1" },
+      { linkedReviewId: null, customerStatus: "archived" as const, draftId: "a2" },
+      { linkedReviewId: "r1", customerStatus: "ready-for-review" as const, draftId: "a3" },
     ];
 
     expect(filterArchitectureDraftsEligibleToStartReview(entries)).toEqual([entries[0]]);

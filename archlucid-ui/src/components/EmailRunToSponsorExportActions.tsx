@@ -17,6 +17,7 @@ import {
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type EmailRunToSponsorExportActionsProps = {
   readonly runId: string;
@@ -61,6 +62,11 @@ export function EmailRunToSponsorExportActions({
   onDownloadPdf,
   onMarkSentToSponsor,
 }: EmailRunToSponsorExportActionsProps) {
+  const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion: manifestId,
+  });
+
   return (
     <>
       <h3 className={cn("m-0 mt-5 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -68,10 +74,28 @@ export function EmailRunToSponsorExportActions({
       </h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <Button variant={proofPackZipVariant} asChild data-testid="email-run-to-sponsor-proof-pack-zip">
-          <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
-            Download sponsor proof pack (ZIP)
-          </ExportTrackedAnchor>
+        {collateralExportBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 w-full text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="email-run-to-sponsor-export-blocked-reason"
+          >
+            {collateralExportBlockedReason}
+          </p>
+        ) : null}
+        <Button
+          variant={proofPackZipVariant}
+          asChild={collateralExportBlockedReason === null}
+          disabled={collateralExportBlockedReason !== null}
+          data-testid="email-run-to-sponsor-proof-pack-zip"
+        >
+          {collateralExportBlockedReason === null ? (
+            <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
+              Download sponsor proof pack (ZIP)
+            </ExportTrackedAnchor>
+          ) : (
+            <span>Download sponsor proof pack (ZIP)</span>
+          )}
         </Button>
         <Button
           type="button"
@@ -96,14 +120,20 @@ export function EmailRunToSponsorExportActions({
                     : "Generate pilot scorecard package"}
         </Button>
         {sponsorDocxAvailable && !curatedSampleRun ? (
-          <Button variant="secondary" asChild>
-            <ExportTrackedAnchor
-              href={getRunPackageExportUrl(runId, "docx")}
-              data-testid="email-run-to-sponsor-sponsor-docx"
-            >
+          collateralExportBlockedReason !== null ? (
+            <Button variant="secondary" disabled data-testid="email-run-to-sponsor-sponsor-docx">
               Download Sponsor Export (DOCX)
-            </ExportTrackedAnchor>
-          </Button>
+            </Button>
+          ) : (
+            <Button variant="secondary" asChild>
+              <ExportTrackedAnchor
+                href={getRunPackageExportUrl(runId, "docx")}
+                data-testid="email-run-to-sponsor-sponsor-docx"
+              >
+                Download Sponsor Export (DOCX)
+              </ExportTrackedAnchor>
+            </Button>
+          )
         ) : null}
         {sponsorDocxAvailable && curatedSampleRun ? (
           <div className="flex flex-col gap-1.5">

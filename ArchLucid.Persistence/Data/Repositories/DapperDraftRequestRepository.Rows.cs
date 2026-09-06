@@ -87,11 +87,11 @@ public sealed partial class DapperDraftRequestRepository
             row.SpawnedRunId,
             row.CreatedByUserId,
             DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
-            DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc));
+            DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc),
+            row.ArchitectureId);
         response.SpawnedArchitectureVersionId = row.SpawnedArchitectureVersionId;
         response.DocumentContentHashSha256 = row.DocumentContentHashSha256;
         response.SpawnedDocumentContentHashSha256 = row.SpawnedDocumentContentHashSha256;
-        response.ArchitectureId = row.ArchitectureId;
         return response;
     }
 
@@ -116,6 +116,12 @@ public sealed partial class DapperDraftRequestRepository
         }
 
         public Guid ProjectId
+        {
+            get;
+            set;
+        }
+
+        public Guid? ArchitectureId
         {
             get;
             set;
@@ -176,12 +182,6 @@ public sealed partial class DapperDraftRequestRepository
         }
 
         public byte[]? SpawnedDocumentContentHashSha256
-        {
-            get;
-            set;
-        }
-
-        public Guid? ArchitectureId
         {
             get;
             set;

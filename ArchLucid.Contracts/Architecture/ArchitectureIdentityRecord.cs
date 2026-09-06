@@ -34,7 +34,7 @@ public sealed class ArchitectureIdentityRecord
     {
         get;
         set;
-    } = string.Empty;
+    } = ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
 
     public string? Description
     {

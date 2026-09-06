@@ -14,7 +14,7 @@ export function resolveNextArchitectureDraftInList(
 ): ArchitectureDraftNextDraftTarget | null {
   const normalizedCurrentId = currentArchitectureId.trim();
   const sorted = [...entries].sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc));
-  const currentIndex = sorted.findIndex((entry) => entry.architectureId === normalizedCurrentId);
+  const currentIndex = sorted.findIndex((entry) => entry.draftId === normalizedCurrentId);
 
   if (currentIndex < 0) {
     return null;
@@ -27,8 +27,8 @@ export function resolveNextArchitectureDraftInList(
   }
 
   return {
-    architectureId: nextDraft.architectureId,
+    architectureId: nextDraft.draftId,
     displayName: nextDraft.displayName,
-    href: architectureDraftPath(nextDraft.architectureId),
+    href: architectureDraftPath(nextDraft.draftId),
   };
 }

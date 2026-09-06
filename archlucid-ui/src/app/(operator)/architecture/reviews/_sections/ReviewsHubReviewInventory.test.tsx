@@ -154,7 +154,7 @@ describe("ReviewsHubReviewInventory", () => {
   it("keeps rich empty CTAs when drafts exist", () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Payments platform draft",
         customerStatus: "draft",
         ownerLabel: "You",
