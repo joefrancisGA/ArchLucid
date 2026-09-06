@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
   PageContextualHelpButton,
@@ -53,8 +54,9 @@ function operatorHomeFreshnessContent(input: {
 /** Shared `/` Overview hero — title, lead, refresh, data-currency timestamp, and resume/start primary. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
+  const freshnessTimestamp = refreshing ? null : lastRefreshedAt;
   const freshnessContent = operatorHomeFreshnessContent({
-    lastRefreshedAt: refreshing ? null : lastRefreshedAt,
+    lastRefreshedAt: freshnessTimestamp,
     refreshing,
   });
 
@@ -73,7 +75,12 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             className="flex flex-wrap items-center gap-2"
             data-testid="operator-home-data-currency"
           >
-            <span className="text-al-text-secondary">{freshnessContent}</span>
+            <OperatorPageFreshnessMetadata
+              testId="operator-home-data-currency-label"
+              lastRefreshedAt={freshnessTimestamp}
+            >
+              {freshnessContent}
+            </OperatorPageFreshnessMetadata>
             <RefreshButton
               data-testid="operator-home-refresh-button"
               busy={refreshing}

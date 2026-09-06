@@ -28,6 +28,8 @@ import {
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { resolveOperatorHomeHeroResumeTarget } from "@/lib/operator/operator-home-hero-resume-target";
 import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator/operator-home-recent-reviews-outcome";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -60,6 +62,11 @@ export type RunsDashboardRecentTabProps = {
 };
 
 export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
+  const drafts = useArchitectureDraftRegistryEntries();
+  const heroResumeTarget = useMemo(
+    () => resolveOperatorHomeHeroResumeTarget({ drafts, preferArchitectureIdentity: true }),
+    [drafts],
+  );
   const showcaseLeadButtonVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const showArchivedEmptyState =
     props.showArchived &&
@@ -254,7 +261,10 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
       {(props.phase === "ready" || props.phase === "error") && featuredItems.length > 0 ? (
         <>
           {props.pagePrimaryOwnedElsewhere === true ? (
-            <OperatorHomeRecentReviewsTable runs={featuredItems} />
+            <OperatorHomeRecentReviewsTable
+              runs={featuredItems}
+              suppressContinueForRunId={heroResumeTarget?.runId}
+            />
           ) : (
             <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">
               {featuredItems.map((run) => {

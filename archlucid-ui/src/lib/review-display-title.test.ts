@@ -91,6 +91,13 @@ describe("toReviewDisplayTitle", () => {
     expect(toReviewDisplayTitle("**Reviewed** classification for payments")).toBe("Reviewed classification for payments");
     expect(toReviewDisplayTitle("# Heading title")).toBe("Heading title");
   });
+
+  it("strips synthetic sample package suffixes including truncated punctuation", () => {
+    const title =
+      'Enterprise Copilot RAG platform — born-governed created architecture package (s…';
+
+    expect(toReviewDisplayTitle(title)).toBe("Enterprise Copilot RAG platform");
+  });
 });
 
 describe("clampReviewWorkspaceH1Title", () => {

@@ -10,6 +10,7 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DEV_CHROME_MARKER_CLASS, DEV_CHROME_SURFACE_CLASS } from "@/lib/dev-chrome-treatment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -195,8 +196,8 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
       open={quickSwitchOpen}
       onToggle={setQuickSwitchOpen}
       sectionTestId="dev-testing-quick-switch"
-      className="mb-0 border-dashed border-neutral-300 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/40"
-      summaryLine="Shell density, role override, quick-jump links, and database reset"
+      className={cn("mb-0", DEV_CHROME_SURFACE_CLASS)}
+      summaryLine="Dev · Shell density, role override, quick-jump links, and database reset"
     >
       <div className="space-y-4 pt-2" aria-label="Development testing quick switch">
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
