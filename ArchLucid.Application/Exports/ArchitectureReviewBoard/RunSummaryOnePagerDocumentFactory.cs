@@ -16,7 +16,8 @@ public static class RunSummaryOnePagerDocumentFactory
         string SponsorReport,
         IReadOnlyList<string> topFindingTitles,
         string? activeTrialExportNotice = null,
-        int sealedFindingCount = 0)
+        int sealedFindingCount = 0,
+        string? careerExportHonestyPlainText = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -27,7 +28,8 @@ public static class RunSummaryOnePagerDocumentFactory
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
         bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
-        bool isSimulatorMode = detail.Run.StructuralExecutionMode == StructuralExecutionMode.Simulator;
+        (string? executionModeNoticeTitle, string? executionModeNoticeBody) =
+            BoardExportExecutionModeNoticeResolver.TryGetNotice(detail.Run);
 
         return new RunSummaryOnePagerDocumentModel
         {
@@ -46,14 +48,17 @@ public static class RunSummaryOnePagerDocumentFactory
             ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
                 ? null
                 : activeTrialExportNotice.Trim(),
-            IsSimulatorMode = isSimulatorMode,
+            IsSimulatorMode = detail.Run.StructuralExecutionMode == StructuralExecutionMode.Simulator,
             HasSealedSnapshot = hasSealedSnapshot,
             FindingsSnapshotId = hasSealedSnapshot
                 ? detail.Run.FindingsSnapshotId!.Value.ToString("D")
                 : null,
             SealedFindingCount = hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0,
-            SimulatorRehearsalTitle = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeTitle : null,
-            SimulatorRehearsalBody = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeBody : null,
+            SimulatorRehearsalTitle = executionModeNoticeTitle,
+            SimulatorRehearsalBody = executionModeNoticeBody,
+            CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)
+                ? null
+                : careerExportHonestyPlainText.Trim(),
         };
     }
 
@@ -67,7 +72,7 @@ public static class RunSummaryOnePagerDocumentFactory
         {
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
-                if (finding is null)
+                if (finding is null || finding.IsMuted)
                     continue;
 
                 if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)

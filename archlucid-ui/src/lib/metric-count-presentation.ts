@@ -8,6 +8,12 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 
+/** Canonical home-surface noun for committed review records (P2-14). */
+export const OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN = {
+  singular: "sealed review record",
+  plural: "sealed review records",
+} as const;
+
 export type MetricCountScopeKind =
   | "workspace"
   | "this-review"
@@ -54,24 +60,44 @@ const FILTER_SCOPE_LABELS: Partial<Record<RiskRegisterFilter, string>> = {
   all: "all rows",
 };
 
-export function formatMetricCountScopeLabel(dimensions: readonly MetricCountScopeDimension[]): string {
-  const parts = dimensions.map((dimension) => {
-    if (dimension.kind === "governance-filter" && dimension.filter !== undefined) {
-      return FILTER_SCOPE_LABELS[dimension.filter] ?? dimension.filter;
-    }
+function scopePartRedundantWithNoun(scopePart: string, noun: string): boolean {
+  const normalizedNoun = noun.trim().toLowerCase();
+  const normalizedScope = scopePart.trim().toLowerCase();
 
-    if (dimension.kind === "reviews-inventory" && dimension.reviewsFilter !== undefined) {
-      return REVIEWS_INVENTORY_SCOPE_LABELS[dimension.reviewsFilter] ?? dimension.reviewsFilter;
-    }
+  if (normalizedScope.length === 0 || normalizedNoun.length === 0) {
+    return false;
+  }
 
-    return SCOPE_LABELS[dimension.kind];
-  });
+  return normalizedNoun.includes(normalizedScope);
+}
+
+function resolveMetricCountScopePart(dimension: MetricCountScopeDimension): string {
+  if (dimension.kind === "governance-filter" && dimension.filter !== undefined) {
+    return FILTER_SCOPE_LABELS[dimension.filter] ?? dimension.filter;
+  }
+
+  if (dimension.kind === "reviews-inventory" && dimension.reviewsFilter !== undefined) {
+    return REVIEWS_INVENTORY_SCOPE_LABELS[dimension.reviewsFilter] ?? dimension.reviewsFilter;
+  }
+
+  return SCOPE_LABELS[dimension.kind];
+}
+
+export function formatMetricCountScopeLabel(
+  dimensions: readonly MetricCountScopeDimension[],
+  options?: { readonly noun?: string },
+): string {
+  const noun = options?.noun?.trim() ?? "";
+
+  const parts = dimensions
+    .map((dimension) => resolveMetricCountScopePart(dimension))
+    .filter((scopePart) => noun.length === 0 || !scopePartRedundantWithNoun(scopePart, noun));
 
   return parts.join(" · ");
 }
 
 export function formatMetricCountHeadline(presentation: MetricCountPresentation): string {
-  const scope = formatMetricCountScopeLabel(presentation.dimensions);
+  const scope = formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun });
 
   if (scope.length === 0) {
     return `${presentation.count} ${presentation.noun}`;
@@ -168,16 +194,21 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "Active" }],
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
 
 export function operatorHomeFinalizedPackagesPresentation(count: number): MetricCountPresentation {
+  const noun =
+    count === 1
+      ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
+      : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
+
   return {
     count,
-    noun: count === 1 ? "finalized package" : "finalized packages",
-    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "finalized" }],
+    noun,
+    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "finalized" }],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }
@@ -189,7 +220,7 @@ export function operatorHomeGovernanceWarningsPresentation(
   return {
     count,
     noun,
-    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
+    dimensions: [{ kind: "workspace" }],
     href: OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
   };
 }

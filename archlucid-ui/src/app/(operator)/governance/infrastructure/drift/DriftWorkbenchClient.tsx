@@ -28,7 +28,12 @@ import type {
   InfraEvidenceDiffSummary,
   InfraEvidenceSnapshotSummary,
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { resourceHubFilterHrefFromSearch, buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  mergeInfrastructureAskAuditScope,
+  mergeWorkbenchHubScopePatch,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import {
   DRIFT_WORKBENCH_CHANGE_ID_PARAM,
   DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
@@ -36,6 +41,8 @@ import {
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
@@ -90,6 +97,13 @@ export function DriftWorkbenchClient() {
 
     return !visibleChanges.some((row) => row.changeId === urlChangeId);
   }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
+  const workbenchHubScopePatch = useMemo(
+    () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
+    [auditScope, scopedSnapshotId],
+  );
 
   useEffect(() => {
     if (urlChangeId.length === 0 || selectedChangeId !== urlChangeId) {
@@ -274,15 +288,19 @@ export function DriftWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="drift"
+            primaryHref={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
               tab: "drift",
-              snapshotId: selectedSnapshotId,
+              ...workbenchHubScopePatch,
             })}
-          >
-            Open resource evidence hub
-          </Link>
+            primaryTestId="infra-drift-open-primary-hub"
+            siblingTestIdPrefix="infra-drift"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["terraform", "findings", "remediation", "diagram"]}
+            includeAuditTab={auditScope != null}
+          />
         </section>
       ) : null}
 
@@ -364,6 +382,7 @@ export function DriftWorkbenchClient() {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
                 diffId: selectedDiffId,
+                ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
               Ask about this diff
@@ -443,10 +462,11 @@ export function DriftWorkbenchClient() {
               <Link
                 className="text-al-link hover:underline"
                 href={resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
-                  snapshotId: selectedSnapshotId,
+                  tab: "drift",
+                  ...workbenchHubScopePatch,
                 })}
               >
-                Open resource evidence hub
+                {formatResourceHubTabViewLabel("drift")}
               </Link>
             </p>
           ) : null}

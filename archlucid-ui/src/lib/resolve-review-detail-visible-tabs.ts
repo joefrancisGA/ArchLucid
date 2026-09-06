@@ -19,6 +19,8 @@ export type ResolveReviewDetailVisibleTabsInput = {
   readonly manifestId: string | null | undefined;
   readonly showProgressTracker: boolean;
   readonly runCompleted: boolean;
+  /** Working desk lands on Findings when triage is ready (PC-11). */
+  readonly workingDesk?: boolean;
 };
 
 export type ReviewDetailVisibleTabs = {
@@ -54,7 +56,10 @@ export function resolveReviewDetailTabLifecycleStage(
   return "draft";
 }
 
-function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailTabId {
+function defaultTabForStage(
+  stage: ReviewDetailTabLifecycleStage,
+  workingDesk: boolean,
+): ReviewDetailTabId {
   switch (stage) {
     case "draft":
       return "overview";
@@ -65,7 +70,8 @@ function defaultTabForStage(stage: ReviewDetailTabLifecycleStage): ReviewDetailT
     case "pre-commit-complete":
       return "findings";
     case "committed":
-      return "review-package";
+      // Working architects triage findings on sealed packages; Guided keeps the record tab default.
+      return workingDesk ? "findings" : "review-package";
     default: {
       const _exhaustive: never = stage;
 
@@ -80,7 +86,7 @@ export function resolveReviewDetailVisibleTabs(
   const stage = resolveReviewDetailTabLifecycleStage(input);
   const visibleTabIds = ALL_TABS;
   const moreTabIds: readonly ReviewDetailTabId[] = [];
-  const defaultTabId = defaultTabForStage(stage);
+  const defaultTabId = defaultTabForStage(stage, input.workingDesk === true);
 
   return {
     stage,

@@ -13,57 +13,48 @@ import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operat
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
+const emptyMetrics: OperatorHomeWorkspaceMetricsSnapshot = {
+  reviewPackagesTotal: 0,
+  reviewPackagesCommitted: 0,
+  reviewPackagesActive: 0,
+  reviewPackagesAwaitingApproval: 0,
+  openFindings: 0,
+  governanceWarnings: 0,
+  evidenceSources: 0,
+  hasReviews: false,
+};
+
 describe("formatOperatorHomeRecentReviewsOutcome", () => {
   it("describes an empty workspace", () => {
-    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
-      reviewPackagesTotal: 0,
-      reviewPackagesCommitted: 0,
-      reviewPackagesActive: 0,
-      openFindings: 0,
-      governanceWarnings: 0,
-      evidenceSources: 0,
-      hasReviews: false,
-    };
-
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
+    expect(formatOperatorHomeRecentReviewsOutcome(emptyMetrics)).toBe(
       "No reviews in this workspace yet.",
     );
   });
 
   it("describes example-only lists without claiming the workspace is empty", () => {
-    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
-      reviewPackagesTotal: 0,
-      reviewPackagesCommitted: 0,
-      reviewPackagesActive: 0,
-      openFindings: 0,
-      governanceWarnings: 0,
-      evidenceSources: 0,
-      hasReviews: false,
-    };
-
-    expect(formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly: true })).toBe(
+    expect(formatOperatorHomeRecentReviewsOutcome(emptyMetrics, { exampleReviewOnly: true })).toBe(
       OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME,
     );
   });
 
   it("summarizes population, lifecycle, and preview cap with no open findings", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
       reviewPackagesTotal: 4,
       reviewPackagesCommitted: 3,
       reviewPackagesActive: 1,
-      openFindings: 0,
-      governanceWarnings: 0,
       evidenceSources: 3,
       hasReviews: true,
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 4 })).toBe(
-      "4 reviews · 3 finalized · 1 active · 0 open findings · showing 2 of 4",
+      "4 reviews · 3 sealed review records · 1 active · 0 open findings · showing 2 of 4",
     );
   });
 
   it("summarizes committed packages with finding pressure", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
       reviewPackagesTotal: 3,
       reviewPackagesCommitted: 2,
       reviewPackagesActive: 1,
@@ -74,7 +65,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics, { visibleCount: 2, recentTotalCount: 3 })).toBe(
-      "3 reviews · 2 finalized · 1 active · 6 open findings · with 1 governance approval warning · showing 2 of 3",
+      "3 reviews · 2 sealed review records · 1 active · 6 open findings · with 1 approval warning · showing 2 of 3",
     );
   });
 
@@ -84,22 +75,21 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
 });
 
 describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
-  it("routes finalized counts to the reviews list instead of a hidden approved tab", () => {
+  it("routes sealed record counts to the reviews list instead of a hidden approved tab", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
       reviewPackagesTotal: 4,
       reviewPackagesCommitted: 3,
       reviewPackagesActive: 1,
-      openFindings: 0,
-      governanceWarnings: 0,
       evidenceSources: 3,
       hasReviews: true,
     };
 
     const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics);
 
-    expect(parts.find((part) => part.key === "finalized")).toEqual({
-      key: "finalized",
-      text: "3 finalized",
+    expect(parts.find((part) => part.key === "sealed-records")).toEqual({
+      key: "sealed-records",
+      text: "3 sealed review records",
       hrefKind: "all-reviews",
     });
     expect(parts.find((part) => part.key === "open-findings")?.tabId).toBe("attention");
@@ -107,11 +97,10 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
 
   it("renders showing-cap as plain text without a link target", () => {
     const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
       reviewPackagesTotal: 4,
       reviewPackagesCommitted: 3,
       reviewPackagesActive: 1,
-      openFindings: 0,
-      governanceWarnings: 0,
       evidenceSources: 3,
       hasReviews: true,
     };

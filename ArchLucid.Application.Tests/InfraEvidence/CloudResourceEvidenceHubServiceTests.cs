@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -12,6 +13,8 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -150,10 +153,23 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 },
             });
 
+        authorityQuery
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
+            });
+
         CloudResourceEvidenceHubService hubService = CreateService(
             identityDirectory,
             operationalRepository: operationalRepository,
-            authorityQueryService: authorityQuery.Object);
+            authorityQueryService: authorityQuery.Object,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService());
 
         CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
             scope,
@@ -262,7 +278,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
     private static CloudResourceEvidenceHubService CreateService(
         FakeCloudResourceIdentityDirectory identityDirectory,
         FakeOperationalSecurityFindingRepository? operationalRepository = null,
-        IAuthorityQueryService? authorityQueryService = null)
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         operationalRepository ??= new FakeOperationalSecurityFindingRepository();
 
@@ -273,6 +290,14 @@ public sealed class CloudResourceEvidenceHubServiceTests
         Mock<IRemediationInstanceRepository> remediationRepository = new();
         Mock<IAuthorityQueryService> authorityQuery = new();
         Mock<ICloudResourceAuditLineageResolver> auditLineageResolver = new();
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliationRepository = new();
+
+        reconciliationRepository
+            .Setup(repo => repo.ListRunIdsBySnapshotAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
 
         auditLineageResolver
             .Setup(resolver => resolver.ResolveAsync(
@@ -316,9 +341,10 @@ public sealed class CloudResourceEvidenceHubServiceTests
             diagramReconciliation.Object,
             operationalRepository,
             remediationRepository.Object,
+            reconciliationRepository.Object,
             authorityQueryService ?? authorityQuery.Object,
             auditLineageResolver.Object,
-            Mock.Of<IManifestHashService>());
+            manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService());
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory

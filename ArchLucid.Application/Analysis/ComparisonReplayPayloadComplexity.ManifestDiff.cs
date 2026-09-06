@@ -42,6 +42,13 @@ internal static partial class ComparisonReplayPayloadComplexity
             bump += 1;
             factors.Add("Manifest includes structural changes (services, datastores, controls, or relationships).");
         }
+        else if (manifestDiff.TryGetProperty("warnings", out JsonElement warnings) &&
+                 warnings.ValueKind == JsonValueKind.Array &&
+                 warnings.GetArrayLength() > 0)
+        {
+            bump += 1;
+            factors.Add("Manifest includes warning-only drift — replay still validates narrative and formatting scope.");
+        }
 
         return bump;
     }

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
@@ -13,8 +15,13 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
+import {
+  parseQuickDecisionSecondaryFindingFindingIdFromSearch,
+  quickDecisionSecondaryFindingDisclosureHrefFromSearch,
+} from "@/lib/findings/quick-decision-secondary-finding-disclosure-url";
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
@@ -40,6 +47,44 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const quickDecisionSecondaryFindingFindingIdParam = searchParams.get("quickDecisionSecondaryFindingFindingId");
+  const [cardOpen, setCardOpenState] = useState(
+    () =>
+      parseQuickDecisionSecondaryFindingFindingIdFromSearch(quickDecisionSecondaryFindingFindingIdParam) ===
+      finding.findingId,
+  );
+
+  const syncCardOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        quickDecisionSecondaryFindingDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? finding.findingId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [finding.findingId, pathname, router, searchParams],
+  );
+
+  const setCardOpen = useCallback(
+    (open: boolean) => {
+      setCardOpenState(open);
+      syncCardOpenToUrl(open);
+    },
+    [syncCardOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCardOpenState(
+      parseQuickDecisionSecondaryFindingFindingIdFromSearch(quickDecisionSecondaryFindingFindingIdParam) ===
+        finding.findingId,
+    );
+  }, [finding.findingId, quickDecisionSecondaryFindingFindingIdParam]);
 
   return (
     <li
@@ -51,6 +96,10 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
         data-workspace-disclosure
         data-finding-id={finding.findingId}
         tabIndex={0}
+        open={cardOpen}
+        onToggle={(event) => {
+          setCardOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(
@@ -107,6 +156,14 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           </div>
           {architectWorkspaceChrome ? (
             <FindingListDispositionRowActions findingId={finding.findingId} compact />
+          ) : null}
+          {architectWorkspaceChrome && quickDecisionFindingHasRecordedDisposition(finding) ? (
+            <FindingDispositionRecordCorrectionControl
+              findingId={finding.findingId}
+              runId={runId}
+              hasRecordedDisposition={true}
+              testId={`finding-workspace-record-correction-${finding.findingId}`}
+            />
           ) : null}
           <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />
         </div>

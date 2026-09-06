@@ -1,7 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "./http";
@@ -25,11 +24,6 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
   const url = getTerraformAdvisoryExportDownloadUrl(runId);
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

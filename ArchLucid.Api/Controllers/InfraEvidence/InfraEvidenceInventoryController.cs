@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.InfraEvidence;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -79,17 +80,25 @@ public sealed class InfraEvidenceInventoryController(
     [HttpGet("diffs/{diffId:guid}/drift-report")]
     [ProducesResponseType(typeof(AzureInventoryDriftReportRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDriftReport(Guid diffId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        AzureInventoryDriftReportRecord? report =
-            await driftClassificationService.TryGetDriftReportAsync(scope, diffId, cancellationToken);
+        try
+        {
+            AzureInventoryDriftReportRecord? report =
+                await driftClassificationService.TryGetDriftReportAsync(scope, diffId, cancellationToken);
 
-        if (report is null)
-            return this.NotFoundProblem($"Drift report for diff '{diffId}' was not found.", ProblemTypes.ResourceNotFound);
+            if (report is null)
+                return this.NotFoundProblem($"Drift report for diff '{diffId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        return Ok(report);
+            return Ok(report);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpPost("diffs/{diffId:guid}/drift-approvals")]
@@ -135,6 +144,7 @@ public sealed class InfraEvidenceInventoryController(
     [ProducesResponseType(typeof(AzureInventoryDiffNarrativeResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> BuildNarrative(
         Guid diffId,
         [FromBody] BuildAzureInventoryDiffNarrativeRequest? request,
@@ -145,21 +155,28 @@ public sealed class InfraEvidenceInventoryController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        AzureInventoryDiffNarrativeResult result = await narrativeService.TryBuildNarrativeAsync(
-            scope,
-            diffId,
-            request.NarrativeKind,
-            request.UseSimulator,
-            cancellationToken);
-
-        if (!result.Succeeded)
+        try
         {
-            if (result.ErrorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
-                return this.NotFoundProblem(result.ErrorMessage, ProblemTypes.ResourceNotFound);
+            AzureInventoryDiffNarrativeResult result = await narrativeService.TryBuildNarrativeAsync(
+                scope,
+                diffId,
+                request.NarrativeKind,
+                request.UseSimulator,
+                cancellationToken);
 
-            return this.BadRequestProblem(result.ErrorMessage ?? "Narrative generation failed.", ProblemTypes.ValidationFailed);
+            if (!result.Succeeded)
+            {
+                if (result.ErrorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                    return this.NotFoundProblem(result.ErrorMessage, ProblemTypes.ResourceNotFound);
+
+                return this.BadRequestProblem(result.ErrorMessage ?? "Narrative generation failed.", ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(result);
         }
-
-        return Ok(result);
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

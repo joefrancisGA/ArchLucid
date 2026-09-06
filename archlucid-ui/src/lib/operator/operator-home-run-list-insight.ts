@@ -39,23 +39,38 @@ export function resolveRunWarningCountDisplay(run: RunSummary): number | null {
   return null;
 }
 
+export type RunHomeListUpdatedZone = "home-recent-reviews" | "home-unfinished-work" | "default";
+
 export type RunHomeListUpdatedPresentation = {
   readonly relativeLabel: string;
   readonly absoluteLabel: string;
   readonly isoUtc: string;
+  readonly zoneLabel: string;
 };
 
-export function formatRunHomeListUpdatedLabel(run: RunSummary): RunHomeListUpdatedPresentation | null {
+const ZONE_LABELS: Record<RunHomeListUpdatedZone, string> = {
+  "home-recent-reviews": "Recent reviews",
+  "home-unfinished-work": "Your work",
+  default: "Updated",
+};
+
+export function formatRunHomeListUpdatedLabel(
+  run: RunSummary,
+  zone: RunHomeListUpdatedZone = "default",
+): RunHomeListUpdatedPresentation | null {
   const createdUtc = run.createdUtc?.trim() ?? "";
 
   if (createdUtc.length === 0) {
     return null;
   }
 
+  const zoneLabel = ZONE_LABELS[zone];
+
   return {
     isoUtc: createdUtc,
     relativeLabel: formatRelativeTime(createdUtc),
     absoluteLabel: formatAbsoluteUpdatedAtTitle(createdUtc),
+    zoneLabel,
   };
 }
 

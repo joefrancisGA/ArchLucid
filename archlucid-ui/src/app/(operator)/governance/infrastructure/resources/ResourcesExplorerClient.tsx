@@ -24,7 +24,8 @@ import {
 import {
   buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
-  buildResourceHubWorkCountHref,
+  buildResourceHubOverviewHref,
+  buildResourceExplorerWorkCountHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceGroupFromSearch,
@@ -38,6 +39,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
+  formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -165,6 +167,8 @@ export function ResourcesExplorerClient() {
     );
   }
 
+  const scopedHubTabLabel = formatResourceHubTabActionLabelFromExplorerWorkQueue(urlWorkQueue);
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-resources" />
@@ -286,7 +290,7 @@ export function ResourcesExplorerClient() {
                         key={badge.kind}
                         className="rounded bg-muted px-2 py-0.5 text-xs text-foreground hover:bg-muted/80"
                         title={badge.label}
-                        href={buildResourceHubWorkCountHref(row.cloudResourceId, badge.kind)}
+                        href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
@@ -302,17 +306,39 @@ export function ResourcesExplorerClient() {
                 {row.lastSeenUtc.length > 0 ? new Date(row.lastSeenUtc).toLocaleString() : "—"}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <Button asChild size="sm" variant="outline">
-                  <Link
-                    href={buildInfrastructureAskHref({
-                      cloudResourceId: row.cloudResourceId,
-                      workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
-                    })}
-                    data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
-                  >
-                    Ask
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {urlWorkQueue !== "all" ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={buildResourceHubOverviewHref(row.cloudResourceId)}
+                        data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
+                      >
+                        Overview
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {scopedHubTabLabel != null ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue)}
+                        data-testid={`infra-resource-explorer-hub-tab-${row.cloudResourceId}`}
+                      >
+                        {scopedHubTabLabel}
+                      </Link>
+                    </Button>
+                  ) : null}
+                  <Button asChild size="sm" variant="outline">
+                    <Link
+                      href={buildInfrastructureAskHref({
+                        cloudResourceId: row.cloudResourceId,
+                        workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
+                      })}
+                      data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
+                    >
+                      Ask
+                    </Link>
+                  </Button>
+                </div>
               </EnterpriseTableCell>
             </EnterpriseTableRow>
             );

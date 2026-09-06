@@ -15,7 +15,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
-import { RunDetailMeasurementFloorFinalizeStrip } from "@/components/reviews/RunDetailMeasurementFloorFinalizeStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -24,6 +23,7 @@ import type {
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -200,11 +200,19 @@ export function RunDetailReviewPackageDoThisNextResolved(
     return doThisNextLoadingSkeleton();
   }
 
+  const suppressMeasurementDenominator = isReviewPipelineTerminalFailure(
+    props.pipelineDiagnosticContext ?? {
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    },
+  );
+
   return (
     <>
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        suppressMeasurementDenominator={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}
@@ -213,7 +221,6 @@ export function RunDetailReviewPackageDoThisNextResolved(
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
       />
-      <RunDetailMeasurementFloorFinalizeStrip enginesSucceeded={props.enginesSucceeded} />
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined

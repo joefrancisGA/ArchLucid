@@ -51,6 +51,11 @@ export const DevTestingShellShortcutsDeferred = createDeferredComponentFromManif
   { suppressLoading: true },
 );
 
+export const DevTestingQuickSwitchPanelDeferred = createDeferredComponentFromManifest(
+  "operator-home-dev-testing-quick-switch",
+  { suppressLoading: true },
+);
+
 export const AppShellTelemetryBundleDeferred = createDeferredComponentFromManifest(
   "app-shell-telemetry-bundle",
   { suppressLoading: true },

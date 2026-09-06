@@ -8,7 +8,6 @@ import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duratio
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_PIPELINE_STOP_ANALYSIS_CTA,
-  REVIEW_PIPELINE_STOP_ANALYSIS_HELP,
   REVIEW_PIPELINE_STOP_ANALYSIS_IN_FLIGHT_CTA,
   REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_DETAIL,
   REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE,
@@ -66,23 +65,18 @@ export function ReviewPipelineStopAnalysisButton({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          disabled={disabled || stopping || cancelRequested}
-          data-testid="review-pipeline-stop-analysis"
-          onClick={() => {
-            void handleStop();
-          }}
-        >
-          {label}
-        </Button>
-        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {REVIEW_PIPELINE_STOP_ANALYSIS_HELP}
-        </span>
-      </div>
+      <Button
+        type="button"
+        variant="destructive"
+        size="sm"
+        disabled={disabled || stopping || cancelRequested}
+        data-testid="review-pipeline-stop-analysis"
+        onClick={() => {
+          void handleStop();
+        }}
+      >
+        {label}
+      </Button>
       {stopErrorMessage !== null ? (
         <OperatorMutationInlineError
           message={stopErrorMessage}

@@ -1,11 +1,15 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Roi;
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Pilots;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,6 +23,9 @@ public sealed class SponsorEvidencePackService(
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IGovernanceDashboardService governanceDashboardService,
     IScopeContextProvider scopeContextProvider,
+    ValueReportBuilder valueReportBuilder,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
+    IPilotBaselineRepository pilotBaselineRepository,
     ILogger<SponsorEvidencePackService> logger) : ISponsorEvidencePackService
 {
     private const int GovernanceListCap = 50;
@@ -37,6 +44,15 @@ public sealed class SponsorEvidencePackService(
     private readonly IWhyArchLucidSnapshotService _whyArchLucidSnapshotService =
         whyArchLucidSnapshotService ?? throw new ArgumentNullException(nameof(whyArchLucidSnapshotService));
 
+    private readonly ValueReportBuilder _valueReportBuilder =
+        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
+    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
+        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
+
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+
     /// <inheritdoc/>
     public async Task<SponsorEvidencePackResponse> BuildAsync(CancellationToken cancellationToken)
     {
@@ -44,10 +60,35 @@ public sealed class SponsorEvidencePackService(
         string demoRunId = process.DemoRunId;
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(demoRunId, cancellationToken);
         PilotRunDeltasResponse? deltas = null;
+
         if (detail is not null)
         {
             PilotRunDeltas computed = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
-            deltas = PilotRunDeltasResponseMapper.ToResponse(computed);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            DateTimeOffset end = TimeProvider.System.GetUtcNow();
+            DateTimeOffset start = end.AddDays(-30);
+            ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                start,
+                end,
+                cancellationToken);
+            PilotBaselineRecord? scorecardBaselines =
+                await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+            DateTime? extractorCollectionTimestampUtc =
+                await _roiCostEvidenceCollectionResolver.TryResolveLatestCollectionTimestampUtcAsync(
+                    scope,
+                    detail.Run.RunId,
+                    cancellationToken).ConfigureAwait(false);
+
+            deltas = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
+                detail.Run,
+                detail.Manifest,
+                computed,
+                valueWindowSnapshot,
+                extractorCollectionTimestampUtc,
+                scorecardBaselines);
         }
 
         FindingsSnapshot resolved = await ResolveFindingsSnapshotAsync(detail, cancellationToken);

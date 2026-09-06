@@ -27,7 +27,7 @@ export type OperatorAttentionKindStripProps = {
 /** TB-2353 / TB-2369 — actionable four-kind attention taxonomy for hub pages. */
 export function OperatorAttentionKindStrip(
   props: OperatorAttentionKindStripProps,
-): React.JSX.Element {
+): React.JSX.Element | null {
   const variant = props.variant ?? "default";
   const suppressKinds = new Set(props.suppressKinds ?? []);
   const pathname = usePathname() ?? "";
@@ -49,6 +49,10 @@ export function OperatorAttentionKindStrip(
   ) as Partial<Record<OperatorAttentionKindId, number>>;
   const previewKind = resolveHighestNonZeroAttentionKind(countsByKind, visibleKinds);
   const previewLine = previewKind !== null ? partitionPreviews[previewKind] : null;
+
+  if (visibleKinds.length === 0) {
+    return null;
+  }
 
   return (
     <div

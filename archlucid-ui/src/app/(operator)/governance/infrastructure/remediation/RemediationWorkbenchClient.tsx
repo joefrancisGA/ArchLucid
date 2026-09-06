@@ -8,11 +8,15 @@ import { Loader2 } from "lucide-react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import {
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
-import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  mergeInfrastructureAskAuditScope,
+  mergeWorkbenchHubScopePatch,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -81,6 +85,21 @@ function buildDiagramReconcileHref(context: {
   });
 }
 
+function buildDiagramHubHref(context: {
+  readonly cloudResourceId: string;
+  readonly runId?: string | null;
+  readonly snapshotId?: string | null;
+}): string {
+  const trimmedRunId = context.runId?.trim() ?? "";
+  const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(context.cloudResourceId.trim(), "", {
+    tab: "diagram",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+  });
+}
+
 export function RemediationWorkbenchClient() {
   const searchParams = useSearchParams();
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
@@ -136,6 +155,31 @@ export function RemediationWorkbenchClient() {
 
     return groups;
   }, [visibleInstances]);
+
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const remediationSnapshotId = urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : selectedSnapshotId;
+  const workbenchHubScopePatch = useMemo(
+    () => mergeWorkbenchHubScopePatch(remediationSnapshotId, auditScope, urlReconcileRunId),
+    [auditScope, remediationSnapshotId, urlReconcileRunId],
+  );
+
+  const remediationScopeExtraLinks = useMemo(() => {
+    if (urlCorrespondenceId.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        testId: "infra-remediation-open-diagram-hub",
+        href: buildDiagramHubHref({
+          cloudResourceId: urlCloudResourceId,
+          runId: urlReconcileRunId,
+          snapshotId: urlReconcileSnapshotId,
+        }),
+        label: "View diagram correspondence in hub",
+      },
+    ];
+  }, [urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -337,7 +381,7 @@ export function RemediationWorkbenchClient() {
 
     const scopedFindingId = urlFindingId.length > 0
       ? urlFindingId
-      : detail?.finding.findingId?.trim() ?? "";
+      : detail?.finding?.findingId?.trim() ?? "";
     const scopedInstanceId = selectedInstanceId.length > 0 ? selectedInstanceId : urlInstanceId;
 
     return buildInfrastructureAskHref({
@@ -347,8 +391,10 @@ export function RemediationWorkbenchClient() {
       instanceId: scopedInstanceId.length > 0 ? scopedInstanceId : undefined,
       correspondenceId: urlCorrespondenceId.length > 0 ? urlCorrespondenceId : undefined,
       runId: urlReconcileRunId.length > 0 ? urlReconcileRunId : undefined,
+      ...mergeInfrastructureAskAuditScope(auditScope),
     });
   }, [
+    auditScope,
     detail,
     selectedInstanceId,
     urlCloudResourceId,
@@ -372,12 +418,21 @@ export function RemediationWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({ cloudResourceId: urlCloudResourceId, tab: "remediation" })}
-          >
-            Open resource evidence hub
-          </Link>
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="remediation"
+            primaryHref={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "remediation",
+              ...workbenchHubScopePatch,
+            })}
+            primaryTestId="infra-remediation-open-primary-hub"
+            siblingTestIdPrefix="infra-remediation"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["findings", "drift", "terraform"]}
+            includeAuditTab={auditScope != null}
+            extraLinks={remediationScopeExtraLinks}
+          />
         </section>
       ) : null}
 
@@ -393,6 +448,32 @@ export function RemediationWorkbenchClient() {
               ? " No remediation instance exists yet — use Match + create below."
               : " Matching remediation instance is selected on the board."}
           </p>
+          {urlCloudResourceId.length > 0 ? (
+            <>
+              <Link
+                className="mt-2 inline-block text-sm text-al-link hover:underline"
+                href={buildResourceHubWorkbenchHref({
+                  cloudResourceId: urlCloudResourceId,
+                  tab: "findings",
+                  snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                })}
+                data-testid="infra-remediation-finding-open-findings-hub"
+              >
+                Open findings in resource hub
+              </Link>
+              <Link
+                className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+                href={buildResourceHubWorkbenchHref({
+                  cloudResourceId: urlCloudResourceId,
+                  tab: "terraform",
+                  snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                })}
+                data-testid="infra-remediation-finding-open-terraform-hub"
+              >
+                Open terraform mapping in resource hub
+              </Link>
+            </>
+          ) : null}
         </section>
       ) : null}
 
@@ -526,9 +607,13 @@ export function RemediationWorkbenchClient() {
                       <dd>
                         <Link
                           className="text-al-link hover:underline"
-                          href={governanceInfrastructureResourceHubPath(detail.finding.cloudResourceId)}
+                          href={buildResourceHubWorkbenchHref({
+                            cloudResourceId: detail.finding.cloudResourceId,
+                            tab: "remediation",
+                            ...workbenchHubScopePatch,
+                          })}
                         >
-                          Open resource evidence hub
+                          {formatResourceHubTabViewLabel("remediation")}
                         </Link>
                       </dd>
                     </div>

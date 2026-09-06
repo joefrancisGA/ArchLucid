@@ -2,6 +2,7 @@ using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
@@ -15,6 +16,7 @@ public sealed class InfraEvidenceAskGroundingService(
     IInfraEvidenceAskEvidenceCollector evidenceCollector,
     IAgentCompletionClient llm,
     IPromptRedactor promptRedactor,
+    IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     ILogger<InfraEvidenceAskGroundingService> logger) : IInfraEvidenceAskGroundingService
@@ -38,9 +40,10 @@ public sealed class InfraEvidenceAskGroundingService(
 
         try
         {
-            await InfraEvidenceAskSealedManifestHashGuard.EnsureRunSealedManifestHashWhenRunScopedOrThrowAsync(
-                request.RunId,
+            await InfraEvidenceAskSealedManifestHashGuard.EnsureAskSealedManifestHashOrThrowAsync(
+                request,
                 scope,
+                reconciliationRepository,
                 authorityQueryService,
                 manifestHashService,
                 cancellationToken);
@@ -111,6 +114,10 @@ public sealed class InfraEvidenceAskGroundingService(
             };
         }
         catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (ConflictException)
         {
             throw;
         }

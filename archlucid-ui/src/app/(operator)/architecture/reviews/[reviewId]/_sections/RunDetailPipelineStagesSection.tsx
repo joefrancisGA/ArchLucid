@@ -36,6 +36,7 @@ export function RunDetailPipelineStagesSection({
   const searchParams = useSearchParams();
   const runPipelineStagesOpenParam = searchParams.get("runPipelineStagesOpen");
   const [open, setOpenState] = useState(() => parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
+  const [technicalOpen, setTechnicalOpen] = useState(false);
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -98,11 +99,13 @@ export function RunDetailPipelineStagesSection({
             </li>
           ))}
         </ul>
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Technical details
-          </summary>
-          <div className="mt-3 space-y-3">
+        <CollapsibleSection
+          title="Technical details"
+          open={technicalOpen}
+          onToggle={setTechnicalOpen}
+          sectionTestId="run-detail-pipeline-stages-technical-collapsible"
+        >
+          <div className="space-y-3">
             {otelTraceId ? (
               <div className={OPERATOR_TYPOGRAPHY.body}>
                 <RunTraceViewerLink traceId={otelTraceId} />
@@ -124,7 +127,7 @@ export function RunDetailPipelineStagesSection({
               ))}
             </ul>
           </div>
-        </details>
+        </CollapsibleSection>
       </CollapsibleSection>
     </section>
   );

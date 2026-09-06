@@ -1,9 +1,12 @@
 import { cn } from "@/lib/utils";
 
-import { FilterChip } from "@/components/ui/filter-chip";
+import { HelpPopover, HelpPopoverContent, HelpPopoverTrigger } from "@/components/ui/help-popover";
+import { InteractiveChip } from "@/components/ui/interactive-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { formatOperatorHomeGovernanceApprovalWarningFilterLabel } from "@/lib/operator/operator-home-governance-approval-warning-copy";
+import {
+  formatOperatorHomeGovernanceApprovalWarningFilterLabel,
+} from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -16,9 +19,10 @@ export type RunsDashboardFiltersProps = {
   readonly onShowArchivedChange: (value: boolean) => void;
 };
 
-const WARNINGS_FILTER_DISABLED_HINT_ID = "runs-dashboard-governance-warnings-filter-hint";
-
 const FILTER_CHIP_LAYOUT_CLASS = "w-fit shrink-0 whitespace-nowrap";
+
+const WARNINGS_FILTER_DISABLED_HINT =
+  "No reviews with governance approval warnings in this workspace yet.";
 
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
@@ -29,12 +33,13 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   const warningsFilterDisabled = warningsCount === 0;
 
   return (
-    <div className="space-y-1.5" data-testid="runs-dashboard-filters">
-      <FilterChipGroup
-        aria-label="Filter reviews"
-        className="flex flex-wrap items-center gap-1.5"
-      >
-        <FilterChip
+    <FilterChipGroup
+      aria-label="Filter reviews"
+      className="flex flex-wrap items-center gap-1.5"
+      data-testid="runs-dashboard-filters"
+    >
+      <span className="inline-flex items-center gap-1.5">
+        <InteractiveChip
           data-testid="runs-dashboard-governance-warnings-only"
           className={cn(
             FILTER_CHIP_LAYOUT_CLASS,
@@ -45,8 +50,8 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
             ),
           )}
           aria-pressed={props.governanceWarningsOnly}
-          aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
-          disabled={warningsFilterDisabled}
+          aria-disabled={warningsFilterDisabled}
+          tabIndex={0}
           onClick={() => {
             if (warningsFilterDisabled) {
               return;
@@ -56,26 +61,38 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
           }}
         >
           {formatOperatorHomeGovernanceApprovalWarningFilterLabel()}
-        </FilterChip>
-        <FilterChip
-          data-testid="runs-dashboard-show-archived"
-          className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
-          aria-pressed={props.showArchived}
-          onClick={() => {
-            props.onShowArchivedChange(!props.showArchived);
-          }}
-        >
-          {RUNS_DASHBOARD_LABELS.showArchived}
-        </FilterChip>
-      </FilterChipGroup>
-      {warningsFilterDisabled ? (
-        <p
-          id={WARNINGS_FILTER_DISABLED_HINT_ID}
-          className={cn("sr-only", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-        >
-          No reviews with governance approval warnings in this workspace yet.
-        </p>
-      ) : null}
-    </div>
+        </InteractiveChip>
+        {warningsFilterDisabled ? (
+          <HelpPopover>
+            <HelpPopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-neutral-200 bg-white px-2 text-al-text-secondary hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800/60",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
+                aria-label="Why is the approval warnings filter unavailable?"
+                data-testid="runs-dashboard-governance-warnings-filter-hint-trigger"
+              >
+                ?
+              </button>
+            </HelpPopoverTrigger>
+            <HelpPopoverContent data-testid="runs-dashboard-governance-warnings-filter-hint">
+              {WARNINGS_FILTER_DISABLED_HINT}
+            </HelpPopoverContent>
+          </HelpPopover>
+        ) : null}
+      </span>
+      <InteractiveChip
+        data-testid="runs-dashboard-show-archived"
+        className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
+        aria-pressed={props.showArchived}
+        onClick={() => {
+          props.onShowArchivedChange(!props.showArchived);
+        }}
+      >
+        {RUNS_DASHBOARD_LABELS.showArchived}
+      </InteractiveChip>
+    </FilterChipGroup>
   );
 }

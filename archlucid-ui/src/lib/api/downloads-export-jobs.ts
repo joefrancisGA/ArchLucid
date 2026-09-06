@@ -2,7 +2,6 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import {
   apiPostNoContent,
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "./http";
@@ -27,8 +26,7 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
   headers.set("Content-Type", "application/json");
-  const bearer = getBearerToken();
-  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
@@ -64,8 +62,7 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
   const headers = new Headers();
   headers.set("Accept", "application/json");
   headers.set("Content-Type", "application/json");
-  const bearer = getBearerToken();
-  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
@@ -111,8 +108,7 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     "Accept",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
   );
-  const bearer = getBearerToken();
-  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,

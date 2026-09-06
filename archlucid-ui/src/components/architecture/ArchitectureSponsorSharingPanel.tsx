@@ -45,6 +45,10 @@ import {
   type SponsorReadinessStatus,
 } from "@/lib/architecture/architecture-sponsor-readiness";
 import {
+  architectureSponsorReadinessDisclosureHrefFromSearch,
+  parseArchitectureSponsorReadinessOpenFromSearch,
+} from "@/lib/architecture/architecture-sponsor-readiness-disclosure-url";
+import {
   architectureSponsorShareConfirmHrefFromSearch,
   parseArchitectureSponsorShareConfirmOpenFromSearch,
 } from "@/lib/architecture/architecture-sponsor-share-confirm-url";
@@ -52,12 +56,14 @@ import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/archit
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureSponsorSharingPanelProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly architecture: BuildArchitectureCreatedHomeModelInput;
   readonly architectureSourceText: string;
   readonly findings: readonly QuickDecisionFinding[];
@@ -93,10 +99,14 @@ export function ArchitectureSponsorSharingPanel(
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
+  const architectureSponsorReadinessOpenParam = searchParams.get("architectureSponsorReadinessOpen");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpenState] = useState(
     () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
+  );
+  const [readinessPanelOpen, setReadinessPanelOpenState] = useState(() =>
+    parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
   );
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -131,6 +141,34 @@ export function ArchitectureSponsorSharingPanel(
     setDialogOpenState(parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam));
   }, [sponsorShareConfirmParam]);
 
+  const syncReadinessPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureSponsorReadinessDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setReadinessPanelOpen = useCallback(
+    (open: boolean) => {
+      setReadinessPanelOpenState(open);
+      syncReadinessPanelOpenToUrl(open);
+    },
+    [syncReadinessPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    setReadinessPanelOpenState(
+      parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
+    );
+  }, [architectureSponsorReadinessOpenParam]);
+
   const assessment = useMemo(
     () =>
       assessArchitectureSponsorReadiness({
@@ -149,8 +187,18 @@ export function ArchitectureSponsorSharingPanel(
 
   const knownGaps = assessment.issues.map((issue) => issue.label);
   const requiresPreliminaryOverride = assessment.status !== "ready";
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestVersion ?? null,
+  });
 
   async function copySponsorMarkdown(overrideAcknowledged: boolean, deliveryMethod: string): Promise<void> {
+    if (sealedManifestBlockedReason !== null) {
+      showError(sealedManifestBlockedReason);
+
+      return;
+    }
+
     setBusy(true);
 
     try {
@@ -200,6 +248,10 @@ export function ArchitectureSponsorSharingPanel(
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-workspace-disclosure
       data-testid="architecture-sponsor-sharing-panel"
+      open={readinessPanelOpen}
+      onToggle={(event) => {
+        setReadinessPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {ARCHITECTURE_SPONSOR_READINESS_TITLE}
@@ -265,6 +317,14 @@ export function ArchitectureSponsorSharingPanel(
               : assessment.sharingBlockReason === "policy"
                 ? ARCHITECTURE_SPONSOR_POLICY_BLOCKED
                 : ARCHITECTURE_SPONSOR_RESTRICTED_INFORMATION}
+          </p>
+        ) : sealedManifestBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-sponsor-sealed-manifest-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">

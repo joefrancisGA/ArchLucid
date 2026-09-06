@@ -3,7 +3,12 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  RESOURCE_HUB_ASSESSMENT_ID_PARAM,
+  RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
+  RESOURCE_HUB_CONTROL_ID_PARAM,
+  resourceHubFilterHrefFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 
 export const DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -26,6 +31,9 @@ export type InfraEvidenceWorkbenchContext = {
   readonly runId?: string | null;
   readonly changeId?: string | null;
   readonly diffId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 };
 
 export function parseInfraEvidenceWorkbenchQueryValue(raw: string | null | undefined): string {
@@ -53,6 +61,18 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
 
   if (context.diffId != null && context.diffId.trim().length > 0) {
     params.set(DRIFT_WORKBENCH_DIFF_ID_PARAM, context.diffId.trim());
+  }
+
+  if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
+    params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, context.assessmentId.trim());
+  }
+
+  if (context.auditEvidenceSnapshotId != null && context.auditEvidenceSnapshotId.trim().length > 0) {
+    params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, context.auditEvidenceSnapshotId.trim());
+  }
+
+  if (context.controlId != null && context.controlId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
   }
 
   const query = params.toString();
@@ -87,6 +107,18 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
     params.set(REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM, context.snapshotId.trim());
   }
 
+  if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
+    params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, context.assessmentId.trim());
+  }
+
+  if (context.auditEvidenceSnapshotId != null && context.auditEvidenceSnapshotId.trim().length > 0) {
+    params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, context.auditEvidenceSnapshotId.trim());
+  }
+
+  if (context.controlId != null && context.controlId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
   const query = params.toString();
 
   return query.length === 0
@@ -98,10 +130,18 @@ export function buildResourceHubWorkbenchHref(context: {
   readonly cloudResourceId: string;
   readonly tab?: ResourceHubTab;
   readonly snapshotId?: string | null;
+  readonly runId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string {
   return resourceHubFilterHrefFromSearch(context.cloudResourceId, "", {
     tab: context.tab,
     snapshotId: context.snapshotId ?? undefined,
+    runId: context.runId ?? undefined,
+    assessmentId: context.assessmentId ?? undefined,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
+    controlId: context.controlId ?? undefined,
   });
 }
 
@@ -114,7 +154,7 @@ export function buildResourceScopedWorkbenchHref(
     case "findings":
       return buildResourceHubWorkbenchHref({ cloudResourceId, tab: "findings", snapshotId });
     case "remediation":
-      return buildRemediationWorkbenchHref({ cloudResourceId });
+      return buildRemediationWorkbenchHref({ cloudResourceId, snapshotId });
     case "drift":
       return buildDriftWorkbenchHref({ cloudResourceId, snapshotId });
     default:

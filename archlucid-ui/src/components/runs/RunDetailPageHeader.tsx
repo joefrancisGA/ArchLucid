@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -34,6 +36,10 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import {
+  parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
+  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -47,8 +53,46 @@ function BuyerSponsorBriefExports({
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailBuyerSponsorBriefExportsOpenParam = searchParams.get("runDetailBuyerSponsorBriefExportsOpen");
+  const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
+    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+  );
+
+  const syncSponsorBriefExportsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSponsorBriefExportsOpen = useCallback(
+    (open: boolean) => {
+      setSponsorBriefExportsOpenState(open);
+      syncSponsorBriefExportsOpenToUrl(open);
+    },
+    [syncSponsorBriefExportsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSponsorBriefExportsOpenState(
+      parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+    );
+  }, [runDetailBuyerSponsorBriefExportsOpenParam]);
+
   return (
-    <details className="text-right">
+    <details
+      className="text-right"
+      open={sponsorBriefExportsOpen}
+      onToggle={(event) => {
+        setSponsorBriefExportsOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
         Download sponsor brief
       </summary>

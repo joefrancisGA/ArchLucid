@@ -7,6 +7,7 @@ import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-typ
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -200,6 +201,51 @@ export function resolveResourceHubTabFromAskScope(context: {
   return undefined;
 }
 
+export function formatResourceHubTabViewLabelFromAskScope(
+  tab: ResourceHubTab | undefined,
+): string | null {
+  if (tab == null || tab === "overview" || tab === "terraform") {
+    return null;
+  }
+
+  return formatResourceHubTabViewLabel(tab);
+}
+
+export type InfrastructureAskAuditContext = {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+};
+
+export function resolveInfrastructureAskAuditContext(
+  urlContext: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+  payloadContext?: InfrastructureAskAuditContext | null,
+): InfrastructureAskAuditContext {
+  const assessmentId = urlContext.assessmentId.length > 0
+    ? urlContext.assessmentId
+    : payloadContext?.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = urlContext.auditEvidenceSnapshotId.length > 0
+    ? urlContext.auditEvidenceSnapshotId
+    : payloadContext?.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = urlContext.controlId.length > 0
+    ? urlContext.controlId
+    : payloadContext?.controlId?.trim() ?? "";
+
+  if (assessmentId.length === 0 || auditEvidenceSnapshotId.length === 0 || controlId.length === 0) {
+    return {};
+  }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
+}
+
 export function resourceExplorerFilterHrefFromSearch(
   currentSearch: string,
   patch: {
@@ -344,6 +390,27 @@ export function resourceHubFilterHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+export function buildResourceHubAuditLineageHref(
+  cloudResourceId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+    readonly snapshotId?: string;
+  },
+): string {
+  const trimmedCloudResourceId = cloudResourceId.trim();
+  const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(trimmedCloudResourceId, "", {
+    tab: "audit",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 export function buildResourceHubExplorerHref(
   cloudResourceId: string,
   workQueue: CloudResourceExplorerWorkQueue = "all",
@@ -353,9 +420,43 @@ export function buildResourceHubExplorerHref(
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
 }
 
+export function buildResourceHubOverviewHref(
+  cloudResourceId: string,
+  context?: {
+    readonly snapshotId?: string | null;
+    readonly runId?: string | null;
+  },
+): string {
+  const trimmedSnapshotId = context?.snapshotId?.trim() ?? "";
+  const trimmedRunId = context?.runId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId.trim(), "", {
+    tab: "overview",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+  });
+}
+
 export function buildResourceHubWorkCountHref(
   cloudResourceId: string,
   kind: CloudResourceExplorerWorkCountKind,
 ): string {
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", { tab: kind });
+}
+
+export function buildResourceExplorerWorkCountHref(
+  cloudResourceId: string,
+  kind: CloudResourceExplorerWorkCountKind,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+): string {
+  const queueTab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (queueTab != null && queueTab === kind) {
+    return buildInfrastructureAskHref({
+      cloudResourceId,
+      workQueue,
+    });
+  }
+
+  return buildResourceHubWorkCountHref(cloudResourceId, kind);
 }

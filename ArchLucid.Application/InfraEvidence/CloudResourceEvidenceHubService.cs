@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.InfraEvidence;
@@ -20,6 +21,7 @@ public sealed class CloudResourceEvidenceHubService(
     IDiagramInfrastructureReconciliationService diagramReconciliationService,
     IOperationalSecurityFindingRepository operationalFindingRepository,
     IRemediationInstanceRepository remediationInstanceRepository,
+    IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
     IManifestHashService manifestHashService) : ICloudResourceEvidenceHubService
@@ -68,6 +70,17 @@ public sealed class CloudResourceEvidenceHubService(
 
         (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);
         Guid snapshotId = query.SnapshotId ?? identity.LastSeenSnapshotId ?? Guid.Empty;
+
+        if (snapshotId != Guid.Empty)
+        {
+            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+                scope,
+                snapshotId,
+                reconciliationRepository,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+        }
 
         AzureInventorySnapshotDetailReadModel? snapshotDetail = snapshotId != Guid.Empty
             ? await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken)

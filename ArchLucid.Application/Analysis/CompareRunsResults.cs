@@ -15,6 +15,8 @@ public enum ScopedRunPairLoadOutcome
     PinFingerprintMismatch,
     CommittedArtifactInventoryMismatch,
     SealedManifestHashMismatch,
+    LeftLifecycleIncomplete,
+    RightLifecycleIncomplete,
 }
 
 /// <summary>Loaded scoped run pair for agent-result comparison.</summary>

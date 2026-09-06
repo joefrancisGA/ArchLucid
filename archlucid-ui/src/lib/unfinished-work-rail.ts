@@ -5,9 +5,10 @@ import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architectur
 import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
-import { ENTERPRISE_STATUS_LABELS } from "@/lib/design-tokens";
+import { ENTERPRISE_STATUS_LABELS, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { formatRunHomeListUpdatedLabel } from "@/lib/operator/operator-home-run-list-insight";
 import {
   readWizardSessionSnapshot,
   WIZARD_SESSION_IDS,
@@ -28,6 +29,7 @@ export type UnfinishedWorkRailItem = {
   readonly title: string;
   readonly href: string;
   readonly statusLabel: string;
+  readonly statusKind?: EnterpriseStatusKind;
   readonly updatedUtc: string | null;
   readonly workTypeLabel: string;
   readonly activityLabel: string | null;
@@ -73,7 +75,17 @@ function formatRailActivityLabel(updatedUtc: string | null): string | null {
     return null;
   }
 
-  return formatRelativeTime(updatedUtc);
+  const presentation = formatRunHomeListUpdatedLabel({
+    runId: "unfinished-work-rail",
+    projectId: "default",
+    createdUtc: updatedUtc,
+  });
+
+  if (presentation === null) {
+    return formatRelativeTime(updatedUtc);
+  }
+
+  return `${presentation.absoluteLabel} · ${presentation.relativeLabel}`;
 }
 
 function buildRailItemBase(
@@ -138,22 +150,6 @@ function isExcludedRun(run: RunSummary): boolean {
   }
 
   return false;
-}
-
-function isAwaitingDispositionRun(run: RunSummary): boolean {
-  return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
-}
-
-function isMidExecuteRun(run: RunSummary): boolean {
-  if (run.hasGoldenManifest === true) {
-    return false;
-  }
-
-  if (run.hasFindingsSnapshot === true) {
-    return false;
-  }
-
-  return true;
 }
 
 function resolveReviewTitle(run: RunSummary): string {
@@ -223,15 +219,19 @@ function buildDraftItems(
         title: entry.displayName.trim().length > 0 ? entry.displayName : "Untitled architecture",
         href: draftPrimary?.href ?? architectureDraftPath(entry.draftId),
         statusLabel,
+        statusKind: "draft",
         updatedUtc: entry.lastUpdatedUtc,
       });
     });
 }
 
-function resolveRunRailStatusLabel(run: RunSummary): string {
+function resolveRunRailStatusTag(run: RunSummary): {
+  readonly kind: EnterpriseStatusKind;
+  readonly label?: string;
+} {
   const statusTag = resolveRunHomeStatusTag(run);
 
-  return statusTag.label ?? ENTERPRISE_STATUS_LABELS[statusTag.kind];
+  return { kind: statusTag.kind, label: statusTag.label ?? ENTERPRISE_STATUS_LABELS[statusTag.kind] };
 }
 
 function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
@@ -248,32 +248,31 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
       continue;
     }
 
-    if (isAwaitingDispositionRun(run)) {
-      items.push(
-        buildRailItemBase({
-          id: `awaiting-disposition:${runId}`,
-          kind: "awaiting-disposition",
-          title: resolveReviewTitle(run),
-          href: reviewDetailPath(runId),
-          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
-          updatedUtc: run.createdUtc ?? null,
-        }),
-      );
+    const statusTag = resolveRunRailStatusTag(run);
+
+    if (
+      statusTag.kind === "approved" ||
+      statusTag.kind === "approved-with-monitoring" ||
+      statusTag.kind === "ready" ||
+      statusTag.kind === "blocked"
+    ) {
       continue;
     }
 
-    if (isMidExecuteRun(run)) {
-      items.push(
-        buildRailItemBase({
-          id: `review-in-progress:${runId}`,
-          kind: "review-in-progress",
-          title: resolveReviewTitle(run),
-          href: reviewDetailPath(runId),
-          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
-          updatedUtc: run.createdUtc ?? null,
-        }),
-      );
-    }
+    const kind: UnfinishedWorkRailItemKind =
+      statusTag.kind === "needs-attention" ? "awaiting-disposition" : "review-in-progress";
+
+    items.push(
+      buildRailItemBase({
+        id: `${kind}:${runId}`,
+        kind,
+        title: resolveReviewTitle(run),
+        href: reviewDetailPath(runId),
+        statusLabel: statusTag.label ?? UNFINISHED_WORK_RAIL_STATUS_LABELS[kind],
+        statusKind: statusTag.kind,
+        updatedUtc: run.createdUtc ?? null,
+      }),
+    );
   }
 
   return items;

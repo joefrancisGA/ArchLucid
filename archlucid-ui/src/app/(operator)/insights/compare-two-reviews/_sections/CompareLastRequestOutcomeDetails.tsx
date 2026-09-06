@@ -1,10 +1,19 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { outcomeLabel, type ComparedPair } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  compareLastRequestOutcomeDisclosureHrefFromSearch,
+  parseCompareLastRequestOutcomeOpenFromSearch,
+} from "@/lib/insights/compare-last-request-outcome-disclosure-url";
 
 export type CompareLastRequestOutcomeDetailsProps = {
   pairAligned: boolean;
@@ -23,11 +32,42 @@ export type CompareLastRequestOutcomeDetailsProps = {
 };
 
 export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcomeDetailsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareLastRequestOutcomeOpenParam = searchParams.get("compareLastRequestOutcomeOpen");
+  const [lastRequestOutcomeOpen, setLastRequestOutcomeOpenState] = useState(() =>
+    parseCompareLastRequestOutcomeOpenFromSearch(compareLastRequestOutcomeOpenParam),
+  );
+
+  const syncLastRequestOutcomeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareLastRequestOutcomeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setLastRequestOutcomeOpen = useCallback(
+    (open: boolean) => {
+      setLastRequestOutcomeOpenState(open);
+      syncLastRequestOutcomeOpenToUrl(open);
+    },
+    [syncLastRequestOutcomeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setLastRequestOutcomeOpenState(
+      parseCompareLastRequestOutcomeOpenFromSearch(compareLastRequestOutcomeOpenParam),
+    );
+  }, [compareLastRequestOutcomeOpenParam]);
+
   const {
     pairAligned,
     loading,
     lastComparedPair,
-    showStaleInputsWarning,
     leftPickedSummary,
     rightPickedSummary,
     golden,
@@ -52,7 +92,10 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
         OPERATOR_TYPOGRAPHY.body,
       )}
       aria-label="Comparison request outcome"
-      open={buyerPolished ? false : showStaleInputsWarning}
+      open={lastRequestOutcomeOpen}
+      onToggle={(event) => {
+        setLastRequestOutcomeOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}

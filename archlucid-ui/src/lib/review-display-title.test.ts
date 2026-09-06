@@ -78,7 +78,7 @@ describe("toReviewDisplayTitle", () => {
   it("clamps a title that exceeds the single-line budget", () => {
     const title = toReviewDisplayTitle("x".repeat(200));
 
-    expect(title).toHaveLength(80);
+    expect(title).toHaveLength(120);
     expect(title.endsWith("…")).toBe(true);
   });
 
@@ -90,6 +90,13 @@ describe("toReviewDisplayTitle", () => {
   it("strips inline markdown from display titles", () => {
     expect(toReviewDisplayTitle("**Reviewed** classification for payments")).toBe("Reviewed classification for payments");
     expect(toReviewDisplayTitle("# Heading title")).toBe("Heading title");
+  });
+
+  it("strips synthetic sample package suffixes including truncated punctuation", () => {
+    const title =
+      'Enterprise Copilot RAG platform — born-governed created architecture package (s…';
+
+    expect(toReviewDisplayTitle(title)).toBe("Enterprise Copilot RAG platform");
   });
 });
 

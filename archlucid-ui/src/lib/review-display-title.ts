@@ -8,7 +8,10 @@
  */
 
 /** Longest title rendered before an ellipsis; keeps the operator `h1` to one line at common widths. */
-const MAX_REVIEW_TITLE_CHARS = 80;
+export const MAX_REVIEW_TITLE_CHARS = 120;
+
+/** List-surface clamp — wider than workspace h1 so table cells use available width before ellipsis. */
+export const MAX_REVIEW_LIST_TITLE_CHARS = 160;
 
 /** Defensive workspace header clamp — no data path should exceed this on the review `h1`. */
 export const MAX_REVIEW_WORKSPACE_H1_CHARS = 120;
@@ -183,14 +186,14 @@ export function isUnusableReviewTitleCandidate(text: string | null | undefined):
   return false;
 }
 
-function clampTitle(text: string): string {
+function clampTitle(text: string, maxChars: number = MAX_REVIEW_TITLE_CHARS): string {
   const stripped = stripInlineMarkdownFromReviewText(text);
 
-  if (stripped.length <= MAX_REVIEW_TITLE_CHARS) {
+  if (stripped.length <= maxChars) {
     return stripped;
   }
 
-  return `${stripped.slice(0, MAX_REVIEW_TITLE_CHARS - 1).trimEnd()}…`;
+  return `${stripped.slice(0, maxChars - 1).trimEnd()}…`;
 }
 
 /** Single-line workspace header clamp applied at render time. */
@@ -205,15 +208,15 @@ export function clampReviewWorkspaceH1Title(title: string): string {
 }
 
 const SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN =
-  /\s*—\s*born-governed\s+created\s+architecture\s+package\s*\([^)]*\)\s*$/i;
+  /\s*[—–-]\s*born[\s-]*governed(?:\s+created)?\s+architecture\s+package(?:\s*\([^)]*)?[\s.…]*$/i;
 
-function stripSyntheticSampleTitleSuffix(text: string): string {
+export function stripSyntheticSampleTitleSuffix(text: string): string {
   return text.replace(SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN, "").trim();
 }
 
 /** Turns any run label candidate (display name or description) into a single-line review title. */
 export function toReviewDisplayTitle(candidate: string | null | undefined): string {
-  const trimmed: string = stripSyntheticSampleTitleSuffix((candidate ?? "").trim());
+  const trimmed: string = (candidate ?? "").trim();
 
   if (trimmed.length === 0) {
     return "";
@@ -224,24 +227,38 @@ export function toReviewDisplayTitle(candidate: string | null | undefined): stri
   if (generatedTitle !== null && generatedTitle.length > 0) {
     const normalizedGeneratedTitle = clampTitle(generatedTitle);
 
-    return isUnusableReviewTitleCandidate(normalizedGeneratedTitle) ? "" : normalizedGeneratedTitle;
+    const withoutSuffix = stripSyntheticSampleTitleSuffix(normalizedGeneratedTitle);
+
+    return isUnusableReviewTitleCandidate(withoutSuffix) ? "" : withoutSuffix;
   }
 
   const architectureReviewPacketTitle = extractArchitectureReviewPacketTitle(trimmed);
 
   if (architectureReviewPacketTitle !== null) {
-    return architectureReviewPacketTitle;
+    return stripSyntheticSampleTitleSuffix(architectureReviewPacketTitle);
   }
 
   const markdownHeadingTitle = extractMarkdownHeadingTitle(trimmed);
 
   if (markdownHeadingTitle !== null) {
-    return markdownHeadingTitle;
+    return stripSyntheticSampleTitleSuffix(markdownHeadingTitle);
   }
 
   const titleCandidate = firstUsableLineTitle(trimmed);
   const normalized: string = titleCandidate;
 
-  // The quoted title inside a generated brief is screened too — a brief can quote a bare date.
-  return isUnusableReviewTitleCandidate(normalized) ? "" : normalized;
+  const withoutSuffix = stripSyntheticSampleTitleSuffix(normalized);
+
+  return isUnusableReviewTitleCandidate(withoutSuffix) ? "" : withoutSuffix;
+}
+
+/** List-surface title clamp with a wider budget than workspace headers. */
+export function toReviewListDisplayTitle(candidate: string | null | undefined): string {
+  const title = toReviewDisplayTitle(candidate);
+
+  if (title.length <= MAX_REVIEW_LIST_TITLE_CHARS) {
+    return title;
+  }
+
+  return clampTitle(title, MAX_REVIEW_LIST_TITLE_CHARS);
 }

@@ -8,7 +8,9 @@ const mockProbeHealth = vi.fn();
 const mockUpsertSettings = vi.fn();
 
 let canMutate = true;
-let showOperatorNav = false;
+const featureMocks = vi.hoisted(() => ({
+  showOperatorNav: false,
+}));
 let callerAuthorityRank = 2;
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -20,7 +22,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 }));
 
 vi.mock("@/lib/features", () => ({
-  isShowSystemAdministrationNavEnabled: () => showOperatorNav,
+  isShowSystemAdministrationNavEnabled: () => featureMocks.showOperatorNav,
 }));
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
@@ -116,7 +118,7 @@ describe("ServiceNowIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canMutate = true;
-    showOperatorNav = false;
+    featureMocks.showOperatorNav = false;
     callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
     mockFetchHealth.mockResolvedValue(baseHealth());
     mockFetchSettings.mockResolvedValue(baseSettings());
@@ -418,7 +420,7 @@ describe("ServiceNowIntegrationPageClient", () => {
   });
 
   it("shows operator notes only when system administration nav is enabled", async () => {
-    showOperatorNav = true;
+    featureMocks.showOperatorNav = true;
     render(<ServiceNowIntegrationPageClient />);
 
     expect(await screen.findByTestId("servicenow-operator-notes")).toBeInTheDocument();

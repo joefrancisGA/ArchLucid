@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Authorization;
@@ -64,6 +65,7 @@ public sealed class CloudResourceEvidenceHubController(
     [ProducesResponseType(typeof(CloudResourceEvidenceHubResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetHub(
         Guid cloudResourceId,
@@ -90,30 +92,37 @@ public sealed class CloudResourceEvidenceHubController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        CloudResourceEvidenceHubQuery query = new()
+        try
         {
-            RunId = runId,
-            SnapshotId = snapshotId,
-            AssessmentId = assessmentId,
-            AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
-            ControlId = controlId,
-            Page = page,
-            PageSize = pageSize,
-        };
+            CloudResourceEvidenceHubQuery query = new()
+            {
+                RunId = runId,
+                SnapshotId = snapshotId,
+                AssessmentId = assessmentId,
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                ControlId = controlId,
+                Page = page,
+                PageSize = pageSize,
+            };
 
-        CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
-            scope,
-            cloudResourceId,
-            query,
-            cancellationToken);
+            CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
+                scope,
+                cloudResourceId,
+                query,
+                cancellationToken);
 
-        if (!result.Succeeded || result.Hub is null)
-        {
-            return this.NotFoundProblem(
-                result.ErrorMessage ?? "Cloud resource evidence hub was not found.",
-                ProblemTypes.ResourceNotFound);
+            if (!result.Succeeded || result.Hub is null)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? "Cloud resource evidence hub was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result.Hub);
         }
-
-        return Ok(result.Hub);
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

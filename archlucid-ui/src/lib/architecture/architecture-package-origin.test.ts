@@ -57,7 +57,7 @@ describe("resolvePipelineJobLabel", () => {
       false,
     );
 
-    expect(label.heading).toBe("Review pipeline progress");
-    expect(label.stageSummaryNoun).toBe("review pipeline");
+    expect(label.heading).toBe("Assessment progress");
+    expect(label.stageSummaryNoun).toBe("assessment");
   });
 });

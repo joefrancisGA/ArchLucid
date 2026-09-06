@@ -143,6 +143,11 @@ export function buildResourceHubDiagramsWorkbenchHref(
   snapshotId: string | null | undefined,
   cloudResourceId?: string | null,
   externalResourceId?: string | null,
+  auditContext?: {
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
+  },
 ): string {
   const seedNodeId = externalResourceId?.trim() ?? "";
 
@@ -151,6 +156,9 @@ export function buildResourceHubDiagramsWorkbenchHref(
     cloudResourceId,
     mermaidMode: seedNodeId.length > 0 ? "dependencyNeighborhood" : undefined,
     seedNodeId: seedNodeId.length > 0 ? seedNodeId : undefined,
+    assessmentId: auditContext?.assessmentId,
+    auditEvidenceSnapshotId: auditContext?.auditEvidenceSnapshotId,
+    controlId: auditContext?.controlId,
   });
 }
 
@@ -159,12 +167,20 @@ export function buildResourceHubDiagramReconcileWorkbenchHref(
   runId: string | null | undefined,
   correspondenceId?: string | null,
   cloudResourceId?: string | null,
+  auditContext?: {
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
+  },
 ): string {
   return buildDiagramReconcileWorkbenchHref({
     snapshotId,
     runId,
     correspondenceId,
     cloudResourceId,
+    assessmentId: auditContext?.assessmentId,
+    auditEvidenceSnapshotId: auditContext?.auditEvidenceSnapshotId,
+    controlId: auditContext?.controlId,
   });
 }
 

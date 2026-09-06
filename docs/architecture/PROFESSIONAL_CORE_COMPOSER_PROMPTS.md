@@ -4,7 +4,7 @@
 
 # Professional-core Composer prompts (PC-01–PC-13)
 
-**Created:** 2026-09-06 · **Status:** ready to run · **Do not re-run** overlay waves (LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR) except as named owners.
+**Created:** 2026-09-06 · **Status:** **Shipped** (PC-01–PC-13, #1776–#1893) · Acceptance: [`PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md`](PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md) · **Do not re-run** overlay waves (LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR) except as named owners.
 
 ## The problem these prompts solve
 

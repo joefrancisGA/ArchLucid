@@ -1,7 +1,7 @@
-/** Canonical home vocabulary for governance approval warning pressure. */
-export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR = "governance approval warning" as const;
+/** Canonical home vocabulary for approval warning pressure. */
+export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR = "approval warning" as const;
 
-export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL = "governance approval warnings" as const;
+export const OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL = "approval warnings" as const;
 
 export function formatOperatorHomeGovernanceApprovalWarningCount(count: number): string {
   const safeCount = Math.max(0, Math.trunc(count));
@@ -22,4 +22,8 @@ export function formatOperatorHomeGovernanceApprovalWarningFilterLabel(): string
 
 export function formatOperatorHomeGovernanceApprovalWarningActiveFilterLine(): string {
   return `Showing reviews with ${OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL}`;
+}
+
+export function formatOperatorHomeGovernanceApprovalWarningEmptyFilterHint(): string {
+  return `No reviews with ${OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL} in this workspace yet.`;
 }

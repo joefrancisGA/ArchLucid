@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -30,6 +31,7 @@ public sealed class InfraEvidenceAskController(
     [MutatingAuditExcluded("Infra-evidence Ask grounding is read-only over structured evidence rows.")]
     [ProducesResponseType(typeof(InfraEvidenceAskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Ask(
         [FromBody] InfraEvidenceAskRequest? request,
         CancellationToken cancellationToken = default)
@@ -42,18 +44,25 @@ public sealed class InfraEvidenceAskController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        InfraEvidenceAskGroundingResult result = await askGroundingService.TryAnswerAsync(
-            scope,
-            request,
-            cancellationToken);
-
-        if (!result.Succeeded || result.Response is null)
+        try
         {
-            return this.BadRequestProblem(
-                result.ErrorMessage ?? "Infra-evidence Ask grounding failed.",
-                ProblemTypes.ValidationFailed);
-        }
+            InfraEvidenceAskGroundingResult result = await askGroundingService.TryAnswerAsync(
+                scope,
+                request,
+                cancellationToken);
 
-        return Ok(result.Response);
+            if (!result.Succeeded || result.Response is null)
+            {
+                return this.BadRequestProblem(
+                    result.ErrorMessage ?? "Infra-evidence Ask grounding failed.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(result.Response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

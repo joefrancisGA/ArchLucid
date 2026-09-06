@@ -45,6 +45,13 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  mergeInfrastructureAskAuditScope,
+  mergeWorkbenchHubScopePatch,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -173,6 +180,13 @@ export function DiagramsWorkbenchClient() {
 
     return resolveDefaultFallbackKey(fallbackArtifacts);
   }, [fallbackArtifacts, selectedViewKey, showFallbackCards]);
+
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
+  const workbenchHubScopePatch = useMemo(
+    () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
+    [auditScope, scopedSnapshotId],
+  );
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
@@ -402,15 +416,32 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="diagram"
+            primaryHref={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
               tab: "diagram",
-              snapshotId: selectedSnapshotId,
+              ...workbenchHubScopePatch,
             })}
-          >
-            Open resource evidence hub
-          </Link>
+            primaryTestId="infra-diagrams-open-primary-hub"
+            siblingTestIdPrefix="infra-diagrams"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["terraform", "findings", "remediation", "drift"]}
+            includeAuditTab={auditScope != null}
+            extraLinks={[
+              {
+                testId: "infra-diagrams-open-diagram-reconcile",
+                href: buildResourceHubDiagramReconcileWorkbenchHref(
+                  scopedSnapshotId,
+                  undefined,
+                  undefined,
+                  urlCloudResourceId,
+                  auditScope,
+                ),
+                label: "Open diagram reconciliation",
+              },
+            ]}
+          />
         </section>
       ) : null}
 
@@ -528,6 +559,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
               Ask about this snapshot

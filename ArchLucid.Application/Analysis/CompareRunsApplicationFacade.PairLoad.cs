@@ -83,6 +83,24 @@ public sealed partial class CompareRunsApplicationFacade
             };
         }
 
+        if (!TryEnsureCompletePair(left, leftGuid, ScopedRunPairLoadOutcome.LeftLifecycleIncomplete, out ScopedRunPairLoadOutcome? leftLifecycleOutcome))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = leftLifecycleOutcome!.Value,
+                RunId = leftGuid,
+            };
+        }
+
+        if (!TryEnsureCompletePair(right, rightGuid, ScopedRunPairLoadOutcome.RightLifecycleIncomplete, out ScopedRunPairLoadOutcome? rightLifecycleOutcome))
+        {
+            return new ScopedRunPairLoadResult
+            {
+                Outcome = rightLifecycleOutcome!.Value,
+                RunId = rightGuid,
+            };
+        }
+
         try
         {
             RunComparePinFingerprintGuard.EnsureCreateTimePinFingerprintsMatchOrThrow(leftHeader, rightHeader);
@@ -174,5 +192,25 @@ public sealed partial class CompareRunsApplicationFacade
                 CommittedArtifactInventoryCompareFingerprint.ComputeHashSha256(
                     rightCompare.GoldenManifest.CommittedArtifactInventory)),
         };
+    }
+
+    private static bool TryEnsureCompletePair(
+        ArchitectureRunDetail detail,
+        Guid runId,
+        ScopedRunPairLoadOutcome blockedOutcome,
+        out ScopedRunPairLoadOutcome? outcome)
+    {
+        outcome = null;
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.ToString("N"));
+            return true;
+        }
+        catch (ConflictException)
+        {
+            outcome = blockedOutcome;
+            return false;
+        }
     }
 }
