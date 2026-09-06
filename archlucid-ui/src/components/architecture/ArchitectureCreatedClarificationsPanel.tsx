@@ -14,7 +14,16 @@ import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clar
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import {
+  ARCHITECTURE_CREATED_CLARIFICATIONS_BUYER_EMPTY_SUCCESS_BODY,
+  ARCHITECTURE_CREATED_CLARIFICATIONS_BUYER_START_HERE_HELPER,
+  ARCHITECTURE_CREATED_CLARIFICATIONS_PAGE_LEAD,
+} from "@/lib/architecture/architecture-created-clarifications-sources";
+import {
+  ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-clarifications-page-copy";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
@@ -51,6 +60,7 @@ function hasOpenQuestionEntities(
 export function ArchitectureCreatedClarificationsPanel(
   props: ArchitectureCreatedClarificationsPanelProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [parseAttempt, setParseAttempt] = useState(0);
   const continueClarifyingHref = buildArchitectureCorrectionHref(props.model.runId, props.correctionHref);
   const diagramTabHref = buildReviewWorkspaceTabHref(props.model.runId, "architecture");
@@ -85,8 +95,36 @@ export function ArchitectureCreatedClarificationsPanel(
   const clarificationQuestions = props.clarificationQuestions ?? [];
 
   return (
-    <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
+    <div
+      className="space-y-5"
+      data-testid="architecture-workspace-clarifications-panel"
+      role="region"
+      aria-labelledby="architecture-clarifications-heading"
+    >
+      <h2 id="architecture-clarifications-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        Clarifications
+      </h2>
+
+      {buyerPolishedShell ? (
+        <div
+          id={ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID}
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800 scroll-mt-24"
+          data-testid={ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID}
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-clarifications-intro"
+          >
+            {ARCHITECTURE_CREATED_CLARIFICATIONS_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-clarifications-buyer-start-here-helper"
+          >
+            {ARCHITECTURE_CREATED_CLARIFICATIONS_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
 
       {deltaPresentation.summary !== null ? (
         <p
@@ -97,7 +135,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       ) : null}
 
-      {props.clarificationRoundAvailable === true ? (
+      {props.clarificationRoundAvailable === true && !buyerPolishedShell ? (
         <ClarificationAnswerCapturePanel
           runId={props.model.runId}
           priorRunId={props.priorRunId ?? props.model.runId}
@@ -106,7 +144,7 @@ export function ArchitectureCreatedClarificationsPanel(
         />
       ) : null}
 
-      {!isZeroGapSuccess ? (
+      {!isZeroGapSuccess && !buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
           with sponsors or creating work items.
@@ -131,9 +169,11 @@ export function ArchitectureCreatedClarificationsPanel(
             No open clarifications
           </h3>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Your brief covers the required context. Review the diagram, run an assessment, or open findings when you are
-            ready for the next step.
+            {buyerPolishedShell
+              ? ARCHITECTURE_CREATED_CLARIFICATIONS_BUYER_EMPTY_SUCCESS_BODY
+              : "Your brief covers the required context. Review the diagram, run an assessment, or open findings when you are ready for the next step."}
           </p>
+          {buyerPolishedShell ? null : (
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant={reviewDiagramVariant} size="sm" asChild>
               <Link href={diagramTabHref}>Review diagram</Link>
@@ -145,6 +185,7 @@ export function ArchitectureCreatedClarificationsPanel(
               <Link href={activityTabHref}>View assessment progress</Link>
             </Button>
           </div>
+          )}
         </div>
       ) : hasVisibleWorkQueue ? (
         <div className="space-y-4">
@@ -165,6 +206,7 @@ export function ArchitectureCreatedClarificationsPanel(
                       answerHref={continueClarifyingHref}
                       onNavigateTab={props.onNavigateTab}
                       onDismiss={props.onDismissClarificationGap}
+                      hideOperatorActions={buyerPolishedShell}
                     />
                   </li>
                 ))}
@@ -189,6 +231,7 @@ export function ArchitectureCreatedClarificationsPanel(
                       answerHref={continueClarifyingHref}
                       onNavigateTab={props.onNavigateTab}
                       onDismiss={props.onDismissClarificationGap}
+                      hideOperatorActions={buyerPolishedShell}
                     />
                   </li>
                 ))}
@@ -213,6 +256,7 @@ export function ArchitectureCreatedClarificationsPanel(
                       answerHref={continueClarifyingHref}
                       onNavigateTab={props.onNavigateTab}
                       onDismiss={props.onDismissClarificationGap}
+                      hideOperatorActions={buyerPolishedShell}
                     />
                   </li>
                 ))}
@@ -256,7 +300,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </details>
       ) : null}
 
-      {!isZeroGapSuccess ? (
+      {!isZeroGapSuccess && !buyerPolishedShell ? (
         <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Confidence impact
@@ -273,7 +317,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </div>
       ) : null}
 
-      <ArchitectureCreatedClarificationsEvidenceOrientationStrip />
+      {buyerPolishedShell ? null : <ArchitectureCreatedClarificationsEvidenceOrientationStrip />}
     </div>
   );
 }
