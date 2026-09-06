@@ -2,6 +2,7 @@ import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
+import { OperateInfrastructureNavGroupBuilder } from "@/lib/operate-infrastructure-nav-group-builder";
 import { OperatePolicyNavGroupBuilder } from "@/lib/operate-policy-nav-group-builder";
 import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-nav-group-builder";
 import { OperatorAdminNavGroupBuilder } from "@/lib/operator/operator-admin-nav-group-builder";
@@ -21,6 +22,7 @@ const NAV_GROUP_BUILDERS: NavGroupBuilder[] = [
   new PilotNavGroupBuilder(),
   new OperateAnalysisNavGroupBuilder(),
   new OperateGovernanceNavGroupBuilder(),
+  new OperateInfrastructureNavGroupBuilder(),
   new OperatePolicyNavGroupBuilder(),
   new OperateIntegrationsNavGroupBuilder(),
   new OperatorAdminNavGroupBuilder(),

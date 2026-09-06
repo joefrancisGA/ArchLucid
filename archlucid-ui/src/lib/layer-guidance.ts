@@ -47,7 +47,14 @@ export type LayerGuidancePageKey =
   | "security-trust"
   | "teams-notifications"
   | "itsm-connectors"
-  | "slack-notifications";
+  | "slack-notifications"
+  | "infrastructure-overview"
+  | "infrastructure-drift"
+  | "infrastructure-diagrams"
+  | "infrastructure-diagram-reconcile"
+  | "infrastructure-resources"
+  | "infrastructure-ask"
+  | "infrastructure-remediation";
 
 export type LayerGuidanceBlock = {
   /** Short badge — **Advanced operations** (deep-dive) vs **Governance** (approvals, audit, alerts, policy); governance rows set `enterpriseFootnote`. */
@@ -287,6 +294,55 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Use when one metric is not enough; add cooldown as needed.",
     firstPilotNote: "Composite rules after Pilot proof when AND/OR firing is in scope.",
     enterpriseFootnote: "AND/OR and cooldown configuration.",
+  },
+  "infrastructure-overview": {
+    layerBadge: "Advanced operations",
+    headline: "Directory for Azure inventory evidence workbenches.",
+    useWhen: "Open a workbench when you need snapshots, diagrams, resource evidence, Ask, or remediation instances.",
+    firstPilotNote: "Optional until cloud inventory snapshots exist for your scope.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-drift": {
+    layerBadge: "Advanced operations",
+    headline: "Compare inventory snapshots and classify drift.",
+    useWhen: "Pick current and baseline snapshots before exporting advisory Terraform.",
+    firstPilotNote: "Shipped in IE-UX-01 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-diagrams": {
+    layerBadge: "Advanced operations",
+    headline: "Render inventory diagrams at scale with honest partitioned fallbacks.",
+    useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
+    firstPilotNote: "Shipped in IE-UX-02 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-diagram-reconcile": {
+    layerBadge: "Advanced operations",
+    headline: "Reconcile diagrams against inventory snapshots.",
+    useWhen: "Upload or select a diagram, pick a snapshot, then review correspondence rows.",
+    firstPilotNote: "Shipped in IE-UX-03 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-resources": {
+    layerBadge: "Advanced operations",
+    headline: "Search cloud resources and open the evidence hub.",
+    useWhen: "Find a resource by name or type, then inspect drift, diagrams, and findings in one place.",
+    firstPilotNote: "Shipped in IE-UX-04 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-ask": {
+    layerBadge: "Advanced operations",
+    headline: "Ask grounded questions about inventory evidence.",
+    useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
+    firstPilotNote: "Shipped in IE-UX-04 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "infrastructure-remediation": {
+    layerBadge: "Advanced operations",
+    headline: "Track remediation instances and waves with advisory-only execute honesty.",
+    useWhen: "Review instance state, matched patterns, and emitted advisory artifacts — not terraform apply.",
+    firstPilotNote: "Shipped in IE-UX-05 — workbench wiring in progress.",
+    omitReviewPackageScopeHelp: true,
   },
 };
 
