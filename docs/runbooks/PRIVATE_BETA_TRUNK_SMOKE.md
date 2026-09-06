@@ -50,6 +50,14 @@
 | Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
+**Re-trigger after cancellation:** from a clone with `gh` authenticated:
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
+
+Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):
