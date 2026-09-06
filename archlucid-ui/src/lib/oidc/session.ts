@@ -23,6 +23,7 @@ import {
 import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-payload";
 import { refreshAccessToken } from "@/lib/oidc/token-client";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
+import { clearBffSessionCookie, syncBffSessionCookieFromTokenResponse } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 export type OidcPkceFlow = "primary" | "google";
@@ -131,6 +132,8 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
+
+  void syncBffSessionCookieFromTokenResponse(tokens);
 }
 
 export function clearOidcSession(): void {
@@ -150,6 +153,7 @@ export function clearOidcSession(): void {
     OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   ]);
   clearCachedColorModePreference();
+  void clearBffSessionCookie();
 }
 
 function pkceStorageKeys(flow: OidcPkceFlow): {
