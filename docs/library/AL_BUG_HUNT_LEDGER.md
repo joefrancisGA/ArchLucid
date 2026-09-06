@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 216
-- **bugs-found:** 870
+- **hunts:** 217
+- **bugs-found:** 882
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — HubAccessKey/HybridAccessKey/IdentityAccessKey redaction, workloads should-not-deploy/adopt/use/have negation, advice must-not-enforce/mandate/require/need/ensure suffix
+- **last-bug:** 2026-09-06 — ImageAccessKey/ImportAccessKey/IndexAccessKey redaction, workloads need-not-need/doesn't-require/doesn't-need negation, advice workloads should-not-require/shouldn't-require/need-not-need/doesn't-need/must-not-require prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2927,6 +2927,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not require` suffix gap — **hit 2026-09-06 (#944):** broad constraint `must not be required` suffix only; missed imperative-path suffix `must not require`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_require_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not need` suffix gap — **hit 2026-09-06 (#944):** broad constraint `must not be needed` suffix only; missed imperative-path suffix `must not need`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_need_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not ensure` suffix gap — **hit 2026-09-06 (#944):** broad constraint `must not` prefix only; missed imperative-path suffix `must not ensure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_ensure_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ImageAccessKey` not redacted — **hit 2026-09-06 (#945):** compound access-key class after #944; embedded `AccessKey`/`accesskey` fragment guard skipped `ImageAccessKey`/`imageaccesskey`; fixed with explicit credential detection (`Resolve_redacts_image_access_key_config_path`, `IsSensitiveKey_detects_image_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ImportAccessKey` not redacted — **hit 2026-09-06 (#945):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_import_access_key_config_path`, `IsSensitiveKey_detects_import_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `IndexAccessKey` not redacted — **hit 2026-09-06 (#945):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_index_access_key_config_path`, `IsSensitiveKey_detects_index_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `need not need` negation gap — **hit 2026-09-06 (#945):** #933 added advice suffix `need not need` only; missed mid-sentence `need not need {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_need_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `need not need` prefix gap — **hit 2026-09-06 (#945):** mid-sentence fix only; missed sentence-start `need not need {token}`; fixed with prefix negation guard (`HasEncryptionConstraint_does_not_false_positive_on_need_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't require` TrimEnd negation gap — **hit 2026-09-06 (#945):** trailing-space-only mid-sentence pattern missed TrimEnd `doesn't require` before token; fixed with phrase variant parity (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_require_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't need` TrimEnd negation gap — **hit 2026-09-06 (#945):** trailing-space-only mid-sentence pattern missed TrimEnd `doesn't need` before token; fixed with phrase variant parity (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_need_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `should not require` prefix gap — **hit 2026-09-06 (#945):** suffix guards only; missed mid-sentence `should not require` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_should_not_require_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `shouldn't require` prefix gap — **hit 2026-09-06 (#945):** suffix guards only; missed mid-sentence `shouldn't require` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_shouldnt_require_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `need not need` prefix gap — **hit 2026-09-06 (#945):** suffix guards only; missed mid-sentence `need not need` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_need_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `doesn't need` prefix gap — **hit 2026-09-06 (#945):** had `doesn't require` EndsWith only; missed `doesn't need` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_doesnt_need_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `must not require` prefix gap — **hit 2026-09-06 (#945):** suffix guards only; missed `must not require` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_must_not_require_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #945 (hit): reseeded after #944 closure; proved twelve hunt-ready rows — ImageAccessKey/ImportAccessKey/IndexAccessKey redaction parity, workloads need-not-need/doesn't-require/doesn't-need constraint negation, and advice workloads should-not-require/shouldn't-require/need-not-need/doesn't-need/must-not-require prefix.
 
 2026-09-06 seed hunt #944 (hit): reseeded after #943 closure; proved twelve hunt-ready rows — HubAccessKey/HybridAccessKey/IdentityAccessKey redaction parity, workloads should-not-deploy/adopt/use/have constraint negation, and advice must-not-enforce/mandate/require/need/ensure suffix.
 
