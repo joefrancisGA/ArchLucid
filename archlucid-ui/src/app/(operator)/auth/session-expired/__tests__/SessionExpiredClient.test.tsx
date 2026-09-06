@@ -54,6 +54,7 @@ vi.mock("@/lib/oidc/build-authorize-url", () => ({
 // -------------------------------------------------------------------
 
 import { SessionExpiredClient } from "@/app/(operator)/auth/session-expired/SessionExpiredClient";
+import { SESSION_IDLE_TIMEOUT_MINUTES } from "@/lib/auth/session-idle-timeout";
 import { consumePostSignInReturnUrl } from "@/lib/oidc/session";
 
 function setSearchParams(params: Record<string, string>) {
@@ -91,7 +92,10 @@ describe("SessionExpiredClient", () => {
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
     expect(
       screen.getByText(
-        new RegExp(`for your security, archlucid signed you out after 30 minutes of inactivity`, "i"),
+        new RegExp(
+          `for your security, archlucid signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity`,
+          "i",
+        ),
       ),
     ).toBeInTheDocument();
   });
@@ -181,6 +185,7 @@ describe("SessionExpiredClient", () => {
     fireEvent.click(screen.getByTestId("session-expired-sign-in"));
 
     expect(screen.getByRole("heading", { name: "Sign-in could not start" })).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByText("Access request")).toBeNull();
 
     fireEvent.click(screen.getByTestId("auth-error-try-again"));
