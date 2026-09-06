@@ -56,3 +56,15 @@ export function resourceExplorerWorkQueueApiValue(workQueue: CloudResourceExplor
 
   return workQueue;
 }
+
+export function formatCloudResourceExplorerWorkQueueLabel(
+  workQueue: CloudResourceExplorerWorkQueue,
+): string | null {
+  if (workQueue === "all") {
+    return null;
+  }
+
+  const option = CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((entry) => entry.id === workQueue);
+
+  return option?.label ?? workQueue;
+}

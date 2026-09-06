@@ -302,7 +302,10 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell>
                 <Button asChild size="sm" variant="outline">
                   <Link
-                    href={buildInfrastructureAskHref({ cloudResourceId: row.cloudResourceId })}
+                    href={buildInfrastructureAskHref({
+                      cloudResourceId: row.cloudResourceId,
+                      workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
+                    })}
                     data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
                   >
                     Ask

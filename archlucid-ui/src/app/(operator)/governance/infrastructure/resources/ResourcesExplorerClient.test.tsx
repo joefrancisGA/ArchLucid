@@ -100,4 +100,15 @@ describe("ResourcesExplorerClient", () => {
 
     expect(replace).toHaveBeenCalledWith("/governance/infrastructure/resources?workQueue=open-findings");
   });
+
+  it("passes active work queue into explorer Ask links", async () => {
+    searchParams = new URLSearchParams("workQueue=open-findings");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByTestId("infra-resource-explorer-ask-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+    );
+  });
 });

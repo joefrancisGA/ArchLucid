@@ -183,6 +183,19 @@ describe("InfrastructureAskClient", () => {
     );
   });
 
+  it("shows explorer work queue in context banner and links back to filtered explorer", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("work queue Open findings");
+    expect(screen.getByTestId("infra-ask-explorer-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources?workQueue=open-findings",
+    );
+  });
+
   it("shows context banner and keeps multi-turn history", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",

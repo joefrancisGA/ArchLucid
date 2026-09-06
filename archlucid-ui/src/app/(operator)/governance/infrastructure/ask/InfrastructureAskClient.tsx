@@ -16,9 +16,11 @@ import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
+  resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   resolveResourceHubTabFromAskScope,
   RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM,
+  RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
@@ -29,6 +31,10 @@ import {
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  formatCloudResourceExplorerWorkQueueLabel,
+  parseResourceExplorerWorkQueueFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
@@ -59,6 +65,8 @@ export function InfrastructureAskClient() {
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
+  const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
   const [question, setQuestion] = useState("");
   const [useSimulator, setUseSimulator] = useState(true);
@@ -113,12 +121,16 @@ export function InfrastructureAskClient() {
       parts.push(`correspondence ${correspondenceId}`);
     }
 
+    if (workQueueLabel != null) {
+      parts.push(`work queue ${workQueueLabel}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId]);
+  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
 
   const hubBackLinkTab = useMemo(
     () => resolveResourceHubTabFromAskScope({
@@ -177,7 +189,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -205,6 +217,15 @@ export function InfrastructureAskClient() {
               })}
             >
               Open resource evidence hub
+            </Link>
+          ) : null}
+          {workQueue !== "all" ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={resourceExplorerFilterHrefFromSearch("", { workQueue })}
+              data-testid="infra-ask-explorer-back-link"
+            >
+              Back to resource explorer
             </Link>
           ) : null}
         </section>
