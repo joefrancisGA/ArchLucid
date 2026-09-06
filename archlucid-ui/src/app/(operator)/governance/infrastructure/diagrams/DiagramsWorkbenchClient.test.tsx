@@ -142,10 +142,11 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-resource-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
-    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+    expect(screen.getByTestId("infra-diagrams-open-primary-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=diagram&snapshotId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByRole("link", { name: "View diagram correspondence in hub" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-open-diagram-reconcile")).toHaveAttribute(
       "href",
       "/governance/infrastructure/diagram-reconcile?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",

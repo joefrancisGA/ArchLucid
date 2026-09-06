@@ -260,6 +260,21 @@ describe("InfrastructureAskClient", () => {
     );
   });
 
+  it("prefers ask scope over explorer work queue for hub back-link label", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1&workQueue=open-remediation",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByRole("link", { name: "View findings in hub" })).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-ask-open-work-queue-hub-tab")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View remediation in hub" })).not.toBeInTheDocument();
+  });
+
   it("preserves diagram neighborhood seed in inventory diagrams back link", async () => {
     const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
     searchParams = new URLSearchParams(

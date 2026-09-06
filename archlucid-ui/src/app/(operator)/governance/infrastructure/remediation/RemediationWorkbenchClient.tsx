@@ -8,11 +8,13 @@ import { Loader2 } from "lucide-react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import {
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeWorkbenchHubScopePatch,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -151,6 +153,13 @@ export function RemediationWorkbenchClient() {
 
     return groups;
   }, [visibleInstances]);
+
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const remediationSnapshotId = urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : selectedSnapshotId;
+  const workbenchHubScopePatch = useMemo(
+    () => mergeWorkbenchHubScopePatch(remediationSnapshotId, auditScope, urlReconcileRunId),
+    [auditScope, remediationSnapshotId, urlReconcileRunId],
+  );
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -392,17 +401,18 @@ export function RemediationWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "remediation",
-              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+              ...workbenchHubScopePatch,
             })}
+            data-testid="infra-remediation-open-primary-hub"
           >
-            Open resource evidence hub
+            {formatResourceHubWorkbenchPrimaryHubLabel("remediation")}
           </Link>
           <Link
             className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "findings",
-              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-remediation-open-findings-hub"
           >
@@ -413,7 +423,7 @@ export function RemediationWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "drift",
-              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-remediation-open-drift-hub"
           >
@@ -424,7 +434,7 @@ export function RemediationWorkbenchClient() {
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "terraform",
-              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+              ...workbenchHubScopePatch,
             })}
             data-testid="infra-remediation-open-terraform-hub"
           >
@@ -441,6 +451,19 @@ export function RemediationWorkbenchClient() {
               data-testid="infra-remediation-open-diagram-hub"
             >
               Open diagram correspondence
+            </Link>
+          ) : null}
+          {auditScope != null ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={buildResourceHubWorkbenchHref({
+                cloudResourceId: urlCloudResourceId,
+                tab: "audit",
+                ...workbenchHubScopePatch,
+              })}
+              data-testid="infra-remediation-open-audit-hub"
+            >
+              Open audit lineage
             </Link>
           ) : null}
         </section>
@@ -617,9 +640,13 @@ export function RemediationWorkbenchClient() {
                       <dd>
                         <Link
                           className="text-al-link hover:underline"
-                          href={governanceInfrastructureResourceHubPath(detail.finding.cloudResourceId)}
+                          href={buildResourceHubWorkbenchHref({
+                            cloudResourceId: detail.finding.cloudResourceId,
+                            tab: "remediation",
+                            ...workbenchHubScopePatch,
+                          })}
                         >
-                          Open resource evidence hub
+                          {formatResourceHubWorkbenchPrimaryHubLabel("remediation")}
                         </Link>
                       </dd>
                     </div>

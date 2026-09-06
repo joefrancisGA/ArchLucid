@@ -132,17 +132,22 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
       "33333333-3333-3333-3333-333333333333",
     );
+    expect(screen.getByTestId("infra-remediation-open-primary-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=remediation&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByRole("link", { name: "View remediation in hub" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-open-findings-hub")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-remediation-open-drift-hub")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=drift",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=drift&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
@@ -215,7 +220,7 @@ describe("RemediationWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(

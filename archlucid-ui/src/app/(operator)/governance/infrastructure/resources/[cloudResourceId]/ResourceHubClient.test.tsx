@@ -512,4 +512,70 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
   });
+
+  it("keeps hub tab cross-link glue anchors for the fully-populated mock hub", async () => {
+    const auditQuery =
+      "snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const tabCrossLinks: Record<string, string[]> = {
+      findings: [
+        "infra-resource-hub-findings-open-overview-tab",
+        "infra-resource-hub-findings-open-drift-tab",
+        "infra-resource-hub-findings-open-diagram-tab",
+        "infra-resource-hub-findings-open-remediation-tab",
+        "infra-resource-hub-findings-open-terraform-tab",
+        "infra-resource-hub-findings-open-audit-tab",
+      ],
+      drift: [
+        "infra-resource-hub-drift-open-overview-tab",
+        "infra-resource-hub-drift-open-terraform",
+        "infra-resource-hub-drift-open-diagram-tab",
+        "infra-resource-hub-drift-open-findings-tab",
+        "infra-resource-hub-drift-open-remediation-tab",
+        "infra-resource-hub-drift-open-audit-tab",
+      ],
+      diagram: [
+        "infra-resource-hub-diagram-open-overview-tab",
+        "infra-resource-hub-diagram-open-findings-tab",
+        "infra-resource-hub-diagram-open-drift-tab",
+        "infra-resource-hub-diagram-open-remediation-tab",
+        "infra-resource-hub-diagram-open-terraform-tab",
+        "infra-resource-hub-diagram-open-audit-tab",
+      ],
+      terraform: [
+        "infra-resource-hub-terraform-open-overview-tab",
+        "infra-resource-hub-terraform-open-drift-tab",
+        "infra-resource-hub-terraform-open-findings-tab",
+        "infra-resource-hub-terraform-open-remediation-tab",
+        "infra-resource-hub-terraform-open-diagram-tab",
+        "infra-resource-hub-terraform-open-audit-tab",
+      ],
+      remediation: [
+        "infra-resource-hub-remediation-open-overview-tab",
+        "infra-resource-hub-remediation-open-findings-tab",
+        "infra-resource-hub-remediation-open-diagram-tab",
+        "infra-resource-hub-remediation-open-drift-tab",
+        "infra-resource-hub-remediation-open-terraform-tab",
+        "infra-resource-hub-remediation-open-audit-tab",
+      ],
+      audit: [
+        "infra-resource-hub-audit-open-overview-tab",
+        "infra-resource-hub-audit-open-findings-tab",
+        "infra-resource-hub-audit-open-diagram-tab",
+        "infra-resource-hub-audit-open-terraform-tab",
+        "infra-resource-hub-audit-open-drift-tab",
+        "infra-resource-hub-audit-open-remediation-tab",
+      ],
+    };
+
+    for (const [tab, testIds] of Object.entries(tabCrossLinks)) {
+      searchParams = new URLSearchParams(`tab=${tab}&${auditQuery}`);
+      const { unmount } = render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+      for (const testId of testIds) {
+        expect(await screen.findByTestId(testId)).toBeInTheDocument();
+      }
+
+      unmount();
+    }
+  });
 });

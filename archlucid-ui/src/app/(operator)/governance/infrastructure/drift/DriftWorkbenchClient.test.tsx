@@ -102,6 +102,11 @@ describe("DriftWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-drift-resource-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-drift-open-primary-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=drift&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByRole("link", { name: "View drift in hub" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-open-terraform-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
@@ -114,11 +119,27 @@ describe("DriftWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=remediation&snapshotId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-drift-open-diagram-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=diagram&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     await waitFor(() => {
       expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
         cloudResourceId: "22222222-2222-2222-2222-222222222222",
       });
     });
+  });
+
+  it("shows audit hub cross-link when audit scope params are in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-drift-open-audit-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=audit&snapshotId=11111111-1111-1111-1111-111111111111&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
   });
 
   it("opens change detail when changeId is deep-linked", async () => {
