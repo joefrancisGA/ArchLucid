@@ -12,7 +12,8 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
-import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildAuditEvidenceLineageUiPath, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
@@ -35,6 +36,10 @@ import {
   formatCloudResourceExplorerWorkQueueLabel,
   parseResourceExplorerWorkQueueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
@@ -145,6 +150,54 @@ export function InfrastructureAskClient() {
     [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
   );
 
+  const driftWorkbenchBackLinkHref = useMemo(() => {
+    if (diffId.length === 0) {
+      return null;
+    }
+
+    return buildDriftWorkbenchHref({
+      diffId,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+    });
+  }, [cloudResourceId, diffId, snapshotId]);
+
+  const diagramReconcileBackLinkHref = useMemo(() => {
+    if (correspondenceId.length === 0) {
+      return null;
+    }
+
+    return buildDiagramReconcileWorkbenchHref({
+      runId: runId.length > 0 ? runId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      correspondenceId,
+    });
+  }, [correspondenceId, runId, snapshotId]);
+
+  const remediationFactoryBackLinkHref = useMemo(() => {
+    if (findingId.length === 0 && instanceId.length === 0) {
+      return null;
+    }
+
+    return buildRemediationWorkbenchHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      instanceId: instanceId.length > 0 ? instanceId : null,
+    });
+  }, [cloudResourceId, findingId, instanceId]);
+
+  const auditLineageBackLinkHref = useMemo(() => {
+    if (
+      assessmentId.length === 0
+      || auditEvidenceSnapshotId.length === 0
+      || controlId.length === 0
+    ) {
+      return null;
+    }
+
+    return buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, controlId);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId]);
+
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
 
@@ -226,6 +279,42 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-explorer-back-link"
             >
               Back to resource explorer
+            </Link>
+          ) : null}
+          {driftWorkbenchBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={driftWorkbenchBackLinkHref}
+              data-testid="infra-ask-drift-back-link"
+            >
+              Open drift workbench
+            </Link>
+          ) : null}
+          {diagramReconcileBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={diagramReconcileBackLinkHref}
+              data-testid="infra-ask-diagram-reconcile-back-link"
+            >
+              Open diagram reconciliation workbench
+            </Link>
+          ) : null}
+          {remediationFactoryBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={remediationFactoryBackLinkHref}
+              data-testid="infra-ask-remediation-back-link"
+            >
+              Open remediation factory
+            </Link>
+          ) : null}
+          {auditLineageBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={auditLineageBackLinkHref}
+              data-testid="infra-ask-audit-lineage-back-link"
+            >
+              Open audit evidence control
             </Link>
           ) : null}
         </section>

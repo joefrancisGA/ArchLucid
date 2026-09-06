@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,10 @@ import {
   IMPROVEMENT_PLANNING_EXPORT_SECTION_TITLE,
   IMPROVEMENT_PLANNING_TECHNICAL_EXPORT_TITLE,
 } from "@/lib/planning-page-copy";
+import {
+  parsePlanningTechnicalExportOpenFromSearch,
+  planningTechnicalExportDisclosureHrefFromSearch,
+} from "@/lib/planning/planning-technical-export-disclosure-url";
 
 const boxCls = cn(
   "mt-5 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50/90 px-3.5 py-3 leading-relaxed text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300",
@@ -26,7 +32,35 @@ const boxCls = cn(
 
 /** Product-facing export actions for planning summaries, with technical options behind disclosure. */
 export function PlanningExportReadinessNote() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const planningTechnicalExportOpenParam = searchParams.get("planningTechnicalExportOpen");
+  const [technicalExportOpen, setTechnicalExportOpenState] = useState(() =>
+    parsePlanningTechnicalExportOpenFromSearch(planningTechnicalExportOpenParam),
+  );
   const showTechnicalExport = isShowSystemAdministrationNavEnabled();
+
+  const syncTechnicalExportOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(planningTechnicalExportDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalExportOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalExportOpenState(open);
+      syncTechnicalExportOpenToUrl(open);
+    },
+    [syncTechnicalExportOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalExportOpenState(parsePlanningTechnicalExportOpenFromSearch(planningTechnicalExportOpenParam));
+  }, [planningTechnicalExportOpenParam]);
 
   return (
     <aside
@@ -62,7 +96,8 @@ export function PlanningExportReadinessNote() {
         <div className="mt-4">
           <CollapsibleSection
             title={IMPROVEMENT_PLANNING_TECHNICAL_EXPORT_TITLE}
-            defaultOpen={false}
+            open={technicalExportOpen}
+            onToggle={setTechnicalExportOpen}
             sectionTestId="planning-technical-export-options"
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

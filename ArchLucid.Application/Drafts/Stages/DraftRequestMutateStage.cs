@@ -12,7 +12,8 @@ public sealed class DraftRequestMutateStage(
     IDraftRequestRepository draftRepository,
     IQuestionSelectionEngine questionSelectionEngine,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
-    IArchitectureIdentityService architectureIdentityService) : IDraftRequestMutateStage
+    IArchitectureIdentityService architectureIdentityService,
+    IPresenterIntakeTrailSyncService presenterIntakeTrailSyncService) : IDraftRequestMutateStage
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -25,6 +26,9 @@ public sealed class DraftRequestMutateStage(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IPresenterIntakeTrailSyncService _presenterIntakeTrailSyncService =
+        presenterIntakeTrailSyncService ?? throw new ArgumentNullException(nameof(presenterIntakeTrailSyncService));
 
     public async Task<DraftRequestResponse?> PatchAsync(
         ScopeContext scope,
@@ -115,15 +119,35 @@ public sealed class DraftRequestMutateStage(
         if (existing is null)
             return null;
 
-        if (!DraftRequestStateMachine.AllowsQuestionAnswers(existing.Status))
+        if (!DraftRequestStateMachine.AllowsPresenterQuestionAnswers(existing.Status, request.PresenterCapture))
             throw new InvalidOperationException(
                 $"Draft '{draftId}' does not accept answers in status '{existing.Status}'.");
 
-        existing.Document.QuestionAnswers[request.QuestionKey.Trim()] = request.Answer.Trim();
-        DraftDocumentMutator.RemoveSkippedQuestion(existing.Document, request.QuestionKey.Trim());
-        DraftDocumentMutator.RecordAssertedAnswer(existing.Document, request.QuestionKey.Trim(), request.Answer.Trim());
+        string questionKey = request.QuestionKey.Trim();
+        string answer = request.Answer.Trim();
 
-        return await _draftRepository.UpdateAsync(
+        existing.Document.QuestionAnswers[questionKey] = answer;
+        DraftDocumentMutator.RemoveSkippedQuestion(existing.Document, questionKey);
+
+        if (request.PresenterCapture)
+        {
+            string responderLabel = string.IsNullOrWhiteSpace(request.ResponderLabel)
+                ? "Room"
+                : request.ResponderLabel.Trim();
+
+            DraftDocumentMutator.RecordPresenterAssertedAnswer(
+                existing.Document,
+                questionKey,
+                answer,
+                responderLabel,
+                TimeProvider.System.GetUtcNow().UtcDateTime);
+        }
+        else
+        {
+            DraftDocumentMutator.RecordAssertedAnswer(existing.Document, questionKey, answer);
+        }
+
+        DraftRequestResponse? updated = await _draftRepository.UpdateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -133,6 +157,19 @@ public sealed class DraftRequestMutateStage(
             existing.RedirectReason,
             existing.SpawnedRunId,
             cancellationToken);
+
+        if (updated is not null)
+        {
+            await _presenterIntakeTrailSyncService
+                .TrySyncDraftTransparencyTrailToSpawnedRunAsync(
+                    scope,
+                    updated.SpawnedRunId,
+                    updated.Document.TransparencyTrail,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return updated;
     }
 
     public async Task<DraftRequestResponse?> SkipQuestionAsync(

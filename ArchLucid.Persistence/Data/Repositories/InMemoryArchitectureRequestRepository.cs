@@ -98,6 +98,26 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task<bool> ReplaceAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(request.RequestId))
+            throw new ArgumentException("RequestId is required.", nameof(request));
+
+        lock (_gate)
+        {
+            if (!_byId.ContainsKey(request.RequestId))
+                return Task.FromResult(false);
+
+            _byId[request.RequestId] = Clone(request);
+        }
+
+        return Task.FromResult(true);
+    }
+
     private static ArchitectureRequest Clone(ArchitectureRequest source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

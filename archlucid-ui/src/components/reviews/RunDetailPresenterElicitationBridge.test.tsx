@@ -26,6 +26,8 @@ const elicitationMock = vi.hoisted(() => ({
     confirm: vi.fn(async () => undefined),
     reject: vi.fn(async () => undefined),
     askAnother: vi.fn(async () => undefined),
+    transparencyTrail: null,
+    lastRecordedEntry: null,
   } satisfies UseReviewPresenterElicitationResult,
 }));
 
@@ -80,6 +82,8 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       confirm: vi.fn(async () => undefined),
       reject: vi.fn(async () => undefined),
       askAnother: vi.fn(async () => undefined),
+      transparencyTrail: null,
+      lastRecordedEntry: null,
     };
   });
 
@@ -122,6 +126,33 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.queryByTestId("review-presenter-elicitation-confirm")).toBeNull();
     expect(screen.queryByTestId("review-presenter-elicitation-reject")).toBeNull();
     expect(screen.queryByTestId("review-presenter-elicitation-another")).toBeNull();
+  });
+
+  it("shows recorded-as-asserted confirmation after presenter capture", () => {
+    elicitationMock.value = {
+      ...elicitationMock.value,
+      lastRecordedEntry: {
+        questionKey: "latency",
+        answer: "Yes",
+        responderLabel: "Room",
+      },
+      transparencyTrail: {
+        asserted: [{ key: "answer.latency", value: "Yes", responderLabel: "Room" }],
+        inferred: [],
+        skipped: [],
+      },
+    };
+
+    render(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        panels={panels}
+      />,
+    );
+
+    expect(screen.getByTestId("review-presenter-recorded-asserted")).toHaveTextContent("Recorded as asserted");
+    expect(screen.getByTestId("review-presenter-asserted-trail")).toHaveTextContent("Yes");
   });
 
   it("does not enter presenter elicitation in Guided mode", () => {

@@ -28,6 +28,7 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
         services.AddScoped<IPriorPackageSemanticMergeService, PriorPackageSemanticMergeService>();
         services.AddScoped<IDraftRequestCreateStage, DraftRequestCreateStage>();
+        services.AddScoped<IPresenterIntakeTrailSyncService, PresenterIntakeTrailSyncService>();
         services.AddScoped<IDraftRequestMutateStage, DraftRequestMutateStage>();
         services.AddScoped<IDraftRequestDeleteStage, DraftRequestDeleteStage>();
         services.AddScoped<IDraftRequestCrudService, DraftRequestCrudService>();

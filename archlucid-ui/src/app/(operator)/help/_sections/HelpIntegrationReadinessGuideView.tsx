@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -37,6 +39,10 @@ import {
   extractMarkdownSectionsByAnchor,
 } from "@/lib/help/help-markdown-sections";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpIntegrationReadinessStatusGlossaryDisclosureHrefFromSearch,
+  parseHelpIntegrationReadinessStatusGlossaryOpenFromSearch,
+} from "@/lib/help/help-integration-readiness-disclosure-url";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -52,6 +58,38 @@ export function HelpIntegrationReadinessGuideView(
   props: HelpIntegrationReadinessGuideViewProps,
 ): React.JSX.Element {
   const { entry, markdown } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpIntegrationReadinessStatusGlossaryOpenParam = searchParams.get("helpIntegrationReadinessStatusGlossaryOpen");
+  const [statusGlossaryOpen, setStatusGlossaryOpenState] = useState(() =>
+    parseHelpIntegrationReadinessStatusGlossaryOpenFromSearch(helpIntegrationReadinessStatusGlossaryOpenParam),
+  );
+
+  const syncStatusGlossaryOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpIntegrationReadinessStatusGlossaryDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStatusGlossaryOpen = useCallback(
+    (open: boolean) => {
+      setStatusGlossaryOpenState(open);
+      syncStatusGlossaryOpenToUrl(open);
+    },
+    [syncStatusGlossaryOpenToUrl],
+  );
+
+  useEffect(() => {
+    setStatusGlossaryOpenState(
+      parseHelpIntegrationReadinessStatusGlossaryOpenFromSearch(helpIntegrationReadinessStatusGlossaryOpenParam),
+    );
+  }, [helpIntegrationReadinessStatusGlossaryOpenParam]);
+
   const sourceDocPath = entry.sourcePaths[0] ?? "";
 
   const firstViewportMarkdown = extractMarkdownSectionsByAnchor(
@@ -160,7 +198,8 @@ export function HelpIntegrationReadinessGuideView(
         <CollapsibleSection
           title={INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE}
           sectionTestId="help-integration-readiness-status-glossary"
-          defaultOpen={false}
+          open={statusGlossaryOpen}
+          onToggle={setStatusGlossaryOpen}
         >
           <MarketingAccessibilityMarkdownFragment
             markdownBody={statusGlossaryMarkdown}

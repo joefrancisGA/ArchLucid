@@ -3595,6 +3595,81 @@ describe("wave48 filter url helpers", () => {
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=snap-1&correspondenceId=corr-1",
     );
   });
+
+  it("help auth, integration readiness, value report, system health, planning export, azure boards, recurrence params", async () => {
+    const {
+      helpAuthenticationSignInDisclosureHrefFromSearch,
+      parseHelpAuthAcceptingInvitationOpenFromSearch,
+      parseHelpAuthAccountRecoveryOpenFromSearch,
+      parseHelpAuthCommonIssuesOpenFromSearch,
+      parseHelpAuthEnterpriseSsoOpenFromSearch,
+    } = await import("@/lib/help/help-authentication-sign-in-disclosure-url");
+    const {
+      helpIntegrationReadinessStatusGlossaryDisclosureHrefFromSearch,
+      parseHelpIntegrationReadinessStatusGlossaryOpenFromSearch,
+    } = await import("@/lib/help/help-integration-readiness-disclosure-url");
+    const {
+      parseValueReportHowItWorksOpenFromSearch,
+      valueReportHowItWorksDisclosureHrefFromSearch,
+    } = await import("@/lib/insights/value-report-how-it-works-disclosure-url");
+    const {
+      parseSystemHealthTechnicalDetailsOpenFromSearch,
+      systemHealthTechnicalDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/system-health/system-health-technical-details-disclosure-url");
+    const {
+      parsePlanningTechnicalExportOpenFromSearch,
+      planningTechnicalExportDisclosureHrefFromSearch,
+    } = await import("@/lib/planning/planning-technical-export-disclosure-url");
+    const {
+      azureBoardsPlatformNotesDisclosureHrefFromSearch,
+      parseAzureBoardsPlatformNotesOpenFromSearch,
+    } = await import("@/lib/integrations/azure-boards-platform-notes-disclosure-url");
+    const {
+      parseRecurrenceSchedulesWorkflowOpenFromSearch,
+      recurrenceSchedulesWorkflowDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedules-workflow-disclosure-url");
+
+    expect(parseHelpAuthCommonIssuesOpenFromSearch("1")).toBe(true);
+    expect(parseHelpAuthAccountRecoveryOpenFromSearch("true")).toBe(true);
+    expect(parseHelpAuthAcceptingInvitationOpenFromSearch("1")).toBe(true);
+    expect(parseHelpAuthEnterpriseSsoOpenFromSearch("true")).toBe(true);
+    expect(
+      helpAuthenticationSignInDisclosureHrefFromSearch(
+        "",
+        {
+          commonIssuesOpen: true,
+          accountRecoveryOpen: false,
+          acceptingInvitationOpen: true,
+          enterpriseSsoOpen: false,
+        },
+        "/help/authentication-sign-in",
+      ),
+    ).toBe("/help/authentication-sign-in?helpAuthCommonIssuesOpen=1&helpAuthAcceptingInvitationOpen=1");
+    expect(parseHelpIntegrationReadinessStatusGlossaryOpenFromSearch("1")).toBe(true);
+    expect(helpIntegrationReadinessStatusGlossaryDisclosureHrefFromSearch("", true)).toBe(
+      "/help/integration-readiness?helpIntegrationReadinessStatusGlossaryOpen=1",
+    );
+    expect(parseValueReportHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(valueReportHowItWorksDisclosureHrefFromSearch("runId=r1", true)).toBe(
+      "/insights/sponsor-report?runId=r1&valueReportHowItWorksOpen=1",
+    );
+    expect(parseSystemHealthTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(systemHealthTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/system-health")).toBe(
+      "/administration/system-health?systemHealthTechnicalDetailsOpen=1",
+    );
+    expect(parsePlanningTechnicalExportOpenFromSearch("1")).toBe(true);
+    expect(planningTechnicalExportDisclosureHrefFromSearch("runId=r1", true)).toBe(
+      "/insights/improvement-planning?runId=r1&planningTechnicalExportOpen=1",
+    );
+    expect(parseAzureBoardsPlatformNotesOpenFromSearch("true")).toBe(true);
+    expect(azureBoardsPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/azure-boards")).toBe(
+      "/integrations/azure-boards?azureBoardsPlatformNotesOpen=1",
+    );
+    expect(parseRecurrenceSchedulesWorkflowOpenFromSearch("1")).toBe(true);
+    expect(recurrenceSchedulesWorkflowDisclosureHrefFromSearch("", true, "/governance/recurrence-schedules")).toBe(
+      "/governance/recurrence-schedules?recurrenceSchedulesWorkflowOpen=1",
+    );
+  });
 });
 
 describe("wave17 filter url helpers", () => {

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -25,6 +27,10 @@ import {
 import type { AzureBoardsConnectionStatusPresentation } from "@/lib/azure-boards-integration-present";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import {
+  azureBoardsPlatformNotesDisclosureHrefFromSearch,
+  parseAzureBoardsPlatformNotesOpenFromSearch,
+} from "@/lib/integrations/azure-boards-platform-notes-disclosure-url";
 
 type Props = {
   readonly status: AzureBoardsConnectionStatusPresentation;
@@ -39,6 +45,35 @@ type Props = {
 };
 
 export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const azureBoardsPlatformNotesOpenParam = searchParams.get("azureBoardsPlatformNotesOpen");
+  const [platformNotesOpen, setPlatformNotesOpenState] = useState(() =>
+    parseAzureBoardsPlatformNotesOpenFromSearch(azureBoardsPlatformNotesOpenParam),
+  );
+
+  const syncPlatformNotesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(azureBoardsPlatformNotesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPlatformNotesOpen = useCallback(
+    (open: boolean) => {
+      setPlatformNotesOpenState(open);
+      syncPlatformNotesOpenToUrl(open);
+    },
+    [syncPlatformNotesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPlatformNotesOpenState(parseAzureBoardsPlatformNotesOpenFromSearch(azureBoardsPlatformNotesOpenParam));
+  }, [azureBoardsPlatformNotesOpenParam]);
+
   const connectSteps = resolveAzureBoardsIntegrationConnectSteps({
     credentialsReady: props.credentialsReady,
     settingsReady: props.settingsReady,
@@ -121,7 +156,7 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
       </div>
 
       {props.showOperatorNotes ? (
-        <CollapsibleSection title="Platform administrator notes" defaultOpen={false}>
+        <CollapsibleSection title="Platform administrator notes" open={platformNotesOpen} onToggle={setPlatformNotesOpen}>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Native work item creation from findings is {props.nativeEnabled ? "enabled" : "disabled"} for this
             deployment.
