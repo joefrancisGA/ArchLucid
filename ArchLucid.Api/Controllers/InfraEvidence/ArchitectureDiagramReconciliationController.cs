@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -32,6 +33,7 @@ public sealed class ArchitectureDiagramReconciliationController(
     [ProducesResponseType(typeof(DiagramInfrastructureReconciliationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Reconcile(
         Guid runId,
         [FromBody] DiagramInfrastructureReconciliationRequest? request,
@@ -59,6 +61,10 @@ public sealed class ArchitectureDiagramReconciliationController(
 
             return Ok(result);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -69,6 +75,7 @@ public sealed class ArchitectureDiagramReconciliationController(
     [ProducesResponseType(typeof(DiagramInfrastructureReconciliationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReconciliation(
         Guid runId,
         [FromQuery] Guid snapshotId,
@@ -81,19 +88,26 @@ public sealed class ArchitectureDiagramReconciliationController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        DiagramInfrastructureReconciliationResult? result = await reconciliationService.TryGetReconciliationAsync(
-            scope,
-            runId,
-            snapshotId,
-            cancellationToken);
-
-        if (result is null)
+        try
         {
-            return this.NotFoundProblem(
-                "Diagram reconciliation was not found for the run and snapshot.",
-                ProblemTypes.ResourceNotFound);
-        }
+            DiagramInfrastructureReconciliationResult? result = await reconciliationService.TryGetReconciliationAsync(
+                scope,
+                runId,
+                snapshotId,
+                cancellationToken);
 
-        return Ok(result);
+            if (result is null)
+            {
+                return this.NotFoundProblem(
+                    "Diagram reconciliation was not found for the run and snapshot.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

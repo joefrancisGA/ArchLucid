@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Core.Audit;
@@ -46,17 +47,25 @@ public sealed class RemediationInstancesController(
     [HttpGet("{instanceId:guid}")]
     [ProducesResponseType(typeof(RemediationInstanceDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Get(Guid instanceId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        RemediationInstanceDetail? detail =
-            await queryService.TryGetInstanceAsync(scope, instanceId, cancellationToken);
+        try
+        {
+            RemediationInstanceDetail? detail =
+                await queryService.TryGetInstanceAsync(scope, instanceId, cancellationToken);
 
-        if (detail is null)
-            return this.NotFoundProblem("Remediation instance was not found.", ProblemTypes.ResourceNotFound);
+            if (detail is null)
+                return this.NotFoundProblem("Remediation instance was not found.", ProblemTypes.ResourceNotFound);
 
-        return Ok(detail);
+            return Ok(detail);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
