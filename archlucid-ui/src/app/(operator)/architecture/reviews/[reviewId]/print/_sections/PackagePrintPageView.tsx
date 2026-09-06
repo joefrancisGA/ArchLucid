@@ -185,7 +185,9 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="package-print-coverage-honesty"
           >
-            {PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+            {presentation.coverageHonestyLine?.trim().length
+              ? presentation.coverageHonestyLine
+              : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
           </p>
         ) : null}
       </DocumentLayout>

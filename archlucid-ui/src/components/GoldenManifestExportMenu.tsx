@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,6 +15,10 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  resolveCareerExportBlockedReason,
+  type CareerExportClassificationCounts,
+} from "@/lib/career-export-coverage-honesty";
+import {
   buildGoldenManifestMarkdownFilename,
   formatGoldenManifestMarkdown,
   isUsableGoldenManifestExportJson,
@@ -24,7 +29,7 @@ import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
-import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestExportMenuProps = {
   runId: string;
@@ -32,6 +37,11 @@ export type GoldenManifestExportMenuProps = {
   goldenManifestJson: unknown | null;
   manifestSummary: ManifestSummary | null;
   trustEvidenceCard?: RunTrustEvidenceCard | null;
+  /** Distinct engines that produced findings on this package snapshot (PC-01 / PC-13). */
+  enginesSucceeded?: number | null;
+  progressSummary?: RunSummary | null;
+  graphSnapshot?: unknown;
+  classificationCounts?: CareerExportClassificationCounts | null;
   /**
    * Buyer deliverables: single obvious control instead of a select labeled "More formats".
    */
@@ -63,6 +73,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     buyerMarkdownAsPrimaryButton = false,
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
+  const workingDesk = useProductionDeskChrome();
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -85,12 +96,35 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       return;
     }
 
+    const careerExportBlockedReason = resolveCareerExportBlockedReason({
+      runId,
+      progressSummary: props.progressSummary ?? null,
+      manifestSummary,
+      graphSnapshot: props.graphSnapshot ?? null,
+      enginesSucceeded: props.enginesSucceeded ?? null,
+      workingDesk,
+      classificationCounts: props.classificationCounts ?? null,
+    });
+
+    if (careerExportBlockedReason !== null) {
+      setExportError(careerExportBlockedReason);
+      return;
+    }
+
     setExportError(null);
 
     const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
       runId,
       manifestSummaryFallback: manifestSummary,
       trustEvidenceCard: trustEvidenceCard ?? null,
+      enginesSucceeded: props.enginesSucceeded ?? null,
+      careerExportHonesty: {
+        progressSummary: props.progressSummary ?? null,
+        graphSnapshot: props.graphSnapshot ?? null,
+        enginesSucceeded: props.enginesSucceeded ?? null,
+        workingDesk,
+        classificationCounts: props.classificationCounts ?? null,
+      },
     });
 
     const filename: string = buildGoldenManifestMarkdownFilename(runId, manifestId);

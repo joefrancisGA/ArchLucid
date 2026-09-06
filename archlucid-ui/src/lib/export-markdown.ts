@@ -1,6 +1,8 @@
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
+import { formatCareerExportHonestyMarkdown } from "@/lib/career-export-coverage-honesty";
+import type { CareerExportCoverageHonestyInput } from "@/lib/career-export-coverage-honesty";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
@@ -26,6 +28,10 @@ export type GoldenManifestMarkdownOptions = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   /** Distinct engines that produced findings on this package snapshot (PC-01). */
   enginesSucceeded?: number | null;
+  /** Optional inputs for the shared career export honesty block (PC-13). */
+  careerExportHonesty?: Omit<CareerExportCoverageHonestyInput, "runId" | "manifestSummary"> & {
+    readonly manifestSummary?: ManifestSummary | null;
+  };
 };
 
 /**
@@ -49,10 +55,54 @@ export function isUsableGoldenManifestExportJson(data: unknown): boolean {
   return true;
 }
 
+function resolveCareerExportHonestyInput(
+  options: GoldenManifestMarkdownOptions | undefined,
+  manifestSummary: ManifestSummary | null | undefined,
+): CareerExportCoverageHonestyInput | null {
+  const runId = options?.runId?.trim() ?? "";
+
+  if (runId.length === 0) {
+    return null;
+  }
+
+  const honestyOptions = options?.careerExportHonesty;
+
+  return {
+    runId,
+    progressSummary: honestyOptions?.progressSummary ?? null,
+    manifestSummary: manifestSummary ?? honestyOptions?.manifestSummary ?? null,
+    graphSnapshot: honestyOptions?.graphSnapshot ?? null,
+    enginesSucceeded: options?.enginesSucceeded ?? honestyOptions?.enginesSucceeded ?? null,
+    workingDesk: honestyOptions?.workingDesk ?? false,
+    classificationCounts: honestyOptions?.classificationCounts ?? null,
+  };
+}
+
+function appendCareerExportHonestyMarkdownSection(
+  body: string,
+  options: GoldenManifestMarkdownOptions | undefined,
+  manifestSummary: ManifestSummary | null | undefined,
+): string {
+  const honestyInput = resolveCareerExportHonestyInput(options, manifestSummary);
+
+  if (honestyInput === null) {
+    return body;
+  }
+
+  const honestyMarkdown = formatCareerExportHonestyMarkdown(honestyInput).trim();
+
+  if (honestyMarkdown.length === 0) {
+    return body;
+  }
+
+  return `${body.trim()}\n\n${honestyMarkdown}\n`;
+}
+
 function formatManifestSummaryFallback(
   summary: ManifestSummary,
   runId?: string | null,
   enginesSucceeded?: number | null,
+  options?: GoldenManifestMarkdownOptions,
 ): string {
   const lines: string[] = [];
 
@@ -112,14 +162,21 @@ function formatManifestSummaryFallback(
   lines.push("_Unavailable without full review record JSON._");
   lines.push("");
 
-  lines.push("## Measurement floor");
-  lines.push("");
-  lines.push(formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null).line);
-  lines.push("");
+  const honestyInput = resolveCareerExportHonestyInput(options, summary);
+
+  if (honestyInput !== null) {
+    lines.push(formatCareerExportHonestyMarkdown(honestyInput).trim());
+    lines.push("");
+  } else {
+    lines.push("## Measurement floor");
+    lines.push("");
+    lines.push(formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null).line);
+    lines.push("");
+  }
 
   const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
 
-  if (trail !== null && trail !== undefined) {
+  if (honestyInput === null && trail !== null && trail !== undefined) {
     lines.push(formatTransparencyTrailMarkdownSection(trail));
   }
 
@@ -142,6 +199,7 @@ export function formatGoldenManifestMarkdown(
   options?: GoldenManifestMarkdownOptions,
 ): string {
   let body: string;
+  let appendSharedHonesty = false;
 
   if (isUsableGoldenManifestExportJson(goldenManifestJson)) {
     const m = goldenManifestJson as Record<string, unknown>;
@@ -151,11 +209,14 @@ export function formatGoldenManifestMarkdown(
     } else {
       body = formatManifestDocumentShape(m);
     }
+
+    appendSharedHonesty = true;
   } else if (options?.manifestSummaryFallback) {
     body = formatManifestSummaryFallback(
       options.manifestSummaryFallback,
       options.runId ?? null,
       options.enginesSucceeded ?? null,
+      options,
     );
   } else {
     body =
@@ -163,5 +224,9 @@ export function formatGoldenManifestMarkdown(
       `Review record JSON was not available and no summary fallback was provided.\n`;
   }
 
-  return appendTrustEvidenceMarkdownSection(body, options?.trustEvidenceCard);
+  const withHonesty = appendSharedHonesty
+    ? appendCareerExportHonestyMarkdownSection(body, options, options?.manifestSummaryFallback ?? null)
+    : body;
+
+  return appendTrustEvidenceMarkdownSection(withHonesty, options?.trustEvidenceCard);
 }

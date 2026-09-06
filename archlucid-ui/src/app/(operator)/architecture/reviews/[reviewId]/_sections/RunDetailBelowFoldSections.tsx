@@ -227,6 +227,9 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
           usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
+          enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+          progressSummary={m.resolvedDetail.run}
+          graphSnapshot={m.resolvedDetail.graphSnapshot}
           pagePrimaryOwnedElsewhere
         />
       ) : null}
