@@ -447,6 +447,17 @@ export function DiagramsWorkbenchClient() {
           >
             Open remediation
           </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "drift",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagrams-open-drift-hub"
+          >
+            Open drift
+          </Link>
         </section>
       ) : null}
 
