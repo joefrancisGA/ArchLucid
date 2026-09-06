@@ -21,6 +21,12 @@ vi.mock("@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip", ()
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/authentication-sign-in",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpAuthenticationSignInGuideView } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInGuideView";
 import { findCustomerAuthBannedPhrases } from "@/lib/auth/customer-auth-messaging";
 import { AUTHENTICATION_SIGN_IN_HELP_PRIMARY_ACTION } from "@/lib/authentication-sign-in-help-copy";

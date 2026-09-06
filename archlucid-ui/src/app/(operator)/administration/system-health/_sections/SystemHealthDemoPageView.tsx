@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -33,6 +35,10 @@ import {
   SYSTEM_HEALTH_SKIP_TARGET_ID,
   systemHealthPageSubtitle,
 } from "@/lib/system-health-page-copy";
+import {
+  parseSystemHealthTechnicalDetailsOpenFromSearch,
+  systemHealthTechnicalDetailsDisclosureHrefFromSearch,
+} from "@/lib/system-health/system-health-technical-details-disclosure-url";
 
 import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
 
@@ -65,6 +71,35 @@ function DemoOperationalCheckRow(props: { readonly check: DemoOperationalCheck }
 }
 
 export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const systemHealthTechnicalDetailsOpenParam = searchParams.get("systemHealthTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseSystemHealthTechnicalDetailsOpenFromSearch(systemHealthTechnicalDetailsOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(systemHealthTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parseSystemHealthTechnicalDetailsOpenFromSearch(systemHealthTechnicalDetailsOpenParam));
+  }, [systemHealthTechnicalDetailsOpenParam]);
+
   const summaryTiles = buildDemoHealthSummaryTiles();
   const operationalChecks = buildDemoOperationalChecks();
 
@@ -106,7 +141,12 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
       </details>
 
       {props.showTechnicalDetails ? (
-        <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="system-health-technical-details">
+        <CollapsibleSection
+          title="Technical details"
+          open={technicalDetailsOpen}
+          onToggle={setTechnicalDetailsOpen}
+          sectionTestId="system-health-technical-details"
+        >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {SYSTEM_HEALTH_CLAIM_DISCIPLINE} Internal diagnostics, dependency probes, and deployment identity are available on the{" "}
             <Link href="/internal/health" className={OPERATOR_LINK.nav}>
