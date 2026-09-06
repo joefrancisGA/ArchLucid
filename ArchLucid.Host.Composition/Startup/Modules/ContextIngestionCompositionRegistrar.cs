@@ -20,6 +20,7 @@ using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.KnowledgeGraph.WafTradeoff;
 using ArchLucid.Persistence.Coordination.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -163,6 +164,7 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
         services.AddScoped<IGraphEdgeInferer, DefaultGraphEdgeInferer>();
         services.AddSingleton<IGraphValidator, GraphValidator>();
+        services.AddSingleton<IWafTradeoffCatalog, WafTradeoffCatalog>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService>();
         services.AddScoped<ArchLucid.KnowledgeGraph.Interfaces.IArchitectureKnowledgeModelGraphProjector,
