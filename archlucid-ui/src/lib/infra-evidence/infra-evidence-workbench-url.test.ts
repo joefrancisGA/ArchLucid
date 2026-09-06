@@ -36,6 +36,20 @@ describe("infra-evidence-workbench-url", () => {
     );
   });
 
+  it("builds remediation workbench links with diagram reconcile handoff context", () => {
+    expect(
+      buildRemediationWorkbenchHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        findingId: "finding-1",
+        correspondenceId: "corr-1",
+        runId: "run-1",
+        snapshotId: "snap-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&correspondenceId=corr-1&runId=run-1&snapshotId=snap-1",
+    );
+  });
+
   it("builds drift workbench links for a hub change row", () => {
     expect(
       buildDriftWorkbenchHref({

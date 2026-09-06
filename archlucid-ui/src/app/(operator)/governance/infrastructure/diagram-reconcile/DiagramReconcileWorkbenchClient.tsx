@@ -29,6 +29,7 @@ import {
   formatDiagramReconcileExplanation,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import {
+  buildDiagramReconcileRemediationHref,
   DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM,
   DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM,
   DIAGRAM_RECONCILE_FILTER_PARAM,
@@ -135,6 +136,7 @@ export function DiagramReconcileWorkbenchClient() {
   const [ingestBusy, setIngestBusy] = useState(false);
   const [reconcileBusy, setReconcileBusy] = useState(false);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
+  const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const syncUrl = useCallback(
@@ -409,8 +411,22 @@ export function DiagramReconcileWorkbenchClient() {
       try {
         const item = buildDiagramReconcileOperationalFindingRequestItem(row, runId.trim(), selectedSnapshotId.trim());
         const result = await ingestOperationalSecurityFindings({ items: [item] });
-        const outcome = result.items?.[0]?.outcome ?? "Unknown";
-        showSuccess(`Operational finding submitted — outcome: ${outcome}`);
+        const ingestItem = result.items?.[0];
+        const outcome = ingestItem?.outcome ?? "Unknown";
+        const findingId = ingestItem?.findingId?.trim() ?? "";
+
+        if (findingId.length > 0) {
+          setIngestedFindingIds((current) => ({
+            ...current,
+            [row.correspondenceId]: findingId,
+          }));
+        }
+
+        showSuccess(
+          findingId.length > 0
+            ? `Operational finding submitted — outcome: ${outcome}. Open remediation factory to match and create an instance.`
+            : `Operational finding submitted — outcome: ${outcome}`,
+        );
       } catch (error: unknown) {
         showError("Could not create operational finding", formatInfraEvidenceDiagramReconcileApiError(error));
       } finally {
@@ -630,6 +646,14 @@ export function DiagramReconcileWorkbenchClient() {
                   })
                   : null;
                 const explanation = formatDiagramReconcileExplanation(row);
+                const ingestedFindingId = ingestedFindingIds[row.correspondenceId] ?? null;
+                const remediationHref = buildDiagramReconcileRemediationHref({
+                  row,
+                  runId,
+                  snapshotId: selectedSnapshotId,
+                  scopedCloudResourceId: urlCloudResourceId,
+                  findingId: ingestedFindingId,
+                });
 
                 return (
                   <EnterpriseTableRow
@@ -692,6 +716,16 @@ export function DiagramReconcileWorkbenchClient() {
                           ) : null}
                           Create operational finding
                         </Button>
+                        {remediationHref != null ? (
+                          <Button asChild variant="outline" size="sm">
+                            <Link
+                              href={remediationHref}
+                              data-testid={`infra-diagram-reconcile-remediation-${row.correspondenceId}`}
+                            >
+                              Open in factory
+                            </Link>
+                          </Button>
+                        ) : null}
                       </div>
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>

@@ -53,19 +53,30 @@ import {
   buildResourceHubWorkbenchHref,
   parseInfraEvidenceWorkbenchQueryValue,
   REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+  REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM,
   REMEDIATION_WORKBENCH_FINDING_ID_PARAM,
+  REMEDIATION_WORKBENCH_RUN_ID_PARAM,
+  REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-function buildDiagramReconcileHref(correspondenceId: string | null): string | null {
-  if (correspondenceId == null || correspondenceId.trim().length === 0) {
+function buildDiagramReconcileHref(context: {
+  readonly correspondenceId: string | null;
+  readonly runId?: string | null;
+  readonly snapshotId?: string | null;
+  readonly cloudResourceId?: string | null;
+}): string | null {
+  if (context.correspondenceId == null || context.correspondenceId.trim().length === 0) {
     return null;
   }
 
   return buildDiagramReconcileWorkbenchHref({
     reconcileFilter: "Conflict",
-    correspondenceId,
+    correspondenceId: context.correspondenceId,
+    runId: context.runId,
+    snapshotId: context.snapshotId,
+    cloudResourceId: context.cloudResourceId,
   });
 }
 
@@ -73,7 +84,13 @@ export function RemediationWorkbenchClient() {
   const searchParams = useSearchParams();
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
-  const urlCorrespondenceId = searchParams.get("correspondenceId")?.trim() ?? "";
+  const urlCorrespondenceId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM),
+  );
+  const urlReconcileRunId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_RUN_ID_PARAM));
+  const urlReconcileSnapshotId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM),
+  );
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
   );
@@ -301,7 +318,12 @@ export function RemediationWorkbenchClient() {
     }
   }, [selectedSnapshotId, selectedStatus, snapshotOptions]);
 
-  const diagramReconcileHref = buildDiagramReconcileHref(urlCorrespondenceId);
+  const diagramReconcileHref = buildDiagramReconcileHref({
+    correspondenceId: urlCorrespondenceId,
+    runId: urlReconcileRunId,
+    snapshotId: urlReconcileSnapshotId,
+    cloudResourceId: urlCloudResourceId,
+  });
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">

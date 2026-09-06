@@ -108,6 +108,13 @@ describe("DiagramReconcileWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
     );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=22222222-3333-4444-5555-666666666666&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(
+      within(conflictRow).queryByTestId("infra-diagram-reconcile-remediation-infra-only-1"),
+    ).not.toBeInTheDocument();
 
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
     fireEvent.change(filter, { target: { value: "Conflict" } });

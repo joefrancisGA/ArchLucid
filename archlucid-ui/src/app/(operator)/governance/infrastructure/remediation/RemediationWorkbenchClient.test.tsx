@@ -178,4 +178,16 @@ describe("RemediationWorkbenchClient", () => {
       "No remediation instance exists yet",
     );
   });
+
+  it("links back to diagram reconcile with full conflict handoff context", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByRole("link", { name: /originating conflict row/i })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=33333333-3333-3333-3333-333333333333&reconcileFilter=Conflict&correspondenceId=corr-1",
+    );
+  });
 });

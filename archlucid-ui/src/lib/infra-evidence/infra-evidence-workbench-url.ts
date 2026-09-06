@@ -13,12 +13,17 @@ export const DRIFT_WORKBENCH_DIFF_ID_PARAM = "diffId";
 export const REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const REMEDIATION_WORKBENCH_FINDING_ID_PARAM = "findingId";
 export const REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM = "instanceId";
+export const REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM = "correspondenceId";
+export const REMEDIATION_WORKBENCH_RUN_ID_PARAM = "runId";
+export const REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM = "snapshotId";
 
 export type InfraEvidenceWorkbenchContext = {
   readonly cloudResourceId?: string | null;
   readonly snapshotId?: string | null;
   readonly instanceId?: string | null;
   readonly findingId?: string | null;
+  readonly correspondenceId?: string | null;
+  readonly runId?: string | null;
   readonly changeId?: string | null;
   readonly diffId?: string | null;
 };
@@ -68,6 +73,18 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
 
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
     params.set(REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM, context.instanceId.trim());
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    params.set(REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM, context.correspondenceId.trim());
+  }
+
+  if (context.runId != null && context.runId.trim().length > 0) {
+    params.set(REMEDIATION_WORKBENCH_RUN_ID_PARAM, context.runId.trim());
+  }
+
+  if (context.snapshotId != null && context.snapshotId.trim().length > 0) {
+    params.set(REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM, context.snapshotId.trim());
   }
 
   const query = params.toString();
