@@ -364,6 +364,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-resource-hub-findings-open-diagram-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
     expect(screen.getByTestId("infra-resource-hub-findings-open-overview-tab")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
