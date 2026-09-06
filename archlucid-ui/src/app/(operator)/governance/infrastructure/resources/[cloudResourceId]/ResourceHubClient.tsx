@@ -947,6 +947,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     </Link>
                   </Button>
                 ) : null}
+                {hub.diagramCorrespondence != null ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    data-testid="infra-resource-hub-terraform-open-diagram-tab"
+                  >
+                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                      View diagram correspondence in hub
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </section>
           </EnterpriseTabsContent>
