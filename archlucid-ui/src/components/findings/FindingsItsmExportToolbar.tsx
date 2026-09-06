@@ -12,11 +12,14 @@ import {
   downloadRunFindingsItsmJsonExport,
   PRE_FINALIZE_FINDINGS_EXPORT_MARKER,
 } from "@/lib/runs/run-findings-itsm-export";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingsItsmExportToolbarProps = {
   runId: string;
   findings: readonly QuickDecisionFinding[];
+  /** Sealed manifest version token for export guard when package is committed. */
+  manifestVersionForExportGuard?: string | null;
   /** When filters hide rows, total before the confidence gate (for scope labels). */
   totalFindingCount?: number;
   /** Compact toolbar row for the findings workspace header. */
@@ -47,12 +50,20 @@ function resolveExportScopeLabel(
 export function FindingsItsmExportToolbar({
   runId,
   findings,
+  manifestVersionForExportGuard,
   totalFindingCount,
   compact = false,
   packageCommitted,
 }: FindingsItsmExportToolbarProps) {
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const sealedManifestBlockedReason =
+    packageCommitted === true
+      ? runCollateralSealedManifestCopyBlockedReason({
+          runId,
+          manifestVersion: manifestVersionForExportGuard,
+        })
+      : null;
   const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
   const scopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
   const exportOptions = packageCommitted === false ? { packageCommitted: false as const } : undefined;
@@ -70,6 +81,11 @@ export function FindingsItsmExportToolbar({
         : `Export ${findings.length} JSON`;
 
   const onExportCsv = useCallback(() => {
+    if (sealedManifestBlockedReason !== null) {
+      setExportError(sealedManifestBlockedReason);
+      return;
+    }
+
     setExportingCsv(true);
     setExportError(null);
 
@@ -80,9 +96,14 @@ export function FindingsItsmExportToolbar({
     } finally {
       setExportingCsv(false);
     }
-  }, [exportOptions, findings, runId]);
+  }, [exportOptions, findings, runId, sealedManifestBlockedReason]);
 
   const onExportJson = useCallback(() => {
+    if (sealedManifestBlockedReason !== null) {
+      setExportError(sealedManifestBlockedReason);
+      return;
+    }
+
     setExportError(null);
 
     try {
@@ -91,7 +112,7 @@ export function FindingsItsmExportToolbar({
     } catch (error) {
       setExportError(error instanceof Error ? error.message : "JSON export failed.");
     }
-  }, [exportOptions, findings, runId]);
+  }, [exportOptions, findings, runId, sealedManifestBlockedReason]);
 
   if (findings.length === 0) {
     return null;
@@ -113,7 +134,7 @@ export function FindingsItsmExportToolbar({
         variant="outline"
         size="sm"
         className="h-8 gap-1.5"
-        disabled={exportingCsv}
+        disabled={exportingCsv || sealedManifestBlockedReason !== null}
         data-testid="findings-export-csv-button"
         onClick={onExportCsv}
       >
@@ -125,6 +146,7 @@ export function FindingsItsmExportToolbar({
         variant="outline"
         size="sm"
         className="h-8 gap-1.5"
+        disabled={sealedManifestBlockedReason !== null}
         data-testid="findings-export-json-button"
         onClick={onExportJson}
       >
@@ -193,7 +215,7 @@ export function FindingsItsmExportToolbar({
           variant="default"
           size="sm"
           className="h-8 gap-1.5"
-          disabled={exportingCsv}
+          disabled={exportingCsv || sealedManifestBlockedReason !== null}
           data-testid="findings-export-csv-button"
           onClick={onExportCsv}
         >
@@ -205,6 +227,7 @@ export function FindingsItsmExportToolbar({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5"
+          disabled={sealedManifestBlockedReason !== null}
           data-testid="findings-export-json-button"
           onClick={onExportJson}
         >

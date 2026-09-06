@@ -143,6 +143,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
                   manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
                   packageCommitted={Boolean(m.manifestId)}
+                  manifestIdForExportGuard={m.manifestId}
                   analysisStagesComplete={createHomeAnalysisStagesComplete}
                   triageVisibleCount={findingsTriageVisibleCount}
                   requestAssumptionTexts={requestAssumptionTexts}

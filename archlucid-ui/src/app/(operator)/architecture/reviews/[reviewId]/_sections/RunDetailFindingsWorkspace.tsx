@@ -76,6 +76,7 @@ export type RunDetailFindingsWorkspaceProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly manifestIdForExportGuard?: string | null;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
@@ -298,6 +299,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           totalFindingCount={listFindings.length}
           compact
           packageCommitted={props.packageCommitted}
+          manifestVersionForExportGuard={props.manifestIdForExportGuard}
         />
       }
     />

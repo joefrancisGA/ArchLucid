@@ -1,11 +1,14 @@
 using System.Diagnostics;
 
+using ArchLucid.Application.Coordination;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -74,6 +77,21 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        if (entry.RunId != Guid.Empty)
+        {
+            IAuthorityQueryService authorityQueryService =
+                scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+            IManifestHashService manifestHashService =
+                scope.ServiceProvider.GetRequiredService<IManifestHashService>();
+
+            await CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                entry.RunId,
+                scopeContext,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         GraphSnapshot? snapshot =
             await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);

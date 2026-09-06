@@ -69,6 +69,7 @@ type RunDetailRunExplanationCollapsibleProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly manifestIdForExportGuard?: string | null;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
@@ -230,6 +231,7 @@ export function RunDetailRunExplanationCollapsible(
           providerNeutralWorkItems={providerNeutralWorkItems}
           architectureWorkItemContext={architectureWorkItemContext}
           packageCommitted={packageCommitted}
+          manifestIdForExportGuard={props.manifestIdForExportGuard}
           analysisStagesComplete={analysisStagesComplete}
           triageVisibleCount={triageVisibleCount}
           graphSnapshot={graphSnapshot}

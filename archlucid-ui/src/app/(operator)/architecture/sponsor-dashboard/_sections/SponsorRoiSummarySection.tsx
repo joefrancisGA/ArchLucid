@@ -22,6 +22,10 @@ import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
 import { SponsorRoiSystemsIncludedSection } from "./SponsorRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import { resolveSponsorRoiIdentifiedVsRealized } from "@/lib/sponsor-roi-identified-vs-realized";
+import {
+  manifestSummarySealedVersionForCopyGuard,
+  runCollateralSealedManifestCopyBlockedReason,
+} from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
@@ -78,6 +82,20 @@ export function SponsorRoiSummarySection({
   const coverageHonestyQuery = useAskRunCoverageHonestyQuery(scopedReviewTrimmed, {
     enabled: scopedReviewTrimmed.length > 0,
   });
+  const scopedReviewExportBlockedReason = useMemo(() => {
+    if (scopedReviewTrimmed.length === 0) {
+      return null;
+    }
+
+    const manifestVersion = manifestSummarySealedVersionForCopyGuard(
+      coverageHonestyQuery.data?.manifestSummary ?? null,
+    );
+
+    return runCollateralSealedManifestCopyBlockedReason({
+      runId: scopedReviewTrimmed,
+      manifestVersion,
+    });
+  }, [coverageHonestyQuery.data?.manifestSummary, scopedReviewTrimmed]);
   const data = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
   const failure = useMemo(
     () => (usesExternalSummary || !summaryQuery.isError ? null : toApiLoadFailure(summaryQuery.error)),
@@ -125,6 +143,11 @@ export function SponsorRoiSummarySection({
   }, [includeBoardPackNarrative]);
 
   const onDownloadCsv = useCallback(async () => {
+    if (scopedReviewExportBlockedReason !== null) {
+      showError("CSV export blocked", scopedReviewExportBlockedReason);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${SPONSOR_ROI_SUMMARY_PATH}/export`,
@@ -186,7 +209,7 @@ export function SponsorRoiSummarySection({
     } catch (e: unknown) {
       showError("CSV export failed", e instanceof Error ? e.message : String(e));
     }
-  }, []);
+  }, [scopedReviewExportBlockedReason]);
 
   if (usesExternalSummary && summaryErrorProp) {
     return (
@@ -259,6 +282,8 @@ export function SponsorRoiSummarySection({
             type="button"
             size="sm"
             variant="outline"
+            disabled={scopedReviewExportBlockedReason !== null}
+            title={scopedReviewExportBlockedReason ?? undefined}
             onClick={() => void onDownloadCsv()}
             data-testid="exec-roi-summary-csv-download-button"
           >
