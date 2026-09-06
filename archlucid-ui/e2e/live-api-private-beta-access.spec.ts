@@ -54,7 +54,9 @@ test.describe("live-api-private-beta-access", () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run private-beta JwtBearer access-path smoke.");
 
   test.beforeAll(async ({ request }) => {
-    await waitForLiveApiReady(request);
+    await waitForLiveApiReady(request, {
+      timeoutMs: process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" ? 180_000 : undefined,
+    });
 
     requireLivePrivateBetaJwtEnv();
 
