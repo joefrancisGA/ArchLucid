@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
@@ -17,13 +18,48 @@ import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
 import { cn } from "@/lib/utils";
+import {
+  parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
+  persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
+} from "@/lib/reviews/persistent-workspace-first-review-steps-disclosure-url";
 
 /** Cross-page strip: one highlighted next action while first-review steps remain. */
 export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const persistentWorkspaceFirstReviewStepsOpenParam = searchParams.get("persistentWorkspaceFirstReviewStepsOpen");
   const teachingChromeVisible = useTeachingChromeVisible();
   const [hydrated, setHydrated] = useState(false);
+  const [firstReviewStepsOpen, setFirstReviewStepsOpenState] = useState(() =>
+    parsePersistentWorkspaceFirstReviewStepsOpenFromSearch(persistentWorkspaceFirstReviewStepsOpenParam),
+  );
   const commitPresentationContext = useCorePilotCommitPresentationContext();
   const { progress, nextStepIndex, statuses, isPending } = useCorePilotDerivedStepStatus();
+
+  const syncFirstReviewStepsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFirstReviewStepsOpen = useCallback(
+    (open: boolean) => {
+      setFirstReviewStepsOpenState(open);
+      syncFirstReviewStepsOpenToUrl(open);
+    },
+    [syncFirstReviewStepsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFirstReviewStepsOpenState(
+      parsePersistentWorkspaceFirstReviewStepsOpenFromSearch(persistentWorkspaceFirstReviewStepsOpenParam),
+    );
+  }, [persistentWorkspaceFirstReviewStepsOpenParam]);
 
   useEffect(() => {
     setHydrated(true);
@@ -97,7 +133,14 @@ export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {
         </Button>
       </div>
 
-      <details className="mt-3 group" data-testid="persistent-workspace-first-review-steps-disclosure">
+      <details
+        className="mt-3 group"
+        data-testid="persistent-workspace-first-review-steps-disclosure"
+        open={firstReviewStepsOpen}
+        onToggle={(event) => {
+          setFirstReviewStepsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
         <summary
           className={cn(
             "cursor-pointer list-none text-neutral-700 marker:content-none dark:text-neutral-300",
