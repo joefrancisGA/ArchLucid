@@ -1670,24 +1670,26 @@ public static partial class GenericArchitectureAdvicePatterns
     /// </summary>
     public static bool HasArchitectureSpecificAnchor(string? message, IReadOnlyList<string> evidenceRefs)
     {
-        if (HasConcreteEvidenceCitation(evidenceRefs))
-            return true;
-
         if (string.IsNullOrWhiteSpace(message))
             return false;
 
         string trimmed = message.Trim();
 
-        if (ArchitectureAnchorPattern().IsMatch(trimmed))
-            return true;
+        if (UnderSpecifiedFindingPattern().IsMatch(trimmed) || ConflictFindingPattern().IsMatch(trimmed))
+        {
+            if (HasConcreteEvidenceCitation(evidenceRefs))
+                return true;
 
-        if (UnderSpecifiedFindingPattern().IsMatch(trimmed))
-            return true;
+            return HasQuotedResourceNameInEvidence(trimmed, evidenceRefs);
+        }
 
-        if (ConflictFindingPattern().IsMatch(trimmed))
-            return true;
+        if (!ArchitectureAnchorPattern().IsMatch(trimmed))
+            return false;
 
-        return false;
+        if (IsGenericImperativeWithPascalCaseServiceOnly(trimmed))
+            return false;
+
+        return true;
     }
 
     /// <summary>
@@ -1730,25 +1732,96 @@ public static partial class GenericArchitectureAdvicePatterns
             if (IsGenericEvidenceRef(trimmed))
                 continue;
 
-            if (trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
+            if (IsResolvableEvidenceRef(trimmed))
                 return true;
-
-            if (trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (trimmed.Contains("resourceGroups/", StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (trimmed.Contains("services[", StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (trimmed.Contains("datastores[", StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            return true;
         }
 
         return false;
+    }
+
+    private static bool IsResolvableEvidenceRef(string trimmed)
+    {
+        if (trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
+            return trimmed.Length > "doc:".Length;
+
+        if (trimmed.StartsWith("policy-rule:", StringComparison.OrdinalIgnoreCase))
+        {
+            string ruleId = trimmed["policy-rule:".Length..].Trim();
+
+            return !string.IsNullOrWhiteSpace(ruleId);
+        }
+
+        if (trimmed.StartsWith("graph-node:", StringComparison.OrdinalIgnoreCase))
+        {
+            string nodeId = trimmed["graph-node:".Length..].Trim();
+
+            return IsProductShapedGraphNodeId(nodeId);
+        }
+
+        if (trimmed.StartsWith("aws:arn:", StringComparison.OrdinalIgnoreCase))
+            return trimmed.Length > "aws:arn:".Length;
+
+        if (trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            && trimmed.Contains("resourceGroups/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (trimmed.Contains("projects/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsProductShapedGraphNodeId(string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return false;
+
+        // Bare GUIDs in graph-node: refs are not resolvable package evidence.
+        if (Guid.TryParse(nodeId, out _))
+            return false;
+
+        return nodeId.Length >= 3;
+    }
+
+    private static bool HasQuotedResourceNameInEvidence(string message, IReadOnlyList<string> evidenceRefs)
+    {
+        foreach (string evidenceRef in evidenceRefs)
+        {
+            if (string.IsNullOrWhiteSpace(evidenceRef))
+                continue;
+
+            string trimmed = evidenceRef.Trim();
+
+            if (IsGenericEvidenceRef(trimmed))
+                continue;
+
+            string unquoted = trimmed.Trim('`', '\'');
+
+            if (string.IsNullOrWhiteSpace(unquoted))
+                continue;
+
+            if (message.Contains("`" + unquoted + "`", StringComparison.Ordinal))
+                return true;
+
+            if (message.Contains("'" + unquoted + "'", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsGenericImperativeWithPascalCaseServiceOnly(string message)
+    {
+        if (!ImperativeGenericAdvice().IsMatch(message))
+            return false;
+
+        if (message.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("resourceGroups/", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("doc:", StringComparison.OrdinalIgnoreCase)
+            || message.Contains('`'))
+            return false;
+
+        return PascalCaseServiceTokenPattern().IsMatch(message);
     }
 
     private static bool IsGenericEvidenceRef(string normalized)
@@ -1759,11 +1832,18 @@ public static partial class GenericArchitectureAdvicePatterns
     }
 
     [GeneratedRegex(
-        @"(\/subscriptions\/|resourceGroups\/|doc:[^\s]+#L\d+|services\[\]|datastores\[\]|`[^`]+`|'[^']+'|\b[A-Z][a-zA-Z0-9]+(?:Api|Svc|Service|Gateway|Worker|Function|Queue|Store|Db|Sql)\b)",
+        @"(\/subscriptions\/|resourceGroups\/|doc:[^\s]+(?:#L\d+)?|services\[\]|datastores\[\]|`[^`]+`|'[^']+')",
         RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex ArchitectureAnchorPattern();
 
-    [GeneratedRegex(@"\b(UnderSpecified|Under-Specified|NotSpecified|Missing[A-Z][a-zA-Z]+)\b", RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    [GeneratedRegex(
+        @"\b[A-Z][a-zA-Z0-9]+(?:Api|Svc|Service|Gateway|Worker|Function|Queue|Store|Db|Sql)\b",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    private static partial Regex PascalCaseServiceTokenPattern();
+
+    [GeneratedRegex(
+        @"(\b(UnderSpecified|Under-Specified|NotSpecified|Missing[A-Z][a-zA-Z]+)\b|[A-Za-z]+UnderSpecified\b)",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex UnderSpecifiedFindingPattern();
 
     [GeneratedRegex(@"\b(conflicts? with|contradicts?|violates? constraint)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]

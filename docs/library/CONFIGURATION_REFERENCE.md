@@ -47,7 +47,7 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent and typed-engine** findings that lack architecture anchor and concrete evidence (ADR 0070). Rows stay on the package as checklist coverage; `typed-engine-scored` is origin telemetry only. The legacy `typed-engine-protected` Promote bypass is superseded — demotion is **advisory** scoring, not a removal gate.
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent and typed-engine** findings that lack **resolvable** package evidence (ADR 0070, DX-01). Generic advice demotes even in Security/Topology/Compliance when evidence is absent; `policy-rule:` refs from `PolicyRuleId` count as resolvable. Rows stay on the package as checklist coverage (`ChecklistCoverage` classification only — not deleted). `typed-engine-scored` is origin telemetry only. The legacy `typed-engine-protected` Promote bypass is superseded.
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
 | `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
 | `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
