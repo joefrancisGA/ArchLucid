@@ -57,6 +57,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `azure-inventory-reconciliation` | `GraphAzureInventoryReconciliationFindingEngine` | Graph vs Azure inventory. |
 | `aws-inventory-reconciliation` | `GraphAwsInventoryReconciliationFindingEngine` | Graph vs AWS inventory. |
 | `gcp-inventory-reconciliation` | `GraphGcpInventoryReconciliationFindingEngine` | Graph vs GCP inventory. |
+| `declaration-inventory-contradiction` | `DeclarationInventoryContradictionFindingEngine` | One finding per resource where a security-relevant declaration property disagrees with scoped live inventory (requires customer-run extractor package; IaC-only reviews stay silent). |
 | `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. |
 | `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows. Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (CIS Azure/AWS/GCP, SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, sec-base, AKS/EKS/GKE) when mapped keys survive filtering; fail-open for unmapped prefixes (cost-opt, ai-gov, dora, otel, sust-base, …). |
 | `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent. Uses the same **`DeclarationSignalPolicyKeyMap`** gate as declaration-security-baseline. |
