@@ -94,6 +94,28 @@ export function parseResourceHubQueryValueFromSearch(raw: string | null | undefi
   return raw.trim();
 }
 
+const ASK_HUB_TAB_ORIGIN_VALUES: ReadonlySet<ResourceHubTab> = new Set([
+  "drift",
+  "diagram",
+  "terraform",
+  "findings",
+  "remediation",
+]);
+
+export function parseAskHubTabOriginFromSearch(raw: string | null | undefined): ResourceHubTab | undefined {
+  const trimmed = parseResourceHubQueryValueFromSearch(raw);
+
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+
+  if (!ASK_HUB_TAB_ORIGIN_VALUES.has(trimmed as ResourceHubTab)) {
+    return undefined;
+  }
+
+  return trimmed as ResourceHubTab;
+}
+
 export function buildInfrastructureAskHref(context: {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
@@ -107,6 +129,8 @@ export function buildInfrastructureAskHref(context: {
   readonly controlId?: string;
   readonly workQueue?: CloudResourceExplorerWorkQueue;
   readonly seedNodeId?: string;
+  /** Hub tab the user opened Ask from (workbench-origin back link when audit scope is also present). */
+  readonly hubTab?: ResourceHubTab;
 }): string {
   const params = new URLSearchParams();
 
@@ -158,6 +182,10 @@ export function buildInfrastructureAskHref(context: {
     params.set(RESOURCE_HUB_SEED_NODE_ID_PARAM, context.seedNodeId.trim());
   }
 
+  if (context.hubTab != null && ASK_HUB_TAB_ORIGIN_VALUES.has(context.hubTab)) {
+    params.set(RESOURCE_HUB_TAB_PARAM, context.hubTab);
+  }
+
   const query = params.toString();
 
   return query.length === 0
@@ -165,13 +193,11 @@ export function buildInfrastructureAskHref(context: {
     : `${GOVERNANCE_INFRASTRUCTURE_ASK_PATH}?${query}`;
 }
 
-export function resolveResourceHubTabFromAskScope(context: {
+export function resolveResourceHubWorkbenchTabFromAskScope(context: {
+  readonly hubTab?: string;
   readonly findingId?: string;
   readonly instanceId?: string;
   readonly diffId?: string;
-  readonly assessmentId?: string;
-  readonly auditEvidenceSnapshotId?: string;
-  readonly controlId?: string;
   readonly correspondenceId?: string;
 }): ResourceHubTab | undefined {
   if (context.findingId != null && context.findingId.trim().length > 0) {
@@ -180,6 +206,39 @@ export function resolveResourceHubTabFromAskScope(context: {
 
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
     return "remediation";
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    return "diagram";
+  }
+
+  if (context.diffId != null && context.diffId.trim().length > 0) {
+    return "drift";
+  }
+
+  const hubTabOrigin = parseAskHubTabOriginFromSearch(context.hubTab ?? null);
+
+  if (hubTabOrigin != null) {
+    return hubTabOrigin;
+  }
+
+  return undefined;
+}
+
+export function resolveResourceHubTabFromAskScope(context: {
+  readonly hubTab?: string;
+  readonly findingId?: string;
+  readonly instanceId?: string;
+  readonly diffId?: string;
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+  readonly correspondenceId?: string;
+}): ResourceHubTab | undefined {
+  const workbenchTab = resolveResourceHubWorkbenchTabFromAskScope(context);
+
+  if (workbenchTab != null) {
+    return workbenchTab;
   }
 
   if (
@@ -191,14 +250,6 @@ export function resolveResourceHubTabFromAskScope(context: {
     && context.controlId.trim().length > 0
   ) {
     return "audit";
-  }
-
-  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
-    return "diagram";
-  }
-
-  if (context.diffId != null && context.diffId.trim().length > 0) {
-    return "drift";
   }
 
   return undefined;

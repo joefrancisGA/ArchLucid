@@ -5,11 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { LayerHeader } from "@/components/LayerHeader";
 import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
+import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
   fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
@@ -44,6 +47,8 @@ export function TerraformWorkbenchClient() {
   const [hub, setHub] = useState<CloudResourceEvidenceHubResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [exportBusy, setExportBusy] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const resolvedSnapshotId = useMemo(() => {
@@ -109,9 +114,49 @@ export function TerraformWorkbenchClient() {
     return buildInfrastructureAskHref({
       cloudResourceId: urlCloudResourceId,
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      hubTab: "terraform",
       ...mergeInfrastructureAskAuditScope(auditScope),
     });
   }, [auditScope, resolvedSnapshotId, urlCloudResourceId]);
+
+  const advisorySnippet = useMemo(
+    () => (hub != null ? buildAdvisoryTerraformResourceSnippet(hub) : null),
+    [hub],
+  );
+
+  const hasTerraformMapping = useMemo(() => {
+    const terraformAddress = hub?.terraformAddress?.trim() ?? "";
+
+    return terraformAddress.length > 0;
+  }, [hub]);
+
+  const runAdvisoryExport = async () => {
+    if (resolvedSnapshotId.length === 0) {
+      return;
+    }
+
+    setExportBusy(true);
+
+    try {
+      await downloadInfraEvidenceTerraformAdvisoryZip(resolvedSnapshotId);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const copyAdvisorySnippet = async () => {
+    if (advisorySnippet == null) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || navigator.clipboard?.writeText == null) {
+      setCopyMessage("Clipboard is unavailable in this browser.");
+      return;
+    }
+
+    await navigator.clipboard.writeText(advisorySnippet);
+    setCopyMessage("Copied advisory snippet.");
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-terraform-workbench">
@@ -139,6 +184,13 @@ export function TerraformWorkbenchClient() {
                 controlNumber={hub?.auditLineageLink.controlNumber}
                 controlTitle={hub?.auditLineageLink.controlTitle}
                 testId="infra-terraform-audit-provenance"
+              />
+            </div>
+          ) : hub?.auditLineageLink.available === false ? (
+            <div className="mt-2">
+              <InfraAuditLineageUnavailableBanner
+                degradedReason={hub.auditLineageLink.degradedReason}
+                testId="infra-terraform-audit-unavailable"
               />
             </div>
           ) : null}
@@ -178,7 +230,19 @@ export function TerraformWorkbenchClient() {
         </p>
       ) : null}
 
-      {hub != null ? (
+      {hub != null && !hasTerraformMapping ? (
+        <section
+          className="rounded border border-dashed border-border bg-muted/20 p-4"
+          data-testid="infra-terraform-empty-state"
+          aria-label="No Terraform mapping"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            No advisory Terraform address is mapped for this resource in the selected snapshot.
+          </p>
+        </section>
+      ) : null}
+
+      {hub != null && hasTerraformMapping ? (
         <section className="rounded border border-border bg-card p-4" aria-label="Advisory Terraform mapping">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
           <dl className="grid gap-2 text-sm">
@@ -195,8 +259,52 @@ export function TerraformWorkbenchClient() {
               <dd className="font-mono text-xs">{resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "—"}</dd>
             </div>
           </dl>
+          {advisorySnippet != null ? (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium">Advisory snippet preview</h3>
+              <pre
+                className="mt-2 overflow-x-auto rounded border border-border bg-muted/30 p-3 font-mono text-xs"
+                data-testid="infra-terraform-snippet-preview"
+              >
+                {advisorySnippet}
+              </pre>
+            </div>
+          ) : null}
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
+          {copyMessage != null ? (
+            <p className={cn("m-0 mt-2 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)} role="status">
+              {copyMessage}
+            </p>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
+            {advisorySnippet != null ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="infra-terraform-copy-snippet"
+                onClick={() => void copyAdvisorySnippet()}
+              >
+                Copy advisory snippet
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="infra-terraform-download-advisory-zip"
+              disabled={exportBusy || resolvedSnapshotId.length === 0}
+              onClick={() => void runAdvisoryExport()}
+            >
+              {exportBusy ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Exporting…
+                </span>
+              ) : (
+                "Download advisory ZIP"
+              )}
+            </Button>
             <Button asChild variant="outline" size="sm" data-testid="infra-terraform-open-drift-export">
               <Link
                 href={buildDriftWorkbenchHref({

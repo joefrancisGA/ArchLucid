@@ -36,7 +36,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
-            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-35.",
+            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-36.",
             ["security-baseline-expectation"] = "Expectation engine needs declaration fixtures beyond default graphs.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
