@@ -97,4 +97,23 @@ describe("deriveReviewPipelineTerminalFailureDiagnosis", () => {
 
     expect(diagnosis).toBeNull();
   });
+
+  it("surfaces worker-lost copy when lease reconciliation persisted reason code", () => {
+    const diagnosis = deriveReviewPipelineTerminalFailureDiagnosis({
+      summary: {
+        ...baseSummary,
+        hasFindingsSnapshot: true,
+        hasGraphSnapshot: true,
+        hasContextSnapshot: true,
+      },
+      diagnosticContext: {
+        legacyRunStatus: "FailedPartial",
+        lastFailureReason: '{"schemaVersion":1,"reasonCode":"ExecuteOwnershipLeaseExpired"}',
+      },
+    });
+
+    expect(diagnosis?.headline).toMatch(/worker lost/i);
+    expect(diagnosis?.detail).toMatch(/retry execute/i);
+    expect(diagnosis?.detail).toMatch(/rebill/i);
+  });
 });

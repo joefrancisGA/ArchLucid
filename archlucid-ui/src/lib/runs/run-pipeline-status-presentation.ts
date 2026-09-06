@@ -3,6 +3,7 @@ import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolv
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
+import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pipeline-legacy-terminal-label";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -22,6 +23,12 @@ export function deriveRunListPipelineLabel(
   run: RunSummary,
   qualityGateHonesty?: Omit<RunPipelineStatusPresentationInput, "run">,
 ): RunPipelineLabel {
+  const terminalFromLegacy = resolveTerminalPipelineLabelFromLegacyStatus(run.legacyRunStatus);
+
+  if (terminalFromLegacy !== null) {
+    return terminalFromLegacy;
+  }
+
   if (run.hasGoldenManifest === true) {
     return PIPELINE_STATUS_LABELS.finalized;
   }
