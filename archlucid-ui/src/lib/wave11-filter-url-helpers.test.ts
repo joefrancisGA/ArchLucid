@@ -3544,6 +3544,59 @@ describe("wave47 filter url helpers", () => {
   });
 });
 
+describe("wave48 filter url helpers", () => {
+  it("infra evidence explorer, hub, diagram reconcile, and work queue params", async () => {
+    const {
+      buildInfrastructureAskHref,
+      parseResourceHubTabFromSearch,
+      resourceExplorerFilterHrefFromSearch,
+      resolveResourceHubTabFromAskScope,
+    } = await import("@/lib/infra-evidence/infra-evidence-hub-filter-url");
+    const {
+      buildDiagramReconcileWorkbenchHref,
+      diagramReconcileFilterHrefFromSearch,
+      parseDiagramReconcileCorrespondenceIdFromSearch,
+      parseDiagramReconcileFilterFromSearch,
+    } = await import("@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url");
+    const {
+      parseResourceExplorerWorkQueueFromSearch,
+      resourceExplorerWorkQueueApiValue,
+    } = await import("@/lib/infra-evidence/infra-evidence-explorer-work-queue");
+
+    expect(parseResourceExplorerWorkQueueFromSearch("open-remediation")).toBe("open-remediation");
+    expect(parseResourceExplorerWorkQueueFromSearch("bogus")).toBe("all");
+    expect(resourceExplorerWorkQueueApiValue("open-findings")).toBe("open-findings");
+    expect(resourceExplorerFilterHrefFromSearch("", { workQueue: "recent-drift" })).toBe(
+      "/governance/infrastructure/resources?workQueue=recent-drift",
+    );
+    expect(parseResourceHubTabFromSearch("findings")).toBe("findings");
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        workQueue: "open-findings",
+        correspondenceId: "corr-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1&workQueue=open-findings",
+    );
+    expect(resolveResourceHubTabFromAskScope({ correspondenceId: "corr-1" })).toBe("diagram");
+    expect(parseDiagramReconcileFilterFromSearch("Conflict")).toBe("Conflict");
+    expect(parseDiagramReconcileCorrespondenceIdFromSearch("corr-9")).toBe("corr-9");
+    expect(
+      diagramReconcileFilterHrefFromSearch("runId=run-1", { reconcileFilter: "DiagramOnly" }),
+    ).toBe("/governance/infrastructure/diagram-reconcile?runId=run-1&reconcileFilter=DiagramOnly");
+    expect(
+      buildDiagramReconcileWorkbenchHref({
+        runId: "run-1",
+        snapshotId: "snap-1",
+        correspondenceId: "corr-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=snap-1&correspondenceId=corr-1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
