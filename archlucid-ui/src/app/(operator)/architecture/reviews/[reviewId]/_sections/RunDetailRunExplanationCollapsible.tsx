@@ -16,6 +16,7 @@ import {
   type FindingsSnapshotInsightDensityView,
 } from "@/lib/findings/findings-snapshot-insight-density";
 import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-if-analysis";
+import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/runs/RunDecisionExplainabilitySection";
@@ -74,6 +75,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
+  readonly withheldFindings?: readonly WithheldFindingRow[];
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -236,6 +238,7 @@ export function RunDetailRunExplanationCollapsible(
           triageVisibleCount={triageVisibleCount}
           graphSnapshot={graphSnapshot}
           requestAssumptionTexts={props.requestAssumptionTexts}
+          withheldFindings={props.withheldFindings}
         />
 
         {showCoverageAndCuration ? (

@@ -15,5 +15,6 @@ internal static class FindingsSnapshotListNormalizer
         snapshot.EngineFailures ??= [];
         snapshot.Findings ??= [];
         snapshot.ChecklistCoverage ??= [];
+        snapshot.WithheldFindings ??= [];
     }
 }

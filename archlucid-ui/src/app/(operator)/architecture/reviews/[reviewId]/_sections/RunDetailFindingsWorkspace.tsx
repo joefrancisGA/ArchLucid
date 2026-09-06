@@ -8,7 +8,8 @@ import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/component
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
 import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsHiddenFilterHonestyBand";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
-import { FindingMergeConflictListCue } from "@/components/findings/FindingMergeConflictListCue";
+import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
+import { FindingsWithheldBand } from "@/components/findings/FindingsWithheldBand";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
@@ -81,6 +82,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
+  readonly withheldFindings?: readonly WithheldFindingRow[];
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
 };
@@ -321,6 +323,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     >
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
+      <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
       {findingsSecondaryViewPresentation !== null ? (
