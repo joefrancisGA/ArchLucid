@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -13,6 +14,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository
 {
     private readonly IDraftRequestRepository? _draftRequestRepository;
     private readonly IRunRepository? _runRepository;
+    private readonly IArchitectureVersionRepository? _architectureVersionRepository;
 
     public InMemoryArchitectureIdentityRepository()
     {
@@ -20,10 +22,12 @@ public sealed partial class InMemoryArchitectureIdentityRepository
 
     public InMemoryArchitectureIdentityRepository(
         IDraftRequestRepository draftRequestRepository,
-        IRunRepository runRepository)
+        IRunRepository runRepository,
+        IArchitectureVersionRepository? architectureVersionRepository = null)
     {
         _draftRequestRepository = draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
         _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+        _architectureVersionRepository = architectureVersionRepository;
     }
 
     public async Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
@@ -75,8 +79,10 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             await ListChildDraftSummariesAsync(scope, architectureId, cancellationToken);
         IReadOnlyList<ArchitectureIdentityChildReviewSummary> reviews =
             await ListChildReviewSummariesAsync(scope, architectureId, cancellationToken);
+        IReadOnlyList<ArchitectureIdentityVersionSummary> versions =
+            await ListChildVersionSummariesAsync(scope, architectureId, cancellationToken);
 
-        Guid? currentDraftId = drafts.FirstOrDefault()?.DraftId;
+        Guid? currentDraftId = SelectCurrentDraftId(drafts);
         Guid? latestReviewId = reviews.FirstOrDefault()?.RunId;
 
         return new ArchitectureIdentityDetail
@@ -94,7 +100,23 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             UpdatedUtc = identity.UpdatedUtc,
             Drafts = drafts,
             Reviews = reviews,
+            Versions = versions,
         };
+    }
+
+    private static Guid? SelectCurrentDraftId(IReadOnlyList<ArchitectureIdentityChildDraftSummary> drafts)
+    {
+        ArchitectureIdentityChildDraftSummary? draftingDraft = drafts.FirstOrDefault(draft => draft.Status == DraftRequestStatus.Drafting);
+
+        if (draftingDraft is not null)
+            return draftingDraft.DraftId;
+
+        ArchitectureIdentityChildDraftSummary? spawnLockedDraft = drafts.FirstOrDefault(draft => draft.Status == DraftRequestStatus.RunSpawned);
+
+        if (spawnLockedDraft is not null)
+            return spawnLockedDraft.DraftId;
+
+        return null;
     }
 
     private async Task<ArchitectureIdentityListItem> BuildListItemAsync(
@@ -113,7 +135,7 @@ public sealed partial class InMemoryArchitectureIdentityRepository
             DisplayName = record.DisplayName,
             UpdatedUtc = record.UpdatedUtc,
             LatestSealedManifestId = record.LatestSealedManifestId,
-            CurrentDraftId = drafts.FirstOrDefault()?.DraftId,
+            CurrentDraftId = SelectCurrentDraftId(drafts),
             LatestReviewId = reviews.FirstOrDefault()?.RunId,
             DraftCount = drafts.Count,
             ReviewCount = reviews.Count,
@@ -142,6 +164,29 @@ public sealed partial class InMemoryArchitectureIdentityRepository
                 Status = draft.Status,
                 SystemName = draft.Document.SystemName,
                 UpdatedUtc = draft.UpdatedUtc,
+            })
+            .ToList();
+    }
+
+    private async Task<IReadOnlyList<ArchitectureIdentityVersionSummary>> ListChildVersionSummariesAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        if (_architectureVersionRepository is null || _runRepository is null)
+            return [];
+
+        IReadOnlyList<ArchitectureVersionRecord> versions = await _architectureVersionRepository
+            .ListByArchitectureIdAsync(scope, architectureId, cancellationToken);
+        IReadOnlyList<RunRecord> runs = await _runRepository.ListByArchitectureIdAsync(scope, architectureId, cancellationToken);
+
+        return versions
+            .Select(version => new ArchitectureIdentityVersionSummary
+            {
+                ArchitectureVersionId = version.ArchitectureVersionId,
+                VersionNumber = version.VersionNumber,
+                CreatedUtc = version.CreatedUtc,
+                LinkedReviewId = runs.FirstOrDefault(run => run.ArchitectureVersionId == version.ArchitectureVersionId)?.RunId,
             })
             .ToList();
     }
