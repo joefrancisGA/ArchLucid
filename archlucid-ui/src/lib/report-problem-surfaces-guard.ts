@@ -82,6 +82,14 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["auth-jwt-insufficient-scope", "FatalPageReportProblemSupportRow"],
     additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],
   },
+  {
+    surfaceId: "auth-signin-cannot-proceed",
+    requiredMarkers: ["auth-signin-cannot-proceed", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "auth-invitation-accept-validation-failure",
+    requiredMarkers: ["auth-invitation-accept-validation-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

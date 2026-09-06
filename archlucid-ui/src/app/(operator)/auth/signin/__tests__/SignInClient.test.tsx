@@ -322,6 +322,24 @@ describe("SignInClient — normal sign-in flow (no reason param)", () => {
 
     render(<SignInClient />);
 
-    expect(screen.getByText("Access request")).toBeInTheDocument();
+    expect(screen.getByText("Sign-in could not start")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+  });
+
+  it("shows Report problem when OIDC sign-in cannot start", async () => {
+    assertOidcSignInConfigMock.mockReturnValueOnce({
+      ok: false,
+      message: "OIDC authority is not configured.",
+    });
+    clearSearchParams();
+
+    render(<SignInClient />);
+
+    fireEvent.click(screen.getByTestId("sign-in-work-school"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Sign-in could not start")).toBeInTheDocument();
+      expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    });
   });
 });

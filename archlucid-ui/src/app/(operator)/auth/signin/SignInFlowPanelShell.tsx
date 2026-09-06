@@ -6,6 +6,8 @@ import { SignInMethodPicker } from "@/app/(operator)/auth/signin/SignInMethodPic
 import { SignInSsoRequiredStep } from "@/app/(operator)/auth/signin/SignInSsoRequiredStep";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
 import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrome";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { AUTH_SIGNIN_FATAL_ERROR_TITLE } from "@/lib/auth/auth-signin-page-copy";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 
 import type { SignInFlowState } from "./use-sign-in-flow-state";
@@ -49,7 +51,13 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
   if (fatalError) {
     return (
       <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
-        <AuthErrorPanel message={fatalError} />
+        <AuthErrorPanel message={fatalError} title={AUTH_SIGNIN_FATAL_ERROR_TITLE} />
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-signin-cannot-proceed"
+          routePath="/auth/signin"
+          errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          errorCode="auth-signin-cannot-proceed"
+        />
       </SignInBuyerChrome>
     );
   }
@@ -57,7 +65,16 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
   if (!hasAnySignInMethod) {
     return (
       <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
-        <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />
+        <AuthErrorPanel
+          message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE}
+          title={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-signin-cannot-proceed"
+          routePath="/auth/signin"
+          errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          errorCode="auth-signin-not-configured"
+        />
       </SignInBuyerChrome>
     );
   }
