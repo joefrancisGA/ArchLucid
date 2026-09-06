@@ -55,7 +55,7 @@ function BuiltinRoleSummaryCard({ apiRoleName, description }: { apiRoleName: str
   );
 }
 
-export function SettingsRolesMatrixSection() {
+export function SettingsRolesMatrixSection({ readOnly = false }: { readonly readOnly?: boolean }) {
   const {
     matrix,
     loading,
@@ -128,6 +128,7 @@ export function SettingsRolesMatrixSection() {
           ))}
         </div>
 
+        {readOnly ? null : (
         <div className="rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create custom role</h3>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -181,8 +182,10 @@ export function SettingsRolesMatrixSection() {
             </p>
           ) : null}
         </div>
+        )}
 
         <SettingsRolesMatrixTable
+          readOnly={readOnly}
           columns={columns}
           baseline={matrix.baseline}
           collapsedGroups={collapsedGroups}

@@ -20,6 +20,23 @@ export const SETTINGS_ROLES_START_HERE_CARD_TITLE = "Start here" as const;
 export const SETTINGS_ROLES_START_HERE_LEAD =
   "Invite a workspace member first, then assign roles or review the permissions matrix when your directory is ready." as const;
 
-export function settingsRolesPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell ? SETTINGS_ROLES_PAGE_SUBTITLE_BUYER : SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR;
+export const SETTINGS_ROLES_ROLES_TAB_SUBTITLE_BUYER =
+  "Review built-in and custom role permissions — role edits stay in the full admin workspace." as const;
+
+export const SETTINGS_ROLES_ROLES_TAB_LEAD =
+  "Read-only view of built-in role summaries and the permissions matrix for procurement walkthroughs." as const;
+
+export const SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER =
+  "Scan built-in role cards and the matrix below. Create, clone, and save actions are hidden in buyer-polished shells." as const;
+
+export function settingsRolesPageSubtitle(buyerPolishedShell: boolean, activeTab: "users" | "roles" | "keys" = "users"): string {
+  if (!buyerPolishedShell) {
+    return SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR;
+  }
+
+  if (activeTab === "roles") {
+    return SETTINGS_ROLES_ROLES_TAB_SUBTITLE_BUYER;
+  }
+
+  return SETTINGS_ROLES_PAGE_SUBTITLE_BUYER;
 }
