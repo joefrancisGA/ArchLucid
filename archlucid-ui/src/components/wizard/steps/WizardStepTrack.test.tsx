@@ -81,6 +81,7 @@ describe("WizardStepTrack", () => {
   it("shows Pending badges when pipeline flags are false or summary is null", () => {
     renderWithTooltips(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
 
+    expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 0 / 4 stages");
     expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(4);
   });
 
@@ -99,6 +100,7 @@ describe("WizardStepTrack", () => {
 
     expect(screen.getAllByText("Complete").length).toBe(2);
     expect(screen.getAllByText("Pending").length).toBe(2);
+    expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 2 / 4 stages");
 
     rerender(
       <TooltipProvider delayDuration={0}>
@@ -266,7 +268,7 @@ describe("WizardStepTrack", () => {
 
     expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?priorRunId=run-encode-9",
+      "/insights/compare-two-reviews?leftRunId=run-encode-9",
     );
   });
 });
