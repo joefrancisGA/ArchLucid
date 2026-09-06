@@ -86,6 +86,7 @@ describe("ResourcesExplorerClient", () => {
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
     expect(screen.queryByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).not.toBeInTheDocument();
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
@@ -114,6 +115,10 @@ describe("ResourcesExplorerClient", () => {
     expect(screen.getByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
@@ -164,6 +169,26 @@ describe("ResourcesExplorerClient", () => {
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+    );
+    expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+    );
+  });
+
+  it("renders remediation hub tab row action under open-remediation queue", async () => {
+    searchParams = new URLSearchParams("workQueue=open-remediation");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
+    );
+    expect(screen.getByRole("button", { name: "Remediation" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-remediation",
     );
   });
 });

@@ -12,7 +12,11 @@ import {
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
-import { resolveResourceHubTabFromExplorerWorkQueue, formatResourceHubTabViewLabelFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import {
+  formatResourceHubTabActionLabelFromExplorerWorkQueue,
+  formatResourceHubTabViewLabelFromExplorerWorkQueue,
+  resolveResourceHubTabFromExplorerWorkQueue,
+} from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 
 describe("infra-evidence-hub-filter-url", () => {
   it("builds explorer filter href with trimmed filters", () => {
@@ -164,6 +168,13 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("open-remediation")).toBe("View remediation in hub");
     expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("recent-drift")).toBe("View drift in hub");
     expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("all")).toBeNull();
+  });
+
+  it("formats explorer work queue hub tab action labels", () => {
+    expect(formatResourceHubTabActionLabelFromExplorerWorkQueue("open-findings")).toBe("Findings");
+    expect(formatResourceHubTabActionLabelFromExplorerWorkQueue("open-remediation")).toBe("Remediation");
+    expect(formatResourceHubTabActionLabelFromExplorerWorkQueue("recent-drift")).toBe("Drift");
+    expect(formatResourceHubTabActionLabelFromExplorerWorkQueue("all")).toBeNull();
   });
 
   it("builds resource hub overview href with optional scope", () => {
