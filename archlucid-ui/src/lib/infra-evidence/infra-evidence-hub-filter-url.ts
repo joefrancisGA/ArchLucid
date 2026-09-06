@@ -98,6 +98,7 @@ export function buildInfrastructureAskHref(context: {
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
+  readonly workQueue?: CloudResourceExplorerWorkQueue;
 }): string {
   const params = new URLSearchParams();
 
@@ -139,6 +140,10 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.controlId != null && context.controlId.trim().length > 0) {
     params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
+  if (context.workQueue != null && context.workQueue !== "all") {
+    params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, context.workQueue);
   }
 
   const query = params.toString();

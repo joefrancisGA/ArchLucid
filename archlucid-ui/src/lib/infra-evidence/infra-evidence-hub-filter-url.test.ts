@@ -89,6 +89,17 @@ describe("infra-evidence-hub-filter-url", () => {
     );
   });
 
+  it("builds Infrastructure Ask href with explorer work queue context", () => {
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        workQueue: "open-findings",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
+    );
+  });
+
   it("resolves hub tab from Ask scope params", () => {
     expect(resolveResourceHubTabFromAskScope({ findingId: "finding-1" })).toBe("findings");
     expect(resolveResourceHubTabFromAskScope({ instanceId: "instance-1" })).toBe("remediation");
