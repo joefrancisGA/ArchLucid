@@ -91,6 +91,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.SecretsLifecycleFindingEngine>();
         services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
 
