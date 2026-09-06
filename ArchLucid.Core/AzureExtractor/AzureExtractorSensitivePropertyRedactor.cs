@@ -596,6 +596,9 @@ public static class AzureExtractorSensitivePropertyRedactor
             || normalized.Equals("berryaccesskey", StringComparison.Ordinal)
             || normalized.Equals("beltaccesskey", StringComparison.Ordinal)
             || normalized.Equals("bendaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("betaaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("bethaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("bestaccesskey", StringComparison.Ordinal)
             || normalized.Equals("signingkey", StringComparison.Ordinal)
             || normalized.Equals("signingcertificate", StringComparison.Ordinal)
             || normalized.Equals("signingcertificatepath", StringComparison.Ordinal);
