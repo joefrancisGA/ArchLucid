@@ -2,6 +2,7 @@
 
 import { GovernanceFindingsContinueLastViewedRow } from "@/app/(operator)/governance/findings/GovernanceFindingsContinueLastViewedRow";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsHiddenFilterHonestyBand";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyPackAssignFromReviewStrip";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
@@ -80,6 +81,12 @@ export function GovernanceFindingsQueueResultsSection(
               />
               Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
             </label>
+          ) : null}
+          {props.hiddenFilterHonesty.hasHidden ? (
+            <FindingsHiddenFilterHonestyBand
+              honesty={props.hiddenFilterHonesty}
+              onShowAll={props.onShowAllFilteredFindings}
+            />
           ) : null}
           <WorkingFindingsKeyboardHint />
           <GovernanceFindingsList

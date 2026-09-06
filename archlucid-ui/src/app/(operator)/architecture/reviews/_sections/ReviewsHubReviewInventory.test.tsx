@@ -275,6 +275,9 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-hidden-filter-honesty")).toHaveTextContent(
+      "1 review hidden by Finalized filter",
+    );
   });
 
   it("renders a pin toggle on each inventory row (TB-2206)", () => {
