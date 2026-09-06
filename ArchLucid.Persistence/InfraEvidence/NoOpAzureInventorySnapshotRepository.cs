@@ -40,4 +40,12 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         Guid newerSnapshotId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<Guid?>(null);
+
+    public Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
+        ScopeContext scope,
+        int page,
+        int pageSize,
+        string? subscriptionId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<(IReadOnlyList<AzureInventorySnapshotRecord>, int)>(([], 0));
 }

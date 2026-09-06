@@ -34,4 +34,18 @@ public sealed class NoOpAzureInventoryDiffRepository : IAzureInventoryDiffReposi
         Guid diffId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<AzureInventoryChangeRecord>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryDiffSummaryRecord>> ListDiffsBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryDiffSummaryRecord>>([]);
+
+    public Task<(IReadOnlyList<AzureInventoryChangeRecord> Items, int TotalCount)> ListChangesByDiffIdPagedAsync(
+        ScopeContext scope,
+        Guid diffId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<(IReadOnlyList<AzureInventoryChangeRecord>, int)>(([], 0));
 }

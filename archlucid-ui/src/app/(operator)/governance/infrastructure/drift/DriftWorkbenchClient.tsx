@@ -1,0 +1,345 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
+
+import { LayerHeader } from "@/components/LayerHeader";
+import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { StatusTag } from "@/components/ui/status-tag";
+import {
+  downloadInfraEvidenceTerraformAdvisoryZip,
+  fetchInfraEvidenceDiffChanges,
+  fetchInfraEvidenceDiffsForSnapshot,
+  fetchInfraEvidenceSnapshots,
+  formatInfraEvidenceApiError,
+} from "@/lib/infra-evidence/infra-evidence-drift-api";
+import type {
+  InfraEvidenceDiffChange,
+  InfraEvidenceDiffSummary,
+  InfraEvidenceSnapshotSummary,
+} from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
+import { cn } from "@/lib/utils";
+import { showError } from "@/lib/toast";
+
+function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
+  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
+  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
+
+  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
+}
+
+function formatDiffLabel(diff: InfraEvidenceDiffSummary, selectedSnapshotId: string): string {
+  const otherId = diff.snapshotAId === selectedSnapshotId ? diff.snapshotBId : diff.snapshotAId;
+  const shortOther = otherId.slice(0, 8);
+
+  return `${diff.totalChanges} changes vs ${shortOther}… (${new Date(diff.createdUtc).toLocaleString()})`;
+}
+
+export function DriftWorkbenchClient() {
+  const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
+  const [diffs, setDiffs] = useState<InfraEvidenceDiffSummary[]>([]);
+  const [changes, setChanges] = useState<InfraEvidenceDiffChange[]>([]);
+  const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>("");
+  const [selectedDiffId, setSelectedDiffId] = useState<string>("");
+  const [selectedChangeId, setSelectedChangeId] = useState<string | null>(null);
+  const [loadingSnapshots, setLoadingSnapshots] = useState(true);
+  const [loadingDiffs, setLoadingDiffs] = useState(false);
+  const [loadingChanges, setLoadingChanges] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const selectedChange = useMemo(
+    () => changes.find((row) => row.changeId === selectedChangeId) ?? null,
+    [changes, selectedChangeId],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSnapshots() {
+      setLoadingSnapshots(true);
+      setLoadError(null);
+
+      try {
+        const response = await fetchInfraEvidenceSnapshots(1, 50);
+        const items = response.items ?? [];
+
+        if (!cancelled) {
+          setSnapshots(items);
+
+          if (items.length > 0) {
+            setSelectedSnapshotId((current) => (current.length > 0 ? current : items[0].snapshotId));
+          }
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setLoadError(formatInfraEvidenceApiError(error));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingSnapshots(false);
+        }
+      }
+    }
+
+    void loadSnapshots();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedSnapshotId.length === 0) {
+      setDiffs([]);
+      setSelectedDiffId("");
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadDiffs() {
+      setLoadingDiffs(true);
+      setLoadError(null);
+
+      try {
+        const rows = await fetchInfraEvidenceDiffsForSnapshot(selectedSnapshotId);
+
+        if (!cancelled) {
+          setDiffs(rows);
+          setSelectedDiffId(rows[0]?.diffId ?? "");
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setLoadError(formatInfraEvidenceApiError(error));
+          setDiffs([]);
+          setSelectedDiffId("");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingDiffs(false);
+        }
+      }
+    }
+
+    void loadDiffs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
+    if (selectedDiffId.length === 0) {
+      setChanges([]);
+      setSelectedChangeId(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadChanges() {
+      setLoadingChanges(true);
+      setLoadError(null);
+
+      try {
+        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, 1, 100);
+
+        if (!cancelled) {
+          setChanges(response.items ?? []);
+          setSelectedChangeId(null);
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setLoadError(formatInfraEvidenceApiError(error));
+          setChanges([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingChanges(false);
+        }
+      }
+    }
+
+    void loadChanges();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDiffId]);
+
+  const runExport = useCallback(async () => {
+    if (selectedSnapshotId.length === 0) {
+      return;
+    }
+
+    setExportBusy(true);
+
+    try {
+      await downloadInfraEvidenceTerraformAdvisoryZip(selectedSnapshotId);
+    } catch (error: unknown) {
+      showError("Could not download Terraform advisory export", formatInfraEvidenceApiError(error));
+    } finally {
+      setExportBusy(false);
+    }
+  }, [selectedSnapshotId]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-drift-workbench">
+      <LayerHeader pageKey="infrastructure-drift" />
+      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot
+        evidence. This is not original Terraform and must not be applied without human review.
+      </p>
+
+      {loadError != null ? (
+        <StatusTag kind="needs-attention" label={loadError} />
+      ) : null}
+
+      <section className="grid gap-4 md:grid-cols-2" aria-label="Snapshot and diff selection">
+        <label className="flex flex-col gap-1">
+          <span className={OPERATOR_TYPOGRAPHY.helper}>Current snapshot</span>
+          <select
+            className="rounded border border-border bg-background px-3 py-2"
+            data-testid="infra-drift-snapshot-picker"
+            disabled={loadingSnapshots || snapshots.length === 0}
+            value={selectedSnapshotId}
+            onChange={(event) => setSelectedSnapshotId(event.target.value)}
+          >
+            {snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
+            {snapshots.map((snapshot) => (
+              <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                {formatSnapshotLabel(snapshot)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className={OPERATOR_TYPOGRAPHY.helper}>Diff vs other snapshot</span>
+          <select
+            className="rounded border border-border bg-background px-3 py-2"
+            data-testid="infra-drift-diff-picker"
+            disabled={loadingDiffs || diffs.length === 0}
+            value={selectedDiffId}
+            onChange={(event) => setSelectedDiffId(event.target.value)}
+          >
+            {diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
+            {diffs.map((diff) => (
+              <option key={diff.diffId} value={diff.diffId}>
+                {formatDiffLabel(diff, selectedSnapshotId)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid="infra-drift-export-terraform"
+          disabled={exportBusy || selectedSnapshotId.length === 0}
+          onClick={() => void runExport()}
+        >
+          {exportBusy ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              Exporting…
+            </span>
+          ) : (
+            "Export advisory Terraform"
+          )}
+        </Button>
+        <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}
+        </p>
+      </div>
+
+      <EnterpriseTable ariaLabel="Inventory drift changes">
+        <EnterpriseTableHead>
+          <EnterpriseTableRow>
+            <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Change</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Property</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+          </EnterpriseTableRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {loadingChanges ? (
+            <EnterpriseTableRow>
+              <EnterpriseTableCell colSpan={4}>Loading changes…</EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ) : null}
+          {!loadingChanges && changes.length === 0 ? (
+            <EnterpriseTableRow>
+              <EnterpriseTableCell colSpan={4}>Select a snapshot and diff to view property-level changes.</EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ) : null}
+          {changes.map((row) => (
+            <EnterpriseTableRow
+              key={row.changeId}
+              data-testid={`infra-drift-change-row-${row.changeId}`}
+              className={selectedChangeId === row.changeId ? "bg-muted/40" : undefined}
+              onClick={() => setSelectedChangeId(row.changeId)}
+            >
+              <EnterpriseTableCell className="max-w-xs truncate font-mono text-xs">
+                {row.azureResourceId ?? "—"}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>{row.changeType}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.property ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell>{row.riskClassification ?? "—"}</EnterpriseTableCell>
+            </EnterpriseTableRow>
+          ))}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
+
+      {selectedChange != null ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          aria-label="Selected change details"
+          data-testid="infra-drift-change-drawer"
+        >
+          <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Change detail</h2>
+          <dl className="grid gap-2 text-sm">
+            <div>
+              <dt className="font-medium">Old value</dt>
+              <dd className="font-mono text-xs">{selectedChange.oldValue ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">New value</dt>
+              <dd className="font-mono text-xs">{selectedChange.newValue ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Evidence</dt>
+              <dd className="font-mono text-xs">{selectedChange.evidenceReference ?? "—"}</dd>
+            </div>
+          </dl>
+          {selectedChange.cloudResourceId != null ? (
+            <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link
+                className="text-al-link hover:underline"
+                href={`${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${selectedChange.cloudResourceId}`}
+              >
+                Open resource explorer (stub until IE-UX-04)
+              </Link>
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+    </div>
+  );
+}
