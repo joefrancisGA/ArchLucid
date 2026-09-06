@@ -3,10 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
+let searchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
   usePathname: () => "/governance/infrastructure/diagrams",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
@@ -117,6 +119,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 
 describe("DiagramsWorkbenchClient", () => {
   it("renders snapshot picker and partitioned fallback cards", async () => {
+    searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
@@ -127,6 +130,25 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+  });
+
+  it("shows resource scope banner and scoped Ask link when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-resource-scope-banner")).toHaveTextContent(
+      "22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=diagram&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",
     );
   });
 });

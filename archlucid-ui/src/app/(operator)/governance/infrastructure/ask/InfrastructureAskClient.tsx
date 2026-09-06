@@ -179,8 +179,11 @@ export function InfrastructureAskClient() {
       return null;
     }
 
-    return buildResourceHubDiagramsWorkbenchHref(snapshotId);
-  }, [snapshotId]);
+    return buildResourceHubDiagramsWorkbenchHref(
+      snapshotId,
+      cloudResourceId.length > 0 ? cloudResourceId : null,
+    );
+  }, [cloudResourceId, snapshotId]);
 
   const remediationFactoryBackLinkHref = useMemo(() => {
     if (findingId.length === 0 && instanceId.length === 0) {
