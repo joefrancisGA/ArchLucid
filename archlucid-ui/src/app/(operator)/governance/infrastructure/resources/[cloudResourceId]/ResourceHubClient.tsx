@@ -94,6 +94,18 @@ function buildHubDriftChangeWorkbenchHref(
   });
 }
 
+function buildHubDriftChangeAskHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  change: CloudResourceInventoryChangeSummary,
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId,
+    diffId: change.diffId,
+  });
+}
+
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
@@ -366,6 +378,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableHeaderCell>Property</EnterpriseTableHeaderCell>
                       <EnterpriseTableHeaderCell>Change</EnterpriseTableHeaderCell>
                       <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
+                      <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                     </EnterpriseTableRow>
                   </EnterpriseTableHead>
                   <EnterpriseTableBody>
@@ -382,6 +395,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         </EnterpriseTableCell>
                         <EnterpriseTableCell>{change.changeType}</EnterpriseTableCell>
                         <EnterpriseTableCell>{change.riskClassification ?? "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <Button asChild size="sm" variant="outline">
+                            <Link
+                              href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change)}
+                              data-testid={`infra-resource-hub-drift-ask-${change.changeId}`}
+                            >
+                              Ask
+                            </Link>
+                          </Button>
+                        </EnterpriseTableCell>
                       </EnterpriseTableRow>
                     ))}
                   </EnterpriseTableBody>
@@ -406,6 +429,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     <EnterpriseTableHeaderCell>Property</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Old</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>New</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
@@ -422,6 +446,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "—"}</EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <Button asChild size="sm" variant="outline">
+                          <Link
+                            href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change)}
+                            data-testid={`infra-resource-hub-drift-tab-ask-${change.changeId}`}
+                          >
+                            Ask
+                          </Link>
+                        </Button>
+                      </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
                 </EnterpriseTableBody>
