@@ -21,6 +21,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_DIFF_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -43,6 +44,7 @@ export function InfrastructureAskClient() {
   );
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
+  const diffId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_DIFF_ID_PARAM));
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
   const auditEvidenceSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
@@ -59,11 +61,12 @@ export function InfrastructureAskClient() {
     () => ({
       cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      diffId: diffId.length > 0 ? diffId : null,
       assessmentId: assessmentId.length > 0 ? assessmentId : null,
       auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
       controlId: controlId.length > 0 ? controlId : null,
     }),
-    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, snapshotId],
+    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, diffId, snapshotId],
   );
 
   const contextSummary = useMemo(() => {
@@ -77,12 +80,16 @@ export function InfrastructureAskClient() {
       parts.push(`snapshot ${snapshotId}`);
     }
 
+    if (diffId.length > 0) {
+      parts.push(`diff ${diffId}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [cloudResourceId, snapshotId]);
+  }, [cloudResourceId, diffId, snapshotId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -100,6 +107,7 @@ export function InfrastructureAskClient() {
         cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
         runId: runId.length > 0 ? runId : null,
         snapshotId: snapshotId.length > 0 ? snapshotId : null,
+        diffId: diffId.length > 0 ? diffId : null,
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
@@ -117,6 +125,7 @@ export function InfrastructureAskClient() {
     auditEvidenceSnapshotId,
     cloudResourceId,
     controlId,
+    diffId,
     runId,
     snapshotId,
     useSimulator,
@@ -126,7 +135,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, diffId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
