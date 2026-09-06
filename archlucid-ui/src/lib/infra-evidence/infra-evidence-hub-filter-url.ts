@@ -5,6 +5,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -334,4 +335,13 @@ export function resourceHubFilterHrefFromSearch(
   const nextQuery = params.toString();
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function buildResourceHubExplorerHref(
+  cloudResourceId: string,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+): string {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
 }
