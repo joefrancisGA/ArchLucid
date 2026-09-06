@@ -39,7 +39,7 @@ export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabili
       : "AI checked — OK";
   }
 
-  if (result.aiSource === "managed-platform" && result.summary.includes("Azure OpenAI")) {
+  if (result.aiSource === "managed-platform" && (result.summary ?? "").includes("Azure OpenAI")) {
     return "Real mode — live AI not configured";
   }
 
@@ -59,8 +59,10 @@ export function workspaceAiAvailableDetail(result: WorkspaceAiAvailabilityResult
 }
 
 export function workspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResult): string {
-  if (result.summary.trim().length > 0) {
-    return result.summary;
+  const summary = result.summary?.trim() ?? "";
+
+  if (summary.length > 0) {
+    return summary;
   }
 
   if (result.aiSource === "customer-connection") {

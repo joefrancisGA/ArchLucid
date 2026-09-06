@@ -22,10 +22,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
-  useWhereToGoNextVisible: () => true,
-}));
-
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: vi.fn(() => true),
 }));
@@ -91,11 +87,16 @@ describe("HelpSpecialtyWalkthroughTemplatesView buyer-polished shell (HS)", () =
     expect(primaryContent).toContainElement(firstViewport);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
-    expect(screen.getAllByTestId(SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.testId)[0]).toHaveAttribute(
+    expect(screen.getByTestId(SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",
       SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.href,
     );
-    expect(screen.getAllByRole("link", { name: SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
+
+    const skipTarget = document.getElementById(SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID);
+
+    expect(skipTarget).not.toBeNull();
+    expect(skipTarget?.tabIndex).toBe(-1);
 
     for (const source of SPECIALTY_WALKTHROUGHS_HELP_SOURCES) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

@@ -374,3 +374,6 @@ export function specialtyReviewTemplatesCompareHref(): string {
 
 export const SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT =
   "Your role can preview and compare templates and open sample reviews. Ask a workspace administrator for review creation permission to start a review from a template.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT =
+  "Templates are optional. Use Start review for a standard intake, or pick a template below to prefill focused questions.";

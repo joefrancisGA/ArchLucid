@@ -3,8 +3,13 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH = "/help/specialty-walkthroughs" as const;
 
+export const SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
+
 export const SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE =
   "This walkthrough catalog shows starter review templates — help orientation only, not live workspace evidence. Open Start review or Path chooser when you need live intake.";
+
+export const SPECIALTY_WALKTHROUGHS_HELP_CLAIM_HEADING_ID =
+  "help-specialty-walkthroughs-claim-discipline-heading" as const;
 
 export const SPECIALTY_WALKTHROUGHS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
