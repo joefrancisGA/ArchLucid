@@ -3690,6 +3690,51 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
             .BeFalse();
     }
 
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_didnt_mandate_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption didn't mandate archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_didnt_apply_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption didn't apply archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_didnt_enforce_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption didn't enforce archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_didnt_maintain_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption didn't maintain archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_didnt_ensure_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption didn't ensure archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
     [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
