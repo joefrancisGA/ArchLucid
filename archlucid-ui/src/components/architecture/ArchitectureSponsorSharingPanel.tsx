@@ -48,6 +48,10 @@ import {
   architectureSponsorShareConfirmHrefFromSearch,
   parseArchitectureSponsorShareConfirmOpenFromSearch,
 } from "@/lib/architecture/architecture-sponsor-share-confirm-url";
+import {
+  architectureSponsorSharingDisclosureHrefFromSearch,
+  parseArchitectureSponsorSharingOpenFromSearch,
+} from "@/lib/architecture/architecture-sponsor-sharing-disclosure-url";
 import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/architecture-sponsor-preliminary-draft";
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -95,8 +99,12 @@ export function ArchitectureSponsorSharingPanel(
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
+  const architectureSponsorSharingOpenParam = searchParams.get("architectureSponsorSharingOpen");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const [panelOpen, setPanelOpenState] = useState(() =>
+    parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam),
+  );
   const [dialogOpen, setDialogOpenState] = useState(
     () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
   );
@@ -117,6 +125,28 @@ export function ArchitectureSponsorSharingPanel(
     [pathname, router, searchParams],
   );
 
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureSponsorSharingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
   const setDialogOpen = useCallback(
     (value: SetStateAction<boolean>) => {
       setDialogOpenState((current) => {
@@ -128,6 +158,10 @@ export function ArchitectureSponsorSharingPanel(
     },
     [syncSponsorShareToUrl],
   );
+
+  useEffect(() => {
+    setPanelOpenState(parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam));
+  }, [architectureSponsorSharingOpenParam]);
 
   useEffect(() => {
     setDialogOpenState(parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam));
@@ -212,6 +246,10 @@ export function ArchitectureSponsorSharingPanel(
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-workspace-disclosure
       data-testid="architecture-sponsor-sharing-panel"
+      open={panelOpen}
+      onToggle={(event) => {
+        setPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {ARCHITECTURE_SPONSOR_READINESS_TITLE}
