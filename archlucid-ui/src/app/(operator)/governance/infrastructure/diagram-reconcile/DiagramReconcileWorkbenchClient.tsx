@@ -29,10 +29,12 @@ import {
   formatDiagramReconcileExplanation,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import {
+  DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM,
   DIAGRAM_RECONCILE_FILTER_PARAM,
   DIAGRAM_RECONCILE_RUN_ID_PARAM,
   DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM,
   diagramReconcileFilterHrefFromSearch,
+  parseDiagramReconcileCorrespondenceIdFromSearch,
   parseDiagramReconcileFilterFromSearch,
   parseDiagramReconcileRunIdFromSearch,
   parseDiagramReconcileSnapshotIdFromSearch,
@@ -109,10 +111,16 @@ export function DiagramReconcileWorkbenchClient() {
     searchParams.get(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM),
   );
   const urlFilter = parseDiagramReconcileFilterFromSearch(searchParams.get(DIAGRAM_RECONCILE_FILTER_PARAM));
+  const urlCorrespondenceId = parseDiagramReconcileCorrespondenceIdFromSearch(
+    searchParams.get(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM),
+  );
 
   const [runId, setRunId] = useState<string>(urlRunId);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [matchKindFilter, setMatchKindFilter] = useState<DiagramReconcileMatchKindFilter>(urlFilter);
+  const [selectedCorrespondenceId, setSelectedCorrespondenceId] = useState<string | null>(
+    urlCorrespondenceId.length > 0 ? urlCorrespondenceId : null,
+  );
   const [diagramSourceName, setDiagramSourceName] = useState<string>("uploaded-diagram");
   const [diagramMermaid, setDiagramMermaid] = useState<string>("");
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
@@ -130,6 +138,7 @@ export function DiagramReconcileWorkbenchClient() {
       runId?: string;
       snapshotId?: string;
       reconcileFilter?: DiagramReconcileMatchKindFilter;
+      correspondenceId?: string;
     }) => {
       router.replace(diagramReconcileFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -147,6 +156,33 @@ export function DiagramReconcileWorkbenchClient() {
 
     return rows.filter((row) => row.matchKind === matchKindFilter);
   }, [matchKindFilter, reconciliation?.rows]);
+
+  const deepLinkedCorrespondenceMissing = useMemo(() => {
+    if (
+      urlCorrespondenceId.length === 0
+      || loadingReconciliation
+      || runId.trim().length === 0
+      || selectedSnapshotId.trim().length === 0
+    ) {
+      return false;
+    }
+
+    if (reconciliation == null) {
+      return true;
+    }
+
+    return !reconciliation.rows.some((row) => row.correspondenceId === urlCorrespondenceId);
+  }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCorrespondenceId]);
+
+  useEffect(() => {
+    if (urlCorrespondenceId.length === 0 || selectedCorrespondenceId !== urlCorrespondenceId) {
+      return;
+    }
+
+    document
+      .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -204,10 +240,28 @@ export function DiagramReconcileWorkbenchClient() {
 
         if (!cancelled) {
           setReconciliation(result);
+
+          if (urlCorrespondenceId.length > 0) {
+            const targetRow = result.rows.find((row) => row.correspondenceId === urlCorrespondenceId);
+
+            if (
+              targetRow != null
+              && matchKindFilter !== "all"
+              && targetRow.matchKind !== matchKindFilter
+            ) {
+              setMatchKindFilter("all");
+              syncUrl({ reconcileFilter: "all" });
+            }
+
+            setSelectedCorrespondenceId(urlCorrespondenceId);
+          } else {
+            setSelectedCorrespondenceId(null);
+          }
         }
       } catch {
         if (!cancelled) {
           setReconciliation(null);
+          setSelectedCorrespondenceId(null);
         }
       } finally {
         if (!cancelled) {
@@ -221,7 +275,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [runId, selectedSnapshotId]);
+  }, [matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId]);
 
   const handleRunIdChange = useCallback(
     (nextRunId: string) => {
@@ -373,6 +427,16 @@ export function DiagramReconcileWorkbenchClient() {
         <StatusTag kind="needs-attention" label={loadError} />
       ) : null}
 
+      {deepLinkedCorrespondenceMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
+          role="status"
+        >
+          The linked diagram correspondence row is not in the loaded reconciliation for this run and snapshot.
+        </p>
+      ) : null}
+
       <section className="grid gap-4 rounded-md border border-border p-4" aria-label="Reconciliation wizard">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>1. Diagram source</h2>
         <label className="flex flex-col gap-1">
@@ -511,7 +575,11 @@ export function DiagramReconcileWorkbenchClient() {
                 const explanation = formatDiagramReconcileExplanation(row);
 
                 return (
-                  <EnterpriseTableRow key={row.correspondenceId} data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}>
+                  <EnterpriseTableRow
+                    key={row.correspondenceId}
+                    data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
+                    className={selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined}
+                  >
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>
                     <EnterpriseTableCell>

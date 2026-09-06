@@ -184,7 +184,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-diagram-reconcile")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1",
+    );
+    expect(screen.getByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1",
     );

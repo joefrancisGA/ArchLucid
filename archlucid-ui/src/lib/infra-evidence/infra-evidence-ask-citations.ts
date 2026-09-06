@@ -1,9 +1,9 @@
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   buildDriftWorkbenchHref,
@@ -85,18 +85,14 @@ export function resolveInfraEvidenceAskCitationLink(
         }),
         label,
       };
-    case "DiagramCorrespondenceId": {
-      const params = new URLSearchParams({ correspondenceId: id });
-
-      if (snapshotId.length > 0) {
-        params.set("snapshotId", snapshotId);
-      }
-
+    case "DiagramCorrespondenceId":
       return {
-        href: `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}?${params.toString()}`,
+        href: buildDiagramReconcileWorkbenchHref({
+          correspondenceId: id,
+          snapshotId: snapshotId.length > 0 ? snapshotId : null,
+        }),
         label,
       };
-    }
     case "RemediationInstanceId":
       return {
         href: buildRemediationWorkbenchHref({
@@ -139,22 +135,13 @@ export function buildResourceHubDiagramsWorkbenchHref(snapshotId: string | null 
 export function buildResourceHubDiagramReconcileWorkbenchHref(
   snapshotId: string | null | undefined,
   runId: string | null | undefined,
+  correspondenceId?: string | null,
 ): string {
-  const params = new URLSearchParams();
-
-  if (snapshotId != null && snapshotId.trim().length > 0) {
-    params.set("snapshotId", snapshotId.trim());
-  }
-
-  if (runId != null && runId.trim().length > 0) {
-    params.set("runId", runId.trim());
-  }
-
-  const query = params.toString();
-
-  return query.length === 0
-    ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH
-    : `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}?${query}`;
+  return buildDiagramReconcileWorkbenchHref({
+    snapshotId,
+    runId,
+    correspondenceId,
+  });
 }
 
 export function buildAuditEvidenceLineageUiPath(

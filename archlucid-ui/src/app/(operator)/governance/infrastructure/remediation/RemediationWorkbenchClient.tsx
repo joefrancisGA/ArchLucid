@@ -9,9 +9,9 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -63,9 +63,10 @@ function buildDiagramReconcileHref(correspondenceId: string | null): string | nu
     return null;
   }
 
-  const params = new URLSearchParams({ reconcileFilter: "Conflict", correspondenceId: correspondenceId.trim() });
-
-  return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}?${params.toString()}`;
+  return buildDiagramReconcileWorkbenchHref({
+    reconcileFilter: "Conflict",
+    correspondenceId,
+  });
 }
 
 export function RemediationWorkbenchClient() {
