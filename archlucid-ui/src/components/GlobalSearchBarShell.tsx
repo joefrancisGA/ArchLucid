@@ -2,6 +2,7 @@
 
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
+  commandPaletteOpenAriaLabel,
   globalSearchInputTitle,
 } from "@/lib/keyboard-shortcut-display";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
@@ -14,6 +15,7 @@ import { GlobalSearchReviewDetailSectionsPanel } from "@/components/GlobalSearch
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { dispatchOpenCommandPalette } from "@/lib/shortcut-registry";
 import type { ReviewPackageSearchScope } from "@/lib/review-detail-package-search-scope";
 import { cn } from "@/lib/utils";
 import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
@@ -106,10 +108,20 @@ export function GlobalSearchBarShell(props: GlobalSearchBarShellProps) {
             className="h-8 border-neutral-300 bg-white pr-14 text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
           />
           <div
-            className="pointer-events-none absolute inset-y-0 right-2 flex items-center"
-            aria-hidden="true"
+            className="absolute inset-y-0 right-2 flex items-center"
           >
-            <KeyboardShortcutBadge className="shrink-0" />
+            <button
+              type="button"
+              className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
+              aria-label={commandPaletteOpenAriaLabel("Open command palette")}
+              aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
+              data-testid="global-search-command-palette-shortcut"
+              onClick={() => {
+                dispatchOpenCommandPalette();
+              }}
+            >
+              <KeyboardShortcutBadge className="shrink-0" />
+            </button>
           </div>
         </div>
       </div>

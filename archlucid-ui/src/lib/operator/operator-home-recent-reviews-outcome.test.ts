@@ -104,6 +104,28 @@ describe("buildOperatorHomeRecentReviewsOutcomeParts", () => {
     });
     expect(parts.find((part) => part.key === "open-findings")?.tabId).toBe("attention");
   });
+
+  it("renders showing-cap as plain text without a link target", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      reviewPackagesTotal: 4,
+      reviewPackagesCommitted: 3,
+      reviewPackagesActive: 1,
+      openFindings: 0,
+      governanceWarnings: 0,
+      evidenceSources: 3,
+      hasReviews: true,
+    };
+
+    const parts = buildOperatorHomeRecentReviewsOutcomeParts(metrics, {
+      visibleCount: 2,
+      recentTotalCount: 4,
+    });
+
+    expect(parts.find((part) => part.key === "showing-cap")).toEqual({
+      key: "showing-cap",
+      text: "showing 2 of 4",
+    });
+  });
 });
 
 describe("deriveHomePreviewTabCounts", () => {

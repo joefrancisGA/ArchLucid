@@ -35,7 +35,15 @@ export function OperatorAttentionKindStrip(
   const { summaries } = useOperatorAttentionSummary();
   const partitionPreviews = useAttentionPartitionPreviews();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
-  const visibleKinds = OPERATOR_ATTENTION_KIND_IDS.filter((kind) => !suppressKinds.has(kind));
+  const visibleKinds = OPERATOR_ATTENTION_KIND_IDS.filter((kind) => {
+    if (suppressKinds.has(kind)) {
+      return false;
+    }
+
+    const count = summaryByPartition.get(kind)?.totalCount ?? 0;
+
+    return count > 0;
+  });
   const countsByKind = Object.fromEntries(
     visibleKinds.map((kind) => [kind, summaryByPartition.get(kind)?.totalCount ?? 0]),
   ) as Partial<Record<OperatorAttentionKindId, number>>;

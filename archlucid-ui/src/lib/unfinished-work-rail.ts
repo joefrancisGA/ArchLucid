@@ -73,7 +73,7 @@ function formatRailActivityLabel(updatedUtc: string | null): string | null {
     return null;
   }
 
-  return `Updated ${formatRelativeTime(updatedUtc)}`;
+  return formatRelativeTime(updatedUtc);
 }
 
 function buildRailItemBase(

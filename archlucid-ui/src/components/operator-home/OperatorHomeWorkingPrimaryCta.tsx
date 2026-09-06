@@ -5,11 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
-import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +35,6 @@ export function OperatorHomeWorkingPrimaryCta(
             {resume.ctaLabel}
           </Link>
         </Button>
-        <WorkingCapabilityLinks />
       </div>
     );
   }
@@ -53,22 +49,6 @@ export function OperatorHomeWorkingPrimaryCta(
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
         {WORKING_NEW_REVIEW_BRIDGE_COPY}
       </p>
-      <WorkingCapabilityLinks />
     </div>
-  );
-}
-
-function WorkingCapabilityLinks(): React.JSX.Element {
-  return (
-    <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-      Resume work:{" "}
-      <Link href={ARCHITECTURES_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-drafts-link">
-        {ARCHITECTURE_DRAFTS_LIST_LABEL}
-      </Link>
-      <span aria-hidden="true"> · </span>
-      <Link href={REVIEWS_LIST_PATH} className={OPERATOR_LINK.optional} data-testid="operator-home-working-packages-link">
-        {OPERATOR_NAV_LINK_LABELS.reviewPackage}
-      </Link>
-    </p>
   );
 }
