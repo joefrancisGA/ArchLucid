@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseResourceHubTabFromSearch,
   buildInfrastructureAskHref,
+  buildResourceHubAuditLineageHref,
   buildResourceHubExplorerHref,
   buildResourceHubWorkCountHref,
   resolveResourceHubTabFromAskScope,
@@ -40,6 +41,19 @@ describe("infra-evidence-hub-filter-url", () => {
       }),
     ).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&assessmentId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&auditEvidenceSnapshotId=22222222-2222-2222-2222-222222222222&controlId=33333333-3333-3333-3333-333333333333",
+    );
+  });
+
+  it("builds hub audit lineage href for audit evidence spine handoff", () => {
+    expect(
+      buildResourceHubAuditLineageHref("11111111-1111-1111-1111-111111111111", {
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 
