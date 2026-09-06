@@ -149,6 +149,24 @@ function buildHubAuditLineageAskHref(
   });
 }
 
+function buildHubAuditLineageTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "audit",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -435,6 +453,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open terraform mapping
                   </Link>
                 </Button>
+                {resolvedAuditLineage != null ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-audit-work">
+                    <Link
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                        assessmentId: resolvedAuditLineage.assessmentId,
+                        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                        controlId: resolvedAuditLineage.controlId,
+                      })}
+                    >
+                      Open audit lineage
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </section>
 
@@ -508,11 +539,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
-            <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
-              <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
-                Open drift workbench
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
+                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                  Open drift workbench
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-terraform">
+                <Link
+                  href={buildResourceHubWorkbenchHref({
+                    cloudResourceId,
+                    tab: "terraform",
+                    snapshotId: resolvedSnapshotId,
+                  })}
+                >
+                  Open terraform mapping
+                </Link>
+              </Button>
+            </div>
             {hub.recentChanges.length > 0 ? (
               <EnterpriseTable ariaLabel="Drift changes for resource">
                 <EnterpriseTableHead>
@@ -631,11 +675,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </div>
               </dl>
               <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
-              <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-terraform-drift-export">
-                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
-                  Export from drift workbench
-                </Link>
-              </Button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-drift-export">
+                  <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                    Export from drift workbench
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-drift-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "drift",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View drift in hub
+                  </Link>
+                </Button>
+              </div>
             </section>
           </EnterpriseTabsContent>
 
