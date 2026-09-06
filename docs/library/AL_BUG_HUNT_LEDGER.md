@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 208
-- **bugs-found:** 774
+- **hunts:** 209
+- **bugs-found:** 786
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — ExecutionAccessKey/ExportAccessKey/ExtensionAccessKey redaction, workloads does-not-provision/apply/configure/enforce negation, advice will-not-implement/enable/deploy/adopt/use suffix
+- **last-bug:** 2026-09-06 — FederatedAccessKey/FetchAccessKey/FilterAccessKey redaction, workloads does-not-require/need and will-not-implement/enable negation, advice will-not-have and would-not-implement/enable/deploy/adopt suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2823,6 +2823,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `will not deploy` suffix gap — **hit 2026-09-06 (#936):** #921 added `do not deploy` suffix only; missed `will not deploy`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_deploy_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `will not adopt` suffix gap — **hit 2026-09-06 (#936):** #921 added `do not adopt` suffix only; missed `will not adopt`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_adopt_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `will not use` suffix gap — **hit 2026-09-06 (#936):** #922 added `do not use` suffix only; missed `will not use`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_use_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FederatedAccessKey` not redacted — **hit 2026-09-06 (#937):** compound access-key class after #936; embedded `AccessKey`/`accesskey` fragment guard skipped `FederatedAccessKey`/`federatedaccesskey`; fixed with explicit credential detection (`Resolve_redacts_federated_access_key_config_path`, `IsSensitiveKey_detects_federated_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FetchAccessKey` not redacted — **hit 2026-09-06 (#937):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_fetch_access_key_config_path`, `IsSensitiveKey_detects_fetch_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `FilterAccessKey` not redacted — **hit 2026-09-06 (#937):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_filter_access_key_config_path`, `IsSensitiveKey_detects_filter_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `does not require` negation gap — **hit 2026-09-06 (#937):** prefix-only `does not {verb}` coverage missed mid-sentence `does not require {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_require_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `does not need` negation gap — **hit 2026-09-06 (#937):** prefix-only `does not {verb}` coverage missed mid-sentence `does not need {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_need_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not implement` negation gap — **hit 2026-09-06 (#937):** #936 added suffix `will not implement` only; missed mid-sentence `will not implement {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_implement_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `will not enable` negation gap — **hit 2026-09-06 (#937):** #936 added suffix `will not enable` only; missed mid-sentence `will not enable {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_will_not_enable_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `will not have` suffix gap — **hit 2026-09-06 (#937):** #922 added `do not have` suffix only; missed `will not have`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_will_not_have_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not implement` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not implement` suffix only; missed `would not implement`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_implement_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not enable` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not enable` suffix only; missed `would not enable`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_enable_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not deploy` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not deploy` suffix only; missed `would not deploy`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_deploy_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `would not adopt` suffix gap — **hit 2026-09-06 (#937):** #921 added `do not adopt` suffix only; missed `would not adopt`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_would_not_adopt_suffix_phrasing`).
+
+2026-09-06 seed hunt #937 (hit): reseeded after #936 closure; proved twelve hunt-ready rows — FederatedAccessKey/FetchAccessKey/FilterAccessKey redaction parity, workloads does-not-require/need and will-not-implement/enable constraint negation, and advice will-not-have and would-not-implement/enable/deploy/adopt suffix.
 
 2026-09-06 seed hunt #936 (hit): reseeded after #935 closure; proved twelve hunt-ready rows — ExecutionAccessKey/ExportAccessKey/ExtensionAccessKey redaction parity, workloads does-not-provision/apply/configure/enforce constraint negation, and advice will-not-implement/enable/deploy/adopt/use suffix.
 
