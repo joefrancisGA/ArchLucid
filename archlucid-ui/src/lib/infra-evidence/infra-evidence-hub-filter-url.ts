@@ -344,6 +344,27 @@ export function resourceHubFilterHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+export function buildResourceHubAuditLineageHref(
+  cloudResourceId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+    readonly snapshotId?: string;
+  },
+): string {
+  const trimmedCloudResourceId = cloudResourceId.trim();
+  const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(trimmedCloudResourceId, "", {
+    tab: "audit",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 export function buildResourceHubExplorerHref(
   cloudResourceId: string,
   workQueue: CloudResourceExplorerWorkQueue = "all",

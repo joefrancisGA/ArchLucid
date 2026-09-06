@@ -2,7 +2,6 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "./http";
@@ -27,11 +26,6 @@ export async function downloadRunExportZip(runId: string): Promise<void> {
   const url = getRunExportDownloadUrl(runId);
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

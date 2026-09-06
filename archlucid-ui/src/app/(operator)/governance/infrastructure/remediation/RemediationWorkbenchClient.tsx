@@ -12,7 +12,7 @@ import {
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
-import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -78,6 +78,21 @@ function buildDiagramReconcileHref(context: {
     runId: context.runId,
     snapshotId: context.snapshotId,
     cloudResourceId: context.cloudResourceId,
+  });
+}
+
+function buildDiagramHubHref(context: {
+  readonly cloudResourceId: string;
+  readonly runId?: string | null;
+  readonly snapshotId?: string | null;
+}): string {
+  const trimmedRunId = context.runId?.trim() ?? "";
+  const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(context.cloudResourceId.trim(), "", {
+    tab: "diagram",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
   });
 }
 
@@ -374,10 +389,38 @@ export function RemediationWorkbenchClient() {
           </p>
           <Link
             className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({ cloudResourceId: urlCloudResourceId, tab: "remediation" })}
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "remediation",
+              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+            })}
           >
             Open resource evidence hub
           </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "findings",
+              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+            })}
+            data-testid="infra-remediation-open-findings-hub"
+          >
+            Open findings
+          </Link>
+          {urlCorrespondenceId.length > 0 ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={buildDiagramHubHref({
+                cloudResourceId: urlCloudResourceId,
+                runId: urlReconcileRunId,
+                snapshotId: urlReconcileSnapshotId,
+              })}
+              data-testid="infra-remediation-open-diagram-hub"
+            >
+              Open diagram correspondence
+            </Link>
+          ) : null}
         </section>
       ) : null}
 
@@ -393,6 +436,19 @@ export function RemediationWorkbenchClient() {
               ? " No remediation instance exists yet — use Match + create below."
               : " Matching remediation instance is selected on the board."}
           </p>
+          {urlCloudResourceId.length > 0 ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={buildResourceHubWorkbenchHref({
+                cloudResourceId: urlCloudResourceId,
+                tab: "findings",
+                snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+              })}
+              data-testid="infra-remediation-finding-open-findings-hub"
+            >
+              Open findings in resource hub
+            </Link>
+          ) : null}
         </section>
       ) : null}
 

@@ -11,7 +11,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import { describeFirstPilotStartBlocker, type FirstPilotStartBlockerInput } from "@/lib/first-pilot-intake";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
+import {
+  reviewPipelineOperationId,
+  trackReviewPipelineInFlight,
+} from "@/lib/operations/review-pipeline-in-flight";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
@@ -135,6 +138,7 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
         return;
       }
 
+      trackReviewPipelineInFlight(id);
       creationProgress.bindOperation(reviewPipelineOperationId(id));
 
       if (filesToUpload.length > 0) {
@@ -209,6 +213,7 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
 
       const id = result.runId;
       creationProgress.markResumed();
+      trackReviewPipelineInFlight(id);
       creationProgress.bindOperation(reviewPipelineOperationId(id));
 
       try {
