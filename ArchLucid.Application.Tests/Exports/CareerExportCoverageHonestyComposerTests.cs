@@ -33,6 +33,20 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void Resolve_blocks_working_career_export_when_catalog_advisory_engine_failed()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            catalogAdvisoryEngineFailureCount: 1);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("catalog engine failed");
+    }
+
+    [Fact]
     public void Resolve_allows_guided_exports_without_working_floor_enforcement()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 4, workingDesk: false);
@@ -102,7 +116,8 @@ public sealed class CareerExportCoverageHonestyComposerTests
     private static CareerExportCoverageHonestyInput CreateInput(
         int? enginesSucceeded,
         bool workingDesk,
-        CareerExportClassificationCounts? classificationCounts = null)
+        CareerExportClassificationCounts? classificationCounts = null,
+        int catalogAdvisoryEngineFailureCount = 0)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -114,6 +129,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
             coverageContext,
             enginesSucceeded,
             workingDesk,
-            classificationCounts);
+            classificationCounts,
+            catalogAdvisoryEngineFailureCount);
     }
 }

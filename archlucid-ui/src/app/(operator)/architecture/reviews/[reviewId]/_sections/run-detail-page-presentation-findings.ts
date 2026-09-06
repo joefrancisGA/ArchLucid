@@ -7,7 +7,11 @@ import {
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingSeverityCounts } from "@/lib/run-detail-workspace-derive";
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
-import { resolveFindingsWithheldRows, type WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
+import {
+  countEngineFailureAdvisoryWithheldRows,
+  resolveFindingsWithheldRows,
+  type WithheldFindingRow,
+} from "@/lib/findings/findings-withheld-band";
 
 export function countPendingDecisions(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => {
@@ -30,6 +34,7 @@ export type RunDetailFindingsPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly catalogAdvisoryEngineFailureCount: number;
 };
 
 export function buildRunDetailFindingsPresentation(
@@ -50,6 +55,8 @@ export function buildRunDetailFindingsPresentation(
     findings: quickDecisionFindings,
   });
 
+  const withheldFindings = resolveFindingsWithheldRows(model.resolvedDetail);
+
   return {
     quickDecisionFindings,
     findingsTriageVisibleCount: deriveRunDetailFindingsTriageCounts(quickDecisionFindings).triageVisibleCount,
@@ -69,6 +76,7 @@ export function buildRunDetailFindingsPresentation(
         finding.severityValue >= 2 &&
         finding.confidenceLevel === "Low",
     ).length,
-    withheldFindings: resolveFindingsWithheldRows(model.resolvedDetail),
+    withheldFindings,
+    catalogAdvisoryEngineFailureCount: countEngineFailureAdvisoryWithheldRows(withheldFindings),
   };
 }

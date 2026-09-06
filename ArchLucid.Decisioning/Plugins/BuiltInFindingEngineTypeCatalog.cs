@@ -31,6 +31,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["SecurityGapFindingEngine"] = "security-gap",
             ["SecurityCoverageFindingEngine"] = "security-coverage",
             ["ExternalExposureFindingEngine"] = "external-exposure",
+            ["SegmentationSemanticsFindingEngine"] = "segmentation-semantics",
             ["TrustBoundaryFindingEngine"] = "trust-boundary",
             ["PrivilegedAccessFindingEngine"] = "privileged-access",
             ["IdentityBlastRadiusFindingEngine"] = "identity-blast-radius",

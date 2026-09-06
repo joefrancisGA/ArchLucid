@@ -15,6 +15,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly enginesSucceeded?: number | null;
   readonly workingDesk?: boolean;
   readonly classificationCounts?: CareerExportClassificationCounts | null;
+  readonly catalogAdvisoryEngineFailureCount?: number;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -31,6 +32,7 @@ export function resolveCareerExportCoverageHonesty(
   const measurementFloor = formatInsightDensityMeasurementFloorPresentation(input.enginesSucceeded ?? null);
   const measurementFloorBlockedReason = formatInsightDensityMeasurementFloorBlockedReason(
     input.enginesSucceeded ?? null,
+    input.catalogAdvisoryEngineFailureCount ?? 0,
   );
   const sponsorHonestyMarkdown = formatSponsorReviewCoverageHonestyMarkdown(input);
   const blockedForWorkingCareerExport =
