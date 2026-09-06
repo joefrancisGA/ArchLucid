@@ -155,6 +155,16 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
   });
 
+  it("links audit lineage to scoped Infrastructure Ask", async () => {
+    searchParams = new URLSearchParams("tab=audit&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
   it("shows tab count badges for findings and drift", async () => {
     searchParams = new URLSearchParams("tab=overview");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);

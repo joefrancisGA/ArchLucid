@@ -79,6 +79,11 @@ describe("infra-evidence-hub-filter-url", () => {
   it("resolves hub tab from Ask scope params", () => {
     expect(resolveResourceHubTabFromAskScope({ findingId: "finding-1" })).toBe("findings");
     expect(resolveResourceHubTabFromAskScope({ instanceId: "instance-1" })).toBe("remediation");
+    expect(resolveResourceHubTabFromAskScope({
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    })).toBe("audit");
     expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
     expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
   });

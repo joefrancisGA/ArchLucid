@@ -146,6 +146,9 @@ export function resolveResourceHubTabFromAskScope(context: {
   readonly findingId?: string;
   readonly instanceId?: string;
   readonly diffId?: string;
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
 }): ResourceHubTab | undefined {
   if (context.findingId != null && context.findingId.trim().length > 0) {
     return "findings";
@@ -153,6 +156,17 @@ export function resolveResourceHubTabFromAskScope(context: {
 
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
     return "remediation";
+  }
+
+  if (
+    context.assessmentId != null
+    && context.assessmentId.trim().length > 0
+    && context.auditEvidenceSnapshotId != null
+    && context.auditEvidenceSnapshotId.trim().length > 0
+    && context.controlId != null
+    && context.controlId.trim().length > 0
+  ) {
+    return "audit";
   }
 
   if (context.diffId != null && context.diffId.trim().length > 0) {

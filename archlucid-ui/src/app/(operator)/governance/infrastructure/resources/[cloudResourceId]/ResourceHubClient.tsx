@@ -130,6 +130,24 @@ function buildHubRemediationAskHref(
   });
 }
 
+function buildHubAuditLineageAskHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  context: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  },
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
+  });
+}
+
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
@@ -668,33 +686,59 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
                 </p>
-                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-lineage-link">
-                  <Link
-                    href={buildAuditEvidenceLineageUiPath(
-                      resolvedAuditLineage.assessmentId,
-                      resolvedAuditLineage.auditEvidenceSnapshotId,
-                      resolvedAuditLineage.controlId,
-                    )}
-                  >
-                    Open audit control lineage
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-lineage-link">
+                    <Link
+                      href={buildAuditEvidenceLineageUiPath(
+                        resolvedAuditLineage.assessmentId,
+                        resolvedAuditLineage.auditEvidenceSnapshotId,
+                        resolvedAuditLineage.controlId,
+                      )}
+                    >
+                      Open audit control lineage
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-ask">
+                    <Link
+                      href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                        assessmentId: resolvedAuditLineage.assessmentId,
+                        auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                        controlId: resolvedAuditLineage.controlId,
+                      })}
+                    >
+                      Ask about this control
+                    </Link>
+                  </Button>
+                </div>
                 {resolvedAuditLineage.matches.length > 1 ? (
                   <section className="rounded border border-border bg-card p-4" aria-label="Additional audit controls">
                     <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Other linked controls</h2>
                     <ul className="m-0 list-disc space-y-2 pl-5 text-sm">
                       {resolvedAuditLineage.matches.slice(1).map((match: CloudResourceAuditLineageMatch) => (
                         <li key={`${match.controlId}-${match.auditEvidenceSnapshotId}`}>
-                          <Link
-                            className="text-al-link hover:underline"
-                            href={buildAuditEvidenceLineageUiPath(
-                              match.assessmentId,
-                              match.auditEvidenceSnapshotId,
-                              match.controlId,
-                            )}
-                          >
-                            {match.controlNumber} · {match.controlTitle}
-                          </Link>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Link
+                              className="text-al-link hover:underline"
+                              href={buildAuditEvidenceLineageUiPath(
+                                match.assessmentId,
+                                match.auditEvidenceSnapshotId,
+                                match.controlId,
+                              )}
+                            >
+                              {match.controlNumber} · {match.controlTitle}
+                            </Link>
+                            <Link
+                              className="text-sm text-al-link hover:underline"
+                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                                assessmentId: match.assessmentId,
+                                auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
+                                controlId: match.controlId,
+                              })}
+                              data-testid={`infra-resource-hub-audit-ask-${match.controlId}`}
+                            >
+                              Ask
+                            </Link>
+                          </div>
                         </li>
                       ))}
                     </ul>
