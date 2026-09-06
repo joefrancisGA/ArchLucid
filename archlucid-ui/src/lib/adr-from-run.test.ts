@@ -6,6 +6,7 @@ import {
   buildMadrMarkdownFromRun,
   type AdrGeneratorRunInput,
 } from "@/lib/adr-from-run";
+import { formatCareerExportHonestyMarkdown } from "@/lib/career-export-coverage-honesty";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
@@ -62,6 +63,32 @@ describe("adr-from-run", () => {
     expect(md).toContain("[High] Store PII in-region");
     expect(md).toContain("**Trust label:** EvidenceBacked — Cited graph path.");
     expect(md).toContain("Driver A");
+  });
+
+  it("buildMadrMarkdownFromRun prepends shared career export honesty when provided (PC-13)", () => {
+    const input: AdrGeneratorRunInput = {
+      runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
+      projectId: "p1",
+      reviewTitle: "Spike: data residency",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    };
+    const careerExportHonestyMarkdown = formatCareerExportHonestyMarkdown({
+      runId: input.runId,
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+    });
+    const md = buildMadrMarkdownFromRun(input, { careerExportHonestyMarkdown });
+
+    expect(md.indexOf("Measurement floor")).toBeLessThan(md.indexOf("# ADR:"));
+    expect(md).toMatch(/Measurement floor/i);
   });
 
   it("buildAdrExplanationSlice returns null for null summary", () => {

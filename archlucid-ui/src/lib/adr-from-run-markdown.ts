@@ -60,7 +60,16 @@ function bulletBlock(lines: readonly string[]): string {
 }
 
 /** MADR-inspired markdown (Title, Status, Context, Decision, Consequences). */
-export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
+export type BuildMadrMarkdownFromRunOptions = {
+  /** Shared PC-01 / PC-13 honesty block prepended when Working career exports include ADR markdown. */
+  readonly careerExportHonestyMarkdown?: string | null;
+};
+
+/** MADR-inspired markdown (Title, Status, Context, Decision, Consequences). */
+export function buildMadrMarkdownFromRun(
+  input: AdrGeneratorRunInput,
+  options?: BuildMadrMarkdownFromRunOptions,
+): string {
   const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : `Architecture review ${input.runId}`;
   const status = adrStatusFromManifestLabel(input.manifestStatusLabel);
   const dateLine = isoDateOnly(input.createdUtc);
@@ -193,7 +202,14 @@ export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
       ? `\n**Explanation provenance (aggregate):** ${exp.provenanceLine}\n`
       : "";
 
-  return `# ADR: ${titleLine}
+  const honestyPrefix =
+    options?.careerExportHonestyMarkdown !== null
+    && options?.careerExportHonestyMarkdown !== undefined
+    && options.careerExportHonestyMarkdown.trim().length > 0
+      ? `${options.careerExportHonestyMarkdown.trim()}\n\n`
+      : "";
+
+  return `${honestyPrefix}# ADR: ${titleLine}
 
 ## Status
 

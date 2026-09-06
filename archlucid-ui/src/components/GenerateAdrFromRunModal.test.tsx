@@ -89,6 +89,19 @@ describe("GenerateAdrFromRunModal", () => {
     expect(within(dialog).getByRole("heading", { name: /decision record draft/i })).toBeInTheDocument();
   });
 
+  it("PC-13: Working ADR markdown prepends shared career export honesty block", async () => {
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={16} />);
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+    const editor = within(dialog).getByRole("textbox", { name: /architecture decision record markdown/i });
+    const ta = editor as HTMLTextAreaElement;
+
+    expect(ta.value.indexOf("Measurement floor")).toBeLessThan(ta.value.indexOf("# ADR:"));
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toBeInTheDocument();
+  });
+
   it("CA-41: Working blocks download until incomplete export is confirmed when only 20 of 25 are included", async () => {
     render(<GenerateAdrFromRunModal input={buildInput(20)} totalFindingCount={25} />);
 

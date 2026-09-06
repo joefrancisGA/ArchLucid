@@ -18,7 +18,7 @@ import {
   resolveCareerExportFindingInventory,
   resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
-import { resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
 import {
   Dialog,
   DialogContent,
@@ -88,6 +88,28 @@ export function GenerateAdrFromRunModal({
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
     || (coverageHonesty.blockedForWorkingCareerExport && !incompleteExportConfirmed);
 
+  const buildExportMarkdown = useCallback(
+    (exportInput: AdrGeneratorRunInput): string => {
+      const careerExportHonestyMarkdown = workingDesk
+        ? formatCareerExportHonestyMarkdown({
+            runId: input.runId,
+            progressSummary: null,
+            manifestSummary: null,
+            graphSnapshot: null,
+            enginesSucceeded,
+            workingDesk: true,
+          })
+        : null;
+
+      return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
+    },
+    [enginesSucceeded, input.runId, workingDesk],
+  );
+
+  const seedFromInput = useCallback(() => {
+    setMarkdown(buildExportMarkdown(exportInput));
+  }, [buildExportMarkdown, exportInput]);
+
   const syncAdrOpenToUrl = useCallback(
     (nextOpen: boolean) => {
       router.replace(reviewGenerateAdrPanelsHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
@@ -108,10 +130,6 @@ export function GenerateAdrFromRunModal({
     },
     [syncAdrOpenToUrl],
   );
-
-  const seedFromInput = useCallback(() => {
-    setMarkdown(buildMadrMarkdownFromRun(exportInput));
-  }, [exportInput]);
 
   const onOpenChange = useCallback(
     (next: boolean) => {
