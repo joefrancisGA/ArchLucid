@@ -2419,6 +2419,17 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        CloudResourceSummary: {
+            /** Format: uuid */
+            cloudResourceId?: string;
+            displayName?: null | string;
+            externalResourceId?: string;
+            /** Format: date-time */
+            lastSeenUtc?: string;
+            region?: null | string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+        };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -5104,6 +5115,56 @@ export interface components {
             simulatorLabel?: null | string;
             topicKind?: string;
         };
+        InfraEvidenceMermaidComplexityMetrics: {
+            /** Format: int32 */
+            crossSubgraphEdgeCount?: number;
+            /** Format: int32 */
+            edgeCount?: number;
+            /** Format: int32 */
+            layoutEstimate?: number;
+            /** Format: int32 */
+            maxDegree?: number;
+            /** Format: int32 */
+            nodeCount?: number;
+            /** Format: int32 */
+            subgraphCount?: number;
+            /** Format: int32 */
+            textSizeBytes?: number;
+        };
+        InfraEvidenceMermaidFallbackArtifactSummary: {
+            /** Format: int32 */
+            edgeCount?: number;
+            key?: string;
+            label?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidModePreview: {
+            /** Format: int32 */
+            edgeCount?: number;
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            mermaid?: null | string;
+            mode?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidPreviewResponse: {
+            modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
+            /** Format: uuid */
+            snapshotId?: string;
+        };
+        InfraEvidenceMermaidRenderResponse: {
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            fallbackKey?: null | string;
+            mermaid?: null | string;
+            metrics?: null | components["schemas"]["InfraEvidenceMermaidComplexityMetrics"];
+            mode?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            status?: string;
+        };
         InfrastructureDeclarationRequest: {
             content?: string;
             format?: string;
@@ -6232,6 +6293,16 @@ export interface components {
         PagedResponseOfAzureInventorySnapshotRecord: {
             hasMore?: boolean;
             items?: components["schemas"]["AzureInventorySnapshotRecord"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfCloudResourceSummary: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceSummary"][];
             /** Format: int32 */
             page?: number;
             /** Format: int32 */

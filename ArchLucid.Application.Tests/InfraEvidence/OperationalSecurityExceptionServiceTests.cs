@@ -321,6 +321,14 @@ public sealed class OperationalSecurityExceptionServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>([]);
 
+        public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
             Guid findingId,

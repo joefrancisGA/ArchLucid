@@ -275,6 +275,14 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             return Task.FromResult<IReadOnlyList<OperationalSecurityFindingRecord>>(query.ToList());
         }
 
+        public Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
             Guid findingId,
@@ -421,6 +429,14 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             Guid tenantId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>(Instances.Where(item => item.TenantId == tenantId).ToList());
+
+        public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository
