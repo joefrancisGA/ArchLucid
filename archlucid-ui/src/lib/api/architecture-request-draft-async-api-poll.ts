@@ -11,8 +11,8 @@ export type PollAdvisoryDraftOperationOptions = {
   readonly signal?: AbortSignal;
   readonly onUpdate?: (operation: OperationDetail) => void;
   readonly pollIntervalMs?: number;
-  /** Draft being edited — used to deep-link In progress rows back to this architecture. */
-  readonly architectureId?: string;
+  /** Draft being edited — used to deep-link In progress rows back to this draft. */
+  readonly draftId?: string;
 };
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {

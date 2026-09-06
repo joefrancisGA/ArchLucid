@@ -24,10 +24,10 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
 }));
 
 function entry(
-  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
+  overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "draftId">,
 ): ArchitectureDraftRegistryEntry {
   return {
-    architectureId: overrides.architectureId,
+    draftId: overrides.draftId,
     displayName: overrides.displayName ?? "Healthcare Claims Platform",
     customerStatus: overrides.customerStatus ?? "draft",
     ownerLabel: overrides.ownerLabel ?? "You",
@@ -43,7 +43,7 @@ describe("ArchitecturesNewPageSubtitle (TB-1462)", () => {
   });
 
   it("uses resume-first subtitle when browser-local drafts exist", async () => {
-    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ architectureId: "draft-001" })]);
+    useArchitectureDraftRegistryEntries.mockReturnValue([entry({ draftId: "draft-001" })]);
 
     render(<ArchitecturesNewPageSubtitle />);
 

@@ -4007,6 +4007,194 @@
         },
         "type": "object"
       },
+      "ArchitectureIdentityBackfillReport": {
+        "properties": {
+          "createdRunsLinked": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "displayNamesRefreshed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "orphanDraftsLinked": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "reviewRunsLinked": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "spawnedDraftsLinked": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalMutations": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityChildDraftSummary": {
+        "properties": {
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityChildReviewSummary": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityDetail": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currentDraftId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "draftCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "drafts": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityChildDraftSummary"
+            },
+            "type": "array"
+          },
+          "latestReviewId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestSealedManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "reviews": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityChildReviewSummary"
+            },
+            "type": "array"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityListItem": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currentDraftId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "draftCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "latestReviewId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestSealedManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureIntelligencePublishResult": {
         "properties": {
           "findingsSnapshotId": {
@@ -12086,6 +12274,13 @@
       },
       "DraftRequestResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByUserId": {
             "type": "string"
           },
@@ -21131,6 +21326,32 @@
           },
           "transportSucceeded": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PagedResponseOfArchitectureIdentityListItem": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityListItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -42887,6 +43108,9 @@
       "name": "AdminApiKeySettings"
     },
     {
+      "name": "AdminArchitectureIdentityBackfill"
+    },
+    {
       "name": "AdminAuthDiagnostics"
     },
     {
@@ -42996,6 +43220,9 @@
     },
     {
       "name": "ArchitectureQuickScan"
+    },
+    {
+      "name": "Architectures"
     },
     {
       "name": "ArtifactExport"

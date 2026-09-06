@@ -41,7 +41,7 @@ export function ArchitectureDraftStructuredBriefFields(
     businessOutcome: props.businessOutcome,
     disabled: props.disabled,
     blocksLlmExecution: props.blocksLlmExecution,
-    architectureId: props.draftId,
+    draftId: props.draftId,
     suggestFromOverviewNonce: props.suggestFromOverviewNonce,
     onStructuredBriefChange: (nextBrief) => {
       props.onStructuredBriefChange(nextBrief);

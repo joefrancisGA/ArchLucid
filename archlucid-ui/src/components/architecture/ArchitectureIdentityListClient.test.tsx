@@ -37,6 +37,7 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
     render(<ArchitectureIdentityListClient />);
 
     expect(screen.getByTestId("architecture-identity-row-architecture-identity-001")).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Architecture portfolio" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Payments platform" })).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001",

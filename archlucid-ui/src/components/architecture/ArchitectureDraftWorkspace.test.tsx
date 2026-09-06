@@ -222,7 +222,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
@@ -258,7 +258,7 @@ describe("ArchitectureDraftWorkspace", () => {
       keepLocalDraftOnConflict: vi.fn(async () => true),
     });
 
-    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+    render(<ArchitectureDraftWorkspace draftId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     expect(getDraftRequest).not.toHaveBeenCalled();
     expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
@@ -275,7 +275,7 @@ describe("ArchitectureDraftWorkspace", () => {
   it("shows browser-local resume drafts on /new when registry entries exist (TB-1459)", async () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -285,7 +285,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     ]);
 
-    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+    render(<ArchitectureDraftWorkspace draftId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-creation-resume-drafts")).toBeInTheDocument();
@@ -297,7 +297,7 @@ describe("ArchitectureDraftWorkspace", () => {
   it("omits workspace hero copy on /new when registry entries exist (TB-1462)", async () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "draft-001",
+        draftId: "draft-001",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -307,7 +307,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     ]);
 
-    render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
+    render(<ArchitectureDraftWorkspace draftId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-creation-resume-drafts")).toBeInTheDocument();
@@ -324,7 +324,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toBeInTheDocument();
@@ -346,7 +346,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
-        architectureId: "arch-001",
+        draftId: "arch-001",
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -355,7 +355,7 @@ describe("ArchitectureDraftWorkspace", () => {
         serverUpdatedUtc: "2026-07-12T23:42:05.000Z",
       },
       {
-        architectureId: "arch-002",
+        draftId: "arch-002",
         displayName: "Payments core",
         customerStatus: "draft",
         ownerLabel: "You",
@@ -365,7 +365,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     ]);
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-next-draft-footer")).toBeInTheDocument();
@@ -385,7 +385,7 @@ describe("ArchitectureDraftWorkspace", () => {
       }),
     );
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     expect(screen.getByTestId("architecture-draft-workspace-loading")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-workspace-loading-skeleton")).toBeInTheDocument();
@@ -412,7 +412,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
@@ -432,7 +432,7 @@ describe("ArchitectureDraftWorkspace", () => {
       }),
     );
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/Too many requests while loading this draft/i);
@@ -450,7 +450,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
@@ -468,7 +468,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
@@ -501,7 +501,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
@@ -520,7 +520,7 @@ describe("ArchitectureDraftWorkspace", () => {
   });
 
   it("hides AI refinement while the post-spawn handoff lock is active", async () => {
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
@@ -531,7 +531,7 @@ describe("ArchitectureDraftWorkspace", () => {
   });
 
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-handoff-banner")).toBeInTheDocument();
@@ -552,7 +552,7 @@ describe("ArchitectureDraftWorkspace", () => {
       isGuidedMode: false,
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
@@ -573,7 +573,7 @@ describe("ArchitectureDraftWorkspace", () => {
       spawnedRunId: null,
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-intake-mode-banner")).toBeInTheDocument();
@@ -603,7 +603,7 @@ describe("ArchitectureDraftWorkspace", () => {
 
     getDraftRequest.mockResolvedValueOnce(draftingCopy).mockResolvedValueOnce(admittedCopy);
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
@@ -634,7 +634,7 @@ describe("ArchitectureDraftWorkspace", () => {
       spawnedRunId: null,
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-unlock-brief")).toBeInTheDocument();
@@ -671,7 +671,7 @@ describe("ArchitectureDraftWorkspace", () => {
       spawnedRunId: null,
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-system-name")).toHaveValue("Claims intake");
@@ -708,7 +708,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
@@ -740,7 +740,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-save-draft-retry")).toHaveTextContent("Save now");
@@ -769,7 +769,7 @@ describe("ArchitectureDraftWorkspace", () => {
       document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-conflict-message")).toHaveTextContent(conflictText);
@@ -798,7 +798,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
@@ -851,7 +851,7 @@ describe("ArchitectureDraftWorkspace", () => {
       }),
     );
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
@@ -911,7 +911,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-start-review")).toBeDisabled();
@@ -959,7 +959,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
@@ -1016,7 +1016,7 @@ describe("ArchitectureDraftWorkspace", () => {
 
     saveDraft.mockResolvedValue(true);
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
@@ -1070,7 +1070,7 @@ describe("ArchitectureDraftWorkspace", () => {
       },
     });
 
-    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
