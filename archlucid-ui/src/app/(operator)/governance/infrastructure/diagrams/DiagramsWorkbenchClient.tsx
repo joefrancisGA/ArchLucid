@@ -46,11 +46,13 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -184,6 +186,10 @@ export function DiagramsWorkbenchClient() {
   }, [fallbackArtifacts, selectedViewKey, showFallbackCards]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
@@ -404,10 +410,13 @@ export function DiagramsWorkbenchClient() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagrams-workbench">
       <LayerHeader pageKey="infrastructure-diagrams" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
-        thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
+          thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
+      </div>
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -422,10 +431,15 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {(auditScope != null || resourceHub?.auditLineageLink.available === false) ? (
+          {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
               hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={scopedSnapshotId}
+              activeTab="diagram"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
               provenanceTestId="infra-diagrams-audit-provenance"
               unavailableTestId="infra-diagrams-audit-unavailable"
             />

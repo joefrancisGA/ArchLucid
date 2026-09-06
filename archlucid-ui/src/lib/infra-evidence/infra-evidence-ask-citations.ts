@@ -2,6 +2,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveInfraEvidenceCitationHubTab } from "@/lib/infra-evidence/infra-evidence-citation-hub-tab";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -16,8 +17,10 @@ export type InfraEvidenceAskCitationContext = {
   readonly snapshotId?: string | null;
   readonly diffId?: string | null;
   readonly findingId?: string | null;
+  readonly instanceId?: string | null;
   readonly correspondenceId?: string | null;
   readonly runId?: string | null;
+  readonly hubTab?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -72,12 +75,15 @@ export function resolveInfraEvidenceAskCitationLink(
   const correspondenceId = context.correspondenceId?.trim() ?? "";
   const runId = context.runId?.trim() ?? "";
   const auditScope = mergeAskCitationAuditScope(context);
+  const citationHubTab = resolveInfraEvidenceCitationHubTab(citation, context);
 
   switch (citation.kind) {
     case "CloudResourceId":
       return {
         href: resourceHubFilterHrefFromSearch(id, "", {
+          tab: citationHubTab === "overview" ? undefined : citationHubTab,
           snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+          runId: runId.length > 0 ? runId : undefined,
           ...auditScope,
         }),
         label,

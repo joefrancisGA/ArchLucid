@@ -1,6 +1,11 @@
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
-import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
+import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import {
+  buildInfraEvidenceClearAuditScopeHref,
+} from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { InfraEvidenceWorkbenchAuditScope } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 
 type WorkbenchAuditLineageStatusProps = {
@@ -10,6 +15,12 @@ type WorkbenchAuditLineageStatusProps = {
   readonly unavailableTestId: string;
   readonly controlNumber?: string | null;
   readonly controlTitle?: string | null;
+  readonly cloudResourceId?: string | null;
+  readonly currentSearch?: string;
+  readonly snapshotId?: string | null;
+  readonly runId?: string | null;
+  readonly activeTab?: ResourceHubTab;
+  readonly hasStaleAuditUrlParams?: boolean;
 };
 
 export function WorkbenchAuditLineageStatus(
@@ -22,13 +33,36 @@ export function WorkbenchAuditLineageStatus(
     unavailableTestId,
     controlNumber,
     controlTitle,
+    cloudResourceId,
+    currentSearch = "",
+    snapshotId,
+    runId,
+    activeTab,
+    hasStaleAuditUrlParams = false,
   } = props;
 
-  if (auditScope != null) {
+  const trimmedCloudResourceId = cloudResourceId?.trim() ?? "";
+  const clearAuditScopeHref = trimmedCloudResourceId.length > 0
+    ? buildInfraEvidenceClearAuditScopeHref(trimmedCloudResourceId, currentSearch, activeTab)
+    : null;
+  const auditTabHref = trimmedCloudResourceId.length > 0
+    ? resourceHubFilterHrefFromSearch(trimmedCloudResourceId, currentSearch, {
+      tab: "audit",
+      snapshotId: snapshotId ?? undefined,
+      runId: runId ?? undefined,
+    })
+    : null;
+
+  if (auditScope != null && trimmedCloudResourceId.length > 0) {
     return (
       <div className="mt-2">
-        <WorkbenchAuditProvenance
+        <InfraEvidenceAuditScopeBar
+          cloudResourceId={trimmedCloudResourceId}
           auditScope={auditScope}
+          currentSearch={currentSearch}
+          activeTab={activeTab}
+          snapshotId={snapshotId}
+          runId={runId}
           controlNumber={controlNumber ?? hub?.auditLineageLink.controlNumber}
           controlTitle={controlTitle ?? hub?.auditLineageLink.controlTitle}
           testId={provenanceTestId}
@@ -37,12 +71,14 @@ export function WorkbenchAuditLineageStatus(
     );
   }
 
-  if (hub?.auditLineageLink.available === false) {
+  if (hub?.auditLineageLink.available === false || hasStaleAuditUrlParams) {
     return (
       <div className="mt-2">
         <InfraAuditLineageUnavailableBanner
-          degradedReason={hub.auditLineageLink.degradedReason}
+          degradedReason={hub?.auditLineageLink.degradedReason}
           testId={unavailableTestId}
+          auditTabHref={auditTabHref}
+          clearAuditScopeHref={hasStaleAuditUrlParams ? clearAuditScopeHref : null}
         />
       </div>
     );

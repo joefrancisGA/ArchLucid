@@ -46,6 +46,17 @@ describe("infra-evidence-ask-citations", () => {
     );
   });
 
+  it("links CloudResourceId citations to the inferred hub tab when drift context is present", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "CloudResourceId", id: resourceId, label: "gateway-pip" },
+      { snapshotId, diffId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/resources/${resourceId}?tab=drift&snapshotId=${snapshotId}`,
+    );
+  });
+
   it("links audit lineage citations when assessment context is present", () => {
     const link = resolveInfraEvidenceAskCitationLink(
       { kind: "AuditLineageControlId", id: controlId, label: "AC-2" },
