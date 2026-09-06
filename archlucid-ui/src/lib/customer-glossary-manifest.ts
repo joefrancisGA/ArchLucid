@@ -49,12 +49,23 @@ export const CUSTOMER_GLOSSARY_CATEGORY_LABELS: Readonly<Record<CustomerGlossary
 
 export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   {
+    id: "architecture",
+    label: "Architecture",
+    definition:
+      "The named durable identity for a system under active architecture work. An architecture owns child drafts and reviews; it is not a sealed record and not a draft document.",
+    category: "review-process",
+    relatedTermIds: ["architecture-draft", "review-package"],
+    detail:
+      "In Working mode, the Architectures hub lists these identities. Open an identity desk to resume child drafts or linked reviews.",
+    visibility: "customer",
+  },
+  {
     id: "review",
     label: "Review",
     definition:
       "A structured evaluation of architecture change or design intent tied to evidence and policy. In ArchLucid, a review is the governed process from intake through finalized outputs.",
     category: "review-process",
-    relatedTermIds: ["review-package", "architecture-draft"],
+    relatedTermIds: ["architecture", "review-package", "architecture-draft"],
     detail:
       "A review is the governed evaluation process from intake through finalized outputs such as the sealed review record, findings, and exports.",
     visibility: "customer",
@@ -63,9 +74,9 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "architecture-draft",
     label: "Architecture draft",
     definition:
-      "A saved, resumable description of architecture intent and context. Saving or editing a draft does not start a review.",
+      "A saved, resumable child description of architecture intent and context, linked to an Architecture identity when present. Saving or editing a draft does not start a review.",
     category: "review-process",
-    relatedTermIds: ["review", "review-package"],
+    relatedTermIds: ["architecture", "review", "review-package"],
     visibility: "customer",
   },
   {

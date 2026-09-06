@@ -32,11 +32,10 @@ describe("customer-glossary-manifest", () => {
     expect(CUSTOMER_GLOSSARY_TERMS.some((term) => term.visibility === "internal-only")).toBe(false);
   });
 
-  it("uses Finalized review record as the preferred label, not Signed manifest", () => {
+  it("uses Sealed review record as the preferred label, not Signed manifest", () => {
     const signedTerm = listCustomerFacingGlossaryTerms().find((term) => term.id === "sealed-review-record");
 
-    expect(signedTerm?.label).toBe("Finalized review record");
-    expect(signedTerm?.deprecatedAliases).toContain("Finalized review record");
+    expect(signedTerm?.label).toBe("Sealed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed manifest");
     expect(listCustomerFacingGlossaryTerms().some((term) => term.label === "Signed manifest")).toBe(false);
@@ -73,5 +72,22 @@ describe("customer-glossary-manifest", () => {
     for (const pattern of BANNED_CUSTOMER_GLOSSARY_PATTERNS) {
       expect(haystack).not.toMatch(pattern);
     }
+  });
+
+  it("defines Architecture as a durable identity distinct from drafts (CA-44)", () => {
+    const architecture = listCustomerFacingGlossaryTerms().find((term) => term.id === "architecture");
+
+    expect(architecture?.label).toBe("Architecture");
+    expect(architecture?.definition.toLowerCase()).toContain("durable");
+    expect(architecture?.definition.toLowerCase()).toContain("identity");
+    expect(architecture?.definition.toLowerCase()).not.toContain("draft editor");
+  });
+
+  it("does not read architecture draft as the whole Architectures workspace (CA-44)", () => {
+    const draft = listCustomerFacingGlossaryTerms().find((term) => term.id === "architecture-draft");
+
+    expect(draft?.definition.toLowerCase()).toContain("child");
+    expect(draft?.definition.toLowerCase()).not.toMatch(/architectures workspace is/);
+    expect(draft?.relatedTermIds).toContain("architecture");
   });
 });

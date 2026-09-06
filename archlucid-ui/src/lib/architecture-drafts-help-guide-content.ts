@@ -13,7 +13,7 @@ export const ARCHITECTURE_DRAFTS_HELP_BREADCRUMB_TOPIC_TITLE = "Architecture dra
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW = "Help topic" as const;
 
-export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = "Architecture drafts" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
   "Guided mode: browse, resume, and refine saved architecture drafts before filing evidence for an approval review.";
@@ -34,7 +34,7 @@ export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean):
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE = "Step-by-step" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
-  "In Guided mode, architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review.";
+  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child drafts and reviews); this guide focuses on Guided-mode draft inventory and draft editing.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION = {
   label: "Start a review",

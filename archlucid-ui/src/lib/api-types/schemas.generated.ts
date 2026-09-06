@@ -2410,6 +2410,14 @@ export interface components {
             kind?: string;
             relativePath?: string;
         };
+        CloudResourceExplorerWorkCounts: {
+            /** Format: int32 */
+            inventoryDriftChangeCount?: number;
+            /** Format: int32 */
+            openOperationalFindingsCount?: number;
+            /** Format: int32 */
+            openRemediationInstancesCount?: number;
+        };
         CloudResourceInventoryChangeSummary: {
             /** Format: uuid */
             changeId?: string;
@@ -2461,6 +2469,7 @@ export interface components {
             region?: null | string;
             resourceGroup?: null | string;
             resourceType?: null | string;
+            workCounts?: null | components["schemas"]["CloudResourceExplorerWorkCounts"];
         };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
