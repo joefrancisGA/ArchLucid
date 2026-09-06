@@ -58,6 +58,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["portfolio-recurrence"] = "Portfolio recurrence needs multi-run tenant history — not on golden corpus.",
             ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
             ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
+            ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

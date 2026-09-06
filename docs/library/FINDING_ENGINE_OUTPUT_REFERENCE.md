@@ -25,6 +25,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `requirement-gap` | `RequirementGapFindingEngine` | Requirement | Missing requirements. |
 | `requirement-coverage` | `RequirementCoverageFindingEngine` | Requirement | Requirement coverage scoring. |
 | `requirement-cross-run-diff` | `RequirementCrossRunDiffFindingEngine` | Requirement | Name-level delta vs prior context encoded on the current graph. |
+| `dr-rpo-topology` | `DrRpoTopologyFindingEngine` | Requirement | Parsed RPO/RTO on linked requirements without replica, failover group, or geo-redundant properties on the scoped SQL/storage/cluster node. Skips when no objective is parsed or the datastore link is missing. |
 | `topology-coverage` | `TopologyCoverageFindingEngine` | Topology | Component/service coverage vs topology expectations. |
 | `topology-structure` | `TopologyStructureFindingEngine` | Topology | Structural topology properties. |
 | `topology-cross-run-diff` | `TopologyCrossRunDiffFindingEngine` | Topology | Topology delta vs prior snapshot metadata on the graph. |
