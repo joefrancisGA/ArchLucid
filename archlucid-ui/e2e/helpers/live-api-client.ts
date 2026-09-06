@@ -81,7 +81,7 @@ async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestConte
     return;
   }
 
-  await waitForLiveApiReady(request, { timeoutMs: 120_000 });
+  await waitForLiveApiReady(request, { timeoutMs: 180_000 });
 }
 
 /** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
@@ -155,9 +155,9 @@ export async function createRun(
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
-  await ensurePrivateBetaApiReadyBeforeCreateRun(request);
-
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
+    await ensurePrivateBetaApiReadyBeforeCreateRun(request);
+
     let res: APIResponse;
 
     try {
