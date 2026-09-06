@@ -61,7 +61,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
     shippedInBatch: "IE-UX-05",
-    status: "Coming soon",
+    status: "Available",
     summary: "Track remediation instances and waves with advisory-only execute honesty.",
   },
 ];

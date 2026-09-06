@@ -341,7 +341,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Track remediation instances and waves with advisory-only execute honesty.",
     useWhen: "Review instance state, matched patterns, and emitted advisory artifacts — not terraform apply.",
-    firstPilotNote: "Shipped in IE-UX-05 — workbench wiring in progress.",
+    firstPilotNote: "Execute emits advisory artifacts only — verify with a later snapshot before closing.",
     omitReviewPackageScopeHelp: true,
   },
 };
