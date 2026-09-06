@@ -494,6 +494,17 @@ export function DiagramReconcileWorkbenchClient() {
             className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
             href={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
+              tab: "terraform",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-diagram-reconcile-open-terraform-hub"
+          >
+            Open terraform mapping
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
               tab: "findings",
               snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
             })}

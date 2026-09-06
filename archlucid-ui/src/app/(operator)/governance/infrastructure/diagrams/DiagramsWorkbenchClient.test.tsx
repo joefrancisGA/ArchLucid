@@ -150,6 +150,10 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-diagrams-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     expect(screen.getByTestId("infra-diagrams-open-findings-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
