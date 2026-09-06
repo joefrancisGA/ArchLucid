@@ -54,7 +54,12 @@ const CONNECTION_STATUS_EMPTY_STATE = {
     "This workspace returned no integration rows. Core review workflows still work without optional delivery channels.",
 } as const;
 
-export function ConnectorOperationsDashboard(): ReactElement {
+export type ConnectorOperationsDashboardProps = {
+  readonly hideRecommendedSetupActions?: boolean;
+};
+
+export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboardProps = {}): ReactElement {
+  const hideRecommendedSetupActions = props.hideRecommendedSetupActions === true;
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
@@ -228,7 +233,9 @@ export function ConnectorOperationsDashboard(): ReactElement {
         tiles={summaryTiles}
         configurationReadAt={configurationReadAt}
       />
-      {recommendedFirstSetup ? <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} /> : null}
+      {recommendedFirstSetup && !hideRecommendedSetupActions ? (
+        <IntegrationRecommendedFirstSetupCard setup={recommendedFirstSetup} />
+      ) : null}
 
       {CONNECTOR_PURPOSE_GROUPS.filter((group) => group.id !== "technical").map((group) => {
         if (activeCategory !== null && activeCategory !== group.id) {
