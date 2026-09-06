@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 305
-- **bugs-found:** 1938
+- **hunts:** 306
+- **bugs-found:** 1950
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — TopAccessKey/TotalAccessKey/TouchAccessKey redaction, should/will/would/shall not configure to and should not mandate to constraint negation, advice should not enforce/provision to and will/would not configure to prefix
+- **last-bug:** 2026-09-06 — TraceAccessKey/TrackAccessKey/TradeAccessKey redaction, will/would/shall not mandate to and should not apply to constraint negation, advice will/would/shall not mandate to and will/would not enforce to prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4025,6 +4025,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `would not configure to` gap — **hit 2026-09-06 (#1033):** mid-sentence `would not configure` only; missed `would not configure to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_would_not_configure_to_encryption_at_rest_phrasing`).
 
 2026-09-06 seed hunt #1033 (hit): reseeded after #1032 closure; proved twelve hunt-ready rows — TopAccessKey/TotalAccessKey/TouchAccessKey redaction parity, should/will/would/shall not configure to and should not mandate to constraint negation, and advice should not enforce/provision to and will/would not configure to prefix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `TraceAccessKey` not redacted — **hit 2026-09-06 (#1034):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_trace_access_key_config_path`, `IsSensitiveKey_detects_trace_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `TrackAccessKey` not redacted — **hit 2026-09-06 (#1034):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_track_access_key_config_path`, `IsSensitiveKey_detects_track_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `TradeAccessKey` not redacted — **hit 2026-09-06 (#1034):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_trade_access_key_config_path`, `IsSensitiveKey_detects_trade_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `will not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `will not mandate` only; missed `teams will not mandate to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_will_not_mandate_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `would not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `would not mandate` only; missed `teams would not mandate to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_would_not_mandate_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `shall not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `shall not mandate` only; missed `teams shall not mandate to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_shall_not_mandate_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `should not apply to` gap — **hit 2026-09-06 (#1034):** mid-sentence `should not apply` only; missed `teams should not apply to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_should_not_apply_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `will not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `will not mandate` only; missed `will not mandate to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_will_not_mandate_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `would not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `would not mandate` only; missed `would not mandate to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_would_not_mandate_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `shall not mandate to` gap — **hit 2026-09-06 (#1034):** mid-sentence `shall not mandate` only; missed `shall not mandate to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_shall_not_mandate_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `will not enforce to` gap — **hit 2026-09-06 (#1034):** mid-sentence `will not enforce` only; missed `will not enforce to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_will_not_enforce_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `would not enforce to` gap — **hit 2026-09-06 (#1034):** mid-sentence `would not enforce` only; missed `would not enforce to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_would_not_enforce_to_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #1034 (hit): reseeded after #1033 closure; proved twelve hunt-ready rows — TraceAccessKey/TrackAccessKey/TradeAccessKey redaction parity, will/would/shall not mandate to and should not apply to constraint negation, and advice will/would/shall not mandate to and will/would not enforce to prefix.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
