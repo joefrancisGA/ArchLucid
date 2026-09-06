@@ -132,6 +132,10 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
       "33333333-3333-3333-3333-333333333333",
     );
+    expect(screen.getByTestId("infra-remediation-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings",
+    );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
       findingId: null,
@@ -157,7 +161,7 @@ describe("RemediationWorkbenchClient", () => {
 
   it("passes combined cloudResourceId and findingId filters from the URL", async () => {
     searchParams = new URLSearchParams(
-      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222",
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     render(<RemediationWorkbenchClient />);
 
@@ -167,6 +171,10 @@ describe("RemediationWorkbenchClient", () => {
         findingId: "22222222-2222-2222-2222-222222222222",
       });
     });
+    expect(screen.getByTestId("infra-remediation-finding-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
   });
 
   it("shows create guidance when findingId has no remediation instance yet", async () => {

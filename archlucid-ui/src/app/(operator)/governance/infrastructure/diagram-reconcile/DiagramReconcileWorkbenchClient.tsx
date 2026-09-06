@@ -53,6 +53,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -480,6 +481,13 @@ export function DiagramReconcileWorkbenchClient() {
             })}
           >
             Open resource evidence hub
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubDiagramsWorkbenchHref(selectedSnapshotId, urlCloudResourceId)}
+            data-testid="infra-diagram-reconcile-open-diagrams"
+          >
+            Open inventory diagrams
           </Link>
         </section>
       ) : null}

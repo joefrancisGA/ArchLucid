@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -9,10 +11,16 @@ import {
   deriveAuditLineageCheckboxPresentation,
 } from "@/lib/audit-evidence-lineage-presentation";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
+import { buildResourceHubAuditLineageHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 
 type AuditEvidenceLineageSpineProps = {
   readonly lineage: AuditEvidenceLineageRecord;
   readonly expanded: boolean;
+  readonly lineageContext: {
+    readonly assessmentId: string;
+    readonly auditEvidenceSnapshotId: string;
+    readonly controlId: string;
+  };
 };
 
 function formatUtc(value: string | undefined): string {
@@ -146,6 +154,15 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                   <p className={cn("m-0 mt-1 font-mono text-xs break-all", OPERATOR_TYPOGRAPHY.helper)}>
                     cloudResourceId={evidence.cloudResourceId ?? "—"}
                   </p>
+                  {evidence.cloudResourceId != null && evidence.cloudResourceId.trim().length > 0 ? (
+                    <Link
+                      className="mt-2 inline-block text-sm text-al-link hover:underline"
+                      href={buildResourceHubAuditLineageHref(evidence.cloudResourceId, props.lineageContext)}
+                      data-testid={`audit-evidence-spine-resource-hub-${evidence.evidenceRowId}`}
+                    >
+                      Open resource evidence hub
+                    </Link>
+                  ) : null}
                   <p className={cn("m-0 mt-1 font-mono text-xs break-all", OPERATOR_TYPOGRAPHY.helper)}>
                     azureResourceId={evidence.azureResourceId ?? "—"}
                   </p>

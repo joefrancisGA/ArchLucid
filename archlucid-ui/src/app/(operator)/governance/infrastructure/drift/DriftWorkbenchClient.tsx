@@ -34,6 +34,7 @@ import {
   DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
   DRIFT_WORKBENCH_DIFF_ID_PARAM,
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
+  buildResourceHubWorkbenchHref,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -282,6 +283,17 @@ export function DriftWorkbenchClient() {
             })}
           >
             Open resource evidence hub
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "terraform",
+              snapshotId: selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+            })}
+            data-testid="infra-drift-open-terraform-hub"
+          >
+            Open terraform mapping
           </Link>
         </section>
       ) : null}

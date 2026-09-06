@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   BFF_SESSION_COOKIE_NAME,
   buildBffSessionClearCookieHeader,
+  buildBffCsrfClearCookieHeader,
   buildBffSessionSetCookieHeader,
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
@@ -21,7 +22,7 @@ function mockNextRequest(cookieValue: string | null): NextRequest {
   } as NextRequest;
 }
 
-describe("bff-session-cookie (LK-05 P1)", () => {
+describe("bff-session-cookie (LK-05 P1 / LK-07)", () => {
   beforeEach(() => {
     process.env.ARCHLUCID_BFF_SESSION_SIGNING_SECRET = TEST_SECRET;
   });
@@ -43,32 +44,39 @@ describe("bff-session-cookie (LK-05 P1)", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-08-01T12:00:00.000Z"));
 
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: "access-token-1",
       expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
     });
 
-    expect(cookieValue).not.toBeNull();
-    expect(resolveBffSessionBearerFromCookieValue(cookieValue)).toBe("Bearer access-token-1");
-    expect(resolveBffSessionBearerFromRequest(mockNextRequest(cookieValue))).toBe("Bearer access-token-1");
+    expect(issueResult).not.toBeNull();
+    expect(issueResult?.csrfToken.length).toBeGreaterThan(0);
+    expect(resolveBffSessionBearerFromCookieValue(issueResult?.sessionCookieValue ?? null)).toBe(
+      "Bearer access-token-1",
+    );
+    expect(resolveBffSessionBearerFromRequest(mockNextRequest(issueResult?.sessionCookieValue ?? null))).toBe(
+      "Bearer access-token-1",
+    );
   });
 
   it("rejects expired session cookies", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-08-01T12:00:00.000Z"));
 
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: "access-token-1",
       expiresAtMs: Date.now() - 1,
     });
 
-    expect(resolveBffSessionBearerFromCookieValue(cookieValue)).toBe("");
+    expect(resolveBffSessionBearerFromCookieValue(issueResult?.sessionCookieValue ?? null)).toBe("");
   });
 
-  it("builds HttpOnly Set-Cookie headers", () => {
+  it("builds HttpOnly and CSRF Set-Cookie headers", () => {
     expect(buildBffSessionSetCookieHeader("signed-value", 3600)).toContain("HttpOnly");
     expect(buildBffSessionSetCookieHeader("signed-value", 3600)).toContain("SameSite=Lax");
     expect(buildBffSessionClearCookieHeader()).toContain(`${BFF_SESSION_COOKIE_NAME}=`);
     expect(buildBffSessionClearCookieHeader()).toContain("Max-Age=0");
+    expect(buildBffCsrfClearCookieHeader()).toContain("archlucid-bff-csrf=");
   });
 });

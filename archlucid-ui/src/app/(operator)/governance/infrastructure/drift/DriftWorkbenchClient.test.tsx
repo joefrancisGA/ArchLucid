@@ -102,6 +102,10 @@ describe("DriftWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-drift-resource-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-drift-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     await waitFor(() => {
       expect(mockFetchChanges).toHaveBeenCalledWith("diff-1", 1, 100, {
         cloudResourceId: "22222222-2222-2222-2222-222222222222",
