@@ -25,7 +25,11 @@ export function InfrastructureOverviewClient() {
       <LayerHeader pageKey="infrastructure-overview" />
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
+<<<<<<< HEAD
         instances. All seven destinations are available from this hub.
+=======
+        instances.
+>>>>>>> origin/master
       </p>
       <EnterpriseTable ariaLabel="Infrastructure evidence workbenches">
         <EnterpriseTableHead>

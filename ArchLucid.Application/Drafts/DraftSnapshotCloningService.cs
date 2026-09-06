@@ -1,3 +1,5 @@
+using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -12,7 +14,8 @@ public sealed class DraftSnapshotCloningService(
     IDraftRequestCrudService crudService,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IDraftSnapshotCloningService
+    IManifestHashService manifestHashService,
+    IArchitectureIdentityService architectureIdentityService) : IDraftSnapshotCloningService
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -28,6 +31,9 @@ public sealed class DraftSnapshotCloningService(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IArchitectureIdentityService _architectureIdentityService =
+        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     /// <inheritdoc />
     public async Task<CloneSnapshotDraftResponse?> CloneSnapshotAsync(
@@ -70,6 +76,14 @@ public sealed class DraftSnapshotCloningService(
             actorUserId,
             cloneDocument,
             cancellationToken);
+
+        ArchitectureIdentityRecord identity = await _architectureIdentityService.EnsureForDraftAsync(
+            scope,
+            clone.DraftId,
+            ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(clone.Document),
+            cancellationToken);
+
+        clone.ArchitectureId = identity.ArchitectureId;
 
         return new CloneSnapshotDraftResponse
         {

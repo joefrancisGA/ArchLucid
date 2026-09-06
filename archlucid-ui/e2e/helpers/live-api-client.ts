@@ -536,7 +536,7 @@ export function liveE2eApiContractPlaywrightTimeoutMs(): number {
 }
 
 /**
- * Polls GET /health/ready until success — tolerates brief API process startup and transport blips in CI.
+ * Polls GET /health/ready until success — tolerates brief API process startup, HTTP 503 under load, and transport blips in CI.
  */
 export async function waitForLiveApiReady(
   request: APIRequestContext,

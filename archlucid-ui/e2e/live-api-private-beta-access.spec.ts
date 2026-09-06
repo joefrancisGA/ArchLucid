@@ -54,7 +54,9 @@ test.describe("live-api-private-beta-access", () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run private-beta JwtBearer access-path smoke.");
 
   test.beforeAll(async ({ request }) => {
-    await waitForLiveApiReady(request);
+    await waitForLiveApiReady(request, {
+      timeoutMs: process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" ? 180_000 : undefined,
+    });
 
     requireLivePrivateBetaJwtEnv();
 
@@ -193,6 +195,17 @@ test.describe("live-api-private-beta-access", () => {
       await writeJwtBrowserSession(signedOutPage, accessToken);
       await signedOutPage.goto(reviewPath, { waitUntil: "domcontentloaded" });
       await expectLiveRunDetailPageReady(signedOutPage, 120_000);
+
+      await clearJwtBrowserSession(signedOutPage);
+      await stubEmptyArchitectureDraftListRoute(signedOutPage);
+      await signedOutPage.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
+
+      await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
+
+      const startReviewSignInUrl = new URL(signedOutPage.url());
+      const startReviewReturnUrl = startReviewSignInUrl.searchParams.get("returnUrl") ?? "";
+
+      expect(decodeURIComponent(startReviewReturnUrl)).toContain("/architecture/reviews/new");
     } finally {
       await signedOutContext.close();
     }

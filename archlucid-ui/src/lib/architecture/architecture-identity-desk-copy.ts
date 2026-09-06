@@ -8,6 +8,8 @@ export const ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL = "Current draft" as
 
 export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open draft" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL = "New draft version" as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_SECTION_TITLE = "Reviews" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL = "Latest sealed record" as const;
@@ -41,10 +43,20 @@ export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY = "No reviews yet" as cons
 
 export const ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL = "Start review" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE = "Architecture versions" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_HONESTY =
+  "Version pins are read-only history — not a draft merge or edit surface." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_EMPTY =
+  "No architecture version pins yet for this identity." as const;
+
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE = "No architectures yet" as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY =
   "Create an architecture draft and save it to establish an identity you can reopen all week." as const;
+
+export const ARCHITECTURE_IDENTITY_LIST_EMPTY_PRIMARY_LABEL = "New architecture" as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_LOADING_LABEL = "Loading architectures…" as const;
 

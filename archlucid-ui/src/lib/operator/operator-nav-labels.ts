@@ -1,8 +1,13 @@
 import {
   ARCHITECTURE_DRAFTS_LIST_LABEL,
+  ARCHITECTURE_IDENTITIES_NAV_LABEL,
   CREATE_ARCHITECTURE_LABEL,
   START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
+import {
+  ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE,
+  ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE,
+} from "@/lib/architecture/architecture-identity-desk-copy";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
@@ -50,9 +55,19 @@ export function resolveCreateArchitecturePrimaryNavTitle(): string {
   return CREATE_ARCHITECTURE_NAV_TOOLTIP;
 }
 
-/** Sidebar / pilot nav tooltip for `/architecture/architectures` — architecture draft inventory. */
-export function resolveArchitecturesListNavTitle(): string {
+/** Sidebar / pilot nav tooltip for `/architecture/architectures` — Guided draft-inventory teaching. */
+export function resolveGuidedArchitecturesListNavTitle(): string {
   return `${ARCHITECTURE_DRAFTS_LIST_LABEL} — saved architecture drafts; create and resume without starting a review`;
+}
+
+/** Sidebar tooltip for `/architecture/architectures` on Working — durable identity portfolio (CA-32). */
+export function resolveWorkingArchitecturesListNavTitle(): string {
+  return `${ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE} — ${ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE}`;
+}
+
+/** @deprecated Use {@link resolveGuidedArchitecturesListNavTitle} or {@link resolveWorkingArchitecturesListNavTitle}. */
+export function resolveArchitecturesListNavTitle(): string {
+  return resolveGuidedArchitecturesListNavTitle();
 }
 
 /** @deprecated Use {@link resolveStartReviewPrimaryNavTitle} for `/architecture/reviews/new`. */
@@ -101,14 +116,17 @@ export function resolveNavLinkPresentation(
   link: NavLinkPresentationSource,
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
+  workingMode = false,
 ): NavLinkPresentationSource {
   const vocabularyPassActive = isBuyerVocabularyPassActive();
 
   if (link.href === ARCHITECTURES_LIST_PATH) {
     return applyBuyerNavVocabulary({
       href: link.href,
-      label: ARCHITECTURE_DRAFTS_LIST_LABEL,
-      title: resolveArchitecturesListNavTitle(),
+      label: workingMode ? ARCHITECTURE_IDENTITIES_NAV_LABEL : ARCHITECTURE_DRAFTS_LIST_LABEL,
+      title: workingMode
+        ? resolveWorkingArchitecturesListNavTitle()
+        : resolveGuidedArchitecturesListNavTitle(),
     });
   }
 

@@ -39,9 +39,15 @@ dump_api_ready_diagnostics() {
 
 echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
 for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
-  if curl -fsS "${API_URL}/health/ready" >/dev/null; then
+  ready_status="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/health/ready" 2>/dev/null || echo "000")"
+
+  if [ "${ready_status}" = "200" ]; then
     echo "API ready."
     exit 0
+  fi
+
+  if [ "${ready_status}" != "000" ]; then
+    echo "Attempt ${i}/${READY_WAIT_ATTEMPTS}: /health/ready returned HTTP ${ready_status}"
   fi
 
   if [ "$i" -eq "${READY_WAIT_ATTEMPTS}" ]; then

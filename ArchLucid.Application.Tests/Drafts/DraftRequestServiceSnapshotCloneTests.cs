@@ -22,6 +22,8 @@ namespace ArchLucid.Application.Tests.Drafts;
 [Trait("Category", "Unit")]
 public sealed class DraftRequestServiceSnapshotCloneTests
 {
+    private static readonly string SpawnedRunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa").ToString("D");
+
     private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
     private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
     private readonly Mock<IArchitectureRunCommandService> _architectureRunCommandService = new();
@@ -71,7 +73,7 @@ public sealed class DraftRequestServiceSnapshotCloneTests
 
         clone.Should().NotBeNull();
         clone!.SourceDraftId.Should().Be(source.DraftId);
-        clone.SourceSpawnedRunId.Should().Be("abc123run");
+        clone.SourceSpawnedRunId.Should().Be(SpawnedRunId);
         clone.Clone.DraftId.Should().NotBe(source.DraftId);
         clone.Clone.Status.Should().Be(DraftRequestStatus.Drafting);
         clone.Clone.SpawnedRunId.Should().BeNull();
@@ -79,7 +81,25 @@ public sealed class DraftRequestServiceSnapshotCloneTests
 
         DraftRequestResponse? sourceReloaded = await _service.GetAsync(_scope, source.DraftId, CancellationToken.None);
         sourceReloaded!.Status.Should().Be(DraftRequestStatus.RunSpawned);
-        sourceReloaded.SpawnedRunId.Should().Be("abc123run");
+        sourceReloaded.SpawnedRunId.Should().Be(SpawnedRunId);
+    }
+
+    [Fact]
+    public async Task CloneSnapshotAsync_keeps_parent_architecture_id()
+    {
+        DraftRequestResponse source = await CreateRunSpawnedParentAsync();
+
+        source.ArchitectureId.Should().NotBeNull();
+
+        CloneSnapshotDraftResponse? clone = await _service.CloneSnapshotAsync(
+            _scope,
+            source.DraftId,
+            "operator-1",
+            CancellationToken.None);
+
+        clone.Should().NotBeNull();
+        clone!.Clone.ArchitectureId.Should().Be(source.ArchitectureId);
+        clone.Clone.ArchitectureId.Should().NotBe(clone.Clone.DraftId);
     }
 
     [Fact]
@@ -153,7 +173,7 @@ public sealed class DraftRequestServiceSnapshotCloneTests
             DraftRequestStatus.RunSpawned,
             admitted.Document,
             redirectReason: null,
-            spawnedRunId: "abc123run",
+            spawnedRunId: SpawnedRunId,
             cancellationToken: CancellationToken.None);
 
         spawned.Should().NotBeNull();

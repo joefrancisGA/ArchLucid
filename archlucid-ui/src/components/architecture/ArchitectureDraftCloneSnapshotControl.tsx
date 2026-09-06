@@ -9,7 +9,10 @@ import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
-import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
+import {
+  architectureDraftPath,
+  architectureIdentityDraftHref,
+} from "@/lib/architecture/architecture-routes";
 import { cloneDraftSnapshot } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 
@@ -17,11 +20,13 @@ export const ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL = "Start a new draft from t
 
 type ArchitectureDraftCloneSnapshotControlProps = {
   readonly draftId: string;
+  readonly parentArchitectureId?: string;
+  readonly buttonLabel?: string;
   readonly testId?: string;
   readonly variant?: "primary" | "outline";
 };
 
-/** Creates a new editable architecture id from a run-spawned snapshot (WA-10). */
+/** Creates a new editable draft under the same architecture identity when parentArchitectureId is set (CA-28). */
 export function ArchitectureDraftCloneSnapshotControl(
   props: ArchitectureDraftCloneSnapshotControlProps,
 ): React.JSX.Element {
@@ -42,7 +47,13 @@ export function ArchitectureDraftCloneSnapshotControl(
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(response.clone, { linkedReviewId: null }),
       );
-      router.push(architectureDraftPath(response.clone.draftId));
+      const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
+      const cloneArchitectureId = response.clone.architectureId?.trim() ?? parentArchitectureId;
+      const nextHref =
+        cloneArchitectureId.length > 0
+          ? architectureIdentityDraftHref(cloneArchitectureId, response.clone.draftId)
+          : architectureDraftPath(response.clone.draftId);
+      router.push(nextHref);
     } catch (error) {
       setInlineError(
         formatVerboseApiFailureMessage(error, "Could not start a new draft from this snapshot."),
@@ -50,7 +61,7 @@ export function ArchitectureDraftCloneSnapshotControl(
     } finally {
       setBusy(false);
     }
-  }, [busy, props.draftId, router]);
+  }, [busy, props.draftId, props.parentArchitectureId, router]);
 
   const testId = props.testId ?? "architecture-draft-clone-snapshot";
 
@@ -66,7 +77,7 @@ export function ArchitectureDraftCloneSnapshotControl(
           void handleClone();
         }}
       >
-        {busy ? "Starting new draft…" : ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL}
+        {busy ? "Starting new draft…" : props.buttonLabel ?? ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL}
       </Button>
       {inlineError !== null ? (
         <OperatorMutationInlineError message={inlineError} testId={`${testId}-inline-error`} />
