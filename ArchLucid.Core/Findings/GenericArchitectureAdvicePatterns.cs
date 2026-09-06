@@ -259,7 +259,17 @@ public static partial class GenericArchitectureAdvicePatterns
             || ContainsAdviceNegationPhrase(before, " shouldn't apply ")
             || ContainsAdviceNegationPhrase(before, " shouldn't apply")
             || ContainsAdviceNegationPhrase(before, " shouldn't provision ")
-            || ContainsAdviceNegationPhrase(before, " shouldn't provision");
+            || ContainsAdviceNegationPhrase(before, " shouldn't provision")
+            || ContainsAdviceNegationPhrase(before, " shouldn't ensure ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't ensure")
+            || ContainsAdviceNegationPhrase(before, " shouldn't maintain ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't maintain")
+            || ContainsAdviceNegationPhrase(before, " shouldn't mandate ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't mandate")
+            || ContainsAdviceNegationPhrase(before, " shouldn't enforce ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't enforce")
+            || ContainsAdviceNegationPhrase(before, " shouldn't need ")
+            || ContainsAdviceNegationPhrase(before, " shouldn't need");
     }
 
     private static bool ContainsAdviceNegationPhrase(ReadOnlySpan<char> haystack, string phrase)
