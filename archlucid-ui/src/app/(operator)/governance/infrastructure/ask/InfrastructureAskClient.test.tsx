@@ -225,6 +225,19 @@ describe("InfrastructureAskClient", () => {
     );
   });
 
+  it("preserves diagram neighborhood seed in inventory diagrams back link", async () => {
+    const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
+    searchParams = new URLSearchParams(
+      `cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+  });
+
   it("shows context banner and keeps multi-turn history", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",

@@ -30,6 +30,7 @@ import {
   RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
@@ -71,6 +72,7 @@ export function InfrastructureAskClient() {
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
@@ -189,8 +191,9 @@ export function InfrastructureAskClient() {
     return buildResourceHubDiagramsWorkbenchHref(
       snapshotId,
       cloudResourceId.length > 0 ? cloudResourceId : null,
+      seedNodeId.length > 0 ? seedNodeId : null,
     );
-  }, [cloudResourceId, snapshotId]);
+  }, [cloudResourceId, seedNodeId, snapshotId]);
 
   const remediationFactoryBackLinkHref = useMemo(() => {
     if (findingId.length === 0 && instanceId.length === 0) {
@@ -260,7 +263,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">

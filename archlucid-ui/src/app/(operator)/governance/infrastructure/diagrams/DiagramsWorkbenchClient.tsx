@@ -524,6 +524,10 @@ export function DiagramsWorkbenchClient() {
               href={buildInfrastructureAskHref({
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
+                seedNodeId:
+                  selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
+                    ? seedNodeId
+                    : undefined,
               })}
             >
               Ask about this snapshot

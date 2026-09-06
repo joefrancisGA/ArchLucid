@@ -161,5 +161,9 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-diagrams-seed-node-input")).toHaveValue(armId);
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
+    expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}`,
+    );
   });
 });
