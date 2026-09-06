@@ -4186,6 +4186,92 @@ describe("wave55 filter url helpers", () => {
   });
 });
 
+describe("wave56 filter url helpers", () => {
+  it("cloud security preflight technical details, audit buyer verification appendix, audit operator table event json, audit timeline data json, provenance review identifier, governance overview blocking breakdown, model governance profile mapping, draft intake reason follow up, quick decision supporting detail, try cli demo params", async () => {
+    const {
+      cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch,
+      parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/integrations/cloud-security-preflight-technical-details-disclosure-url");
+    const {
+      auditBuyerVerificationAppendixDisclosureHrefFromSearch,
+      parseAuditBuyerVerificationAppendixOpenFromSearch,
+    } = await import("@/lib/governance/audit-buyer-verification-appendix-disclosure-url");
+    const {
+      auditOperatorTableEventJsonDisclosureHrefFromSearch,
+      parseAuditOperatorTableEventJsonEventIdFromSearch,
+    } = await import("@/lib/governance/audit-operator-table-event-json-disclosure-url");
+    const {
+      auditTimelineDataJsonDisclosureHrefFromSearch,
+      parseAuditTimelineDataJsonEventIdFromSearch,
+    } = await import("@/lib/governance/audit-timeline-data-json-disclosure-url");
+    const {
+      parseProvenanceReviewIdentifierOpenFromSearch,
+      provenanceReviewIdentifierDisclosureHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-review-identifier-disclosure-url");
+    const {
+      governanceOverviewBlockingBreakdownDisclosureHrefFromSearch,
+      parseGovernanceOverviewBlockingBreakdownOpenFromSearch,
+    } = await import("@/lib/governance/governance-overview-blocking-breakdown-disclosure-url");
+    const {
+      modelGovernanceProfileMappingDisclosureHrefFromSearch,
+      parseModelGovernanceProfileMappingProfileFromSearch,
+    } = await import("@/lib/administration/model-governance-profile-mapping-disclosure-url");
+    const {
+      draftIntakeReasonFollowUpDisclosureHrefFromSearch,
+      parseDraftIntakeReasonFollowUpOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-reason-follow-up-disclosure-url");
+    const {
+      parseQuickDecisionSupportingDetailFindingIdFromSearch,
+      quickDecisionSupportingDetailDisclosureHrefFromSearch,
+    } = await import("@/lib/findings/quick-decision-supporting-detail-disclosure-url");
+    const {
+      parseTryCliDemoOpenFromSearch,
+      tryCliDemoDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/try-cli-demo-disclosure-url");
+
+    expect(parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch("", true, "/integrations/cloud-connections")).toBe(
+      "/integrations/cloud-connections?cloudSecurityPreflightTechnicalDetailsOpen=1",
+    );
+    expect(parseAuditBuyerVerificationAppendixOpenFromSearch("true")).toBe(true);
+    expect(auditBuyerVerificationAppendixDisclosureHrefFromSearch("runId=r1", true, "/governance/audit")).toBe(
+      "/governance/audit?runId=r1&auditBuyerVerificationAppendixOpen=1",
+    );
+    expect(parseAuditOperatorTableEventJsonEventIdFromSearch("evt-1")).toBe("evt-1");
+    expect(auditOperatorTableEventJsonDisclosureHrefFromSearch("", "evt-1", "/governance/audit")).toBe(
+      "/governance/audit?auditOperatorTableEventJsonEventId=evt-1",
+    );
+    expect(parseAuditTimelineDataJsonEventIdFromSearch("evt-2")).toBe("evt-2");
+    expect(auditTimelineDataJsonDisclosureHrefFromSearch("view=story", "evt-2", "/governance/audit")).toBe(
+      "/governance/audit?view=story&auditTimelineDataJsonEventId=evt-2",
+    );
+    expect(parseProvenanceReviewIdentifierOpenFromSearch("1")).toBe(true);
+    expect(provenanceReviewIdentifierDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?runId=r1&provenanceReviewIdentifierOpen=1",
+    );
+    expect(parseGovernanceOverviewBlockingBreakdownOpenFromSearch("true")).toBe(true);
+    expect(governanceOverviewBlockingBreakdownDisclosureHrefFromSearch("", true, "/governance")).toBe(
+      "/governance?governanceOverviewBlockingBreakdownOpen=1",
+    );
+    expect(parseModelGovernanceProfileMappingProfileFromSearch("balanced")).toBe("balanced");
+    expect(modelGovernanceProfileMappingDisclosureHrefFromSearch("", "balanced", "/administration/model-governance")).toBe(
+      "/administration/model-governance?modelGovernanceProfileMappingProfile=balanced",
+    );
+    expect(parseDraftIntakeReasonFollowUpOpenFromSearch("1")).toBe(true);
+    expect(draftIntakeReasonFollowUpDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?draftIntakeReasonFollowUpOpen=1",
+    );
+    expect(parseQuickDecisionSupportingDetailFindingIdFromSearch("f1")).toBe("f1");
+    expect(quickDecisionSupportingDetailDisclosureHrefFromSearch("", "f1", "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?quickDecisionSupportingDetailFindingId=f1",
+    );
+    expect(parseTryCliDemoOpenFromSearch("true")).toBe(true);
+    expect(tryCliDemoDisclosureHrefFromSearch("", true, "/administration/developer")).toBe(
+      "/administration/developer?tryCliDemoOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
