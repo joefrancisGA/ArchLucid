@@ -1,6 +1,6 @@
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
-import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
+import { resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import type { RunSummary } from "@/types/authority";
 

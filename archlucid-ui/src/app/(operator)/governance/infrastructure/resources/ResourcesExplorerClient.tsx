@@ -240,7 +240,10 @@ export function ResourcesExplorerClient() {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="font-medium">Snapshot id</span>
+            <span className="font-medium">Snapshot context (links only)</span>
+            <span className="text-xs text-muted-foreground">
+              Preserves snapshot scope on hub and workbench links. The resource list is not filtered by snapshot.
+            </span>
             <input
               className="rounded border border-input bg-background px-3 py-2 font-mono text-xs"
               data-testid="infra-resource-explorer-snapshot-id"

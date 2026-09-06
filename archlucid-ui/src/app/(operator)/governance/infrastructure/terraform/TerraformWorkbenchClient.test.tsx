@@ -11,6 +11,10 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
 }));
 
+vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
+  downloadInfraEvidenceTerraformAdvisoryZip: vi.fn(async () => undefined),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   fetchCloudResourceEvidenceHub: vi.fn(async () => ({
     cloudResourceId: "11111111-1111-1111-1111-111111111111",
@@ -26,7 +30,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
       properties: {},
       tags: {},
     },
-    auditLineageLink: { available: false },
+    auditLineageLink: {
+      available: false,
+      degradedReason: "No audit evidence snapshot rows reference this cloud resource yet.",
+      relativePath: null,
+      assessmentId: null,
+      auditEvidenceSnapshotId: null,
+      controlId: null,
+      controlNumber: null,
+      controlTitle: null,
+      matches: [],
+    },
     operationalSecurityFindings: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false, streamKind: "", streamLabel: "" },
     architectureReviewFindings: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false, streamKind: "", streamLabel: "" },
     remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
@@ -46,5 +60,44 @@ describe("TerraformWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-terraform-snippet-preview")).toHaveTextContent(
+      'resource "azurerm_public_ip" "gateway"',
+    );
+    expect(screen.getByTestId("infra-terraform-audit-unavailable")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-terraform-copy-snippet")).toBeInTheDocument();
+  });
+
+  it("shows empty state when terraform address is missing", async () => {
+    const { fetchCloudResourceEvidenceHub } = await import("@/lib/infra-evidence/infra-evidence-hub-api");
+    vi.mocked(fetchCloudResourceEvidenceHub).mockResolvedValueOnce({
+      cloudResourceId: "11111111-1111-1111-1111-111111111111",
+      externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+      terraformAddress: null,
+      terraformGenerationMethod: null,
+      currentConfiguration: null,
+      auditLineageLink: {
+        available: false,
+        degradedReason: null,
+        relativePath: null,
+        assessmentId: null,
+        auditEvidenceSnapshotId: null,
+        controlId: null,
+        controlNumber: null,
+        controlTitle: null,
+        matches: [],
+      },
+      operationalSecurityFindings: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false, streamKind: "", streamLabel: "" },
+      architectureReviewFindings: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false, streamKind: "", streamLabel: "" },
+      remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
+      recentChanges: [],
+      evidencePointers: [],
+      diagramCorrespondence: null,
+      rbacAssignments: [],
+      networkRelationships: [],
+    });
+
+    render(<TerraformWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-terraform-empty-state")).toBeInTheDocument();
   });
 });

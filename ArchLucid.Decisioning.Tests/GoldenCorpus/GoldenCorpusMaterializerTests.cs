@@ -113,6 +113,30 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-35");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_36_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusActorEngineGraphFactory.CreateLegacyMixedOriginActorGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-36");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        await RecordHandAuthoredCaseAsync("case-36");
+    }
+
     private static async Task RecordHandAuthoredCaseAsync(string caseFolderName)
     {
         string compliance = Path.Combine(

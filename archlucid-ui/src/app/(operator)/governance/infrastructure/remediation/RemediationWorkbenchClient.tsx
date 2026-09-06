@@ -392,6 +392,7 @@ export function RemediationWorkbenchClient() {
       instanceId: scopedInstanceId.length > 0 ? scopedInstanceId : undefined,
       correspondenceId: urlCorrespondenceId.length > 0 ? urlCorrespondenceId : undefined,
       runId: urlReconcileRunId.length > 0 ? urlReconcileRunId : undefined,
+      hubTab: "remediation",
       ...mergeInfrastructureAskAuditScope(auditScope),
     });
   }, [
