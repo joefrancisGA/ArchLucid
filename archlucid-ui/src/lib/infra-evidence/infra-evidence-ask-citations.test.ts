@@ -56,4 +56,16 @@ describe("infra-evidence-ask-citations", () => {
       `/governance/audit-evidence/${assessmentId}/snapshots/${auditSnapshotId}/controls/${controlId}`,
     );
   });
+
+  it("links diagram correspondence citations into the reconcile workbench", () => {
+    const correspondenceId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "DiagramCorrespondenceId", id: correspondenceId, label: "Gateway node" },
+      { snapshotId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/diagram-reconcile?snapshotId=${snapshotId}&correspondenceId=${correspondenceId}`,
+    );
+  });
 });
