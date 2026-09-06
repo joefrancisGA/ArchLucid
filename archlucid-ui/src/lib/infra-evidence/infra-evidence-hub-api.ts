@@ -1,5 +1,7 @@
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resourceExplorerWorkQueueApiValue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type {
   CloudResourceEvidenceHubResponse,
   CloudResourceExplorerPage,
@@ -12,6 +14,7 @@ export type CloudResourceExplorerFilters = {
   namePrefix?: string | null;
   resourceType?: string | null;
   resourceGroup?: string | null;
+  workQueue?: CloudResourceExplorerWorkQueue;
 };
 
 export async function fetchCloudResourceExplorerPage(
@@ -31,6 +34,12 @@ export async function fetchCloudResourceExplorerPage(
 
   if (filters.resourceGroup != null && filters.resourceGroup.trim().length > 0) {
     params.set("resourceGroup", filters.resourceGroup.trim());
+  }
+
+  const workQueue = resourceExplorerWorkQueueApiValue(filters.workQueue ?? "all");
+
+  if (workQueue != null) {
+    params.set("workQueue", workQueue);
   }
 
   const raw = await proxyJsonGet<{

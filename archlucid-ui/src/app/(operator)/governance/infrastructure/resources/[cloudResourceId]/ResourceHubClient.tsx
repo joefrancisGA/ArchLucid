@@ -42,6 +42,7 @@ import {
   matchOperationalFinding,
 } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import {
+  buildInfrastructureAskHref,
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -246,6 +247,27 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsList>
 
           <EnterpriseTabsContent value="overview" className="mt-4 space-y-4">
+            <section className="rounded border border-border bg-card p-4">
+              <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Ask about this resource</h2>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Open Infrastructure Ask with this resource and snapshot context prefilled.
+              </p>
+              <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-open-ask">
+                <Link
+                  href={buildInfrastructureAskHref({
+                    cloudResourceId,
+                    snapshotId: resolvedSnapshotId,
+                    runId,
+                    assessmentId,
+                    auditEvidenceSnapshotId,
+                    controlId,
+                  })}
+                >
+                  Ask about this resource
+                </Link>
+              </Button>
+            </section>
+
             <section className="rounded border border-border bg-card p-4">
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
               {hub.currentConfiguration == null ? (

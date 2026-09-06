@@ -4,11 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient";
 
 const replace = vi.fn();
+let searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace }),
   usePathname: () => "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
-  useSearchParams: () => new URLSearchParams("tab=audit"),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
@@ -90,12 +91,20 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("ResourceHubClient", () => {
-  it("renders hub tabs and audit lineage degraded state", async () => {
+  it("renders overview ask link with resource and snapshot context", async () => {
+    searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-hub-tab-overview")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-hub-tab-audit")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+  });
+
+  it("renders audit lineage link when audit tab is active", async () => {
+    searchParams = new URLSearchParams("tab=audit");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
     expect(await screen.findByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
   });

@@ -2,13 +2,15 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ResourcesExplorerClient } from "@/app/(operator)/governance/infrastructure/resources/ResourcesExplorerClient";
+import { fetchCloudResourceExplorerPage } from "@/lib/infra-evidence/infra-evidence-hub-api";
 
 const replace = vi.fn();
+let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace }),
   usePathname: () => "/governance/infrastructure/resources",
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
@@ -47,6 +49,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 
 describe("ResourcesExplorerClient", () => {
   it("renders filters and resource table rows", async () => {
+    searchParams = new URLSearchParams("");
     render(<ResourcesExplorerClient />);
 
     expect(screen.getByTestId("infra-resource-explorer-name-prefix")).toBeInTheDocument();
@@ -55,5 +58,18 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("renders work queue chips and applies open-findings filter", async () => {
+    searchParams = new URLSearchParams("");
+    replace.mockClear();
+    vi.mocked(fetchCloudResourceExplorerPage).mockClear();
+
+    render(<ResourcesExplorerClient />);
+
+    expect(screen.getByTestId("infra-resource-explorer-work-queue-open-findings")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("infra-resource-explorer-work-queue-open-findings"));
+
+    expect(replace).toHaveBeenCalledWith("/governance/infrastructure/resources?workQueue=open-findings");
   });
 });

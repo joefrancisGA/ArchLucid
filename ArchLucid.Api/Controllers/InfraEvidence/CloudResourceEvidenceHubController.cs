@@ -33,6 +33,7 @@ public sealed class CloudResourceEvidenceHubController(
         [FromQuery] string? namePrefix,
         [FromQuery] string? resourceType,
         [FromQuery] string? resourceGroup,
+        [FromQuery] string? workQueue,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
@@ -51,6 +52,7 @@ public sealed class CloudResourceEvidenceHubController(
             namePrefix,
             resourceType,
             resourceGroup,
+            CloudResourceExplorerWorkQueueParser.Parse(workQueue),
             page,
             pageSize,
             cancellationToken);

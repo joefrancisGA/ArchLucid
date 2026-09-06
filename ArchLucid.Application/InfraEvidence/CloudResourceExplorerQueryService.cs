@@ -12,6 +12,7 @@ public interface ICloudResourceExplorerQueryService
         string? namePrefix,
         string? resourceType,
         string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
@@ -25,6 +26,7 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
         string? namePrefix,
         string? resourceType,
         string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -37,6 +39,7 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
                 namePrefix,
                 resourceType,
                 resourceGroup,
+                workQueue,
                 page,
                 pageSize,
                 cancellationToken);
