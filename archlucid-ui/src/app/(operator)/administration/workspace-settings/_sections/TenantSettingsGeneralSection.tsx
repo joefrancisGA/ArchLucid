@@ -27,13 +27,19 @@ type Props = {
   readonly tenantDisplayName: string;
   readonly scope: Readonly<Record<string, string>>;
   readonly model: TenantSettingsPageContentModel;
+  readonly buyerPolishedShell?: boolean;
 };
 
-export function TenantSettingsGeneralSection({ tenantDisplayName, scope, model }: Props) {
+export function TenantSettingsGeneralSection({ tenantDisplayName, scope, model, buyerPolishedShell = false }: Props) {
   return (
     <>
       <SectionHeading>General</SectionHeading>
-      <TenantSettingsOrganizationCards tenantDisplayName={tenantDisplayName} scope={scope} model={model} />
+      <TenantSettingsOrganizationCards
+        tenantDisplayName={tenantDisplayName}
+        scope={scope}
+        model={model}
+        buyerPolishedShell={buyerPolishedShell}
+      />
     </>
   );
 }

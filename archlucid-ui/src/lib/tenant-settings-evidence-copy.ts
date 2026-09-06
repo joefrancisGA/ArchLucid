@@ -5,6 +5,13 @@ export const TENANT_SETTINGS_CANONICAL_PATH = "/administration/workspace-setting
 
 export const WORKSPACE_SETTINGS_HELP_TOPIC_LABEL = "How workspace settings work";
 
+export const TENANT_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What this page does not cover";
+
+export const TENANT_SETTINGS_CLAIM_HEADING_ID = "tenant-settings-claim-discipline-heading" as const;
+
+export const TENANT_SETTINGS_CLAIM_DISCIPLINE =
+  "This Workspace settings page shows tenant-wide defaults and the active workspace scope — not a signed audit export. Open Projects recycle bin, Digests schedule, or Assurance status when you need restore workflows or official materials.";
+
 export const TENANT_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TENANT_SETTINGS_SOURCES_INTRO =
