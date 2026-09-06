@@ -31,7 +31,7 @@ public sealed class RemediationInstancesControllerTests
     {
         Mock<IRemediationInstanceQueryService> queryService = new();
         queryService
-            .Setup(service => service.ListInstancesAsync(Scope, null, It.IsAny<CancellationToken>()))
+            .Setup(service => service.ListInstancesAsync(Scope, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RemediationInstanceSummary
@@ -45,7 +45,7 @@ public sealed class RemediationInstancesControllerTests
 
         RemediationInstancesController controller = CreateController(queryService: queryService.Object);
 
-        IActionResult result = await controller.List(cloudResourceId: null, CancellationToken.None);
+        IActionResult result = await controller.List(cloudResourceId: null, findingId: null, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         IReadOnlyList<RemediationInstanceSummary> items =
@@ -60,16 +60,36 @@ public sealed class RemediationInstancesControllerTests
 
         Mock<IRemediationInstanceQueryService> queryService = new();
         queryService
-            .Setup(service => service.ListInstancesAsync(Scope, cloudResourceId, It.IsAny<CancellationToken>()))
+            .Setup(service => service.ListInstancesAsync(Scope, cloudResourceId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         RemediationInstancesController controller = CreateController(queryService: queryService.Object);
 
-        IActionResult result = await controller.List(cloudResourceId, CancellationToken.None);
+        IActionResult result = await controller.List(cloudResourceId, findingId: null, CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
         queryService.Verify(
-            service => service.ListInstancesAsync(Scope, cloudResourceId, It.IsAny<CancellationToken>()),
+            service => service.ListInstancesAsync(Scope, cloudResourceId, null, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task List_passes_findingId_filter_to_query_service()
+    {
+        Guid findingId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRemediationInstanceQueryService> queryService = new();
+        queryService
+            .Setup(service => service.ListInstancesAsync(Scope, null, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationInstancesController controller = CreateController(queryService: queryService.Object);
+
+        IActionResult result = await controller.List(cloudResourceId: null, findingId, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        queryService.Verify(
+            service => service.ListInstancesAsync(Scope, null, findingId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

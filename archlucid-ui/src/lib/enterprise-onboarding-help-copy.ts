@@ -1,3 +1,5 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
 /** Customer-facing page title — registry, help center, and markdown H1 must stay aligned (TB-1341). */
 export const ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE = "Hosted SaaS enterprise onboarding checklist";
 
@@ -15,16 +17,14 @@ export const ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION = {
 
 export const ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS = {
   configureSso: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
-  openIdentityProviders: {
-    label: "Identity providers",
-    href: "/administration/identity-providers",
+  openCorePilot: {
+    label: "Your first architecture review",
+    href: inAppHelpHref("core-pilot"),
+    testId: "help-enterprise-onboarding-core-pilot",
   },
-  openUsersAndRoles: {
-    label: "Users and roles",
-    href: "/help/users-and-roles",
-  },
-  openCloudConnections: {
-    label: "Cloud connections",
-    href: "/integrations/cloud-connections",
+  openOnboardingHub: {
+    label: "View full checklist",
+    href: "#onboarding-hub",
+    testId: "help-enterprise-onboarding-hub-anchor",
   },
 } as const;

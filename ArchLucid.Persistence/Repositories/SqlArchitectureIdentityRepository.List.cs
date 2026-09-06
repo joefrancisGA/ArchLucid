@@ -12,10 +12,11 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed partial class SqlArchitectureIdentityRepository
 {
-    public async Task<PagedResponse<ArchitectureIdentityListItem>> ListAsync(
+    public async Task<ArchitectureIdentityListPage> ListAsync(
         ScopeContext scope,
         int page,
         int pageSize,
+        bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -23,63 +24,68 @@ public sealed partial class SqlArchitectureIdentityRepository
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
         int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
 
-        const string countSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.Architectures
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ScopeProjectId = @ScopeProjectId;
-                                """;
+        string archivedFilterSql = includeArchived ? string.Empty : " AND a.ArchivedUtc IS NULL";
 
-        const string listSql = """
-                               SELECT
-                                   a.ArchitectureId,
-                                   a.DisplayName,
-                                   a.UpdatedUtc,
-                                   a.LatestSealedManifestId,
-                                   (
-                                       SELECT TOP (1) d.DraftId
-                                       FROM dbo.DraftRequests d
-                                       WHERE d.ArchitectureId = a.ArchitectureId
-                                         AND d.TenantId = @TenantId
-                                         AND d.WorkspaceId = @WorkspaceId
-                                         AND d.ProjectId = @ScopeProjectId
-                                       ORDER BY d.UpdatedUtc DESC, d.DraftId DESC
-                                   ) AS CurrentDraftId,
-                                   (
-                                       SELECT TOP (1) r.RunId
-                                       FROM dbo.Runs r
-                                       WHERE r.ArchitectureId = a.ArchitectureId
-                                         AND r.TenantId = @TenantId
-                                         AND r.WorkspaceId = @WorkspaceId
-                                         AND r.ScopeProjectId = @ScopeProjectId
-                                         AND r.ArchivedUtc IS NULL
-                                       ORDER BY r.CreatedUtc DESC, r.RunId DESC
-                                   ) AS LatestReviewId,
-                                   (
-                                       SELECT COUNT(1)
-                                       FROM dbo.DraftRequests d
-                                       WHERE d.ArchitectureId = a.ArchitectureId
-                                         AND d.TenantId = @TenantId
-                                         AND d.WorkspaceId = @WorkspaceId
-                                         AND d.ProjectId = @ScopeProjectId
-                                   ) AS DraftCount,
-                                   (
-                                       SELECT COUNT(1)
-                                       FROM dbo.Runs r
-                                       WHERE r.ArchitectureId = a.ArchitectureId
-                                         AND r.TenantId = @TenantId
-                                         AND r.WorkspaceId = @WorkspaceId
-                                         AND r.ScopeProjectId = @ScopeProjectId
-                                         AND r.ArchivedUtc IS NULL
-                                   ) AS ReviewCount
-                               FROM dbo.Architectures a
-                               WHERE a.TenantId = @TenantId
-                                 AND a.WorkspaceId = @WorkspaceId
-                                 AND a.ScopeProjectId = @ScopeProjectId
-                               ORDER BY a.UpdatedUtc DESC, a.ArchitectureId DESC
-                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
-                               """;
+        string countSql = $"""
+                           SELECT COUNT(1)
+                           FROM dbo.Architectures a
+                           WHERE a.TenantId = @TenantId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ScopeProjectId = @ScopeProjectId
+                             {archivedFilterSql};
+                           """;
+
+        string listSql = $"""
+                          SELECT
+                              a.ArchitectureId,
+                              a.DisplayName,
+                              a.UpdatedUtc,
+                              a.ArchivedUtc,
+                              a.LatestSealedManifestId,
+                              (
+                                  SELECT TOP (1) d.DraftId
+                                  FROM dbo.DraftRequests d
+                                  WHERE d.ArchitectureId = a.ArchitectureId
+                                    AND d.TenantId = @TenantId
+                                    AND d.WorkspaceId = @WorkspaceId
+                                    AND d.ProjectId = @ScopeProjectId
+                                  ORDER BY d.UpdatedUtc DESC, d.DraftId DESC
+                              ) AS CurrentDraftId,
+                              (
+                                  SELECT TOP (1) r.RunId
+                                  FROM dbo.Runs r
+                                  WHERE r.ArchitectureId = a.ArchitectureId
+                                    AND r.TenantId = @TenantId
+                                    AND r.WorkspaceId = @WorkspaceId
+                                    AND r.ScopeProjectId = @ScopeProjectId
+                                    AND r.ArchivedUtc IS NULL
+                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC
+                              ) AS LatestReviewId,
+                              (
+                                  SELECT COUNT(1)
+                                  FROM dbo.DraftRequests d
+                                  WHERE d.ArchitectureId = a.ArchitectureId
+                                    AND d.TenantId = @TenantId
+                                    AND d.WorkspaceId = @WorkspaceId
+                                    AND d.ProjectId = @ScopeProjectId
+                              ) AS DraftCount,
+                              (
+                                  SELECT COUNT(1)
+                                  FROM dbo.Runs r
+                                  WHERE r.ArchitectureId = a.ArchitectureId
+                                    AND r.TenantId = @TenantId
+                                    AND r.WorkspaceId = @WorkspaceId
+                                    AND r.ScopeProjectId = @ScopeProjectId
+                                    AND r.ArchivedUtc IS NULL
+                              ) AS ReviewCount
+                          FROM dbo.Architectures a
+                          WHERE a.TenantId = @TenantId
+                            AND a.WorkspaceId = @WorkspaceId
+                            AND a.ScopeProjectId = @ScopeProjectId
+                            {archivedFilterSql}
+                          ORDER BY a.UpdatedUtc DESC, a.ArchitectureId DESC
+                          OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                          """;
 
         object parameters = new
         {
@@ -101,7 +107,18 @@ public sealed partial class SqlArchitectureIdentityRepository
 
         IReadOnlyList<ArchitectureIdentityListItem> items = rows.ToList();
 
-        return PagedResponseBuilder.FromDatabasePage(items, totalCount, safePage, safePageSize);
+        int archivedHiddenCount = includeArchived
+            ? 0
+            : await CountArchivedInScopeAsync(scope, cancellationToken).ConfigureAwait(false);
+
+        return new ArchitectureIdentityListPage
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = safePage,
+            PageSize = safePageSize,
+            ArchivedHiddenCount = archivedHiddenCount,
+        };
     }
 
     public async Task<ArchitectureIdentityDetail?> GetDetailAsync(
@@ -210,6 +227,7 @@ public sealed partial class SqlArchitectureIdentityRepository
             ReviewCount = reviews.Count,
             CreatedUtc = identity.CreatedUtc,
             UpdatedUtc = identity.UpdatedUtc,
+            ArchivedUtc = identity.ArchivedUtc,
             Drafts = drafts,
             Reviews = reviews,
             Versions = versions,

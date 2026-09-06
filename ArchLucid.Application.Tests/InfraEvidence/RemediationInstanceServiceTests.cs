@@ -361,6 +361,12 @@ public sealed class RemediationInstanceServiceTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<IReadOnlyList<RemediationInstanceRecord>> ListByFindingIdAsync(
+            Guid tenantId,
+            Guid findingId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>([]);
     }
 
     private sealed class InMemoryRemediationPatternMatchRepository : IRemediationPatternMatchRepository

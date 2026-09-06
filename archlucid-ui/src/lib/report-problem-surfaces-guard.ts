@@ -36,8 +36,11 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   },
   {
     surfaceId: "sponsor-value-report-load-failure",
-    requiredMarkers: ["OperatorApiProblem"],
-    additionalSourceRoots: ["app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx"],
+    requiredMarkers: ["sponsor-value-report-load-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: [
+      "app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+      "app/(operator)/insights/sponsor-report/_sections/PilotOutcomesLoadFailure.tsx",
+    ],
   },
   {
     surfaceId: "governance-findings-queue-hard-failure",

@@ -57,6 +57,78 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByTestId("infra-ask-citation-CloudResourceId-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
   });
 
+  it("links FindingId citations into the remediation factory", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "One operational finding is open for this resource.",
+      insufficientEvidence: false,
+      citations: [
+        {
+          kind: "FindingId",
+          id: "99999999-9999-9999-9999-999999999999",
+          label: "Public endpoint",
+        },
+      ],
+      simulatorLabel: null,
+    });
+    searchParams = new URLSearchParams("cloudResourceId=11111111-1111-1111-1111-111111111111");
+    render(<InfrastructureAskClient />);
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "What findings are open?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    const citation = await screen.findByTestId("infra-ask-citation-FindingId-99999999-9999-9999-9999-999999999999");
+    expect(citation.querySelector("a")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=99999999-9999-9999-9999-999999999999",
+    );
+  });
+
+  it("passes diffId to Ask API and links ChangeId citations with diff scope", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "InventoryChange",
+      answer: "One property changed in this diff.",
+      insufficientEvidence: false,
+      citations: [
+        {
+          kind: "ChangeId",
+          id: "44444444-4444-4444-4444-444444444444",
+          label: "sku change",
+        },
+      ],
+      simulatorLabel: null,
+    });
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("diff diff-1");
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "What changed in this diff?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    await waitFor(() => {
+      expect(vi.mocked(submitInfraEvidenceAsk)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          diffId: "diff-1",
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        }),
+      );
+    });
+
+    const citation = await screen.findByTestId("infra-ask-citation-ChangeId-44444444-4444-4444-4444-444444444444");
+    expect(citation.querySelector("a")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=44444444-4444-4444-4444-444444444444&diffId=diff-1",
+    );
+  });
+
   it("shows context banner and keeps multi-turn history", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -70,7 +142,7 @@ describe("InfrastructureAskClient", () => {
     );
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
     );
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {

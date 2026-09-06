@@ -54,6 +54,25 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_escapes_brackets_and_newlines_in_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Title ] break\nline two", NodeType = "Service" },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("a[\"Title #93; break line two\"]");
+        mermaid.Should().NotContain("Title ] break");
+    }
+
+    [Fact]
     public async Task DiagramAstGenerator_GenerateAsync_builds_decision_and_issue_graph()
     {
         DiagramAstGenerator generator = new();

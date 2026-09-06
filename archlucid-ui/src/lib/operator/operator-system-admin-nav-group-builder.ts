@@ -119,7 +119,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -135,7 +135,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -151,7 +151,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -167,7 +167,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -183,7 +183,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -199,7 +199,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -215,7 +215,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -231,7 +231,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -247,7 +247,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -263,7 +263,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -281,7 +281,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -297,7 +297,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -313,7 +313,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "extended",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -329,7 +329,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "extended",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 
@@ -399,7 +399,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           tier: "advanced",
 
-          requiredAuthority: "AdminAuthority",
+          requiredAuthority: "PlatformInternalOperationsAuthority",
 
         },
 

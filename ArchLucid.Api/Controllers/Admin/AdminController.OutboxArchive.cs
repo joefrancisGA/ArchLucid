@@ -1,8 +1,10 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Admin;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -12,6 +14,7 @@ public sealed partial class AdminController
 {
     /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
     [HttpPost("runs/archive-batch")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(RunArchiveBatchResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -33,6 +36,7 @@ public sealed partial class AdminController
 
     /// <summary>Soft-archives specific runs by id (partial success: per-id failures returned in the body).</summary>
     [HttpPost("runs/archive-by-ids")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [EnableRateLimiting("expensive")]
     [ProducesResponseType(typeof(RunArchiveByIdsResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -58,6 +62,7 @@ public sealed partial class AdminController
 
     /// <summary>Clears dead-letter state for one outbox row so the worker will publish again.</summary>
     [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/retry")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RetryIntegrationOutboxDeadLetter(
@@ -76,6 +81,7 @@ public sealed partial class AdminController
 
     /// <summary>Marks a dead-letter row processed without republishing (operator suppress).</summary>
     [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/suppress")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SuppressIntegrationOutboxDeadLetter(
@@ -95,6 +101,7 @@ public sealed partial class AdminController
 
     /// <summary>Builds a cURL replay command for a dead-lettered integration outbox row.</summary>
     [HttpGet("integration-outbox/dead-letters/{outboxId:guid}/curl")]
+    [Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
     [ProducesResponseType(typeof(IntegrationEventDeadLetterCurlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetIntegrationOutboxDeadLetterCurl(

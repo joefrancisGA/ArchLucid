@@ -99,7 +99,7 @@ export function RemediationWorkbenchClient() {
   const visibleInstances = instances;
 
   const findingScopedInstance = useMemo(
-    () => visibleInstances.find((instance) => instance.findingId === urlFindingId) ?? null,
+    () => (urlFindingId.length > 0 ? visibleInstances[0] ?? null : null),
     [urlFindingId, visibleInstances],
   );
 
@@ -126,6 +126,7 @@ export function RemediationWorkbenchClient() {
       const [instanceRows, summary, prioritized, waveRows, snapshotResponse] = await Promise.all([
         fetchRemediationInstances({
           cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+          findingId: urlFindingId.length > 0 ? urlFindingId : null,
         }),
         fetchRemediationFactorySummary(),
         fetchRemediationPrioritizedFindings(),
@@ -166,7 +167,7 @@ export function RemediationWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId]);
+  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
     if (instanceId.length === 0) {

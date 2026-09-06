@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Founder-facing trial funnel + estimated COGS summary (Batch B item 20).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/operational")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

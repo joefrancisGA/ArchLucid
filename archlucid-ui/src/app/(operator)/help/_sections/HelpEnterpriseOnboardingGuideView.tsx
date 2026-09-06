@@ -121,25 +121,19 @@ export function HelpEnterpriseOnboardingGuideView(
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" variant="outline">
-                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href}>
-                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.href}>
-                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openIdentityProviders.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.href}>
-                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openUsersAndRoles.label}
+                <Link
+                  href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.href}
+                  data-testid={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.testId}
+                >
+                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.label}
                 </Link>
               </Button>
               <Link
-                href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.href}
+                href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.href}
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                data-testid={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.testId}
               >
-                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCloudConnections.label}
+                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.label}
               </Link>
             </div>
           </section>

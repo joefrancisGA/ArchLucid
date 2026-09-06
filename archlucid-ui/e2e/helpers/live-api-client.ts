@@ -81,7 +81,7 @@ async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestConte
     return;
   }
 
-  await waitForLiveApiReady(request, { timeoutMs: 120_000 });
+  await waitForLiveApiReady(request, { timeoutMs: 180_000 });
 }
 
 /** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
@@ -155,9 +155,9 @@ export async function createRun(
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
-  await ensurePrivateBetaApiReadyBeforeCreateRun(request);
-
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
+    await ensurePrivateBetaApiReadyBeforeCreateRun(request);
+
     let res: APIResponse;
 
     try {
@@ -1541,6 +1541,13 @@ export async function postConsultingAnalysisDocxRaw(
   );
 }
 
+/** Mirrors bundled default-pack `advisoryDefaults` (§17 Tier 2 #10 / DEFAULT_POLICY_PACKS_V1). */
+export const LIVE_E2E_MINIMAL_POLICY_PACK_ADVISORY_DEFAULTS = {
+  severityFloor: "warning",
+  priorityFloor: "P0",
+  scanDepth: "standard",
+} as const;
+
 /** Minimal policy pack content JSON (matches `PolicyPackContentDocument` shape used in API tests). */
 export function minimalPolicyPackContentJson(complianceKey: string): string {
   return JSON.stringify({
@@ -1548,7 +1555,7 @@ export function minimalPolicyPackContentJson(complianceKey: string): string {
     complianceRuleKeys: [complianceKey],
     alertRuleIds: [],
     compositeAlertRuleIds: [],
-    advisoryDefaults: {},
+    advisoryDefaults: LIVE_E2E_MINIMAL_POLICY_PACK_ADVISORY_DEFAULTS,
     metadata: { liveE2e: "true" },
   });
 }

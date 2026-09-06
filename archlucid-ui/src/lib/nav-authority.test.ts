@@ -12,9 +12,12 @@ import {
 } from "@/lib/nav-authority";
 
 describe("nav-authority", () => {
-  it("orders policies Read < Execute < Admin", () => {
+  it("orders policies Read < Execute < Admin < PlatformInternalOperations", () => {
     expect(requiredAuthorityRank("ReadAuthority")).toBeLessThan(requiredAuthorityRank("ExecuteAuthority"));
     expect(requiredAuthorityRank("ExecuteAuthority")).toBeLessThan(requiredAuthorityRank("AdminAuthority"));
+    expect(requiredAuthorityRank("AdminAuthority")).toBeLessThan(
+      requiredAuthorityRank("PlatformInternalOperationsAuthority"),
+    );
   });
 
   it("treats missing requiredAuthority as visible for any caller rank", () => {
@@ -66,6 +69,11 @@ describe("nav-authority", () => {
       { type: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", value: "Admin" },
     ]);
     expect(adminRank).toBe(AUTHORITY_RANK.AdminAuthority);
+
+    const platformOperatorRank = maxAuthorityRankFromMeClaims([
+      { type: "roles", value: "PlatformOperator" },
+    ]);
+    expect(platformOperatorRank).toBe(AUTHORITY_RANK.PlatformInternalOperationsAuthority);
   });
 
   /**
@@ -121,5 +129,6 @@ describe("nav-authority", () => {
     expect(requiredAuthorityFromRank(1)).toBe("ReadAuthority");
     expect(requiredAuthorityFromRank(2)).toBe("ExecuteAuthority");
     expect(requiredAuthorityFromRank(3)).toBe("AdminAuthority");
+    expect(requiredAuthorityFromRank(4)).toBe("PlatformInternalOperationsAuthority");
   });
 });

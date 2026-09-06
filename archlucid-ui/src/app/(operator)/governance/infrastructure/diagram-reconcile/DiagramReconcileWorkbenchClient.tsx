@@ -252,7 +252,7 @@ export function DiagramReconcileWorkbenchClient() {
 
   const runIngest = useCallback(async () => {
     if (runId.trim().length === 0) {
-      showError("Run id required", "Enter a sealed architecture run id before ingesting a diagram.");
+      showError("Review id required", "Enter a sealed review record id before ingesting a diagram.");
       return;
     }
 
@@ -360,7 +360,7 @@ export function DiagramReconcileWorkbenchClient() {
       <section className="grid gap-4 rounded-md border border-border p-4" aria-label="Reconciliation wizard">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>1. Diagram source</h2>
         <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed architecture run id</span>
+          <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed review record id</span>
           <input
             className="rounded border border-border bg-background px-3 py-2"
             data-testid="infra-diagram-reconcile-run-id"
