@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -13,7 +14,6 @@ import {
   REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE,
   requestReviewPipelineStopAnalysis,
 } from "@/lib/operations/review-pipeline-stop-analysis";
-import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export type ReviewPipelineStopAnalysisButtonProps = {
@@ -33,9 +33,11 @@ export function ReviewPipelineStopAnalysisButton({
 }: ReviewPipelineStopAnalysisButtonProps): React.JSX.Element {
   const [stopping, setStopping] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
+  const [stopErrorMessage, setStopErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setCancelRequested(false);
+    setStopErrorMessage(null);
   }, [runId]);
 
   const handleStop = useCallback(async () => {
@@ -46,6 +48,7 @@ export function ReviewPipelineStopAnalysisButton({
     const startedAtMs = Date.now();
 
     setStopping(true);
+    setStopErrorMessage(null);
 
     try {
       await requestReviewPipelineStopAnalysis(runId);
@@ -53,7 +56,7 @@ export function ReviewPipelineStopAnalysisButton({
       setCancelRequested(true);
     } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : "Try again in a moment.";
-      showError("Could not stop this analysis", detail);
+      setStopErrorMessage(`Could not stop this analysis. ${detail}`);
     } finally {
       setStopping(false);
     }
@@ -80,6 +83,12 @@ export function ReviewPipelineStopAnalysisButton({
           {REVIEW_PIPELINE_STOP_ANALYSIS_HELP}
         </span>
       </div>
+      {stopErrorMessage !== null ? (
+        <OperatorMutationInlineError
+          message={stopErrorMessage}
+          testId="review-pipeline-stop-analysis-inline-error"
+        />
+      ) : null}
       {cancelRequested ? (
         <div
           className={cn(DESIGN_TOKENS.callout.info, "p-3")}

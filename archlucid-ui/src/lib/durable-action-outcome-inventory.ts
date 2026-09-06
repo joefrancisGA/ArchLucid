@@ -160,7 +160,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "review-start-first-pilot",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard.tsx",
+      "app/(operator)/architecture/reviews/new/FirstPilotIntakeStartFooter.tsx",
+    ],
     requiredDurableMarkers: ["ReviewStartInlineError"],
   },
   {
@@ -202,7 +205,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "governance-workflow",
-    sourceRoots: ["app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx"],
+    sourceRoots: [
+      "app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx",
+      "app/(operator)/governance/_sections/GovernanceWorkflowMutationHost.tsx",
+    ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
   },
   {
@@ -210,6 +216,7 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
     sourceRoots: [
       "app/(operator)/governance/policy-packs/_sections/PolicyPacksPageView.tsx",
       "app/(operator)/governance/policy-packs/_sections/use-policy-packs-page.ts",
+      "app/(operator)/governance/policy-packs/_sections/use-policy-packs-create-publish.ts",
     ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "setPublishSuccessMessage"],
     allowedToastLinePatterns: [
@@ -219,7 +226,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "admin-cloud-connection-save",
-    sourceRoots: ["app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx"],
+    sourceRoots: [
+      "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionWizard.tsx",
+      "app/(operator)/integrations/cloud-connections/_sections/Tier2ConnectionValidateStep.tsx",
+    ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
     allowedToastLinePatterns: [
       /Setup script copied/i,
@@ -229,7 +239,10 @@ export const DURABLE_ACTION_OUTCOME_GUARDED_SURFACES: readonly DurableActionOutc
   },
   {
     id: "admin-sso-wizard",
-    sourceRoots: ["app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx"],
+    sourceRoots: [
+      "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageClient.tsx",
+      "app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardPageChrome.tsx",
+    ],
     requiredDurableMarkers: ["OperatorSuccessCallout", "OperatorMutationInlineError"],
   },
   {

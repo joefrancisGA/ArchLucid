@@ -4,15 +4,18 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { DURABLE_ACTION_OUTCOME_GUARDED_SURFACES } from "@/lib/durable-action-outcome-inventory";
+import { findDurableActionOutcomeSurfaceViolations } from "@/lib/durable-action-outcome-guard";
 import {
   DURABLE_MUTATION_DUAL_TOAST_TEST_PATHS,
   DURABLE_MUTATION_FORBIDDEN_TOAST_SUCCESS_PHRASES,
-  DURABLE_MUTATION_GUARDED_SURFACE_PATHS,
   DURABLE_MUTATION_TEMPORARY_TOAST_DEBT_PATHS,
   DURABLE_MUTATION_TRIVIAL_TOAST_ALLOWLIST,
 } from "@/lib/durable-mutation-outcome-inventory";
+import { readSurfaceSourceBundle } from "@/lib/report-problem-surfaces-guard";
 
 const SRC_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const UI_ROOT = path.dirname(SRC_ROOT);
 
 function listSourceFiles(directory: string): string[] {
   const entries = readdirSync(directory);
@@ -128,30 +131,43 @@ describe("TB-2116 durable mutation outcome guard", () => {
   });
 
   it("keeps guarded surfaces wired to durable in-page outcome components", () => {
-    const missingDurableComponent = DURABLE_MUTATION_GUARDED_SURFACE_PATHS.filter((relativePath) => {
-      const absolutePath = path.join(SRC_ROOT, ...relativePath.split("/"));
+    const violations = findDurableActionOutcomeSurfaceViolations(UI_ROOT);
 
-      if (!existsSync(absolutePath)) {
-        return true;
+    expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
+  });
+
+  it("documents guarded source roots on disk", () => {
+    const missingRoots: string[] = [];
+
+    for (const surface of DURABLE_ACTION_OUTCOME_GUARDED_SURFACES) {
+      for (const sourceRoot of surface.sourceRoots) {
+        const absolutePath = path.join(SRC_ROOT, ...sourceRoot.split("/"));
+
+        if (!existsSync(absolutePath)) {
+          missingRoots.push(`${surface.id}: ${sourceRoot}`);
+        }
       }
+    }
 
-      const content = readFileSync(absolutePath, "utf8");
+    expect(missingRoots).toEqual([]);
+  });
 
-      return (
-        !content.includes("OperatorSuccessCallout")
-        && !content.includes("ReversibleMutationSuccessCallout")
-        && !content.includes("ReviewGenerationCreatedNotice")
-        && !content.includes("ReviewStartInlineError")
-        && !content.includes("OperatorMutationInlineError")
-        && !content.includes("setPublishSuccessMessage")
-        && !content.includes("StatusTag")
-        // Quick-family wizards delegate their durable submit error to the shared sticky footer,
-        // which is itself a guarded surface below.
-        && !content.includes("WizardStickyFooter")
-      );
-    });
+  it("keeps guarded source bundles aligned with required durable markers", () => {
+    const missingMarkers: string[] = [];
 
-    expect(missingDurableComponent).toEqual([]);
+    for (const surface of DURABLE_ACTION_OUTCOME_GUARDED_SURFACES) {
+      const combinedSource = surface.sourceRoots
+        .map((root) => readSurfaceSourceBundle(UI_ROOT, root))
+        .join("\n");
+
+      for (const marker of surface.requiredDurableMarkers) {
+        if (!combinedSource.includes(marker)) {
+          missingMarkers.push(`${surface.id}: ${marker}`);
+        }
+      }
+    }
+
+    expect(missingMarkers).toEqual([]);
   });
 
   it("documents dual-toast Vitest inventory files and asserts they guard showSuccess", () => {

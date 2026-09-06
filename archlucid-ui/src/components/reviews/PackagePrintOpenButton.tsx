@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { buildPackagePrintPath, PACKAGE_PRINT_OPEN_LABEL } from "@/lib/package-print-view";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledPolicy } from "@/lib/why-disabled-cta";
 
 type PackagePrintOpenButtonProps = {
   readonly runId: string;
@@ -26,7 +27,7 @@ export function PackagePrintOpenButton(props: PackagePrintOpenButtonProps): Reac
         <Button variant="outline" size="sm" disabled data-testid="package-print-open-blocked">
           {PACKAGE_PRINT_OPEN_LABEL}
         </Button>
-        <WhyDisabledCtaHint id={hintId} reason={blockedReason} testId={hintId} />
+        <WhyDisabledCtaHint id={hintId} reason={whyDisabledPolicy(blockedReason)} testId={hintId} />
       </div>
     );
   }
