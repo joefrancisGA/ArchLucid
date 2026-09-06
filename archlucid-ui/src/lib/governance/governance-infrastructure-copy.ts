@@ -47,14 +47,14 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     shippedInBatch: "IE-UX-04",
-    status: "Coming soon",
+    status: "Available",
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
     shippedInBatch: "IE-UX-04",
-    status: "Coming soon",
+    status: "Available",
     summary: "Ask grounded questions about inventory evidence with citation-backed answers.",
   },
   {

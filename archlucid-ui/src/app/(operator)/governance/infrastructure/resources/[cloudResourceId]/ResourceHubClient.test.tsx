@@ -1,0 +1,86 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient";
+
+const replace = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace }),
+  usePathname: () => "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+  useSearchParams: () => new URLSearchParams("tab=audit"),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
+  fetchCloudResourceEvidenceHub: vi.fn(async () => ({
+    cloudResourceId: "11111111-1111-1111-1111-111111111111",
+    externalResourceId:
+      "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+    resourceType: "Microsoft.Network/publicIPAddresses",
+    currentConfiguration: {
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      azureResourceId:
+        "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+      resourceType: "Microsoft.Network/publicIPAddresses",
+      resourceGroup: "rg-net",
+      region: "eastus",
+      properties: {},
+      tags: {},
+    },
+    terraformAddress: "azurerm_public_ip.gateway",
+    terraformGenerationMethod: "advisory",
+    diagramCorrespondence: null,
+    operationalSecurityFindings: {
+      streamKind: "OperationalSecurity",
+      streamLabel: "Operational security",
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 25,
+      hasMore: false,
+    },
+    architectureReviewFindings: {
+      streamKind: "ArchitectureReview",
+      streamLabel: "Architecture review",
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 25,
+      hasMore: false,
+    },
+    remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
+    rbacAssignments: [],
+    networkRelationships: [],
+    recentChanges: [],
+    auditLineageLink: {
+      available: false,
+      degradedReason: "Provide assessmentId, auditEvidenceSnapshotId, and controlId query parameters to link AE-10 audit lineage.",
+      relativePath: null,
+    },
+    evidencePointers: [],
+  })),
+  formatInfraEvidenceHubApiError: (error: unknown) => String(error),
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    layerGuidance: {
+      layerBadge: "Advanced operations",
+      headline: "Resource hub",
+      useWhen: "Inspect evidence",
+      firstPilotNote: null,
+    },
+    contextHints: { layerHeaderEnterpriseRankCue: null },
+  }),
+}));
+
+describe("ResourceHubClient", () => {
+  it("renders hub tabs and audit lineage degraded state", async () => {
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-tab-overview")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-tab-audit")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-audit-degraded")).toBeInTheDocument();
+  });
+});

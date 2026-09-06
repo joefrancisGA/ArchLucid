@@ -327,14 +327,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Search cloud resources and open the evidence hub.",
     useWhen: "Find a resource by name or type, then inspect drift, diagrams, and findings in one place.",
-    firstPilotNote: "Shipped in IE-UX-04 — workbench wiring in progress.",
+    firstPilotNote: "Open a resource row to inspect drift, diagrams, findings, and audit lineage in one hub.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-ask": {
     layerBadge: "Advanced operations",
     headline: "Ask grounded questions about inventory evidence.",
     useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
-    firstPilotNote: "Shipped in IE-UX-04 — workbench wiring in progress.",
+    firstPilotNote: "Simulator mode is on by default for deterministic, citation-grounded answers.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-remediation": {
