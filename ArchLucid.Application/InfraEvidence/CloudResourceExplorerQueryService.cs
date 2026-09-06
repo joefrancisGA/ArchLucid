@@ -33,7 +33,7 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        (IReadOnlyList<CloudResourceIdentityRecord> items, int totalCount) =
+        (IReadOnlyList<CloudResourceExplorerListItem> items, int totalCount) =
             await identityDirectory.ListForExplorerAsync(
                 scope,
                 namePrefix,
@@ -47,13 +47,14 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
         List<CloudResourceSummary> summaries = items
             .Select(row => new CloudResourceSummary
             {
-                CloudResourceId = row.CloudResourceId,
-                ExternalResourceId = row.ExternalResourceIdNormalized,
-                DisplayName = row.DisplayName,
-                ResourceType = row.ResourceType,
-                ResourceGroup = row.ResourceGroupOrProject,
-                Region = row.Region,
-                LastSeenUtc = row.LastSeenUtc,
+                CloudResourceId = row.Identity.CloudResourceId,
+                ExternalResourceId = row.Identity.ExternalResourceIdNormalized,
+                DisplayName = row.Identity.DisplayName,
+                ResourceType = row.Identity.ResourceType,
+                ResourceGroup = row.Identity.ResourceGroupOrProject,
+                Region = row.Identity.Region,
+                LastSeenUtc = row.Identity.LastSeenUtc,
+                WorkCounts = row.WorkCounts,
             })
             .ToList();
 
