@@ -1,7 +1,11 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -14,7 +18,9 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     IConsultingDocxTemplateOptionsProvider optionsProvider,
     IDocumentLogoProvider logoProvider,
     ITenantReportBrandingApplyHelper reportBrandingApplyHelper,
-    IScopeContextProvider scopeProvider) : IArchitectureAnalysisConsultingDocxExportService
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IGraphSnapshotRepository graphSnapshotRepository) : IArchitectureAnalysisConsultingDocxExportService
 {
     private readonly IConsultingDocxTemplateOptionsProvider _optionsProvider = optionsProvider ?? throw new ArgumentNullException(nameof(optionsProvider));
     private readonly IDocumentLogoProvider _logoProvider = logoProvider ?? throw new ArgumentNullException(nameof(logoProvider));
@@ -23,6 +29,10 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
         reportBrandingApplyHelper ?? throw new ArgumentNullException(nameof(reportBrandingApplyHelper));
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
@@ -41,12 +51,26 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
         ConsultingDocxExportBranding effectiveBranding =
             _reportBrandingApplyHelper.MergeConsultingDocxBranding(tenantBranding, branding);
 
+        ArchitectureRunDetail detail = new()
+        {
+            Run = report.Run,
+            Manifest = report.Manifest,
+        };
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            workingDesk: true,
+            cancellationToken);
+
         return await ConsultingDocxOpenXmlComposer.GenerateAsync(
             report,
             options,
             diagramImageRenderer,
             logoProvider,
             effectiveBranding,
+            careerExportHonesty,
             cancellationToken);
     }
 }

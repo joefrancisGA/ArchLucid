@@ -18,6 +18,8 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         page.Content().Column(column =>
         {
+            AddCareerExportHonestySection(column, model);
+
             ArchitectureReviewBoardExportSectionVisitor.VisitBodySections((kind, firstMajorHeading) =>
                 RenderPdfBodySection(column, kind, model, firstMajorHeading));
         });

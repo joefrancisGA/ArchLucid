@@ -39,6 +39,22 @@ public static class InsightDensityMeasurementFloorPresenter
         return measuredEnginesSucceeded.Value;
     }
 
+    /// <summary>Null when the measured engine count meets the career export floor; otherwise a gate reason for Working exports.</summary>
+    public static string? FormatCareerExportBlockedReason(int? measuredEnginesSucceeded)
+    {
+        InsightDensityMeasurementFloorPresentation presentation = Present(measuredEnginesSucceeded);
+
+        if (presentation.MeetsCareerExportFloor)
+        {
+            return null;
+        }
+
+        int measured = presentation.MeasuredThisRunEngineCount ?? 0;
+
+        return
+            $"Only {measured} of {presentation.CatalogEngineCount} catalog engines produced findings — below the {presentation.HarnessEngineCount}-engine measurement floor for career export.";
+    }
+
     private static string BuildSentence(int? measured, int catalog, int harness)
     {
         if (measured is null)
