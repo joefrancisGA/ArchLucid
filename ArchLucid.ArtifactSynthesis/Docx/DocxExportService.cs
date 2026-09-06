@@ -184,7 +184,11 @@ public sealed partial class DocxExportService(
         {
             List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security
                 .Controls
-                .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact))
+                .Select(c => (
+                    SanitizeArtifactText(c.ControlId),
+                    SanitizeArtifactText(c.ControlName),
+                    SanitizeArtifactText(c.Status),
+                    SanitizeArtifactText(c.Impact)))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
                 body,
@@ -207,7 +211,11 @@ public sealed partial class DocxExportService(
             {
                 List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows =
                     manifest.Compliance.Controls
-                        .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory, c.Status))
+                        .Select(c => (
+                            SanitizeArtifactText(c.ControlId),
+                            SanitizeArtifactText(c.ControlName),
+                            SanitizeArtifactText(c.AppliesToCategory),
+                            SanitizeArtifactText(c.Status)))
                         .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
