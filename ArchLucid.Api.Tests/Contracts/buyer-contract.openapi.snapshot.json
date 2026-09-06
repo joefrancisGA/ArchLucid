@@ -17678,6 +17678,150 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidComplexityMetrics": {
+        "properties": {
+          "crossSubgraphEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "layoutEstimate": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "maxDegree": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "subgraphCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "textSizeBytes": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidFallbackArtifactSummary": {
+        "properties": {
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidModePreview": {
+        "properties": {
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "fallbackArtifacts": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
+            },
+            "type": "array"
+          },
+          "mermaid": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidPreviewResponse": {
+        "properties": {
+          "modes": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidModePreview"
+            },
+            "type": "array"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidRenderResponse": {
+        "properties": {
+          "fallbackArtifacts": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
+            },
+            "type": "array"
+          },
+          "fallbackKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mermaid": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidComplexityMetrics"
+              }
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "InfrastructureDeclarationRequest": {
         "properties": {
           "content": {
