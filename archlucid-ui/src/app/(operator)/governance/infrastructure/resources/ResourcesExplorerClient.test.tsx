@@ -185,7 +185,7 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
     );
-    expect(screen.getByRole("button", { name: "Remediation" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Remediation" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-remediation",
