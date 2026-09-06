@@ -70,6 +70,21 @@ export const SPECIALTY_REVIEW_CLOUD_CONTEXT_OPTIONS: readonly {
   { id: "Gcp", label: "Google Cloud" },
 ] as const;
 
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_LEGEND = "Cloud context for SaaS readiness";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_INTRO =
+  "Optional — choose a hyperscaler when you want cloud-specific evidence guidance prefilled in review setup.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SELECTION_NOTE =
+  "Applies when you continue to review setup with the SaaS readiness template selected.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE = "SaaS readiness review setup";
+
+export const SPECIALTY_REVIEW_TEMPLATES_PREVIEW_DISCLAIMER =
+  "Preview only — sample content does not start a review from this template.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_PREVIEW_CLOSE_LABEL = "Close preview";
+
 export type SpecialtyReviewPolicyPackReference = {
   readonly id: string;
   readonly label: string;
@@ -375,5 +390,26 @@ export function specialtyReviewTemplatesCompareHref(): string {
 export const SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT =
   "Your role can preview and compare templates and open sample reviews. Ask a workspace administrator for review creation permission to start a review from a template.";
 
+export const SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL = "Preview only";
+
+export const SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL = "Checking review creation permission…";
+
+export const SPECIALTY_REVIEW_TEMPLATES_POLICY_PACK_LOADING_LABEL = "Loading policy pack guidance…";
+
+export const SPECIALTY_REVIEW_TEMPLATES_SAMPLE_REVIEW_LABEL = "Open sample review";
+
 export const SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT =
   "Templates are optional. Use Start review for a standard intake, or pick a template below to prefill focused questions.";
+
+/** Buyer-safe catalog provenance — latest template review stamp, no registry taxonomy tokens. */
+export function specialtyReviewTemplatesBuyerProvenanceLine(): string {
+  const latestReviewedUtc = SPECIALTY_REVIEW_TEMPLATES.reduce((latest, template) => {
+    return template.lastReviewedUtc > latest ? template.lastReviewedUtc : latest;
+  }, SPECIALTY_REVIEW_TEMPLATES[0]?.lastReviewedUtc ?? "");
+
+  const reviewedOn = latestReviewedUtc.slice(0, 10);
+
+  return reviewedOn.length > 0
+    ? `Template catalog last reviewed ${reviewedOn}`
+    : "Template catalog for focused review scenarios";
+}

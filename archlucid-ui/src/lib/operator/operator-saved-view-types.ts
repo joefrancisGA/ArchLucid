@@ -1,7 +1,7 @@
 import type { GraphMode } from "@/app/(operator)/insights/evidence-graph/_sections/graph-page-helpers";
 
 /** Supported operator UI surfaces for saved views. */
-export type OperatorSavedViewSurface = "audit" | "graph" | "findings";
+export type OperatorSavedViewSurface = "audit" | "graph" | "findings" | "infra-resources";
 
 export type OperatorSavedViewPayload = {
   filters: Record<string, unknown>;
@@ -58,4 +58,11 @@ export type FindingsSavedViewFilters = {
   nlFacets?: Record<string, unknown>;
   groupByResource?: boolean;
   scopedRunId?: string | null;
+};
+
+export type InfraResourcesSavedViewFilters = {
+  namePrefix?: string;
+  resourceType?: string;
+  resourceGroup?: string;
+  workQueue?: string;
 };

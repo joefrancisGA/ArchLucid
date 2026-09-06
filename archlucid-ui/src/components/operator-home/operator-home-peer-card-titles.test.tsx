@@ -26,6 +26,7 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn(),
   }),
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({

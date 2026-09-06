@@ -2,7 +2,7 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { INTERNAL_DEMO_READINESS_PAGE_TITLE } from "@/lib/demo-readiness-evidence-copy";
-import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator/operator-system-admin-nav-group-builder";
+import { OperatorSystemAdminNavGroupBuilder, buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
 
 describe("OperatorSystemAdminNavGroupBuilder", () => {
   afterEach(() => {
@@ -58,6 +58,14 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     const group = new OperatorSystemAdminNavGroupBuilder().build();
 
     expect(group.links).toEqual([]);
+  });
+
+  it("buildOperatorSystemAdminNavLinks always materializes catalog links for runtime shell gating", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
+
+    const links = buildOperatorSystemAdminNavLinks();
+
+    expect(links.map((link) => link.href)).toContain("/internal/rag-health");
   });
 
   it("includes Review feedback under Internal Operations", () => {

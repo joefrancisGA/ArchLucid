@@ -2,9 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
+import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+
+let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -108,6 +111,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 
 describe("RemediationWorkbenchClient", () => {
   it("renders lifecycle board and disables approve when preflight blocked", async () => {
+    searchParams = new URLSearchParams("");
     render(<RemediationWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-remediation-board")).toBeInTheDocument();
@@ -119,5 +123,17 @@ describe("RemediationWorkbenchClient", () => {
     expect(screen.getByTestId("infra-remediation-execute-disclaimer")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-approve")).toBeDisabled();
     expect(screen.getByTestId("infra-remediation-preflight")).toBeDisabled();
+  });
+
+  it("shows resource scope banner when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams("cloudResourceId=33333333-3333-3333-3333-333333333333");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
+      "33333333-3333-3333-3333-333333333333",
+    );
+    expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
+      cloudResourceId: "33333333-3333-3333-3333-333333333333",
+    });
   });
 });

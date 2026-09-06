@@ -23,6 +23,9 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
     automationLevel: String(raw.automationLevel ?? ""),
     cloudResourceId: raw.cloudResourceId != null ? String(raw.cloudResourceId) : null,
     waveId: raw.waveId != null ? String(raw.waveId) : null,
+    preflightSnapshotId: raw.preflightSnapshotId != null ? String(raw.preflightSnapshotId) : null,
+    executionSnapshotId: raw.executionSnapshotId != null ? String(raw.executionSnapshotId) : null,
+    verificationSnapshotId: raw.verificationSnapshotId != null ? String(raw.verificationSnapshotId) : null,
     createdUtc: String(raw.createdUtc ?? ""),
     updatedUtc: String(raw.updatedUtc ?? ""),
   };
@@ -38,8 +41,19 @@ function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOp
   };
 }
 
-export async function fetchRemediationInstances(): Promise<RemediationInstanceSummary[]> {
-  const raw = await proxyJsonGet<Array<Record<string, unknown>>>(INSTANCES_PATH);
+export async function fetchRemediationInstances(
+  options: { readonly cloudResourceId?: string | null } = {},
+): Promise<RemediationInstanceSummary[]> {
+  const params = new URLSearchParams();
+
+  if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
+    params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  const query = params.toString();
+  const path = query.length === 0 ? INSTANCES_PATH : `${INSTANCES_PATH}?${query}`;
+
+  const raw = await proxyJsonGet<Array<Record<string, unknown>>>(path);
 
   return raw.map(mapInstanceSummary);
 }

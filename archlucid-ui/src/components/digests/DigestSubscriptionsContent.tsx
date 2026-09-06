@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
@@ -48,6 +49,7 @@ export type DigestSubscriptionsContentProps = {
  * Subscriptions tab: customer-goal delivery workflow for architecture digests (TB-926).
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const refreshToken = props.refreshToken ?? 0;
   const formCardRef = useRef<HTMLDivElement | null>(null);
   const list = useDigestSubscriptionsContentList({ refreshToken });
@@ -56,7 +58,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
 
   const scopedRunId = (props.scopedRunId ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
-  const requiresReviewPick = props.onPickReview !== undefined;
+  const requiresReviewPick = props.onPickReview !== undefined && !buyerPolishedShell;
   const createFormVisible = scopedRunFilterActive || !requiresReviewPick;
   const subscriptionsClearScopeHref = digestsHubScopedHref("subscriptions", null);
   const loading = list.loading || toggle.mutating;
@@ -87,28 +89,31 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
         <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {DIGEST_SUBSCRIPTIONS_PAGE_SUBTITLE}
         </p>
-        {/* Two recipient systems exist; say so where an operator is adding one. */}
-        <p
-          className={cn("m-0 mt-1 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="digest-subscriptions-recipients-clarification"
-        >
-          {DIGESTS_BROWSE_RECIPIENTS_HELPER}
-        </p>
+        {buyerPolishedShell ? null : (
+          <p
+            className={cn("m-0 mt-1 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="digest-subscriptions-recipients-clarification"
+          >
+            {DIGESTS_BROWSE_RECIPIENTS_HELPER}
+          </p>
+        )}
       </div>
 
-      <p
-        className={cn(
-          "m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-          OPERATOR_TYPOGRAPHY.helper,
-        )}
-        data-testid="digest-subscriptions-privacy-note"
-      >
-        {DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE}{" "}
-        <Link className="text-al-link underline-offset-2 hover:underline" href={DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF}>
-          Learn how tenant data is handled
-        </Link>
-        .
-      </p>
+      {buyerPolishedShell ? null : (
+        <p
+          className={cn(
+            "m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="digest-subscriptions-privacy-note"
+        >
+          {DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE}{" "}
+          <Link className="text-al-link underline-offset-2 hover:underline" href={DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF}>
+            Learn how tenant data is handled
+          </Link>
+          .
+        </p>
+      )}
 
       {!scopedRunFilterActive && requiresReviewPick ? (
         <DigestSubscriptionsPickReviewBeforeCreatingStrip

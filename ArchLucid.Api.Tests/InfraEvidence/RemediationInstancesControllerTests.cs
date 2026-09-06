@@ -31,7 +31,7 @@ public sealed class RemediationInstancesControllerTests
     {
         Mock<IRemediationInstanceQueryService> queryService = new();
         queryService
-            .Setup(service => service.ListInstancesAsync(Scope, It.IsAny<CancellationToken>()))
+            .Setup(service => service.ListInstancesAsync(Scope, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new RemediationInstanceSummary
@@ -45,12 +45,32 @@ public sealed class RemediationInstancesControllerTests
 
         RemediationInstancesController controller = CreateController(queryService: queryService.Object);
 
-        IActionResult result = await controller.List(CancellationToken.None);
+        IActionResult result = await controller.List(cloudResourceId: null, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         IReadOnlyList<RemediationInstanceSummary> items =
             ok.Value.Should().BeAssignableTo<IReadOnlyList<RemediationInstanceSummary>>().Subject;
         items.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task List_passes_cloudResourceId_filter_to_query_service()
+    {
+        Guid cloudResourceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IRemediationInstanceQueryService> queryService = new();
+        queryService
+            .Setup(service => service.ListInstancesAsync(Scope, cloudResourceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationInstancesController controller = CreateController(queryService: queryService.Object);
+
+        IActionResult result = await controller.List(cloudResourceId, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        queryService.Verify(
+            service => service.ListInstancesAsync(Scope, cloudResourceId, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

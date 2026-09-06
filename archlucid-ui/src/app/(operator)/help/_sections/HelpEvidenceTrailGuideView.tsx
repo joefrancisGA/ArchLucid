@@ -6,6 +6,7 @@ import { HelpEvidenceTrailRelatedGuidesLinks } from "@/app/(operator)/help/_sect
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import {
   OPERATOR_LAYOUT,
@@ -17,6 +18,8 @@ import {
 } from "@/lib/evidence-trail-help-evidence-copy";
 import {
   buildEvidenceTrailHelpTocHeadings,
+  EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE,
+  EVIDENCE_TRAIL_HELP_DIAGRAM_SUMMARY,
   EVIDENCE_TRAIL_HELP_HERO_OVERVIEW,
   EVIDENCE_TRAIL_HELP_RELATED_GUIDES_TITLE,
 } from "@/lib/evidence-trail-help-guide-content";
@@ -96,6 +99,32 @@ export function HelpEvidenceTrailGuideView(props: HelpEvidenceTrailGuideViewProp
 
           <HelpEvidenceTrailActionPanel />
           <HelpEvidenceTrailFindingJumpPanel />
+
+          <section
+            aria-labelledby="help-evidence-trail-provenance-diagram-heading"
+            className="space-y-3"
+            data-testid="help-evidence-trail-provenance-diagram"
+          >
+            <h2
+              id="help-evidence-trail-provenance-diagram-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              How evidence connects
+            </h2>
+            <p className={cn("m-0", readingBodyClass)}>{EVIDENCE_TRAIL_HELP_DIAGRAM_SUMMARY}</p>
+            <div
+              className={cn(
+                "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              data-testid="help-evidence-trail-mermaid-diagram"
+            >
+              <MermaidDiagram
+                source={EVIDENCE_TRAIL_HELP_DIAGRAM_SOURCE}
+                accessibleName="Evidence provenance flow diagram"
+              />
+            </div>
+          </section>
 
           <div className="min-w-0" data-testid="help-topic-content">
             <MarketingAccessibilityMarkdownFragment

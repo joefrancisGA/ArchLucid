@@ -5159,6 +5159,23 @@ jobs:
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
+      - name: Private-beta Playwright failure triage rollup
+        if: failure()
+        run: |
+          python3 scripts/ci/report_private_beta_playwright_failure_triage.py \
+            --markdown-out dist/private-beta-playwright-failure-triage.md \
+            --json-out dist/private-beta-playwright-failure-triage.json
+
+      - name: Upload private-beta Playwright failure triage rollup
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-failure-triage
+          path: |
+            dist/private-beta-playwright-failure-triage.md
+            dist/private-beta-playwright-failure-triage.json
+          if-no-files-found: warn
+
   # k6 operator-path API smoke (health/ready + version + create run + authority list). Runs after full regression;
   # merge-blocking. Native k6; 5 VUs Ã— ~60s (ramp 10s / hold 40s / ramp 10s). Rate limits raised for synthetic traffic.
   k6-smoke-api:
@@ -5548,6 +5565,7 @@ jobs:
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
             --phases=examples \
+            --include-path-regex='^(/v1/auth|/v1/admin|/scim|/v1/invitations)' \
             --request-timeout 5 \
             --max-response-time 10
 

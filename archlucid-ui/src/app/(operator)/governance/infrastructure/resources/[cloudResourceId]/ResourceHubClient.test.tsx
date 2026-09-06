@@ -4,11 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient";
 
 const replace = vi.fn();
+let searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace }),
   usePathname: () => "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
-  useSearchParams: () => new URLSearchParams("tab=audit"),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
@@ -33,8 +34,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
     operationalSecurityFindings: {
       streamKind: "OperationalSecurity",
       streamLabel: "Operational security",
-      items: [],
-      totalCount: 0,
+      items: [
+        {
+          id: "finding-1",
+          title: "Public endpoint",
+          severity: "High",
+          status: "Open",
+          streamKind: "OperationalSecurity",
+          streamLabel: "Operational security",
+        },
+      ],
+      totalCount: 1,
       page: 1,
       pageSize: 25,
       hasMore: false,
@@ -48,14 +58,53 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
       pageSize: 25,
       hasMore: false,
     },
-    remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
+    remediationInstances: {
+      items: [
+        {
+          instanceId: "instance-1",
+          patternKey: "public-ip-restrict",
+          status: "Draft",
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 25,
+      hasMore: false,
+    },
     rbacAssignments: [],
     networkRelationships: [],
-    recentChanges: [],
+    recentChanges: [
+      {
+        changeId: "change-1",
+        diffId: "diff-1",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "22222222-2222-2222-2222-222222222222",
+        property: "sku",
+        changeType: "Modified",
+        oldValue: "Basic",
+        newValue: "Standard",
+        riskClassification: "Medium",
+      },
+    ],
     auditLineageLink: {
-      available: false,
-      degradedReason: "Provide assessmentId, auditEvidenceSnapshotId, and controlId query parameters to link AE-10 audit lineage.",
-      relativePath: null,
+      available: true,
+      degradedReason: null,
+      relativePath: "/v1/infra-evidence/audit-assessments/a/snapshots/s/controls/c/lineage",
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      controlNumber: "AC-2",
+      controlTitle: "Account management",
+      matches: [
+        {
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          controlNumber: "AC-2",
+          controlTitle: "Account management",
+          snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+        },
+      ],
     },
     evidencePointers: [],
   })),
@@ -75,12 +124,63 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("ResourceHubClient", () => {
-  it("renders hub tabs and audit lineage degraded state", async () => {
+  it("renders overview ask link with resource and snapshot context", async () => {
+    searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-tabs")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-hub-tab-overview")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-hub-tab-audit")).toBeInTheDocument();
-    expect(await screen.findByTestId("infra-resource-hub-audit-degraded")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-resource-hub-open-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
+  });
+
+  it("renders audit lineage link when audit tab is active", async () => {
+    searchParams = new URLSearchParams("tab=audit");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-audit-degraded")).not.toBeInTheDocument();
+  });
+
+  it("shows tab count badges for findings and drift", async () => {
+    searchParams = new URLSearchParams("tab=overview");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (1)");
+    expect(screen.getByTestId("infra-resource-hub-tab-drift")).toHaveTextContent("Drift (1)");
+  });
+
+  it("links drift rows to the scoped drift workbench", async () => {
+    searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=change-1&diffId=diff-1",
+    );
+  });
+
+  it("links findings rows into the scoped remediation factory", async () => {
+    searchParams = new URLSearchParams("tab=findings");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+    );
+  });
+
+  it("links remediation rows into the scoped factory with instance id", async () => {
+    searchParams = new URLSearchParams("tab=remediation");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
+    );
   });
 });

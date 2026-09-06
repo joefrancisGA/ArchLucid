@@ -47,4 +47,10 @@ public interface IAuditEvidenceSnapshotRepository
         Guid auditEvidenceSnapshotId,
         IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int take,
+        CancellationToken cancellationToken = default);
 }

@@ -19,9 +19,13 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
+    isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
   };
 });
+
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+}));
 
 vi.mock("@/lib/api", () => ({
   fetchWeeklyDigestHealth: vi.fn(),
@@ -65,6 +69,7 @@ const configuredHealth = {
 
 describe("DigestsHubClient", () => {
   beforeEach(() => {
+    demoEnvMock.buyerPolished = false;
     searchParams = new URLSearchParams();
     push.mockReset();
     vi.mocked(fetchWeeklyDigestHealth).mockReset();
@@ -163,18 +168,27 @@ describe("DigestsHubClient", () => {
 
     render(<DigestsHubClient />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("weekly-digest-health-banner")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();
     expect(screen.getByTestId("digests-browse-schedule-subscriptions-vocabulary")).toBeInTheDocument();
+    expect(screen.queryByTestId("weekly-digest-health-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
     expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
+  });
+
+  it("hides subscriptions vocabulary rail and mounts buyer Sources in buyer-polished shell", async () => {
+    demoEnvMock.buyerPolished = true;
+    searchParams = new URLSearchParams("tab=subscriptions");
+
+    render(<DigestsHubClient />);
+
+    expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-browse-schedule-subscriptions-vocabulary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("digests-subscriptions-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-subscriptions-settings-sources")).toBeInTheDocument();
   });
 
   it("lets the Browse checklist own setup guidance so the banner does not repeat it", async () => {

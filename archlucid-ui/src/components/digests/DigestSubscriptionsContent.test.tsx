@@ -22,9 +22,19 @@ vi.mock("@/lib/api/tenant-customer-success", () => ({
   fetchTenantIntegrationsOperations: vi.fn(),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => false,
-  isOperatorExperienceFullShellEnv: () => true,
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
+    isOperatorExperienceFullShellEnv: () => demoEnvMock.fullShell,
+  };
+});
+
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+  fullShell: true,
 }));
 
 import {
@@ -37,6 +47,8 @@ import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-suc
 
 describe("DigestSubscriptionsContent", () => {
   beforeEach(() => {
+    demoEnvMock.buyerPolished = false;
+    demoEnvMock.fullShell = true;
     mutateCapability.current = true;
     vi.mocked(listDigestSubscriptions).mockReset();
     vi.mocked(createDigestSubscription).mockReset();
@@ -329,5 +341,18 @@ describe("DigestSubscriptionsContent", () => {
     fireEvent.click(screen.getByTestId("digest-subscriptions-empty-add-destination"));
 
     expect(await screen.findByLabelText("Email address (required)")).toHaveFocus();
+  });
+
+  it("shows create form without review pick in buyer-polished shell", async () => {
+    demoEnvMock.buyerPolished = true;
+
+    renderWithOperatorQuery(
+      <DigestSubscriptionsContent healthSnap={null} onPickReview={vi.fn()} />,
+    );
+
+    expect(await screen.findByTestId("digest-subscription-create-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("digest-subscriptions-pick-review-before-creating-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digest-subscriptions-recipients-clarification")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digest-subscriptions-privacy-note")).not.toBeInTheDocument();
   });
 });

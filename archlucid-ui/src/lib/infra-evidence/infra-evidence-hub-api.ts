@@ -1,5 +1,7 @@
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resourceExplorerWorkQueueApiValue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type {
   CloudResourceEvidenceHubResponse,
   CloudResourceExplorerPage,
@@ -12,6 +14,7 @@ export type CloudResourceExplorerFilters = {
   namePrefix?: string | null;
   resourceType?: string | null;
   resourceGroup?: string | null;
+  workQueue?: CloudResourceExplorerWorkQueue;
 };
 
 export async function fetchCloudResourceExplorerPage(
@@ -33,6 +36,12 @@ export async function fetchCloudResourceExplorerPage(
     params.set("resourceGroup", filters.resourceGroup.trim());
   }
 
+  const workQueue = resourceExplorerWorkQueueApiValue(filters.workQueue ?? "all");
+
+  if (workQueue != null) {
+    params.set("workQueue", workQueue);
+  }
+
   const raw = await proxyJsonGet<{
     items?: Array<{
       cloudResourceId?: string;
@@ -42,6 +51,11 @@ export async function fetchCloudResourceExplorerPage(
       resourceGroup?: string | null;
       region?: string | null;
       lastSeenUtc?: string;
+      workCounts?: {
+        openOperationalFindingsCount?: number;
+        openRemediationInstancesCount?: number;
+        inventoryDriftChangeCount?: number;
+      } | null;
     }>;
     totalCount?: number;
     page?: number;
@@ -57,6 +71,13 @@ export async function fetchCloudResourceExplorerPage(
     resourceGroup: row.resourceGroup ?? null,
     region: row.region ?? null,
     lastSeenUtc: row.lastSeenUtc ?? "",
+    workCounts: row.workCounts == null
+      ? null
+      : {
+          openOperationalFindingsCount: row.workCounts.openOperationalFindingsCount ?? 0,
+          openRemediationInstancesCount: row.workCounts.openRemediationInstancesCount ?? 0,
+          inventoryDriftChangeCount: row.workCounts.inventoryDriftChangeCount ?? 0,
+        },
   }));
 
   return {
@@ -241,6 +262,26 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
       available: Boolean(auditRaw?.available),
       degradedReason: auditRaw?.degradedReason != null ? String(auditRaw.degradedReason) : null,
       relativePath: auditRaw?.relativePath != null ? String(auditRaw.relativePath) : null,
+      assessmentId: auditRaw?.assessmentId != null ? String(auditRaw.assessmentId) : null,
+      auditEvidenceSnapshotId:
+        auditRaw?.auditEvidenceSnapshotId != null ? String(auditRaw.auditEvidenceSnapshotId) : null,
+      controlId: auditRaw?.controlId != null ? String(auditRaw.controlId) : null,
+      controlNumber: auditRaw?.controlNumber != null ? String(auditRaw.controlNumber) : null,
+      controlTitle: auditRaw?.controlTitle != null ? String(auditRaw.controlTitle) : null,
+      matches: Array.isArray(auditRaw?.matches)
+        ? auditRaw.matches.map((item) => {
+            const row = item as Record<string, unknown>;
+
+            return {
+              assessmentId: String(row.assessmentId ?? ""),
+              auditEvidenceSnapshotId: String(row.auditEvidenceSnapshotId ?? ""),
+              controlId: String(row.controlId ?? ""),
+              controlNumber: String(row.controlNumber ?? ""),
+              controlTitle: String(row.controlTitle ?? ""),
+              snapshotCreatedUtc: String(row.snapshotCreatedUtc ?? ""),
+            };
+          })
+        : [],
     },
     evidencePointers: Array.isArray(raw.evidencePointers)
       ? raw.evidencePointers.map((item) => {
