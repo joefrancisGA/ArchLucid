@@ -711,6 +711,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                 </Button>
               ) : null}
+              {resolvedAuditLineage != null ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-audit-tab">
+                  <Link
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      assessmentId: resolvedAuditLineage.assessmentId,
+                      auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
+                      controlId: resolvedAuditLineage.controlId,
+                    })}
+                  >
+                    View audit lineage in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {hub.recentChanges.length > 0 ? (
               <EnterpriseTable ariaLabel="Drift changes for resource">
