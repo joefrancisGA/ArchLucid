@@ -551,7 +551,12 @@ export function DiagramReconcileWorkbenchClient() {
             extraLinks={[
               {
                 testId: "infra-diagram-reconcile-open-diagrams",
-                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope ?? undefined),
+                href: buildResourceHubDiagramsWorkbenchHref(
+                  scopedSnapshotId,
+                  urlCloudResourceId,
+                  undefined,
+                  mergeInfrastructureAskAuditScope(auditScope),
+                ),
                 label: "Open inventory diagrams",
               },
             ]}
