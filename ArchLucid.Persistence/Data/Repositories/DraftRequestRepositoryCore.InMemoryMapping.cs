@@ -26,6 +26,7 @@ internal static partial class DraftRequestRepositoryCore
             SpawnedArchitectureVersionId = stored.SpawnedArchitectureVersionId,
             DocumentContentHashSha256 = stored.DocumentContentHashSha256,
             SpawnedDocumentContentHashSha256 = stored.SpawnedDocumentContentHashSha256,
+            ArchitectureId = stored.ArchitectureId,
             CreatedByUserId = stored.CreatedByUserId,
             CreatedUtc = stored.CreatedUtc,
             UpdatedUtc = stored.UpdatedUtc,

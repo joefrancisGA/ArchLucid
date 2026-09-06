@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
-import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
+import { ArchitectureIdentityListClient } from "@/components/architecture/ArchitectureIdentityListClient";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -32,8 +32,8 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         breadcrumb={<ArchitecturesHubBreadcrumb />}
         actions={<ArchitecturesHubHeaderActions />}
       />
-      <ArchitectureObjectMapStrip focus="draft" />
-      <ArchitectureDraftListClient />
+      <ArchitectureObjectMapStrip focus="architecture" />
+      <ArchitectureIdentityListClient />
       <ArchitecturesHubBuyerChrome />
     </OperatorPageContainer>
   );

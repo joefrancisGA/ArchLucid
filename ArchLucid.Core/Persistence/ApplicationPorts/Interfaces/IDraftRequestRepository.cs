@@ -96,4 +96,13 @@ public interface IDraftRequestRepository
         Guid projectId,
         string spawnedRunId,
         CancellationToken cancellationToken);
+
+    /// <summary>Sets the parent architecture FK when still null or matching the existing value.</summary>
+    Task<bool> TrySetArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid draftId,
+        Guid architectureId,
+        CancellationToken cancellationToken);
 }

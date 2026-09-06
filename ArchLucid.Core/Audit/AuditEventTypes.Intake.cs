@@ -45,6 +45,9 @@ public static partial class AuditEventTypes
     /// <summary>Intake draft abandoned by operator.</summary>
     public const string DraftIntakeAbandoned = "DraftIntake.Abandoned";
 
+    /// <summary>Customer-visible architecture identity display name or description patched (ADR 0074).</summary>
+    public const string ArchitectureIdentityPatched = "ArchitectureIdentity.Patched";
+
     /// <summary>Request locked because a non-terminal run references it.</summary>
     public const string RequestLocked = "Request.Locked";
 

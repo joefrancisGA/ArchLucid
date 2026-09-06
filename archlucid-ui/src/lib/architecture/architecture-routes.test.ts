@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_NEW_DRAFT_SEGMENT,
+  architectureDraftEditorPath,
   architectureDraftPath,
+  architectureIdentityPath,
   ARCHITECTURES_NEW_PATH,
   isArchitectureNewDraftSegment,
   startReviewFromArchitectureHref,
@@ -15,6 +17,10 @@ describe("architecture-routes", () => {
     expect(isArchitectureNewDraftSegment("new")).toBe(true);
     expect(isArchitectureNewDraftSegment("draft-1")).toBe(false);
     expect(architectureDraftPath("draft-1")).toBe("/architecture/architectures/draft-1");
+    expect(architectureIdentityPath("arch-1")).toBe("/architecture/architectures/arch-1");
+    expect(architectureDraftEditorPath("arch-1", "draft-1")).toBe(
+      "/architecture/architectures/arch-1/draft/draft-1",
+    );
     expect(startReviewFromArchitectureHref("draft-1")).toBe(
       "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-1",
     );

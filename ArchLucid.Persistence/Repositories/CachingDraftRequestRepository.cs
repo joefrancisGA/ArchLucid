@@ -208,6 +208,31 @@ public sealed class CachingDraftRequestRepository(
             cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<bool> TrySetArchitectureIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid draftId,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        bool updated = await _inner.TrySetArchitectureIdAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            draftId,
+            architectureId,
+            cancellationToken);
+
+        if (updated)
+        {
+            await InvalidateDraftAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
+        }
+
+        return updated;
+    }
+
     private Task InvalidateDraftAsync(
         Guid tenantId,
         Guid workspaceId,

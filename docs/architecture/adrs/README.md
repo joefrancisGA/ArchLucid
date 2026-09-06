@@ -69,6 +69,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0071](0071-working-document-undo-vs-sealed-amend.md) | Working-document undo vs sealed amend — bounded draft undo stack; 300s toast unchanged (**Status: Accepted** 2026-09-05) |
 | [0072](0072-working-canonical-work-identity.md) | Working canonical work URL after spawn — handoff not second desk; ADR 0068 tables unchanged (**Status: Accepted** 2026-09-05) |
 | [0073](0073-transparency-trail-finalize-export-gate.md) | Transparency trail is a finalize and export gate — null trail blocks seal (**Status: Accepted** 2026-09-05) |
+| [0074](0074-customer-visible-architecture-identity.md) | Customer-visible durable architecture identity — named `dbo.Architectures` anchor; drafts/reviews reference it; not a third kernel (**Status: Proposed** 2026-09-06) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

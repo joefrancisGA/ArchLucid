@@ -25,6 +25,7 @@ export type DraftRequestSummaryPage = {
 
 export type DraftRequestResponse = {
   draftId: string;
+  architectureId?: string | null;
   tenantId: string;
   workspaceId: string;
   projectId: string;

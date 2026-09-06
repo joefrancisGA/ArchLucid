@@ -22,6 +22,16 @@ public interface IArchitectureIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Ensures a parent architecture identity exists for a draft and writes DraftRequests.ArchitectureId.
+    ///     Idempotent under retry. Clone-from-snapshot copies keep the same ArchitectureId (WA-10).
+    /// </summary>
+    Task<ArchitectureIdentityRecord?> EnsureForDraftAsync(
+        ScopeContext scope,
+        Guid draftId,
+        string? displayName,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Links a review run to an existing architecture identity (re-review / compare recurrence).
     /// </summary>
     Task<bool> TryLinkRunToArchitectureAsync(
@@ -76,11 +86,66 @@ public sealed class ArchitectureIdentityService(
         }
 
         ArchitectureIdentityRecord identity = await _architectureIdentityRepository
-            .CreateAsync(scope, knowledgeModelId, cancellationToken)
+            .CreateAsync(
+                scope,
+                new ArchitectureIdentityCreateArgs
+                {
+                    DisplayName = ArchitectureIdentityDisplayNameRules.UntitledDisplayName,
+                    CurrentModelId = knowledgeModelId,
+                },
+                cancellationToken)
             .ConfigureAwait(false);
 
         run.ArchitectureId = identity.ArchitectureId;
         await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+
+        return identity;
+    }
+
+    public async Task<ArchitectureIdentityRecord?> EnsureForDraftAsync(
+        ScopeContext scope,
+        Guid draftId,
+        string? displayName,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? draft = await _draftRequestRepository
+            .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (draft is null)
+            return null;
+
+        if (draft.ArchitectureId.HasValue)
+        {
+            return await _architectureIdentityRepository
+                .GetByIdAsync(scope, draft.ArchitectureId.Value, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        string resolvedName = ArchitectureIdentityDisplayNameRules.NormalizeOrUntitled(
+            string.IsNullOrWhiteSpace(displayName)
+                ? draft.Document.SystemName
+                : displayName);
+
+        ArchitectureIdentityRecord identity = await _architectureIdentityRepository
+            .CreateAsync(
+                scope,
+                new ArchitectureIdentityCreateArgs { DisplayName = resolvedName },
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        bool linked = await _draftRequestRepository.TrySetArchitectureIdAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            identity.ArchitectureId,
+            cancellationToken).ConfigureAwait(false);
+
+        if (!linked)
+            return null;
 
         return identity;
     }

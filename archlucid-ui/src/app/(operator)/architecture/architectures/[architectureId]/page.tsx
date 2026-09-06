@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 
-import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
+import { ArchitectureSegmentResolver } from "@/components/architecture/ArchitectureSegmentResolver";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { metadataForArchitectureDraftEditRoute } from "@/lib/architecture/architecture-draft-route-metadata";
 
-type ArchitectureDraftPageProps = {
+type ArchitectureIdentityPageProps = {
   readonly params: Promise<{ architectureId: string }>;
 };
 
-export async function generateMetadata(props: ArchitectureDraftPageProps): Promise<Metadata> {
+export async function generateMetadata(props: ArchitectureIdentityPageProps): Promise<Metadata> {
   const rawArchitectureId = (await props.params).architectureId;
   let architectureId = rawArchitectureId.trim();
 
@@ -18,10 +17,14 @@ export async function generateMetadata(props: ArchitectureDraftPageProps): Promi
     // Keep the raw segment when it is not URI-encoded.
   }
 
-  return metadataForArchitectureDraftEditRoute(architectureId);
+  return {
+    title: architectureId.length > 0 ? `Architecture · ${architectureId}` : "Architecture",
+  };
 }
 
-export default async function ArchitectureDraftPage(props: ArchitectureDraftPageProps): Promise<React.JSX.Element> {
+export default async function ArchitectureIdentityPage(
+  props: ArchitectureIdentityPageProps,
+): Promise<React.JSX.Element> {
   const rawArchitectureId = (await props.params).architectureId;
   let architectureId = rawArchitectureId.trim();
 
@@ -33,9 +36,7 @@ export default async function ArchitectureDraftPage(props: ArchitectureDraftPage
 
   return (
     <OperatorPageContainer variant="workflow">
-      <div className="mt-6 space-y-4">
-        <ArchitectureDraftWorkspace architectureId={architectureId} />
-      </div>
+      <ArchitectureSegmentResolver segmentId={architectureId} />
     </OperatorPageContainer>
   );
 }

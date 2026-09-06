@@ -91,6 +91,7 @@ public sealed partial class DapperDraftRequestRepository
         response.SpawnedArchitectureVersionId = row.SpawnedArchitectureVersionId;
         response.DocumentContentHashSha256 = row.DocumentContentHashSha256;
         response.SpawnedDocumentContentHashSha256 = row.SpawnedDocumentContentHashSha256;
+        response.ArchitectureId = row.ArchitectureId;
         return response;
     }
 
@@ -175,6 +176,12 @@ public sealed partial class DapperDraftRequestRepository
         }
 
         public byte[]? SpawnedDocumentContentHashSha256
+        {
+            get;
+            set;
+        }
+
+        public Guid? ArchitectureId
         {
             get;
             set;

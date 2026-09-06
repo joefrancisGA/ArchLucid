@@ -76,6 +76,12 @@ internal sealed class InMemoryDraftRequestStoredDraft
         set;
     }
 
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

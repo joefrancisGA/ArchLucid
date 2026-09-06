@@ -44,7 +44,10 @@ internal static class DraftRequestServiceTestFactory
     {
         DraftRequestCrudService crudService = new(
             repository,
-            new DraftRequestCreateStage(repository, priorPackageSemanticMergeService),
+            new DraftRequestCreateStage(
+                repository,
+                priorPackageSemanticMergeService,
+                ArchitectureIdentityServiceTestDoubles.NoOpInstance),
             new DraftRequestMutateStage(repository, questionSelectionEngine, workspaceSystemNameCollisionGuard),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 

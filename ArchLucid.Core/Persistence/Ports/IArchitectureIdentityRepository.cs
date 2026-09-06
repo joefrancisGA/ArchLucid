@@ -7,12 +7,30 @@ public interface IArchitectureIdentityRepository
 {
     Task<ArchitectureIdentityRecord> CreateAsync(
         ScopeContext scope,
-        string? currentModelId,
+        ArchitectureIdentityCreateArgs createArgs,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureIdentityRecord?> GetByIdAsync(
         ScopeContext scope,
         Guid architectureId,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureIdentityListResult> ListAsync(
+        ScopeContext scope,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureIdentityWithChildren?> GetWithChildrenAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default);
+
+    Task<ArchitectureIdentityRecord?> UpdateDisplayNameAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string displayName,
+        string? description,
         CancellationToken cancellationToken = default);
 
     Task UpdateCurrentModelAsync(

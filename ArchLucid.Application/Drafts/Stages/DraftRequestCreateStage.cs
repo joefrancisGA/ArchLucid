@@ -8,7 +8,8 @@ namespace ArchLucid.Application.Drafts.Stages;
 /// <inheritdoc cref="IDraftRequestCreateStage" />
 public sealed class DraftRequestCreateStage(
     IDraftRequestRepository draftRepository,
-    IPriorPackageSemanticMergeService priorPackageSemanticMergeService) : IDraftRequestCreateStage
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
+    IArchitectureIdentityService architectureIdentityService) : IDraftRequestCreateStage
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -16,6 +17,9 @@ public sealed class DraftRequestCreateStage(
     private readonly IPriorPackageSemanticMergeService _priorPackageSemanticMergeService =
         priorPackageSemanticMergeService
         ?? throw new ArgumentNullException(nameof(priorPackageSemanticMergeService));
+
+    private readonly IArchitectureIdentityService _architectureIdentityService =
+        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     public async Task<DraftRequestResponse> CreateAsync(
         ScopeContext scope,
@@ -54,12 +58,27 @@ public sealed class DraftRequestCreateStage(
                 cancellationToken);
         }
 
-        return await _draftRepository.CreateAsync(
+        DraftRequestResponse created = await _draftRepository.CreateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             actorUserId,
             document,
             cancellationToken);
+
+        await _architectureIdentityService.EnsureForDraftAsync(
+            scope,
+            created.DraftId,
+            document.SystemName,
+            cancellationToken).ConfigureAwait(false);
+
+        DraftRequestResponse? refreshed = await _draftRepository.GetAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            created.DraftId,
+            cancellationToken).ConfigureAwait(false);
+
+        return refreshed ?? created;
     }
 }

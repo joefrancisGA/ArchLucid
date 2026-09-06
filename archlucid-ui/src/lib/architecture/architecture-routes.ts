@@ -1,7 +1,7 @@
 ﻿/** Architecture draft list. */
 export const ARCHITECTURES_LIST_PATH = "/architecture/architectures" as const;
 
-/** Bootstrap a new architecture draft (client redirect to `/architecture/architectures/{id}`). */
+/** Bootstrap a new architecture draft (client redirect to draft editor). */
 export const ARCHITECTURES_NEW_PATH = "/architecture/architectures/new" as const;
 
 /** Route segment for the unsaved new-draft workspace — not a server draft id. */
@@ -32,8 +32,22 @@ export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=gu
 
 export const SOURCE_ARCHITECTURE_QUERY_PARAM = "sourceArchitectureId" as const;
 
-export function architectureDraftPath(architectureId: string): string {
+/** Customer-visible architecture identity desk (ADR 0074). */
+export function architectureIdentityPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
+}
+
+/** Draft editor nested under its parent architecture identity. */
+export function architectureDraftEditorPath(architectureId: string, draftId: string): string {
+  return `${architectureIdentityPath(architectureId)}/draft/${encodeURIComponent(draftId)}`;
+}
+
+/**
+ * Opens a draft when the parent architecture id is not yet known (legacy bookmarks).
+ * Prefer {@link architectureDraftEditorPath} when both ids are available.
+ */
+export function architectureDraftPath(draftId: string): string {
+  return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(draftId)}`;
 }
 
 export function isArchitectureNewDraftSegment(architectureId: string): boolean {
@@ -72,11 +86,38 @@ export function parseArchitectureDraftIdFromPath(pathname: string): string | nul
     return null;
   }
 
-  const segment = pathname.slice(prefix.length).split("/")[0]?.trim() ?? "";
+  const remainder = pathname.slice(prefix.length);
+  const firstSegment = remainder.split("/")[0]?.trim() ?? "";
 
-  if (segment.length === 0 || segment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
+  if (firstSegment.length === 0 || firstSegment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
     return null;
   }
 
-  return segment;
+  if (remainder.includes("/draft/")) {
+    const draftSegment = remainder.split("/draft/")[1]?.split("/")[0]?.trim() ?? "";
+    return draftSegment.length > 0 ? draftSegment : null;
+  }
+
+  return firstSegment;
+}
+
+export function parseArchitectureIdentityIdFromPath(pathname: string): string | null {
+  const prefix = `${ARCHITECTURES_LIST_PATH}/`;
+
+  if (!pathname.startsWith(prefix)) {
+    return null;
+  }
+
+  const remainder = pathname.slice(prefix.length);
+  const firstSegment = remainder.split("/")[0]?.trim() ?? "";
+
+  if (firstSegment.length === 0 || firstSegment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
+    return null;
+  }
+
+  if (remainder.includes("/draft/")) {
+    return firstSegment;
+  }
+
+  return firstSegment;
 }
