@@ -3,7 +3,7 @@ import type {
   ArchitectureIdentityListPage,
 } from "@/types/architecture-identity";
 
-import { apiGet } from "./http";
+import { apiGet, apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -37,5 +37,20 @@ export async function getArchitectureIdentity(
   return apiGet<ArchitectureIdentityDetail>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
     options,
+  );
+}
+
+export type PatchArchitectureIdentityBody = {
+  readonly displayName?: string;
+  readonly description?: string | null;
+};
+
+export async function patchArchitectureIdentity(
+  architectureId: string,
+  body: PatchArchitectureIdentityBody,
+): Promise<ArchitectureIdentityDetail> {
+  return apiPatchJson<ArchitectureIdentityDetail>(
+    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
+    body,
   );
 }

@@ -6196,6 +6196,13 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PatchArchitectureIdentityRequest: {
+            description?: null | string;
+            displayName?: null | string;
+            hasAnyPatch?: boolean;
+            hasDescription?: boolean;
+            hasDisplayName?: boolean;
+        };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;

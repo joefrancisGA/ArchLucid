@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
+import { ArchitectureIdentityRenameForm } from "@/components/architecture/ArchitectureIdentityRenameForm";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -37,6 +39,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
   const query = useArchitectureIdentityQuery(props.architectureId);
   useRehydrateInFlightOperationsFromArchitecture(props.architectureId);
   const identity = query.data;
+  const [headingOverride, setHeadingOverride] = useState<string | null>(null);
 
   if (query.isLoading) {
     return <ArchitectureIdentityDeskSkeleton />;
@@ -62,12 +65,13 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           architectureId: identity.architectureId,
         })
       : null;
+  const deskTitle = headingOverride ?? identity.displayName;
 
   return (
     <div className="space-y-4" data-testid="architecture-identity-desk">
       <header className="space-y-2">
         <h1 className={architectureIdentityDeskHeadingClass} data-testid="architecture-identity-desk-title">
-          {architectureIdentityDeskPageTitle(identity.displayName)}
+          {architectureIdentityDeskPageTitle(deskTitle)}
         </h1>
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-300")}>
           <span className="font-medium text-neutral-800 dark:text-neutral-100">{ARCHITECTURE_IDENTITY_DESK_UPDATED_LABEL}:</span>
@@ -75,6 +79,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           {formatInventoryUpdatedAtCell(identity.updatedUtc).display}
         </p>
       </header>
+
+      <ArchitectureIdentityRenameForm
+        architectureId={identity.architectureId}
+        displayName={identity.displayName}
+        onRenamed={(displayName) => setHeadingOverride(displayName)}
+      />
 
       <section
         className="rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900"

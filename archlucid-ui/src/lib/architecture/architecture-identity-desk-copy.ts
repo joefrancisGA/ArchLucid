@@ -14,6 +14,15 @@ export const ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL = "Latest sealed recor
 
 export const ARCHITECTURE_IDENTITY_DESK_COMPARE_LABEL = "Compare reviews" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_RENAME_LABEL = "Architecture name" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_RENAME_SAVE_LABEL = "Save name" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_RENAME_EMPTY_ERROR = "Enter a name for this architecture." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_RENAME_HELPER =
+  "Renames the durable architecture identity. Draft document titles stay unchanged." as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY =
   "This URL opens an architecture draft, not the durable architecture identity. Save or link the draft to reopen it from your architecture portfolio." as const;
 
