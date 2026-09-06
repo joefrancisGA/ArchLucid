@@ -419,6 +419,17 @@ export function RemediationWorkbenchClient() {
           >
             Open drift
           </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({
+              cloudResourceId: urlCloudResourceId,
+              tab: "terraform",
+              snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+            })}
+            data-testid="infra-remediation-open-terraform-hub"
+          >
+            Open terraform mapping
+          </Link>
           {urlCorrespondenceId.length > 0 ? (
             <Link
               className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
@@ -448,17 +459,30 @@ export function RemediationWorkbenchClient() {
               : " Matching remediation instance is selected on the board."}
           </p>
           {urlCloudResourceId.length > 0 ? (
-            <Link
-              className="mt-2 inline-block text-sm text-al-link hover:underline"
-              href={buildResourceHubWorkbenchHref({
-                cloudResourceId: urlCloudResourceId,
-                tab: "findings",
-                snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
-              })}
-              data-testid="infra-remediation-finding-open-findings-hub"
-            >
-              Open findings in resource hub
-            </Link>
+            <>
+              <Link
+                className="mt-2 inline-block text-sm text-al-link hover:underline"
+                href={buildResourceHubWorkbenchHref({
+                  cloudResourceId: urlCloudResourceId,
+                  tab: "findings",
+                  snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                })}
+                data-testid="infra-remediation-finding-open-findings-hub"
+              >
+                Open findings in resource hub
+              </Link>
+              <Link
+                className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+                href={buildResourceHubWorkbenchHref({
+                  cloudResourceId: urlCloudResourceId,
+                  tab: "terraform",
+                  snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                })}
+                data-testid="infra-remediation-finding-open-terraform-hub"
+              >
+                Open terraform mapping in resource hub
+              </Link>
+            </>
           ) : null}
         </section>
       ) : null}

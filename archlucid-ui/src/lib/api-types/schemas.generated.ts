@@ -988,7 +988,9 @@ export interface components {
         };
         AnswerDraftQuestionRequest: {
             answer?: string;
+            presenterCapture?: boolean;
             questionKey?: string;
+            responderLabel?: null | string;
         };
         ApiKeySlotStatusDto: {
             /** Format: date-time */
@@ -1562,6 +1564,28 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureRunStatus: "Created" | "TasksGenerated" | "WaitingForResults" | "ReadyForCommit" | "Committed" | "Failed" | "Retrying" | "ExecutionCompletedQualityRejected" | "PartiallyCompleted" | "FailedPartial";
+        ArchitectureSealDeltaItem: {
+            afterValue?: null | string;
+            beforeValue?: null | string;
+            diffKind?: string;
+            key?: string;
+            notes?: null | string;
+            section?: string;
+        };
+        ArchitectureSealDeltaResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            diffs?: components["schemas"]["ArchitectureSealDeltaItem"][];
+            emptyStateCopy?: null | string;
+            hasPriorSeal?: boolean;
+            honestyCopy?: string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: uuid */
+            latestSealedReviewRunId?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -1669,6 +1693,10 @@ export interface components {
         };
         AssertedTrailEntry: {
             key?: string;
+            questionId?: null | string;
+            /** Format: date-time */
+            recordedUtc?: null | string;
+            responderLabel?: null | string;
             value?: string;
         };
         AssignPolicyPackRequest: {

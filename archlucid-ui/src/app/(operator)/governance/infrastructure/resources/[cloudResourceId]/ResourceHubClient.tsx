@@ -329,6 +329,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
   }, [hub]);
 
+  const hasTerraformMapping = useMemo(() => {
+    if (hub == null) {
+      return false;
+    }
+
+    const terraformAddress = hub.terraformAddress?.trim() ?? "";
+
+    return terraformAddress.length > 0;
+  }, [hub]);
+
   const diagramCorrespondenceRemediationHref = useMemo(() => {
     if (hub?.diagramCorrespondence == null) {
       return null;
@@ -476,6 +486,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open diagram reconciliation
                   </Link>
                 </Button>
+                {hub.diagramCorrespondence != null ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-tab">
+                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                      Open diagram correspondence
+                    </Link>
+                  </Button>
+                ) : null}
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-terraform-work">
                   <Link
                     href={buildResourceHubWorkbenchHref({
@@ -772,6 +789,37 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     View drift in hub
                   </Link>
                 </Button>
+                {openFindingsCount > 0 ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-findings-tab">
+                    <Link
+                      href={buildResourceHubWorkbenchHref({
+                        cloudResourceId,
+                        tab: "findings",
+                        snapshotId: resolvedSnapshotId,
+                      })}
+                    >
+                      View findings in hub
+                    </Link>
+                  </Button>
+                ) : null}
+                {hub.remediationInstances.totalCount > 0 ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    data-testid="infra-resource-hub-terraform-open-remediation-tab"
+                  >
+                    <Link
+                      href={buildResourceHubWorkbenchHref({
+                        cloudResourceId,
+                        tab: "remediation",
+                        snapshotId: resolvedSnapshotId,
+                      })}
+                    >
+                      View remediation in hub
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </section>
           </EnterpriseTabsContent>
@@ -815,6 +863,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     })}
                   >
                     View drift in hub
+                  </Link>
+                </Button>
+              ) : null}
+              {hasTerraformMapping ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-terraform-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "terraform",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View terraform mapping in hub
                   </Link>
                 </Button>
               ) : null}
@@ -929,6 +990,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     })}
                   >
                     View drift in hub
+                  </Link>
+                </Button>
+              ) : null}
+              {hasTerraformMapping ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  data-testid="infra-resource-hub-remediation-open-terraform-tab"
+                >
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "terraform",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View terraform mapping in hub
                   </Link>
                 </Button>
               ) : null}
