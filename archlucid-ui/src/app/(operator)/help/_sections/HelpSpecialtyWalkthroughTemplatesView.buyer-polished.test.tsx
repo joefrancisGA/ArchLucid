@@ -73,7 +73,11 @@ describe("HelpSpecialtyWalkthroughTemplatesView buyer-polished shell (HS)", () =
     expect(screen.getByTestId("help-specialty-walkthroughs-header-claim-discipline")).toHaveTextContent(
       SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.queryByTestId("help-specialty-walkthroughs-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-specialty-walkthroughs-buyer-provenance")).toHaveTextContent(
+      "Template catalog last reviewed 2026-05-01",
+    );
+    expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-print-button")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: SPECIALTY_WALKTHROUGHS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();

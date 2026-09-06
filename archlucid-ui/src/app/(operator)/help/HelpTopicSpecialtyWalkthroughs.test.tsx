@@ -1,6 +1,20 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const useSearchParams = vi.fn();
+const replace = vi.fn();
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useSearchParams: () => useSearchParams(),
+    usePathname: () => "/help/specialty-walkthroughs",
+    useRouter: () => ({ replace }),
+  };
+});
+
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
@@ -49,8 +63,16 @@ const BANNED_INTERNAL_COPY = [
 
 describe("HelpSpecialtyWalkthroughTemplatesView", () => {
   const entry = getProductDocumentationEntry("specialty-walkthroughs");
+  let searchParams = new URLSearchParams();
 
   beforeEach(() => {
+    searchParams = new URLSearchParams();
+    useSearchParams.mockImplementation(() => searchParams);
+    replace.mockImplementation((href: string) => {
+      const url = new URL(href, "http://localhost");
+
+      searchParams = new URLSearchParams(url.search);
+    });
     vi.mocked(useOperateCapability).mockReturnValue(true);
   });
 
@@ -67,6 +89,8 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
 
     expect(screen.getByRole("heading", { level: 1, name: SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-05-01");
+    expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL })).toHaveAttribute(
       "href",
       "/architecture/reviews/new",
@@ -115,6 +139,8 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
       const provenance = within(card).getByTestId(`specialty-template-policy-packs-${templateId}`);
       expect(within(provenance).getByText(/Backed by/i)).toBeInTheDocument();
       expect(within(provenance).getAllByRole("link").length).toBeGreaterThanOrEqual(1);
+      expect(within(card).getByRole("heading", { level: 3, name: new RegExp(templateId === "saas-readiness" ? "SaaS readiness" : templateId === "ai-governance" ? "AI policy" : "Healthcare claims", "i") })).toBeInTheDocument();
+      expect(within(card).getByTestId("specialty-template-sample-review-" + templateId)).toHaveAttribute("href");
     }
 
     const healthcareCard = screen.getByTestId("specialty-template-card-healthcare-claims");
@@ -130,10 +156,8 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
 
-    expect(screen.getByRole("link", { name: "Compare templates" })).toHaveAttribute(
-      "href",
-      specialtyReviewTemplatesCompareHref(),
-    );
+    const compareLinks = screen.getAllByRole("link", { name: "Compare templates" });
+    expect(compareLinks.some((link) => link.getAttribute("href") === specialtyReviewTemplatesCompareHref())).toBe(true);
     expect(screen.getByTestId("specialty-template-comparison-table")).toBeInTheDocument();
     expect(document.getElementById("specialty-template-comparison")).not.toBeNull();
   });
@@ -167,6 +191,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
 
     expect(screen.getByTestId("specialty-template-permission-hint")).toHaveTextContent(/review creation permission/i);
+    expect(screen.getByText("Preview only")).toBeInTheDocument();
     expect(screen.getByTestId("specialty-template-use-saas-readiness")).toBeDisabled();
     expect(screen.getByTestId("specialty-template-preview-saas-readiness")).toBeEnabled();
   });

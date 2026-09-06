@@ -1,29 +1,28 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
+import { SpecialtyTemplatePolicyPackProvenance } from "@/components/help/SpecialtyTemplatePolicyPackProvenance";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { SpecialtyTemplatePolicyPackProvenance } from "@/components/help/SpecialtyTemplatePolicyPackProvenance";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import type { SpecialtyReviewTemplateDefinition, SpecialtyReviewTemplateId } from "@/lib/specialty-review-templates";
+import {
+  SPECIALTY_REVIEW_TEMPLATES_SAMPLE_REVIEW_LABEL,
+  type SpecialtyReviewTemplateDefinition,
+  type SpecialtyReviewTemplateId,
+} from "@/lib/specialty-review-templates";
+import { cn } from "@/lib/utils";
 
 export const SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID = "specialty-template-permission-hint";
 
-function SpecialtyTemplateFocusTags(props: { readonly areas: readonly string[] }): React.ReactElement {
+function SpecialtyTemplateFocusAreasText(props: { readonly areas: readonly string[] }): React.ReactElement {
   return (
-    <ul className="m-0 flex flex-wrap gap-1.5 p-0 list-none" aria-label="Focus areas">
-      {props.areas.map((area) => (
-        <li key={area}>
-          <span className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200">
-            {area}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="specialty-template-focus-areas">
+      {props.areas.join(", ")}
+    </p>
   );
 }
 
@@ -100,7 +99,7 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
     >
       <CardHeader className={cn(OPERATOR_CARD.header, "row-start-1")}>
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{template.title}</CardTitle>
+          <CardTitle as="h3" className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{template.title}</CardTitle>
           {selected ? <StatusTag kind="ready" label="Selected" /> : null}
         </div>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{template.purpose}</p>
@@ -112,8 +111,8 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
         </div>
         <div className="row-start-2">
           <p className={cn("m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>Focus areas</p>
-          <div className="mt-2">
-            <SpecialtyTemplateFocusTags areas={template.focusAreas} />
+          <div className="mt-1">
+            <SpecialtyTemplateFocusAreasText areas={template.focusAreas} />
           </div>
         </div>
         <div className="row-start-3">
@@ -166,6 +165,9 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
               Use template
             </Button>
           )}
+          <Button asChild size="sm" variant="outline" data-testid={`specialty-template-sample-review-${template.id}`}>
+            <Link href={template.sampleReviewHref}>{SPECIALTY_REVIEW_TEMPLATES_SAMPLE_REVIEW_LABEL}</Link>
+          </Button>
         </div>
         {selected ? (
           <SpecialtyTemplateCardSelectionFooter

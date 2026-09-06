@@ -375,5 +375,22 @@ export function specialtyReviewTemplatesCompareHref(): string {
 export const SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT =
   "Your role can preview and compare templates and open sample reviews. Ask a workspace administrator for review creation permission to start a review from a template.";
 
+export const SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL = "Preview only";
+
+export const SPECIALTY_REVIEW_TEMPLATES_SAMPLE_REVIEW_LABEL = "Open sample review";
+
 export const SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT =
   "Templates are optional. Use Start review for a standard intake, or pick a template below to prefill focused questions.";
+
+/** Buyer-safe catalog provenance — latest template review stamp, no registry taxonomy tokens. */
+export function specialtyReviewTemplatesBuyerProvenanceLine(): string {
+  const latestReviewedUtc = SPECIALTY_REVIEW_TEMPLATES.reduce((latest, template) => {
+    return template.lastReviewedUtc > latest ? template.lastReviewedUtc : latest;
+  }, SPECIALTY_REVIEW_TEMPLATES[0]?.lastReviewedUtc ?? "");
+
+  const reviewedOn = latestReviewedUtc.slice(0, 10);
+
+  return reviewedOn.length > 0
+    ? `Template catalog last reviewed ${reviewedOn}`
+    : "Template catalog for focused review scenarios";
+}
