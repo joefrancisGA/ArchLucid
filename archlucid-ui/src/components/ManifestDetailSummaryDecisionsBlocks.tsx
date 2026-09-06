@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -13,6 +14,8 @@ import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
   BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
 } from "@/lib/buyer/buyer-polish-copy";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -130,6 +133,15 @@ export type ManifestDetailSummaryBundleDownloadProps = {
 export function ManifestDetailSummaryBundleDownload({
   summary,
 }: ManifestDetailSummaryBundleDownloadProps): ReactElement {
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: summary.runId.trim(),
+    manifestVersion: summary.manifestId.trim(),
+  });
+  const deliverableDisabledReason =
+    sealedManifestBlockedReason === null ? null : whyDisabledNeedsPrerequisite(sealedManifestBlockedReason);
+  const blockedHintId = "manifest-summary-bundle-download-blocked-hint";
+  const downloadsDisabled = deliverableDisabledReason !== null;
+
   return (
     <details
       id="manifest-bundle-zip"
@@ -142,16 +154,25 @@ export function ManifestDetailSummaryBundleDownload({
       )}>
         {BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY}
       </summary>
-      <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
+      <div className="space-y-3 border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
+        {deliverableDisabledReason !== null ? (
+          <WhyDisabledCtaHint id={blockedHintId} reason={deliverableDisabledReason} />
+        ) : null}
         <p className={cn("m-0 max-w-prose text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           Prefer the consolidated bundle for diligence and archiving — it packages the downloadable outputs that align
           to the decisions and posture summarized above.
         </p>
         <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button variant="primary" size="sm" asChild>
-            <a href={getBundleDownloadUrl(summary.manifestId)}>{BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}</a>
-          </Button>
+          {downloadsDisabled ? (
+            <Button variant="primary" size="sm" disabled aria-describedby={blockedHintId}>
+              {BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" asChild>
+              <a href={getBundleDownloadUrl(summary.manifestId)}>{BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}</a>
+            </Button>
+          )}
         </div>
       </div>
     </details>

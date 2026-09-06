@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
@@ -131,6 +132,10 @@ public sealed class AzureInventoryDiffNarrativeService(
             };
         }
         catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (ConflictException)
         {
             throw;
         }

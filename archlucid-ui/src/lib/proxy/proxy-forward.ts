@@ -33,6 +33,7 @@ import {
 import { forwardMutatingWithBody } from "./proxy-forward-mutating-body";
 import { logUpstreamNonSuccess, respondWithUpstreamFetchFailure } from "./proxy-forward-upstream-errors";
 import type { ForwardMethod } from "./proxy-forward-types";
+import { shouldTraceProxyInteractiveReadHang } from "./should-trace-proxy-interactive-read-hang";
 
 export type { ForwardMethod } from "./proxy-forward-types";
 

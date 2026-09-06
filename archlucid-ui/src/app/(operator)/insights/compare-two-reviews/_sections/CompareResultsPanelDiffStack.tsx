@@ -1,4 +1,8 @@
+"use client";
+
 import { Download, FileText } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
@@ -10,6 +14,14 @@ import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndi
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import {
+  compareSponsorNarrativeDisclosureHrefFromSearch,
+  parseCompareSponsorNarrativeOpenFromSearch,
+} from "@/lib/insights/compare-sponsor-narrative-disclosure-url";
+import {
+  compareTechnicalAppendixDisclosureHrefFromSearch,
+  parseCompareTechnicalAppendixOpenFromSearch,
+} from "@/lib/insights/compare-technical-appendix-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
@@ -23,6 +35,62 @@ export function CompareResultsPanelDiffStack({
 }: {
   readonly viewModel: CompareResultsPanelViewModel;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareTechnicalAppendixOpenParam = searchParams.get("compareTechnicalAppendixOpen");
+  const compareSponsorNarrativeOpenParam = searchParams.get("compareSponsorNarrativeOpen");
+  const [technicalAppendixOpen, setTechnicalAppendixOpenState] = useState(() =>
+    parseCompareTechnicalAppendixOpenFromSearch(compareTechnicalAppendixOpenParam),
+  );
+  const [sponsorNarrativeOpen, setSponsorNarrativeOpenState] = useState(() =>
+    parseCompareSponsorNarrativeOpenFromSearch(compareSponsorNarrativeOpenParam),
+  );
+
+  const syncTechnicalAppendixOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareTechnicalAppendixDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalAppendixOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalAppendixOpenState(open);
+      syncTechnicalAppendixOpenToUrl(open);
+    },
+    [syncTechnicalAppendixOpenToUrl],
+  );
+
+  const syncSponsorNarrativeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareSponsorNarrativeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSponsorNarrativeOpen = useCallback(
+    (open: boolean) => {
+      setSponsorNarrativeOpenState(open);
+      syncSponsorNarrativeOpenToUrl(open);
+    },
+    [syncSponsorNarrativeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalAppendixOpenState(parseCompareTechnicalAppendixOpenFromSearch(compareTechnicalAppendixOpenParam));
+  }, [compareTechnicalAppendixOpenParam]);
+
+  useEffect(() => {
+    setSponsorNarrativeOpenState(parseCompareSponsorNarrativeOpenFromSearch(compareSponsorNarrativeOpenParam));
+  }, [compareSponsorNarrativeOpenParam]);
+
   const {
     hasResultsToNavigate,
     golden,
@@ -167,6 +235,10 @@ export function CompareResultsPanelDiffStack({
           <details
             id="compare-technical"
             className="group mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
+            open={technicalAppendixOpen}
+            onToggle={(event) => {
+              setTechnicalAppendixOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("flex cursor-pointer items-center gap-2 text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
@@ -184,6 +256,10 @@ export function CompareResultsPanelDiffStack({
           <details
             id="compare-ai"
             className="group mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+            open={sponsorNarrativeOpen}
+            onToggle={(event) => {
+              setSponsorNarrativeOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />

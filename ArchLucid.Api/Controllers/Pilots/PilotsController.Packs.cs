@@ -18,6 +18,7 @@ public sealed partial class PilotsController
     [Produces("text/markdown")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/markdown")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
     {
         try
@@ -44,37 +45,67 @@ public sealed partial class PilotsController
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorProofPackZip(string runId, CancellationToken cancellationToken)
     {
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
-        BuyerProofPackBuildResult? result = await _pilots.TryBuildSponsorProofPackZipAsync(
-            runId,
-            baseForLinks,
-            HttpContext.TraceIdentifier,
-            cancellationToken);
 
-        if (result is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Sponsor proof pack is not available for run '{runId}'. Commit the run and retry.",
-                ProblemTypes.RunNotFound);
-        }
+            BuyerProofPackBuildResult? result = await _pilots.TryBuildSponsorProofPackZipAsync(
+                runId,
+                baseForLinks,
+                HttpContext.TraceIdentifier,
+                cancellationToken);
 
-        return File(result.ZipBytes, "application/zip", result.FileName);
+            if (result is null)
+            {
+                return this.NotFoundProblem(
+                    $"Sponsor proof pack is not available for run '{runId}'. Commit the run and retry.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            return File(result.ZipBytes, "application/zip", result.FileName);
+        }
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
+        }
     }
 
     [HttpGet("runs/{runId}/first-value-report")]
     [Produces("text/markdown")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/markdown")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFirstValueReport(string runId, CancellationToken cancellationToken)
     {
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
-        string? markdown = await _pilots.TryBuildFirstValueReportMarkdownAsync(runId, baseForLinks, cancellationToken);
 
-        return markdown is null
-            ? this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound)
-            : Content(markdown, "text/markdown; charset=utf-8");
+        try
+        {
+            string? markdown = await _pilots.TryBuildFirstValueReportMarkdownAsync(runId, baseForLinks, cancellationToken);
+
+            return markdown is null
+                ? this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+                : Content(markdown, "text/markdown; charset=utf-8");
+        }
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -186,13 +217,28 @@ public sealed partial class PilotsController
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostSponsorOnePager(string runId, CancellationToken cancellationToken)
     {
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
-        byte[]? pdf = await _pilots.TryBuildSponsorOnePagerPdfAsync(runId, baseForLinks, cancellationToken);
 
-        return pdf is null
-            ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
-            : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+        try
+        {
+            byte[]? pdf = await _pilots.TryBuildSponsorOnePagerPdfAsync(runId, baseForLinks, cancellationToken);
+
+            return pdf is null
+                ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+                : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+        }
+        catch (ConflictException ex)
+        {
+            string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedHashMismatch
+                : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                    ? ProblemTypes.DecisionReceiptSealedIncomplete
+                    : ProblemTypes.Conflict;
+
+            return this.ConflictProblem(ex.Message, problemType);
+        }
     }
 }

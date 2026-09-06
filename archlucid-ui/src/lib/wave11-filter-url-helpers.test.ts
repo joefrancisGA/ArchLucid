@@ -4443,6 +4443,178 @@ describe("wave57 filter url helpers", () => {
   });
 });
 
+describe("wave58 filter url helpers", () => {
+  it("persistent workspace first review steps, impact preview how it works, webhooks delivery contract, notification preference relations, architecture sponsor readiness, identity providers diagnostics technical, cloud connections hub vocabulary, servicenow connection test collapsed, submitted architecture full description, compare change reviews params", async () => {
+    const {
+      parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
+      persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
+    } = await import("@/lib/usability/persistent-workspace-first-review-steps-disclosure-url");
+    const {
+      impactPreviewHowItWorksDisclosureHrefFromSearch,
+      parseImpactPreviewHowItWorksOpenFromSearch,
+    } = await import("@/lib/insights/impact-preview-how-it-works-disclosure-url");
+    const {
+      parseWebhooksDeliveryContractOpenFromSearch,
+      webhooksDeliveryContractDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-delivery-contract-disclosure-url");
+    const {
+      notificationPreferenceRelationsDisclosureHrefFromSearch,
+      parseNotificationPreferenceRelationsOpenFromSearch,
+    } = await import("@/lib/administration/notification-preference-relations-disclosure-url");
+    const {
+      architectureSponsorReadinessDisclosureHrefFromSearch,
+      parseArchitectureSponsorReadinessOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-sponsor-readiness-disclosure-url");
+    const {
+      identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch,
+      parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-diagnostics-technical-disclosure-url");
+    const {
+      cloudConnectionsHubVocabularyDisclosureHrefFromSearch,
+      parseCloudConnectionsHubVocabularyOpenFromSearch,
+    } = await import("@/lib/integrations/cloud-connections-hub-vocabulary-disclosure-url");
+    const {
+      parseServiceNowConnectionTestCollapsedOpenFromSearch,
+      serviceNowConnectionTestCollapsedDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/servicenow-connection-test-collapsed-disclosure-url");
+    const {
+      parseSubmittedArchitectureFullDescriptionOpenFromSearch,
+      submittedArchitectureFullDescriptionDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/submitted-architecture-full-description-disclosure-url");
+    const {
+      compareChangeReviewsDisclosureHrefFromSearch,
+      parseCompareChangeReviewsOpenFromSearch,
+    } = await import("@/lib/insights/compare-change-reviews-disclosure-url");
+
+    expect(parsePersistentWorkspaceFirstReviewStepsOpenFromSearch("1")).toBe(true);
+    expect(persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?persistentWorkspaceFirstReviewStepsOpen=1",
+    );
+    expect(parseImpactPreviewHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(impactPreviewHowItWorksDisclosureHrefFromSearch("", true, "/insights/impact-preview")).toBe(
+      "/insights/impact-preview?impactPreviewHowItWorksOpen=1",
+    );
+    expect(parseWebhooksDeliveryContractOpenFromSearch("1")).toBe(true);
+    expect(webhooksDeliveryContractDisclosureHrefFromSearch("", true, "/integrations/webhooks")).toBe(
+      "/integrations/webhooks?webhooksDeliveryContractOpen=1",
+    );
+    expect(parseNotificationPreferenceRelationsOpenFromSearch("true")).toBe(true);
+    expect(notificationPreferenceRelationsDisclosureHrefFromSearch("", true, "/administration/notifications")).toBe(
+      "/administration/notifications?notificationPreferenceRelationsOpen=1",
+    );
+    expect(parseArchitectureSponsorReadinessOpenFromSearch("1")).toBe(true);
+    expect(architectureSponsorReadinessDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runId=r1&architectureSponsorReadinessOpen=1",
+    );
+    expect(parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
+    ).toBe("/administration/identity-providers/diagnostics?identityProvidersDiagnosticsTechnicalOpen=1");
+    expect(parseCloudConnectionsHubVocabularyOpenFromSearch("1")).toBe(true);
+    expect(cloudConnectionsHubVocabularyDisclosureHrefFromSearch("", true, "/integrations/cloud-connections")).toBe(
+      "/integrations/cloud-connections?cloudConnectionsHubVocabularyOpen=1",
+    );
+    expect(parseServiceNowConnectionTestCollapsedOpenFromSearch("true")).toBe(true);
+    expect(serviceNowConnectionTestCollapsedDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?serviceNowConnectionTestCollapsedOpen=1",
+    );
+    expect(parseSubmittedArchitectureFullDescriptionOpenFromSearch("1")).toBe(true);
+    expect(
+      submittedArchitectureFullDescriptionDisclosureHrefFromSearch("submittedArchitectureOpen=1", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?submittedArchitectureOpen=1&submittedArchitectureFullDescriptionOpen=1");
+    expect(parseCompareChangeReviewsOpenFromSearch("true")).toBe(true);
+    expect(compareChangeReviewsDisclosureHrefFromSearch("left=r1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=r1&compareChangeReviewsOpen=1",
+    );
+  });
+});
+
+describe("wave59 filter url helpers", () => {
+  it("identity providers diagnostics customer tools, webhooks technical event name, compare manual review ids, compare technical appendix, compare sponsor narrative, compare last request outcome, identity providers role mapping examples, extract upload advanced command, azure boards connection test collapsed, jira workspace routing collapsed params", async () => {
+    const {
+      identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch,
+      parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-diagnostics-customer-tools-disclosure-url");
+    const {
+      parseWebhooksTechnicalEventNameEventIdFromSearch,
+      webhooksTechnicalEventNameDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-technical-event-name-disclosure-url");
+    const {
+      compareManualReviewIdsDisclosureHrefFromSearch,
+      parseCompareManualReviewIdsOpenFromSearch,
+    } = await import("@/lib/insights/compare-manual-review-ids-disclosure-url");
+    const {
+      compareTechnicalAppendixDisclosureHrefFromSearch,
+      parseCompareTechnicalAppendixOpenFromSearch,
+    } = await import("@/lib/insights/compare-technical-appendix-disclosure-url");
+    const {
+      compareSponsorNarrativeDisclosureHrefFromSearch,
+      parseCompareSponsorNarrativeOpenFromSearch,
+    } = await import("@/lib/insights/compare-sponsor-narrative-disclosure-url");
+    const {
+      compareLastRequestOutcomeDisclosureHrefFromSearch,
+      parseCompareLastRequestOutcomeOpenFromSearch,
+    } = await import("@/lib/insights/compare-last-request-outcome-disclosure-url");
+    const {
+      identityProvidersRoleMappingExamplesDisclosureHrefFromSearch,
+      parseIdentityProvidersRoleMappingExamplesOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-role-mapping-examples-disclosure-url");
+    const {
+      extractUploadAdvancedCommandDisclosureHrefFromSearch,
+      parseExtractUploadAdvancedCommandOpenFromSearch,
+    } = await import("@/lib/administration/extract-upload-advanced-command-disclosure-url");
+    const {
+      azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch,
+      parseAzureBoardsConnectionTestCollapsedOpenFromSearch,
+    } = await import("@/lib/integrations/azure-boards-connection-test-collapsed-disclosure-url");
+    const {
+      jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch,
+      parseJiraWorkspaceRoutingCollapsedOpenFromSearch,
+    } = await import("@/lib/integrations/jira-workspace-routing-collapsed-disclosure-url");
+
+    expect(parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch("1")).toBe(true);
+    expect(
+      identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
+    ).toBe("/administration/identity-providers/diagnostics?identityProvidersDiagnosticsCustomerToolsOpen=1");
+    expect(parseWebhooksTechnicalEventNameEventIdFromSearch("alert.created")).toBe("alert.created");
+    expect(webhooksTechnicalEventNameDisclosureHrefFromSearch("", "alert.created", "/integrations/webhooks")).toBe(
+      "/integrations/webhooks?webhooksTechnicalEventNameEventId=alert.created",
+    );
+    expect(parseCompareManualReviewIdsOpenFromSearch("true")).toBe(true);
+    expect(compareManualReviewIdsDisclosureHrefFromSearch("left=r1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=r1&compareManualReviewIdsOpen=1",
+    );
+    expect(parseCompareTechnicalAppendixOpenFromSearch("1")).toBe(true);
+    expect(compareTechnicalAppendixDisclosureHrefFromSearch("", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compareTechnicalAppendixOpen=1",
+    );
+    expect(parseCompareSponsorNarrativeOpenFromSearch("true")).toBe(true);
+    expect(compareSponsorNarrativeDisclosureHrefFromSearch("left=r1", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=r1&compareSponsorNarrativeOpen=1",
+    );
+    expect(parseCompareLastRequestOutcomeOpenFromSearch("1")).toBe(true);
+    expect(compareLastRequestOutcomeDisclosureHrefFromSearch("", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?compareLastRequestOutcomeOpen=1",
+    );
+    expect(parseIdentityProvidersRoleMappingExamplesOpenFromSearch("true")).toBe(true);
+    expect(
+      identityProvidersRoleMappingExamplesDisclosureHrefFromSearch("", true, "/administration/identity-providers/role-mapping"),
+    ).toBe("/administration/identity-providers/role-mapping?identityProvidersRoleMappingExamplesOpen=1");
+    expect(parseExtractUploadAdvancedCommandOpenFromSearch("1")).toBe(true);
+    expect(extractUploadAdvancedCommandDisclosureHrefFromSearch("", true, "/administration/extract-upload")).toBe(
+      "/administration/extract-upload?extractUploadAdvancedCommandOpen=1",
+    );
+    expect(parseAzureBoardsConnectionTestCollapsedOpenFromSearch("true")).toBe(true);
+    expect(azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch("", true, "/integrations/azure-boards")).toBe(
+      "/integrations/azure-boards?azureBoardsConnectionTestCollapsedOpen=1",
+    );
+    expect(parseJiraWorkspaceRoutingCollapsedOpenFromSearch("1")).toBe(true);
+    expect(jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraWorkspaceRoutingCollapsedOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

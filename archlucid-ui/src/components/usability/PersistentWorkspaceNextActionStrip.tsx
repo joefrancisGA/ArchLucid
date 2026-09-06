@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,11 @@ import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-comm
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useTeachingChromeVisible } from "@/lib/workspace-mode/use-teaching-chrome-visible";
-import { cn } from "@/lib/utils";
 import {
   parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
   persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
-} from "@/lib/reviews/persistent-workspace-first-review-steps-disclosure-url";
+} from "@/lib/usability/persistent-workspace-first-review-steps-disclosure-url";
+import { cn } from "@/lib/utils";
 
 /** Cross-page strip: one highlighted next action while first-review steps remain. */
 export function PersistentWorkspaceNextActionStrip(): React.JSX.Element | null {

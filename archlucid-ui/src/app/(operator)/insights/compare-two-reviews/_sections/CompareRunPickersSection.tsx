@@ -1,10 +1,22 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  compareChangeReviewsDisclosureHrefFromSearch,
+  parseCompareChangeReviewsOpenFromSearch,
+} from "@/lib/insights/compare-change-reviews-disclosure-url";
+import {
+  compareManualReviewIdsDisclosureHrefFromSearch,
+  parseCompareManualReviewIdsOpenFromSearch,
+} from "@/lib/insights/compare-manual-review-ids-disclosure-url";
 import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -37,6 +49,62 @@ export type CompareRunPickersSectionProps = {
 };
 
 export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareChangeReviewsOpenParam = searchParams.get("compareChangeReviewsOpen");
+  const compareManualReviewIdsOpenParam = searchParams.get("compareManualReviewIdsOpen");
+  const [changeReviewsOpen, setChangeReviewsOpenState] = useState(() =>
+    parseCompareChangeReviewsOpenFromSearch(compareChangeReviewsOpenParam),
+  );
+  const [manualReviewIdsOpen, setManualReviewIdsOpenState] = useState(() =>
+    parseCompareManualReviewIdsOpenFromSearch(compareManualReviewIdsOpenParam),
+  );
+
+  const syncChangeReviewsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareChangeReviewsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setChangeReviewsOpen = useCallback(
+    (open: boolean) => {
+      setChangeReviewsOpenState(open);
+      syncChangeReviewsOpenToUrl(open);
+    },
+    [syncChangeReviewsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setChangeReviewsOpenState(parseCompareChangeReviewsOpenFromSearch(compareChangeReviewsOpenParam));
+  }, [compareChangeReviewsOpenParam]);
+
+  const syncManualReviewIdsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareManualReviewIdsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setManualReviewIdsOpen = useCallback(
+    (open: boolean) => {
+      setManualReviewIdsOpenState(open);
+      syncManualReviewIdsOpenToUrl(open);
+    },
+    [syncManualReviewIdsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setManualReviewIdsOpenState(parseCompareManualReviewIdsOpenFromSearch(compareManualReviewIdsOpenParam));
+  }, [compareManualReviewIdsOpenParam]);
+
   const {
     leftPickerLabel,
     rightPickerLabel,
@@ -115,6 +183,10 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
             OPERATOR_TYPOGRAPHY.helper,
           )}
+          open={manualReviewIdsOpen}
+          onToggle={(event) => {
+            setManualReviewIdsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             Advanced: enter review IDs manually
@@ -167,7 +239,13 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
       aria-label={collapseBelowResults ? "Change compared reviews" : "Select reviews to compare"}
     >
       {collapseBelowResults ? (
-        <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+        <details
+          className="rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
+          open={changeReviewsOpen}
+          onToggle={(event) => {
+            setChangeReviewsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
           </summary>

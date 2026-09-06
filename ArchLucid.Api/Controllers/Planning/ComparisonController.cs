@@ -40,6 +40,7 @@ public sealed class ComparisonController(ICompareRunsApplicationFacade compareRu
     [HttpGet]
     [ProducesResponseType(typeof(ComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareRuns(
         [FromQuery] Guid baseRunId,
         [FromQuery] Guid targetRunId,
