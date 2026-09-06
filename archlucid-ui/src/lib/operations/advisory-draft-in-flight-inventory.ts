@@ -9,7 +9,7 @@ const IN_FLIGHT_REGISTRATION_MARKERS: readonly string[] = ["trackAdvisoryDraftIn
 export const ADVISORY_DRAFT_IN_FLIGHT_SURFACES: readonly ErrorRecoveryContractGuardedSurface[] = [
   {
     id: "structured-brief-suggest-async-accept",
-    sourceRoots: ["lib/api/architecture-request-draft-async-api.ts"],
+    sourceRoots: ["lib/api/architecture-request-draft-async-api-resume.ts"],
     requiredMarkers: IN_FLIGHT_REGISTRATION_MARKERS,
   },
 ] as const;
