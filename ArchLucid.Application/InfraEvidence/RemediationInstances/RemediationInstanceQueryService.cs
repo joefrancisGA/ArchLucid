@@ -48,6 +48,24 @@ public sealed class RemediationInstanceSummary
         init;
     }
 
+    public Guid? PreflightSnapshotId
+    {
+        get;
+        init;
+    }
+
+    public Guid? ExecutionSnapshotId
+    {
+        get;
+        init;
+    }
+
+    public Guid? VerificationSnapshotId
+    {
+        get;
+        init;
+    }
+
     public DateTime CreatedUtc
     {
         get;
@@ -197,6 +215,9 @@ public sealed class RemediationInstanceQueryService(
             AutomationLevel = instance.AutomationLevel,
             CloudResourceId = instance.CloudResourceId,
             WaveId = instance.WaveId,
+            PreflightSnapshotId = instance.PreflightSnapshotId,
+            ExecutionSnapshotId = instance.ExecutionSnapshotId,
+            VerificationSnapshotId = instance.VerificationSnapshotId,
             CreatedUtc = instance.CreatedUtc,
             UpdatedUtc = instance.UpdatedUtc,
         };

@@ -461,6 +461,13 @@ public sealed class AuditEvidenceSnapshotCollectionServiceTests
             return Task.CompletedTask;
         }
 
+        public Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int take,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>>([]);
+
         private static AuditEvidenceSnapshotItemRecord CopyItemWithFreshness(
             AuditEvidenceSnapshotItemRecord source,
             AuditEvidenceFreshnessStatus freshnessStatus) =>

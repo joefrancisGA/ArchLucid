@@ -250,5 +250,12 @@ public sealed class AuditEvidenceSnapshotVerificationServiceTests
             IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int take,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>>([]);
     }
 }
