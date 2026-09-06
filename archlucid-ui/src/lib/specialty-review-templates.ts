@@ -70,6 +70,21 @@ export const SPECIALTY_REVIEW_CLOUD_CONTEXT_OPTIONS: readonly {
   { id: "Gcp", label: "Google Cloud" },
 ] as const;
 
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_LEGEND = "Cloud context for SaaS readiness";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_INTRO =
+  "Optional — choose a hyperscaler when you want cloud-specific evidence guidance prefilled in review setup.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SELECTION_NOTE =
+  "Applies when you continue to review setup with the SaaS readiness template selected.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE = "SaaS readiness review setup";
+
+export const SPECIALTY_REVIEW_TEMPLATES_PREVIEW_DISCLAIMER =
+  "Preview only — sample content does not start a review from this template.";
+
+export const SPECIALTY_REVIEW_TEMPLATES_PREVIEW_CLOSE_LABEL = "Close preview";
+
 export type SpecialtyReviewPolicyPackReference = {
   readonly id: string;
   readonly label: string;

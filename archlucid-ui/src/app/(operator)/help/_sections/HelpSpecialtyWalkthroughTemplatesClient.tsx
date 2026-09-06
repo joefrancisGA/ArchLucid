@@ -64,6 +64,7 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
+  SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS,
@@ -428,14 +429,28 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
                   />
                 ))}
               </div>
-              {showCloudContextPicker ? (
+            </section>
+
+            {showCloudContextPicker ? (
+              <section
+                aria-labelledby="specialty-template-cloud-context-heading"
+                className="space-y-3"
+                data-testid="specialty-template-cloud-context-selection-band"
+              >
+                <h2
+                  id="specialty-template-cloud-context-heading"
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE}
+                </h2>
                 <SpecialtyTemplateCloudContextPicker
                   fieldsetId={cloudContextFieldsetId}
                   cloudContext={saasCloudContext}
                   onCloudChange={setSaasCloudContext}
+                  showSelectionNote
                 />
-              ) : null}
-            </section>
+              </section>
+            ) : null}
 
             <section
               id="specialty-template-comparison"

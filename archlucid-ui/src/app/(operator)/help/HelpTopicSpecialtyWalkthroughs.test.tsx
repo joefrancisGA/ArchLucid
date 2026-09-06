@@ -48,6 +48,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 import {
   SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
+  SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL,
   specialtyReviewTemplatesCompareHref,
 } from "@/lib/specialty-review-templates";
@@ -188,6 +189,32 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
       "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
     expect(dialog.textContent?.toLowerCase() ?? "").not.toContain("healthcare-claims-v3");
+    expect(within(dialog).getByTestId("specialty-template-preview-sample-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/claims-intake-modernization",
+    );
+    expect(within(dialog).getByTestId("specialty-template-preview-summary")).toBeInTheDocument();
+  });
+
+  it("shows the SaaS cloud context band only when the SaaS readiness template is selected", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    expect(screen.queryByTestId("specialty-template-cloud-context-selection-band")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("specialty-template-use-saas-readiness"));
+
+    const band = screen.getByTestId("specialty-template-cloud-context-selection-band");
+    expect(within(band).getByRole("heading", { level: 2, name: SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("specialty-template-cloud-context-selection-note")).toBeInTheDocument();
+    expect(screen.getByTestId("specialty-template-cloud-context-picker")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("specialty-template-use-ai-governance"));
+
+    expect(screen.queryByTestId("specialty-template-cloud-context-selection-band")).not.toBeInTheDocument();
   });
 
   it("shows authority loading instead of read-only hint while permissions resolve", () => {
