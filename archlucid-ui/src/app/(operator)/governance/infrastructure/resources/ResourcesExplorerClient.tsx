@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { InfrastructureResourcesSavedViewsBar } from "@/components/governance/infrastructure/InfrastructureResourcesSavedViewsBar";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -139,6 +140,16 @@ export function ResourcesExplorerClient() {
     router.replace(nextHref);
   };
 
+  const loadSavedView = (filters: {
+    readonly namePrefix: string;
+    readonly resourceType: string;
+    readonly resourceGroup: string;
+    readonly workQueue: CloudResourceExplorerWorkQueue;
+  }) => {
+    const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters);
+    router.replace(nextHref);
+  };
+
   if (urlCloudResourceId.length > 0) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6">
@@ -154,6 +165,14 @@ export function ResourcesExplorerClient() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-resources" />
+
+      <InfrastructureResourcesSavedViewsBar
+        namePrefix={urlNamePrefix}
+        resourceType={urlResourceType}
+        resourceGroup={urlResourceGroup}
+        workQueue={urlWorkQueue}
+        onLoadView={loadSavedView}
+      />
 
       <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Resource explorer filters">
         <div className="flex flex-wrap gap-2" aria-label="Resource explorer work queues">
