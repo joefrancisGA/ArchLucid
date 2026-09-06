@@ -145,7 +145,37 @@ describe("infra-evidence-hub-filter-url", () => {
     })).toBe("audit");
     expect(resolveResourceHubTabFromAskScope({ correspondenceId: "corr-1" })).toBe("diagram");
     expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
+    expect(
+      resolveResourceHubTabFromAskScope({
+        diffId: "diff-1",
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    ).toBe("drift");
+    expect(
+      resolveResourceHubTabFromAskScope({
+        hubTab: "drift",
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    ).toBe("drift");
     expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
+  });
+
+  it("forwards workbench hub tab origin on Ask handoff links", () => {
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        hubTab: "drift",
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=drift",
+    );
   });
 
   it("formats scoped hub tab view labels for Ask back links", () => {

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
+import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import {
   fetchCloudResourceEvidenceHub,
@@ -92,13 +94,9 @@ function buildHubDriftChangeWorkbenchHref(
   cloudResourceId: string,
   snapshotId: string,
   change: CloudResourceInventoryChangeSummary,
+  auditContext: InfrastructureAskAuditContext,
 ): string {
-  return buildDriftWorkbenchHref({
-    cloudResourceId,
-    snapshotId,
-    changeId: change.changeId,
-    diffId: change.diffId,
-  });
+  return buildScopedHubDriftChangeWorkbenchHref(cloudResourceId, snapshotId, change, auditContext);
 }
 
 function buildHubDriftChangeAskHref(
@@ -327,19 +325,71 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return null;
     }
 
-    const labelParts = [
-      hub.auditLineageLink.controlNumber,
-      hub.auditLineageLink.controlTitle,
-    ].filter((part) => part != null && part.trim().length > 0);
+    const activeMatch = hub.auditLineageLink.matches.find(
+      (match) => match.controlId === resolvedControlId,
+    );
+    const labelParts = activeMatch != null
+      ? [activeMatch.controlNumber, activeMatch.controlTitle]
+      : [hub.auditLineageLink.controlNumber, hub.auditLineageLink.controlTitle];
+
+    const filteredLabelParts = labelParts.filter((part) => part != null && part.trim().length > 0);
 
     return {
       assessmentId: resolvedAssessmentId,
       auditEvidenceSnapshotId: resolvedAuditSnapshotId,
       controlId: resolvedControlId,
-      label: labelParts.length > 0 ? labelParts.join(" · ") : "Open audit control lineage",
+      label: filteredLabelParts.length > 0 ? filteredLabelParts.join(" · ") : "Open audit control lineage",
       matches: hub.auditLineageLink.matches,
     };
   }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
+
+  const auditControlOptions = useMemo((): CloudResourceAuditLineageMatch[] => {
+    if (hub?.auditLineageLink.available !== true) {
+      return [];
+    }
+
+    const seenControlIds = new Set<string>();
+    const options: CloudResourceAuditLineageMatch[] = [];
+
+    for (const match of hub.auditLineageLink.matches) {
+      if (seenControlIds.has(match.controlId)) {
+        continue;
+      }
+
+      seenControlIds.add(match.controlId);
+      options.push(match);
+    }
+
+    if (
+      hub.auditLineageLink.assessmentId != null
+      && hub.auditLineageLink.auditEvidenceSnapshotId != null
+      && hub.auditLineageLink.controlId != null
+      && !seenControlIds.has(hub.auditLineageLink.controlId)
+    ) {
+      options.unshift({
+        assessmentId: hub.auditLineageLink.assessmentId,
+        auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId,
+        controlId: hub.auditLineageLink.controlId,
+        controlNumber: hub.auditLineageLink.controlNumber ?? "",
+        controlTitle: hub.auditLineageLink.controlTitle ?? "",
+        snapshotCreatedUtc: "",
+      });
+    }
+
+    return options;
+  }, [hub]);
+
+  const switchActiveAuditControl = useCallback((match: CloudResourceAuditLineageMatch) => {
+    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+      tab: activeTab,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      assessmentId: match.assessmentId,
+      auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
+      controlId: match.controlId,
+    });
+    router.replace(nextHref);
+  }, [activeTab, cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
 
   const askAuditContext = useMemo((): InfrastructureAskAuditContext => {
     const payloadContext = hub?.auditLineageLink.available === true
@@ -491,6 +541,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsList>
 
           <EnterpriseTabsContent value="overview" className="mt-4 space-y-4">
+            {hub.auditLineageLink.available !== true ? (
+              <InfraAuditLineageUnavailableBanner
+                degradedReason={hub.auditLineageLink.degradedReason}
+                testId="infra-resource-hub-overview-audit-unavailable"
+              />
+            ) : null}
             <section className="rounded border border-border bg-card p-4">
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Ask about this resource</h2>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -670,7 +726,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableCell>
                           <Link
                             className="text-al-link hover:underline"
-                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
                             data-testid={`infra-resource-hub-drift-change-${change.changeId}`}
                           >
                             {change.property ?? change.changeType}
@@ -786,7 +842,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Link
                           className="text-al-link hover:underline"
-                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
                           data-testid={`infra-resource-hub-drift-tab-change-${change.changeId}`}
                         >
                           {change.property ?? change.changeType}
@@ -1348,6 +1404,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="audit" className="mt-4 space-y-3">
             {resolvedAuditLineage != null ? (
               <>
+                {auditControlOptions.length > 1 ? (
+                  <label className="grid max-w-xl gap-1 text-sm">
+                    <span className="font-medium">Active audit control</span>
+                    <select
+                      className="rounded border border-border bg-background px-3 py-2"
+                      data-testid="infra-resource-hub-audit-control-picker"
+                      value={resolvedAuditLineage.controlId}
+                      onChange={(event) => {
+                        const nextMatch = auditControlOptions.find((match) => match.controlId === event.target.value);
+
+                        if (nextMatch != null) {
+                          switchActiveAuditControl(nextMatch);
+                        }
+                      }}
+                    >
+                      {auditControlOptions.map((match) => (
+                        <option key={match.controlId} value={match.controlId}>
+                          {match.controlNumber} · {match.controlTitle}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
                 </p>

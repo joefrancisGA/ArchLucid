@@ -565,6 +565,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                hubTab: "diagram",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
