@@ -1,6 +1,7 @@
 import { resolveRunFindingCountDisplay } from "@/lib/operator/operator-home-run-list-insight";
 import { formatOperatorHomeApprovalCheckWarningCount } from "@/lib/operator/operator-home-approval-check-warning-copy";
 import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
+import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import type { RunSummary } from "@/types/authority";
 
 export const OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY =
@@ -10,6 +11,7 @@ export type OperatorHomeWorkspaceMetricsSnapshot = {
   readonly reviewPackagesTotal: number;
   readonly reviewPackagesCommitted: number;
   readonly reviewPackagesActive: number;
+  readonly reviewPackagesAwaitingApproval: number;
   readonly openFindings: number;
   readonly governanceWarnings: number;
   readonly evidenceSources: number;
@@ -26,15 +28,26 @@ function runHasEvidenceSource(run: RunSummary): boolean {
 }
 
 function isActiveReviewRun(run: RunSummary): boolean {
+  if (run.hasGoldenManifest === true) {
+    return false;
+  }
+
   const kind = resolveRunHomeStatusTag(run).kind;
 
-  return kind === "in-progress" || kind === "needs-attention";
+  return kind === "draft" || kind === "in-progress" || kind === "needs-attention";
 }
+
+export type DeriveOperatorHomeWorkspaceMetricsInput = {
+  readonly items: readonly RunSummary[];
+  readonly totalCount: number;
+  readonly awaitingApprovalCount?: number;
+};
 
 /** Aggregates workspace metrics from operator-home runs dashboard data already on the page. */
 export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
   totalCount: number,
+  awaitingApprovalCount = 0,
 ): OperatorHomeWorkspaceMetricsSnapshot {
   const reviewPackagesTotal = Math.max(0, totalCount);
 
@@ -71,10 +84,13 @@ export function deriveOperatorHomeWorkspaceMetrics(
     }
   }
 
+  const normalizedAwaitingApproval = Math.max(0, Math.trunc(awaitingApprovalCount));
+
   return {
     reviewPackagesTotal,
     reviewPackagesCommitted,
     reviewPackagesActive,
+    reviewPackagesAwaitingApproval: normalizedAwaitingApproval,
     openFindings,
     governanceWarnings,
     evidenceSources,
@@ -103,7 +119,8 @@ export function formatOperatorHomeCompactMetricsLine(
 ): string {
   const activeReviews = input.metrics.reviewPackagesActive;
   const activeLabel = `${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`;
-  const finalizedLabel = `${input.metrics.reviewPackagesCommitted} Finalized package${input.metrics.reviewPackagesCommitted === 1 ? "" : "s"}`;
+  const sealedCount = input.metrics.reviewPackagesCommitted;
+  const sealedLabel = `${sealedCount} ${sealedCount === 1 ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural}`;
   const findingsLabel = `${input.metrics.openFindings} Open finding${input.metrics.openFindings === 1 ? "" : "s"}`;
   const warningsLabel = formatOperatorHomeApprovalCheckWarningCount(input.metrics.governanceWarnings);
   const setupLabel = input.setupReadinessLoading
@@ -112,7 +129,7 @@ export function formatOperatorHomeCompactMetricsLine(
 
   const parts = [
     activeLabel,
-    finalizedLabel,
+    sealedLabel,
     findingsLabel,
     warningsLabel,
     setupLabel,

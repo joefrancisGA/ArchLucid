@@ -7,9 +7,13 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { filterRunsForHomeAttentionPreview } from "@/lib/operator/home-attention-dedup";
+import { useGovernanceReviewsAwaitingActionQuery } from "@/hooks/use-governance-reviews-awaiting-action-query";
 import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
+import { resolveHighestNonZeroAttentionKind } from "@/lib/operator/operator-attention-chip-needs-action";
+import { OPERATOR_ATTENTION_KIND_IDS } from "@/lib/operator/operator-attention-taxonomy";
 import {
   deriveRunsDashboardTabCounts,
+  resolveAwaitingApprovalTabItems,
   isRunApprovedPackage,
   isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
@@ -80,8 +84,25 @@ export function useRunsDashboardTabs({
   const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
   const { summaries: attentionSummaries } = useOperatorAttentionSummary();
+  const { items: awaitingApprovalItems } = useGovernanceReviewsAwaitingActionQuery();
   const awaitingApprovalCount =
-    attentionSummaries.find((summary) => summary.partition === "awaiting-approval")?.totalCount ?? 0;
+    attentionSummaries.find((summary) => summary.partition === "awaiting-approval")?.totalCount ??
+    awaitingApprovalItems.length;
+  const awaitingApprovalRunIds = useMemo(
+    () =>
+      awaitingApprovalItems
+        .map((item) => item.runId.trim())
+        .filter((runId) => runId.length > 0),
+    [awaitingApprovalItems],
+  );
+  const summaryByPartition = new Map(attentionSummaries.map((summary) => [summary.partition, summary]));
+  const attentionCountsByKind = Object.fromEntries(
+    OPERATOR_ATTENTION_KIND_IDS.map((kind) => [kind, summaryByPartition.get(kind)?.totalCount ?? 0]),
+  ) as Partial<Record<(typeof OPERATOR_ATTENTION_KIND_IDS)[number], number>>;
+  const promotedAttentionKind = resolveHighestNonZeroAttentionKind(
+    attentionCountsByKind,
+    OPERATOR_ATTENTION_KIND_IDS,
+  );
 
   useEffect(() => {
     if (homeGovernanceWarningsQueryEnabled(searchParams)) {
@@ -145,6 +166,11 @@ export function useRunsDashboardTabs({
   const showcasePrimaryCta =
     showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
 
+  const awaitingApprovalTabItems = useMemo(
+    () => resolveAwaitingApprovalTabItems(filteredItems, awaitingApprovalItems, projectId),
+    [awaitingApprovalItems, filteredItems, projectId],
+  );
+
   const approvedTabItems = useMemo(
     () => filteredItems.filter(isRunApprovedPackage),
     [filteredItems],
@@ -172,7 +198,7 @@ export function useRunsDashboardTabs({
 
   const statusTabCounts = useMemo(() => {
     if (!hideHeading) {
-      return deriveRunsDashboardTabCounts(filteredItems);
+      return deriveRunsDashboardTabCounts(filteredItems, awaitingApprovalTabItems.length);
     }
 
     const excludeShowcaseRunId =
@@ -186,8 +212,13 @@ export function useRunsDashboardTabs({
       displayItems,
       previewItems: filterTenantOverviewRuns(homeAttentionPreviewItems),
       excludeShowcaseRunId,
+      awaitingApprovalCount,
+      awaitingApprovalRunIds,
     }).previewTabCounts;
   }, [
+    awaitingApprovalCount,
+    awaitingApprovalRunIds,
+    awaitingApprovalTabItems.length,
     buyerPolishedShell,
     displayItems,
     filteredItems,
@@ -228,6 +259,8 @@ export function useRunsDashboardTabs({
     const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
+      awaitingApprovalCount,
+      awaitingApprovalRunIds,
     });
 
     const previewCounts = hideHeading ? (statusTabCounts as HomePreviewTabCounts) : undefined;
@@ -238,12 +271,15 @@ export function useRunsDashboardTabs({
       visibleCount,
       recentTotalCount: previewCounts?.recentTotalCount,
       awaitingApprovalCount,
+      suppressAwaitingApprovalCount: promotedAttentionKind === "awaiting-approval",
     });
   }, [
     awaitingApprovalCount,
+    awaitingApprovalRunIds,
     displayItems,
     hideHeading,
     phase,
+    promotedAttentionKind,
     sampleReviewsVisible,
     statusTabCounts,
   ]);
@@ -256,8 +292,10 @@ export function useRunsDashboardTabs({
     return deriveOperatorHomeTenantCountingSnapshot({
       displayItems,
       previewItems: displayItems,
+      awaitingApprovalCount,
+      awaitingApprovalRunIds,
     }).metrics;
-  }, [displayItems, phase]);
+  }, [awaitingApprovalCount, awaitingApprovalRunIds, displayItems, phase]);
 
   const recentReviewsOutcomeOptions = useMemo(() => {
     if (phase !== "ready" && phase !== "error") {
@@ -274,12 +312,14 @@ export function useRunsDashboardTabs({
       visibleCount: previewCounts?.recentVisibleCount,
       recentTotalCount: previewCounts?.recentTotalCount,
       awaitingApprovalCount,
+      suppressAwaitingApprovalCount: promotedAttentionKind === "awaiting-approval",
     };
   }, [
     awaitingApprovalCount,
     displayItems,
     hideHeading,
     phase,
+    promotedAttentionKind,
     sampleReviewsVisible,
     statusTabCounts,
   ]);
@@ -350,6 +390,7 @@ export function useRunsDashboardTabs({
     displayItems,
     filteredItems,
     approvedTabItems,
+    awaitingApprovalTabItems,
     attentionTabItems,
     monitoringTabItems,
     homeAttentionPreviewItems,

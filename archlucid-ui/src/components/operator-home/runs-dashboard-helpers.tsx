@@ -3,6 +3,7 @@
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { toReviewListDisplayTitle } from "@/lib/review-display-title";
 import {
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE,
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL,
@@ -22,12 +23,73 @@ import {
 } from "@/lib/architecture/architecture-package-origin";
 import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import type { GovernanceReviewAwaitingActionItem } from "@/lib/api/governance-stickiness-api";
 import type { RunSummary } from "@/types/authority";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 
 export function runListPrimaryTitle(run: RunSummary): string {
-  return buyerFacingReviewTitleFromSummary(run);
+  const title = buyerFacingReviewTitleFromSummary(run);
+
+  return title.length > 0 ? toReviewListDisplayTitle(title) : title;
+}
+
+export function filterRunsAwaitingApproval(
+  items: readonly RunSummary[],
+  awaitingApprovalRunIds: readonly string[],
+): RunSummary[] {
+  if (awaitingApprovalRunIds.length === 0) {
+    return [];
+  }
+
+  const awaitingIds = new Set(awaitingApprovalRunIds);
+
+  return items.filter((run) => {
+    const runId = run.runId?.trim() ?? "";
+
+    return runId.length > 0 && awaitingIds.has(runId);
+  });
+}
+
+/** Minimal list row when the governance queue has a run outside the home preview snapshot. */
+export function runSummaryFromGovernanceAwaitingActionItem(
+  item: GovernanceReviewAwaitingActionItem,
+  projectId: string,
+): RunSummary {
+  const executedUtc = item.executedUtc?.trim() ?? "";
+  const createdUtc = executedUtc.length > 0 ? executedUtc : "1970-01-01T00:00:00.000Z";
+
+  return {
+    runId: item.runId,
+    projectId,
+    createdUtc,
+    displayName: item.name,
+    description: item.name,
+    hasFindingsSnapshot: true,
+    hasGoldenManifest: false,
+  };
+}
+
+/** Merge paginated home runs with governance-queue rows so tab counts match visible rows. */
+export function resolveAwaitingApprovalTabItems(
+  filteredItems: readonly RunSummary[],
+  awaitingApprovalItems: readonly GovernanceReviewAwaitingActionItem[],
+  projectId: string,
+): RunSummary[] {
+  const awaitingApprovalRunIds = awaitingApprovalItems
+    .map((item) => item.runId.trim())
+    .filter((runId) => runId.length > 0);
+  const snapshotMatches = filterRunsAwaitingApproval(filteredItems, awaitingApprovalRunIds);
+  const snapshotIds = new Set(snapshotMatches.map((run) => run.runId));
+  const supplemental = awaitingApprovalItems
+    .filter((item) => {
+      const runId = item.runId.trim();
+
+      return runId.length > 0 && !snapshotIds.has(runId);
+    })
+    .map((item) => runSummaryFromGovernanceAwaitingActionItem(item, projectId));
+
+  return [...snapshotMatches, ...supplemental];
 }
 
 export function isRunNeedingAttention(run: RunSummary): boolean {
@@ -87,10 +149,14 @@ export function resolveRunHomeStatusTag(run: RunSummary): RunHomeStatusTag {
   return { kind: "draft", label: "Draft" };
 }
 
-export function deriveRunsDashboardTabCounts(items: readonly RunSummary[]): RunsDashboardTabCounts {
+export function deriveRunsDashboardTabCounts(
+  items: readonly RunSummary[],
+  awaitingApprovalCount = 0,
+): RunsDashboardTabCounts {
   return {
     all: items.length,
     approved: items.filter(isRunApprovedPackage).length,
+    "awaiting-approval": awaitingApprovalCount,
     attention: items.filter(isRunNeedingAttention).length,
     outcomes: items.filter(isRunApprovedWithMonitoringPackage).length,
   };
@@ -116,6 +182,10 @@ function resolveRunsDashboardTabBaseLabel(
       return BUYER_RUNS_DASHBOARD_TAB_APPROVED;
     }
 
+    if (tabId === "awaiting-approval") {
+      return RUNS_DASHBOARD_LABELS.tabAwaitingApproval;
+    }
+
     if (tabId === "attention") {
       return BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION;
     }
@@ -129,6 +199,10 @@ function resolveRunsDashboardTabBaseLabel(
 
   if (tabId === "approved") {
     return BUYER_RUNS_DASHBOARD_TAB_APPROVED;
+  }
+
+  if (tabId === "awaiting-approval") {
+    return RUNS_DASHBOARD_LABELS.tabAwaitingApproval;
   }
 
   if (tabId === "attention") {
