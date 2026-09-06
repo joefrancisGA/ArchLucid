@@ -12,7 +12,7 @@ import {
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
-import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resolveResourceHubTabFromExplorerWorkQueue, formatResourceHubTabViewLabelFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 
 describe("infra-evidence-hub-filter-url", () => {
   it("builds explorer filter href with trimmed filters", () => {
@@ -157,6 +157,13 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("formats explorer work queue hub tab view labels", () => {
+    expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("open-findings")).toBe("View findings in hub");
+    expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("open-remediation")).toBe("View remediation in hub");
+    expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("recent-drift")).toBe("View drift in hub");
+    expect(formatResourceHubTabViewLabelFromExplorerWorkQueue("all")).toBeNull();
   });
 
   it("builds resource hub overview href with optional scope", () => {
