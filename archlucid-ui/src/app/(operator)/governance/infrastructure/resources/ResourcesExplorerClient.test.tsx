@@ -69,8 +69,14 @@ describe("ResourcesExplorerClient", () => {
 
     expect(screen.getByTestId("infra-resource-explorer-name-prefix")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-resource-row-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-findings")).toHaveTextContent("F:2");
-    expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveTextContent("R:1");
+    expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-findings")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
+    expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
     expect(screen.getByRole("link", { name: "gateway-pip" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",

@@ -117,6 +117,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
   });
 
   it("renders audit lineage link when audit tab is active", async () => {

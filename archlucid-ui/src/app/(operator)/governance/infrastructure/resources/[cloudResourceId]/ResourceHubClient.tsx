@@ -33,6 +33,10 @@ import {
   buildResourceHubDriftWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import {
+  buildRemediationWorkbenchHref,
+  buildResourceScopedWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import {
   fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
@@ -294,6 +298,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </section>
 
             <section className="rounded border border-border bg-card p-4">
+              <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Work quick links</h2>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                Jump to scoped workbenches for this resource without re-filtering manually.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-findings-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "findings", resolvedSnapshotId)}>
+                    Open findings
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId)}>
+                    Open remediation factory
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift-work">
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "drift", resolvedSnapshotId)}>
+                    Open drift workbench
+                  </Link>
+                </Button>
+              </div>
+            </section>
+
+            <section className="rounded border border-border bg-card p-4">
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Current configuration</h2>
               {hub.currentConfiguration == null ? (
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No snapshot-backed configuration is available.</p>
@@ -345,7 +373,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
             <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
-              <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId)}>Open drift workbench</Link>
+              <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
+                Open drift workbench
+              </Link>
             </Button>
             {hub.recentChanges.length > 0 ? (
               <EnterpriseTable ariaLabel="Drift changes for resource">
@@ -467,6 +497,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
+            <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
+              <Link href={buildRemediationWorkbenchHref({ cloudResourceId })}>Open remediation factory</Link>
+            </Button>
             {hub.remediationInstances.items.length === 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>
             ) : (

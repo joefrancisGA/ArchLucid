@@ -39,6 +39,7 @@ import {
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
+import { buildResourceScopedWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -277,14 +278,15 @@ export function ResourcesExplorerClient() {
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {workCountBadges.map((badge) => (
-                      <span
+                      <Link
                         key={badge.kind}
-                        className="rounded bg-muted px-2 py-0.5 text-xs text-foreground"
+                        className="rounded bg-muted px-2 py-0.5 text-xs text-foreground hover:bg-muted/80"
                         title={badge.label}
+                        href={buildResourceScopedWorkbenchHref(row.cloudResourceId, badge.kind)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 )}
