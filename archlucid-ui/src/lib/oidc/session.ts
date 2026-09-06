@@ -2,14 +2,11 @@ import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import {
   getOidcAuthority,
-  getOidcClientId,
-  getOidcPostLogoutRedirectUri,
   isJwtAuthMode,
 } from "@/lib/oidc/config";
-import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import {
-  OIDC_ACCESS_TOKEN_KEY,
   OIDC_CODE_VERIFIER_KEY,
+  OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_GOOGLE_CODE_VERIFIER_KEY,
   OIDC_GOOGLE_NONCE_KEY,
@@ -19,11 +16,17 @@ import {
   OIDC_OAUTH_STATE_KEY,
   OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
+  OIDC_USER_SUBJECT_KEY,
+  OIDC_ACCESS_TOKEN_KEY,
 } from "@/lib/oidc/storage-keys";
 import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-payload";
-import { refreshAccessToken } from "@/lib/oidc/token-client";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
-import { clearBffSessionCookie, syncBffSessionCookieFromTokenResponse } from "@/lib/oidc/bff-session-sync";
+import {
+  clearBffSessionCookie,
+  refreshBffSessionCookie,
+  resolveRpLogoutUrlFromBffSession,
+  syncBffSessionCookieFromTokenResponse,
+} from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 export type OidcPkceFlow = "primary" | "google";
@@ -61,35 +64,6 @@ function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   return numericExpiresIn;
 }
 
-function shouldClearOidcSessionOnRefreshFailure(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const message = error.message.toLowerCase();
-
-  if (
-    message.includes("failed to fetch") ||
-    message.includes("networkerror") ||
-    message.includes("network request failed") ||
-    message.includes("load failed")
-  ) {
-    return false;
-  }
-
-  if (/token endpoint error (5\d{2}|408)\b/.test(message)) {
-    return false;
-  }
-
-  return (
-    message.includes("invalid_grant") ||
-    message.includes("invalid_token") ||
-    message.includes("token endpoint error 400") ||
-    message.includes("token endpoint error 401") ||
-    message.includes("token endpoint error 403")
-  );
-}
-
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
 
@@ -113,26 +87,39 @@ function removeOidcKeys(keys: readonly string[]): void {
   }
 }
 
+function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
+  sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
+
+  const accessPayload = decodeJwtPayload(tokens.access_token);
+  const displayNameFromAccess = pickDisplayNameFromPayload(accessPayload);
+  const displayNameFromId =
+    displayNameFromAccess ??
+    (tokens.id_token ? pickDisplayNameFromPayload(decodeJwtPayload(tokens.id_token)) : null);
+
+  if (displayNameFromId) {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, displayNameFromId);
+  }
+
+  const subject = accessPayload?.sub;
+
+  if (typeof subject === "string" && subject.trim().length > 0) {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, subject.trim());
+  }
+}
+
+/**
+ * Persists OIDC sign-in state for Working GA (LK-06 P2).
+ * Token material is issued only to the HttpOnly BFF cookie; PKCE verifier/state may remain in sessionStorage.
+ */
 export function persistTokenResponse(tokens: OidcTokenResponse): void {
   if (typeof tokens.access_token !== "string" || tokens.access_token.trim().length === 0) {
     throw new Error("OIDC token response missing access_token");
   }
 
-  sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, tokens.access_token);
-
-  if (tokens.refresh_token) {
-    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, tokens.refresh_token);
-  }
-
-  if (tokens.id_token) {
-    sessionStorage.setItem(OIDC_ID_TOKEN_KEY, tokens.id_token);
-  }
-
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
-  sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
-
+  persistNonSensitiveSessionHints(tokens, expiresAtMs);
   void syncBffSessionCookieFromTokenResponse(tokens);
 }
 
@@ -144,6 +131,8 @@ export function clearOidcSession(): void {
     OIDC_REFRESH_TOKEN_KEY,
     OIDC_EXPIRES_AT_MS_KEY,
     OIDC_ID_TOKEN_KEY,
+    OIDC_DISPLAY_NAME_KEY,
+    OIDC_USER_SUBJECT_KEY,
     OIDC_OAUTH_STATE_KEY,
     OIDC_CODE_VERIFIER_KEY,
     OIDC_NONCE_KEY,
@@ -189,6 +178,7 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
   return { state, codeVerifier, nonce };
 }
 
+/** PKCE OAuth state is short-lived and not an access token — safe in sessionStorage (LK-06 P2). */
 export function storePkceState(
   state: string,
   codeVerifier: string,
@@ -265,26 +255,14 @@ export function getAccessTokenExpiresAtMs(): number {
 }
 
 /**
- * Access token for Authorization: Bearer (undefined if missing or past skewed expiry).
+ * LK-06 P2: access tokens are not readable from JS — proxy auth uses the HttpOnly BFF cookie.
  */
 export function getAccessTokenForApi(): string | undefined {
-  if (typeof sessionStorage === "undefined") {
-    return undefined;
-  }
-
-  const exp = getExpiresAtMs();
-
-  if (Date.now() >= exp - EXPIRY_SKEW_MS) {
-    return undefined;
-  }
-
-  const token = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
-
-  return token && token.length > 0 ? token : undefined;
+  return undefined;
 }
 
 /**
- * Refreshes using refresh_token when within skew of expiry. No-op when not in browser JWT mode.
+ * Refreshes via the BFF when within skew of expiry. No-op when not in browser JWT mode.
  */
 export async function ensureAccessTokenFresh(): Promise<void> {
   if (typeof window === "undefined" || !isJwtAuthMode()) {
@@ -292,13 +270,6 @@ export async function ensureAccessTokenFresh(): Promise<void> {
   }
 
   const exp = getExpiresAtMs();
-  const refresh = readSessionKey(OIDC_REFRESH_TOKEN_KEY) ?? "";
-  const authority = getOidcAuthority();
-  const clientId = getOidcClientId();
-
-  if (!refresh || !authority || !clientId) {
-    return;
-  }
 
   if (Date.now() < exp - EXPIRY_SKEW_MS) {
     return;
@@ -309,21 +280,19 @@ export async function ensureAccessTokenFresh(): Promise<void> {
     let activeRefreshPromise: Promise<void> | null = null;
     activeRefreshPromise = (async () => {
       try {
-        const doc = await loadDiscoveryDocument(authority);
-        const tokens = await refreshAccessToken({
-          tokenEndpoint: doc.token_endpoint,
-          clientId,
-          refreshToken: refresh,
-        });
+        const result = await refreshBffSessionCookie();
 
-        if (generationAtStart === refreshSessionGeneration) {
-          persistTokenResponse(tokens);
+        if (generationAtStart !== refreshSessionGeneration) {
+          return;
         }
-      } catch (error: unknown) {
-        if (
-          generationAtStart === refreshSessionGeneration &&
-          shouldClearOidcSessionOnRefreshFailure(error)
-        ) {
+
+        if (result.ok) {
+          sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(result.expiresAtMs));
+
+          return;
+        }
+
+        if (result.shouldClearSession) {
           clearOidcSession();
         }
       } finally {
@@ -343,22 +312,15 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  const access = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
-  const idTok = readSessionKey(OIDC_ID_TOKEN_KEY);
+  return readSessionKey(OIDC_DISPLAY_NAME_KEY);
+}
 
-  if (access) {
-    const fromAccess = pickDisplayNameFromPayload(decodeJwtPayload(access));
-
-    if (fromAccess) {
-      return fromAccess;
-    }
+export function readSignedInUserSubject(): string | null {
+  if (typeof sessionStorage === "undefined") {
+    return null;
   }
 
-  if (idTok) {
-    return pickDisplayNameFromPayload(decodeJwtPayload(idTok));
-  }
-
-  return null;
+  return readSessionKey(OIDC_USER_SUBJECT_KEY);
 }
 
 export function isLikelySignedIn(): boolean {
@@ -366,9 +328,9 @@ export function isLikelySignedIn(): boolean {
     return false;
   }
 
-  const token = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
+  const exp = getExpiresAtMs();
 
-  return Boolean(token && token.length > 0 && Date.now() < getExpiresAtMs() - EXPIRY_SKEW_MS);
+  return exp > 0 && Date.now() < exp - EXPIRY_SKEW_MS;
 }
 
 /**
@@ -379,32 +341,23 @@ export async function signOutAndRedirectHome(): Promise<void> {
     return;
   }
 
-  const idToken = readSessionKey(OIDC_ID_TOKEN_KEY) ?? undefined;
-  const authority = getOidcAuthority();
+  const rpLogoutUrl = await resolveRpLogoutUrlFromBffSession();
 
   clearOidcSession();
   clearOperatorScopeStorage();
+
+  if (rpLogoutUrl) {
+    window.location.assign(rpLogoutUrl);
+
+    return;
+  }
+
+  const authority = getOidcAuthority();
 
   if (!authority) {
     window.location.assign("/");
 
     return;
-  }
-
-  try {
-    const doc = await loadDiscoveryDocument(authority);
-
-    if (doc.end_session_endpoint && idToken && idToken.length > 0) {
-      const url = new URL(doc.end_session_endpoint);
-
-      url.searchParams.set("id_token_hint", idToken);
-      url.searchParams.set("post_logout_redirect_uri", getOidcPostLogoutRedirectUri());
-      window.location.assign(url.toString());
-
-      return;
-    }
-  } catch {
-    /* ignore discovery errors */
   }
 
   window.location.assign("/");

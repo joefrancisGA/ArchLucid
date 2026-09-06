@@ -70,5 +70,14 @@ describe("infra-evidence-workbench-url", () => {
     expect(buildResourceScopedWorkbenchHref("11111111-1111-1111-1111-111111111111", "remediation")).toBe(
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(
+      buildResourceScopedWorkbenchHref(
+        "11111111-1111-1111-1111-111111111111",
+        "remediation",
+        "22222222-2222-2222-2222-222222222222",
+      ),
+    ).toBe(
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
   });
 });
