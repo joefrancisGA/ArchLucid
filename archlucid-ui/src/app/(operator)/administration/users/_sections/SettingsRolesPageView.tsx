@@ -83,6 +83,8 @@ import {
   SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID,
   SETTINGS_ROLES_START_HERE_CARD_TITLE,
   SETTINGS_ROLES_START_HERE_LEAD,
+  SETTINGS_ROLES_ROLES_TAB_LEAD,
+  SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER,
   settingsRolesPageSubtitle,
 } from "./settings-roles-settings-page-copy";
 import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-settings-evidence-copy";
@@ -114,6 +116,7 @@ export function SettingsRolesPageView(props: Props) {
   const [pendingInvitationCount, setPendingInvitationCount] = useState<number | null>(null);
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
   const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
+  const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
 
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
@@ -329,18 +332,20 @@ export function SettingsRolesPageView(props: Props) {
             navHref="/administration/users"
             title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
             titleTestId="settings-roles-page-title"
-            subtitle={settingsRolesPageSubtitle(buyerPolishedShell)}
+            subtitle={settingsRolesPageSubtitle(buyerPolishedShell, activeTab)}
             claimDiscipline={SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE}
             claimDisciplineTestId={SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             actions={
-              <Button
-                type="button"
-                size="sm"
-                data-testid="settings-roles-invite-primary-action"
-                onClick={openInviteSection}
-              >
-                Invite user
-              </Button>
+              rolesTabBuyerPolished ? null : (
+                <Button
+                  type="button"
+                  size="sm"
+                  data-testid="settings-roles-invite-primary-action"
+                  onClick={openInviteSection}
+                >
+                  Invite user
+                </Button>
+              )
             }
           />
         ) : (
@@ -375,21 +380,42 @@ export function SettingsRolesPageView(props: Props) {
           {buyerPolishedShell ? (
             <section
               className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid="settings-roles-action-panel"
-              aria-labelledby="settings-roles-action-panel-heading"
+              data-testid={rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-panel" : "settings-roles-action-panel"}
+              aria-labelledby={
+                rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-heading" : "settings-roles-action-panel-heading"
+              }
             >
               <h2
-                id="settings-roles-action-panel-heading"
+                id={rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-heading" : "settings-roles-action-panel-heading"}
                 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
               >
                 {SETTINGS_ROLES_START_HERE_CARD_TITLE}
               </h2>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {SETTINGS_ROLES_START_HERE_LEAD}
-              </p>
-              <Button type="button" size="sm" data-testid="settings-roles-start-here-invite" onClick={openInviteSection}>
-                Invite user
-              </Button>
+              {rolesTabBuyerPolished ? (
+                <>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="settings-roles-roles-tab-intro"
+                  >
+                    {SETTINGS_ROLES_ROLES_TAB_LEAD}
+                  </p>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="settings-roles-roles-tab-start-here-helper"
+                  >
+                    {SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    {SETTINGS_ROLES_START_HERE_LEAD}
+                  </p>
+                  <Button type="button" size="sm" data-testid="settings-roles-start-here-invite" onClick={openInviteSection}>
+                    Invite user
+                  </Button>
+                </>
+              )}
             </section>
           ) : null}
 
@@ -440,7 +466,7 @@ export function SettingsRolesPageView(props: Props) {
               <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Roles and permissions</CardTitle>
             </CardHeader>
             <CardContent>
-              <SettingsRolesMatrixSection />
+              <SettingsRolesMatrixSection readOnly={rolesTabBuyerPolished} />
             </CardContent>
           </Card>
         </TabsContent>
