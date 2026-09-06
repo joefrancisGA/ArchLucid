@@ -1,5 +1,9 @@
+using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +12,9 @@ namespace ArchLucid.Application.InfraEvidence;
 public sealed class AdvisoryTerraformRepresentationService(
     IAzureInventorySnapshotRepository snapshotRepository,
     IAdvisoryTerraformRepresentationRepository mappingRepository,
+    IArchitectureDiagramReconciliationRepository reconciliationRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AdvisoryTerraformRepresentationService> logger) : IAdvisoryTerraformRepresentationService
 {
     public async Task<AdvisoryTerraformRepresentationResult> TryBuildFromSnapshotAsync(
@@ -20,6 +27,14 @@ public sealed class AdvisoryTerraformRepresentationService(
 
         try
         {
+            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+                scope,
+                snapshotId,
+                reconciliationRepository,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+
             AzureInventorySnapshotDetailReadModel? snapshot =
                 await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
 
@@ -46,7 +61,7 @@ public sealed class AdvisoryTerraformRepresentationService(
                 Files = build.Files,
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ConflictException)
         {
             logger.LogWarning(ex, "Advisory Terraform representation build failed for SnapshotId={SnapshotId}.", snapshotId);
 

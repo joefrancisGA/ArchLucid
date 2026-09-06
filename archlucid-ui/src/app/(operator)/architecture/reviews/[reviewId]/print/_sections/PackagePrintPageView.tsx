@@ -70,7 +70,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         <Link href={backHref} className={OPERATOR_LINK.inline} data-testid="package-print-back">
           {PACKAGE_PRINT_BACK_LABEL}
         </Link>
-        <PackagePrintButton />
+        <PackagePrintButton
+          runId={presentation.runId}
+          manifestVersion={presentation.manifestVersionForGuard}
+        />
       </div>
 
       {!buyerPolishedShell ? (

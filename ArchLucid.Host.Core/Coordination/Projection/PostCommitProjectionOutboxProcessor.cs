@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Application.Agents.IaC;
+using ArchLucid.Application.Coordination;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Orchestration;
@@ -9,6 +10,7 @@ using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Coordination.Projection;
@@ -116,6 +118,21 @@ public sealed class PostCommitProjectionOutboxProcessor(
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
         using IDisposable ambient = AmbientScopeContext.Push(jobScope);
+
+        if (entry.RunId is Guid runId)
+        {
+            IAuthorityQueryService authorityQueryService =
+                scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+            IManifestHashService manifestHashService =
+                scope.ServiceProvider.GetRequiredService<IManifestHashService>();
+
+            await PostCommitProjectionOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                jobScope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, cancellationToken);
 

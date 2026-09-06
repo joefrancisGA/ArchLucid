@@ -9,4 +9,9 @@ public interface IArchitectureDiagramReconciliationRepository
         Guid runId,
         Guid snapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Guid>> ListRunIdsBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
 }

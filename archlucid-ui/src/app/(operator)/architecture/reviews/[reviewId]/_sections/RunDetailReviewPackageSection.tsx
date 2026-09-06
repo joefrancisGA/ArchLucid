@@ -9,6 +9,7 @@ import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailReviewPackageSectionProps = {
   readonly manifestId: string | null | undefined;
+  readonly manifestVersion?: string | null;
   readonly runId: string;
   readonly artifactCount: number;
   readonly findingCount: number | null;
@@ -20,6 +21,9 @@ export function RunDetailReviewPackageSection(
   props: RunDetailReviewPackageSectionProps,
 ): React.JSX.Element {
   const finalized = (props.manifestId ?? "").trim().length > 0;
+  const manifestVersionForGuard =
+    props.manifestVersion?.trim()
+    ?? (finalized ? props.manifestId?.trim() ?? null : null);
 
   return (
     <section
@@ -36,7 +40,7 @@ export function RunDetailReviewPackageSection(
             Finalize the review to create the shareable review.
           </p>
           <div className="flex flex-wrap gap-2 pt-1 print:hidden">
-            <PackagePrintOpenButton runId={props.runId} />
+            <PackagePrintOpenButton runId={props.runId} manifestVersion={manifestVersionForGuard} />
           </div>
         </div>
       ) : (
@@ -51,7 +55,7 @@ export function RunDetailReviewPackageSection(
             <li>Decisions</li>
           </ul>
           <div className="flex flex-wrap gap-2 pt-1 print:hidden">
-            <PackagePrintOpenButton runId={props.runId} />
+            <PackagePrintOpenButton runId={props.runId} manifestVersion={manifestVersionForGuard} />
             {props.showExportActions ? (
               <>
                 <Button variant="outline" size="sm" asChild>

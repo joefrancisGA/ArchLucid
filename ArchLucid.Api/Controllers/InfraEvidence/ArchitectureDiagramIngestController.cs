@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -60,6 +61,7 @@ public sealed class ArchitectureDiagramIngestController(
     [HttpGet("model")]
     [ProducesResponseType(typeof(ArchitectureDiagramModelRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetModel(Guid runId, CancellationToken cancellationToken = default)
     {
         if (runId == Guid.Empty)
@@ -69,13 +71,20 @@ public sealed class ArchitectureDiagramIngestController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        ArchitectureDiagramModelRecord? model = await ingestService.TryGetModelAsync(scope, runId, cancellationToken);
-
-        if (model is null)
+        try
         {
-            return this.NotFoundProblem("Architecture diagram model was not found.", ProblemTypes.ResourceNotFound);
-        }
+            ArchitectureDiagramModelRecord? model = await ingestService.TryGetModelAsync(scope, runId, cancellationToken);
 
-        return Ok(model);
+            if (model is null)
+            {
+                return this.NotFoundProblem("Architecture diagram model was not found.", ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(model);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

@@ -27,6 +27,7 @@ const presentation: PackagePrintPresentation = {
   sponsorSynopsis: "Sponsor synopsis",
   createdUtc: "2026-01-15T12:00:00.000Z",
   runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  manifestVersionForGuard: "manifest-1",
 };
 
 describe("PackagePrintPageView buyer-polished shell", () => {

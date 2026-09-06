@@ -1,5 +1,8 @@
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +14,10 @@ public sealed class AuditEvidenceLineageService(
     IAuditEvidenceRequirementRepository requirementRepository,
     IAuditEvidenceSnapshotRepository snapshotRepository,
     IAuditControlEvaluationRepository evaluationRepository,
+    IAuditManualEvidenceRepository manualEvidenceRepository,
     IAuditEvidenceSnapshotVerificationService verificationService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AuditEvidenceLineageService> logger) : IAuditEvidenceLineageService
 {
     public async Task<AuditEvidenceLineageQueryResult> TryGetControlLineageAsync(
@@ -65,6 +71,23 @@ public sealed class AuditEvidenceLineageService(
 
             IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
                 await requirementRepository.ListByControlIdAsync(scope.TenantId, controlId, cancellationToken);
+
+            IReadOnlyList<AuditArchitectureEvidenceLinkRecord> architectureLinks =
+                await manualEvidenceRepository.ListArchitectureLinksByControlAsync(
+                    scope.TenantId,
+                    assessmentId,
+                    controlId,
+                    cancellationToken);
+
+            if (architectureLinks.Count > 0)
+            {
+                await AuditArchitectureEvidenceSealedManifestHashGuard.EnsureLinkedRunsSealedManifestHashOrThrowAsync(
+                    architectureLinks,
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    cancellationToken);
+            }
 
             IReadOnlyList<AuditEvidenceSnapshotItemRecord> snapshotItems =
                 await snapshotRepository.ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
@@ -173,7 +196,7 @@ public sealed class AuditEvidenceLineageService(
                 },
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ConflictException)
         {
             logger.LogWarning(
                 ex,

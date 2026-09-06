@@ -8,7 +8,12 @@ describe("PackagePrintButton (TB-2205)", () => {
   it("calls window.print", () => {
     const printMock = vi.spyOn(window, "print").mockImplementation(() => {});
 
-    render(<PackagePrintButton />);
+    render(
+      <PackagePrintButton
+        runId="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        manifestVersion="manifest-1"
+      />,
+    );
 
     fireEvent.click(screen.getByTestId("package-print-pdf"));
 

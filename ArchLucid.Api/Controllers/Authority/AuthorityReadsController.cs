@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Routing;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Traceability;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
@@ -191,32 +192,41 @@ public sealed class AuthorityReadsController(
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailExport(Guid runId, CancellationToken ct = default)
     {
         string runIdText = runId.ToString("D");
-        TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
-            runIdText,
-            HttpContext.TraceIdentifier,
-            ct);
 
-        return result.Outcome switch
+        try
         {
-            TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
-                $"Run '{runIdText}' was not found.",
-                ProblemTypes.RunNotFound),
-            TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
-                result.ErrorMessage!,
-                ProblemTypes.ExportFailed,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["attemptedBytes"] = result.AttemptedBytes,
-                    ["maxBytes"] = result.MaxBytes,
-                }),
-            TraceabilityBundleExportOutcome.Success => File(
-                result.ZipBytes!,
-                "application/zip",
-                $"traceability-{runIdText}.zip"),
-            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
-        };
+            TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
+                runIdText,
+                HttpContext.TraceIdentifier,
+                ct);
+
+            return result.Outcome switch
+            {
+                TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
+                    $"Run '{runIdText}' was not found.",
+                    ProblemTypes.RunNotFound),
+                TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
+                    result.ErrorMessage!,
+                    ProblemTypes.ExportFailed,
+                    extensions: new Dictionary<string, object?>
+                    {
+                        ["attemptedBytes"] = result.AttemptedBytes,
+                        ["maxBytes"] = result.MaxBytes,
+                    }),
+                TraceabilityBundleExportOutcome.Success => File(
+                    result.ZipBytes!,
+                    "application/zip",
+                    $"traceability-{runIdText}.zip"),
+                _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

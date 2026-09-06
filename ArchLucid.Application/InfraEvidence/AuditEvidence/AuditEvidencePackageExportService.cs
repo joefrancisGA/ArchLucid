@@ -1,5 +1,9 @@
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,16 +22,22 @@ public sealed class AuditEvidencePackageExportService(
     IAuditEvidenceSelectorRegistry selectorRegistry,
     ITenantBrandingProfileRepository brandingProfileRepository,
     IArtifactBlobStore blobStore,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AuditEvidencePackageExportService> logger) : IAuditEvidencePackageExportService
 {
     public async Task<AuditEvidencePackageExportResult> TryExportAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assessmentId,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         try
         {
+            Guid tenantId = scope.TenantId;
+
             AuditAssessmentRecord? assessment =
                 await assessmentRepository.TryGetByIdAsync(tenantId, assessmentId, cancellationToken);
 
@@ -94,6 +104,16 @@ public sealed class AuditEvidencePackageExportService(
                     assessmentId,
                     cancellationToken);
 
+            if (architectureLinks.Count > 0)
+            {
+                await AuditArchitectureEvidenceSealedManifestHashGuard.EnsureLinkedRunsSealedManifestHashOrThrowAsync(
+                    architectureLinks,
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    cancellationToken);
+            }
+
             AuditAssessmentReadinessSummaryRecord? readinessSummary =
                 await readinessService.TryBuildAssessmentReadinessAsync(
                     tenantId,
@@ -131,7 +151,7 @@ public sealed class AuditEvidencePackageExportService(
             {
                 AuditHybridControlEvidenceRecord? hybrid =
                     await hybridEvidenceQueryService.TryGetControlEvidenceSourcesAsync(
-                        tenantId,
+                        scope,
                         assessmentId,
                         control.ControlId,
                         auditEvidenceSnapshotId,
@@ -204,7 +224,7 @@ public sealed class AuditEvidencePackageExportService(
                 EvidenceHashesJson = evidenceHashesJson,
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ConflictException)
         {
             logger.LogWarning(
                 ex,
