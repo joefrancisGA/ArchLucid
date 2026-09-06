@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fingerprint } from "lucide-react";
 import { useMemo } from "react";
 
+import { AuthDomainsSettingsBuyerChrome } from "@/app/(operator)/administration/auth-domains/AuthDomainsSettingsBuyerChrome";
 import { AuthDomainsActionConfirmDialog } from "@/app/(operator)/administration/auth-domains/AuthDomainsActionConfirmDialog";
 import { AuthDomainsDomainListPanel } from "@/app/(operator)/administration/auth-domains/AuthDomainsDomainListPanel";
 import { AuthDomainsEnforcementPanel } from "@/app/(operator)/administration/auth-domains/AuthDomainsEnforcementPanel";
@@ -38,6 +39,9 @@ import {
   AUTH_DOMAINS_SETTINGS_PRIMARY_CONTENT_ID,
   AUTH_DOMAINS_SETTINGS_SKIP_LINK_LABEL,
   AUTH_DOMAINS_SETTINGS_SKIP_TARGET_ID,
+  AUTH_DOMAINS_SETTINGS_BUYER_START_HERE_HELPER,
+  AUTH_DOMAINS_SETTINGS_PAGE_LEAD,
+  AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE,
   authDomainsPageSubtitle,
 } from "@/lib/auth-domains-settings-page-copy";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -174,6 +178,35 @@ export function AuthDomainsPageClient() {
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="auth-domains-buyer-first-viewport-intro">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="auth-domains-settings-intro"
+              >
+                {AUTH_DOMAINS_SETTINGS_PAGE_LEAD}
+              </p>
+              <section
+                className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="auth-domains-settings-start-here-panel"
+                aria-labelledby="auth-domains-settings-start-here-heading"
+              >
+                <h2
+                  id="auth-domains-settings-start-here-heading"
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE}
+                </h2>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="auth-domains-settings-buyer-start-here-helper"
+                >
+                  {AUTH_DOMAINS_SETTINGS_BUYER_START_HERE_HELPER}
+                </p>
+              </section>
+            </div>
+          ) : null}
+
           {!loading && errorState === null ? (
             <>
               <div
@@ -267,6 +300,7 @@ export function AuthDomainsPageClient() {
             handleProposeDomain={handleProposeDomain}
             continueLastDomain={continueLastDomain}
             onOpenDomain={openDomain}
+            hideDomainMutations={buyerPolishedShell}
           />
 
           {selected !== null ? (
@@ -304,9 +338,13 @@ export function AuthDomainsPageClient() {
           ) : null}
         </div>
 
-        <div data-testid="auth-domains-orientation-bottom">
-          <AuthDomainsSettingsEvidenceOrientationStrip />
-        </div>
+        {buyerPolishedShell ? (
+          <AuthDomainsSettingsBuyerChrome />
+        ) : (
+          <div data-testid="auth-domains-orientation-bottom">
+            <AuthDomainsSettingsEvidenceOrientationStrip />
+          </div>
+        )}
       </div>
 
       <AuthDomainsActionConfirmDialog

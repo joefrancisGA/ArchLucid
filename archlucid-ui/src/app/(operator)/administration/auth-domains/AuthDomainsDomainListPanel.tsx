@@ -47,9 +47,12 @@ export type AuthDomainsDomainListPanelProps = {
   readonly handleProposeDomain: () => Promise<void>;
   readonly continueLastDomain: AuthDomainsContinueLastTarget | null;
   readonly onOpenDomain: (normalizedDomain: string) => void;
+  readonly hideDomainMutations?: boolean;
 };
 
 export function AuthDomainsDomainListPanel(props: AuthDomainsDomainListPanelProps): React.JSX.Element {
+  const hideDomainMutations = props.hideDomainMutations === true;
+
   return (
     <Card data-testid="auth-domains-main-card">
       <CardHeader>
@@ -77,6 +80,7 @@ export function AuthDomainsDomainListPanel(props: AuthDomainsDomainListPanelProp
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Entering a domain does not claim it. Add the DNS TXT record shown after you start verification.
           </p>
+          {hideDomainMutations ? null : (
           <div className="space-y-2">
             <Label htmlFor="auth-domains-new-domain" className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
               {AUTH_DOMAINS_DOMAIN_LABEL}
@@ -129,6 +133,7 @@ export function AuthDomainsDomainListPanel(props: AuthDomainsDomainListPanelProp
               </Button>
             </div>
           </div>
+          )}
         </section>
 
         <section
