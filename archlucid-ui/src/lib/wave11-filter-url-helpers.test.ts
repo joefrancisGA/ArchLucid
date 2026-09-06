@@ -3396,6 +3396,78 @@ describe("wave45 filter url helpers", () => {
   });
 });
 
+describe("wave46 filter url helpers", () => {
+  it("finding detail inspect, view evidence, agent execution log, and run explanation params", async () => {
+    const {
+      findingDetailInspectDisclosureHrefFromSearch,
+      parseFindingAuditOpenFromSearch,
+      parseFindingEvidenceBasisOpenFromSearch,
+      parseFindingEvidenceOpenFromSearch,
+      parseFindingFullEvidenceTraceOpenFromSearch,
+      parseFindingRelatedAuditOpenFromSearch,
+      parseFindingTechnicalMetadataOpenFromSearch,
+      parseFindingWorkWithOpenFromSearch,
+    } = await import("@/lib/findings/finding-detail-inspect-disclosure-url");
+    const {
+      findingViewEvidenceDisclosureHrefFromSearch,
+      parseFindingViewEvidenceOpenFromSearch,
+    } = await import("@/lib/findings/finding-view-evidence-disclosure-url");
+    const {
+      parseRunAgentExecutionLogOpenFromSearch,
+      runAgentExecutionLogDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-agent-execution-log-disclosure-url");
+    const {
+      parseRunImpactAnalysisOpenFromSearch,
+      runImpactAnalysisDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/run-impact-analysis-disclosure-url");
+    const {
+      parseRunFindingExplainabilityOpenFromSearch,
+      runFindingExplainabilityDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/run-finding-explainability-disclosure-url");
+
+    expect(parseFindingEvidenceOpenFromSearch("1")).toBe(true);
+    expect(parseFindingAuditOpenFromSearch("true")).toBe(true);
+    expect(parseFindingRelatedAuditOpenFromSearch("1")).toBe(true);
+    expect(parseFindingTechnicalMetadataOpenFromSearch("true")).toBe(true);
+    expect(parseFindingEvidenceBasisOpenFromSearch("1")).toBe(true);
+    expect(parseFindingFullEvidenceTraceOpenFromSearch("true")).toBe(true);
+    expect(parseFindingWorkWithOpenFromSearch("1")).toBe(true);
+    expect(
+      findingDetailInspectDisclosureHrefFromSearch(
+        "tab=overview",
+        {
+          evidenceOpen: true,
+          auditOpen: false,
+          relatedAuditOpen: true,
+          technicalMetadataOpen: false,
+          evidenceBasisOpen: true,
+          fullEvidenceTraceOpen: false,
+          workWithOpen: true,
+        },
+        "/architecture/reviews/r1/findings/f1",
+      ),
+    ).toBe(
+      "/architecture/reviews/r1/findings/f1?tab=overview&findingEvidenceOpen=1&findingRelatedAuditOpen=1&findingEvidenceBasisOpen=1&findingWorkWithOpen=1",
+    );
+    expect(parseFindingViewEvidenceOpenFromSearch("1")).toBe(true);
+    expect(
+      findingViewEvidenceDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/findings/f1"),
+    ).toBe("/architecture/reviews/r1/findings/f1?findingViewEvidenceOpen=1");
+    expect(parseRunAgentExecutionLogOpenFromSearch("true")).toBe(true);
+    expect(runAgentExecutionLogDisclosureHrefFromSearch("tab=evidence", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=evidence&runAgentExecutionLogOpen=1",
+    );
+    expect(parseRunImpactAnalysisOpenFromSearch("1")).toBe(true);
+    expect(runImpactAnalysisDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runImpactAnalysisOpen=1",
+    );
+    expect(parseRunFindingExplainabilityOpenFromSearch("true")).toBe(true);
+    expect(runFindingExplainabilityDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=findings&runFindingExplainabilityOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

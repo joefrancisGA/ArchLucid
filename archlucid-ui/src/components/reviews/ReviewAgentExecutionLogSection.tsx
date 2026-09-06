@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -17,6 +19,10 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import {
+  parseRunAgentExecutionLogOpenFromSearch,
+  runAgentExecutionLogDisclosureHrefFromSearch,
+} from "@/lib/runs/run-agent-execution-log-disclosure-url";
 import type { RunDetailAgentResult } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
@@ -44,6 +50,33 @@ function confidenceLabel(confidence: number | string | null | undefined): string
 export function ReviewAgentExecutionLogSection({
   results,
 }: ReviewAgentExecutionLogSectionProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runAgentExecutionLogOpenParam = searchParams.get("runAgentExecutionLogOpen");
+  const [open, setOpenState] = useState(() => parseRunAgentExecutionLogOpenFromSearch(runAgentExecutionLogOpenParam));
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(runAgentExecutionLogDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseRunAgentExecutionLogOpenFromSearch(runAgentExecutionLogOpenParam));
+  }, [runAgentExecutionLogOpenParam]);
+
   if (!results || results.length === 0) {
     return null;
   }
@@ -62,7 +95,11 @@ export function ReviewAgentExecutionLogSection({
           <h3 className={runDetailSectionHeadingClass}>Agent execution log</h3>
         </CardHeader>
         <CardContent>
-          <CollapsibleSection title={`${sorted.length} agent${sorted.length === 1 ? "" : "s"} ran`} defaultOpen={false}>
+          <CollapsibleSection
+            title={`${sorted.length} agent${sorted.length === 1 ? "" : "s"} ran`}
+            open={open}
+            onToggle={setOpen}
+          >
             <EnterpriseTable ariaLabel="Agent execution log" className={OPERATOR_TYPOGRAPHY.helper}>
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>

@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
@@ -19,6 +19,7 @@ import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoning
 import { FindingInspectReasoningSummarySection } from "./FindingInspectReasoningSummarySection";
 import { FindingInspectRecommendedActionSection } from "./FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "./FindingInspectWhyMattersSection";
+import { FindingInspectViewEvidenceCollapsible } from "./FindingInspectViewEvidenceCollapsible";
 import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 
 export type FindingInspectFindingBodyProps = {
@@ -171,9 +172,7 @@ export function FindingInspectFindingBody({
       <>
         {whyBlock}
         {modelProvenanceBlock}
-        <CollapsibleSection title="View evidence" defaultOpen={false} sectionTestId="finding-evidence-collapsible">
-          {evidenceBlock}
-        </CollapsibleSection>
+        <FindingInspectViewEvidenceCollapsible>{evidenceBlock}</FindingInspectViewEvidenceCollapsible>
         {insightDensityBlock}
         {recommendedBlock("detail")}
         {feedbackBlock}

@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/r1/findings/f1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
@@ -12,9 +18,14 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 };
 });
 
-vi.mock("@/lib/buyer/buyer-safe-review-navigation", () => ({
-  getShowcaseManifestHref: () => "/architecture/reviews/demo-manifest",
-}));
+vi.mock("@/lib/buyer/buyer-safe-review-navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/buyer/buyer-safe-review-navigation")>();
+
+  return {
+    ...actual,
+    getShowcaseManifestHref: () => "/architecture/reviews/demo-manifest",
+  };
+});
 
 vi.mock("@/lib/operator/operator-static-demo", () => ({
   isDemoRunIdEligibleForStaticFallback: () => false,
