@@ -112,6 +112,19 @@ describe("resolveReviewDetailVisibleTabs", () => {
     expect(resolved.visibleTabIds).toContain("review-package");
     expect(resolved.defaultTabId).toBe("review-package");
   });
+
+  it("lands Working desk visits on Findings after commit when triage is ready (PC-11)", () => {
+    const resolved = resolveReviewDetailVisibleTabs({
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      runCompleted: true,
+      workingDesk: true,
+    });
+
+    expect(resolved.stage).toBe("committed");
+    expect(resolved.defaultTabId).toBe("findings");
+    expect(resolveReviewDetailTabForVisit(null, resolved)).toBe("findings");
+  });
 });
 
 describe("resolveReviewDetailTabForVisit", () => {
