@@ -306,7 +306,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Compare inventory snapshots and classify drift.",
     useWhen: "Pick current and baseline snapshots before exporting advisory Terraform.",
-    firstPilotNote: "Shipped in IE-UX-01 — workbench wiring in progress.",
+    firstPilotNote: "Compare snapshots after cloud inventory capture exists for your scope.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagrams": {
