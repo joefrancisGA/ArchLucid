@@ -62,7 +62,7 @@ public sealed class NoOpCloudResourceIdentityDirectory : ICloudResourceIdentityD
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
-    public Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+    public Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
         ScopeContext scope,
         string? namePrefix,
         string? resourceType,
@@ -71,5 +71,5 @@ public sealed class NoOpCloudResourceIdentityDirectory : ICloudResourceIdentityD
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
-        => Task.FromResult<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)>(([], 0));
+        => Task.FromResult<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)>(([], 0));
 }

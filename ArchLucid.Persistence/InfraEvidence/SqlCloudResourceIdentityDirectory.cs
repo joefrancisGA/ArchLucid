@@ -294,7 +294,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
     }
 
-    public async Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+    public async Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
         ScopeContext scope,
         string? namePrefix,
         string? resourceType,
@@ -330,7 +330,10 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                    CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
                                    ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
                                    ResourceGroupOrProject, Region, DisplayName,
-                                   FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
+                                   FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc,
+                                   {OpenOperationalFindingsCountSql} AS OpenOperationalFindingsCount,
+                                   {OpenRemediationInstancesCountSql} AS OpenRemediationInstancesCount,
+                                   {InventoryDriftChangeCountSql} AS InventoryDriftChangeCount
                                FROM dbo.CloudResourceIdentities
                                WHERE TenantId = @TenantId
                                  AND WorkspaceId = @WorkspaceId
@@ -372,10 +375,33 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 commandTimeout: DapperCommandTimeoutSeconds.Report,
                 cancellationToken: cancellationToken));
 
-        IReadOnlyList<CloudResourceIdentityRecord> items = rows.Select(MapRow).ToList();
+        IReadOnlyList<CloudResourceExplorerListItem> items = rows.Select(MapExplorerRow).ToList();
 
         return (items, totalCount);
     }
+
+    private const string OpenOperationalFindingsCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.OperationalSecurityFindings f
+         WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+           AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification))
+        """;
+
+    private const string OpenRemediationInstancesCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.RemediationInstances r
+         WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+           AND r.Status <> @RemediationStatusClosed)
+        """;
+
+    private const string InventoryDriftChangeCountSql = """
+        (SELECT COUNT(1)
+         FROM dbo.AzureInventoryChanges c
+         WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
+           AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId)
+        """;
 
     private static string BuildWorkQueueFilter(CloudResourceExplorerWorkQueue workQueue) =>
         workQueue switch
@@ -407,6 +433,18 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                 )
                 """,
             _ => string.Empty,
+        };
+
+    private static CloudResourceExplorerListItem MapExplorerRow(Row row) =>
+        new()
+        {
+            Identity = MapRow(row),
+            WorkCounts = new CloudResourceExplorerWorkCounts
+            {
+                OpenOperationalFindingsCount = row.OpenOperationalFindingsCount,
+                OpenRemediationInstancesCount = row.OpenRemediationInstancesCount,
+                InventoryDriftChangeCount = row.InventoryDriftChangeCount,
+            },
         };
 
     private static CloudResourceIdentityRecord MapRow(Row row) =>
@@ -516,6 +554,24 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
         }
 
         public DateTime LastSeenUtc
+        {
+            get;
+            init;
+        }
+
+        public int OpenOperationalFindingsCount
+        {
+            get;
+            init;
+        }
+
+        public int OpenRemediationInstancesCount
+        {
+            get;
+            init;
+        }
+
+        public int InventoryDriftChangeCount
         {
             get;
             init;

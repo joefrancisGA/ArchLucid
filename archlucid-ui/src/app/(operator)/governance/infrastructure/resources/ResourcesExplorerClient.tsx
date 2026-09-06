@@ -37,6 +37,7 @@ import {
   parseResourceExplorerWorkQueueFromSearch,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -219,6 +220,7 @@ export function ResourcesExplorerClient() {
         <EnterpriseTableHead>
           <EnterpriseTableRow>
             <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Work</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Type</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Resource group</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Region</EnterpriseTableHeaderCell>
@@ -228,15 +230,18 @@ export function ResourcesExplorerClient() {
         <EnterpriseTableBody>
           {loading ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={5}>Loading resources…</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={6}>Loading resources…</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
           {!loading && rows.length === 0 ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={5}>No cloud resources match the current filters.</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={6}>No cloud resources match the current filters.</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {rows.map((row) => (
+          {rows.map((row) => {
+            const workCountBadges = buildCloudResourceExplorerWorkCountBadges(row.workCounts);
+
+            return (
             <EnterpriseTableRow key={row.cloudResourceId} data-testid={`infra-resource-row-${row.cloudResourceId}`}>
               <EnterpriseTableCell>
                 <Link
@@ -247,6 +252,24 @@ export function ResourcesExplorerClient() {
                 </Link>
                 <div className="truncate font-mono text-xs text-muted-foreground">{row.externalResourceId}</div>
               </EnterpriseTableCell>
+              <EnterpriseTableCell data-testid={`infra-resource-work-counts-${row.cloudResourceId}`}>
+                {workCountBadges.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">—</span>
+                ) : (
+                  <div className="flex flex-wrap gap-1">
+                    {workCountBadges.map((badge) => (
+                      <span
+                        key={badge.kind}
+                        className="rounded bg-muted px-2 py-0.5 text-xs text-foreground"
+                        title={badge.label}
+                        data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
+                      >
+                        {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>{row.resourceType ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.resourceGroup ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>{row.region ?? "—"}</EnterpriseTableCell>
@@ -254,7 +277,8 @@ export function ResourcesExplorerClient() {
                 {row.lastSeenUtc.length > 0 ? new Date(row.lastSeenUtc).toLocaleString() : "—"}
               </EnterpriseTableCell>
             </EnterpriseTableRow>
-          ))}
+            );
+          })}
         </EnterpriseTableBody>
       </EnterpriseTable>
     </div>

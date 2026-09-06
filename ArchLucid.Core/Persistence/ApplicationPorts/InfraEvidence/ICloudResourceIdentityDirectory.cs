@@ -36,7 +36,7 @@ public interface ICloudResourceIdentityDirectory
         Guid cloudResourceId,
         CancellationToken cancellationToken = default);
 
-    Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+    Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
         ScopeContext scope,
         string? namePrefix,
         string? resourceType,

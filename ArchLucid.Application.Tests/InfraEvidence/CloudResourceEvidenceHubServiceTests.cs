@@ -361,7 +361,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+        public Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
             ScopeContext scope,
             string? namePrefix,
             string? resourceType,
@@ -370,8 +370,16 @@ public sealed class CloudResourceEvidenceHubServiceTests
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)>(
-                (Records.Values.Where(row => row.TenantId == scope.TenantId).ToList(), Records.Count));
+            => Task.FromResult<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)>(
+                (Records.Values
+                    .Where(row => row.TenantId == scope.TenantId)
+                    .Select(row => new CloudResourceExplorerListItem
+                    {
+                        Identity = row,
+                        WorkCounts = new CloudResourceExplorerWorkCounts(),
+                    })
+                    .ToList(),
+                Records.Count));
     }
 
     private sealed class FakeOperationalSecurityFindingRepository : IOperationalSecurityFindingRepository

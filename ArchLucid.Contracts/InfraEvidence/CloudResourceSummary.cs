@@ -43,4 +43,10 @@ public sealed class CloudResourceSummary
         get;
         set;
     }
+
+    public CloudResourceExplorerWorkCounts? WorkCounts
+    {
+        get;
+        set;
+    }
 }
