@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 
 import { GeneratedByModelAliasDisclosure } from "@/components/GeneratedByModelAliasDisclosure";
+
+vi.mock("next/navigation", async (importOriginal) => extendNextNavigationVitestMock(importOriginal));
 
 describe("GeneratedByModelAliasDisclosure", () => {
   it("renders nothing when alias is absent", () => {
