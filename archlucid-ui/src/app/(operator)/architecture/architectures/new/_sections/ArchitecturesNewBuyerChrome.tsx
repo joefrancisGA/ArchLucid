@@ -1,12 +1,14 @@
 "use client";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { ArchitecturesNewClaimOrientationStrip } from "./ArchitecturesNewClaimOrientationStrip";
 
-/** Buyer default: mount claim discipline + Sources on create-bootstrap (ANE). */
+/** Guided eval chrome: mount claim discipline + Sources on create-bootstrap (CA-47). */
 export function ArchitecturesNewBuyerChrome(): React.JSX.Element | null {
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  const evalChromeShell = useProductionEvalChrome();
+
+  if (!evalChromeShell) {
     return null;
   }
 
