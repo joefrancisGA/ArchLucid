@@ -279,7 +279,17 @@ public static partial class GenericArchitectureAdvicePatterns
             || ContainsAdviceNegationPhrase(before, " ought not ensure ")
             || ContainsAdviceNegationPhrase(before, " ought not ensure")
             || ContainsAdviceNegationPhrase(before, " ought not maintain ")
-            || ContainsAdviceNegationPhrase(before, " ought not maintain");
+            || ContainsAdviceNegationPhrase(before, " ought not maintain")
+            || ContainsAdviceNegationPhrase(before, " ought not mandate ")
+            || ContainsAdviceNegationPhrase(before, " ought not mandate")
+            || ContainsAdviceNegationPhrase(before, " ought not enforce ")
+            || ContainsAdviceNegationPhrase(before, " ought not enforce")
+            || ContainsAdviceNegationPhrase(before, " ought not require ")
+            || ContainsAdviceNegationPhrase(before, " ought not require")
+            || ContainsAdviceNegationPhrase(before, " ought not need ")
+            || ContainsAdviceNegationPhrase(before, " ought not need")
+            || ContainsAdviceNegationPhrase(before, " ought not implement ")
+            || ContainsAdviceNegationPhrase(before, " ought not implement");
     }
 
     private static bool ContainsAdviceNegationPhrase(ReadOnlySpan<char> haystack, string phrase)
