@@ -476,6 +476,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open diagram reconciliation
                   </Link>
                 </Button>
+                {hub.diagramCorrespondence != null ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-tab">
+                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                      Open diagram correspondence
+                    </Link>
+                  </Button>
+                ) : null}
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-terraform-work">
                   <Link
                     href={buildResourceHubWorkbenchHref({

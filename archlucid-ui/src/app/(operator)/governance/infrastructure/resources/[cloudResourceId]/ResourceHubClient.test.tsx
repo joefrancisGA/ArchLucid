@@ -168,6 +168,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-hub-open-diagram-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
     expect(screen.getByTestId("infra-resource-hub-open-terraform-work")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -175,6 +179,18 @@ describe("ResourceHubClient", () => {
     expect(screen.getByTestId("infra-resource-hub-open-audit-work")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
+  it("preserves runId on overview diagram tab quick link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-diagram-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
   });
 
