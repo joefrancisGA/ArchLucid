@@ -1229,6 +1229,7 @@ export interface components {
             reviews?: components["schemas"]["ArchitectureIdentityChildReviewSummary"][];
             /** Format: date-time */
             updatedUtc?: string;
+            versions?: components["schemas"]["ArchitectureIdentityVersionSummary"][];
         };
         ArchitectureIdentityListItem: {
             /** Format: uuid */
@@ -1246,6 +1247,16 @@ export interface components {
             reviewCount?: number;
             /** Format: date-time */
             updatedUtc?: string;
+        };
+        ArchitectureIdentityVersionSummary: {
+            /** Format: uuid */
+            architectureVersionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            linkedReviewId?: null | string;
+            /** Format: int32 */
+            versionNumber?: number;
         };
         ArchitectureIntelligencePublishResult: {
             /** Format: uuid */
