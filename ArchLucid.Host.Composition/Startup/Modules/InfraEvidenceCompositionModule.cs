@@ -31,6 +31,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IAzureInventoryDriftClassificationService, AzureInventoryDriftClassificationService>();
         services.AddScoped<IAzureInventoryDriftApprovalService, AzureInventoryDriftApprovalService>();
         services.AddScoped<IAzureInventoryDiffNarrativeService, AzureInventoryDiffNarrativeService>();
+        services.AddScoped<IInfraEvidenceDriftWorkbenchQueryService, InfraEvidenceDriftWorkbenchQueryService>();
         services.AddScoped<IAuditFrameworkImportService, AuditFrameworkImportService>();
         services.AddScoped<IAuditEvidenceSelectionService, AuditEvidenceSelectionService>();
         services.AddScoped<IAuditControlEvaluationService, AuditControlEvaluationService>();

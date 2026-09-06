@@ -101,6 +101,7 @@ jobs:
           python3 scripts/ci/check_policy_pack_finding_delta_offline_packet.py
           python3 scripts/ci/check_manifest_summary_manifest_version_access.py
           python3 scripts/ci/check_status_tag_kind_warning.py
+          python3 scripts/ci/check_npm_overrides_lockfile_sync.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -116,6 +117,7 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_finding_delta_offline_packet.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_manifest_summary_manifest_version_access.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_status_tag_kind_warning.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_npm_overrides_lockfile_sync.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"
@@ -137,6 +139,7 @@ jobs:
           CI: true
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
+          python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
           npm run typecheck
