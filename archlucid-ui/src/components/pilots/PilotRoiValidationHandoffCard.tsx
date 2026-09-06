@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -25,6 +26,10 @@ import {
   resolvePilotRoiValidationVerdict,
   type PilotRoiValidationVerdict,
 } from "@/lib/pilot-roi-validation-handoff";
+import {
+  parsePilotRoiValidationInterviewOpenFromSearch,
+  pilotRoiValidationInterviewDisclosureHrefFromSearch,
+} from "@/lib/insights/pilot-roi-validation-interview-disclosure-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 export type PilotRoiValidationHandoffCardProps = {
@@ -74,6 +79,37 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   const firstRunHelpHref = "/help/first-run";
 
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const pilotRoiValidationInterviewOpenParam = searchParams.get("pilotRoiValidationInterviewOpen");
+  const [validationInterviewOpen, setValidationInterviewOpenState] = useState(() =>
+    parsePilotRoiValidationInterviewOpenFromSearch(pilotRoiValidationInterviewOpenParam),
+  );
+
+  const syncValidationInterviewOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        pilotRoiValidationInterviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setValidationInterviewOpen = useCallback(
+    (open: boolean) => {
+      setValidationInterviewOpenState(open);
+      syncValidationInterviewOpenToUrl(open);
+    },
+    [syncValidationInterviewOpenToUrl],
+  );
+
+  useEffect(() => {
+    setValidationInterviewOpenState(
+      parsePilotRoiValidationInterviewOpenFromSearch(pilotRoiValidationInterviewOpenParam),
+    );
+  }, [pilotRoiValidationInterviewOpenParam]);
 
   useEffect(() => {
     if (copyState !== "copied") {
@@ -136,7 +172,11 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
         <p className={cn("m-0 mt-2 font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Review ID: {runId}</p>
       ) : null}
 
-      <CollapsibleSection title="Run validation interview (15 min)" defaultOpen={false}>
+      <CollapsibleSection
+        title="Run validation interview (15 min)"
+        open={validationInterviewOpen}
+        onToggle={setValidationInterviewOpen}
+      >
         <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {PILOT_ROI_VALIDATION_INTERVIEW_QUESTIONS.map((question) => (
             <li key={question.ledgerField}>

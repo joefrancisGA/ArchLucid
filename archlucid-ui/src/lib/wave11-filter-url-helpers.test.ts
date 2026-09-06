@@ -3621,6 +3621,92 @@ describe("wave48 filter url helpers", () => {
   });
 });
 
+describe("wave49 filter url helpers", () => {
+  it("reviews new job chooser, baseline methodology, tenant routing, scim verify, pilot roi, admin health, grouped checks, answered brief, draft intake, workspace ai probe params", async () => {
+    const {
+      parseReviewsNewReturningJobChooserOpenFromSearch,
+      reviewsNewReturningJobChooserDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/reviews-new-returning-job-chooser-disclosure-url");
+    const {
+      baselineSettingsMethodologyDisclosureHrefFromSearch,
+      parseBaselineSettingsMethodologyOpenFromSearch,
+    } = await import("@/lib/administration/baseline-settings-methodology-disclosure-url");
+    const {
+      parseTenantSettingsRoutingScopeOpenFromSearch,
+      tenantSettingsRoutingScopeDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/tenant-settings-routing-scope-disclosure-url");
+    const {
+      parseScimVerifyTechnicalDetailsOpenFromSearch,
+      scimVerifyTechnicalDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/scim-verify-technical-details-disclosure-url");
+    const {
+      parsePilotRoiValidationInterviewOpenFromSearch,
+      pilotRoiValidationInterviewDisclosureHrefFromSearch,
+    } = await import("@/lib/insights/pilot-roi-validation-interview-disclosure-url");
+    const {
+      adminHealthConfigProbesDisclosureHrefFromSearch,
+      parseAdminHealthConfigProbesOpenFromSearch,
+    } = await import("@/lib/health-dashboard/admin-health-config-probes-disclosure-url");
+    const {
+      healthGroupedAllChecksDisclosureHrefFromSearch,
+      parseHealthGroupedAllChecksOpenFromSearch,
+    } = await import("@/lib/health-dashboard/health-grouped-all-checks-disclosure-url");
+    const {
+      architectureAnsweredBriefDisclosureHrefFromSearch,
+      parseArchitectureAnsweredBriefOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-answered-brief-disclosure-url");
+    const {
+      draftIntakeAdvancedDisclosureHrefFromSearch,
+      parseDraftIntakeAdvancedOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-advanced-disclosure-url");
+    const {
+      parseWorkspaceAiProbeDiagnosticsOpenFromSearch,
+      workspaceAiProbeDiagnosticsDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/workspace-ai-probe-diagnostics-disclosure-url");
+
+    expect(parseReviewsNewReturningJobChooserOpenFromSearch("1")).toBe(true);
+    expect(reviewsNewReturningJobChooserDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?reviewsNewReturningJobChooserOpen=1",
+    );
+    expect(parseBaselineSettingsMethodologyOpenFromSearch("true")).toBe(true);
+    expect(baselineSettingsMethodologyDisclosureHrefFromSearch("", true, "/administration/baseline")).toBe(
+      "/administration/baseline?baselineSettingsMethodologyOpen=1",
+    );
+    expect(parseTenantSettingsRoutingScopeOpenFromSearch("1")).toBe(true);
+    expect(tenantSettingsRoutingScopeDisclosureHrefFromSearch("tab=general", true)).toBe(
+      "/administration/workspace-settings?tab=general&tenantSettingsRoutingScopeOpen=1",
+    );
+    expect(parseScimVerifyTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(scimVerifyTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/scim-provisioning")).toBe(
+      "/administration/scim-provisioning?scimVerifyTechnicalDetailsOpen=1",
+    );
+    expect(parsePilotRoiValidationInterviewOpenFromSearch("1")).toBe(true);
+    expect(pilotRoiValidationInterviewDisclosureHrefFromSearch("runId=r1", true, "/insights/sponsor-report")).toBe(
+      "/insights/sponsor-report?runId=r1&pilotRoiValidationInterviewOpen=1",
+    );
+    expect(parseAdminHealthConfigProbesOpenFromSearch("1")).toBe(true);
+    expect(adminHealthConfigProbesDisclosureHrefFromSearch("", true, "/internal/health")).toBe(
+      "/internal/health?adminHealthConfigProbesOpen=1",
+    );
+    expect(parseHealthGroupedAllChecksOpenFromSearch("true")).toBe(true);
+    expect(healthGroupedAllChecksDisclosureHrefFromSearch("", true, "/administration/system-health")).toBe(
+      "/administration/system-health?healthGroupedAllChecksOpen=1",
+    );
+    expect(parseArchitectureAnsweredBriefOpenFromSearch("1")).toBe(true);
+    expect(architectureAnsweredBriefDisclosureHrefFromSearch("tab=clarifications", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=clarifications&architectureAnsweredBriefOpen=1",
+    );
+    expect(parseDraftIntakeAdvancedOpenFromSearch("true")).toBe(true);
+    expect(draftIntakeAdvancedDisclosureHrefFromSearch("path=guided-intake", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=guided-intake&draftIntakeAdvancedOpen=1",
+    );
+    expect(parseWorkspaceAiProbeDiagnosticsOpenFromSearch("1")).toBe(true);
+    expect(workspaceAiProbeDiagnosticsDisclosureHrefFromSearch("", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?workspaceAiProbeDiagnosticsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
