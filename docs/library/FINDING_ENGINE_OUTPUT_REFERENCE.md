@@ -25,6 +25,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `requirement-gap` | `RequirementGapFindingEngine` | Requirement | Missing requirements. |
 | `requirement-coverage` | `RequirementCoverageFindingEngine` | Requirement | Requirement coverage scoring. |
 | `requirement-cross-run-diff` | `RequirementCrossRunDiffFindingEngine` | Requirement | Name-level delta vs prior context encoded on the current graph. |
+| `dr-rpo-topology` | `DrRpoTopologyFindingEngine` | Requirement | Parsed RPO/RTO on linked requirements without replica, failover group, or geo-redundant properties on the scoped SQL/storage/cluster node. Skips when no objective is parsed or the datastore link is missing. |
 | `topology-coverage` | `TopologyCoverageFindingEngine` | Topology | Component/service coverage vs topology expectations. |
 | `topology-structure` | `TopologyStructureFindingEngine` | Topology | Structural topology properties. |
 | `topology-cross-run-diff` | `TopologyCrossRunDiffFindingEngine` | Topology | Topology delta vs prior snapshot metadata on the graph. |
@@ -41,6 +42,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `segmentation-semantics` | `SegmentationSemanticsFindingEngine` | Security | Parses declared NSG / security group / NetworkPolicy rules for internet-exposed admin inbound ports (22, 3389, 1433, 3306, 5432) when the control is within 3 hops of a datastore or jump box. Does not fire on control presence alone. |
 | `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
 | `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
+| `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
 
 ## Cost (graph-pure)
 
