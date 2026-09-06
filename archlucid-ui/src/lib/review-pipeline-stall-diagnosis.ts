@@ -4,6 +4,18 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 const TERMINAL_LEGACY_STATUSES = new Set(["Failed", "FailedPartial", "PartiallyCompleted"]);
 
+const EXECUTE_OWNERSHIP_LEASE_EXPIRED_REASON = "ExecuteOwnershipLeaseExpired";
+
+function isExecuteOwnershipLeaseExpiredFailure(lastFailureReason: string): boolean {
+  const trimmed = lastFailureReason.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return trimmed.includes(EXECUTE_OWNERSHIP_LEASE_EXPIRED_REASON);
+}
+
 export type ReviewPipelineDiagnosticContext = {
   readonly legacyRunStatus?: string | null;
   readonly isDeadLettered?: boolean | null;
@@ -55,6 +67,18 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
 
   if (!isTerminal) {
     return null;
+  }
+
+  if (isExecuteOwnershipLeaseExpiredFailure(lastFailureReason)) {
+    return {
+      severity: legacyStatus === "Failed" ? "error" : "warning",
+      headline:
+        legacyStatus === "Failed"
+          ? "Assessment execution stopped — worker lost"
+          : "Review partially completed — worker lost before all assessments finished",
+      detail:
+        "The execute worker lost its ownership lease before finishing. Reopen this review or retry execute. Persisted agent results are kept; unpersisted in-flight LLM spend may rebill on retry.",
+    };
   }
 
   if (isDeadLettered) {
