@@ -4,7 +4,7 @@ export const RECURRENCE_AI_BUDGET_DISCLOSURE =
   "Each scheduled assessment runs the full architecture review pipeline and may consume AI budget.";
 
 export const RECURRENCE_EACH_OCCURRENCE_NOTE =
-  "Each occurrence creates a new assessment run by cloning the source review.";
+  "Each occurrence creates a new assessment run for this architecture by cloning the source review.";
 
 export const RECURRENCE_SAVE_PAUSED_LABEL = "Save schedule (paused)";
 
@@ -17,7 +17,7 @@ export const RECURRENCE_ACTIVATION_SUMMARY_HEADING = "Schedule summary";
 /** TB-2192 — post-commit proposal framing, explicit decline, and honest recipient disclosure. */
 
 export const RECURRENCE_PROPOSAL_LEAD =
-  "A weekly cadence is proposed for this committed review. Enable it to keep governance current, change the cadence first, or decline.";
+  "A weekly recurring review of this architecture is proposed from this committed review. Enable it to keep governance current, change the cadence first, or decline.";
 
 export const RECURRENCE_DECLINE_LABEL = "Not now";
 

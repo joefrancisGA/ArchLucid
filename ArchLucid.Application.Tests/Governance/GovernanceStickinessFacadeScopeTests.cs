@@ -1381,6 +1381,71 @@ public sealed class GovernanceStickinessFacadeScopeTests
     }
 
     [Fact]
+    public async Task CreateRecurrenceScheduleAsync_persists_architecture_id_from_source_run()
+    {
+        Guid sourceRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid architectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        ArchitectureReviewRecurrenceSchedule? captured = null;
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(CallerScope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Persistence.Models.RunRecord
+            {
+                RunId = sourceRunId,
+                ArchitectureId = architectureId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            });
+
+        Mock<IArchitectureReviewRecurrenceScheduleRepository> recurrenceRepo = new();
+        recurrenceRepo
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchitectureReviewRecurrenceSchedule>());
+        recurrenceRepo
+            .Setup(r => r.CreateAsync(It.IsAny<ArchitectureReviewRecurrenceSchedule>(), It.IsAny<CancellationToken>()))
+            .Callback<ArchitectureReviewRecurrenceSchedule, CancellationToken>((schedule, _) => captured = schedule)
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureReviewRecurrenceNextRunCalculator> calculator = new();
+        calculator
+            .Setup(c => c.IsSupportedCronExpression("0 8 * * 1"))
+            .Returns(true);
+        calculator
+            .Setup(c => c.ComputeNextRunUtc("0 8 * * 1", It.IsAny<DateTime>(), true))
+            .Returns(DateTime.UtcNow.AddDays(7));
+
+        GovernanceStickinessFacade sut = CreateSut(
+            runRepository: runs.Object,
+            recurrenceRepository: recurrenceRepo.Object,
+            recurrenceCalculator: calculator.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
+
+        CreateArchitectureReviewRecurrenceScheduleRequest request = new()
+        {
+            SourceRunId = sourceRunId,
+            IsEnabled = true,
+            CronExpression = "0 8 * * 1",
+        };
+
+        ArchitectureReviewRecurrenceSchedule created =
+            await sut.CreateRecurrenceScheduleAsync(request, CancellationToken.None);
+
+        created.ArchitectureId.Should().Be(architectureId);
+        captured.Should().NotBeNull();
+        captured!.ArchitectureId.Should().Be(architectureId);
+        recurrenceRepo.Verify(
+            r => r.CreateAsync(
+                It.Is<ArchitectureReviewRecurrenceSchedule>(schedule => schedule.ArchitectureId == architectureId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RecordBulkDispositionAsync_throws_when_all_finding_ids_are_out_of_scope()
     {
         Mock<IFindingInspectReadRepository> inspect = new();

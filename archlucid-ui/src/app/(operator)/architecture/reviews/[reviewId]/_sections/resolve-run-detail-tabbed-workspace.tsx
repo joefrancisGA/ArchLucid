@@ -303,6 +303,8 @@ export function resolveRunDetailTabbedWorkspace(
           {m.manifestId ? (
             <RecurrenceSchedulePostCommitCardDeferred
               runId={m.routeRunId}
+              architectureId={m.resolvedDetail.run.architectureId ?? null}
+              architectureDisplayName={m.headline}
               hasStickinessPrompt={Boolean(m.manifestId)}
               pagePrimaryOwnedElsewhere
             />
