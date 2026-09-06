@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient";
 
+const AUDIT_WORKBENCH_SUFFIX =
+  "&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc";
+
 const replace = vi.fn();
 let searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
 
@@ -158,7 +161,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
+      `/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-open-findings-tab")).toHaveAttribute(
       "href",
@@ -174,11 +177,11 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-open-diagrams-work")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg-net%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgateway",
+      `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg-net%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgateway${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-open-diagram-reconcile-work")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/diagram-reconcile?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+      `/governance/infrastructure/diagram-reconcile?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-open-diagram-tab")).toHaveAttribute(
       "href",
@@ -254,7 +257,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-diagram-reconcile-workbench")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+      `/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-open-overview-tab")).toHaveAttribute(
       "href",
@@ -288,7 +291,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-diagrams-workbench")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg-net%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgateway",
+      `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg-net%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgateway${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 
@@ -298,7 +301,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-diagram-reconcile")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1",
+      `/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-ask")).toHaveAttribute(
       "href",
@@ -306,7 +309,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-remediation")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+      `/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 
@@ -324,7 +327,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=change-1&diffId=diff-1",
+      `/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=change-1&diffId=diff-1${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 
@@ -402,7 +405,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&snapshotId=22222222-2222-2222-2222-222222222222",
+      `/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 
@@ -450,7 +453,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1&snapshotId=22222222-2222-2222-2222-222222222222",
+      `/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 
@@ -484,7 +487,11 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-terraform-drift-export")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+      `/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111${AUDIT_WORKBENCH_SUFFIX}`,
+    );
+    expect(screen.getByTestId("infra-resource-hub-terraform-open-workbench")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/terraform?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111${AUDIT_WORKBENCH_SUFFIX}`,
     );
     expect(screen.getByTestId("infra-resource-hub-terraform-open-overview-tab")).toHaveAttribute(
       "href",

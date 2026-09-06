@@ -41,6 +41,7 @@ import {
   DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -288,6 +289,11 @@ export function DriftWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null ? (
+            <div className="mt-2">
+              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-drift-audit-provenance" />
+            </div>
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="drift"
@@ -382,6 +388,7 @@ export function DriftWorkbenchClient() {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
                 diffId: selectedDiffId,
+                hubTab: "drift",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Findings;
 
 namespace ArchLucid.Decisioning.Merge;
 
@@ -33,7 +34,19 @@ public static class AgentArchitectureFindingEmissionGate
             if (result.Findings is not { Count: > 0 } findings)
                 continue;
 
-            List<ArchitectureFinding> retained = findings.Where(HasTypedEmission).ToList();
+            List<ArchitectureFinding> retained = [];
+
+            foreach (ArchitectureFinding finding in findings)
+            {
+                if (HasTypedEmission(finding))
+                {
+                    retained.Add(finding);
+                    continue;
+                }
+
+                result.WithheldFindings.Add(WithheldFindingSummaryMapper.FromStrippedAgentFinding(finding, result));
+            }
+
             result.Findings = retained;
         }
     }

@@ -21,6 +21,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly graphSnapshot?: unknown;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly quickDecisionFindings?: readonly QuickDecisionFinding[];
+  readonly withheldFindingCount?: number;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -37,7 +38,10 @@ export function RunDetailReviewPackageStampViewport(
 
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-        <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+        <RunDetailReviewPackageClassificationSummary
+          findings={props.quickDecisionFindings ?? []}
+          withheldFindingCount={props.withheldFindingCount}
+        />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
@@ -58,7 +62,10 @@ export function RunDetailReviewPackageStampViewport(
 
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-      <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+      <RunDetailReviewPackageClassificationSummary
+        findings={props.quickDecisionFindings ?? []}
+        withheldFindingCount={props.withheldFindingCount}
+      />
       <RunDetailInsightDensityMeasurementDenominatorStrip
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />

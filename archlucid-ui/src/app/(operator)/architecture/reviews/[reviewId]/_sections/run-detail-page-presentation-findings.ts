@@ -7,6 +7,7 @@ import {
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingSeverityCounts } from "@/lib/run-detail-workspace-derive";
 import { deriveRunDetailFindingsTriageCounts } from "@/lib/runs/run-detail-findings-triage-counts";
+import { resolveFindingsWithheldRows, type WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 
 export function countPendingDecisions(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => {
@@ -28,6 +29,7 @@ export type RunDetailFindingsPresentation = {
   readonly primaryConcernLabel: string | null;
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
+  readonly withheldFindings: readonly WithheldFindingRow[];
 };
 
 export function buildRunDetailFindingsPresentation(
@@ -67,5 +69,6 @@ export function buildRunDetailFindingsPresentation(
         finding.severityValue >= 2 &&
         finding.confidenceLevel === "Low",
     ).length,
+    withheldFindings: resolveFindingsWithheldRows(model.resolvedDetail),
   };
 }

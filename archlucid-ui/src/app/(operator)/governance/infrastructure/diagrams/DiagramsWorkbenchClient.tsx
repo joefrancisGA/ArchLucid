@@ -51,6 +51,7 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -416,6 +417,11 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null ? (
+            <div className="mt-2">
+              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-diagrams-audit-provenance" />
+            </div>
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="diagram"
@@ -436,7 +442,7 @@ export function DiagramsWorkbenchClient() {
                   undefined,
                   undefined,
                   urlCloudResourceId,
-                  auditScope,
+                  auditScope ?? undefined,
                 ),
                 label: "Open diagram reconciliation",
               },
@@ -559,6 +565,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                hubTab: "diagram",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >

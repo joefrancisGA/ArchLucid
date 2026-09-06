@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
@@ -40,6 +42,7 @@ public sealed class AuthorityPipelineFindingsStage(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     ILogger<AuthorityPipelineFindingsStage> logger,
+    IAgentResultRepository agentResultRepository,
     IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null,
     IFindingAnalysisContextBuilder? findingAnalysisContextBuilder = null,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
@@ -83,6 +86,9 @@ public sealed class AuthorityPipelineFindingsStage(
 
     private readonly ILogger<AuthorityPipelineFindingsStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly IArchitectureIntelligenceAuthorityFindingsContributor? _authorityFindingsContributor =
         authorityFindingsContributor;
@@ -128,6 +134,12 @@ public sealed class AuthorityPipelineFindingsStage(
                 contributedFindings,
                 _timeProvider);
         }
+
+        IReadOnlyList<AgentResult> agentResults = await _agentResultRepository
+            .GetByRunIdAsync(scope, run.RunId.ToString("D"), cancellationToken)
+            .ConfigureAwait(false);
+
+        FindingsSnapshotWithheldMerger.MergeAgentWithheld(findingsSnapshot, agentResults);
 
         try
         {

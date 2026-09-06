@@ -149,14 +149,18 @@ export function buildResourceScopedWorkbenchHref(
   cloudResourceId: string,
   kind: "findings" | "remediation" | "drift",
   snapshotId?: string | null,
+  auditContext?: Pick<
+    InfraEvidenceWorkbenchContext,
+    "assessmentId" | "auditEvidenceSnapshotId" | "controlId"
+  >,
 ): string {
   switch (kind) {
     case "findings":
       return buildResourceHubWorkbenchHref({ cloudResourceId, tab: "findings", snapshotId });
     case "remediation":
-      return buildRemediationWorkbenchHref({ cloudResourceId, snapshotId });
+      return buildRemediationWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     case "drift":
-      return buildDriftWorkbenchHref({ cloudResourceId, snapshotId });
+      return buildDriftWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     default:
       return governanceInfrastructureResourceHubPath(cloudResourceId);
   }

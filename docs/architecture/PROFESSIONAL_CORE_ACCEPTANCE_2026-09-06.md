@@ -28,4 +28,4 @@
 
 ## Residual follow-ups
 
-None that block wave close. Future kernel work should open a **new** prompt set — do not extend PC-14 inside this audit.
+None that block wave close. Future kernel work opened as **wave 16** — [`DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md`](DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md) (**DR-01–DR-16**). Do not extend PC-14 inside this audit.

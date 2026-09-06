@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -557,6 +558,10 @@ public sealed class FindingsOrchestratorTests
         firstConflict.ErrorMessage.Should().Contain("finding-zulu");
         secondConflict.ErrorMessage.Should().Be(firstConflict.ErrorMessage);
         secondConflict.EngineType.Should().Be(firstConflict.EngineType);
+
+        first.WithheldFindings.Should().ContainSingle();
+        first.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.MergeConflictDropped);
+        first.WithheldFindings[0].ConflictFindingId.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]

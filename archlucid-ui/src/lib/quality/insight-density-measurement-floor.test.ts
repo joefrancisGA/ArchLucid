@@ -26,7 +26,7 @@ describe("insight-density-measurement-floor (PC-01)", () => {
     expect(presentation.line).not.toMatch(/all engines (were )?scored/i);
   });
 
-  it("uses absence copy when per-run counts are unknown", () => {
+  it("blocks career export when measured count is unknown", () => {
     const presentation = formatInsightDensityMeasurementFloorPresentation(null);
 
     expect(presentation.measuredThisRunEngineCount).toBeNull();
@@ -34,7 +34,8 @@ describe("insight-density-measurement-floor (PC-01)", () => {
     expect(presentation.line).not.toContain("run");
     expect(presentation.line).not.toContain("CI");
     expect(presentation.line).not.toContain("golden corpus harness");
-    expect(presentation.meetsCareerExportFloor).toBe(true);
+    expect(presentation.meetsCareerExportFloor).toBe(false);
+    expect(formatInsightDensityMeasurementFloorBlockedReason(null)).toContain("not been measured");
   });
 
   it("blocks career export below the harness floor", () => {

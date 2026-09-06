@@ -51,7 +51,7 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
-    public void Score_category_protects_typed_engine_finding_like_agent_finding()
+    public void Score_demotes_security_category_generic_https_without_resolvable_evidence()
     {
         InsightDensityGateCandidate candidate = new(
             "engine-f3",
@@ -63,13 +63,14 @@ public sealed class DeterministicInsightDensityGateTests
 
         InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
 
-        result.Treatment.Should().Be(FindingTreatment.Promote);
-        result.PenaltyReasons.Should().Contain("category-protected");
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(FindingClassification.ChecklistCoverage);
         result.PenaltyReasons.Should().Contain("typed-engine-scored");
+        result.PenaltyReasons.Should().NotContain("category-protected");
     }
 
     [Fact]
-    public void Score_protects_substantive_agent_categories_from_demotion()
+    public void Score_demotes_security_category_generic_https_for_agent_finding_without_evidence()
     {
         InsightDensityGateCandidate candidate = new(
             "agent-f1",
@@ -81,8 +82,8 @@ public sealed class DeterministicInsightDensityGateTests
 
         InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
 
-        result.Treatment.Should().Be(FindingTreatment.Promote);
-        result.PenaltyReasons.Should().Contain("category-protected");
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.PenaltyReasons.Should().NotContain("category-protected");
     }
 
     [Fact]
@@ -118,6 +119,82 @@ public sealed class DeterministicInsightDensityGateTests
         result.Treatment.Should().Be(FindingTreatment.Promote);
         result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
         result.InsightDensityScore.Should().BeGreaterThan(50);
+    }
+
+    [Fact]
+    public void Score_demotes_generic_mfa_on_named_service_without_resolvable_evidence()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f4",
+            "Enable MFA on CheckoutApi before production rollout.",
+            ["request"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void Score_demotes_under_specified_title_without_resolvable_evidence()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f5",
+            "SecretManagementUnderSpecified",
+            ["request"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.PenaltyReasons.Should().NotContain("falsifiability-signal");
+    }
+
+    [Fact]
+    public void Score_demotes_when_only_related_node_ids_would_have_been_evidence()
+    {
+        Finding finding = new()
+        {
+            FindingId = "engine-f6",
+            Title = "Enable MFA for all user accounts.",
+            Severity = FindingSeverity.Warning,
+            Category = "Security",
+            RelatedNodeIds = ["node-checkout-api"],
+            Trace = new ExplainabilityTrace { Notes = ["evidence:request"] },
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        candidate.EvidenceRefs.Should().NotContain("node-checkout-api");
+    }
+
+    [Fact]
+    public void Score_promotes_policy_backed_finding_via_policy_rule_evidence_ref()
+    {
+        Finding finding = new()
+        {
+            FindingId = "engine-f7",
+            Title = "Use HTTPS for all public endpoints.",
+            Severity = FindingSeverity.Info,
+            Category = "Security",
+            PolicyRuleId = "cis-az-006",
+            Trace = new ExplainabilityTrace { Notes = ["evidence:request"] },
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        candidate.EvidenceRefs.Should().Contain("policy-rule:cis-az-006");
     }
 
     [Fact]

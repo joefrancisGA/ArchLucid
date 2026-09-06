@@ -9,6 +9,7 @@ using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Decisioning.Plugins;
+using ArchLucid.Decisioning.Risk;
 using ArchLucid.Host.Composition.Compliance;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
@@ -121,6 +122,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
         services.AddSingleton<FeasibilityVerdictBuilder>();
         services.AddSingleton<IAuthorityFeasibilityVerdictComposer, AuthorityFeasibilityVerdictComposer>();
+        services.TryAddScoped<Di.IFindingPayloadJsonCompletionClient, AgentCompletionClientFindingPayloadAdapter>();
+        services.AddScoped<ITradeoffDetectionEngine, TradeoffDetectionEngine>();
         services.TryAddSingleton<IDecisionIntakeTrailProvider, NullDecisionIntakeTrailProvider>();
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();

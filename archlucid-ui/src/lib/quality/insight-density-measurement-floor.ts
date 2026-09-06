@@ -59,7 +59,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const counts = resolveInsightDensityMeasurementFloorCounts(enginesSucceeded);
   const measured = counts.measuredThisRunEngineCount;
   const meetsCareerExportFloor =
-    measured === null || measured >= INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES;
+    measured !== null && measured >= INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES;
 
   return {
     ...counts,
@@ -78,7 +78,11 @@ export function formatInsightDensityMeasurementFloorBlockedReason(
     return null;
   }
 
-  const measured = presentation.measuredThisRunEngineCount ?? 0;
+  if (presentation.measuredThisRunEngineCount === null) {
+    return `Engine coverage has not been measured on this package — career export requires at least ${presentation.harnessEngineCount} catalog engines to produce findings.`;
+  }
+
+  const measured = presentation.measuredThisRunEngineCount;
 
   return `Only ${measured} of ${presentation.catalogEngineCount} catalog engines produced findings — below the ${presentation.harnessEngineCount}-engine measurement floor for career export.`;
 }
