@@ -10,11 +10,15 @@ import { ArchitectureStructuredSectionView } from "@/components/architecture/Arc
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { Button } from "@/components/ui/button";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import {
+  ARCHITECTURE_CREATED_OVERVIEW_BUYER_EMPTY_CAUSE,
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE,
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING,
   ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND,
+  ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY,
+  ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY_BUYER,
 } from "@/lib/architecture/architecture-created-overview-sources";
 import type {
   ArchitectureCreationUserAssertions,
@@ -61,6 +65,7 @@ export type ArchitectureCreatedOverviewPanelProps = {
 export function ArchitectureCreatedOverviewPanel(
   props: ArchitectureCreatedOverviewPanelProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -106,6 +111,12 @@ export function ArchitectureCreatedOverviewPanel(
   const showStructuredSections = overviewSections.length > 0;
   const showEmptyOverviewState = !showStructuredSections && !parseResult.hasPartialParseFailure;
   const continueClarifyingVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const emptyCauseCopy = buyerPolishedShell
+    ? ARCHITECTURE_CREATED_OVERVIEW_BUYER_EMPTY_CAUSE
+    : ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE;
+  const submittedBriefSummary = buyerPolishedShell
+    ? ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY_BUYER
+    : ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY;
 
   return (
     <div
@@ -118,12 +129,14 @@ export function ArchitectureCreatedOverviewPanel(
         Architecture overview
       </h2>
 
-      <p
-        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="architecture-overview-provenance-legend"
-      >
-        {ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND}
-      </p>
+      {buyerPolishedShell ? null : (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-overview-provenance-legend"
+        >
+          {ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND}
+        </p>
+      )}
 
       {parseResult.hasPartialParseFailure ? (
         <ArchitectureStructuringFailureNotice
@@ -156,7 +169,7 @@ export function ArchitectureCreatedOverviewPanel(
             {ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING}
           </h3>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE}
+            {emptyCauseCopy}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -211,11 +224,11 @@ export function ArchitectureCreatedOverviewPanel(
           setSubmittedBriefOpen(event.currentTarget.open);
         }}
       >
-        <summary className="cursor-pointer font-semibold">Generated source and submitted brief</summary>
+        <summary className="cursor-pointer font-semibold">{submittedBriefSummary}</summary>
         <div className="mt-3">{props.submittedArchitectureSection}</div>
       </details>
 
-      <ArchitectureCreatedOverviewEvidenceOrientationStrip />
+      {buyerPolishedShell ? null : <ArchitectureCreatedOverviewEvidenceOrientationStrip />}
     </div>
   );
 }
