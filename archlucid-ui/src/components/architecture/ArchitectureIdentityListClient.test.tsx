@@ -10,7 +10,7 @@ vi.mock("@/hooks/use-architecture-identities-list-query", () => ({
 import { ArchitectureIdentityListClient } from "@/components/architecture/ArchitectureIdentityListClient";
 
 describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
-  it("renders one architecture row with review counts from identity API", () => {
+  it("renders one architecture row with two reviews grouped under one identity", () => {
     useArchitectureIdentitiesListQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
@@ -42,5 +42,6 @@ describe("ArchitectureIdentityListClient (DA-04 Working list)", () => {
       "href",
       "/architecture/architectures/architecture-identity-001",
     );
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
 });

@@ -31,6 +31,16 @@ export const ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE = "Architectures" as const;
 export const ARCHITECTURE_IDENTITY_LIST_PAGE_SUBTITLE =
   "Durable architecture identities in this workspace — each groups drafts and sealed review records." as const;
 
+export const ARCHITECTURE_IDENTITY_LIST_CLAIM_DISCIPLINE =
+  "Each row is a durable architecture identity — not a draft or a sealed review record. Open one to see its drafts and reviews." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE =
+  "This is the durable architecture identity for your system — not a sealed review record." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY = "No reviews yet" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL = "Start review" as const;
+
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_TITLE = "No architectures yet" as const;
 
 export const ARCHITECTURE_IDENTITY_LIST_EMPTY_BODY =

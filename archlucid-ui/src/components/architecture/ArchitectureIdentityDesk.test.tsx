@@ -9,6 +9,10 @@ vi.mock("@/hooks/use-architecture-identity-query", () => ({
   useArchitectureIdentityQuery: (...args: unknown[]) => useArchitectureIdentityQueryMock(...args),
 }));
 
+vi.mock("@/hooks/use-rehydrate-in-flight-from-architecture", () => ({
+  useRehydrateInFlightOperationsFromArchitecture: vi.fn(),
+}));
+
 import { ArchitectureIdentityDesk } from "@/components/architecture/ArchitectureIdentityDesk";
 
 const architectureId = "architecture-identity-001";
@@ -59,10 +63,36 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
     render(<ArchitectureIdentityDesk architectureId={architectureId} />);
 
     expect(screen.getByTestId("architecture-identity-desk-title")).toHaveTextContent("Payments platform");
+    expect(screen.getByTestId("architecture-identity-desk-honesty")).toHaveTextContent(
+      "durable architecture identity",
+    );
     expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
     expect(screen.getByTestId("architecture-identity-review-row-review-1")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-review-row-review-2")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-compare-entry")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-latest-seal-link")).toBeInTheDocument();
+  });
+
+  it("shows Start review when there are no child reviews yet", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        reviews: [],
+        reviewCount: 0,
+        latestReviewId: null,
+        latestSealedManifestId: null,
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-reviews-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-open-1",
+    );
   });
 });

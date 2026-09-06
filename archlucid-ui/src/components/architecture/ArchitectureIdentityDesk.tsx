@@ -18,6 +18,7 @@ import {
 import {
   ARCHITECTURE_IDENTITY_DESK_COMPARE_LABEL,
   ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL,
+  ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
   ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL,
   ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT,
   ARCHITECTURE_IDENTITY_DESK_REVIEWS_SECTION_TITLE,
@@ -26,7 +27,7 @@ import {
   architectureIdentityDeskPageTitle,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
   }
 
   const currentDraftId = identity.currentDraftId?.trim() ?? "";
+  const startReviewDraftId =
+    currentDraftId.length > 0
+      ? currentDraftId
+      : identity.drafts[0]?.draftId?.trim() ?? "";
+  const startReviewHref =
+    startReviewDraftId.length > 0 ? startReviewFromArchitectureHref(startReviewDraftId) : null;
   const latestSealedManifestId = identity.latestSealedManifestId?.trim() ?? "";
   const compareHref =
     identity.reviews.length >= 2
@@ -77,6 +84,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <span className="font-medium text-neutral-800 dark:text-neutral-100">{ARCHITECTURE_IDENTITY_DESK_UPDATED_LABEL}:</span>
           {" "}
           {formatInventoryUpdatedAtCell(identity.updatedUtc).display}
+        </p>
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-300")}
+          data-testid="architecture-identity-desk-honesty"
+        >
+          {ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE}
         </p>
       </header>
 
@@ -145,6 +158,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           reviews={identity.reviews}
           architectureId={identity.architectureId}
           reviewCount={identity.reviewCount}
+          startReviewHref={startReviewHref}
         />
       </section>
 
