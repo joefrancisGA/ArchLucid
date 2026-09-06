@@ -19,6 +19,14 @@ export const ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR =
 export const ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_BUYER =
   "Scan connector readiness for this workspace, then open the integration that still needs setup." as const;
 
+export const ADMINISTRATION_CONNECTION_STATUS_PAGE_LEAD =
+  "See which integrations are ready, recommended, or optional for this workspace — and what still needs configuration." as const;
+
+export const ADMINISTRATION_CONNECTION_STATUS_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const ADMINISTRATION_CONNECTION_STATUS_BUYER_START_HERE_HELPER =
+  "Use the readiness summary and category filters below to scan connector posture. Setup actions open the matching integration workspace." as const;
+
 export function administrationConnectionStatusPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell
     ? ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_BUYER

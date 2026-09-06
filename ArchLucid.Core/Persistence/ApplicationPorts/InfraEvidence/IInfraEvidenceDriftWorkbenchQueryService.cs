@@ -23,5 +23,6 @@ public interface IInfraEvidenceDriftWorkbenchQueryService
         Guid diffId,
         int page,
         int pageSize,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
-import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
+
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
@@ -30,31 +29,21 @@ import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
-  REVIEWS_HUB_MEDIAN_DELTA_SUMMARY,
-  REVIEWS_HUB_MEDIAN_DELTA_TITLE,
-  REVIEWS_HUB_MORE_WAYS_SUMMARY,
-  REVIEWS_HUB_MORE_WAYS_TITLE,
   REVIEWS_HUB_PAGE_SUBTITLE,
   REVIEWS_HUB_PAGE_TITLE,
-  REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY,
-  REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE,
 } from "./reviews-hub-copy";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import { ReviewsHubBuyerChrome } from "./ReviewsHubBuyerChrome";
 import {
   OperatorWelcomeOnboardingDeferred,
-  ReviewsHubBeforeAfterDeltaPanelDeferred,
-  ReviewsHubExploreSamplesDeferred,
-  ReviewsHubPackageIncludesDeferred,
   ReviewsHubReviewInventoryDeferred,
-  RunsIndexBeforeAfterPanelDeferred,
   RunsListAggregateErrorBoundaryDeferred,
 } from "./reviews-hub-deferred-chunks";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
 import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
 import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
@@ -64,16 +53,6 @@ type Props = {
 };
 
 const REVIEWS_HUB_BODY_STACK_CLASS = OPERATOR_LAYOUT.majorSectionGap;
-const REVIEWS_HUB_GUIDANCE_STACK_CLASS = cn(
-  OPERATOR_LAYOUT.sectionStack,
-  "border-t border-neutral-200 pt-6 dark:border-neutral-800",
-);
-const REVIEWS_HUB_ANALYTICS_STACK_CLASS = cn(
-  OPERATOR_LAYOUT.sectionStack,
-  "border-t border-neutral-200 pt-6 dark:border-neutral-800",
-  "[&_[data-testid=before-after-delta-panel]]:mb-0 [&_[data-testid=before-after-delta-panel-top]]:mb-0",
-  "[&_[data-testid=before-after-delta-panel]]:max-w-none [&_[data-testid=before-after-delta-panel-top]]:max-w-none",
-);
 
 /** Server component: reviews index body (list fetch happens in `loadRunsPageModel`). */
 export function RunsPageView(props: Props) {
@@ -215,55 +194,10 @@ export function RunsPageView(props: Props) {
         </div>
 
         {hubLoadOk && hasReviews ? (
-          <section
-            aria-label="Reviews hub guidance"
-            className={REVIEWS_HUB_GUIDANCE_STACK_CLASS}
-            data-testid="reviews-hub-guidance"
-          >
-            <OperatorAttentionKindStrip
-              variant="compact"
-              suppressKinds={attentionSuppressKinds.length > 0 ? attentionSuppressKinds : undefined}
-            />
-            <ArchitectureObjectMapStrip focus="review" />
-            <CollapsibleSection
-              title={REVIEWS_HUB_MORE_WAYS_TITLE}
-              summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
-              defaultOpen={false}
-              sectionTestId="reviews-hub-more-ways"
-              className="mb-0 p-4"
-            >
-              <ReviewsHubExploreSamplesDeferred />
-              <ReviewsHubPackageIncludesDeferred />
-            </CollapsibleSection>
-          </section>
-        ) : null}
-
-        {hubLoadOk && hasReviews ? (
-          <div className={REVIEWS_HUB_ANALYTICS_STACK_CLASS} data-testid="reviews-hub-analytics">
-            <CollapsibleSection
-              title={REVIEWS_HUB_MEDIAN_DELTA_TITLE}
-              summaryLine={REVIEWS_HUB_MEDIAN_DELTA_SUMMARY}
-              defaultOpen={false}
-              sectionTestId="reviews-hub-median-delta"
-              className="mb-0"
-            >
-              <ReviewsHubBeforeAfterDeltaPanelDeferred embeddedInCollapsible />
-            </CollapsibleSection>
-            {m.firstCommittedRunId !== null ? (
-              <CollapsibleSection
-                title={REVIEWS_HUB_REVIEW_CYCLE_DELTA_TITLE}
-                summaryLine={REVIEWS_HUB_REVIEW_CYCLE_DELTA_SUMMARY}
-                defaultOpen={false}
-                sectionTestId="reviews-hub-review-cycle-delta"
-                className="mb-0"
-              >
-                <RunsIndexBeforeAfterPanelDeferred
-                  committedRunId={m.firstCommittedRunId}
-                  embeddedInCollapsible
-                />
-              </CollapsibleSection>
-            ) : null}
-          </div>
+          <ReviewsHubDisclosuresClient
+            attentionSuppressKinds={attentionSuppressKinds}
+            firstCommittedRunId={m.firstCommittedRunId}
+          />
         ) : null}
 
         <ReviewsHubBuyerChrome />

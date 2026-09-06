@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Sales acknowledgement SLA snapshot for marketing pricing quote requests.</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/marketing/pricing-quote-aging")]
 public sealed class MarketingPricingQuoteAgingAdminController(

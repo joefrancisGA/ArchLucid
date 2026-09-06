@@ -181,11 +181,33 @@ describe("formatGoldenManifestMarkdown", () => {
     const md = formatGoldenManifestMarkdown(null, {
       runId: "r9",
       manifestSummaryFallback: summary,
+      enginesSucceeded: 16,
+      careerExportHonesty: {
+        enginesSucceeded: 16,
+        workingDesk: true,
+      },
     });
 
     expect(md).toContain("# Architecture review record summary");
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
+    expect(md).toContain("Measurement floor");
+  });
+
+  it("appends shared career export honesty to full manifest JSON exports (PC-13)", () => {
+    const md = formatGoldenManifestMarkdown(
+      { runId: "r1", manifestId: "m1", manifestHash: "h1" },
+      {
+        runId: "r1",
+        enginesSucceeded: 16,
+        careerExportHonesty: {
+          enginesSucceeded: 16,
+          workingDesk: true,
+        },
+      },
+    );
+
+    expect(md).toContain("Measurement floor");
   });
 
   it("returns a clear message when nothing is available", () => {

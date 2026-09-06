@@ -208,6 +208,13 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
       "Trust-boundary, privileged-access, and external-exposure findings need people and systems from guided intake " +
       "(People, systems, and integrations on New architecture review). IaC-only uploads can look complete while those engines stay quiet.",
   },
+  universalIntakeMustEngineCoverage: {
+    title: "Required clarifications and measured engines",
+    body:
+      "Each L0 MUST clarification maps to deterministic engines in the golden corpus harness — not a 40th coverage engine. " +
+      "Skipping or leaving a MUST unanswered blocks finalize and leaves named engine families absent on the sealed record. " +
+      "Working intake shows which measurements stay thin when a field is empty. See docs/architecture/UNIVERSAL_INTAKE_MUST_ENGINE_COVERAGE.md for the full inventory.",
+  },
   whatCanWaitUntilLater: {
     title: "What can wait until later",
     body:

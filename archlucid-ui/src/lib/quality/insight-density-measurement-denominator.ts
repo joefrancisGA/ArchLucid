@@ -2,6 +2,8 @@
  * LK-14: career-surface denominator pinned to Decisioning harness/catalog constants.
  * Keep in sync with `InsightDensityEngineDistributionMarkdown` in ArchLucid.Decisioning.
  */
+import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
+
 export const INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 16;
 
 /** Product `BuiltInFindingEngineTypeCatalog` size — not the harness slice alone. */
@@ -15,13 +17,12 @@ export type InsightDensityMeasurementDenominatorPresentation = {
   readonly helpHref: string;
 };
 
-/** One honest denominator line for stamp / print / JSON career exports (ADR 0070 / LK-14). */
+/** Static denominator line when per-run engine counts are unavailable (legacy exports). */
 export function formatInsightDensityMeasurementDenominatorLine(): InsightDensityMeasurementDenominatorPresentation {
-  const line =
-    `Quality scores use ${INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT} of ${INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT} built-in engines. The others were not scored.`;
+  const { line, helpHref } = formatInsightDensityMeasurementFloorPresentation(null);
 
   return {
     line,
-    helpHref: INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
+    helpHref,
   };
 }

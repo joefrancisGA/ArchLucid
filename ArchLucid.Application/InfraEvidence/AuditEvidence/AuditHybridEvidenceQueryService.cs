@@ -1,5 +1,9 @@
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -9,17 +13,23 @@ public sealed class AuditHybridEvidenceQueryService(
     IAuditEvidenceSnapshotRepository snapshotRepository,
     IAuditManualEvidenceRepository manualEvidenceRepository,
     IAuditEvidenceRequirementRepository requirementRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AuditHybridEvidenceQueryService> logger) : IAuditHybridEvidenceQueryService
 {
     public async Task<AuditHybridControlEvidenceRecord?> TryGetControlEvidenceSourcesAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assessmentId,
         Guid controlId,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         try
         {
+            Guid tenantId = scope.TenantId;
+
             AuditEvidenceSnapshotHeaderRecord? snapshotHeader =
                 await snapshotRepository.TryGetHeaderAsync(tenantId, auditEvidenceSnapshotId, cancellationToken);
 
@@ -47,6 +57,16 @@ public sealed class AuditHybridEvidenceQueryService(
                     controlId,
                     cancellationToken);
 
+            if (architectureLinks.Any(link => requirementIds.Contains(link.RequirementId)))
+            {
+                await AuditArchitectureEvidenceSealedManifestHashGuard.EnsureLinkedRunsSealedManifestHashOrThrowAsync(
+                    architectureLinks,
+                    scope,
+                    authorityQueryService,
+                    manifestHashService,
+                    cancellationToken);
+            }
+
             List<AuditEvidenceSourceKind> sourceKinds = [];
 
             if (snapshotItems.Any(item =>
@@ -72,7 +92,7 @@ public sealed class AuditHybridEvidenceQueryService(
                 SourceKinds = sourceKinds,
             };
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not ConflictException)
         {
             logger.LogWarning(
                 ex,

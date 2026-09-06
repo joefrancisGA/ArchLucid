@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -23,6 +25,10 @@ import {
 import type { JiraConnectionStatusPresentation } from "@/lib/jira-integration-present";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import {
+  jiraPlatformNotesDisclosureHrefFromSearch,
+  parseJiraPlatformNotesOpenFromSearch,
+} from "@/lib/integrations/jira-platform-notes-disclosure-url";
 
 type Props = {
   readonly status: JiraConnectionStatusPresentation;
@@ -37,6 +43,35 @@ type Props = {
 };
 
 export function JiraIntegrationAside(props: Props): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const jiraPlatformNotesOpenParam = searchParams.get("jiraPlatformNotesOpen");
+  const [platformNotesOpen, setPlatformNotesOpenState] = useState(() =>
+    parseJiraPlatformNotesOpenFromSearch(jiraPlatformNotesOpenParam),
+  );
+
+  const syncPlatformNotesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(jiraPlatformNotesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPlatformNotesOpen = useCallback(
+    (open: boolean) => {
+      setPlatformNotesOpenState(open);
+      syncPlatformNotesOpenToUrl(open);
+    },
+    [syncPlatformNotesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPlatformNotesOpenState(parseJiraPlatformNotesOpenFromSearch(jiraPlatformNotesOpenParam));
+  }, [jiraPlatformNotesOpenParam]);
+
   const connectSteps = resolveJiraIntegrationConnectSteps({
     oauthConnectReady: props.oauthConnectReady,
     credentialsReady: props.credentialsReady,
@@ -119,7 +154,12 @@ export function JiraIntegrationAside(props: Props): React.ReactElement {
       </div>
 
       {props.showOperatorNotes ? (
-        <CollapsibleSection title="Platform administrator notes" sectionTestId="jira-operator-notes">
+        <CollapsibleSection
+          title="Platform administrator notes"
+          sectionTestId="jira-operator-notes"
+          open={platformNotesOpen}
+          onToggle={setPlatformNotesOpen}
+        >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Outbound ticket creation is {props.nativeEnabled ? "enabled" : "disabled"} for this deployment.
           </p>

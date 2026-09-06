@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AccessDeniedBreadcrumb } from "@/components/operator/AccessDeniedBreadcrumb";
@@ -33,12 +34,23 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { clearOidcSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
+import {
+  operatorAccessDeniedAdminDetailsDisclosureHrefFromSearch,
+  parseOperatorAccessDeniedAdminDetailsOpenFromSearch,
+} from "@/lib/operator/operator-access-denied-admin-details-disclosure-url";
 
 /**
  * Customer-facing 403 surface for authenticated principals without a recognized ArchLucid app role.
  */
 export function OperatorAccessDeniedPageClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/access-denied";
+  const searchParams = useSearchParams();
+  const operatorAccessDeniedAdminDetailsOpenParam = searchParams.get("operatorAccessDeniedAdminDetailsOpen");
   const { currentPrincipal } = useOperatorNavAuthority();
+  const [adminDetailsOpen, setAdminDetailsOpenState] = useState(() =>
+    parseOperatorAccessDeniedAdminDetailsOpenFromSearch(operatorAccessDeniedAdminDetailsOpenParam),
+  );
   const [supportTimestamp, setSupportTimestamp] = useState<string | null>(null);
   const [administratorContactHref, setAdministratorContactHref] = useState<string | null>(null);
 
@@ -52,6 +64,28 @@ export function OperatorAccessDeniedPageClient() {
     || null;
   const tenantLabel = formatAccessDeniedTenantLabel(readOperatorScopeFromStorage());
   const showJwtAdminCallout = isJwtAuthMode() && isLikelySignedIn();
+
+  const syncAdminDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        operatorAccessDeniedAdminDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdminDetailsOpen = useCallback(
+    (open: boolean) => {
+      setAdminDetailsOpenState(open);
+      syncAdminDetailsOpenToUrl(open);
+    },
+    [syncAdminDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdminDetailsOpenState(parseOperatorAccessDeniedAdminDetailsOpenFromSearch(operatorAccessDeniedAdminDetailsOpenParam));
+  }, [operatorAccessDeniedAdminDetailsOpenParam]);
 
   useEffect(() => {
     setSupportTimestamp(
@@ -140,7 +174,14 @@ export function OperatorAccessDeniedPageClient() {
           ) : null}
         </div>
 
-        <details className={cn("mt-8 text-left", OPERATOR_TYPOGRAPHY.helper)} data-testid="operator-access-denied-admin-details">
+        <details
+          className={cn("mt-8 text-left", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="operator-access-denied-admin-details"
+          open={adminDetailsOpen}
+          onToggle={(event) => {
+            setAdminDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className="cursor-pointer select-none text-al-text-secondary hover:text-al-text-primary">
             Details for administrators
           </summary>
@@ -181,7 +222,9 @@ export function OperatorAccessDeniedPageClient() {
           surfaceId={
             supplementMessage === "wrong-tenant"
               ? "access-denied-wrong-tenant"
-              : "operator-role-gate-session-break"
+              : showJwtAdminCallout
+                ? "auth-jwt-insufficient-scope"
+                : "operator-role-gate-session-break"
           }
           errorTitle={ACCESS_DENIED_HEADING}
           correlationId={correlationId}

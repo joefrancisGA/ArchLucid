@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -27,6 +28,7 @@ public sealed class AuditEvidencePackageController(
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadEvidencePackage(
         Guid assessmentId,
         Guid snapshotId,
@@ -37,19 +39,26 @@ public sealed class AuditEvidencePackageController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        AuditEvidencePackageExportResult result = await exportService.TryExportAsync(
-            scope.TenantId,
-            assessmentId,
-            snapshotId,
-            cancellationToken);
-
-        if (!result.Succeeded || result.ZipContent is null)
+        try
         {
-            return this.NotFoundProblem(
-                result.ErrorMessage ?? "Audit evidence package could not be exported.",
-                ProblemTypes.ResourceNotFound);
-        }
+            AuditEvidencePackageExportResult result = await exportService.TryExportAsync(
+                scope,
+                assessmentId,
+                snapshotId,
+                cancellationToken);
 
-        return File(result.ZipContent, "application/zip", result.PackageFileName);
+            if (!result.Succeeded || result.ZipContent is null)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? "Audit evidence package could not be exported.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return File(result.ZipContent, "application/zip", result.PackageFileName);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

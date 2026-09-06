@@ -1,6 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/developer",
+  });
+});
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -33,6 +41,9 @@ import {
   DEVELOPER_SETTINGS_PRIMARY_CONTENT_ID,
   DEVELOPER_SETTINGS_SKIP_LINK_LABEL,
   DEVELOPER_SETTINGS_SKIP_TARGET_ID,
+  DEVELOPER_SETTINGS_BUYER_START_HERE_HELPER,
+  DEVELOPER_SETTINGS_PAGE_LEAD,
+  DEVELOPER_SETTINGS_START_HERE_CARD_TITLE,
 } from "@/lib/developer-settings-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -47,6 +58,15 @@ describe("DeveloperSettingsPageClient buyer-polished shell (SDX)", () => {
     );
     expect(screen.getByText(DEVELOPER_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(INTERNAL_DEVELOPER_TOOLS_INTRO)).not.toBeInTheDocument();
+    expect(screen.getByTestId("developer-settings-intro")).toHaveTextContent(DEVELOPER_SETTINGS_PAGE_LEAD);
+    expect(screen.getByTestId("developer-settings-buyer-start-here-helper")).toHaveTextContent(
+      DEVELOPER_SETTINGS_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: DEVELOPER_SETTINGS_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("try-cli-demo-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("authority-theme-option-default")).not.toBeInTheDocument();
     expect(screen.getByTestId(DEVELOPER_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       DEVELOPER_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );

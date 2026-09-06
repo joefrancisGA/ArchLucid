@@ -3,10 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { DiagramReconcileWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
 
+let searchParams = new URLSearchParams(
+  "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+);
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
   usePathname: () => "/governance/infrastructure/diagram-reconcile",
-  useSearchParams: () => new URLSearchParams("runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111"),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -100,10 +104,59 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(within(conflictRow).getByText("Conflict")).toBeInTheDocument();
     expect(within(conflictRow).getByText(/private gateway/)).toBeInTheDocument();
     expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=22222222-3333-4444-5555-666666666666&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(
+      within(conflictRow).queryByTestId("infra-diagram-reconcile-remediation-infra-only-1"),
+    ).not.toBeInTheDocument();
 
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
     fireEvent.change(filter, { target: { value: "Conflict" } });
 
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("highlights and scrolls to a deep-linked correspondence row", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    expect(conflictRow).toHaveClass("bg-muted/40");
+  });
+
+  it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=missing-correspondence",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-correspondence-deep-link-missing")).toHaveTextContent(
+      "linked diagram correspondence row is not in the loaded reconciliation",
+    );
+  });
+
+  it("shows resource scope banner and filters rows when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-resource-scope-banner")).toHaveTextContent(
+      "22222222-3333-4444-5555-666666666666",
+    );
+    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=diagram&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
   });

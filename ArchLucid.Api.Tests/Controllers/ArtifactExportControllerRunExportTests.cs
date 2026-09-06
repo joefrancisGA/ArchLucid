@@ -12,6 +12,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -199,6 +200,57 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task PushRunExportToBlob_returns_409_when_sealed_manifest_hash_missing()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox,
+            scope,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService());
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
+                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() },
+            });
+
+        IActionResult result = await sut.PushRunExportToBlob(
+            runId,
+            new RunExportBlobPushRequest { DestinationSasUrl = ValidDestination },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PushRunExportToBlob_enqueues_and_returns_202_when_run_is_exportable()
     {
         Guid runId = Guid.NewGuid();
@@ -213,7 +265,8 @@ public sealed class ArtifactExportControllerRunExportTests
             out Mock<IAuthorityQueryService> authority,
             out Mock<IAuditService> audit,
             out Mock<IRunExportBlobPushOutboxRepository> outbox,
-            scope);
+            scope,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService());
 
         authority
             .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
@@ -225,7 +278,11 @@ public sealed class ArtifactExportControllerRunExportTests
                     GoldenManifestId = Guid.NewGuid(),
                     LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
                 },
-                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() }
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = Guid.NewGuid(),
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
             });
 
         IActionResult result = await sut.PushRunExportToBlob(
@@ -349,7 +406,8 @@ public sealed class ArtifactExportControllerRunExportTests
         IRunExportPackageBuilder? runExportPackageBuilder = null,
         IRunExportLineageVerifier? runExportLineageVerifier = null,
         IArtifactPackagingService? artifactPackagingService = null,
-        ITerraformGitHubPrService? terraformGitHubPrService = null)
+        ITerraformGitHubPrService? terraformGitHubPrService = null,
+        IManifestHashService? manifestHashService = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -390,7 +448,7 @@ public sealed class ArtifactExportControllerRunExportTests
             outbox.Object,
             runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>(),
             Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>(),
-            Mock.Of<IManifestHashService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>(),
             Mock.Of<IBrandedDiagramExportService>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };

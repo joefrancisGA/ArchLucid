@@ -30,6 +30,7 @@ public sealed class ArchitecturesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IActorContext _actorContext =
@@ -41,24 +42,29 @@ public sealed class ArchitecturesController(
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
+    private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
+        architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Lists architecture identities in the current tenant/workspace/project scope.</summary>
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<ArchitectureIdentityListItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ArchitectureIdentityListPage), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListArchitectures(
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        [FromQuery] bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        PagedResponse<ArchitectureIdentityListItem> response = await _architectureIdentityService.ListIdentitiesAsync(
+        ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
             scope,
             page,
             pageSize,
+            includeArchived,
             cancellationToken);
 
         return Ok(response);
@@ -86,6 +92,32 @@ public sealed class ArchitecturesController(
         }
 
         return Ok(detail);
+    }
+
+    /// <summary>
+    ///     Read-only projection of how the current draft differs from the latest sealed golden manifest (PC-06).
+    /// </summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{architectureId:guid}/seal-delta")]
+    [ProducesResponseType(typeof(ArchitectureSealDeltaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSealDelta(Guid architectureId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        ArchitectureSealDeltaResponse? delta = await _architectureSealDeltaService.GetSealDeltaAsync(
+            scope,
+            architectureId,
+            cancellationToken);
+
+        if (delta is null)
+        {
+            return this.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(delta);
     }
 
     /// <summary>Renames or updates metadata for one architecture identity.</summary>
@@ -134,15 +166,22 @@ public sealed class ArchitecturesController(
                     ProblemTypes.ResourceNotFound);
             }
 
+            string auditEventType = body.HasArchived
+                ? body.Archived!.Value
+                    ? AuditEventTypes.ArchitectureIdentityArchived
+                    : AuditEventTypes.ArchitectureIdentityRestored
+                : AuditEventTypes.ArchitectureIdentityPatched;
+
             await _auditService.LogAsync(
                 BuildArchitectureAuditEvent(
                     scope,
-                    AuditEventTypes.ArchitectureIdentityPatched,
+                    auditEventType,
                     new
                     {
                         architectureId,
                         displayName = detail.DisplayName,
                         hasDescriptionPatch = body.HasDescription,
+                        archived = detail.ArchivedUtc.HasValue,
                     }),
                 cancellationToken);
 

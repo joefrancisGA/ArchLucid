@@ -67,7 +67,13 @@ public sealed partial class DraftRequestsController
                 BuildDraftAuditEvent(
                     scope,
                     AuditEventTypes.DraftIntakeQuestionAnswered,
-                    new { draftId, questionKey = body.QuestionKey.Trim() }),
+                    new
+                    {
+                        draftId,
+                        questionKey = body.QuestionKey.Trim(),
+                        presenterCapture = body.PresenterCapture,
+                        responderLabel = body.ResponderLabel,
+                    }),
                 cancellationToken);
 
             return Ok(updated);

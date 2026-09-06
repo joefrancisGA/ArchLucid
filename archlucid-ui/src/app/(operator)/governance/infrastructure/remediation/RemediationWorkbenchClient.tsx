@@ -9,9 +9,10 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
+import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -53,26 +54,44 @@ import {
   buildResourceHubWorkbenchHref,
   parseInfraEvidenceWorkbenchQueryValue,
   REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+  REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM,
   REMEDIATION_WORKBENCH_FINDING_ID_PARAM,
+  REMEDIATION_WORKBENCH_RUN_ID_PARAM,
+  REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-function buildDiagramReconcileHref(correspondenceId: string | null): string | null {
-  if (correspondenceId == null || correspondenceId.trim().length === 0) {
+function buildDiagramReconcileHref(context: {
+  readonly correspondenceId: string | null;
+  readonly runId?: string | null;
+  readonly snapshotId?: string | null;
+  readonly cloudResourceId?: string | null;
+}): string | null {
+  if (context.correspondenceId == null || context.correspondenceId.trim().length === 0) {
     return null;
   }
 
-  const params = new URLSearchParams({ reconcileFilter: "Conflict", correspondenceId: correspondenceId.trim() });
-
-  return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}?${params.toString()}`;
+  return buildDiagramReconcileWorkbenchHref({
+    reconcileFilter: "Conflict",
+    correspondenceId: context.correspondenceId,
+    runId: context.runId,
+    snapshotId: context.snapshotId,
+    cloudResourceId: context.cloudResourceId,
+  });
 }
 
 export function RemediationWorkbenchClient() {
   const searchParams = useSearchParams();
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
-  const urlCorrespondenceId = searchParams.get("correspondenceId")?.trim() ?? "";
+  const urlCorrespondenceId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_CORRESPONDENCE_ID_PARAM),
+  );
+  const urlReconcileRunId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_RUN_ID_PARAM));
+  const urlReconcileSnapshotId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM),
+  );
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
   );
@@ -99,7 +118,7 @@ export function RemediationWorkbenchClient() {
   const visibleInstances = instances;
 
   const findingScopedInstance = useMemo(
-    () => visibleInstances.find((instance) => instance.findingId === urlFindingId) ?? null,
+    () => (urlFindingId.length > 0 ? visibleInstances[0] ?? null : null),
     [urlFindingId, visibleInstances],
   );
 
@@ -126,6 +145,7 @@ export function RemediationWorkbenchClient() {
       const [instanceRows, summary, prioritized, waveRows, snapshotResponse] = await Promise.all([
         fetchRemediationInstances({
           cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+          findingId: urlFindingId.length > 0 ? urlFindingId : null,
         }),
         fetchRemediationFactorySummary(),
         fetchRemediationPrioritizedFindings(),
@@ -166,7 +186,7 @@ export function RemediationWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId]);
+  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId, urlFindingId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
     if (instanceId.length === 0) {
@@ -299,7 +319,45 @@ export function RemediationWorkbenchClient() {
     }
   }, [selectedSnapshotId, selectedStatus, snapshotOptions]);
 
-  const diagramReconcileHref = buildDiagramReconcileHref(urlCorrespondenceId);
+  const diagramReconcileHref = buildDiagramReconcileHref({
+    correspondenceId: urlCorrespondenceId,
+    runId: urlReconcileRunId,
+    snapshotId: urlReconcileSnapshotId,
+    cloudResourceId: urlCloudResourceId,
+  });
+
+  const remediationAskHref = useMemo(() => {
+    const scopedCloudResourceId = urlCloudResourceId.length > 0
+      ? urlCloudResourceId
+      : detail?.instance.cloudResourceId?.trim() ?? "";
+
+    if (scopedCloudResourceId.length === 0) {
+      return null;
+    }
+
+    const scopedFindingId = urlFindingId.length > 0
+      ? urlFindingId
+      : detail?.finding.findingId?.trim() ?? "";
+    const scopedInstanceId = selectedInstanceId.length > 0 ? selectedInstanceId : urlInstanceId;
+
+    return buildInfrastructureAskHref({
+      cloudResourceId: scopedCloudResourceId,
+      snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : undefined,
+      findingId: scopedFindingId.length > 0 ? scopedFindingId : undefined,
+      instanceId: scopedInstanceId.length > 0 ? scopedInstanceId : undefined,
+      correspondenceId: urlCorrespondenceId.length > 0 ? urlCorrespondenceId : undefined,
+      runId: urlReconcileRunId.length > 0 ? urlReconcileRunId : undefined,
+    });
+  }, [
+    detail,
+    selectedInstanceId,
+    urlCloudResourceId,
+    urlCorrespondenceId,
+    urlFindingId,
+    urlInstanceId,
+    urlReconcileRunId,
+    urlReconcileSnapshotId,
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
@@ -359,6 +417,12 @@ export function RemediationWorkbenchClient() {
             Open diagram reconciliation for the originating conflict row
           </Link>
         </p>
+      ) : null}
+
+      {remediationAskHref != null ? (
+        <Button asChild variant="outline" size="sm" data-testid="infra-remediation-open-ask">
+          <Link href={remediationAskHref}>Ask about this remediation scope</Link>
+        </Button>
       ) : null}
 
       <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Create remediation instance">

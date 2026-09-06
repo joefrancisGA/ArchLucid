@@ -273,6 +273,8 @@ public sealed class ArchLucidApiClientHttpTests
                 totalCount = 1,
                 page = 1,
                 pageSize = 50,
+                archivedHiddenCount = 0,
+                hasMore = false,
             },
             SJsonCamelCase);
         HttpResponseMessage response = new(HttpStatusCode.OK)
@@ -282,7 +284,7 @@ public sealed class ArchLucidApiClientHttpTests
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
-        ArchLucid.Core.Pagination.PagedResponse<ArchLucid.Contracts.Architecture.ArchitectureIdentityListItem>? result =
+        ArchLucid.Contracts.Architecture.ArchitectureIdentityListPage? result =
             await client.ListArchitecturesAsync(1, 50);
 
         result.Should().NotBeNull();
@@ -309,7 +311,7 @@ public sealed class ArchLucidApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.Unauthorized);
 
         ArchLucidApiClient client = CreateClient(response);
-        ArchLucid.Core.Pagination.PagedResponse<ArchLucid.Contracts.Architecture.ArchitectureIdentityListItem>? result =
+        ArchLucid.Contracts.Architecture.ArchitectureIdentityListPage? result =
             await client.ListArchitecturesAsync(1, 50);
 
         result.Should().BeNull();

@@ -29,6 +29,14 @@ import {
   parseRunCoverageCurationOpenFromSearch,
   runCoverageCurationDisclosureHrefFromSearch,
 } from "@/lib/reviews/run-coverage-curation-disclosure-url";
+import {
+  parseRunFindingExplainabilityOpenFromSearch,
+  runFindingExplainabilityDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-finding-explainability-disclosure-url";
+import {
+  parseRunImpactAnalysisOpenFromSearch,
+  runImpactAnalysisDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-impact-analysis-disclosure-url";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 import {
@@ -61,6 +69,7 @@ type RunDetailRunExplanationCollapsibleProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly manifestIdForExportGuard?: string | null;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
@@ -102,11 +111,19 @@ export function RunDetailRunExplanationCollapsible(
   const searchParams = useSearchParams();
   const runAssessmentNarrativeOpenParam = searchParams.get("runAssessmentNarrativeOpen");
   const runCoverageCurationOpenParam = searchParams.get("runCoverageCurationOpen");
+  const runImpactAnalysisOpenParam = searchParams.get("runImpactAnalysisOpen");
+  const runFindingExplainabilityOpenParam = searchParams.get("runFindingExplainabilityOpen");
   const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
     parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam),
   );
   const [coverageCurationOpen, setCoverageCurationOpenState] = useState(() =>
     parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam),
+  );
+  const [impactAnalysisOpen, setImpactAnalysisOpenState] = useState(() =>
+    parseRunImpactAnalysisOpenFromSearch(runImpactAnalysisOpenParam),
+  );
+  const [findingExplainabilityOpen, setFindingExplainabilityOpenState] = useState(() =>
+    parseRunFindingExplainabilityOpenFromSearch(runFindingExplainabilityOpenParam),
   );
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
@@ -149,6 +166,40 @@ export function RunDetailRunExplanationCollapsible(
     [syncCoverageCurationOpenToUrl],
   );
 
+  const syncImpactAnalysisOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runImpactAnalysisDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setImpactAnalysisOpen = useCallback(
+    (open: boolean) => {
+      setImpactAnalysisOpenState(open);
+      syncImpactAnalysisOpenToUrl(open);
+    },
+    [syncImpactAnalysisOpenToUrl],
+  );
+
+  const syncFindingExplainabilityOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(runFindingExplainabilityDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFindingExplainabilityOpen = useCallback(
+    (open: boolean) => {
+      setFindingExplainabilityOpenState(open);
+      syncFindingExplainabilityOpenToUrl(open);
+    },
+    [syncFindingExplainabilityOpenToUrl],
+  );
+
   useEffect(() => {
     setAssessmentNarrativeOpenState(parseRunAssessmentNarrativeOpenFromSearch(runAssessmentNarrativeOpenParam));
   }, [runAssessmentNarrativeOpenParam]);
@@ -156,6 +207,14 @@ export function RunDetailRunExplanationCollapsible(
   useEffect(() => {
     setCoverageCurationOpenState(parseRunCoverageCurationOpenFromSearch(runCoverageCurationOpenParam));
   }, [runCoverageCurationOpenParam]);
+
+  useEffect(() => {
+    setImpactAnalysisOpenState(parseRunImpactAnalysisOpenFromSearch(runImpactAnalysisOpenParam));
+  }, [runImpactAnalysisOpenParam]);
+
+  useEffect(() => {
+    setFindingExplainabilityOpenState(parseRunFindingExplainabilityOpenFromSearch(runFindingExplainabilityOpenParam));
+  }, [runFindingExplainabilityOpenParam]);
 
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
@@ -172,6 +231,7 @@ export function RunDetailRunExplanationCollapsible(
           providerNeutralWorkItems={providerNeutralWorkItems}
           architectureWorkItemContext={architectureWorkItemContext}
           packageCommitted={packageCommitted}
+          manifestIdForExportGuard={props.manifestIdForExportGuard}
           analysisStagesComplete={analysisStagesComplete}
           triageVisibleCount={triageVisibleCount}
           graphSnapshot={graphSnapshot}
@@ -203,6 +263,10 @@ export function RunDetailRunExplanationCollapsible(
             className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
             data-workspace-disclosure
             data-testid="run-detail-impact-analysis-disclosure"
+            open={impactAnalysisOpen}
+            onToggle={(event) => {
+              setImpactAnalysisOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
               Impact analysis
@@ -269,7 +333,8 @@ export function RunDetailRunExplanationCollapsible(
               return (
                 <CollapsibleSection
                   title="Per-finding trace details"
-                  defaultOpen={false}
+                  open={findingExplainabilityOpen}
+                  onToggle={setFindingExplainabilityOpen}
                   sectionTestId="run-finding-explainability-collapsible"
                 >
                   <RunFindingExplainabilityTableDeferred

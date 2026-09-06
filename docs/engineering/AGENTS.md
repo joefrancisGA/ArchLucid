@@ -74,7 +74,7 @@ Scoped compile check for agents: `.\scripts\ci\agent-compile-check.ps1` (see `.c
 | Milestone | Doc / command |
 | --- | --- |
 | Invite-wave JwtBearer Playwright on `master` push | **`docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md`** — triage `Operator UI: private-beta access-path (JwtBearer)` |
-| Full regression matrix (Vitest, Playwright, ZAP, …) | **Actions → CI → Run workflow** (`workflow_dispatch` on `master`) after push corset + private-beta are green |
+| Full regression matrix (Vitest, Playwright, ZAP, …) | `bash scripts/ci/dispatch_full_ci_matrix.sh master` (or **Actions → CI → Run workflow** on `master`) after push corset + private-beta are green |
 | Gate 1 — observed staging first review | **`docs/runbooks/GATE_1_SHIP_GATE_EVIDENCE.md`** — `archlucid pilot ship-gate-evidence --run-id <guid>` |
 | JwtBearer local / CI mint | **`docs/library/LIVE_E2E_JWT_SETUP.md`** |
 

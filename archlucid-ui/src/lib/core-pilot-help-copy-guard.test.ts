@@ -104,6 +104,7 @@ describe("core-pilot help copy guard", () => {
       CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body,
       CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.body,
       CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body,
+      CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.body,
       CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body,
       ...CORE_PILOT_HELP_GUIDE_HEADINGS.map((heading) => heading.title),
       readFileSync(ORIENTATION_FOOTER_PATH, "utf8"),

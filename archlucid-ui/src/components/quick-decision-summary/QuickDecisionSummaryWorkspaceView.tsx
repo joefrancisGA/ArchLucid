@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { QuickDecisionAdditionalFindingsList } from "@/components/QuickDecisionAdditionalFindingsList";
@@ -17,6 +18,10 @@ import {
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PRIORITY_FINDINGS_DISPLAY_LIMIT } from "@/lib/usability/usability-consolidation";
+import {
+  parseQuickDecisionPolicyPackImpactOpenFromSearch,
+  quickDecisionPolicyPackImpactDisclosureHrefFromSearch,
+} from "@/lib/findings/quick-decision-policy-pack-impact-disclosure-url";
 
 import { QuickDecisionSummaryEmptyState } from "./QuickDecisionSummaryEmptyState";
 import type { QuickDecisionSummaryDerivedData, QuickDecisionSummaryInteractionState, QuickDecisionSummaryProps } from "./types";
@@ -54,7 +59,14 @@ export function QuickDecisionSummaryWorkspaceView({
   interaction,
   workspaceCardContext,
 }: QuickDecisionSummaryWorkspaceViewProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const quickDecisionPolicyPackImpactOpenParam = searchParams.get("quickDecisionPolicyPackImpactOpen");
   const [showAllFindings, setShowAllFindings] = useState(false);
+  const [policyPackImpactOpen, setPolicyPackImpactOpenState] = useState(() =>
+    parseQuickDecisionPolicyPackImpactOpenFromSearch(quickDecisionPolicyPackImpactOpenParam),
+  );
   const visibleFindings = buildWorkspaceVisibleFindings(props, derived, interaction);
   const priorityFindings = showAllFindings
     ? visibleFindings
@@ -62,6 +74,30 @@ export function QuickDecisionSummaryWorkspaceView({
   const hiddenPriorityCount = Math.max(0, visibleFindings.length - priorityFindings.length);
   const primaryFinding = priorityFindings[0] ?? null;
   const additionalFindings = priorityFindings.slice(1);
+
+  const syncPolicyPackImpactOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        quickDecisionPolicyPackImpactDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPolicyPackImpactOpen = useCallback(
+    (open: boolean) => {
+      setPolicyPackImpactOpenState(open);
+      syncPolicyPackImpactOpenToUrl(open);
+    },
+    [syncPolicyPackImpactOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPolicyPackImpactOpenState(
+      parseQuickDecisionPolicyPackImpactOpenFromSearch(quickDecisionPolicyPackImpactOpenParam),
+    );
+  }, [quickDecisionPolicyPackImpactOpenParam]);
 
   return (
     <div
@@ -212,7 +248,14 @@ export function QuickDecisionSummaryWorkspaceView({
         </div>
       )}
       {derived.hasSourceFindings && derived.policyPackSummary.length > 0 ? (
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+        <details
+          className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+          data-workspace-disclosure
+          open={policyPackImpactOpen}
+          onToggle={(event) => {
+            setPolicyPackImpactOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>Policy pack impact</summary>
           <div className="mt-3">
             <ReviewDetailPolicyPackFindingsBreakdown

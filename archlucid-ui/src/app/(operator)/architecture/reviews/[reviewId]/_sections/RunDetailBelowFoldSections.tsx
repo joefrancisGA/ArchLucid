@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
+import { ArchitectureSealDeltaPanel } from "@/components/architecture/ArchitectureSealDeltaPanel";
 import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
@@ -204,6 +205,12 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
             hasStickinessPrompt={Boolean(m.manifestId)}
             pagePrimaryOwnedElsewhere
           />
+          {m.resolvedDetail.run.architectureId ? (
+            <ArchitectureSealDeltaPanel
+              architectureId={m.resolvedDetail.run.architectureId}
+              currentReviewRunId={m.routeRunId}
+            />
+          ) : null}
         </>
       ) : null}
 
@@ -227,6 +234,9 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
           usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
+          enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+          progressSummary={m.resolvedDetail.run}
+          graphSnapshot={m.resolvedDetail.graphSnapshot}
           pagePrimaryOwnedElsewhere
         />
       ) : null}

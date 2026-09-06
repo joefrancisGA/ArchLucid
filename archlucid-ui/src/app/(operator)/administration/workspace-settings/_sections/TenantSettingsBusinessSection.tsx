@@ -33,12 +33,14 @@ function SectionHeading({ children }: SectionHeadingProps) {
 
 type Props = {
   readonly canEdit: boolean;
+  readonly buyerPolishedShell?: boolean;
   readonly advancedQualityOpen: boolean;
   readonly onAdvancedQualityToggle: (open: boolean) => void;
 };
 
 export function TenantSettingsBusinessSection({
   canEdit,
+  buyerPolishedShell = false,
   advancedQualityOpen,
   onAdvancedQualityToggle,
 }: Props) {
@@ -67,51 +69,59 @@ export function TenantSettingsBusinessSection({
 
       <SectionHeading>Support &amp; diagnostics</SectionHeading>
 
-      <Card>
-        <CardHeader>
-          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            Support bundle
-          </CardTitle>
-        </CardHeader>
-        <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">
-            Download a redacted diagnostics bundle to include with a support ticket.
-          </p>
-          <SupportBundleDownloadButton showDiagnosticsLink />
-        </CardContent>
-      </Card>
+      {buyerPolishedShell ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+              Support bundle
+            </CardTitle>
+          </CardHeader>
+          <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0">
+              Download a redacted diagnostics bundle to include with a support ticket.
+            </p>
+            <SupportBundleDownloadButton showDiagnosticsLink />
+          </CardContent>
+        </Card>
+      )}
 
       <SectionHeading>Governance</SectionHeading>
 
-      <Card>
-        <CardHeader>
-          <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            Work ownership delete policy
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TenantWorkOwnershipDeletePolicyCard />
-        </CardContent>
-      </Card>
+      {buyerPolishedShell ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+              Work ownership delete policy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TenantWorkOwnershipDeletePolicyCard />
+          </CardContent>
+        </Card>
+      )}
 
-      <SectionHeading>Advanced — AI quality controls</SectionHeading>
+      {buyerPolishedShell ? null : (
+        <>
+          <SectionHeading>Advanced — AI quality controls</SectionHeading>
 
-      <CollapsibleSection
-        title="Quality control settings"
-        defaultOpen={false}
-        open={advancedQualityOpen}
-        onToggle={onAdvancedQualityToggle}
-        sectionTestId="tenant-advanced-section"
-      >
-        <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
-          AI spend and review pipeline behavior — leave at host defaults unless directed by support.
-        </p>
-        <div className="space-y-4">
-          {advancedQualityOpen ? <TenantFindingEngineControlsCard /> : null}
-          {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
-        </div>
-      </CollapsibleSection>
+          <CollapsibleSection
+            title="Quality control settings"
+            defaultOpen={false}
+            open={advancedQualityOpen}
+            onToggle={onAdvancedQualityToggle}
+            sectionTestId="tenant-advanced-section"
+          >
+            <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
+              AI spend and review pipeline behavior — leave at host defaults unless directed by support.
+            </p>
+            <div className="space-y-4">
+              {advancedQualityOpen ? <TenantFindingEngineControlsCard /> : null}
+              {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
+            </div>
+          </CollapsibleSection>
+        </>
+      )}
     </>
   );
 }

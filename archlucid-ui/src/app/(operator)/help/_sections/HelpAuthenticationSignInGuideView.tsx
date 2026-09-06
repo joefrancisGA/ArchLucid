@@ -5,7 +5,7 @@ import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_se
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpAuthenticationSignInCollapsibleSections } from "./HelpAuthenticationSignInCollapsibleSections";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
@@ -13,10 +13,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SCOPE,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
-import {
-  AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS,
-  splitAuthenticationSignInHelpMarkdown,
-} from "@/lib/authentication-sign-in-help-guide-content";
+import { splitAuthenticationSignInHelpMarkdown } from "@/lib/authentication-sign-in-help-guide-content";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { appendHelpClaimDisciplineTocHeadings, extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -66,7 +63,6 @@ export function HelpAuthenticationSignInGuideView(
     AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID,
   );
   const contentGridClass = resolveHelpPageContentGridClass(headings.length);
-  const collapsibleSections = AUTHENTICATION_SIGN_IN_HELP_COLLAPSIBLE_SECTIONS;
 
   return (
     <article
@@ -107,37 +103,11 @@ export function HelpAuthenticationSignInGuideView(
           </div>
 
           <div data-testid="help-authentication-sign-in-content" className="space-y-4">
-            <CollapsibleSection
-              title={collapsibleSections.commonIssues.title}
-              sectionTestId={collapsibleSections.commonIssues.testId}
-              defaultOpen={false}
-            >
-              {renderHelpMarkdownSection(sections.commonIssuesMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              title={collapsibleSections.accountRecovery.title}
-              sectionTestId={collapsibleSections.accountRecovery.testId}
-              defaultOpen={false}
-            >
-              {renderHelpMarkdownSection(sections.accountRecoveryMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              title={collapsibleSections.acceptingInvitation.title}
-              sectionTestId={collapsibleSections.acceptingInvitation.testId}
-              defaultOpen={false}
-            >
-              {renderHelpMarkdownSection(sections.acceptingInvitationMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              title={collapsibleSections.enterpriseSso.title}
-              sectionTestId={collapsibleSections.enterpriseSso.testId}
-              defaultOpen={false}
-            >
-              {renderHelpMarkdownSection(sections.enterpriseSsoMarkdown, entry, sourceDocPath)}
-            </CollapsibleSection>
+            <HelpAuthenticationSignInCollapsibleSections
+              entry={entry}
+              sourceDocPath={sourceDocPath}
+              sections={sections}
+            />
 
             {renderHelpMarkdownSection(sections.securityPrivacyMarkdown, entry, sourceDocPath)}
             <HelpAuthenticationSignInRelatedTopics />

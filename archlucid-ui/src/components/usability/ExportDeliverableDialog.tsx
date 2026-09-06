@@ -18,6 +18,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import {
   parseReviewDeliverableAudienceFromSearch,
   parseReviewDeliverableOpenFromSearch,
@@ -50,6 +53,13 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
     return parsed ?? "sponsor";
   });
   const encodedRun = encodeURIComponent(props.runId);
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestId ?? null,
+  });
+  const deliverableDisabledReason =
+    sealedManifestBlockedReason === null ? null : whyDisabledNeedsPrerequisite(sealedManifestBlockedReason);
+  const blockedHintId = "export-deliverable-blocked-hint";
 
   const syncDeliverablePanelsToUrl = useCallback(
     (nextOpen: boolean, nextAudience: ReviewDeliverableAudience) => {
@@ -96,45 +106,65 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
         : `${SPONSOR_DASHBOARD_HREF}?runId=${encodedRun}`;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm" data-testid="export-deliverable-trigger">
-          Create deliverable
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create deliverable</DialogTitle>
-          <DialogDescription>Choose an audience and open the matching export workflow.</DialogDescription>
-        </DialogHeader>
-        <fieldset className="m-0 space-y-2 border-0 p-0">
-          <legend className={cn("mb-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Audience</legend>
-          {AUDIENCE_OPTIONS.map((option) => (
-            <label
-              key={option.id}
-              className="flex cursor-pointer gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
-            >
-              <input
-                type="radio"
-                name="deliverable-audience"
-                value={option.id}
-                checked={audience === option.id}
-                onChange={() => setAudience(option.id)}
-                className="mt-1"
-              />
-              <span>
-                <span className={cn("block font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{option.label}</span>
-                <span className={cn("block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="default" size="sm" asChild>
-            <Link href={exportHref}>Open export</Link>
+    <div className="inline-flex flex-col items-start gap-1">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="export-deliverable-trigger"
+            disabled={deliverableDisabledReason !== null}
+            aria-describedby={deliverableDisabledReason === null ? undefined : blockedHintId}
+          >
+            Create deliverable
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create deliverable</DialogTitle>
+            <DialogDescription>Choose an audience and open the matching export workflow.</DialogDescription>
+          </DialogHeader>
+          <fieldset className="m-0 space-y-2 border-0 p-0">
+            <legend className={cn("mb-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Audience</legend>
+            {AUDIENCE_OPTIONS.map((option) => (
+              <label
+                key={option.id}
+                className="flex cursor-pointer gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+              >
+                <input
+                  type="radio"
+                  name="deliverable-audience"
+                  value={option.id}
+                  checked={audience === option.id}
+                  onChange={() => setAudience(option.id)}
+                  className="mt-1"
+                />
+                <span>
+                  <span className={cn("block font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{option.label}</span>
+                  <span className={cn("block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <div className="flex justify-end gap-2 pt-2">
+            {deliverableDisabledReason === null ? (
+              <Button type="button" variant="default" size="sm" asChild>
+                <Link href={exportHref}>Open export</Link>
+              </Button>
+            ) : (
+              <Button type="button" variant="default" size="sm" disabled>
+                Open export
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      <WhyDisabledCtaHint
+        id={blockedHintId}
+        reason={deliverableDisabledReason}
+        testId={blockedHintId}
+      />
+    </div>
   );
 }

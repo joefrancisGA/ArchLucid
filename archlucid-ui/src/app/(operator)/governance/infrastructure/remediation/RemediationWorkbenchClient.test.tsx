@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
@@ -134,6 +134,7 @@ describe("RemediationWorkbenchClient", () => {
     );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
+      findingId: null,
     });
   });
 
@@ -144,16 +145,67 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
+    await waitFor(() => {
+      expect(fetchRemediationInstances).toHaveBeenCalledWith({
+        cloudResourceId: null,
+        findingId: "22222222-2222-2222-2222-222222222222",
+      });
+    });
     expect(await screen.findByTestId("infra-remediation-detail")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-finding-id")).toHaveValue("22222222-2222-2222-2222-222222222222");
   });
 
+  it("passes combined cloudResourceId and findingId filters from the URL", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222",
+    );
+    render(<RemediationWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchRemediationInstances).toHaveBeenCalledWith({
+        cloudResourceId: "33333333-3333-3333-3333-333333333333",
+        findingId: "22222222-2222-2222-2222-222222222222",
+      });
+    });
+  });
+
   it("shows create guidance when findingId has no remediation instance yet", async () => {
+    vi.mocked(fetchRemediationInstances).mockResolvedValueOnce([]);
     searchParams = new URLSearchParams("findingId=99999999-9999-9999-9999-999999999999");
     render(<RemediationWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
       "No remediation instance exists yet",
     );
+  });
+
+  it("links back to diagram reconcile with full conflict handoff context", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByRole("link", { name: /originating conflict row/i })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=33333333-3333-3333-3333-333333333333&reconcileFilter=Conflict&correspondenceId=corr-1",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
+        "href",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1",
+      );
+    });
+  });
+
+  it("links Ask with resource scope when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams("cloudResourceId=33333333-3333-3333-3333-333333333333");
+    render(<RemediationWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
+        "href",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      );
+    });
   });
 });

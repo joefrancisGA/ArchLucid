@@ -5,11 +5,13 @@ import { useState } from "react";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
+import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
+import { ArchitectureSealDeltaPanel } from "@/components/architecture/ArchitectureSealDeltaPanel";
 import { ArchitectureIdentityRenameForm } from "@/components/architecture/ArchitectureIdentityRenameForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,6 +82,12 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         >
           {ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE}
         </p>
+        <ArchitectureIdentityArchiveControl
+          architectureId={identity.architectureId}
+          displayName={identity.displayName}
+          archivedUtc={identity.archivedUtc}
+          redirectAfterArchive
+        />
       </header>
 
       <ArchitectureIdentityRenameForm
@@ -108,6 +116,8 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           </Link>
         </p>
       ) : null}
+
+      <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />
 
       <ArchitectureIdentityDeskVersionsSection versions={identity.versions ?? []} />
 

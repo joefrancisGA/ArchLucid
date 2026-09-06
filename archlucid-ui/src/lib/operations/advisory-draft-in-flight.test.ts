@@ -52,7 +52,7 @@ describe("trackAdvisoryDraftInFlight", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.title).toBe(ADVISORY_DRAFT_IN_FLIGHT_TITLE);
     expect(rows[0]?.href).toBe("/architecture/architectures/arch-001");
-    expect(rows[0]?.architectureId).toBe("arch-001");
+    expect(rows[0]?.architectureId).toBeNull();
     expect(rows[0]?.retainUntilConsumed).toBe(true);
     expect(rows[0]?.stepLabel).toBe("Queued");
   });
@@ -75,7 +75,7 @@ describe("trackAdvisoryDraftInFlight", () => {
     const row = getInFlightOperations()[0];
 
     expect(row?.href).toBe("/architecture/architectures/draft-001");
-    expect(row?.architectureId).toBe("draft-001");
+    expect(row?.architectureId).toBeNull();
   });
 
   it("finds the tracked row for this architecture", () => {

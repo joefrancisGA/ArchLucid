@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 export type ReviewShareCollaboratorStripProps = {
   readonly runId: string;
   readonly isCommitted: boolean;
+  readonly manifestVersion?: string | null;
   readonly canInviteReviewer?: boolean;
 };
 
@@ -30,7 +31,11 @@ export function ReviewShareCollaboratorStrip(props: ReviewShareCollaboratorStrip
         <Users className="h-4 w-4" aria-hidden />
         Invite reviewer
       </Link>
-      <ShareableReviewLinkButton runId={props.runId} isCommitted={props.isCommitted} />
+      <ShareableReviewLinkButton
+        runId={props.runId}
+        isCommitted={props.isCommitted}
+        manifestVersion={props.manifestVersion}
+      />
     </div>
   );
 }

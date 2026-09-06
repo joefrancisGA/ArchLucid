@@ -10,6 +10,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -25,6 +28,9 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 {
+    private const string VerifiedManifestHash =
+        "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
     private readonly Mock<IAgentResultDiffService> _agentResultDiffService = new();
     private readonly Mock<IDeterminismCheckService> _determinismCheckService = new();
     private readonly Mock<IDiagramGenerator> _diagramGenerator = new();
@@ -37,6 +43,8 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     private readonly ArchitectureAnalysisService _sut;
     private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader = new();
+    private readonly Mock<IAuthorityQueryService> _authorityQueryService = new();
+    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitectureAnalysisServiceCanonicalPreloadTests()
     {
@@ -45,6 +53,22 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
         _traceRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _scopeContextProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+        _manifestHashService
+            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(VerifiedManifestHash);
+        _authorityQueryService
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken __) => new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = VerifiedManifestHash,
+                },
+            });
         _sut = new ArchitectureAnalysisService(
             _runDetailQueryService.Object,
             _scopeContextProvider.Object,
@@ -56,21 +80,25 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             _summaryGenerator.Object,
             _determinismCheckService.Object,
             _manifestDiffService.Object,
-            _agentResultDiffService.Object);
+            _agentResultDiffService.Object,
+            _authorityQueryService.Object,
+            _manifestHashService.Object);
     }
 
     [SkippableFact]
     public async Task BuildAsync_WithPreloadedRunDetail_DoesNotRecallRunDetailOrPrimaryManifestFromRepository()
     {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("D");
         GoldenManifest manifest = new()
         {
-            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+            RunId = runId, SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
         ArchitectureRunDetail detail = new()
         {
             Run = new ArchitectureRun
             {
-                RunId = "run-1",
+                RunId = runId,
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
@@ -83,7 +111,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 
         ArchitectureAnalysisRequest request = new()
         {
-            RunId = "run-1",
+            RunId = runId,
             PreloadedRunDetail = detail,
             IncludeEvidence = false,
             IncludeExecutionTraces = false,
@@ -96,7 +124,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 
         report.Manifest.Should().BeSameAs(manifest);
         _runDetailQueryService.Verify(
-            s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()),
+            s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()),
             Times.Never);
         _unifiedGoldenManifestReader.Verify(
             m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()),
@@ -106,15 +134,17 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     [SkippableFact]
     public async Task BuildAsync_WithPreloadedRunDetail_UsesManifestWhenCurrentManifestVersionEmpty()
     {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("D");
         GoldenManifest manifest = new()
         {
-            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
+            RunId = runId, SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
         };
         ArchitectureRunDetail detail = new()
         {
             Run = new ArchitectureRun
             {
-                RunId = "run-1",
+                RunId = runId,
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.TasksGenerated,
                 CurrentManifestVersion = null,
@@ -127,7 +157,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 
         ArchitectureAnalysisRequest request = new()
         {
-            RunId = "run-1",
+            RunId = runId,
             PreloadedRunDetail = detail,
             IncludeEvidence = false,
             IncludeExecutionTraces = false,

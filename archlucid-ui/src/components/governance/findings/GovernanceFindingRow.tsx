@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { memo, type ReactElement } from "react";
 
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
@@ -168,6 +169,17 @@ function GovernanceFindingRowComponent({
           {row.recordKind === "finding" ? (
             <FindingListDispositionRowActions findingId={row.findingId} compact />
           ) : null}
+          {row.recordKind === "finding"
+          && row.latestDisposition !== null
+          && row.latestDisposition !== undefined
+          && row.latestDisposition.trim().length > 0 ? (
+            <FindingDispositionRecordCorrectionControl
+              findingId={row.findingId}
+              runId={row.runId}
+              hasRecordedDisposition={true}
+              testId={`governance-row-record-correction-${row.findingId}`}
+            />
+          ) : null}
         </CardContent>
       </Card>
     );
@@ -220,6 +232,17 @@ function GovernanceFindingRowComponent({
         <GovernanceFindingDetailPane row={row} buyerPolishedShell={buyerPolishedShell} variant="operational" />
         {row.recordKind === "finding" ? (
           <FindingListDispositionRowActions findingId={row.findingId} compact />
+        ) : null}
+        {row.recordKind === "finding"
+        && row.latestDisposition !== null
+        && row.latestDisposition !== undefined
+        && row.latestDisposition.trim().length > 0 ? (
+          <FindingDispositionRecordCorrectionControl
+            findingId={row.findingId}
+            runId={row.runId}
+            hasRecordedDisposition={true}
+            testId={`governance-row-record-correction-${row.findingId}`}
+          />
         ) : null}
       </CardContent>
     </Card>

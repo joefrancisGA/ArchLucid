@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 
@@ -38,6 +39,10 @@ import {
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import {
+  parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
+  reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch,
+} from "@/lib/reviews/review-package-sponsor-handoff-more-exports-disclosure-url";
 
 export type ReviewPackageSponsorHandoffStripProps = {
   readonly runId: string;
@@ -57,6 +62,13 @@ export function ReviewPackageSponsorHandoffStrip(
   props: ReviewPackageSponsorHandoffStripProps,
 ): React.JSX.Element {
   const lowExtractionConfidenceCount = Math.max(0, Math.trunc(props.lowExtractionConfidenceCount ?? 0));
+  const router = useRouter();
+  const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
+  const searchParams = useSearchParams();
+  const reviewPackageSponsorHandoffMoreExportsOpenParam = searchParams.get("reviewPackageSponsorHandoffMoreExportsOpen");
+  const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
+    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(reviewPackageSponsorHandoffMoreExportsOpenParam),
+  );
   const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
   const extractionGateSatisfied = isExtractionFidelityGateSatisfied({
     lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
@@ -70,6 +82,30 @@ export function ReviewPackageSponsorHandoffStrip(
   const docxExportAllowed = extractionGateSatisfied && collateralExportBlockedReason === null;
   const { callerAuthorityRank } = useOperatorNavAuthority();
   const canInviteReviewer = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+
+  const syncMoreExportsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMoreExportsOpen = useCallback(
+    (open: boolean) => {
+      setMoreExportsOpenState(open);
+      syncMoreExportsOpenToUrl(open);
+    },
+    [syncMoreExportsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMoreExportsOpenState(
+      parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(reviewPackageSponsorHandoffMoreExportsOpenParam),
+    );
+  }, [reviewPackageSponsorHandoffMoreExportsOpenParam]);
 
   return (
     <section
@@ -170,6 +206,10 @@ export function ReviewPackageSponsorHandoffStrip(
       <details
         className="mt-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
         data-testid="review-package-sponsor-handoff-more-exports"
+        open={moreExportsOpen}
+        onToggle={(event) => {
+          setMoreExportsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}

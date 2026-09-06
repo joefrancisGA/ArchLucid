@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,10 @@ import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-a
 import { FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER, FIRST_PILOT_MIN_BRIEF_CHARS } from "@/lib/first-pilot-intake";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
+import {
+  firstPilotStandardsSelectionDisclosureHrefFromSearch,
+  parseFirstPilotStandardsSelectionOpenFromSearch,
+} from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
 
 import { FirstPilotIntakeScopeGate } from "./FirstPilotIntakeScopeGate";
 import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
@@ -57,11 +62,39 @@ type FirstPilotIntakeFieldsProps = {
 
 export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): React.JSX.Element {
   const { wizard } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const firstPilotStandardsSelectionOpenParam = searchParams.get("firstPilotStandardsSelectionOpen");
+  const [standardsSelectionOpen, setStandardsSelectionOpenState] = useState(() =>
+    parseFirstPilotStandardsSelectionOpenFromSearch(firstPilotStandardsSelectionOpenParam),
+  );
   const expertIntakePosture = useExpertIntakePostureEnabled();
   const extractionCardRef = useRef<HTMLDivElement>(null);
   const extractionProgress = wizard.evidenceExtractionProgress;
   const showExtractionCard = extractionProgress.phase !== "idle";
   const cardIsOutOfView = useElementOutOfView(extractionCardRef, showExtractionCard);
+
+  const syncStandardsSelectionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(firstPilotStandardsSelectionDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStandardsSelectionOpen = useCallback(
+    (open: boolean) => {
+      setStandardsSelectionOpenState(open);
+      syncStandardsSelectionOpenToUrl(open);
+    },
+    [syncStandardsSelectionOpenToUrl],
+  );
+
+  useEffect(() => {
+    setStandardsSelectionOpenState(parseFirstPilotStandardsSelectionOpenFromSearch(firstPilotStandardsSelectionOpenParam));
+  }, [firstPilotStandardsSelectionOpenParam]);
 
   return (
     <section className="space-y-4" data-testid="first-pilot-intake-panel">
@@ -234,6 +267,8 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
           title="Review standards selection"
           summaryLine={CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
           sectionTestId="first-pilot-standards-selection"
+          open={standardsSelectionOpen}
+          onToggle={setStandardsSelectionOpen}
         >
           <FocusedPilotPolicyPackAppliedCallout className="mb-3" />
           <ReviewAssuranceCoverageSection

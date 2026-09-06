@@ -5,6 +5,8 @@ namespace ArchLucid.Core.Integration;
 /// <summary>Synthetic integration-event payloads for operator webhook simulation and bridge testing.</summary>
 public static class IntegrationWebhookPayloadSamples
 {
+    private const string SyntheticManifestHash =
+        "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
     private static readonly HashSet<string> KnownEventTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         IntegrationEventTypes.AuthorityRunCompletedV1,
@@ -136,6 +138,7 @@ public static class IntegrationWebhookPayloadSamples
             schemaVersion = 1,
             runId,
             manifestId = Guid.NewGuid(),
+            manifestHash = SyntheticManifestHash,
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
@@ -190,6 +193,7 @@ public static class IntegrationWebhookPayloadSamples
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             runId,
+            manifestHash = SyntheticManifestHash,
             findingsSnapshotId = Guid.NewGuid(),
             highSeverityCount = 1,
             findings = new[]
@@ -212,6 +216,7 @@ public static class IntegrationWebhookPayloadSamples
             schemaVersion = 1,
             runId = Guid.NewGuid(),
             manifestId = Guid.NewGuid(),
+            manifestHash = SyntheticManifestHash,
             decisionTraceId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
@@ -232,6 +237,7 @@ public static class IntegrationWebhookPayloadSamples
             projectId = Guid.NewGuid(),
             approvalRequestId = Guid.NewGuid().ToString("D"),
             runId = Guid.NewGuid().ToString("D"),
+            manifestHash = SyntheticManifestHash,
             manifestVersion = "v1",
             sourceEnvironment = "dev",
             targetEnvironment = "test",
@@ -247,6 +253,7 @@ public static class IntegrationWebhookPayloadSamples
             schemaVersion = 1,
             approvalRequestId = Guid.NewGuid().ToString("D"),
             runId = Guid.NewGuid(),
+            manifestHash = SyntheticManifestHash,
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
@@ -262,6 +269,7 @@ public static class IntegrationWebhookPayloadSamples
             schemaVersion = 1,
             approvalRequestId = Guid.NewGuid().ToString("D"),
             runId = Guid.NewGuid(),
+            manifestHash = SyntheticManifestHash,
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
@@ -276,6 +284,7 @@ public static class IntegrationWebhookPayloadSamples
             schemaVersion = 1,
             promotionRecordId = Guid.NewGuid().ToString("D"),
             runId = Guid.NewGuid(),
+            manifestHash = SyntheticManifestHash,
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
@@ -336,11 +345,15 @@ public static class IntegrationWebhookPayloadSamples
 
     private static object CreateAdvisoryScanCompleted()
     {
+        Guid runId = Guid.NewGuid();
+
         return new
         {
             schemaVersion = 1,
             scanId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
+            runId,
+            manifestHash = SyntheticManifestHash,
             findingsCount = 3
         };
     }

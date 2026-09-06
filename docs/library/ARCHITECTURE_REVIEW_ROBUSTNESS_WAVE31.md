@@ -22,4 +22,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave31Arc
 
 **Hasher baseline note:** wave 31 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 29 outbox metadata stretch (339–344) and infra-evidence cross-plane batch (345–350) remain for a follow-up wave. Wave 32 ships 378 emitter call sites in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE32.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE32.md).
+**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) remains for a follow-up wave. Wave 32 ships 378 emitter call sites in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE32.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE32.md). Wave 33 ships 379–391 in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE33.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE33.md).

@@ -64,6 +64,11 @@ public sealed partial class ArtifactExportController
         if (lifecycleProblem is not null)
             return lifecycleProblem;
 
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(runDetail.GoldenManifest, runId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
+
         await runExportBlobPushOutbox.EnqueueAsync(
             runId,
             scope.TenantId,

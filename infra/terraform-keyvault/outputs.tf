@@ -8,6 +8,11 @@ output "key_vault_uri" {
   description = "HTTPS URI for ArchLucid:Secrets:KeyVaultUri."
 }
 
+output "bff_session_signing_key_secret_name" {
+  value       = try(azurerm_key_vault_secret.bff_session_signing_key[0].name, "")
+  description = "Key Vault secret name for the Next.js BFF HttpOnly session HMAC key (ADR 0059 P1)."
+}
+
 output "user_assigned_keyvault_workload_identities_enabled" {
   description = "TB-656: true when API/Worker user-assigned Key Vault identities are created in this root."
   value       = local.user_assigned_keyvault_workload_identities_enabled

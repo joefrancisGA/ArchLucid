@@ -1,9 +1,37 @@
 /** Customer-facing copy for the SCIM provisioning settings page. */
 
+export const SCIM_PROVISIONING_PRIMARY_CONTENT_ID = "scim-provisioning-primary-content" as const;
+
+export const SCIM_PROVISIONING_FIRST_VIEWPORT_TEST_ID = "scim-provisioning-first-viewport" as const;
+
+export const SCIM_PROVISIONING_SKIP_TARGET_ID = SCIM_PROVISIONING_FIRST_VIEWPORT_TEST_ID;
+
+export const SCIM_PROVISIONING_SKIP_LINK_LABEL = "Skip to SCIM provisioning" as const;
+
+export const SCIM_PROVISIONING_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "scim-provisioning-header-claim-discipline" as const;
+
 export const SCIM_PROVISIONING_PAGE_TITLE = "SCIM provisioning";
 
-export const SCIM_PROVISIONING_PAGE_SUBTITLE =
+export const SCIM_PROVISIONING_PAGE_SUBTITLE_OPERATOR =
   "Provision users and groups from your identity provider into ArchLucid.";
+
+export const SCIM_PROVISIONING_PAGE_SUBTITLE_BUYER =
+  "Review SCIM token posture and follow-ups for directory sync — token creation stays in the full admin workspace.";
+
+export const SCIM_PROVISIONING_PAGE_SUBTITLE = SCIM_PROVISIONING_PAGE_SUBTITLE_OPERATOR;
+
+export const SCIM_PROVISIONING_PAGE_LEAD =
+  "Inbound SCIM token lifecycle and connectivity verification for automated user and group provisioning." as const;
+
+export const SCIM_PROVISIONING_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const SCIM_PROVISIONING_BUYER_START_HERE_HELPER =
+  "Review active token identifiers below. Create, verify, and revoke actions are hidden in buyer-polished shells — open the full admin workspace to manage credentials." as const;
+
+export function scimProvisioningPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? SCIM_PROVISIONING_PAGE_SUBTITLE_BUYER : SCIM_PROVISIONING_PAGE_SUBTITLE_OPERATOR;
+}
 
 export const SCIM_PROVISIONING_PAGE_REASSURANCE =
   "Create a token, add the ArchLucid SCIM details to your identity provider, and verify the connection before relying on automated provisioning.";

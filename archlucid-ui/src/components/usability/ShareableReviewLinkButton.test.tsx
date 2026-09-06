@@ -11,8 +11,15 @@ describe("ShareableReviewLinkButton (TB-2212)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("mounts permission clarity in the create disclosure before copy", () => {
+  it("shows blocked reason when committed without sealed manifest version", () => {
     render(<ShareableReviewLinkButton runId="run-claims" isCommitted />);
+
+    expect(screen.getByTestId("shareable-review-link-blocked-reason")).toBeInTheDocument();
+    expect(screen.queryByTestId("shareable-review-link-trigger")).not.toBeInTheDocument();
+  });
+
+  it("mounts permission clarity in the create disclosure before copy", () => {
+    render(<ShareableReviewLinkButton runId="run-claims" isCommitted manifestVersion="manifest-v1" />);
 
     fireEvent.click(screen.getByTestId("shareable-review-link-trigger"));
 

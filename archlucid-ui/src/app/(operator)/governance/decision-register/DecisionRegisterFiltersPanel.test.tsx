@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/decision-register",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DECISION_REGISTER_DATE_PRESET_30_LABEL } from "./decision-register-copy";
 import {

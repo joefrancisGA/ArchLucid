@@ -15,6 +15,14 @@ export const AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR =
 export const AUTH_DOMAINS_PAGE_SUBTITLE_BUYER =
   "Add and verify an email domain, test SSO routing, then enable enforcement when your organization is ready." as const;
 
+export const AUTH_DOMAINS_SETTINGS_PAGE_LEAD =
+  "Track verified email domains, DNS checks, routing tests, and SSO enforcement posture for this tenant." as const;
+
+export const AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const AUTH_DOMAINS_SETTINGS_BUYER_START_HERE_HELPER =
+  "Walk the four-step workflow below. Adding domains or changing enforcement requires Admin authority in this workspace." as const;
+
 export function authDomainsPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? AUTH_DOMAINS_PAGE_SUBTITLE_BUYER : AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR;
 }

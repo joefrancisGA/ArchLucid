@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Dispatch, SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -13,6 +14,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  parseScimVerifyTechnicalDetailsOpenFromSearch,
+  scimVerifyTechnicalDetailsDisclosureHrefFromSearch,
+} from "@/lib/administration/scim-verify-technical-details-disclosure-url";
 import type { ScimBaseUrlClassification } from "@/lib/scim-provisioning-base-url";
 import {
   SCIM_BASE_URL_EXTERNAL_REACHABILITY_WARNING,
@@ -127,6 +132,37 @@ export function ScimProvisioningIssueTokenSection(
     onManualVerifyTokenChange,
     onVerifyConnection,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/scim-provisioning";
+  const searchParams = useSearchParams();
+  const scimVerifyTechnicalDetailsOpenParam = searchParams.get("scimVerifyTechnicalDetailsOpen");
+  const [verifyTechnicalDetailsOpen, setVerifyTechnicalDetailsOpenState] = useState(() =>
+    parseScimVerifyTechnicalDetailsOpenFromSearch(scimVerifyTechnicalDetailsOpenParam),
+  );
+
+  const syncVerifyTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        scimVerifyTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setVerifyTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setVerifyTechnicalDetailsOpenState(open);
+      syncVerifyTechnicalDetailsOpenToUrl(open);
+    },
+    [syncVerifyTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setVerifyTechnicalDetailsOpenState(
+      parseScimVerifyTechnicalDetailsOpenFromSearch(scimVerifyTechnicalDetailsOpenParam),
+    );
+  }, [scimVerifyTechnicalDetailsOpenParam]);
 
   const verifyTokenValue =
     setupSessionToken !== null && setupSessionToken.trim().length > 0
@@ -315,7 +351,11 @@ export function ScimProvisioningIssueTokenSection(
             <div className="space-y-2" data-testid="scim-verify-failure">
               <OperatorApiProblem fallbackMessage={verifyState.message} problem={null} variant="error" />
               {verifyState.httpStatus !== undefined ? (
-                <CollapsibleSection title={SCIM_VERIFY_TECHNICAL_DETAILS_TITLE} defaultOpen={false}>
+                <CollapsibleSection
+                  title={SCIM_VERIFY_TECHNICAL_DETAILS_TITLE}
+                  open={verifyTechnicalDetailsOpen}
+                  onToggle={setVerifyTechnicalDetailsOpen}
+                >
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                     Response status: {verifyState.httpStatus}
                   </p>

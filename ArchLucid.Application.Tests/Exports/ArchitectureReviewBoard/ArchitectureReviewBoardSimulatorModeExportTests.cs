@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Queries;
@@ -36,6 +37,30 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
 
         model.SimulatorRehearsalTitle.Should().Be(SimulatorModeExportRehearsalMarkdown.NoticeTitle);
         model.SimulatorRehearsalBody.Should().Be(SimulatorModeExportRehearsalMarkdown.NoticeBody);
+    }
+
+    [Fact]
+    public void Create_sets_execution_mode_notice_when_run_is_fallback_mode()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) = CreateFinalizedReview(StructuralExecutionMode.Fallback);
+
+        ArchitectureReviewBoardExportDocumentModel model =
+            ArchitectureReviewBoardExportDocumentFactory.Create(detail, report, httpCorrelationId: null, extractorTimestampUtcLabel: null);
+
+        model.SimulatorRehearsalTitle.Should().Be("Fallback execution mode — not unqualified live AI");
+        model.SimulatorRehearsalBody.Should().Contain("simulator substitution");
+    }
+
+    [Fact]
+    public void Create_sets_execution_mode_notice_when_run_is_mixed_mode()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) = CreateFinalizedReview(StructuralExecutionMode.Mixed);
+
+        ArchitectureReviewBoardExportDocumentModel model =
+            ArchitectureReviewBoardExportDocumentFactory.Create(detail, report, httpCorrelationId: null, extractorTimestampUtcLabel: null);
+
+        model.SimulatorRehearsalTitle.Should().Be("Mixed execution mode — review per-agent traces");
+        model.SimulatorRehearsalBody.Should().Contain("mixed real and simulator");
     }
 
     [Fact]
@@ -84,6 +109,7 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             runDetailQuery.Object,
             authorityQuery,
             manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),

@@ -1,4 +1,4 @@
-> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate.
+> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate. Insight-density findings in beta reviews remain **advisory** under the `typed-engine-protected` claim boundary — do not treat them as procurement attestations.
 
 # Private-beta trunk smoke — triage runbook
 
@@ -30,11 +30,14 @@
 | First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
 | Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
+| Loader smoke + signin/invite Report Problem | #1792 / `159c5fab6a` | Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts`; TB-782 surfaces on `/auth/signin` + `/auth/invite` |
 
 ## Common failure modes
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
+| `TypeError: sandbox-mock-data.json needs an import attribute` / Playwright **No tests found** | Bare JSON import in `sandbox-api-mocks.ts` under Node ESM loader | Use `import … with { type: "json" }`; `check_live_api_private_beta_access_ci_wiring.py` guards the pattern; Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts` imports the helper chain pre-CI |
+| `Operator UI: jwt-bearer production build` fails on `docs pdf render` / `PagedResponseOfArchitectureIdentityListItem` | `ArchLucid.Cli` client drift after `ArchitectureIdentityListPage` API change | Regenerate `ArchLucid.Api.Client` and align `ArchLucidCliApiClient.Architectures.cs`; `build-docs-pdf.ts` preflights `dotnet build` on Cli |
 | `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
 | `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — create-run warm is best-effort (300s default); Playwright `createRun` JIT-warms with 300s per-attempt budget |
 | `npm ci` fails before Playwright (`package.json` / `package-lock.json` out of sync) | Override bumped in `package.json` without `npm install` (e.g. `@tanstack/query-core` **5.102.8**) | Run `npm install` in `archlucid-ui/`, commit lockfile; `check_npm_overrides_lockfile_sync.py` fails in beta-readiness guards pre-merge |
@@ -47,7 +50,7 @@
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
-| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
+| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
 **Re-trigger after cancellation:** from a clone with `gh` authenticated:
@@ -90,7 +93,17 @@ Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. 
 
 The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
 
+```bash
+bash scripts/ci/dispatch_full_ci_matrix.sh master
+# Optional extended live-a11y matrix:
+bash scripts/ci/dispatch_full_ci_matrix.sh master true
+```
+
 You can also re-run invite-wave smoke alone via **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch` on `.github/workflows/private-beta-access-on-push.yml`).
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
 
 ```bash
 export LIVE_JWT_TOKEN="<minted>"

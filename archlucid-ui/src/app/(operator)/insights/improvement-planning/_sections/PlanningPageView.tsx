@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -37,6 +37,10 @@ import {
   planningPageSubtitle,
 } from "@/lib/planning-page-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
+import {
+  parsePlanningTechnicalScopeOpenFromSearch,
+  planningTechnicalScopeDisclosureHrefFromSearch,
+} from "@/lib/planning/planning-technical-scope-disclosure-url";
 import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-planning-plan";
 import {
   resolveImprovementPlanningEmphasizedStepId,
@@ -60,7 +64,34 @@ type Props = {
 export function PlanningPageView(props: Props) {
   const m = props.model;
   const router = useRouter();
+  const pathname = usePathname() ?? PLANNING_PATH;
   const searchParams = useSearchParams();
+  const planningTechnicalScopeOpenParam = searchParams.get("planningTechnicalScopeOpen");
+  const [technicalScopeOpen, setTechnicalScopeOpenState] = useState(() =>
+    parsePlanningTechnicalScopeOpenFromSearch(planningTechnicalScopeOpenParam),
+  );
+
+  const syncTechnicalScopeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(planningTechnicalScopeDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalScopeOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalScopeOpenState(open);
+      syncTechnicalScopeOpenToUrl(open);
+    },
+    [syncTechnicalScopeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalScopeOpenState(parsePlanningTechnicalScopeOpenFromSearch(planningTechnicalScopeOpenParam));
+  }, [planningTechnicalScopeOpenParam]);
+
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const continueLastPlan = resolveContinueLastPlanningPlan(m.sortedPlans);
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
@@ -180,7 +211,8 @@ export function PlanningPageView(props: Props) {
 
           <CollapsibleSection
             title={IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_TITLE}
-            defaultOpen={false}
+            open={technicalScopeOpen}
+            onToggle={setTechnicalScopeOpen}
             sectionTestId="planning-technical-scope-details"
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{IMPROVEMENT_PLANNING_TECHNICAL_SCOPE_BODY}</p>

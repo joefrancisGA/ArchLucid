@@ -10,6 +10,12 @@ import {
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
 } from "@/lib/guided-intake-copy";
 
+const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false }));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
 const sampleQuestion = {
   questionKey: "l0.pillar.security",
   prompt: "How is data protected?",
@@ -20,7 +26,36 @@ const sampleQuestion = {
 };
 
 describe("DraftIntakeRequiredClarificationField", () => {
+  it("shows engine measurement hint in Working mode when the answer is empty (PC-02)", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={{
+          questionKey: "l0.actor.additional-kinds",
+          prompt: "Are there other kinds of users?",
+          tier: "Must",
+          answerKind: "Text",
+          source: "L0Universal",
+          ruleKeys: [],
+        }}
+        answer=""
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={8}
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("socratic-question-measurement-engine-hint")).toHaveTextContent(
+      /trust-boundary/i,
+    );
+  });
+
   it("shows save-and-continue outline action and skip link", () => {
+    workspaceModeMock.isWorkingMode = false;
     render(
       <DraftIntakeRequiredClarificationField
         question={sampleQuestion}

@@ -4,10 +4,13 @@ import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
@@ -26,7 +29,11 @@ type PackagePrintPageClientProps = {
 /** Client loader for the lightweight print view — run summary only (TB-2205). */
 export function PackagePrintPageClient(props: PackagePrintPageClientProps): React.JSX.Element {
   const { runId, listScopedRunId = null } = props;
+  const workingDesk = useProductionDeskChrome();
   const summaryQuery = useRunSummaryQuery(runId);
+  const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
+    enabled: summaryQuery.isSuccess,
+  });
 
   useOidcSessionKeepalive(true);
 
@@ -64,7 +71,19 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
 
   return (
     <PackagePrintPageView
-      presentation={buildPackagePrintPresentation(summaryQuery.data)}
+      presentation={buildPackagePrintPresentation(summaryQuery.data, {
+        coverageHonestyLine: workingDesk
+          ? formatCareerExportHonestyPlainText({
+              runId: summaryQuery.data.runId,
+              progressSummary: summaryQuery.data,
+              manifestSummary: null,
+              graphSnapshot: null,
+              enginesSucceeded: null,
+              workingDesk: true,
+            })
+          : null,
+        meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
+      })}
       listScopedRunId={listScopedRunId}
     />
   );

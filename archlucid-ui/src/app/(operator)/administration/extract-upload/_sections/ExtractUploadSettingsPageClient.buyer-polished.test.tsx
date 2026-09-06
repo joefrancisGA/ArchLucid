@@ -1,6 +1,14 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/extract-upload",
+  });
+});
+
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));

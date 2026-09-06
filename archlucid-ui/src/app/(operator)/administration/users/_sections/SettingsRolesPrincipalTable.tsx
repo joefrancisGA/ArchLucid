@@ -51,13 +51,19 @@ type Props = {
   readonly rows: readonly SettingsRolesAssignablePrincipalRow[];
   /** Keys tab uses automation-key column labels (TB-1934). */
   readonly tableContext?: "users" | "api_keys";
+  readonly readOnly?: boolean;
   readonly onRoleChange: (
     row: SettingsRolesAssignablePrincipalRow,
     nextRole: ArchLucidAppRole,
   ) => Promise<"saved" | "rejected">;
 };
 
-export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRoleChange }: Props) {
+export function SettingsRolesPrincipalTable({
+  rows,
+  tableContext = "users",
+  readOnly = false,
+  onRoleChange,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_USERS_PATH;
   const searchParams = useSearchParams();
@@ -199,7 +205,7 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
               {identityColumnLabel}
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Role</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Save status</EnterpriseTableHeaderCell>
+            {readOnly ? null : <EnterpriseTableHeaderCell>Save status</EnterpriseTableHeaderCell>}
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -216,35 +222,44 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
                 <EnterpriseTableCell>{row.detail}</EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <div className="space-y-1">
-                    <Select
-                      value={row.role}
-                      disabled={isSelf}
-                      onValueChange={(value) => {
-                        const nextRole = SETTINGS_ROLES_ASSIGNABLE.find((role) => role === value);
-
-                        if (nextRole === undefined) {
-                          return;
-                        }
-
-                        handleRoleSelect(row, nextRole);
-                      }}
-                    >
-                      <SelectTrigger
-                        className="h-9 w-[11rem]"
-                        aria-label={`Role for ${row.name}`}
-                        data-testid={`settings-roles-select-${row.kind}-${row.id}`}
+                    {readOnly ? (
+                      <span
+                        className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                        data-testid={`settings-roles-role-readonly-${row.kind}-${row.id}`}
                       >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SETTINGS_ROLES_ASSIGNABLE.map((role) => (
-                          <SelectItem key={role} value={role}>
-                            {roleDisplayLabel(role)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {isSelf ? (
+                        {roleDisplayLabel(row.role)}
+                      </span>
+                    ) : (
+                      <Select
+                        value={row.role}
+                        disabled={isSelf}
+                        onValueChange={(value) => {
+                          const nextRole = SETTINGS_ROLES_ASSIGNABLE.find((role) => role === value);
+
+                          if (nextRole === undefined) {
+                            return;
+                          }
+
+                          handleRoleSelect(row, nextRole);
+                        }}
+                      >
+                        <SelectTrigger
+                          className="h-9 w-[11rem]"
+                          aria-label={`Role for ${row.name}`}
+                          data-testid={`settings-roles-select-${row.kind}-${row.id}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SETTINGS_ROLES_ASSIGNABLE.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {roleDisplayLabel(role)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {isSelf && !readOnly ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid={`settings-roles-self-role-helper-${row.id}`}
@@ -256,23 +271,25 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
                     ) : null}
                   </div>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  {saveState === "saving" ? (
-                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
-                      Saving…
-                    </span>
-                  ) : null}
-                  {saveState === "saved" ? (
-                    <span className={cn("text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
-                      Saved
-                    </span>
-                  ) : null}
-                  {saveState === "error" ? (
-                    <span className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
-                      Not saved
-                    </span>
-                  ) : null}
-                </EnterpriseTableCell>
+                {readOnly ? null : (
+                  <EnterpriseTableCell>
+                    {saveState === "saving" ? (
+                      <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
+                        Saving…
+                      </span>
+                    ) : null}
+                    {saveState === "saved" ? (
+                      <span className={cn("text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
+                        Saved
+                      </span>
+                    ) : null}
+                    {saveState === "error" ? (
+                      <span className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)} data-testid={`settings-roles-save-status-${key}`}>
+                        Not saved
+                      </span>
+                    ) : null}
+                  </EnterpriseTableCell>
+                )}
               </EnterpriseTableRow>
             );
           })}
@@ -280,7 +297,7 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
       </EnterpriseTable>
 
       <ConfirmationDialog
-        open={pendingChange !== null}
+        open={!readOnly && pendingChange !== null}
         onOpenChange={(open) => {
           if (!open) {
             handleCancelRoleChange();

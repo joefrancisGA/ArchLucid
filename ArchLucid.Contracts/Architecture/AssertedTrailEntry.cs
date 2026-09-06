@@ -31,4 +31,28 @@ public sealed class AssertedTrailEntry
         get;
         set;
     } = string.Empty;
+
+    /// <summary>Original elicitation question id when this entry records a room capture (PC-09).</summary>
+    [JsonPropertyName("questionId")]
+    public string? QuestionId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>UTC timestamp when the asserted value was recorded (PC-09).</summary>
+    [JsonPropertyName("recordedUtc")]
+    public DateTime? RecordedUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Responder label such as <c>Room</c> or the operator display name (PC-09).</summary>
+    [JsonPropertyName("responderLabel")]
+    public string? ResponderLabel
+    {
+        get;
+        set;
+    }
 }

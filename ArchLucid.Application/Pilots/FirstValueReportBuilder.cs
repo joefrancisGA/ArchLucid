@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Roi;
@@ -174,13 +175,14 @@ public sealed class FirstValueReportBuilder(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` Â§4 for the full metric catalog.");
         sb.AppendLine();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
-        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
             scope,
+            workingDesk: true,
             cancellationToken);
-        SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sb, coverageHonesty);
+        CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,

@@ -32,12 +32,13 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(IReadOnlyList<RemediationInstanceSummary>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? cloudResourceId,
+        [FromQuery] Guid? findingId,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<RemediationInstanceSummary> instances =
-            await queryService.ListInstancesAsync(scope, cloudResourceId, cancellationToken);
+            await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
 
         return Ok(instances);
     }

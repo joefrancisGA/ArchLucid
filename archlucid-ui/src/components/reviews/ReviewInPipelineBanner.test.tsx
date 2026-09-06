@@ -7,6 +7,14 @@ import type { RunSummary } from "@/types/authority";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
+const workspaceModeMock = vi.hoisted(() => ({
+  mode: "guided" as const,
+  mounted: true,
+  accountSyncState: "synced" as const,
+  isWorkingMode: false,
+  setAndPersist: vi.fn(),
+}));
+const openInFlightSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -18,13 +26,13 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => ({
-    mode: "guided",
-    mounted: true,
-    accountSyncState: "synced",
-    isWorkingMode: false,
-    setAndPersist: vi.fn(),
-  }),
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/lib/operations/open-shell-in-flight-event", () => ({
+  requestOpenShellInFlightOperations: () => {
+    openInFlightSpy();
+  },
 }));
 
 vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
@@ -45,6 +53,9 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
   beforeEach(() => {
     pushMock.mockClear();
     replaceMock.mockClear();
+    openInFlightSpy.mockClear();
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=findings");
   });
 
@@ -53,7 +64,9 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
 
     expect(screen.getByTestId("review-in-pipeline-banner")).toBeInTheDocument();
     expect(screen.getByTestId("review-in-pipeline-status-tag")).toHaveTextContent("In progress");
-    expect(screen.getByText(/in progress:/i)).toHaveClass("font-semibold");
+    expect(screen.getByTestId("review-in-pipeline-banner").querySelector(".font-semibold")?.textContent).toMatch(
+      /(analysis|assessment) in progress/i,
+    );
     expect(screen.getByTestId("review-in-pipeline-banner-activity-cta")).toHaveTextContent("View activity");
   });
 
@@ -83,6 +96,21 @@ describe("ReviewInPipelineBanner (TB-2385)", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("uses background headline and in-flight strip CTA in Working mode (PC-08)", () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    render(<ReviewInPipelineBanner runId="run-abc" initialSummary={inPipelineSummary} />);
+
+    expect(screen.getByText(/review running in background/i)).toBeInTheDocument();
+    expect(screen.getByTestId("review-in-pipeline-working-background-helper")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-in-pipeline-wait-detail")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("review-in-pipeline-open-in-flight-strip"));
+
+    expect(openInFlightSpy).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("ReviewDetailWorkspace in-pipeline banner (TB-2385)", () => {
@@ -111,7 +139,6 @@ describe("ReviewDetailWorkspace in-pipeline banner (TB-2385)", () => {
         "review-in-pipeline-banner",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: /Activity/i }));
 

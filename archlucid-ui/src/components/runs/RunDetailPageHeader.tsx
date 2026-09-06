@@ -22,6 +22,7 @@ import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { runSponsorReportExportHref } from "@/lib/api/run-summary-export-api";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   getRunPackageExportUrl,
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
@@ -37,14 +38,26 @@ import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
-function BuyerSponsorBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
+function BuyerSponsorBriefExports({
+  runId,
+  usedStaticDemoRun,
+  manifestVersionForGuard,
+}: {
+  runId: string;
+  usedStaticDemoRun: boolean;
+  manifestVersionForGuard?: string | null;
+}) {
   return (
     <details className="text-right">
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
         Download sponsor brief
       </summary>
       <div className="mt-2">
-        <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+        <RunPackageExportButtons
+          runId={runId}
+          usedStaticDemoRun={usedStaticDemoRun}
+          manifestVersionForGuard={manifestVersionForGuard}
+        />
       </div>
     </details>
   );
@@ -62,10 +75,17 @@ function DisabledExportButton({ label }: { label: string }) {
 function RunPackageExportButtons({
   runId,
   usedStaticDemoRun,
+  manifestVersionForGuard,
 }: {
   runId: string;
   usedStaticDemoRun: boolean;
+  manifestVersionForGuard?: string | null;
 }) {
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion: manifestVersionForGuard,
+  });
+
   if (usedStaticDemoRun) {
     return (
       <div className="mt-1 flex flex-col gap-2">
@@ -80,6 +100,25 @@ function RunPackageExportButtons({
           className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         >
           {SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT}
+        </p>
+      </div>
+    );
+  }
+
+  if (sealedManifestBlockedReason !== null) {
+    return (
+      <div className="mt-1 flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          <DisabledExportButton label={EXPORT_FORMAT_DOCX.label} />
+          <DisabledExportButton label={EXPORT_FORMAT_PDF.label} />
+          <DisabledExportButton label={RUN_PACKAGE_EXPORT_LABELS.html} />
+          <DisabledExportButton label="Download Sponsor Report" />
+        </div>
+        <p
+          id="run-detail-package-export-disabled-hint"
+          className={cn("m-0 max-w-xs text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {sealedManifestBlockedReason}
         </p>
       </div>
     );
@@ -181,6 +220,7 @@ export function RunDetailPageHeader({
   const showExecutionFlavorOperator =
     Boolean(executionFlavorBuyerSummary) && buyerPolishedShell !== true;
   const trimmedManifestId = (manifestId ?? "").trim();
+  const manifestVersionForExportGuard = hasGoldenManifest && trimmedManifestId.length > 0 ? trimmedManifestId : null;
   const showOperatorIdentifiers = buyerPolishedShell !== true;
 
   return (
@@ -297,7 +337,11 @@ export function RunDetailPageHeader({
                 <p className={cn("m-0 font-semibold text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>Finalized package</p>
               )}
               {hasGoldenManifest ? (
-                <BuyerSponsorBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+                <BuyerSponsorBriefExports
+                  runId={runId}
+                  usedStaticDemoRun={usedStaticDemoRun}
+                  manifestVersionForGuard={manifestVersionForExportGuard}
+                />
               ) : null}
             </div>
           ) : (
@@ -321,7 +365,11 @@ export function RunDetailPageHeader({
                 buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
               />
               {hasGoldenManifest ? (
-                <BuyerSponsorBriefExports runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+                <BuyerSponsorBriefExports
+                  runId={runId}
+                  usedStaticDemoRun={usedStaticDemoRun}
+                  manifestVersionForGuard={manifestVersionForExportGuard}
+                />
               ) : null}
               <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <span className="whitespace-nowrap">{approvalStatusLabel}</span>
@@ -350,7 +398,11 @@ export function RunDetailPageHeader({
               buttonVariant={demoteFinalizeButton ? "outline" : "primary"}
             />
             {hasGoldenManifest ? (
-              <RunPackageExportButtons runId={runId} usedStaticDemoRun={usedStaticDemoRun} />
+              <RunPackageExportButtons
+                runId={runId}
+                usedStaticDemoRun={usedStaticDemoRun}
+                manifestVersionForGuard={manifestVersionForExportGuard}
+              />
             ) : null}
             <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="whitespace-nowrap">{approvalCheckLabel}</span>

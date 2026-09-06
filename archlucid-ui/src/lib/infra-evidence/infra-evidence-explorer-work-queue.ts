@@ -56,3 +56,30 @@ export function resourceExplorerWorkQueueApiValue(workQueue: CloudResourceExplor
 
   return workQueue;
 }
+
+export function formatCloudResourceExplorerWorkQueueLabel(
+  workQueue: CloudResourceExplorerWorkQueue,
+): string | null {
+  if (workQueue === "all") {
+    return null;
+  }
+
+  const option = CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((entry) => entry.id === workQueue);
+
+  return option?.label ?? workQueue;
+}
+
+export function resolveResourceHubTabFromExplorerWorkQueue(
+  workQueue: CloudResourceExplorerWorkQueue,
+): "findings" | "remediation" | "drift" | undefined {
+  switch (workQueue) {
+    case "open-findings":
+      return "findings";
+    case "open-remediation":
+      return "remediation";
+    case "recent-drift":
+      return "drift";
+    default:
+      return undefined;
+  }
+}

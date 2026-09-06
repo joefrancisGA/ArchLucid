@@ -36,8 +36,11 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
   },
   {
     surfaceId: "sponsor-value-report-load-failure",
-    requiredMarkers: ["OperatorApiProblem"],
-    additionalSourceRoots: ["app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx"],
+    requiredMarkers: ["sponsor-value-report-load-failure", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: [
+      "app/(operator)/insights/sponsor-report/_sections/PilotValueReportPageView.tsx",
+      "app/(operator)/insights/sponsor-report/_sections/PilotOutcomesLoadFailure.tsx",
+    ],
   },
   {
     surfaceId: "governance-findings-queue-hard-failure",
@@ -73,6 +76,19 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "access-denied-wrong-tenant",
     requiredMarkers: ["access-denied-wrong-tenant", "FatalPageReportProblemSupportRow"],
     additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],
+  },
+  {
+    surfaceId: "auth-jwt-insufficient-scope",
+    requiredMarkers: ["auth-jwt-insufficient-scope", "FatalPageReportProblemSupportRow"],
+    additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],
+  },
+  {
+    surfaceId: "auth-signin-cannot-proceed",
+    requiredMarkers: ["auth-signin-cannot-proceed", "FatalPageReportProblemSupportRow"],
+  },
+  {
+    surfaceId: "auth-invitation-accept-validation-failure",
+    requiredMarkers: ["auth-invitation-accept-validation-failure", "FatalPageReportProblemSupportRow"],
   },
 ] as const;
 

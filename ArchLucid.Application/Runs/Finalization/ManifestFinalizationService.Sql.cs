@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application.Integration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -83,12 +84,18 @@ public sealed partial class ManifestFinalizationService
                 decisionTraceId = audit.DecisionTraceId,
                 manifestId = persisted.ManifestId
             }, IntegrationEventJson.Options);
+        string? verifiedManifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
+            request.RunId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
         object outboxPayload = new
         {
             schemaVersion = 1,
             runId = request.RunId,
             manifestId = persisted.ManifestId,
-            manifestHash = persisted.ManifestHash,
+            manifestHash = verifiedManifestHash,
             decisionTraceId = audit.DecisionTraceId,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,

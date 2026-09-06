@@ -29,10 +29,15 @@ import {
   formatDiagramReconcileExplanation,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import {
+  buildDiagramReconcileRemediationHref,
+  DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM,
+  DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM,
   DIAGRAM_RECONCILE_FILTER_PARAM,
   DIAGRAM_RECONCILE_RUN_ID_PARAM,
   DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM,
   diagramReconcileFilterHrefFromSearch,
+  parseDiagramReconcileCloudResourceIdFromSearch,
+  parseDiagramReconcileCorrespondenceIdFromSearch,
   parseDiagramReconcileFilterFromSearch,
   parseDiagramReconcileRunIdFromSearch,
   parseDiagramReconcileSnapshotIdFromSearch,
@@ -47,7 +52,7 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { governanceInfrastructureResourceHubPath } from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -68,12 +73,27 @@ function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
   return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
 }
 
-function buildResourceHubHref(cloudResourceId: string | null): string | null {
-  if (cloudResourceId == null || cloudResourceId.trim().length === 0) {
-    return null;
-  }
+function buildDiagramReconcileCorrespondenceAskHref(
+  row: DiagramInfrastructureCorrespondenceRow,
+  snapshotId: string,
+  runId: string,
+  scopedCloudResourceId?: string,
+): string {
+  const rowCloudResourceId = row.cloudResourceId != null && row.cloudResourceId.trim().length > 0
+    ? row.cloudResourceId
+    : undefined;
+  const cloudResourceId = rowCloudResourceId ?? (
+    scopedCloudResourceId != null && scopedCloudResourceId.trim().length > 0
+      ? scopedCloudResourceId
+      : undefined
+  );
 
-  return governanceInfrastructureResourceHubPath(cloudResourceId.trim());
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+    correspondenceId: row.correspondenceId,
+  });
 }
 
 async function copyTextToClipboard(text: string): Promise<void> {
@@ -92,11 +112,20 @@ export function DiagramReconcileWorkbenchClient() {
   const urlSnapshotId = parseDiagramReconcileSnapshotIdFromSearch(
     searchParams.get(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM),
   );
+  const urlCloudResourceId = parseDiagramReconcileCloudResourceIdFromSearch(
+    searchParams.get(DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM),
+  );
   const urlFilter = parseDiagramReconcileFilterFromSearch(searchParams.get(DIAGRAM_RECONCILE_FILTER_PARAM));
+  const urlCorrespondenceId = parseDiagramReconcileCorrespondenceIdFromSearch(
+    searchParams.get(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM),
+  );
 
   const [runId, setRunId] = useState<string>(urlRunId);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [matchKindFilter, setMatchKindFilter] = useState<DiagramReconcileMatchKindFilter>(urlFilter);
+  const [selectedCorrespondenceId, setSelectedCorrespondenceId] = useState<string | null>(
+    urlCorrespondenceId.length > 0 ? urlCorrespondenceId : null,
+  );
   const [diagramSourceName, setDiagramSourceName] = useState<string>("uploaded-diagram");
   const [diagramMermaid, setDiagramMermaid] = useState<string>("");
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
@@ -107,6 +136,7 @@ export function DiagramReconcileWorkbenchClient() {
   const [ingestBusy, setIngestBusy] = useState(false);
   const [reconcileBusy, setReconcileBusy] = useState(false);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
+  const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const syncUrl = useCallback(
@@ -114,6 +144,7 @@ export function DiagramReconcileWorkbenchClient() {
       runId?: string;
       snapshotId?: string;
       reconcileFilter?: DiagramReconcileMatchKindFilter;
+      correspondenceId?: string;
     }) => {
       router.replace(diagramReconcileFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -124,13 +155,55 @@ export function DiagramReconcileWorkbenchClient() {
 
   const filteredRows = useMemo(() => {
     const rows = reconciliation?.rows ?? [];
+    let visibleRows = rows;
 
-    if (matchKindFilter === "all") {
-      return rows;
+    if (matchKindFilter !== "all") {
+      visibleRows = visibleRows.filter((row) => row.matchKind === matchKindFilter);
     }
 
-    return rows.filter((row) => row.matchKind === matchKindFilter);
-  }, [matchKindFilter, reconciliation?.rows]);
+    if (urlCloudResourceId.length > 0) {
+      visibleRows = visibleRows.filter((row) => row.cloudResourceId === urlCloudResourceId);
+    }
+
+    return visibleRows;
+  }, [matchKindFilter, reconciliation?.rows, urlCloudResourceId]);
+
+  const deepLinkedCorrespondenceMissing = useMemo(() => {
+    if (
+      urlCorrespondenceId.length === 0
+      || loadingReconciliation
+      || runId.trim().length === 0
+      || selectedSnapshotId.trim().length === 0
+    ) {
+      return false;
+    }
+
+    if (reconciliation == null) {
+      return true;
+    }
+
+    return !reconciliation.rows.some((row) => {
+      if (row.correspondenceId !== urlCorrespondenceId) {
+        return false;
+      }
+
+      if (urlCloudResourceId.length === 0) {
+        return true;
+      }
+
+      return row.cloudResourceId === urlCloudResourceId;
+    });
+  }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCloudResourceId, urlCorrespondenceId]);
+
+  useEffect(() => {
+    if (urlCorrespondenceId.length === 0 || selectedCorrespondenceId !== urlCorrespondenceId) {
+      return;
+    }
+
+    document
+      .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -188,10 +261,28 @@ export function DiagramReconcileWorkbenchClient() {
 
         if (!cancelled) {
           setReconciliation(result);
+
+          if (urlCorrespondenceId.length > 0) {
+            const targetRow = result.rows.find((row) => row.correspondenceId === urlCorrespondenceId);
+
+            if (
+              targetRow != null
+              && matchKindFilter !== "all"
+              && targetRow.matchKind !== matchKindFilter
+            ) {
+              setMatchKindFilter("all");
+              syncUrl({ reconcileFilter: "all" });
+            }
+
+            setSelectedCorrespondenceId(urlCorrespondenceId);
+          } else {
+            setSelectedCorrespondenceId(null);
+          }
         }
       } catch {
         if (!cancelled) {
           setReconciliation(null);
+          setSelectedCorrespondenceId(null);
         }
       } finally {
         if (!cancelled) {
@@ -205,7 +296,7 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [runId, selectedSnapshotId]);
+  }, [matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId]);
 
   const handleRunIdChange = useCallback(
     (nextRunId: string) => {
@@ -252,7 +343,7 @@ export function DiagramReconcileWorkbenchClient() {
 
   const runIngest = useCallback(async () => {
     if (runId.trim().length === 0) {
-      showError("Run id required", "Enter a sealed architecture run id before ingesting a diagram.");
+      showError("Review id required", "Enter a sealed review record id before ingesting a diagram.");
       return;
     }
 
@@ -320,8 +411,22 @@ export function DiagramReconcileWorkbenchClient() {
       try {
         const item = buildDiagramReconcileOperationalFindingRequestItem(row, runId.trim(), selectedSnapshotId.trim());
         const result = await ingestOperationalSecurityFindings({ items: [item] });
-        const outcome = result.items?.[0]?.outcome ?? "Unknown";
-        showSuccess(`Operational finding submitted — outcome: ${outcome}`);
+        const ingestItem = result.items?.[0];
+        const outcome = ingestItem?.outcome ?? "Unknown";
+        const findingId = ingestItem?.findingId?.trim() ?? "";
+
+        if (findingId.length > 0) {
+          setIngestedFindingIds((current) => ({
+            ...current,
+            [row.correspondenceId]: findingId,
+          }));
+        }
+
+        showSuccess(
+          findingId.length > 0
+            ? `Operational finding submitted — outcome: ${outcome}. Open remediation factory to match and create an instance.`
+            : `Operational finding submitted — outcome: ${outcome}`,
+        );
       } catch (error: unknown) {
         showError("Could not create operational finding", formatInfraEvidenceDiagramReconcileApiError(error));
       } finally {
@@ -357,10 +462,43 @@ export function DiagramReconcileWorkbenchClient() {
         <StatusTag kind="needs-attention" label={loadError} />
       ) : null}
 
+      {urlCloudResourceId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-diagram-reconcile-resource-scope-banner"
+          aria-label="Diagram reconcile workbench resource scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+          </p>
+          <Link
+            className="mt-2 inline-block text-sm text-al-link hover:underline"
+            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+              tab: "diagram",
+              snapshotId: selectedSnapshotId,
+              runId: runId.length > 0 ? runId : undefined,
+            })}
+          >
+            Open resource evidence hub
+          </Link>
+        </section>
+      ) : null}
+
+      {deepLinkedCorrespondenceMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
+          role="status"
+        >
+          The linked diagram correspondence row is not in the loaded reconciliation for this run and snapshot
+          {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
+        </p>
+      ) : null}
+
       <section className="grid gap-4 rounded-md border border-border p-4" aria-label="Reconciliation wizard">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>1. Diagram source</h2>
         <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed architecture run id</span>
+          <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed review record id</span>
           <input
             className="rounded border border-border bg-background px-3 py-2"
             data-testid="infra-diagram-reconcile-run-id"
@@ -490,12 +628,39 @@ export function DiagramReconcileWorkbenchClient() {
               </EnterpriseTableRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
+              {filteredRows.length === 0 ? (
+                <EnterpriseTableRow>
+                  <EnterpriseTableCell colSpan={6}>
+                    {urlCloudResourceId.length > 0
+                      ? "No correspondence rows match the scoped cloud resource for this reconciliation."
+                      : "No correspondence rows match the selected filter."}
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ) : null}
               {filteredRows.map((row) => {
-                const resourceHubHref = buildResourceHubHref(row.cloudResourceId);
+                const resourceHubHref = row.cloudResourceId != null && row.cloudResourceId.trim().length > 0
+                  ? resourceHubFilterHrefFromSearch(row.cloudResourceId, "", {
+                    tab: "diagram",
+                    snapshotId: selectedSnapshotId,
+                    runId: runId.length > 0 ? runId : undefined,
+                  })
+                  : null;
                 const explanation = formatDiagramReconcileExplanation(row);
+                const ingestedFindingId = ingestedFindingIds[row.correspondenceId] ?? null;
+                const remediationHref = buildDiagramReconcileRemediationHref({
+                  row,
+                  runId,
+                  snapshotId: selectedSnapshotId,
+                  scopedCloudResourceId: urlCloudResourceId,
+                  findingId: ingestedFindingId,
+                });
 
                 return (
-                  <EnterpriseTableRow key={row.correspondenceId} data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}>
+                  <EnterpriseTableRow
+                    key={row.correspondenceId}
+                    data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
+                    className={selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined}
+                  >
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>
                     <EnterpriseTableCell>
@@ -517,6 +682,19 @@ export function DiagramReconcileWorkbenchClient() {
                             Open resource hub
                           </Link>
                         ) : null}
+                        <Button asChild variant="outline" size="sm">
+                          <Link
+                            href={buildDiagramReconcileCorrespondenceAskHref(
+                              row,
+                              selectedSnapshotId,
+                              runId,
+                              urlCloudResourceId,
+                            )}
+                            data-testid={`infra-diagram-reconcile-ask-${row.correspondenceId}`}
+                          >
+                            Ask
+                          </Link>
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
@@ -538,6 +716,16 @@ export function DiagramReconcileWorkbenchClient() {
                           ) : null}
                           Create operational finding
                         </Button>
+                        {remediationHref != null ? (
+                          <Button asChild variant="outline" size="sm">
+                            <Link
+                              href={remediationHref}
+                              data-testid={`infra-diagram-reconcile-remediation-${row.correspondenceId}`}
+                            >
+                              Open in factory
+                            </Link>
+                          </Button>
+                        ) : null}
                       </div>
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>

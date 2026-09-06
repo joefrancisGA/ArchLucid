@@ -105,6 +105,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         }
         graphSnapshot={m.resolvedDetail.graphSnapshot}
         analysisStagesComplete={createHomeAnalysisStagesComplete}
+        enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (
@@ -142,6 +143,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
                   manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
                   packageCommitted={Boolean(m.manifestId)}
+                  manifestIdForExportGuard={m.manifestId}
                   analysisStagesComplete={createHomeAnalysisStagesComplete}
                   triageVisibleCount={findingsTriageVisibleCount}
                   requestAssumptionTexts={requestAssumptionTexts}

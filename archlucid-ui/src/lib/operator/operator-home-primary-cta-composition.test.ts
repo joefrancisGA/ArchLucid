@@ -55,15 +55,14 @@ describe("operator home primary CTA composition (TB-1539)", () => {
     expect(unfinishedSource).toContain('variant="outline"');
   });
 
-  it("labels home wayfinding links with sidebar destination names", () => {
+  it("prefers architecture identity resume on Working home (PC-05)", () => {
     const source = readFileSync(
       join(UI_ROOT, "src/components/operator-home/OperatorHomeWorkingPrimaryCta.tsx"),
       "utf8",
     );
 
-    expect(source).toContain("ARCHITECTURE_DRAFTS_LIST_LABEL");
-    expect(source).toContain("OPERATOR_NAV_LINK_LABELS.reviewPackage");
-    expect(source).not.toContain("OPERATOR_NAV_LINK_LABELS.packages");
+    expect(source).toContain("resolveContinueLastArchitectureIdentityTarget");
+    expect(source).toContain("Open {architectureTarget.label}");
   });
 
   it("does not offer a peer start-review CTA beside resume on Working home (ADR 0069)", () => {

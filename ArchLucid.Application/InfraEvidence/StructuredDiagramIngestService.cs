@@ -98,6 +98,13 @@ public sealed class StructuredDiagramIngestService : IStructuredDiagramIngestSer
     {
         ArgumentNullException.ThrowIfNull(scope);
 
+        await StructuredDiagramIngestSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            this.authorityQueryService,
+            this.manifestHashService,
+            cancellationToken);
+
         ArchitectureDiagramModelPersistRecord? record = await this.repository.TryGetByRunAsync(
             scope.TenantId,
             runId,

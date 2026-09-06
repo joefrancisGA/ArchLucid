@@ -28,6 +28,14 @@ _REQUIRED_MARKERS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "docs/library/CONFIGURATION_REFERENCE.md",
         ("DemotionThreshold", "typed-engine-protected", "advisory"),
     ),
+    (
+        "archlucid-ui/src/lib/quality/insight-density-measurement-floor.ts",
+        ("typed-engine-protected", "advisory", "measurement floor"),
+    ),
+    (
+        "docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md",
+        ("typed-engine-protected", "advisory"),
+    ),
 )
 
 

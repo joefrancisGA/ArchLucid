@@ -51,8 +51,13 @@ export async function fetchInfraEvidenceDiffChanges(
   diffId: string,
   page = 1,
   pageSize = 50,
+  options: { readonly cloudResourceId?: string | null } = {},
 ): Promise<InfraEvidencePagedResponse<InfraEvidenceDiffChange>> {
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+
+  if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
+    params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
 
   return proxyJsonGet<InfraEvidencePagedResponse<InfraEvidenceDiffChange>>(
     `${DIFFS_PATH}/${diffId}/changes?${params.toString()}`,

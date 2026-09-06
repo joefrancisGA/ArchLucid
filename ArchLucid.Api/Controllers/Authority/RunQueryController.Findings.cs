@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Explanation;
@@ -128,6 +129,7 @@ public sealed partial class RunQueryController
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<IActionResult> GetTraceabilityBundleZip(
         [FromRoute] string runId,
         CancellationToken cancellationToken) =>
@@ -149,30 +151,37 @@ public sealed partial class RunQueryController
         string runId,
         CancellationToken cancellationToken)
     {
-        TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
-            runId,
-            HttpContext.TraceIdentifier,
-            cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
-                $"Run '{runId}' was not found.",
-                ProblemTypes.RunNotFound),
-            TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
-                result.ErrorMessage!,
-                ProblemTypes.ExportFailed,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["attemptedBytes"] = result.AttemptedBytes,
-                    ["maxBytes"] = result.MaxBytes,
-                }),
-            TraceabilityBundleExportOutcome.Success => File(
-                result.ZipBytes!,
-                "application/zip",
-                $"traceability-{runId}.zip"),
-            _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
-        };
+            TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
+                runId,
+                HttpContext.TraceIdentifier,
+                cancellationToken);
+
+            return result.Outcome switch
+            {
+                TraceabilityBundleExportOutcome.RunNotFound => this.NotFoundProblem(
+                    $"Run '{runId}' was not found.",
+                    ProblemTypes.RunNotFound),
+                TraceabilityBundleExportOutcome.TooLarge => this.PayloadTooLargeProblem(
+                    result.ErrorMessage!,
+                    ProblemTypes.ExportFailed,
+                    extensions: new Dictionary<string, object?>
+                    {
+                        ["attemptedBytes"] = result.AttemptedBytes,
+                        ["maxBytes"] = result.MaxBytes,
+                    }),
+                TraceabilityBundleExportOutcome.Success => File(
+                    result.ZipBytes!,
+                    "application/zip",
+                    $"traceability-{runId}.zip"),
+                _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     private async Task<IActionResult> ExportFindingsCsvSuccessAsync(

@@ -1,6 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/insights/sponsor-report",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams("runId=r1"),
+}));
+
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 
 import { PilotRoiValidationHandoffCard } from "./PilotRoiValidationHandoffCard";

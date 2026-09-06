@@ -6,6 +6,7 @@
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
 
 /** Document title / H1 for the print stylesheet view. */
@@ -83,6 +84,9 @@ export type PackagePrintPresentation = {
   readonly sponsorSynopsis: string | null;
   readonly createdUtc: string;
   readonly runId: string;
+  readonly coverageHonestyLine?: string | null;
+  readonly manifestVersionForGuard?: string | null;
+  readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -200,7 +204,11 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
 /** Maps a run summary into the print view presentation model. */
 export function buildPackagePrintPresentation(
   summary: RunSummary,
-  options?: { readonly findingsListedCount?: number | null },
+  options?: {
+    readonly findingsListedCount?: number | null;
+    readonly coverageHonestyLine?: string | null;
+    readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+  },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
   const findingsTotalCount = finiteCount(summary.findingCount);
@@ -226,5 +234,11 @@ export function buildPackagePrintPresentation(
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),
     createdUtc: summary.createdUtc,
     runId: summary.runId,
+    coverageHonestyLine: options?.coverageHonestyLine ?? null,
+    meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
+    manifestVersionForGuard:
+      summary.currentManifestVersion?.trim()
+      ?? summary.goldenManifestId?.trim()
+      ?? (summary.hasGoldenManifest === true ? summary.runId : null),
   };
 }

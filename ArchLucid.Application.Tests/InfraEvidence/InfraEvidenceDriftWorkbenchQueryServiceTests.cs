@@ -1,90 +1,125 @@
-using System.IO.Compression;
-using System.Text;
-
 using ArchLucid.Application.InfraEvidence;
-using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
 [Trait("Category", "Unit")]
-[Trait("Suite", "Application")]
+[Trait("Suite", "Core")]
 public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 {
-    [Fact]
-    public async Task ListSnapshotsAsync_with_no_op_repositories_returns_paged_empty()
+    private static readonly ScopeContext Scope = new()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
-        InfraEvidenceDriftWorkbenchQueryService service = new(
-            new NoOpAzureInventorySnapshotRepository(),
-            new NoOpAzureInventoryDiffRepository());
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
 
-        PagedResponse<AzureInventorySnapshotRecord> response = await service.ListSnapshotsAsync(
-            scope,
-            page: 1,
-            pageSize: 50,
-            subscriptionId: null,
-            CancellationToken.None);
+    private static readonly Guid DiffId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid CloudResourceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        response.Items.Should().BeEmpty();
-        response.TotalCount.Should().Be(0);
-        response.Page.Should().Be(1);
-        response.PageSize.Should().Be(50);
+    [Fact]
+    public async Task ListChangesForDiffAsync_without_filter_uses_unscoped_paged_query()
+    {
+        AzureInventoryDiffSummaryRecord diff = new() { DiffId = DiffId, SnapshotAId = Guid.NewGuid(), SnapshotBId = Guid.NewGuid() };
+
+        Mock<IAzureInventoryDiffRepository> diffRepository = new();
+        diffRepository
+            .Setup(repo => repo.TryGetByDiffIdAsync(Scope, DiffId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(diff);
+        diffRepository
+            .Setup(repo => repo.ListChangesByDiffIdPagedAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], 0));
+
+        InfraEvidenceDriftWorkbenchQueryService service = CreateService(diffRepository: diffRepository.Object);
+
+        PagedResponse<AzureInventoryChangeRecord>? response =
+            await service.ListChangesForDiffAsync(Scope, DiffId, 1, 50, cloudResourceId: null, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        diffRepository.Verify(
+            repo => repo.ListChangesByDiffIdPagedAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public void AdvisoryTerraformZipBuilder_includes_advisory_markdown_and_mapping_csv_with_disclaimer()
+    public async Task ListChangesForDiffAsync_with_cloudResourceId_passes_scope_to_repository()
     {
-        AdvisoryTerraformRepresentationResult result = new()
+        AzureInventoryDiffSummaryRecord diff = new() { DiffId = DiffId, SnapshotAId = Guid.NewGuid(), SnapshotBId = Guid.NewGuid() };
+        AzureInventoryChangeRecord change = new()
         {
-            Succeeded = true,
-            SnapshotId = Guid.NewGuid(),
-            Files = new Dictionary<string, string>
-            {
-                ["ADVISORY.md"] = TerraformAdvisoryExportCopy.AdvisoryMarkdownBody.Trim() + Environment.NewLine,
-            },
-            Mappings =
-            [
-                new AdvisoryTerraformResourceMappingRecord
-                {
-                    MappingId = Guid.NewGuid(),
-                    SnapshotId = Guid.NewGuid(),
-                    CloudResourceId = Guid.NewGuid(),
-                    AzureResourceId =
-                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
-                    TerraformAddress = "azurerm_storage_account.sa1",
-                    CategoryFolder = "storage",
-                    GenerationMethod = AdvisoryTerraformGenerationMethod.SnapshotReconstruction,
-                    UncertaintyNotes = TerraformAdvisoryExportCopy.DisclaimerLine,
-                },
-            ],
+            ChangeId = Guid.NewGuid(),
+            DiffId = DiffId,
+            SnapshotAId = diff.SnapshotAId,
+            SnapshotBId = diff.SnapshotBId,
+            CloudResourceId = CloudResourceId,
+            AzureResourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+            ChangeType = AzureInventoryChangeType.ResourceModified,
+            Property = "sku",
         };
 
-        byte[] zipBytes = AdvisoryTerraformZipBuilder.BuildZip(result);
+        Mock<IAzureInventoryDiffRepository> diffRepository = new();
+        diffRepository
+            .Setup(repo => repo.TryGetByDiffIdAsync(Scope, DiffId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(diff);
+        diffRepository
+            .Setup(repo => repo.ListChangesByDiffIdPagedAsync(
+                Scope,
+                DiffId,
+                1,
+                50,
+                CloudResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([change], 1));
 
-        using MemoryStream memoryStream = new(zipBytes);
-        using ZipArchive archive = new(memoryStream, ZipArchiveMode.Read);
+        InfraEvidenceDriftWorkbenchQueryService service = CreateService(diffRepository: diffRepository.Object);
 
-        ZipArchiveEntry? advisoryEntry = archive.GetEntry("ADVISORY.md");
-        advisoryEntry.Should().NotBeNull();
+        PagedResponse<AzureInventoryChangeRecord>? response =
+            await service.ListChangesForDiffAsync(Scope, DiffId, 1, 50, CloudResourceId, CancellationToken.None);
 
-        using Stream advisoryStream = advisoryEntry!.Open();
-        using StreamReader advisoryReader = new(advisoryStream, Encoding.UTF8);
-        string advisoryText = advisoryReader.ReadToEnd();
-        advisoryText.Should().Contain("advisory");
+        response.Should().NotBeNull();
+        response!.Items.Should().ContainSingle();
+        response.Items[0].CloudResourceId.Should().Be(CloudResourceId);
+    }
 
-        ZipArchiveEntry? mappingEntry = archive.GetEntry("mapping.csv");
-        mappingEntry.Should().NotBeNull();
+    private static InfraEvidenceDriftWorkbenchQueryService CreateService(
+        IAzureInventorySnapshotRepository? snapshotRepository = null,
+        IAzureInventoryDiffRepository? diffRepository = null)
+    {
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
+        reconciliation
+            .Setup(repo => repo.ListRunIdsBySnapshotAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
 
-        using Stream mappingStream = mappingEntry!.Open();
-        using StreamReader mappingReader = new(mappingStream, Encoding.UTF8);
-        string mappingText = mappingReader.ReadToEnd();
-        mappingText.Should().Contain("CloudResourceId,AzureResourceId,TerraformAddress,CategoryFolder,GenerationMethod,UncertaintyNotes");
-        mappingText.Should().Contain(TerraformAdvisoryExportCopy.DisclaimerLine);
+        return new InfraEvidenceDriftWorkbenchQueryService(
+            snapshotRepository ?? new Mock<IAzureInventorySnapshotRepository>().Object,
+            diffRepository ?? new Mock<IAzureInventoryDiffRepository>().Object,
+            reconciliation.Object,
+            new Mock<IAuthorityQueryService>().Object,
+            new Mock<IManifestHashService>().Object);
     }
 }

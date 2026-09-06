@@ -1,9 +1,13 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/administration/identity-providers",
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/identity-providers",
+  });
+});
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();

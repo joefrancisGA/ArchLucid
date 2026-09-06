@@ -14,6 +14,7 @@ import {
 } from "./RunDetailTabbedWorkspaceDeferredImports";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
+import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutcomeCardsDisclosure";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
@@ -118,10 +119,9 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         }
       />
       {showDetailedOutcomeCards ? (
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-          <summary className="cursor-pointer font-semibold">Detailed outcome cards</summary>
-          <div className="mt-3">{outcomeCardsEl}</div>
-        </details>
+        <RunDetailDetailedOutcomeCardsDisclosure>
+          {outcomeCardsEl}
+        </RunDetailDetailedOutcomeCardsDisclosure>
       ) : null}
       <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
         <RunDetailMidDeferredSections context={deferredContext} />

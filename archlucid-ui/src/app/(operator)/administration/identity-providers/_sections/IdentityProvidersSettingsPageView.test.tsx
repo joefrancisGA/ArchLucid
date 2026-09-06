@@ -4,11 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 
 
 
-vi.mock("next/navigation", () => ({
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  usePathname: () => "/administration/identity-providers",
-
-}));
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/identity-providers",
+  });
+});
 
 
 

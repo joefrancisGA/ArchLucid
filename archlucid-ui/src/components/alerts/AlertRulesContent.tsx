@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { AlertRulesBuyerChrome } from "@/components/alerts/AlertRulesBuyerChrome";
 import { AlertRulesCreateForm } from "@/components/alerts/AlertRulesCreateForm";
 import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/AlertRulesPickReviewBeforeCreatingStrip";
 import { AlertRulesNextReviewFooterClient } from "@/components/alerts/AlertRulesNextReviewFooterClient";
@@ -18,7 +19,10 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 import { useAlertRulesContentList } from "@/components/alerts/use-alert-rules-content-list";
 import { useAlertRulesContentCreate } from "@/components/alerts/use-alert-rules-content-create";
 import { useAlertRulesContentPreview } from "@/components/alerts/use-alert-rules-content-preview";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
+  ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
   ALERT_RULES_SAMPLE_MODE_CTA_HREF,
@@ -33,6 +37,7 @@ import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-p
 import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
 
 export function AlertRulesContent() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const list = useAlertRulesContentList();
   const create = useAlertRulesContentCreate({
     canEdit: list.canEdit,
@@ -53,7 +58,7 @@ export function AlertRulesContent() {
   const failure = list.listFailure ?? create.mutationFailure;
   const sectionGap = preview.pinLivePreviewRail ? "gap-8" : "gap-4";
 
-  const emptyStateFooter = list.canEdit && list.scopedRunFilterActive && create.emptyIntroMode ? (
+  const emptyStateFooter = list.canEdit && list.scopedRunFilterActive && create.emptyIntroMode && !buyerPolishedShell ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
       <Button
         type="button"
@@ -81,7 +86,27 @@ export function AlertRulesContent() {
         </div>
       ) : null}
 
-      <AlertOperatorToolingRankCue />
+      {buyerPolishedShell ? null : <AlertOperatorToolingRankCue />}
+
+      {buyerPolishedShell ? (
+        <div
+          className="mb-4 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="alert-rules-conditions-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="alert-rules-conditions-intro"
+          >
+            {ALERT_RULES_CONDITIONS_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="alert-rules-conditions-buyer-start-here-helper"
+          >
+            {ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
 
       <div
         id={list.statusRegionId}
@@ -212,6 +237,7 @@ export function AlertRulesContent() {
       {list.scopedRunFilterActive ? (
         <AlertRulesNextReviewFooterClient runId={list.scopedRunId} />
       ) : null}
+      <AlertRulesBuyerChrome />
       <LivelihoodDocumentGuardDialog
         open={create.documentGuards.dialogOpen}
         message={create.documentGuards.dialogMessage}

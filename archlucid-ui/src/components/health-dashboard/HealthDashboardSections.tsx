@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -27,6 +28,14 @@ import {
   operatorFreshnessMetadataWithClockLabel,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import {
+  healthGroupedAllChecksDisclosureHrefFromSearch,
+  parseHealthGroupedAllChecksOpenFromSearch,
+} from "@/lib/health-dashboard/health-grouped-all-checks-disclosure-url";
+import {
+  healthCheckTechnicalDisclosureHrefFromSearch,
+  parseHealthCheckTechnicalIdFromSearch,
+} from "@/lib/health-dashboard/health-check-technical-disclosure-url";
 import type { HealthDisplaySeverity } from "@/lib/health-readiness-presentation";
 
 export const HEALTH_DASHBOARD_PAGE_CLASS = cn(OPERATOR_PAGE_CONTAINER.variant.workflow, "max-w-[1120px]");
@@ -245,6 +254,39 @@ function technicalDetailsAriaLabel(label: string, scope: string | undefined): st
 
 export function HealthCheckRow(props: HealthCheckRowProps) {
   const { row } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const healthCheckTechnicalIdParam = searchParams.get("healthCheckTechnicalId");
+  const [technicalOpen, setTechnicalOpenState] = useState(
+    () => parseHealthCheckTechnicalIdFromSearch(healthCheckTechnicalIdParam) === row.checkId,
+  );
+
+  const syncTechnicalOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        healthCheckTechnicalDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? row.checkId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, row.checkId, searchParams],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalOpenState(open);
+      syncTechnicalOpenToUrl(open);
+    },
+    [syncTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalOpenState(parseHealthCheckTechnicalIdFromSearch(healthCheckTechnicalIdParam) === row.checkId);
+  }, [healthCheckTechnicalIdParam, row.checkId]);
 
   return (
     <div className="rounded-md border border-neutral-200/80 px-3 py-2 dark:border-neutral-800">
@@ -263,7 +305,8 @@ export function HealthCheckRow(props: HealthCheckRowProps) {
       <CollapsibleSection
         title="Technical details"
         summaryAriaLabel={technicalDetailsAriaLabel(row.label, props.disclosureScope)}
-        defaultOpen={false}
+        open={technicalOpen}
+        onToggle={setTechnicalOpen}
         sectionTestId={`health-check-technical-${row.checkId}`}
       >
         <dl className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>
@@ -297,6 +340,35 @@ type HealthGroupedReadinessProps = {
  * Individual checks stay reachable behind a single disclosure instead of one per group.
  */
 export function HealthGroupedReadiness(props: HealthGroupedReadinessProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const healthGroupedAllChecksOpenParam = searchParams.get("healthGroupedAllChecksOpen");
+  const [allChecksOpen, setAllChecksOpenState] = useState(() =>
+    parseHealthGroupedAllChecksOpenFromSearch(healthGroupedAllChecksOpenParam),
+  );
+
+  const syncAllChecksOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(healthGroupedAllChecksDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAllChecksOpen = useCallback(
+    (open: boolean) => {
+      setAllChecksOpenState(open);
+      syncAllChecksOpenToUrl(open);
+    },
+    [syncAllChecksOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAllChecksOpenState(parseHealthGroupedAllChecksOpenFromSearch(healthGroupedAllChecksOpenParam));
+  }, [healthGroupedAllChecksOpenParam]);
+
   if (props.groups.length === 0) {
     return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No readiness checks reported.</p>;
   }
@@ -332,7 +404,8 @@ export function HealthGroupedReadiness(props: HealthGroupedReadinessProps) {
 
       <CollapsibleSection
         title={`Show all ${allRows.length} ${allRows.length === 1 ? "check" : "checks"}`}
-        defaultOpen={false}
+        open={allChecksOpen}
+        onToggle={setAllChecksOpen}
         sectionTestId={`${props.testId}-all-checks`}
       >
         <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>

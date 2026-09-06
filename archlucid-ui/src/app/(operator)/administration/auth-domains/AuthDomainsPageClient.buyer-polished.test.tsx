@@ -72,6 +72,9 @@ import {
   AUTH_DOMAINS_SETTINGS_SKIP_TARGET_ID,
   AUTH_DOMAINS_PAGE_SUBTITLE_BUYER,
   AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR,
+  AUTH_DOMAINS_SETTINGS_BUYER_START_HERE_HELPER,
+  AUTH_DOMAINS_SETTINGS_PAGE_LEAD,
+  AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE,
 } from "@/lib/auth-domains-settings-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -86,6 +89,15 @@ describe("AuthDomainsPageClient buyer-polished shell (ADU)", () => {
     );
     expect(screen.getByText(AUTH_DOMAINS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(AUTH_DOMAINS_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
+    expect(screen.getByTestId("auth-domains-settings-intro")).toHaveTextContent(AUTH_DOMAINS_SETTINGS_PAGE_LEAD);
+    expect(screen.getByTestId("auth-domains-settings-buyer-start-here-helper")).toHaveTextContent(
+      AUTH_DOMAINS_SETTINGS_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: AUTH_DOMAINS_SETTINGS_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("auth-domains-add")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("auth-domains-new-domain")).not.toBeInTheDocument();
     expect(screen.getByTestId(AUTH_DOMAINS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );

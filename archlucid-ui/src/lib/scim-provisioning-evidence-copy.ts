@@ -7,6 +7,9 @@ export const SCIM_PROVISIONING_HELP_TOPIC_LABEL = "How SCIM provisioning works" 
 
 export const SCIM_PROVISIONING_FOLLOW_UPS_TITLE = "Where to go next";
 
+export const SCIM_PROVISIONING_CLAIM_DISCIPLINE =
+  "This SCIM provisioning page issues inbound tokens and verifies connectivity — not a signed audit export. Open SSO and identity, Users, or Assurance status when you need federation setup or membership reconciliation.";
+
 export const SCIM_PROVISIONING_SOURCES_INTRO =
   "Use these follow-ups when token setup turns into SSO federation, role mapping, or official assurance materials.";
 

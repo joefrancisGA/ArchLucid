@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS,
   buildArchitectureCreationQuestionSelection,
 } from "@/lib/architecture/architecture-creation-question-definition";
+import { resolveUniversalIntakeMustEngineFieldHint } from "@/lib/intake/universal-intake-must-engine-coverage";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export const UNIVERSAL_INTAKE_MUST_QUESTION_KEYS =
@@ -52,7 +53,15 @@ const QUESTION_PROMPT_BY_KEY = new Map(
   ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS.map((question) => [question.questionKey, question.prompt]),
 );
 
-export function describeUniversalIntakeMustGap(input: UniversalIntakeMustCompletenessInput): string | null {
+export type UniversalIntakeMustGapOptions = {
+  /** Working intake: cite which engine measurements stay absent (PC-02). */
+  readonly measurementHonesty?: boolean;
+};
+
+export function describeUniversalIntakeMustGap(
+  input: UniversalIntakeMustCompletenessInput,
+  options?: UniversalIntakeMustGapOptions,
+): string | null {
   const missingKeys = evaluateUniversalIntakeMustMissingKeys(input);
 
   if (missingKeys.length === 0) {
@@ -60,11 +69,25 @@ export function describeUniversalIntakeMustGap(input: UniversalIntakeMustComplet
   }
 
   if (missingKeys.length === 1) {
-    const prompt = QUESTION_PROMPT_BY_KEY.get(missingKeys[0] ?? "");
+    const questionKey = missingKeys[0] ?? "";
+
+    if (options?.measurementHonesty === true) {
+      const measurementHint = resolveUniversalIntakeMustEngineFieldHint(questionKey);
+
+      if (measurementHint !== null) {
+        return measurementHint;
+      }
+    }
+
+    const prompt = QUESTION_PROMPT_BY_KEY.get(questionKey);
 
     if (prompt !== undefined) {
       return `Answer the required clarification: ${prompt}`;
     }
+  }
+
+  if (options?.measurementHonesty === true) {
+    return `Answer or mark unknown each required clarification (${missingKeys.length} remaining) — skipped MUST answers leave related engine measurements absent on seal.`;
   }
 
   return `Answer or mark unknown each required clarification (${missingKeys.length} remaining).`;

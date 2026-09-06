@@ -5,6 +5,8 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -18,6 +20,11 @@ export const RESOURCE_HUB_SNAPSHOT_ID_PARAM = "snapshotId";
 export const RESOURCE_HUB_ASSESSMENT_ID_PARAM = "assessmentId";
 export const RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM = "auditEvidenceSnapshotId";
 export const RESOURCE_HUB_CONTROL_ID_PARAM = "controlId";
+export const RESOURCE_HUB_DIFF_ID_PARAM = "diffId";
+export const RESOURCE_HUB_FINDING_ID_PARAM = "findingId";
+export const RESOURCE_HUB_INSTANCE_ID_PARAM = "instanceId";
+export const RESOURCE_HUB_CORRESPONDENCE_ID_PARAM = "correspondenceId";
+export const RESOURCE_HUB_SEED_NODE_ID_PARAM = "seedNodeId";
 
 const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "overview",
@@ -86,10 +93,16 @@ export function parseResourceHubQueryValueFromSearch(raw: string | null | undefi
 export function buildInfrastructureAskHref(context: {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
+  readonly diffId?: string;
+  readonly findingId?: string;
+  readonly instanceId?: string;
+  readonly correspondenceId?: string;
   readonly runId?: string;
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
+  readonly workQueue?: CloudResourceExplorerWorkQueue;
+  readonly seedNodeId?: string;
 }): string {
   const params = new URLSearchParams();
 
@@ -99,6 +112,22 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.snapshotId != null && context.snapshotId.trim().length > 0) {
     params.set(RESOURCE_HUB_SNAPSHOT_ID_PARAM, context.snapshotId.trim());
+  }
+
+  if (context.diffId != null && context.diffId.trim().length > 0) {
+    params.set(RESOURCE_HUB_DIFF_ID_PARAM, context.diffId.trim());
+  }
+
+  if (context.findingId != null && context.findingId.trim().length > 0) {
+    params.set(RESOURCE_HUB_FINDING_ID_PARAM, context.findingId.trim());
+  }
+
+  if (context.instanceId != null && context.instanceId.trim().length > 0) {
+    params.set(RESOURCE_HUB_INSTANCE_ID_PARAM, context.instanceId.trim());
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM, context.correspondenceId.trim());
   }
 
   if (context.runId != null && context.runId.trim().length > 0) {
@@ -117,11 +146,58 @@ export function buildInfrastructureAskHref(context: {
     params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
   }
 
+  if (context.workQueue != null && context.workQueue !== "all") {
+    params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, context.workQueue);
+  }
+
+  if (context.seedNodeId != null && context.seedNodeId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SEED_NODE_ID_PARAM, context.seedNodeId.trim());
+  }
+
   const query = params.toString();
 
   return query.length === 0
     ? GOVERNANCE_INFRASTRUCTURE_ASK_PATH
     : `${GOVERNANCE_INFRASTRUCTURE_ASK_PATH}?${query}`;
+}
+
+export function resolveResourceHubTabFromAskScope(context: {
+  readonly findingId?: string;
+  readonly instanceId?: string;
+  readonly diffId?: string;
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+  readonly correspondenceId?: string;
+}): ResourceHubTab | undefined {
+  if (context.findingId != null && context.findingId.trim().length > 0) {
+    return "findings";
+  }
+
+  if (context.instanceId != null && context.instanceId.trim().length > 0) {
+    return "remediation";
+  }
+
+  if (
+    context.assessmentId != null
+    && context.assessmentId.trim().length > 0
+    && context.auditEvidenceSnapshotId != null
+    && context.auditEvidenceSnapshotId.trim().length > 0
+    && context.controlId != null
+    && context.controlId.trim().length > 0
+  ) {
+    return "audit";
+  }
+
+  if (context.correspondenceId != null && context.correspondenceId.trim().length > 0) {
+    return "diagram";
+  }
+
+  if (context.diffId != null && context.diffId.trim().length > 0) {
+    return "drift";
+  }
+
+  return undefined;
 }
 
 export function resourceExplorerFilterHrefFromSearch(
@@ -266,4 +342,20 @@ export function resourceHubFilterHrefFromSearch(
   const nextQuery = params.toString();
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function buildResourceHubExplorerHref(
+  cloudResourceId: string,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+): string {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
+}
+
+export function buildResourceHubWorkCountHref(
+  cloudResourceId: string,
+  kind: CloudResourceExplorerWorkCountKind,
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", { tab: kind });
 }

@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -28,9 +29,17 @@ public sealed class ArchitectureAnalysisService(
     IManifestSummaryGenerator summaryGenerator,
     IDeterminismCheckService determinismCheckService,
     IManifestDiffService manifestDiffService,
-    IAgentResultDiffService agentResultDiffService) : IArchitectureAnalysisService
+    IAgentResultDiffService agentResultDiffService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IArchitectureAnalysisService
 {
     private const string ExecutionModeCurrent = ExecutionModes.Current;
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -40,6 +49,15 @@ public sealed class ArchitectureAnalysisService(
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            request.RunId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
         ArchitectureRunDetail? primaryDetail = request.PreloadedRunDetail;
         ArchitectureRun run;
 
@@ -70,7 +88,6 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken)).ToList();
 
             if (report.ExecutionTraces.Count == 0)
@@ -141,7 +158,6 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
             {
-                ScopeContext scope = _scopeContextProvider.GetCurrentScope();
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
                 report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);

@@ -3,11 +3,13 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Serialization;
 
@@ -27,6 +29,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AnalyzeRun(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -72,6 +75,11 @@ public sealed partial class AnalysisReportsController
 
             return Ok(new ArchitectureAnalysisReportResponse { Report = report });
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Analysis blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis failed for run '{RunId}'.", runId);
@@ -89,6 +97,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportAnalysisReport(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -113,6 +122,11 @@ public sealed partial class AnalysisReportsController
                 RunId = runId, Format = "markdown", FileName = $"analysis_{runId}.md", Content = markdown
             });
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Analysis export blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis export failed for run '{RunId}'.", runId);
@@ -127,6 +141,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadAnalysisReportExport(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -148,6 +163,11 @@ public sealed partial class AnalysisReportsController
             string markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"analysis-report-{runId}.md");
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Analysis export file blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis export file failed for run '{RunId}'.", runId);
@@ -162,6 +182,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadAnalysisReportDocx(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -187,6 +208,11 @@ public sealed partial class AnalysisReportsController
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"analysis-report-{runId}.docx");
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "DOCX export blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "DOCX export failed for run '{RunId}'.", runId);
@@ -201,6 +227,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadAnalysisReportDocxAsync(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -215,13 +242,30 @@ public sealed partial class AnalysisReportsController
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
-        AnalysisReportDocxWorkUnit workUnit = new(
-            AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
-            $"analysis-report-{runId}.docx",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
+            await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
 
-        return Accepted(new AsyncJobResponse { JobId = jobId });
+            AnalysisReportDocxWorkUnit workUnit = new(
+                AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
+                $"analysis-report-{runId}.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+            string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
+
+            return Accepted(new AsyncJobResponse { JobId = jobId });
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Async DOCX export blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

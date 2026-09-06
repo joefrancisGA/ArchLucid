@@ -87,7 +87,7 @@ describe("RunInspectorPreview", () => {
       expect.arrayContaining([
         "Governance approval:",
         "Remaining monitored risk:",
-        "Evidence trail:",
+        "Evidence graph:",
         "Audit trail:",
       ]),
     );

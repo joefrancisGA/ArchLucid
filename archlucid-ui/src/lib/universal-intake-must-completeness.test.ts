@@ -40,6 +40,24 @@ describe("universal-intake-must-completeness", () => {
     ).toMatch(/required clarification/i);
   });
 
+  it("cites engine measurement gaps in Working measurement-honesty mode (PC-02)", () => {
+    const onlyActorMissing = Object.fromEntries(
+      UNIVERSAL_INTAKE_MUST_QUESTION_KEYS
+        .filter((key) => key !== "l0.actor.additional-kinds")
+        .map((key) => [key, "answered"]),
+    );
+
+    expect(
+      describeUniversalIntakeMustGap(
+        {
+          answers: onlyActorMissing,
+          skippedQuestionKeys: new Set(),
+        },
+        { measurementHonesty: true },
+      ),
+    ).toMatch(/trust-boundary/i);
+  });
+
   it("builds transparency trail and unknown answers for skipped keys", () => {
     const skipped = new Set([UNIVERSAL_INTAKE_MUST_QUESTION_KEYS[0] ?? ""]);
     const trail = buildIntakeTransparencyTrail(skipped);

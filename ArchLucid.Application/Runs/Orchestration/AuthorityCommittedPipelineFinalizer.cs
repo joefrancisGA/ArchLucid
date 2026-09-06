@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Integration;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Audit;
@@ -8,10 +9,12 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -31,6 +34,8 @@ public sealed class AuthorityCommittedPipelineFinalizer(
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     ILogger<AuthorityCommittedPipelineFinalizer> logger) : IAuthorityCommittedPipelineFinalizer
 {
@@ -54,6 +59,12 @@ public sealed class AuthorityCommittedPipelineFinalizer(
 
     private readonly IGraphSnapshotProjectionCache _graphSnapshotProjectionCache =
         graphSnapshotProjectionCache ?? throw new ArgumentNullException(nameof(graphSnapshotProjectionCache));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -104,12 +115,18 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         string publicBaseUrl = NormalizePublicSiteBaseUrl(_publicSiteOptions.CurrentValue.BaseUrl);
         Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);
         object[] findingLinks = BuildAuthorityRunCompletedFindingLinks(run.RunId, findingsSnapshot.Findings, publicBaseUrl);
+        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
+            run.RunId,
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            ct);
         object integrationPayload = new
         {
             schemaVersion = 1,
             runId = run.RunId,
             manifestId = manifest.ManifestId,
-            manifestHash = manifest.ManifestHash,
+            manifestHash,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,

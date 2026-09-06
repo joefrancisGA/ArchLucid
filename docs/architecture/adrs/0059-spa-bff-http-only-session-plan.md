@@ -4,10 +4,17 @@
 
 # ADR 0059: SPA BFF / HttpOnly session plan (GA hardening)
 
-**Status:** Proposed  
+**Status:** Accepted (P1 dual-mode shipped in repo; P2 removes client `sessionStorage` Bearer — LK-06)  
 **Date:** 2026-07-18  
 **Deciders:** Owner + Architecture review  
 **Related:** Customer identity security assessment (H-10), `.local/owner/public_self_service_identity_gate.md`, ADR 0015 (trial auth)
+
+## Implementation (2026-09-06 — LK-05 P1)
+
+- **Next BFF cookie:** `archlucid-bff-session` — HttpOnly, Secure (production), SameSite=Lax; HMAC-signed payload using `ARCHLUCID_BFF_SESSION_SIGNING_SECRET` (Key Vault secret `bff-session-signing-key` via `infra/terraform-keyvault`).
+- **Dual-mode proxy:** `buildProxyUpstreamHeaders` forwards browser `Authorization: Bearer` when present; otherwise resolves Bearer from the BFF session cookie (`archlucid-ui/src/lib/proxy/bff-session-cookie.ts`).
+- **Issue / clear:** `POST` / `DELETE` `/api/auth/bff-session`; `persistTokenResponse` mirrors tokens into the cookie while `sessionStorage` Bearer remains until **LK-06**.
+- **Residual:** XSS can still read `sessionStorage` access tokens in P1; CSRF hardening on mutating proxy routes is **LK-07**.
 
 ## Context
 

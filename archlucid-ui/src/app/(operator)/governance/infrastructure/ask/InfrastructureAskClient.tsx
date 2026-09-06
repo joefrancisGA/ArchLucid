@@ -12,20 +12,36 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
-import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import {
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
+  resourceExplorerFilterHrefFromSearch,
+  resourceHubFilterHrefFromSearch,
+  resolveResourceHubTabFromAskScope,
   RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM,
+  RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
+  RESOURCE_HUB_DIFF_ID_PARAM,
+  RESOURCE_HUB_FINDING_ID_PARAM,
+  RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  formatCloudResourceExplorerWorkQueueLabel,
+  parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
+} from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
@@ -45,17 +61,51 @@ export function InfrastructureAskClient() {
   );
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
+  const diffId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_DIFF_ID_PARAM));
+  const findingId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_FINDING_ID_PARAM));
+  const instanceId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_INSTANCE_ID_PARAM));
+  const correspondenceId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM),
+  );
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
   const auditEvidenceSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
+  const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
+  const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
   const [question, setQuestion] = useState("");
   const [useSimulator, setUseSimulator] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
+
+  const citationContext = useMemo(
+    () => ({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      diffId: diffId.length > 0 ? diffId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+      runId: runId.length > 0 ? runId : null,
+      assessmentId: assessmentId.length > 0 ? assessmentId : null,
+      auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
+      controlId: controlId.length > 0 ? controlId : null,
+    }),
+    [
+      assessmentId,
+      auditEvidenceSnapshotId,
+      cloudResourceId,
+      controlId,
+      correspondenceId,
+      diffId,
+      findingId,
+      runId,
+      snapshotId,
+    ],
+  );
 
   const contextSummary = useMemo(() => {
     const parts: string[] = [];
@@ -68,12 +118,122 @@ export function InfrastructureAskClient() {
       parts.push(`snapshot ${snapshotId}`);
     }
 
+    if (diffId.length > 0) {
+      parts.push(`diff ${diffId}`);
+    }
+
+    if (findingId.length > 0) {
+      parts.push(`finding ${findingId}`);
+    }
+
+    if (instanceId.length > 0) {
+      parts.push(`instance ${instanceId}`);
+    }
+
+    if (
+      assessmentId.length > 0
+      && auditEvidenceSnapshotId.length > 0
+      && controlId.length > 0
+    ) {
+      parts.push(`control ${controlId}`);
+    }
+
+    if (correspondenceId.length > 0) {
+      parts.push(`correspondence ${correspondenceId}`);
+    }
+
+    if (workQueueLabel != null) {
+      parts.push(`work queue ${workQueueLabel}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [cloudResourceId, snapshotId]);
+  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
+
+  const hubBackLinkTab = useMemo(() => {
+    const scopeTab = resolveResourceHubTabFromAskScope({
+      findingId,
+      instanceId,
+      diffId,
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+      correspondenceId,
+    });
+
+    if (scopeTab != null) {
+      return scopeTab;
+    }
+
+    return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
+
+  const driftWorkbenchBackLinkHref = useMemo(() => {
+    if (diffId.length === 0) {
+      return null;
+    }
+
+    return buildDriftWorkbenchHref({
+      diffId,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+    });
+  }, [cloudResourceId, diffId, snapshotId]);
+
+  const diagramReconcileBackLinkHref = useMemo(() => {
+    if (correspondenceId.length === 0) {
+      return null;
+    }
+
+    return buildDiagramReconcileWorkbenchHref({
+      runId: runId.length > 0 ? runId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      correspondenceId,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+    });
+  }, [cloudResourceId, correspondenceId, runId, snapshotId]);
+
+  const inventoryDiagramsBackLinkHref = useMemo(() => {
+    if (snapshotId.length === 0) {
+      return null;
+    }
+
+    return buildResourceHubDiagramsWorkbenchHref(
+      snapshotId,
+      cloudResourceId.length > 0 ? cloudResourceId : null,
+      seedNodeId.length > 0 ? seedNodeId : null,
+    );
+  }, [cloudResourceId, seedNodeId, snapshotId]);
+
+  const remediationFactoryBackLinkHref = useMemo(() => {
+    if (findingId.length === 0 && instanceId.length === 0 && correspondenceId.length === 0) {
+      return null;
+    }
+
+    return buildRemediationWorkbenchHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      instanceId: instanceId.length > 0 ? instanceId : null,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+      runId: runId.length > 0 ? runId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+    });
+  }, [cloudResourceId, correspondenceId, findingId, instanceId, runId, snapshotId]);
+
+  const auditLineageBackLinkHref = useMemo(() => {
+    if (
+      assessmentId.length === 0
+      || auditEvidenceSnapshotId.length === 0
+      || controlId.length === 0
+    ) {
+      return null;
+    }
+
+    return buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, controlId);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -91,6 +251,7 @@ export function InfrastructureAskClient() {
         cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
         runId: runId.length > 0 ? runId : null,
         snapshotId: snapshotId.length > 0 ? snapshotId : null,
+        diffId: diffId.length > 0 ? diffId : null,
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
@@ -108,6 +269,7 @@ export function InfrastructureAskClient() {
     auditEvidenceSnapshotId,
     cloudResourceId,
     controlId,
+    diffId,
     runId,
     snapshotId,
     useSimulator,
@@ -117,7 +279,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -135,9 +297,70 @@ export function InfrastructureAskClient() {
           {cloudResourceId.length > 0 ? (
             <Link
               className="mt-2 inline-block text-sm text-al-link hover:underline"
-              href={governanceInfrastructureResourceHubPath(cloudResourceId)}
+              href={resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+                tab: hubBackLinkTab,
+                snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+                runId: runId.length > 0 ? runId : undefined,
+                assessmentId: assessmentId.length > 0 ? assessmentId : undefined,
+                auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : undefined,
+                controlId: controlId.length > 0 ? controlId : undefined,
+              })}
             >
               Open resource evidence hub
+            </Link>
+          ) : null}
+          {workQueue !== "all" ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={resourceExplorerFilterHrefFromSearch("", { workQueue })}
+              data-testid="infra-ask-explorer-back-link"
+            >
+              Back to resource explorer
+            </Link>
+          ) : null}
+          {driftWorkbenchBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={driftWorkbenchBackLinkHref}
+              data-testid="infra-ask-drift-back-link"
+            >
+              Open drift workbench
+            </Link>
+          ) : null}
+          {inventoryDiagramsBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={inventoryDiagramsBackLinkHref}
+              data-testid="infra-ask-inventory-diagrams-back-link"
+            >
+              Open inventory diagrams
+            </Link>
+          ) : null}
+          {diagramReconcileBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={diagramReconcileBackLinkHref}
+              data-testid="infra-ask-diagram-reconcile-back-link"
+            >
+              Open diagram reconciliation workbench
+            </Link>
+          ) : null}
+          {remediationFactoryBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={remediationFactoryBackLinkHref}
+              data-testid="infra-ask-remediation-back-link"
+            >
+              Open remediation factory
+            </Link>
+          ) : null}
+          {auditLineageBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={auditLineageBackLinkHref}
+              data-testid="infra-ask-audit-lineage-back-link"
+            >
+              Open audit evidence control
             </Link>
           ) : null}
         </section>
@@ -242,7 +465,7 @@ export function InfrastructureAskClient() {
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h2>
               <ul className="m-0 grid gap-2 pl-5">
                 {turn.response.citations.map((citation) => {
-                  const link = resolveInfraEvidenceAskCitationLink(citation);
+                  const link = resolveInfraEvidenceAskCitationLink(citation, citationContext);
                   const key = `${citation.kind}:${citation.id}`;
 
                   return (

@@ -17,6 +17,10 @@ import {
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { getRunPackageExportUrl } from "@/lib/api/downloads-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildPackagePrintPath } from "@/lib/package-print-view";
+import {
+  PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID,
+} from "@/lib/reviews/review-meeting-capture-export";
 import {
   parseReviewMeetingPacketOpenFromSearch,
   reviewMeetingPacketPanelsHrefFromSearch,
@@ -75,6 +79,13 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
       label: "Sponsor briefing export",
       description: "Executive bottom-line summary for non-architect attendees.",
       href: props.sponsorSynopsisHref ?? `/architecture/reviews/${encodeURIComponent(runId)}#sponsor-briefing`,
+    },
+    {
+      id: "meeting-capture",
+      label: "Meeting capture (print)",
+      description:
+        "One-page room Q&A from presenter elicitation — print or save as PDF. Not a sealed record.",
+      href: `${buildPackagePrintPath(runId)}#${PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID}`,
     },
   ];
 }

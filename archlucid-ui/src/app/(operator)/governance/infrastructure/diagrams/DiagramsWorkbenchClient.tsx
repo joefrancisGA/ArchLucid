@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -16,12 +17,14 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import {
   INFRA_DIAGRAMS_DEFAULT_MODE,
+  INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
   INFRA_DIAGRAMS_MERMAID_VIEW_PARAM,
   INFRA_DIAGRAMS_MODE_OPTIONS,
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   infraDiagramsFilterHrefFromSearch,
+  parseInfraDiagramsCloudResourceIdFromSearch,
   parseInfraDiagramsMermaidModeFromSearch,
   parseInfraDiagramsMermaidViewFromSearch,
   parseInfraDiagramsSeedNodeIdFromSearch,
@@ -41,6 +44,7 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -104,6 +108,9 @@ export function DiagramsWorkbenchClient() {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
+  const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
+  );
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
@@ -386,6 +393,27 @@ export function DiagramsWorkbenchClient() {
         <StatusTag kind="needs-attention" label={loadError} />
       ) : null}
 
+      {urlCloudResourceId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-diagrams-resource-scope-banner"
+          aria-label="Diagrams workbench resource scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+          </p>
+          <Link
+            className="mt-2 inline-block text-sm text-al-link hover:underline"
+            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+              tab: "diagram",
+              snapshotId: selectedSnapshotId,
+            })}
+          >
+            Open resource evidence hub
+          </Link>
+        </section>
+      ) : null}
+
       <section className="grid gap-4 md:grid-cols-2" aria-label="Snapshot and mode selection">
         <label className="flex flex-col gap-1">
           <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
@@ -490,6 +518,22 @@ export function DiagramsWorkbenchClient() {
         >
           Export Mermaid (.mmd)
         </Button>
+        {selectedSnapshotId.length > 0 ? (
+          <Button asChild variant="outline" data-testid="infra-diagrams-open-ask">
+            <Link
+              href={buildInfrastructureAskHref({
+                cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
+                snapshotId: selectedSnapshotId,
+                seedNodeId:
+                  selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
+                    ? seedNodeId
+                    : undefined,
+              })}
+            >
+              Ask about this snapshot
+            </Link>
+          </Button>
+        ) : null}
       </section>
 
       {tooLargeForBrowser ? (

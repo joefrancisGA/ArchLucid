@@ -126,7 +126,11 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
             <Users className="h-4 w-4" aria-hidden />
             {INVITE_REVIEWER_PAGE_TITLE}
           </Link>
-          <ShareableReviewLinkButton runId={props.runId} isCommitted={props.isCommitted} />
+          <ShareableReviewLinkButton
+            runId={props.runId}
+            isCommitted={props.isCommitted}
+            manifestVersion={props.manifestVersion}
+          />
         </div>
         <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800" data-testid="review-header-share-menu-exports">
           <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>

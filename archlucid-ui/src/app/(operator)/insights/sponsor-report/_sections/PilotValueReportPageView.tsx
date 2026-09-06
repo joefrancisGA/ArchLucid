@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -14,6 +14,10 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import {
+  parseValueReportHowItWorksOpenFromSearch,
+  valueReportHowItWorksDisclosureHrefFromSearch,
+} from "@/lib/insights/value-report-how-it-works-disclosure-url";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -65,7 +69,34 @@ type Props = {
 export function PilotValueReportPageView(props: Props) {
   const m = props.model;
   const router = useRouter();
+  const pathname = usePathname() ?? SPONSOR_REPORT_PATH;
   const searchParams = useSearchParams();
+  const valueReportHowItWorksOpenParam = searchParams.get("valueReportHowItWorksOpen");
+  const [howItWorksOpen, setHowItWorksOpenState] = useState(() =>
+    parseValueReportHowItWorksOpenFromSearch(valueReportHowItWorksOpenParam),
+  );
+
+  const syncHowItWorksOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(valueReportHowItWorksDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHowItWorksOpen = useCallback(
+    (open: boolean) => {
+      setHowItWorksOpenState(open);
+      syncHowItWorksOpenToUrl(open);
+    },
+    [syncHowItWorksOpenToUrl],
+  );
+
+  useEffect(() => {
+    setHowItWorksOpenState(parseValueReportHowItWorksOpenFromSearch(valueReportHowItWorksOpenParam));
+  }, [valueReportHowItWorksOpenParam]);
+
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
   const periodControlsRef = useRef<HTMLDivElement>(null);
@@ -186,7 +217,8 @@ export function PilotValueReportPageView(props: Props) {
 
         <CollapsibleSection
           title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}
-          defaultOpen={false}
+          open={howItWorksOpen}
+          onToggle={setHowItWorksOpen}
           sectionTestId="value-report-how-it-works"
         >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -217,7 +249,11 @@ export function PilotValueReportPageView(props: Props) {
 
         {m.error && m.data === null && !m.busy ? (
           buyerPolishedShell ? (
-            <PilotOutcomesLoadFailure message={m.error.message} onRetry={() => void m.load()} />
+            <PilotOutcomesLoadFailure
+              message={m.error.message}
+              correlationId={m.error.correlationId}
+              onRetry={() => void m.load()}
+            />
           ) : (
             <OperatorApiProblem
               fallbackMessage={m.error.message}

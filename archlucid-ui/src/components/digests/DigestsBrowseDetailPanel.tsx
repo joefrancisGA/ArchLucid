@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
   DIGEST_EXPORT_ACTION_LABEL,
@@ -16,6 +18,11 @@ import {
   resolveDigestPeriodCoverage,
 } from "@/lib/digest-period-coverage";
 import { downloadDigestExport } from "@/components/digests/digests-browse-helpers";
+import {
+  digestsBrowseDisclosureHrefFromSearch,
+  parseDigestsBrowseIncludesOpenFromSearch,
+  parseDigestsTechnicalDetailsOpenFromSearch,
+} from "@/lib/digests/digests-browse-disclosure-url";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -37,6 +44,40 @@ export function DigestsBrowseDetailPanel({
   onPreviewOpenChange,
   detailPanelRef,
 }: DigestsBrowseDetailPanelProps): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const digestsTechnicalDetailsOpenParam = searchParams.get("digestsTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseDigestsTechnicalDetailsOpenFromSearch(digestsTechnicalDetailsOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        digestsBrowseDisclosureHrefFromSearch(
+          searchParams.toString(),
+          { technicalDetailsOpen: open, browseIncludesOpen: parseDigestsBrowseIncludesOpenFromSearch(searchParams.get("digestsBrowseIncludesOpen")) },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parseDigestsTechnicalDetailsOpenFromSearch(digestsTechnicalDetailsOpenParam));
+  }, [digestsTechnicalDetailsOpenParam]);
+
   return (
     <section
       className="min-w-0 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
@@ -156,7 +197,12 @@ export function DigestsBrowseDetailPanel({
             </pre>
           ) : null}
 
-          <CollapsibleSection title="Technical details" defaultOpen={false} sectionTestId="digests-technical-details">
+          <CollapsibleSection
+            title="Technical details"
+            open={technicalDetailsOpen}
+            onToggle={setTechnicalDetailsOpen}
+            sectionTestId="digests-technical-details"
+          >
             <dl className={cn("m-0 grid gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               <div>
                 <dt className="font-medium text-al-text-primary">Digest id</dt>

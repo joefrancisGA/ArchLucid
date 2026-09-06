@@ -21,6 +21,7 @@ public sealed class RemediationInstanceQueryServiceTests
     };
 
     private static readonly Guid CloudResourceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    private static readonly Guid FindingId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     [Fact]
     public async Task ListInstancesAsync_without_filter_uses_tenant_list()
@@ -33,7 +34,7 @@ public sealed class RemediationInstanceQueryServiceTests
         RemediationInstanceQueryService service = CreateService(repository.Object);
 
         IReadOnlyList<RemediationInstanceSummary> instances =
-            await service.ListInstancesAsync(Scope, cloudResourceId: null, CancellationToken.None);
+            await service.ListInstancesAsync(Scope, cloudResourceId: null, findingId: null, CancellationToken.None);
 
         instances.Should().ContainSingle();
         repository.Verify(
@@ -65,7 +66,7 @@ public sealed class RemediationInstanceQueryServiceTests
         RemediationInstanceQueryService service = CreateService(repository.Object);
 
         IReadOnlyList<RemediationInstanceSummary> instances =
-            await service.ListInstancesAsync(Scope, CloudResourceId, CancellationToken.None);
+            await service.ListInstancesAsync(Scope, CloudResourceId, findingId: null, CancellationToken.None);
 
         instances.Should().ContainSingle();
         instances[0].CloudResourceId.Should().Be(CloudResourceId);
@@ -74,20 +75,65 @@ public sealed class RemediationInstanceQueryServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ListInstancesAsync_with_findingId_uses_finding_scoped_query()
+    {
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateInstance(Guid.Parse("33333333-3333-3333-3333-333333333333"), CloudResourceId, FindingId)]);
+
+        RemediationInstanceQueryService service = CreateService(repository.Object);
+
+        IReadOnlyList<RemediationInstanceSummary> instances =
+            await service.ListInstancesAsync(Scope, cloudResourceId: CloudResourceId, findingId: FindingId, CancellationToken.None);
+
+        instances.Should().ContainSingle();
+        instances[0].FindingId.Should().Be(FindingId);
+        repository.Verify(
+            repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        repository.Verify(
+            repo => repo.ListByCloudResourceIdPagedAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ListInstancesAsync_with_findingId_and_cloudResourceId_excludes_other_resources()
+    {
+        Guid otherResourceId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListByFindingIdAsync(Scope.TenantId, FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateInstance(Guid.Parse("33333333-3333-3333-3333-333333333333"), otherResourceId, FindingId)]);
+
+        RemediationInstanceQueryService service = CreateService(repository.Object);
+
+        IReadOnlyList<RemediationInstanceSummary> instances =
+            await service.ListInstancesAsync(Scope, cloudResourceId: CloudResourceId, findingId: FindingId, CancellationToken.None);
+
+        instances.Should().BeEmpty();
+    }
+
     private static RemediationInstanceQueryService CreateService(IRemediationInstanceRepository repository) =>
         new(
             repository,
             new Mock<IOperationalSecurityFindingRepository>().Object,
             new Mock<IRemediationPatternMatchRepository>().Object);
 
-    private static RemediationInstanceRecord CreateInstance(Guid instanceId, Guid? cloudResourceId) =>
+    private static RemediationInstanceRecord CreateInstance(Guid instanceId, Guid? cloudResourceId, Guid? findingId = null) =>
         new()
         {
             InstanceId = instanceId,
             TenantId = Scope.TenantId,
             WorkspaceId = Scope.WorkspaceId,
             ProjectId = Scope.ProjectId,
-            FindingId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            FindingId = findingId ?? Guid.Parse("33333333-3333-3333-3333-333333333333"),
             PatternId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
             PatternVersionId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
             PatternKey = "storage.encrypt-at-rest",

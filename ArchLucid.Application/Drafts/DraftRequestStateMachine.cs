@@ -12,6 +12,11 @@ public static class DraftRequestStateMachine
     public static bool AllowsQuestionAnswers(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
 
+    /// <summary>Returns <see langword="true" /> when presenter-room capture may record answers (PC-09).</summary>
+    public static bool AllowsPresenterQuestionAnswers(DraftRequestStatus status, bool presenterCapture) =>
+        AllowsQuestionAnswers(status)
+        || (presenterCapture && status == DraftRequestStatus.RunSpawned);
+
     /// <summary>Returns <see langword="true" /> when the L0/L1 question catalog may be read (includes post-submit parents).</summary>
     public static bool AllowsQuestionSelectionRead(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting

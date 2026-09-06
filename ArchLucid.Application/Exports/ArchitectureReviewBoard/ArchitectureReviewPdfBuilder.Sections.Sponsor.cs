@@ -7,6 +7,17 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 public sealed partial class ArchitectureReviewPdfBuilder
 {
+    private static void AddCareerExportHonestySection(ColumnDescriptor column, ArchitectureReviewBoardExportDocumentModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.CareerExportHonestyPlainText))
+        {
+            return;
+        }
+
+        AddHeading(column, "Career export honesty", firstMajorHeading: true);
+        AddMultilineBodyText(column, model.CareerExportHonestyPlainText.Trim());
+    }
+
     private static void AddSponsorReport(
         ColumnDescriptor column,
         ArchitectureReviewBoardExportDocumentModel model,
