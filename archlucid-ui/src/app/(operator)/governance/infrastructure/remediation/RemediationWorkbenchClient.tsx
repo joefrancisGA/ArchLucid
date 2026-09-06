@@ -12,6 +12,7 @@ import {
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
+import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -325,6 +326,39 @@ export function RemediationWorkbenchClient() {
     cloudResourceId: urlCloudResourceId,
   });
 
+  const remediationAskHref = useMemo(() => {
+    const scopedCloudResourceId = urlCloudResourceId.length > 0
+      ? urlCloudResourceId
+      : detail?.instance.cloudResourceId?.trim() ?? "";
+
+    if (scopedCloudResourceId.length === 0) {
+      return null;
+    }
+
+    const scopedFindingId = urlFindingId.length > 0
+      ? urlFindingId
+      : detail?.finding.findingId?.trim() ?? "";
+    const scopedInstanceId = selectedInstanceId.length > 0 ? selectedInstanceId : urlInstanceId;
+
+    return buildInfrastructureAskHref({
+      cloudResourceId: scopedCloudResourceId,
+      snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : undefined,
+      findingId: scopedFindingId.length > 0 ? scopedFindingId : undefined,
+      instanceId: scopedInstanceId.length > 0 ? scopedInstanceId : undefined,
+      correspondenceId: urlCorrespondenceId.length > 0 ? urlCorrespondenceId : undefined,
+      runId: urlReconcileRunId.length > 0 ? urlReconcileRunId : undefined,
+    });
+  }, [
+    detail,
+    selectedInstanceId,
+    urlCloudResourceId,
+    urlCorrespondenceId,
+    urlFindingId,
+    urlInstanceId,
+    urlReconcileRunId,
+    urlReconcileSnapshotId,
+  ]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-remediation" />
@@ -383,6 +417,12 @@ export function RemediationWorkbenchClient() {
             Open diagram reconciliation for the originating conflict row
           </Link>
         </p>
+      ) : null}
+
+      {remediationAskHref != null ? (
+        <Button asChild variant="outline" size="sm" data-testid="infra-remediation-open-ask">
+          <Link href={remediationAskHref}>Ask about this remediation scope</Link>
+        </Button>
       ) : null}
 
       <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Create remediation instance">
