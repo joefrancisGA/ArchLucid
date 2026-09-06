@@ -295,7 +295,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-admin-handoff")).toHaveTextContent(
       "Share with your workspace administrator",
     );
-    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent("ArchLucid");
+    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent("Review scope");
     expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent(
       "ARCHITECTURE_HANDBOOK.docx",
     );
@@ -304,6 +304,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
     expect(screen.queryByTestId("review-package-failure-support-hint")).toBeNull();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-failure-foot-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-failure-review-id")).toHaveTextContent("run-1");
   });
 
   it("renders in-place rerun button when live AI is ready", () => {
@@ -336,7 +338,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(2);
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
@@ -386,7 +388,11 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.queryByTestId("review-package-re-run-review")).toBeNull();
+    expect(screen.getAllByTestId("review-package-do-this-next-disabled-action")).toHaveLength(2);
+    screen.getAllByTestId("review-package-do-this-next-disabled-action").forEach((button) => {
+      expect(button).toBeDisabled();
+    });
+    expect(screen.getByTestId("review-package-rerun-disabled-hint")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
 
@@ -412,11 +418,9 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
-    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("min-w-0");
-    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("max-w-full");
-    expect(screen.getByTestId("review-package-re-run-review").parentElement?.className).toContain("flex-col");
-    expect(screen.queryByTestId("review-package-do-this-next-action")).toBeNull();
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(2);
+    expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-failure-foot-action")).toHaveTextContent("Re-run review");
   });
 
   it("hides stale failure recovery copy while a re-run attempt is in flight", () => {
@@ -526,7 +530,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-failure-technical-metadata")).toBeInTheDocument();
-    expect(screen.getByText("Failure metadata")).toBeInTheDocument();
+    expect(screen.getByText("Technical failure detail")).toBeInTheDocument();
     expect(screen.getByText("Reason code")).toBeInTheDocument();
     expect(screen.getByText("NoScheduledAgentTasks")).toBeInTheDocument();
     expect(screen.getByText("Likely cause")).toBeInTheDocument();

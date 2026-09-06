@@ -72,7 +72,8 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.sentence).toContain("re-run the review");
     expect(next.actionLabel).toBe("Re-run review");
     expect(next.href).toBe(baseInput.correctionHref);
-    expect(next.secondaryAction).toBeUndefined();
+    expect(next.secondaryAction?.label).toBe("Review submitted intake");
+    expect(next.secondaryAction?.href).toContain("reviewTab=overview");
     expect(next.failureRecovery?.headline).toContain("Execution failed");
     expect(next.failureRecovery?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(next.failureRecovery?.recoverySteps.join(" ")).not.toContain("Confirm intake fields");
