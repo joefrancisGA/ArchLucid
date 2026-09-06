@@ -208,6 +208,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-hub-diagram-open-remediation-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
   });
 
   it("links diagram tab to scoped inventory diagrams workbench", async () => {
@@ -319,6 +323,10 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByTestId("infra-resource-hub-remediation-open-findings-tab")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-remediation-open-diagram-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&snapshotId=22222222-2222-2222-2222-222222222222",
     );
     expect(screen.getByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
       "href",
