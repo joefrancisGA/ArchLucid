@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { RetrievalHit } from "@/app/(operator)/insights/search-review-evidence/_sections/retrieval-hit";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import { apiGet } from "@/lib/api";
+import {
+  buildDraftIdToArchitectureIdLookup,
+  filterGlobalSearchArchitectureDraftHits,
+  filterGlobalSearchArchitectureIdentityHits,
+  type GlobalSearchArchitectureDraftHit,
+  type GlobalSearchArchitectureIdentityHit,
+} from "@/lib/global-search-architecture-hits";
 import {
   findReviewDetailSectionSearchMatches,
   type ReviewDetailSectionSearchMatch,
@@ -16,6 +26,7 @@ import {
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import type { ReviewPackageSearchScope } from "@/lib/review-detail-package-search-scope";
 import { filterLivePackageSearchHits } from "@/lib/review-package-search-results";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import type { GlobalSearchResponse } from "@/types/global-search";
 
 export type RouteLocalSearchMode = "reviews-hub" | "findings-queue" | "review-detail" | null;
@@ -48,6 +59,12 @@ export function useGlobalSearchResults(
   const workspaceScoped =
     routeLocalSearchMode === null ||
     (routeLocalSearchMode === "review-detail" && options.searchScope === "workspace");
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
+  const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 50, {
+    enabled: workingMode && workspaceScoped,
+  });
+  const architectureDraftEntries = useArchitectureDraftRegistryEntries();
 
   const fetchResults = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -148,10 +165,43 @@ export function useGlobalSearchResults(
   const findPageMatches = useMemo(() => searchFindPageIndex(query, { limit: 6 }), [query]);
   const helpHits = useMemo(() => searchFindPageHelpEntries(query, { limit: 4 }), [query]);
   const trimmedQuery = query.trim();
+  const architectureIdentityHits = useMemo((): readonly GlobalSearchArchitectureIdentityHit[] => {
+    if (!workingMode || !workspaceScoped || trimmedQuery.length < 2) {
+      return [];
+    }
+
+    return filterGlobalSearchArchitectureIdentityHits(
+      architectureIdentitiesQuery.data?.items ?? [],
+      trimmedQuery,
+    );
+  }, [architectureIdentitiesQuery.data?.items, trimmedQuery, workingMode, workspaceScoped]);
+  const architectureDraftHits = useMemo((): readonly GlobalSearchArchitectureDraftHit[] => {
+    if (!workingMode || !workspaceScoped || trimmedQuery.length < 2) {
+      return [];
+    }
+
+    const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(
+      architectureIdentitiesQuery.data?.items ?? [],
+    );
+
+    return filterGlobalSearchArchitectureDraftHits(
+      architectureDraftEntries,
+      trimmedQuery,
+      draftIdToArchitectureId,
+    );
+  }, [
+    architectureDraftEntries,
+    architectureIdentitiesQuery.data?.items,
+    trimmedQuery,
+    workingMode,
+    workspaceScoped,
+  ]);
 
   const hasResults =
     workspaceScoped &&
     (findPageMatches.length > 0 ||
+      architectureIdentityHits.length > 0 ||
+      architectureDraftHits.length > 0 ||
       (results?.runs?.length ?? 0) > 0 ||
       (results?.findings?.length ?? 0) > 0 ||
       (results?.policyPacks?.length ?? 0) > 0 ||
@@ -171,6 +221,9 @@ export function useGlobalSearchResults(
     fetchPackageResults,
     findPageMatches: findPageMatches as readonly FindPageSearchEntry[],
     helpHits,
+    architectureIdentityHits,
+    architectureDraftHits,
+    workingMode,
     trimmedQuery,
     hasResults,
     hasPackageResults,
