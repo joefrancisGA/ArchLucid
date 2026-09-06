@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
@@ -40,6 +41,21 @@ describe("infra-evidence-workbench-hub-scope", () => {
     ).toEqual({
       snapshotId: "22222222-2222-2222-2222-222222222222",
       runId: "run-1",
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    });
+  });
+
+  it("merges audit scope into Ask handoff params", () => {
+    expect(mergeInfrastructureAskAuditScope(null)).toEqual({});
+    expect(
+      mergeInfrastructureAskAuditScope({
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    ).toEqual({
       assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
       controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",

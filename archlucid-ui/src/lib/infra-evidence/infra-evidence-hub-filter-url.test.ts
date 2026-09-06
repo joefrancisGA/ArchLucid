@@ -9,6 +9,7 @@ import {
   buildResourceHubWorkCountHref,
   buildResourceExplorerWorkCountHref,
   resolveResourceHubTabFromAskScope,
+  resolveInfrastructureAskAuditContext,
   formatResourceHubTabViewLabelFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -155,6 +156,46 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(formatResourceHubTabViewLabelFromAskScope("audit")).toBe("View audit lineage in hub");
     expect(formatResourceHubTabViewLabelFromAskScope("overview")).toBeNull();
     expect(formatResourceHubTabViewLabelFromAskScope(undefined)).toBeNull();
+  });
+
+  it("resolves Ask audit context from URL or hub payload", () => {
+    expect(
+      resolveInfrastructureAskAuditContext(
+        {
+          assessmentId: "",
+          auditEvidenceSnapshotId: "",
+          controlId: "",
+        },
+        {
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        },
+      ),
+    ).toEqual({
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    });
+
+    expect(
+      resolveInfrastructureAskAuditContext(
+        {
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        },
+        {
+          assessmentId: "payload-assessment",
+          auditEvidenceSnapshotId: "payload-snapshot",
+          controlId: "payload-control",
+        },
+      ),
+    ).toEqual({
+      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    });
   });
 
   it("builds resource hub href from explorer work queue context", () => {

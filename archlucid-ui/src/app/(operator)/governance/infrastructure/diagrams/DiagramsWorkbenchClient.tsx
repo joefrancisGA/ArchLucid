@@ -46,12 +46,12 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
-  formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import { buildResourceHubWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -416,85 +416,32 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="diagram"
+            primaryHref={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
               tab: "diagram",
               ...workbenchHubScopePatch,
             })}
-            data-testid="infra-diagrams-open-primary-hub"
-          >
-            {formatResourceHubWorkbenchPrimaryHubLabel("diagram")}
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubDiagramReconcileWorkbenchHref(
-              scopedSnapshotId,
-              undefined,
-              undefined,
-              urlCloudResourceId,
-            )}
-            data-testid="infra-diagrams-open-diagram-reconcile"
-          >
-            Open diagram reconciliation
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "terraform",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-diagrams-open-terraform-hub"
-          >
-            Open terraform mapping
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "findings",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-diagrams-open-findings-hub"
-          >
-            Open findings
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "remediation",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-diagrams-open-remediation-hub"
-          >
-            Open remediation
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "drift",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-diagrams-open-drift-hub"
-          >
-            Open drift
-          </Link>
-          {auditScope != null ? (
-            <Link
-              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-              href={buildResourceHubWorkbenchHref({
-                cloudResourceId: urlCloudResourceId,
-                tab: "audit",
-                ...workbenchHubScopePatch,
-              })}
-              data-testid="infra-diagrams-open-audit-hub"
-            >
-              Open audit lineage
-            </Link>
-          ) : null}
+            primaryTestId="infra-diagrams-open-primary-hub"
+            siblingTestIdPrefix="infra-diagrams"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["terraform", "findings", "remediation", "drift"]}
+            includeAuditTab={auditScope != null}
+            extraLinks={[
+              {
+                testId: "infra-diagrams-open-diagram-reconcile",
+                href: buildResourceHubDiagramReconcileWorkbenchHref(
+                  scopedSnapshotId,
+                  undefined,
+                  undefined,
+                  urlCloudResourceId,
+                  auditScope,
+                ),
+                label: "Open diagram reconciliation",
+              },
+            ]}
+          />
         </section>
       ) : null}
 
@@ -612,6 +559,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >
               Ask about this snapshot

@@ -11,10 +11,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
-  formatResourceHubWorkbenchPrimaryHubLabel,
+  mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -160,6 +162,24 @@ export function RemediationWorkbenchClient() {
     () => mergeWorkbenchHubScopePatch(remediationSnapshotId, auditScope, urlReconcileRunId),
     [auditScope, remediationSnapshotId, urlReconcileRunId],
   );
+
+  const remediationScopeExtraLinks = useMemo(() => {
+    if (urlCorrespondenceId.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        testId: "infra-remediation-open-diagram-hub",
+        href: buildDiagramHubHref({
+          cloudResourceId: urlCloudResourceId,
+          runId: urlReconcileRunId,
+          snapshotId: urlReconcileSnapshotId,
+        }),
+        label: "View diagram correspondence in hub",
+      },
+    ];
+  }, [urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -371,8 +391,10 @@ export function RemediationWorkbenchClient() {
       instanceId: scopedInstanceId.length > 0 ? scopedInstanceId : undefined,
       correspondenceId: urlCorrespondenceId.length > 0 ? urlCorrespondenceId : undefined,
       runId: urlReconcileRunId.length > 0 ? urlReconcileRunId : undefined,
+      ...mergeInfrastructureAskAuditScope(auditScope),
     });
   }, [
+    auditScope,
     detail,
     selectedInstanceId,
     urlCloudResourceId,
@@ -396,76 +418,21 @@ export function RemediationWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          <Link
-            className="mt-2 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
+          <WorkbenchHubScopeLinks
+            cloudResourceId={urlCloudResourceId}
+            primaryTab="remediation"
+            primaryHref={buildResourceHubWorkbenchHref({
               cloudResourceId: urlCloudResourceId,
               tab: "remediation",
               ...workbenchHubScopePatch,
             })}
-            data-testid="infra-remediation-open-primary-hub"
-          >
-            {formatResourceHubWorkbenchPrimaryHubLabel("remediation")}
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "findings",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-remediation-open-findings-hub"
-          >
-            Open findings
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "drift",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-remediation-open-drift-hub"
-          >
-            Open drift
-          </Link>
-          <Link
-            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-            href={buildResourceHubWorkbenchHref({
-              cloudResourceId: urlCloudResourceId,
-              tab: "terraform",
-              ...workbenchHubScopePatch,
-            })}
-            data-testid="infra-remediation-open-terraform-hub"
-          >
-            Open terraform mapping
-          </Link>
-          {urlCorrespondenceId.length > 0 ? (
-            <Link
-              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-              href={buildDiagramHubHref({
-                cloudResourceId: urlCloudResourceId,
-                runId: urlReconcileRunId,
-                snapshotId: urlReconcileSnapshotId,
-              })}
-              data-testid="infra-remediation-open-diagram-hub"
-            >
-              Open diagram correspondence
-            </Link>
-          ) : null}
-          {auditScope != null ? (
-            <Link
-              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
-              href={buildResourceHubWorkbenchHref({
-                cloudResourceId: urlCloudResourceId,
-                tab: "audit",
-                ...workbenchHubScopePatch,
-              })}
-              data-testid="infra-remediation-open-audit-hub"
-            >
-              Open audit lineage
-            </Link>
-          ) : null}
+            primaryTestId="infra-remediation-open-primary-hub"
+            siblingTestIdPrefix="infra-remediation"
+            scopePatch={workbenchHubScopePatch}
+            siblingTabs={["findings", "drift", "terraform"]}
+            includeAuditTab={auditScope != null}
+            extraLinks={remediationScopeExtraLinks}
+          />
         </section>
       ) : null}
 
@@ -646,7 +613,7 @@ export function RemediationWorkbenchClient() {
                             ...workbenchHubScopePatch,
                           })}
                         >
-                          {formatResourceHubWorkbenchPrimaryHubLabel("remediation")}
+                          {formatResourceHubTabViewLabel("remediation")}
                         </Link>
                       </dd>
                     </div>
