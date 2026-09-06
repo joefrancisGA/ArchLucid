@@ -1562,6 +1562,28 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureRunStatus: "Created" | "TasksGenerated" | "WaitingForResults" | "ReadyForCommit" | "Committed" | "Failed" | "Retrying" | "ExecutionCompletedQualityRejected" | "PartiallyCompleted" | "FailedPartial";
+        ArchitectureSealDeltaItem: {
+            afterValue?: null | string;
+            beforeValue?: null | string;
+            diffKind?: string;
+            key?: string;
+            notes?: null | string;
+            section?: string;
+        };
+        ArchitectureSealDeltaResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            diffs?: components["schemas"]["ArchitectureSealDeltaItem"][];
+            emptyStateCopy?: null | string;
+            hasPriorSeal?: boolean;
+            honestyCopy?: string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: uuid */
+            latestSealedReviewRunId?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;

@@ -5394,6 +5394,86 @@
         ],
         "type": "string"
       },
+      "ArchitectureSealDeltaItem": {
+        "properties": {
+          "afterValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "beforeValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diffKind": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "section": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureSealDeltaResponse": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "currentDraftId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diffs": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureSealDeltaItem"
+            },
+            "type": "array"
+          },
+          "emptyStateCopy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasPriorSeal": {
+            "type": "boolean"
+          },
+          "honestyCopy": {
+            "type": "string"
+          },
+          "latestSealedManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestSealedReviewRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
           "kind": {
