@@ -21,6 +21,9 @@ export const SLACK_INTEGRATION_HELP_OVERVIEW = SLACK_INTEGRATION_HELP_SUMMARY;
 
 export const SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE = "Start here";
 
+export const SLACK_INTEGRATION_HELP_BUYER_START_HERE_HELPER =
+  "Review how Slack alert routing works in this workspace — integration admins configure webhooks and destinations on the Slack notifications page.";
+
 export const SLACK_INTEGRATION_HELP_WEBHOOK_PRECONDITION = SLACK_INTEGRATION_NOT_CONFIGURED_NEXT_STEP;
 
 export const SLACK_INTEGRATION_HELP_READINESS_SECTION_TITLE = "Workspace Slack status";
