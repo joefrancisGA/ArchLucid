@@ -29,6 +29,7 @@ public sealed class InfraEvidenceDiffsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ListChangesForDiff(
         Guid diffId,
+        [FromQuery] Guid? cloudResourceId,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
@@ -40,6 +41,7 @@ public sealed class InfraEvidenceDiffsController(
             diffId,
             page,
             pageSize,
+            cloudResourceId,
             cancellationToken);
 
         if (response is null)

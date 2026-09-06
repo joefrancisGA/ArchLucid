@@ -76,13 +76,7 @@ export function DriftWorkbenchClient() {
   const [exportBusy, setExportBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const visibleChanges = useMemo(() => {
-    if (urlCloudResourceId.length === 0) {
-      return changes;
-    }
-
-    return changes.filter((row) => row.cloudResourceId === urlCloudResourceId);
-  }, [changes, urlCloudResourceId]);
+  const visibleChanges = changes;
 
   const selectedChange = useMemo(
     () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
@@ -215,7 +209,9 @@ export function DriftWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, 1, 100);
+        const response = await fetchInfraEvidenceDiffChanges(selectedDiffId, 1, 100, {
+          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+        });
 
         if (!cancelled) {
           setChanges(response.items ?? []);
@@ -243,7 +239,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId, urlChangeId]);
+  }, [selectedDiffId, urlChangeId, urlCloudResourceId]);
 
   const runExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0) {
