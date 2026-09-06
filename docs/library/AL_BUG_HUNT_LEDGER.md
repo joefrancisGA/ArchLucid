@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 313
-- **bugs-found:** 2034
+- **hunts:** 314
+- **bugs-found:** 2046
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — TwinAccessKey/TwistAccessKey/TweakAccessKey redaction, ought not provision/need to and should/shall/will not need to constraint negation, advice would/ought/should/will not need to prefix
+- **last-bug:** 2026-09-06 — TwoAccessKey/TypeAccessKey/UltraAccessKey redaction, would/need/could not need to and could not require to constraint negation, advice need/shall/must not require/configure to and need not need to prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4145,6 +4145,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `will not need to` gap — **hit 2026-09-06 (#1041):** mid-sentence `will not need` only; missed `will not need to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_will_not_need_to_encryption_at_rest_phrasing`).
 
 2026-09-06 seed hunt #1041 (hit): reseeded after #1040 closure; proved twelve hunt-ready rows — TwinAccessKey/TwistAccessKey/TweakAccessKey redaction parity, ought not provision/need to and should/shall/will not need to constraint negation, and advice would/ought/should/will not need to prefix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `TwoAccessKey` not redacted — **hit 2026-09-06 (#1042):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_two_access_key_config_path`, `IsSensitiveKey_detects_two_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `TypeAccessKey` not redacted — **hit 2026-09-06 (#1042):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_type_access_key_config_path`, `IsSensitiveKey_detects_type_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `UltraAccessKey` not redacted — **hit 2026-09-06 (#1042):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_ultra_access_key_config_path`, `IsSensitiveKey_detects_ultra_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `would not need to` gap — **hit 2026-09-06 (#1042):** mid-sentence `would not need` only; missed `teams would not need to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_would_not_need_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `need not need to` gap — **hit 2026-09-06 (#1042):** mid-sentence `need not need` only; missed `teams need not need to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_need_not_need_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `could not need to` gap — **hit 2026-09-06 (#1042):** mid-sentence `could not need` only; missed `teams could not need to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_need_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `could not require to` gap — **hit 2026-09-06 (#1042):** mid-sentence `could not require` only; missed `teams could not require to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_could_not_require_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `need not require to` gap — **hit 2026-09-06 (#1042):** mid-sentence `need not require` only; missed `need not require to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_require_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `need not need to` gap — **hit 2026-09-06 (#1042):** mid-sentence `need not need` only; missed `need not need to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_need_not_need_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `shall not need to` gap — **hit 2026-09-06 (#1042):** suffix-only `shall not need` guard; missed mid-sentence `shall not need to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_shall_not_need_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `must not require to` gap — **hit 2026-09-06 (#1042):** suffix-only `must not require` guard; missed mid-sentence `must not require to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_must_not_require_to_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `must not configure to` gap — **hit 2026-09-06 (#1042):** suffix-only `must not configure` guard; missed mid-sentence `must not configure to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_must_not_configure_to_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #1042 (hit): reseeded after #1041 closure; proved twelve hunt-ready rows — TwoAccessKey/TypeAccessKey/UltraAccessKey redaction parity, would/need/could not need to and could not require to constraint negation, and advice need/shall/must not require/configure to and need not need to prefix.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
