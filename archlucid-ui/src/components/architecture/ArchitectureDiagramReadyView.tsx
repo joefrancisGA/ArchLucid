@@ -22,10 +22,11 @@ import type { ArchitectureDiagramPanelState } from "./use-architecture-diagram-p
 
 type ArchitectureDiagramReadyViewProps = {
   readonly panel: ArchitectureDiagramPanelState;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyViewProps): React.JSX.Element | null {
-  const { panel } = props;
+  const { panel, buyerPolishedShell = false } = props;
 
   if (panel.displayMermaidSource === null) {
     return null;
@@ -33,13 +34,13 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
+      <div className={buyerPolishedShell ? undefined : "grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]"}>
         <ArchitectureDiagramViewer
           mermaidSource={panel.displayMermaidSource}
           textAlternative={panel.textAlternative}
           onRetry={() => void panel.runGeneration(false)}
         />
-        {panel.diagramModel !== null ? (
+        {!buyerPolishedShell && panel.diagramModel !== null ? (
           <div className="space-y-3">
             <ArchitectureDiagramProvenancePanel
               runId={panel.runId}
@@ -66,7 +67,8 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
           </div>
         ) : null}
       </div>
-      <ArchitectureDiagramLegend model={panel.diagramModel} />
+      {buyerPolishedShell ? null : <ArchitectureDiagramLegend model={panel.diagramModel} />}
+      {buyerPolishedShell ? null : (
       <div className="flex flex-wrap gap-2">
         {panel.canEdit ? (
           <Button type="button" variant="outline" size="sm" onClick={() => panel.setEditorOpen(true)}>
@@ -105,6 +107,7 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
           </div>
         </details>
       </div>
+      )}
 
       {panel.diagramModel !== null && panel.mermaidSource !== null ? (
         <ArchitectureDiagramEditor

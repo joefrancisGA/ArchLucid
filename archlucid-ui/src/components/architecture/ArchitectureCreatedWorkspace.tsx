@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { ArchitectureCreatedClarificationsBuyerChrome } from "@/components/architecture/ArchitectureCreatedClarificationsBuyerChrome";
+import { ArchitectureCreatedDiagramBuyerChrome } from "@/components/architecture/ArchitectureCreatedDiagramBuyerChrome";
 import { useReviewClarificationQuestions } from "@/hooks/use-review-clarification-questions";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
@@ -67,6 +68,11 @@ import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_CLARIFICATIONS_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-created-clarifications-page-copy";
+import {
+  ARCHITECTURE_CREATED_DIAGRAM_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_CREATED_DIAGRAM_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_DIAGRAM_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-diagram-page-copy";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
@@ -263,7 +269,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && (activeTab === "overview" || activeTab === "activity"))
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "activity" || activeTab === "diagram"))
       ? "context-bar"
       : "full";
 
@@ -291,6 +297,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
           {ARCHITECTURE_CREATED_ACTIVITY_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      {buyerPolishedShell && activeTab === "diagram" ? (
+        <a
+          href={`#${ARCHITECTURE_CREATED_DIAGRAM_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_CREATED_DIAGRAM_SKIP_LINK_LABEL}
         </a>
       ) : null}
 
@@ -347,12 +361,19 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           </div>
       </div>
 
-      <div hidden={activeTab !== "diagram"} data-testid="architecture-workspace-panel-diagram">
+      <div
+        hidden={activeTab !== "diagram"}
+        data-testid="architecture-workspace-panel-diagram"
+        id={buyerPolishedShell ? ARCHITECTURE_CREATED_DIAGRAM_PRIMARY_CONTENT_ID : undefined}
+      >
           <div className="space-y-4">
-            <OverviewDiagramVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="diagram"
-            />
+            {buyerPolishedShell ? null : (
+              <OverviewDiagramVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="diagram"
+              />
+            )}
+            {buyerPolishedShell ? null : (
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button
                 type="button"
@@ -370,7 +391,8 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                   : ARCHITECTURE_FINDINGS_DUAL_PANE_TOGGLE_ON_LABEL}
               </Button>
             </div>
-            {showFindingsLinkedView ? (
+            )}
+            {showFindingsLinkedView && !buyerPolishedShell ? (
               <ArchitectureFindingsDualPane
                 runId={props.baseline.runId}
                 findings={props.findings}
@@ -407,6 +429,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
               />
             )}
+            {buyerPolishedShell ? <ArchitectureCreatedDiagramBuyerChrome /> : null}
           </div>
       </div>
 

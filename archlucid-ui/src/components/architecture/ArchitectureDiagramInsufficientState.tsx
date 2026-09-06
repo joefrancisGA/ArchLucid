@@ -9,6 +9,7 @@ import {
   ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
 } from "@/lib/architecture/architecture-diagram-copy";
+import { ARCHITECTURE_CREATED_DIAGRAM_BUYER_INSUFFICIENT_BODY } from "@/lib/architecture/architecture-created-diagram-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -16,12 +17,13 @@ import type { ArchitectureDiagramPanelState } from "./use-architecture-diagram-p
 
 type ArchitectureDiagramInsufficientStateProps = {
   readonly panel: ArchitectureDiagramPanelState;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ArchitectureDiagramInsufficientState(
   props: ArchitectureDiagramInsufficientStateProps,
 ): React.JSX.Element {
-  const { panel } = props;
+  const { panel, buyerPolishedShell = false } = props;
 
   const clarifyArchitectureVariant = panel.clarifyArchitectureVariant;
 
@@ -49,12 +51,14 @@ export function ArchitectureDiagramInsufficientState(
         {ARCHITECTURE_DIAGRAM_INSUFFICIENT_HEADING}
       </p>
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        {ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION}
+        {buyerPolishedShell
+          ? ARCHITECTURE_CREATED_DIAGRAM_BUYER_INSUFFICIENT_BODY
+          : ARCHITECTURE_DIAGRAM_INSUFFICIENT_ORIENTATION}
       </p>
       {panel.missingExplanation.length > 0 ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{panel.missingExplanation}</p>
       ) : null}
-      {diagramClarifyAction !== null || insufficientRegenerateApplicable ? (
+      {!buyerPolishedShell && (diagramClarifyAction !== null || insufficientRegenerateApplicable) ? (
         <div className="flex flex-wrap gap-2">
           {diagramClarifyAction}
           {insufficientRegenerateApplicable ? (
