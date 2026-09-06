@@ -11,6 +11,7 @@ import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
+import { ArchitectureSealDeltaPanel } from "@/components/architecture/ArchitectureSealDeltaPanel";
 import { ArchitectureIdentityRenameForm } from "@/components/architecture/ArchitectureIdentityRenameForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,6 +116,8 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           </Link>
         </p>
       ) : null}
+
+      <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />
 
       <ArchitectureIdentityDeskVersionsSection versions={identity.versions ?? []} />
 
