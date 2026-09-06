@@ -12,6 +12,7 @@ import {
   readCachedDeskContinuity,
   readCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
+import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import {
   getInFlightOperations,
   subscribeInFlightOperations,
@@ -55,7 +56,7 @@ function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
 }
 
 /** Client hook — resolves Working Start / Alt+N href from desk state (IS-03 / IS-13 / CA-33). */
-export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
+export function useWorkingStartHref(runs: readonly RunSummary[] = []): string {
   const drafts = useArchitectureDraftRegistryEntries();
   const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());
   const inFlightReviewId = useSyncExternalStore(
@@ -79,6 +80,10 @@ export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
   }, []);
 
   return useMemo(() => {
+    const continueLastReview = resolveContinueLastReviewPackageTarget(
+      runs,
+      deskContinuity.lastOpenReviewId,
+    );
     const continueLastDraft = resolveContinueLastArchitectureDraftEntry(
       drafts,
       deskContinuity.lastOpenDraftId,
@@ -90,8 +95,10 @@ export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
 
     return resolveWorkingStartHref({
       inFlightReviewId,
+      lastOpenReviewId: continueLastReview?.runId ?? null,
       lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+      lastOpenDraftId: continueLastDraft?.draftId ?? null,
       spawnLockedReviewId,
     }).href;
-  }, [deskContinuity.lastOpenDraftId, drafts, inFlightReviewId]);
+  }, [deskContinuity.lastOpenDraftId, deskContinuity.lastOpenReviewId, drafts, inFlightReviewId, runs]);
 }

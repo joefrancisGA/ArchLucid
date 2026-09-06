@@ -62,8 +62,8 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE,
-  SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT,
+  SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT,
@@ -358,164 +358,164 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-            {!canExecute && !buyerPolishedShell && !permissionLoading ? (
-              <div
-                id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
-                className={cn(HELP_PAGE_LAYOUT.contentPanel, "max-w-3xl")}
-                data-testid={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusTag kind="neutral" label={SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL} />
-                </div>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}</p>
+          {!canExecute && !buyerPolishedShell && !permissionLoading ? (
+            <div
+              id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
+              className={cn(HELP_PAGE_LAYOUT.contentPanel, "max-w-3xl")}
+              data-testid={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusTag kind="neutral" label={SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL} />
               </div>
-            ) : null}
-
-            {permissionLoading ? (
-              <p
-                className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="specialty-template-authority-loading"
-                aria-live="polite"
-              >
-                {SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL}
-              </p>
-            ) : null}
-
-            {navigation.showStagedPanel && navigation.activeStageId !== null ? (
-              <ReviewStartStagedProgress
-                stages={navigation.stages}
-                activeStageId={navigation.activeStageId}
-                headline={REVIEW_START_PREPARING_LABEL}
-                testId="specialty-template-review-start-progress"
-              />
-            ) : null}
-
-            {navigation.stalled && navigation.stalledHref !== null ? (
-              <ReviewStartNavigationStallNotice
-                href={navigation.stalledHref}
-                testId="specialty-template-review-start-stall"
-              />
-            ) : null}
-
-            {navigation.error !== null ? <ReviewStartInlineError message={navigation.error} /> : null}
-
-            <div className="min-w-0 space-y-4">
-              <section
-                id={SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}
-                aria-labelledby="specialty-template-catalog-heading"
-                className="space-y-4"
-                tabIndex={-1}
-              >
-                <h2 id="specialty-template-catalog-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  Available templates
-                </h2>
-                <div
-                  className="grid auto-rows-min gap-4 md:grid-cols-2 xl:grid-cols-3 xl:grid-rows-[repeat(6,auto)]"
-                  data-testid="specialty-template-card-grid"
-                >
-                  {SPECIALTY_REVIEW_TEMPLATES.map((template) => (
-                    <SpecialtyTemplateCard
-                      key={template.id}
-                      template={template}
-                      selected={selectedTemplateId === template.id}
-                      canExecute={canExecute}
-                      permissionLoading={permissionLoading}
-                      onSelect={handleSelect}
-                      onPreview={(row) => setPreview({ template: row })}
-                      onRemoveSelection={handleRemoveSelection}
-                      onContinue={handleContinueToReviewSetup}
-                      isContinuing={navigation.isNavigating}
-                      loadingLabel={navigation.loadingLabel}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              {showCloudContextPicker ? (
-                <section
-                  aria-labelledby="specialty-template-cloud-context-heading"
-                  className="space-y-3"
-                  data-testid="specialty-template-cloud-context-selection-band"
-                >
-                  <h2
-                    id="specialty-template-cloud-context-heading"
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                  >
-                    {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE}
-                  </h2>
-                  <SpecialtyTemplateCloudContextPicker
-                    fieldsetId={cloudContextFieldsetId}
-                    cloudContext={saasCloudContext}
-                    onCloudChange={setSaasCloudContext}
-                    showSelectionNote
-                  />
-                </section>
-              ) : null}
-
-              <section
-                id="specialty-template-comparison"
-                aria-labelledby="specialty-template-comparison-heading"
-                className="space-y-4"
-              >
-                <h2 id="specialty-template-comparison-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  Compare templates
-                </h2>
-                <SpecialtyTemplateComparisonTable templates={SPECIALTY_REVIEW_TEMPLATES} />
-              </section>
-
-              <section id="integrations-optional" aria-labelledby="integrations-optional-heading" className="space-y-2">
-                <h2 id="integrations-optional-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  Integrations
-                </h2>
-                <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
-                  {SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE}
-                </p>
-              </section>
-
-              <section
-                id="need-help-choosing"
-                aria-labelledby="need-help-choosing-heading"
-                className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
-                data-testid="specialty-template-help-choosing"
-              >
-                <h2 id="need-help-choosing-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  {SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_TITLE}
-                </h2>
-                <ul className={cn("m-0 mt-3 list-disc space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                  {SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_BULLETS.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-                <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>
-                  <Link href={specialtyReviewTemplatesCompareHref()} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    Compare templates
-                  </Link>
-                  {" · "}
-                  <Link href="/architecture/first-review-guide" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    Open first review guide
-                  </Link>
-                  {" · "}
-                  <Link href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    Contact support
-                  </Link>
-                </p>
-              </section>
-
-              <section aria-labelledby="specialty-related-links-heading" className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                <h2 id="specialty-related-links-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                  Related
-                </h2>
-                <ul className={cn("m-0 mt-2 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
-                  {SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS.map((link) => (
-                    <li key={link.href}>
-                      <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}</p>
             </div>
+          ) : null}
+
+          {permissionLoading ? (
+            <p
+              className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="specialty-template-authority-loading"
+              aria-live="polite"
+            >
+              {SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL}
+            </p>
+          ) : null}
+
+          {navigation.showStagedPanel && navigation.activeStageId !== null ? (
+            <ReviewStartStagedProgress
+              stages={navigation.stages}
+              activeStageId={navigation.activeStageId}
+              headline={REVIEW_START_PREPARING_LABEL}
+              testId="specialty-template-review-start-progress"
+            />
+          ) : null}
+
+          {navigation.stalled && navigation.stalledHref !== null ? (
+            <ReviewStartNavigationStallNotice
+              href={navigation.stalledHref}
+              testId="specialty-template-review-start-stall"
+            />
+          ) : null}
+
+          {navigation.error !== null ? <ReviewStartInlineError message={navigation.error} /> : null}
+
+          <div className="min-w-0 space-y-4">
+            <section
+              id={SPECIALTY_WALKTHROUGHS_HELP_SKIP_TARGET_ID}
+              aria-labelledby="specialty-template-catalog-heading"
+              className="space-y-4"
+              tabIndex={-1}
+            >
+              <h2 id="specialty-template-catalog-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                Available templates
+              </h2>
+              <div
+                className="grid auto-rows-min gap-4 md:grid-cols-2 xl:grid-cols-3 xl:grid-rows-[repeat(6,auto)]"
+                data-testid="specialty-template-card-grid"
+              >
+                {SPECIALTY_REVIEW_TEMPLATES.map((template) => (
+                  <SpecialtyTemplateCard
+                    key={template.id}
+                    template={template}
+                    selected={selectedTemplateId === template.id}
+                    canExecute={canExecute}
+                    permissionLoading={permissionLoading}
+                    onSelect={handleSelect}
+                    onPreview={(row) => setPreview({ template: row })}
+                    onRemoveSelection={handleRemoveSelection}
+                    onContinue={handleContinueToReviewSetup}
+                    isContinuing={navigation.isNavigating}
+                    loadingLabel={navigation.loadingLabel}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {showCloudContextPicker ? (
+              <section
+                aria-labelledby="specialty-template-cloud-context-heading"
+                className="space-y-3"
+                data-testid="specialty-template-cloud-context-selection-band"
+              >
+                <h2
+                  id="specialty-template-cloud-context-heading"
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SECTION_TITLE}
+                </h2>
+                <SpecialtyTemplateCloudContextPicker
+                  fieldsetId={cloudContextFieldsetId}
+                  cloudContext={saasCloudContext}
+                  onCloudChange={setSaasCloudContext}
+                  showSelectionNote
+                />
+              </section>
+            ) : null}
+
+            <section
+              id="specialty-template-comparison"
+              aria-labelledby="specialty-template-comparison-heading"
+              className="space-y-4"
+            >
+              <h2 id="specialty-template-comparison-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                Compare templates
+              </h2>
+              <SpecialtyTemplateComparisonTable templates={SPECIALTY_REVIEW_TEMPLATES} />
+            </section>
+
+            <section id="integrations-optional" aria-labelledby="integrations-optional-heading" className="space-y-2">
+              <h2 id="integrations-optional-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                Integrations
+              </h2>
+              <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
+                {SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE}
+              </p>
+            </section>
+
+            <section
+              id="need-help-choosing"
+              aria-labelledby="need-help-choosing-heading"
+              className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
+              data-testid="specialty-template-help-choosing"
+            >
+              <h2 id="need-help-choosing-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_TITLE}
+              </h2>
+              <ul className={cn("m-0 mt-3 list-disc space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {SPECIALTY_REVIEW_TEMPLATES_HELP_CHOOSING_BULLETS.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+              <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>
+                <Link href={specialtyReviewTemplatesCompareHref()} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Compare templates
+                </Link>
+                {" · "}
+                <Link href="/architecture/first-review-guide" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Open first review guide
+                </Link>
+                {" · "}
+                <Link href={`mailto:${ARCHLUCID_SUPPORT_EMAIL}`} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Contact support
+                </Link>
+              </p>
+            </section>
+
+            <section aria-labelledby="specialty-related-links-heading" className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <h2 id="specialty-related-links-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                Related
+              </h2>
+              <ul className={cn("m-0 mt-2 flex flex-wrap gap-x-4 gap-y-2 p-0 list-none", OPERATOR_TYPOGRAPHY.body)}>
+                {SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
           </div>
 
           <HelpTopicTableOfContents headings={SPECIALTY_REVIEW_TEMPLATES_GUIDE_HEADINGS} enableScrollSpy />
