@@ -16,6 +16,12 @@ import {
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { PACKAGE_PRINT_PAGE_SUBTITLE_BUYER } from "@/lib/package-print-page-copy";
 import {
+  PACKAGE_PRINT_MEETING_CAPTURE_HEADING,
+  PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID,
+  REVIEW_MEETING_CAPTURE_DISCLAIMER,
+  hasReviewMeetingCapture,
+} from "@/lib/reviews/review-meeting-capture-export";
+import {
   PACKAGE_PRINT_BACK_LABEL,
   PACKAGE_PRINT_FINDINGS_HEADING,
   PACKAGE_PRINT_INSTRUCTIONS,
@@ -57,6 +63,8 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
     printReady: true,
   });
   const packagePrintClearScopeHref = buildPackagePrintPath(presentation.runId);
+  const meetingCaptureEntries = presentation.meetingCaptureEntries ?? [];
+  const showMeetingCapture = hasReviewMeetingCapture(meetingCaptureEntries);
 
   return (
     <div
@@ -180,6 +188,37 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             >
               {presentation.sponsorSynopsis}
             </p>
+          </section>
+        ) : null}
+
+        {showMeetingCapture ? (
+          <section
+            id={PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID}
+            className="space-y-2"
+            aria-labelledby="package-print-meeting-capture-heading"
+            data-testid="package-print-meeting-capture"
+          >
+            <h2 id="package-print-meeting-capture-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {PACKAGE_PRINT_MEETING_CAPTURE_HEADING}
+            </h2>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REVIEW_MEETING_CAPTURE_DISCLAIMER}
+            </p>
+            <ol className="m-0 list-decimal space-y-3 pl-5">
+              {meetingCaptureEntries.map((entry) => (
+                <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
+                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    {entry.questionLabel}
+                  </p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{entry.answer}</p>
+                  {entry.responderLabel !== null || entry.recordedAtLabel !== null ? (
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {[entry.responderLabel, entry.recordedAtLabel].filter(Boolean).join(" · ")}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
           </section>
         ) : null}
 
