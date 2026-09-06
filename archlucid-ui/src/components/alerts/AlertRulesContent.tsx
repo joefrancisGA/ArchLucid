@@ -19,7 +19,7 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 import { useAlertRulesContentList } from "@/components/alerts/use-alert-rules-content-list";
 import { useAlertRulesContentCreate } from "@/components/alerts/use-alert-rules-content-create";
 import { useAlertRulesContentPreview } from "@/components/alerts/use-alert-rules-content-preview";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
@@ -37,7 +37,7 @@ import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-p
 import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
 
 export function AlertRulesContent() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const list = useAlertRulesContentList();
   const create = useAlertRulesContentCreate({
     canEdit: list.canEdit,
