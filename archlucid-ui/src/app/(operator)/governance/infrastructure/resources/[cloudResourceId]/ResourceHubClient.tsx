@@ -106,6 +106,18 @@ function buildHubDriftChangeAskHref(
   });
 }
 
+function buildHubFindingAskHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  findingId: string,
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    findingId,
+  });
+}
+
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
@@ -560,6 +572,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   onClick={() => void runMatchRemediationFromFinding(item.id)}
                                 >
                                   {findingActionBusyId === item.id ? "Matching…" : "Match remediation"}
+                                </Button>
+                                <Button asChild size="sm" variant="outline">
+                                  <Link
+                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id)}
+                                    data-testid={`infra-resource-hub-finding-ask-${item.id}`}
+                                  >
+                                    Ask
+                                  </Link>
                                 </Button>
                               </div>
                             </EnterpriseTableCell>

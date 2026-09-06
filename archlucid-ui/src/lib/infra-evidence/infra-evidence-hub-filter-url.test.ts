@@ -50,4 +50,16 @@ describe("infra-evidence-hub-filter-url", () => {
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1",
     );
   });
+
+  it("builds Infrastructure Ask href with finding context", () => {
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        findingId: "finding-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1",
+    );
+  });
 });
