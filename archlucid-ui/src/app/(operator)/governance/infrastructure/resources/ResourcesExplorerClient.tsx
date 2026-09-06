@@ -22,6 +22,7 @@ import {
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import {
+  buildInfrastructureAskHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceGroupFromSearch,
@@ -245,17 +246,18 @@ export function ResourcesExplorerClient() {
             <EnterpriseTableHeaderCell>Resource group</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Region</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Last seen</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
           </EnterpriseTableRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
           {loading ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={6}>Loading resources…</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>Loading resources…</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
           {!loading && rows.length === 0 ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={6}>No cloud resources match the current filters.</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={7}>No cloud resources match the current filters.</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
           {rows.map((row) => {
@@ -296,6 +298,16 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell>{row.region ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 {row.lastSeenUtc.length > 0 ? new Date(row.lastSeenUtc).toLocaleString() : "—"}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    href={buildInfrastructureAskHref({ cloudResourceId: row.cloudResourceId })}
+                    data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
+                  >
+                    Ask
+                  </Link>
+                </Button>
               </EnterpriseTableCell>
             </EnterpriseTableRow>
             );

@@ -81,6 +81,10 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-explorer-ask-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
   });
 
   it("renders work queue chips and applies open-findings filter", async () => {
