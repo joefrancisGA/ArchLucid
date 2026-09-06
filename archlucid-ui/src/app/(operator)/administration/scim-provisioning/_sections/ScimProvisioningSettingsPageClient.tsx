@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { ScimProvisioningSettingsBuyerChrome } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsBuyerChrome";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -26,6 +27,8 @@ import {
   type VerifyState,
 } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningIssueTokenSection";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   classifyScimBaseUrl,
@@ -35,8 +38,15 @@ import {
 import {
   SCIM_IDENTITY_PROVIDERS_HREF,
   SCIM_PROVISIONING_PAGE_REASSURANCE,
-  SCIM_PROVISIONING_PAGE_SUBTITLE,
   SCIM_PROVISIONING_PAGE_TITLE,
+  SCIM_PROVISIONING_BUYER_START_HERE_HELPER,
+  SCIM_PROVISIONING_FIRST_VIEWPORT_TEST_ID,
+  SCIM_PROVISIONING_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SCIM_PROVISIONING_PAGE_LEAD,
+  SCIM_PROVISIONING_PRIMARY_CONTENT_ID,
+  SCIM_PROVISIONING_SKIP_LINK_LABEL,
+  SCIM_PROVISIONING_SKIP_TARGET_ID,
+  SCIM_PROVISIONING_START_HERE_CARD_TITLE,
   SCIM_SSO_CONTEXT_NOTE_LINK,
   SCIM_SSO_CONTEXT_NOTE_PREFIX,
   SCIM_SSO_CONTEXT_NOTE_SUFFIX,
@@ -47,7 +57,9 @@ import {
   SCIM_VERIFY_MISSING_TOKEN,
   SCIM_VERIFY_STATUS_VERIFIED,
   SCIM_VERIFYING_ACTION,
+  scimProvisioningPageSubtitle,
 } from "@/lib/scim-provisioning-page-copy";
+import { SCIM_PROVISIONING_CLAIM_DISCIPLINE } from "@/lib/scim-provisioning-evidence-copy";
 import {
   SCIM_TOKEN_CREATE_FAILED_MESSAGE,
   SCIM_TOKEN_CREATED_SUCCESS_MESSAGE,
@@ -81,6 +93,7 @@ async function copyText(value: string): Promise<void> {
 
 /** SCIM inbound provisioning administration — token lifecycle and connectivity verification. */
 export function ScimProvisioningSettingsPageClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? SCIM_PROVISIONING_CANONICAL_PATH;
   const searchParams = useSearchParams();
@@ -366,98 +379,168 @@ export function ScimProvisioningSettingsPageClient() {
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="scim-provisioning-settings-page"
     >
-      <OperatorPageHeader
-        navHref="/administration/scim-provisioning"
-        title={SCIM_PROVISIONING_PAGE_TITLE}
-        subtitle={SCIM_PROVISIONING_PAGE_SUBTITLE}
-        titleTestId="scim-provisioning-page-title"
-        actions={<PageContextualHelpButton />}
-      />
-      <ScimProvisioningSettingsEvidenceOrientationStrip />
-      <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
-
-      <p
-        className={cn(
-          "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-        data-testid="scim-provisioning-reassurance"
+      <a
+        href={`#${SCIM_PROVISIONING_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
-        {SCIM_PROVISIONING_PAGE_REASSURANCE}
-      </p>
+        {SCIM_PROVISIONING_SKIP_LINK_LABEL}
+      </a>
 
-      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-        {statusAnnouncement}
-      </p>
+      <div
+        id={SCIM_PROVISIONING_PRIMARY_CONTENT_ID}
+        data-testid={SCIM_PROVISIONING_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref="/administration/scim-provisioning"
+          title={SCIM_PROVISIONING_PAGE_TITLE}
+          subtitle={scimProvisioningPageSubtitle(buyerPolishedShell)}
+          titleTestId="scim-provisioning-page-title"
+          claimDiscipline={SCIM_PROVISIONING_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={SCIM_PROVISIONING_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
+        />
 
-      {mutationSuccessMessage !== null ? (
-        <OperatorSuccessCallout message={mutationSuccessMessage} testId="scim-mutation-success-callout" />
+        <div
+          id={SCIM_PROVISIONING_SKIP_TARGET_ID}
+          data-testid={SCIM_PROVISIONING_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="scim-provisioning-buyer-first-viewport-intro">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="scim-provisioning-intro"
+              >
+                {SCIM_PROVISIONING_PAGE_LEAD}
+              </p>
+              <section
+                className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="scim-provisioning-start-here-panel"
+                aria-labelledby="scim-provisioning-start-here-heading"
+              >
+                <h2
+                  id="scim-provisioning-start-here-heading"
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {SCIM_PROVISIONING_START_HERE_CARD_TITLE}
+                </h2>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="scim-provisioning-buyer-start-here-helper"
+                >
+                  {SCIM_PROVISIONING_BUYER_START_HERE_HELPER}
+                </p>
+              </section>
+            </div>
+          ) : null}
+
+          {!buyerPolishedShell ? (
+            <ScimIdentityProvidersVocabularyRail currentSurfaceId="scim-provisioning" />
+          ) : null}
+
+          <p
+            className={cn(
+              "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            data-testid="scim-provisioning-reassurance"
+          >
+            {SCIM_PROVISIONING_PAGE_REASSURANCE}
+          </p>
+
+          <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {statusAnnouncement}
+          </p>
+
+          {mutationSuccessMessage !== null ? (
+            <OperatorSuccessCallout message={mutationSuccessMessage} testId="scim-mutation-success-callout" />
+          ) : null}
+
+          {mutationErrorMessage !== null ? (
+            <OperatorMutationInlineError message={mutationErrorMessage} testId="scim-mutation-inline-error" />
+          ) : null}
+
+          {!buyerPolishedShell ? (
+            <ScimProvisioningIssueTokenSection
+              scimBaseUrlClassification={scimBaseUrlClassification}
+              scimBaseUrl={scimBaseUrl}
+              issuedToken={issuedToken}
+              setupSessionToken={setupSessionToken}
+              manualVerifyToken={manualVerifyToken}
+              verifyState={verifyState}
+              issuing={issuing}
+              copiedBaseUrl={copiedBaseUrl}
+              copiedToken={copiedToken}
+              scimIssueSteps={scimIssueSteps}
+              scimIssueEmphasizedStepId={scimIssueEmphasizedStepId}
+              onCopyScimBaseUrl={() => void copyScimBaseUrl()}
+              onRequestCreate={() => setPendingCreate(true)}
+              onCopyIssuedToken={() => void copyIssuedToken()}
+              onClearSetupSession={clearSetupSession}
+              onManualVerifyTokenChange={(value) => {
+                setManualVerifyToken(value);
+                setVerifyState({ status: "idle" });
+              }}
+              onVerifyConnection={() => void verifyConnection()}
+            />
+          ) : null}
+
+          <ScimProvisioningActiveTokensTable
+            state={state}
+            revokingId={revokingId}
+            hideRevokeActions={buyerPolishedShell}
+            onRequestRevoke={setPendingRevoke}
+          />
+
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="scim-sso-context-note">
+            {SCIM_SSO_CONTEXT_NOTE_PREFIX}{" "}
+            <Link className={OPERATOR_LINK.nav} href={SCIM_IDENTITY_PROVIDERS_HREF}>
+              {SCIM_SSO_CONTEXT_NOTE_LINK}
+            </Link>{" "}
+            {SCIM_SSO_CONTEXT_NOTE_SUFFIX}
+          </p>
+        </div>
+
+        {buyerPolishedShell ? (
+          <ScimProvisioningSettingsBuyerChrome />
+        ) : (
+          <div data-testid="scim-provisioning-orientation-bottom">
+            <ScimProvisioningSettingsEvidenceOrientationStrip />
+          </div>
+        )}
+      </div>
+
+      {!buyerPolishedShell ? (
+        <>
+          <ScimProvisioningCreateConfirmDialog
+            open={pendingCreate}
+            busy={issuing}
+            onCancel={() => {
+              setPendingCreate(false);
+            }}
+            onConfirm={() => {
+              void createToken();
+            }}
+          />
+
+          <ScimProvisioningRevokeConfirmDialog
+            open={pendingRevoke !== null}
+            busy={revokingId !== null}
+            onCancel={() => {
+              setPendingRevoke(null);
+            }}
+            onConfirm={() => {
+              if (pendingRevoke !== null) {
+                void revokeToken(pendingRevoke.id);
+              }
+            }}
+          />
+        </>
       ) : null}
-
-      {mutationErrorMessage !== null ? (
-        <OperatorMutationInlineError message={mutationErrorMessage} testId="scim-mutation-inline-error" />
-      ) : null}
-
-      <ScimProvisioningIssueTokenSection
-        scimBaseUrlClassification={scimBaseUrlClassification}
-        scimBaseUrl={scimBaseUrl}
-        issuedToken={issuedToken}
-        setupSessionToken={setupSessionToken}
-        manualVerifyToken={manualVerifyToken}
-        verifyState={verifyState}
-        issuing={issuing}
-        copiedBaseUrl={copiedBaseUrl}
-        copiedToken={copiedToken}
-        scimIssueSteps={scimIssueSteps}
-        scimIssueEmphasizedStepId={scimIssueEmphasizedStepId}
-        onCopyScimBaseUrl={() => void copyScimBaseUrl()}
-        onRequestCreate={() => setPendingCreate(true)}
-        onCopyIssuedToken={() => void copyIssuedToken()}
-        onClearSetupSession={clearSetupSession}
-        onManualVerifyTokenChange={(value) => {
-          setManualVerifyToken(value);
-          setVerifyState({ status: "idle" });
-        }}
-        onVerifyConnection={() => void verifyConnection()}
-      />
-
-      <ScimProvisioningActiveTokensTable
-        state={state}
-        revokingId={revokingId}
-        onRequestRevoke={setPendingRevoke}
-      />
-
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="scim-sso-context-note">
-        {SCIM_SSO_CONTEXT_NOTE_PREFIX}{" "}
-        <Link className={OPERATOR_LINK.nav} href={SCIM_IDENTITY_PROVIDERS_HREF}>
-          {SCIM_SSO_CONTEXT_NOTE_LINK}
-        </Link>{" "}
-        {SCIM_SSO_CONTEXT_NOTE_SUFFIX}
-      </p>
-
-      <ScimProvisioningCreateConfirmDialog
-        open={pendingCreate}
-        busy={issuing}
-        onCancel={() => {
-          setPendingCreate(false);
-        }}
-        onConfirm={() => {
-          void createToken();
-        }}
-      />
-
-      <ScimProvisioningRevokeConfirmDialog
-        open={pendingRevoke !== null}
-        busy={revokingId !== null}
-        onCancel={() => {
-          setPendingRevoke(null);
-        }}
-        onConfirm={() => {
-          if (pendingRevoke !== null) {
-            void revokeToken(pendingRevoke.id);
-          }
-        }}
-      />
     </OperatorPageContainer>
   );
 }
