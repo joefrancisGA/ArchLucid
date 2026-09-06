@@ -49,6 +49,7 @@ import {
   SLACK_INTEGRATION_HELP_SOURCES,
 } from "@/lib/slack-integration-help-evidence-copy";
 import {
+  SLACK_INTEGRATION_HELP_BUYER_START_HERE_HELPER,
   SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
   SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/slack-integration-help-guide-content";
@@ -59,6 +60,7 @@ import {
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
 } from "@/lib/slack-integration-help-page-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
@@ -81,6 +83,9 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     expect(screen.queryByTestId("help-slack-integration-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-slack-integration-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-slack-integration-buyer-provenance")).toHaveTextContent(
+      formatHelpTopicApplicabilityMetadata(entry)!,
+    );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-slack-integration-header-actions")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
@@ -97,9 +102,14 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-slack-integration-workspace-readiness")).toBeInTheDocument();
+    expect(screen.getByTestId("help-slack-integration-buyer-start-here-helper")).toHaveTextContent(
+      SLACK_INTEGRATION_HELP_BUYER_START_HERE_HELPER,
+    );
     expect(
-      within(actionPanel).getByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label }),
-    ).toHaveAttribute("href", SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href);
+      within(actionPanel).queryByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-slack-integration-overview")).toHaveTextContent(/incoming webhook/);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-slack-integration-overview"));
     expect(
       screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
