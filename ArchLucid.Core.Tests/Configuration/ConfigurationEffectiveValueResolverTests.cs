@@ -3274,6 +3274,60 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_bid_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:BidAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:BidAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_big_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:BigAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:BigAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_bike_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:BikeAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:BikeAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_token_access_key_config_path()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
