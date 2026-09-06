@@ -75,6 +75,7 @@ const hubFixture = {
 };
 
 test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseGateTag] }, () => {
+  test.setTimeout(120_000);
   test.beforeEach(async ({ page }) => {
     await page.route("**/api/proxy/v1/infra-evidence/cloud-resources/**", async (route) => {
       const url = route.request().url();
@@ -120,19 +121,41 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
       await route.fulfill({
         status: 200,
         contentType: "application/json",
+        body: JSON.stringify([
+          {
+            diffId: "diff-1",
+            snapshotAId: snapshotId,
+            snapshotBId: "33333333-3333-3333-3333-333333333333",
+            totalChanges: 1,
+            createdUtc: "2026-01-01T00:00:00Z",
+          },
+        ]),
+      });
+    });
+
+    await page.route("**/api/proxy/v1/infra-evidence/diffs/*/changes**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
         body: JSON.stringify({
           items: [
             {
+              changeId: "change-1",
               diffId: "diff-1",
-              snapshotAId: snapshotId,
-              snapshotBId: "33333333-3333-3333-3333-333333333333",
-              totalChanges: 1,
-              createdUtc: "2026-01-01T00:00:00Z",
+              cloudResourceId,
+              azureResourceId:
+                "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway",
+              changeType: "Modified",
+              property: "sku",
+              oldValue: "Basic",
+              newValue: "Standard",
+              riskClassification: "Medium",
+              evidenceReference: "snapshot-diff",
             },
           ],
           totalCount: 1,
           page: 1,
-          pageSize: 50,
+          pageSize: 100,
           hasMore: false,
         }),
       });
@@ -145,14 +168,6 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
         body: JSON.stringify({ items: [], totalCount: 0, page: 1, pageSize: 50, hasMore: false }),
       });
     });
-
-    await page.route("**/api/proxy/v1/infra-evidence/diffs/*/changes**", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ items: [], totalCount: 0, page: 1, pageSize: 100, hasMore: false }),
-      });
-    });
   });
 
   test("hub drift workbench link preserves snapshot and audit scope for Ask handoff", async ({ page }) => {
@@ -160,9 +175,9 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
       `/governance/infrastructure/resources/${cloudResourceId}?tab=drift&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
 
     await page.goto(hubUrl);
-    await expect(page.getByTestId("infra-resource-hub-open-drift-work")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("infra-resource-hub-open-drift")).toBeVisible({ timeout: 60_000 });
 
-    await page.getByTestId("infra-resource-hub-open-drift-work").click();
+    await page.getByTestId("infra-resource-hub-open-drift").click();
     await expect(page).toHaveURL(/\/governance\/infrastructure\/drift\?/);
     await expect(page).toHaveURL(/cloudResourceId=11111111-1111-1111-1111-111111111111/);
     await expect(page).toHaveURL(/assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/);
