@@ -116,6 +116,14 @@ describe("nav-config structure", () => {
     );
   });
 
+  it("labels operate-infrastructure nav group Infrastructure (IE-UX-00)", () => {
+    const infrastructure = NAV_GROUPS.find((group) => group.id === "operate-infrastructure");
+
+    expect(infrastructure?.label).toBe("Infrastructure");
+    expect(infrastructure?.surface).toBe("review-workflow");
+    expect(infrastructure?.links.every((link) => link.requiredAuthority === "ReadAuthority")).toBe(true);
+  });
+
   it("sets requiredAuthority on every Analysis nav link", () => {
     const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
