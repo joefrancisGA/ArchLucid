@@ -103,6 +103,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunSummary).not.toHaveBeenCalled();
     expect(screen.getByRole("heading", { name: "Assessment progress" })).toBeInTheDocument();
+    expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 3 / 3 stages");
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
     expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Not created yet");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
@@ -458,6 +459,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 0 / 4 stages");
     expect(
       screen.getByText(
         (_, element) =>
