@@ -9,6 +9,11 @@ import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-created-clarifications-sources";
 import {
+  ARCHITECTURE_CREATED_DIAGRAM_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_DIAGRAM_SOURCES,
+  ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO,
+} from "@/lib/architecture/architecture-created-diagram-sources";
+import {
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO,
@@ -101,6 +106,21 @@ export function ArchitectureCreatedClarificationsEvidenceOrientationStrip(): Rea
       sources={ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES}
       claimHeading="Before finalize — gaps only"
       claim={ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function ArchitectureCreatedDiagramEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="architecture-diagram"
+      align="text-left"
+      sourcesIntro={ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO}
+      sources={ARCHITECTURE_CREATED_DIAGRAM_SOURCES}
+      sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationInfoCallout}
+      claimHeading="Before finalize — illustrative only"
+      claim={ARCHITECTURE_CREATED_DIAGRAM_CLAIM_DISCIPLINE}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
     />
   );
 }

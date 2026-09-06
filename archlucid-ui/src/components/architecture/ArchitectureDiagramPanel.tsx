@@ -21,6 +21,12 @@ import {
   ARCHITECTURE_DIAGRAM_SECTION_HEADING,
   ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE,
 } from "@/lib/architecture/architecture-diagram-copy";
+import {
+  ARCHITECTURE_CREATED_DIAGRAM_BUYER_START_HERE_HELPER,
+  ARCHITECTURE_CREATED_DIAGRAM_PAGE_LEAD,
+} from "@/lib/architecture/architecture-created-diagram-sources";
+import { ARCHITECTURE_CREATED_DIAGRAM_SKIP_TARGET_ID } from "@/lib/architecture/architecture-created-diagram-page-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import {
@@ -33,6 +39,7 @@ export type { ArchitectureDiagramPanelProps };
 /** Post-creation architecture diagram with async generation, caching, and edit controls. */
 export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): React.JSX.Element {
   const panel = useArchitectureDiagramPanel(props);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (panel.variant === "preview") {
     return (
@@ -119,6 +126,27 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
       data-testid="architecture-diagram-panel"
       aria-labelledby="architecture-diagram-heading"
     >
+      {buyerPolishedShell ? (
+        <div
+          id={ARCHITECTURE_CREATED_DIAGRAM_SKIP_TARGET_ID}
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800 scroll-mt-24"
+          data-testid={ARCHITECTURE_CREATED_DIAGRAM_SKIP_TARGET_ID}
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-diagram-intro"
+          >
+            {ARCHITECTURE_CREATED_DIAGRAM_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-diagram-buyer-start-here-helper"
+          >
+            {ARCHITECTURE_CREATED_DIAGRAM_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       <div className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <h2 id="architecture-diagram-heading" className={cn("m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100")}>
@@ -126,7 +154,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           </h2>
           {panel.phase === "ready" ? <StatusTag kind="neutral" label={ARCHITECTURE_DIAGRAM_DRAFT_STATUS_LABEL} /> : null}
         </div>
-        {panel.phase === "ready" ? (
+        {panel.phase === "ready" && !buyerPolishedShell ? (
           <>
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
               {ARCHITECTURE_DIAGRAM_DRAFT_LABEL}
@@ -154,7 +182,9 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         </p>
       ) : null}
 
-      {panel.phase === "insufficient" ? <ArchitectureDiagramInsufficientState panel={panel} /> : null}
+      {panel.phase === "insufficient" ? (
+        <ArchitectureDiagramInsufficientState panel={panel} buyerPolishedShell={buyerPolishedShell} />
+      ) : null}
 
       {panel.phase === "error" ? (
         <div className="space-y-3" data-testid="architecture-diagram-generation-failure" role="alert">
@@ -180,7 +210,9 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
         </div>
       ) : null}
 
-      {panel.phase === "ready" ? <ArchitectureDiagramReadyView panel={panel} /> : null}
+      {panel.phase === "ready" ? (
+        <ArchitectureDiagramReadyView panel={panel} buyerPolishedShell={buyerPolishedShell} />
+      ) : null}
     </section>
   );
 }

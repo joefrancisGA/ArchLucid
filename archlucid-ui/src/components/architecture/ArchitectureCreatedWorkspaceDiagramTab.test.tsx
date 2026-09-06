@@ -18,6 +18,19 @@ vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ArchitectureDiagramViewer: () => <div data-testid="architecture-diagram-viewer-mock" />,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
+  };
+});
+
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+}));
+
 import { ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION } from "@/lib/architecture/architecture-diagram-copy";
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 
@@ -46,6 +59,7 @@ Claims analyst -> Claims API`;
 
 describe("ArchitectureCreatedWorkspace diagram tab", () => {
   beforeEach(() => {
+    demoEnvMock.buyerPolished = false;
     window.localStorage.clear();
   });
 
@@ -75,7 +89,9 @@ describe("ArchitectureCreatedWorkspace diagram tab", () => {
     });
 
     expect(screen.getAllByRole("heading", { name: "Architecture diagram" })).toHaveLength(1);
-    expect(screen.getAllByTestId("architecture-diagram-viewer-mock")).toHaveLength(1);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("architecture-diagram-viewer-mock")).toHaveLength(1);
+    });
     expect(screen.getByTestId("architecture-findings-dual-pane-toggle")).toHaveTextContent("Show with findings");
   });
 
