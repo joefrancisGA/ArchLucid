@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { InventoryShowingCountBand } from "@/components/usability/InventoryShowingCountBand";
+import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -8,16 +11,20 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import {
+  ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY,
+  ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
+} from "@/lib/architecture/architecture-identity-desk-copy";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
-import Link from "next/link";
 
 type ArchitectureIdentityDeskReviewsTableProps = {
   readonly architectureId: string;
   readonly reviews: readonly ArchitectureIdentityChildReviewSummary[];
   readonly reviewCount?: number;
+  readonly startReviewHref?: string | null;
 };
 
 export function ArchitectureIdentityDeskReviewsTable(
@@ -25,9 +32,14 @@ export function ArchitectureIdentityDeskReviewsTable(
 ): React.JSX.Element {
   if (props.reviews.length === 0) {
     return (
-      <p className={OPERATOR_TYPOGRAPHY.body} data-testid="architecture-identity-reviews-empty">
-        No sealed or in-flight reviews yet for this architecture.
-      </p>
+      <div className="space-y-2" data-testid="architecture-identity-reviews-empty">
+        <p className={OPERATOR_TYPOGRAPHY.body}>{ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY}</p>
+        {props.startReviewHref !== null && props.startReviewHref !== undefined && props.startReviewHref.length > 0 ? (
+          <Button type="button" variant="outline" size="sm" asChild data-testid="architecture-identity-start-review">
+            <Link href={props.startReviewHref}>{ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL}</Link>
+          </Button>
+        ) : null}
+      </div>
     );
   }
 
