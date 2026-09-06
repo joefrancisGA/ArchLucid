@@ -66,7 +66,12 @@
       "paths": [
         "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
         "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
-        "src/app/(operator)/operator-client-pages-render-gate.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-inbox.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-routing.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-rules.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-simulation.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-hub.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-pages.test.tsx",
         "src/app/(operator)/_sections"
       ]
     },
