@@ -58,9 +58,10 @@ describe("rehydrateInFlightOperationsFromArchitecture (DA-10)", () => {
     expect(restored).toBe(1);
     expect(getInFlightOperations()).toHaveLength(1);
     expect(getInFlightOperations()[0]?.runId).toBe("run-active");
+    expect(getInFlightOperations()[0]?.architectureId).toBe("arch-1");
   });
 
-  it("ignores terminal operations from another architecture's child list", async () => {
+  it("skips terminal child operations", async () => {
     vi.mocked(getArchitectureIdentity).mockResolvedValue({
       architectureId: "arch-2",
       displayName: "Other",
