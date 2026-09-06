@@ -313,7 +313,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Render inventory diagrams at scale with honest partitioned fallbacks.",
     useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
-    firstPilotNote: "Shipped in IE-UX-02 — workbench wiring in progress.",
+    firstPilotNote: "Partitioned views default to Executive when the full graph exceeds readability thresholds.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagram-reconcile": {

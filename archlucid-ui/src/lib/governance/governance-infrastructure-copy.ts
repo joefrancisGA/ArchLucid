@@ -33,7 +33,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
     shippedInBatch: "IE-UX-02",
-    status: "Coming soon",
+    status: "Available",
     summary: "Render large inventory diagrams with partitioned fallbacks and server PNG export.",
   },
   {
