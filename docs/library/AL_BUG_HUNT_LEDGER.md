@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 277
-- **bugs-found:** 1602
+- **hunts:** 278
+- **bugs-found:** 1614
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — ShieldAccessKey/ShiftAccessKey/ShipAccessKey redaction, needn't require/need/configure/mandate/apply constraint negation, advice can't require/need/configure/mandate prefix
+- **last-bug:** 2026-09-06 — ShopAccessKey/ShortAccessKey/ShowAccessKey redaction, needn't enforce/maintain/ensure/provision constraint negation, advice can't apply/enforce/maintain/ensure/provision prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3684,6 +3684,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't need` prefix gap — **hit 2026-09-06 (#1005):** provision-only advice `can't` prefix guard; missed `workloads can't need encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_need_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't configure` prefix gap — **hit 2026-09-06 (#1005):** provision-only advice `can't` prefix guard; missed `workloads can't configure encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_configure_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't mandate` prefix gap — **hit 2026-09-06 (#1005):** provision-only advice `can't` prefix guard; missed `workloads can't mandate encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_mandate_encryption_at_rest_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ShopAccessKey` not redacted — **hit 2026-09-06 (#1006):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_shop_access_key_config_path`, `IsSensitiveKey_detects_shop_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ShortAccessKey` not redacted — **hit 2026-09-06 (#1006):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_short_access_key_config_path`, `IsSensitiveKey_detects_short_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ShowAccessKey` not redacted — **hit 2026-09-06 (#1006):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_show_access_key_config_path`, `IsSensitiveKey_detects_show_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `needn't enforce` gap — **hit 2026-09-06 (#1006):** apply-only `needn't` guard; missed mid-sentence `needn't enforce {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_enforce_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `needn't maintain` gap — **hit 2026-09-06 (#1006):** apply-only `needn't` guard; missed mid-sentence `needn't maintain {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_maintain_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `needn't ensure` gap — **hit 2026-09-06 (#1006):** apply-only `needn't` guard; missed mid-sentence `needn't ensure {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_ensure_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `needn't provision` gap — **hit 2026-09-06 (#1006):** apply-only `needn't` guard; missed mid-sentence `needn't provision {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_neednt_provision_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't apply` prefix gap — **hit 2026-09-06 (#1006):** mandate-only advice `can't` prefix guard; missed `workloads can't apply encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_apply_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't enforce` prefix gap — **hit 2026-09-06 (#1006):** mandate-only advice `can't` prefix guard; missed `workloads can't enforce encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_enforce_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't maintain` prefix gap — **hit 2026-09-06 (#1006):** mandate-only advice `can't` prefix guard; missed `workloads can't maintain encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_maintain_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't ensure` prefix gap — **hit 2026-09-06 (#1006):** mandate-only advice `can't` prefix guard; missed `workloads can't ensure encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_ensure_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — `can't provision` prefix gap — **hit 2026-09-06 (#1006):** mandate-only advice `can't` prefix guard; missed `workloads can't provision encryption at rest` phrasing; fixed with prefix guard (`IsObviousGenericAdvice_does_not_flag_workloads_cant_provision_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #1006 (hit): reseeded after #1005 closure; proved twelve hunt-ready rows — ShopAccessKey/ShortAccessKey/ShowAccessKey redaction parity, needn't enforce/maintain/ensure/provision constraint negation, and advice can't apply/enforce/maintain/ensure/provision prefix.
 
 2026-09-06 seed hunt #1005 (hit): reseeded after #1004 closure; proved twelve hunt-ready rows — ShieldAccessKey/ShiftAccessKey/ShipAccessKey redaction parity, needn't require/need/configure/mandate/apply constraint negation, and advice can't require/need/configure/mandate prefix.
 
