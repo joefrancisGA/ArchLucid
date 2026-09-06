@@ -180,6 +180,37 @@ function buildHubDiagramTabHref(
   });
 }
 
+function buildHubOverviewTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  runId: string,
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "overview",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+  });
+}
+
+type HubOverviewTabLinkProps = {
+  readonly cloudResourceId: string;
+  readonly resolvedSnapshotId: string;
+  readonly runId: string;
+  readonly testId: string;
+};
+
+function HubOverviewTabLink(props: HubOverviewTabLinkProps) {
+  const { cloudResourceId, resolvedSnapshotId, runId, testId } = props;
+
+  return (
+    <Button asChild variant="outline" size="sm" data-testid={testId}>
+      <Link href={buildHubOverviewTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+        View overview in hub
+      </Link>
+    </Button>
+  );
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -625,6 +656,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Open the drift workbench with this resource&apos;s snapshot context prefilled.
             </p>
             <div className="flex flex-wrap gap-2">
+              <HubOverviewTabLink
+                cloudResourceId={cloudResourceId}
+                resolvedSnapshotId={resolvedSnapshotId}
+                runId={runId}
+                testId="infra-resource-hub-drift-open-overview-tab"
+              />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
                 <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
                   Open drift workbench
@@ -714,6 +751,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               Review diagram correspondence and open inventory diagram or reconciliation workbenches.
             </p>
             <div className="flex flex-wrap gap-2">
+              <HubOverviewTabLink
+                cloudResourceId={cloudResourceId}
+                resolvedSnapshotId={resolvedSnapshotId}
+                runId={runId}
+                testId="infra-resource-hub-diagram-open-overview-tab"
+              />
               <Button asChild variant="outline" size="sm">
                 <Link
                   href={buildResourceHubDiagramsWorkbenchHref(
@@ -807,6 +850,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </dl>
               <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
               <div className="mt-3 flex flex-wrap gap-2">
+                <HubOverviewTabLink
+                  cloudResourceId={cloudResourceId}
+                  resolvedSnapshotId={resolvedSnapshotId}
+                  runId={runId}
+                  testId="infra-resource-hub-terraform-open-overview-tab"
+                />
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-drift-export">
                   <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId)}>
                     Export from drift workbench
@@ -863,6 +912,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} role="status">{findingActionMessage}</p>
             ) : null}
             <div className="flex flex-wrap gap-2">
+              <HubOverviewTabLink
+                cloudResourceId={cloudResourceId}
+                resolvedSnapshotId={resolvedSnapshotId}
+                runId={runId}
+                testId="infra-resource-hub-findings-open-overview-tab"
+              />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-remediation-tab">
                 <Link
                   href={buildResourceHubWorkbenchHref({
@@ -991,6 +1046,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
             <div className="flex flex-wrap gap-2">
+              <HubOverviewTabLink
+                cloudResourceId={cloudResourceId}
+                resolvedSnapshotId={resolvedSnapshotId}
+                runId={runId}
+                testId="infra-resource-hub-remediation-open-overview-tab"
+              />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
                 <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
                   Open remediation factory
@@ -1100,6 +1161,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <HubOverviewTabLink
+                    cloudResourceId={cloudResourceId}
+                    resolvedSnapshotId={resolvedSnapshotId}
+                    runId={runId}
+                    testId="infra-resource-hub-audit-open-overview-tab"
+                  />
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-lineage-link">
                     <Link
                       href={buildAuditEvidenceLineageUiPath(
