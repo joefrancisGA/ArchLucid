@@ -292,6 +292,7 @@ export function resolveRunDetailTabbedWorkspace(
               <RunDetailGenerateAdrFromRunModal
                 input={m.adrGeneratorInput}
                 totalFindingCount={m.careerExportEligibleFindingCount}
+                enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
                 buyerPolished={false}
               />
             </div>

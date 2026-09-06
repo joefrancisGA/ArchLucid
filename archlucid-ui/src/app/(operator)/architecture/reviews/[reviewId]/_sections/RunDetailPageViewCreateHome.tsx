@@ -105,6 +105,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         }
         graphSnapshot={m.resolvedDetail.graphSnapshot}
         analysisStagesComplete={createHomeAnalysisStagesComplete}
+        enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (
