@@ -197,6 +197,9 @@ public static partial class GenericArchitectureAdvicePatterns
             || before.EndsWith("must not require", StringComparison.Ordinal)
             || before.EndsWith("must not need", StringComparison.Ordinal)
             || before.EndsWith("must not enforce", StringComparison.Ordinal)
+            || before.EndsWith("must not mandate", StringComparison.Ordinal)
+            || before.EndsWith("must not ensure", StringComparison.Ordinal)
+            || before.EndsWith("must not maintain", StringComparison.Ordinal)
             || before.EndsWith("no requirement to", StringComparison.Ordinal)
             || before.EndsWith("no need to", StringComparison.Ordinal)
             || before.EndsWith("not required to", StringComparison.Ordinal)
@@ -212,10 +215,14 @@ public static partial class GenericArchitectureAdvicePatterns
     {
         return ContainsAdviceNegationPhrase(before, " should not require ")
             || ContainsAdviceNegationPhrase(before, " should not require")
+            || ContainsAdviceNegationPhrase(before, " should not need ")
+            || ContainsAdviceNegationPhrase(before, " should not need")
             || ContainsAdviceNegationPhrase(before, " shouldn't require ")
             || ContainsAdviceNegationPhrase(before, " shouldn't require")
             || ContainsAdviceNegationPhrase(before, " need not need ")
-            || ContainsAdviceNegationPhrase(before, " need not need");
+            || ContainsAdviceNegationPhrase(before, " need not need")
+            || ContainsAdviceNegationPhrase(before, " need not require ")
+            || ContainsAdviceNegationPhrase(before, " need not require");
     }
 
     private static bool ContainsAdviceNegationPhrase(ReadOnlySpan<char> haystack, string phrase)
