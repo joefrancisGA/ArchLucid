@@ -51,6 +51,7 @@ export type SettingsRolesUsersTabProps = {
   readonly membersFilterPathname: string;
   readonly usersTabInviteFirstLayout: boolean;
   readonly usersTabEmptyWorkspace: boolean;
+  readonly usersTabBuyerPolished?: boolean;
   readonly usersSectionTitle: string;
   readonly membersDirectorySourceTag: React.ReactNode;
   readonly pendingSectionTitle: string;
@@ -67,6 +68,8 @@ export type SettingsRolesUsersTabProps = {
 
 export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
   const m = props.model;
+  const usersTabBuyerPolished = props.usersTabBuyerPolished === true;
+  const showInviteSurfaces = !usersTabBuyerPolished;
 
   return (
     <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
@@ -128,22 +131,24 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
         </FilterChipGroup>
         {props.usersTabInviteFirstLayout ? (
           <>
-            <Card
-              aria-labelledby={INVITE_PRIMARY_HEADING_ID}
-              data-testid="settings-roles-invite-primary-region"
-            >
-              <CardHeader>
-                <CardTitle id={INVITE_PRIMARY_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                  Invite user
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SettingsRolesInvitePanel
-                  emailInputRef={props.inviteEmailInputRef}
-                  onInviteSent={props.onInviteSent}
-                />
-              </CardContent>
-            </Card>
+            {showInviteSurfaces ? (
+              <Card
+                aria-labelledby={INVITE_PRIMARY_HEADING_ID}
+                data-testid="settings-roles-invite-primary-region"
+              >
+                <CardHeader>
+                  <CardTitle id={INVITE_PRIMARY_HEADING_ID} as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                    Invite user
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SettingsRolesInvitePanel
+                    emailInputRef={props.inviteEmailInputRef}
+                    onInviteSent={props.onInviteSent}
+                  />
+                </CardContent>
+              </Card>
+            ) : null}
             <div className="space-y-2" data-testid="settings-roles-users-empty-composition">
               <div className="flex flex-wrap items-center gap-2">
                 {props.membersDirectorySourceTag}
@@ -160,6 +165,7 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
                 seededInvitations={props.seededInvitations}
                 onCountChange={props.onPendingInvitationCountChange}
                 suppressEmptyPresentation
+                readOnly={usersTabBuyerPolished}
               />
             </div>
           </>
@@ -203,7 +209,11 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
                         onOpen={props.onOpenPrincipal}
                       />
                     ) : null}
-                    <SettingsRolesPrincipalTable rows={props.userRows} onRoleChange={m.onRoleChange} />
+                    <SettingsRolesPrincipalTable
+                      rows={props.userRows}
+                      onRoleChange={m.onRoleChange}
+                      readOnly={usersTabBuyerPolished}
+                    />
                   </>
                 ) : null}
                 {!m.loading && m.usersNote === null && props.userRows.length === 0 ? (
@@ -225,13 +235,14 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
                   refreshKey={props.invitationsRefreshKey}
                   seededInvitations={props.seededInvitations}
                   onCountChange={props.onPendingInvitationCountChange}
+                  readOnly={usersTabBuyerPolished}
                 />
               </CardContent>
             </Card>
           </>
         )}
 
-        {!props.usersTabInviteFirstLayout ? (
+        {showInviteSurfaces && !props.usersTabInviteFirstLayout ? (
           <CollapsibleSection
             title="Invite user"
             headingLevel={2}

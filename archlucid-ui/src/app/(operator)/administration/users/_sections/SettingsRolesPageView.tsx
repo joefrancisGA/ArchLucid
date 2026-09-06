@@ -85,6 +85,8 @@ import {
   SETTINGS_ROLES_START_HERE_LEAD,
   SETTINGS_ROLES_ROLES_TAB_LEAD,
   SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER,
+  SETTINGS_ROLES_USERS_TAB_LEAD,
+  SETTINGS_ROLES_USERS_TAB_START_HERE_HELPER,
   settingsRolesPageSubtitle,
 } from "./settings-roles-settings-page-copy";
 import { SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/settings-roles-settings-evidence-copy";
@@ -117,6 +119,8 @@ export function SettingsRolesPageView(props: Props) {
   const [pendingInvitationsResolved, setPendingInvitationsResolved] = useState(false);
   const [inviteSectionOpen, setInviteSectionOpenState] = useState(urlInviteOpen);
   const rolesTabBuyerPolished = buyerPolishedShell && activeTab === "roles";
+  const usersTabBuyerPolished = buyerPolishedShell && activeTab === "users";
+  const buyerPolishedMutationTab = rolesTabBuyerPolished || usersTabBuyerPolished;
 
   const syncInviteSectionToUrl = useCallback(
     (open: boolean) => {
@@ -208,10 +212,10 @@ export function SettingsRolesPageView(props: Props) {
   }, [inviteSectionOpen]);
 
   useEffect(() => {
-    if (usersTabInviteFirstLayout && activeTab === "users") {
+    if (usersTabInviteFirstLayout && activeTab === "users" && !usersTabBuyerPolished) {
       setInviteSectionOpen(true);
     }
-  }, [usersTabInviteFirstLayout, activeTab]);
+  }, [usersTabInviteFirstLayout, activeTab, usersTabBuyerPolished]);
 
   const onSelectTab = useCallback(
     (id: string) => {
@@ -336,7 +340,7 @@ export function SettingsRolesPageView(props: Props) {
             claimDiscipline={SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE}
             claimDisciplineTestId={SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             actions={
-              rolesTabBuyerPolished ? null : (
+              buyerPolishedMutationTab ? null : (
                 <Button
                   type="button"
                   size="sm"
@@ -380,13 +384,29 @@ export function SettingsRolesPageView(props: Props) {
           {buyerPolishedShell ? (
             <section
               className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-              data-testid={rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-panel" : "settings-roles-action-panel"}
+              data-testid={
+                rolesTabBuyerPolished
+                  ? "settings-roles-roles-tab-start-here-panel"
+                  : usersTabBuyerPolished
+                    ? "settings-roles-users-tab-start-here-panel"
+                    : "settings-roles-action-panel"
+              }
               aria-labelledby={
-                rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-heading" : "settings-roles-action-panel-heading"
+                rolesTabBuyerPolished
+                  ? "settings-roles-roles-tab-start-here-heading"
+                  : usersTabBuyerPolished
+                    ? "settings-roles-users-tab-start-here-heading"
+                    : "settings-roles-action-panel-heading"
               }
             >
               <h2
-                id={rolesTabBuyerPolished ? "settings-roles-roles-tab-start-here-heading" : "settings-roles-action-panel-heading"}
+                id={
+                  rolesTabBuyerPolished
+                    ? "settings-roles-roles-tab-start-here-heading"
+                    : usersTabBuyerPolished
+                      ? "settings-roles-users-tab-start-here-heading"
+                      : "settings-roles-action-panel-heading"
+                }
                 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
               >
                 {SETTINGS_ROLES_START_HERE_CARD_TITLE}
@@ -404,6 +424,21 @@ export function SettingsRolesPageView(props: Props) {
                     data-testid="settings-roles-roles-tab-start-here-helper"
                   >
                     {SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER}
+                  </p>
+                </>
+              ) : usersTabBuyerPolished ? (
+                <>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="settings-roles-users-tab-intro"
+                  >
+                    {SETTINGS_ROLES_USERS_TAB_LEAD}
+                  </p>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="settings-roles-users-tab-start-here-helper"
+                  >
+                    {SETTINGS_ROLES_USERS_TAB_START_HERE_HELPER}
                   </p>
                 </>
               ) : (
@@ -446,6 +481,7 @@ export function SettingsRolesPageView(props: Props) {
           membersFilterPathname={hubPathname}
           usersTabInviteFirstLayout={usersTabInviteFirstLayout}
           usersTabEmptyWorkspace={usersTabEmptyWorkspace}
+          usersTabBuyerPolished={usersTabBuyerPolished}
           usersSectionTitle={usersSectionTitle}
           membersDirectorySourceTag={membersDirectorySourceTag}
           pendingSectionTitle={pendingSectionTitle}

@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
     replace: replaceMock,
     refresh: vi.fn(),
   }),
-  useSearchParams: (): URLSearchParams => new URLSearchParams("tab=roles"),
+  useSearchParams: (): URLSearchParams => new URLSearchParams("tab=users"),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -67,13 +67,13 @@ vi.mock("./SettingsRolesInvitePanel", () => ({
 }));
 
 vi.mock("./PendingInvitationsPanel", () => ({
-  PendingInvitationsPanel: () => <div data-testid="settings-roles-pending-invitations-table" />,
+  PendingInvitationsPanel: ({ readOnly }: { readOnly?: boolean }) => (
+    <div data-testid="settings-roles-pending-invitations-table" data-read-only={readOnly ? "true" : "false"} />
+  ),
 }));
 
 vi.mock("./SettingsRolesMatrixSection", () => ({
-  SettingsRolesMatrixSection: ({ readOnly }: { readOnly?: boolean }) => (
-    <div data-testid="settings-roles-matrix-section" data-read-only={readOnly ? "true" : "false"} />
-  ),
+  SettingsRolesMatrixSection: () => <div data-testid="settings-roles-matrix-section" />,
 }));
 
 import {
@@ -83,9 +83,9 @@ import {
 } from "@/lib/settings-roles-settings-evidence-copy";
 import {
   SETTINGS_ROLES_PAGE_SUBTITLE_BUYER,
-  SETTINGS_ROLES_ROLES_TAB_LEAD,
-  SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER,
-  SETTINGS_ROLES_ROLES_TAB_SUBTITLE_BUYER,
+  SETTINGS_ROLES_USERS_TAB_LEAD,
+  SETTINGS_ROLES_USERS_TAB_START_HERE_HELPER,
+  SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER,
   SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID,
@@ -112,28 +112,30 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
   };
 }
 
-describe("SettingsRolesPageView buyer-polished shell (SER)", () => {
-  it("renders roles-tab intro, read-only matrix, sources chrome, and hides invite mutations", () => {
+describe("SettingsRolesPageView buyer-polished shell (SSU)", () => {
+  it("renders users-tab intro, read-only pending panel, sources chrome, and hides invite mutations", () => {
     render(<SettingsRolesPageView model={buildModel()} />);
 
     expect(screen.getByRole("link", { name: SETTINGS_ROLES_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${SETTINGS_ROLES_SETTINGS_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByText(SETTINGS_ROLES_ROLES_TAB_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByText(SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(SETTINGS_ROLES_PAGE_SUBTITLE_BUYER)).not.toBeInTheDocument();
-    expect(screen.getByTestId("settings-roles-roles-tab-intro")).toHaveTextContent(SETTINGS_ROLES_ROLES_TAB_LEAD);
-    expect(screen.getByTestId("settings-roles-roles-tab-start-here-helper")).toHaveTextContent(
-      SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER,
+    expect(screen.getByTestId("settings-roles-users-tab-intro")).toHaveTextContent(SETTINGS_ROLES_USERS_TAB_LEAD);
+    expect(screen.getByTestId("settings-roles-users-tab-start-here-helper")).toHaveTextContent(
+      SETTINGS_ROLES_USERS_TAB_START_HERE_HELPER,
     );
     expect(
       screen.getByRole("heading", { level: 2, name: SETTINGS_ROLES_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
     expect(screen.queryByTestId("settings-roles-invite-primary-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-roles-start-here-invite")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-invite-section")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-invite-primary-region")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("custom-roles-users-vocabulary-rail")).not.toBeInTheDocument();
-    expect(screen.getByTestId("settings-roles-matrix-section")).toHaveAttribute("data-read-only", "true");
+    expect(screen.getByTestId("settings-roles-pending-invitations-table")).toHaveAttribute("data-read-only", "true");
     expect(screen.getByTestId(SETTINGS_ROLES_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -141,15 +143,15 @@ describe("SettingsRolesPageView buyer-polished shell (SER)", () => {
 
     const primaryContent = screen.getByTestId(SETTINGS_ROLES_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(SETTINGS_ROLES_SETTINGS_FIRST_VIEWPORT_TEST_ID);
-    const rolesPanel = screen.getByTestId("settings-roles-roles-tab-start-here-panel");
+    const usersPanel = screen.getByTestId("settings-roles-users-tab-start-here-panel");
     const orientationBottom = screen.getByTestId("settings-roles-orientation-bottom");
     const sourcesSection = screen.getByTestId("settings-roles-settings-sources");
-    const rolesTabPanel = screen.getByTestId("settings-roles-tabpanel-roles");
+    const usersTabPanel = screen.getByTestId("settings-roles-tabpanel-users");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(rolesPanel);
-    expect(firstViewport).toContainElement(rolesTabPanel);
+    expect(firstViewport).toContainElement(usersPanel);
+    expect(firstViewport).toContainElement(usersTabPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_ROLES_SETTINGS_SOURCES)) {
@@ -160,13 +162,13 @@ describe("SettingsRolesPageView buyer-polished shell (SER)", () => {
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("switches to users-tab buyer chrome when the Users tab is selected", () => {
+  it("switches to roles-tab buyer chrome when the Roles tab is selected", () => {
     render(<SettingsRolesPageView model={buildModel()} />);
 
-    fireEvent.click(screen.getByTestId("settings-roles-tab-users"));
+    fireEvent.click(screen.getByTestId("settings-roles-tab-roles"));
 
-    expect(screen.getByTestId("settings-roles-users-tab-start-here-panel")).toBeInTheDocument();
-    expect(screen.queryByTestId("settings-roles-start-here-invite")).not.toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-roles-tab-start-here-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("settings-roles-users-tab-start-here-panel")).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-roles-invite-primary-action")).not.toBeInTheDocument();
   });
 });

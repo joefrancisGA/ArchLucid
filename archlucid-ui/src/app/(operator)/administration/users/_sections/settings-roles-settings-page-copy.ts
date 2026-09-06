@@ -29,6 +29,15 @@ export const SETTINGS_ROLES_ROLES_TAB_LEAD =
 export const SETTINGS_ROLES_ROLES_TAB_START_HERE_HELPER =
   "Scan built-in role cards and the matrix below. Create, clone, and save actions are hidden in buyer-polished shells." as const;
 
+export const SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER =
+  "Review workspace members and pending invitations — membership changes stay in the full admin workspace." as const;
+
+export const SETTINGS_ROLES_USERS_TAB_LEAD =
+  "Read-only directory of members and invitation status for procurement walkthroughs." as const;
+
+export const SETTINGS_ROLES_USERS_TAB_START_HERE_HELPER =
+  "Use the role and status filters below to narrow the directory. Invite, revoke, and role edits are hidden in buyer-polished shells." as const;
+
 export function settingsRolesPageSubtitle(buyerPolishedShell: boolean, activeTab: "users" | "roles" | "keys" = "users"): string {
   if (!buyerPolishedShell) {
     return SETTINGS_ROLES_PAGE_SUBTITLE_OPERATOR;
@@ -36,6 +45,10 @@ export function settingsRolesPageSubtitle(buyerPolishedShell: boolean, activeTab
 
   if (activeTab === "roles") {
     return SETTINGS_ROLES_ROLES_TAB_SUBTITLE_BUYER;
+  }
+
+  if (activeTab === "users") {
+    return SETTINGS_ROLES_USERS_TAB_SUBTITLE_BUYER;
   }
 
   return SETTINGS_ROLES_PAGE_SUBTITLE_BUYER;
