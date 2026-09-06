@@ -59,8 +59,9 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -102,6 +103,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId: row.correspondenceId,
+    hubTab: "diagram",
     ...mergeInfrastructureAskAuditScope(auditScope ?? null),
   });
 }
@@ -210,6 +212,10 @@ export function DiagramReconcileWorkbenchClient() {
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope, runId),
     [auditScope, runId, scopedSnapshotId],
+  );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    scopedSnapshotId,
   );
 
   useEffect(() => {
@@ -488,10 +494,13 @@ export function DiagramReconcileWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {auditScope != null ? (
-            <div className="mt-2">
-              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-diagram-reconcile-audit-provenance" />
-            </div>
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false) ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              provenanceTestId="infra-diagram-reconcile-audit-provenance"
+              unavailableTestId="infra-diagram-reconcile-audit-unavailable"
+            />
           ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
@@ -675,6 +684,9 @@ export function DiagramReconcileWorkbenchClient() {
                     tab: "diagram",
                     snapshotId: selectedSnapshotId,
                     runId: runId.length > 0 ? runId : undefined,
+                    assessmentId: auditScope?.assessmentId,
+                    auditEvidenceSnapshotId: auditScope?.auditEvidenceSnapshotId,
+                    controlId: auditScope?.controlId,
                   })
                   : null;
                 const explanation = formatDiagramReconcileExplanation(row);
@@ -685,6 +697,9 @@ export function DiagramReconcileWorkbenchClient() {
                   snapshotId: selectedSnapshotId,
                   scopedCloudResourceId: urlCloudResourceId,
                   findingId: ingestedFindingId,
+                  assessmentId: auditScope?.assessmentId ?? null,
+                  auditEvidenceSnapshotId: auditScope?.auditEvidenceSnapshotId ?? null,
+                  controlId: auditScope?.controlId ?? null,
                 });
 
                 return (

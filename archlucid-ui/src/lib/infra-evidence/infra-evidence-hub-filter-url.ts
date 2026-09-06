@@ -513,6 +513,9 @@ export function buildResourceHubOverviewHref(
   context?: {
     readonly snapshotId?: string | null;
     readonly runId?: string | null;
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
   },
 ): string {
   const trimmedSnapshotId = context?.snapshotId?.trim() ?? "";
@@ -522,6 +525,11 @@ export function buildResourceHubOverviewHref(
     tab: "overview",
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
     runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+    assessmentId: context?.assessmentId?.trim().length ? context.assessmentId?.trim() : undefined,
+    auditEvidenceSnapshotId: context?.auditEvidenceSnapshotId?.trim().length
+      ? context.auditEvidenceSnapshotId?.trim()
+      : undefined,
+    controlId: context?.controlId?.trim().length ? context?.controlId?.trim() : undefined,
   });
 }
 
@@ -551,6 +559,7 @@ export function buildResourceExplorerWorkCountHref(
       cloudResourceId,
       workQueue,
       snapshotId: snapshotId?.trim().length ? snapshotId.trim() : undefined,
+      hubTab: queueTab,
     });
   }
 
