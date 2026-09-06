@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -66,7 +67,8 @@ public sealed class RunSummaryOnePagerExportServiceTests
             scope.Object,
             tenants.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IGraphSnapshotRepository>());
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
@@ -107,7 +109,8 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<ITenantRepository>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IGraphSnapshotRepository>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 

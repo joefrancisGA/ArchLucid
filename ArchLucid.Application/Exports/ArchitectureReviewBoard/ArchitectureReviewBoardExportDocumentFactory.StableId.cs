@@ -37,8 +37,14 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         ArchitectureRunDetail detail,
         string SponsorReport,
         IReadOnlyList<string> topFindingTitles,
-        string? activeTrialExportNotice = null)
-        => RunSummaryOnePagerDocumentFactory.Create(detail, SponsorReport, topFindingTitles, activeTrialExportNotice);
+        string? activeTrialExportNotice = null,
+        string? careerExportHonestyPlainText = null)
+        => RunSummaryOnePagerDocumentFactory.Create(
+            detail,
+            SponsorReport,
+            topFindingTitles,
+            activeTrialExportNotice,
+            careerExportHonestyPlainText: careerExportHonestyPlainText);
 
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
     public static IReadOnlyList<ArchitectureFinding> SelectRunSummaryTopFindings(ArchitectureRunDetail detail, int maxCount)

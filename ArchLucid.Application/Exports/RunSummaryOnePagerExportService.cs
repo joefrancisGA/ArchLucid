@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -26,7 +27,8 @@ public sealed class RunSummaryOnePagerExportService(
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IRunSummaryOnePagerExportService
+    IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -53,6 +55,9 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -98,12 +103,22 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            workingDesk: true,
+            cancellationToken);
+
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
                 SponsorReport,
                 topTitles,
-                activeTrialExportNotice);
+                activeTrialExportNotice,
+                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty));
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

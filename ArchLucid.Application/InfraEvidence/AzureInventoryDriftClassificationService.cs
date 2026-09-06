@@ -1,6 +1,10 @@
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -10,8 +14,20 @@ public sealed class AzureInventoryDriftClassificationService(
     IAzureInventoryDiffRepository diffRepository,
     IAzureInventoryDriftApprovalRepository driftApprovalRepository,
     IAzureInventoryBaselineRepository baselineRepository,
+    IArchitectureDiagramReconciliationRepository reconciliationRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<AzureInventoryDriftClassificationService> logger) : IAzureInventoryDriftClassificationService
 {
+    private readonly IArchitectureDiagramReconciliationRepository _reconciliationRepository =
+        reconciliationRepository ?? throw new ArgumentNullException(nameof(reconciliationRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     public async Task<AzureInventoryDriftReportRecord?> TryGetDriftReportAsync(
         ScopeContext scope,
         Guid diffId,
@@ -29,6 +45,22 @@ public sealed class AzureInventoryDriftClassificationService(
 
             if (summary is null)
                 return null;
+
+            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+                scope,
+                summary.SnapshotAId,
+                _reconciliationRepository,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+
+            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+                scope,
+                summary.SnapshotBId,
+                _reconciliationRepository,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
 
             IReadOnlyList<AzureInventoryChangeRecord> changes =
                 await diffRepository.ListChangesByDiffIdAsync(scope, diffId, cancellationToken);
@@ -53,6 +85,14 @@ public sealed class AzureInventoryDriftClassificationService(
                 Changes = classifiedChanges,
                 ActiveBaselines = activeBaselines,
             };
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (ConflictException)
+        {
+            throw;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

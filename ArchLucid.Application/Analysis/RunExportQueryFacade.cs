@@ -1,7 +1,9 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -116,6 +118,18 @@ public sealed class RunExportQueryFacade(
         if (rightGuard is not null)
             return new ExportRecordDiffQueryResult { Outcome = rightGuard.Value, MissingId = right.RunId };
 
+        ExportRecordLoadOutcome? leftLifecycle =
+            await TryEnsureExportRunLifecycleCompleteAsync(left!.RunId, cancellationToken);
+
+        if (leftLifecycle is not null)
+            return new ExportRecordDiffQueryResult { Outcome = leftLifecycle.Value, MissingId = left.RunId };
+
+        ExportRecordLoadOutcome? rightLifecycle =
+            await TryEnsureExportRunLifecycleCompleteAsync(right!.RunId, cancellationToken);
+
+        if (rightLifecycle is not null)
+            return new ExportRecordDiffQueryResult { Outcome = rightLifecycle.Value, MissingId = right.RunId };
+
         ExportRecordDiffResult diff = await _exportRecordDiffService.CompareAsync(left!, right!, cancellationToken);
         return new ExportRecordDiffQueryResult { Outcome = ExportRecordLoadOutcome.Success, Diff = diff };
     }
@@ -138,6 +152,18 @@ public sealed class RunExportQueryFacade(
 
         if (rightGuard is not null)
             return new ExportRecordDiffSummaryQueryResult { Outcome = rightGuard.Value, MissingId = right.RunId };
+
+        ExportRecordLoadOutcome? leftLifecycle =
+            await TryEnsureExportRunLifecycleCompleteAsync(left!.RunId, cancellationToken);
+
+        if (leftLifecycle is not null)
+            return new ExportRecordDiffSummaryQueryResult { Outcome = leftLifecycle.Value, MissingId = left.RunId };
+
+        ExportRecordLoadOutcome? rightLifecycle =
+            await TryEnsureExportRunLifecycleCompleteAsync(right!.RunId, cancellationToken);
+
+        if (rightLifecycle is not null)
+            return new ExportRecordDiffSummaryQueryResult { Outcome = rightLifecycle.Value, MissingId = right.RunId };
 
         ExportRecordDiffResult diff = await _exportRecordDiffService.CompareAsync(left!, right!, cancellationToken);
         string summary = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
@@ -227,6 +253,33 @@ public sealed class RunExportQueryFacade(
                 _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);
+        }
+        catch (ConflictException)
+        {
+            return ExportRecordLoadOutcome.LineageUnverified;
+        }
+
+        return null;
+    }
+
+    private async Task<ExportRecordLoadOutcome?> TryEnsureExportRunLifecycleCompleteAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+        if (runDetail is null)
+            return null;
+
+        try
+        {
+            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(runDetail.Run),
+                runId);
         }
         catch (ConflictException)
         {

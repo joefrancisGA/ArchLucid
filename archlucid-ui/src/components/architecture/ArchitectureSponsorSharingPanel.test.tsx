@@ -33,6 +33,7 @@ vi.mock("@/lib/toast", () => ({
 
 const incompleteArchitecture = {
   runId: "run-1",
+  manifestVersion: "manifest-1",
   architecture: {
     runId: "run-1",
     architectureName: "Draft platform",

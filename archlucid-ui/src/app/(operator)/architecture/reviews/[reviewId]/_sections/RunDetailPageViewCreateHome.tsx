@@ -201,6 +201,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                     />
                     <RunDetailArchitectureSponsorSharingPanelDeferred
                       runId={m.resolvedDetail.run.runId}
+                      manifestVersion={m.manifestId}
                       architecture={architectureCreatedBaseline}
                       architectureSourceText={submittedArchitectureText ?? ""}
                       findings={quickDecisionFindings}
