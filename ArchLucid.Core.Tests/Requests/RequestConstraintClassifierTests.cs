@@ -1531,6 +1531,38 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_have_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads does not have encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_maintain_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads does not maintain encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_mandate_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads does not mandate encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_workloads_does_not_ensure_encryption_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["workloads does not ensure encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);

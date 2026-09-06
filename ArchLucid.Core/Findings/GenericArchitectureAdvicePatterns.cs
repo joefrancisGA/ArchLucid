@@ -367,6 +367,11 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("does not use", StringComparison.Ordinal)
             || after.StartsWith("does not have", StringComparison.Ordinal)
             || after.StartsWith("cannot implement", StringComparison.Ordinal)
+            || after.StartsWith("cannot enable", StringComparison.Ordinal)
+            || after.StartsWith("cannot deploy", StringComparison.Ordinal)
+            || after.StartsWith("cannot adopt", StringComparison.Ordinal)
+            || after.StartsWith("cannot use", StringComparison.Ordinal)
+            || after.StartsWith("cannot have", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
