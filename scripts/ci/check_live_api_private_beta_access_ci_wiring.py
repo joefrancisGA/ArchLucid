@@ -243,9 +243,16 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
 
-        if "cancel-in-progress: false" not in text:
+        if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
-                f"{_PUSH_REL}: must set cancel-in-progress: false so trunk merge trains are not evicted mid-smoke",
+                f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
+                "(one smoke per branch; cancel superseded trunk runs)",
+            )
+
+        if "cancel-in-progress: true" not in text:
+            errors.append(
+                f"{_PUSH_REL}: must set cancel-in-progress: true so stale queued private-beta runs "
+                "do not block signal on the latest master SHA",
             )
 
         if _FULL_REGRESSION_NEED in text:

@@ -57,6 +57,20 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertTrue(any("below" in error for error in errors))
 
+    def test_push_workflow_requires_branch_concurrency_cancel(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+        errors: list[str] = []
+
+        if "private-beta-access-on-push-${{ github.ref }}" not in push_text:
+            errors.append("missing branch concurrency group")
+
+        if "cancel-in-progress: true" not in push_text:
+            errors.append("missing cancel-in-progress: true")
+
+        self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()

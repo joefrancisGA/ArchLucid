@@ -2,8 +2,8 @@
 # JIT-warm authenticated read paths before private-beta Playwright so the UI proxy does not
 # burn 60s per draft-list attempt on cold SQL / first controller hit.
 #
-# Draft inventory is best-effort when LIVE_E2E_PRIVATE_BETA_ACCESS=1: Playwright stubs
-# **/api/proxy/v1/architecture/draft** and cold SQL can hang the list endpoint for minutes.
+# Draft inventory and create-run shell warm are skipped when LIVE_E2E_PRIVATE_BETA_ACCESS=1:
+# Playwright stubs **/api/proxy/v1/architecture/draft** and JIT-warms create-run in-spec.
 #
 # Usage: warm_private_beta_live_api_paths.sh <jwt-token>
 # Env: API_URL (default http://127.0.0.1:5128)
