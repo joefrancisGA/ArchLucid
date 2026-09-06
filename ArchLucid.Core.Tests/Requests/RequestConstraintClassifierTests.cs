@@ -4875,6 +4875,38 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_will_not_mandate_to_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams will not mandate to use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_would_not_mandate_to_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams would not mandate to use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_shall_not_mandate_to_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams shall not mandate to use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_teams_should_not_apply_to_use_encryption_at_rest_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["teams should not apply to use encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_no_ai_capability_phrasing()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["no-ai inference"]);
