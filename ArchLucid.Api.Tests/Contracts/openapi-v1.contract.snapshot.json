@@ -141498,6 +141498,13 @@
           },
           {
             "in": "query",
+            "name": "workQueue",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "page",
             "schema": {
               "default": 1,

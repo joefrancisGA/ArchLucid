@@ -30,7 +30,13 @@ import {
   RESOURCE_EXPLORER_NAME_PREFIX_PARAM,
   RESOURCE_EXPLORER_RESOURCE_GROUP_PARAM,
   RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM,
+  RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
+  parseResourceExplorerWorkQueueFromSearch,
+  type CloudResourceExplorerWorkQueue,
+} from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -60,10 +66,14 @@ export function ResourcesExplorerClient() {
   const urlCloudResourceId = parseResourceExplorerCloudResourceIdFromSearch(
     searchParams.get(RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM),
   );
+  const urlWorkQueue = parseResourceExplorerWorkQueueFromSearch(
+    searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM),
+  );
 
   const [namePrefix, setNamePrefix] = useState(urlNamePrefix);
   const [resourceType, setResourceType] = useState(urlResourceType);
   const [resourceGroup, setResourceGroup] = useState(urlResourceGroup);
+  const [workQueue, setWorkQueue] = useState<CloudResourceExplorerWorkQueue>(urlWorkQueue);
   const [rows, setRows] = useState<CloudResourceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -80,7 +90,8 @@ export function ResourcesExplorerClient() {
     setNamePrefix(urlNamePrefix);
     setResourceType(urlResourceType);
     setResourceGroup(urlResourceGroup);
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType]);
+    setWorkQueue(urlWorkQueue);
+  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue]);
 
   const loadResources = useCallback(async () => {
     setLoading(true);
@@ -91,6 +102,7 @@ export function ResourcesExplorerClient() {
         namePrefix: urlNamePrefix,
         resourceType: urlResourceType,
         resourceGroup: urlResourceGroup,
+        workQueue: urlWorkQueue,
       });
       setRows(response.items);
     } catch (error: unknown) {
@@ -99,7 +111,7 @@ export function ResourcesExplorerClient() {
     } finally {
       setLoading(false);
     }
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType]);
+  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue, urlCloudResourceId]);
 
   useEffect(() => {
     if (urlCloudResourceId.length > 0) {
@@ -114,6 +126,14 @@ export function ResourcesExplorerClient() {
       namePrefix,
       resourceType,
       resourceGroup,
+      workQueue,
+    });
+    router.replace(nextHref);
+  };
+
+  const applyWorkQueue = (nextWorkQueue: CloudResourceExplorerWorkQueue) => {
+    const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
+      workQueue: nextWorkQueue,
     });
     router.replace(nextHref);
   };
@@ -135,6 +155,23 @@ export function ResourcesExplorerClient() {
       <LayerHeader pageKey="infrastructure-resources" />
 
       <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Resource explorer filters">
+        <div className="flex flex-wrap gap-2" aria-label="Resource explorer work queues">
+          {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.map((option) => (
+            <Button
+              key={option.id}
+              type="button"
+              size="sm"
+              variant={urlWorkQueue === option.id ? "default" : "outline"}
+              data-testid={`infra-resource-explorer-work-queue-${option.id}`}
+              onClick={() => applyWorkQueue(option.id)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
+        </p>
         <div className="grid gap-3 md:grid-cols-3">
           <label className="grid gap-1 text-sm">
             <span className="font-medium">Name prefix</span>

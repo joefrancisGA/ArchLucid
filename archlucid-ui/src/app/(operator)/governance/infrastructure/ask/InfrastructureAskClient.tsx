@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -13,6 +13,9 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import {
+  governanceInfrastructureResourceHubPath,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
@@ -29,6 +32,11 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-ask-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+type InfrastructureAskTurn = {
+  readonly question: string;
+  readonly response: InfraEvidenceAskResponse;
+};
 
 export function InfrastructureAskClient() {
   const searchParams = useSearchParams();
@@ -47,7 +55,25 @@ export function InfrastructureAskClient() {
   const [useSimulator, setUseSimulator] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [response, setResponse] = useState<InfraEvidenceAskResponse | null>(null);
+  const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
+
+  const contextSummary = useMemo(() => {
+    const parts: string[] = [];
+
+    if (cloudResourceId.length > 0) {
+      parts.push(`resource ${cloudResourceId}`);
+    }
+
+    if (snapshotId.length > 0) {
+      parts.push(`snapshot ${snapshotId}`);
+    }
+
+    if (parts.length === 0) {
+      return null;
+    }
+
+    return parts.join(" · ");
+  }, [cloudResourceId, snapshotId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -70,9 +96,9 @@ export function InfrastructureAskClient() {
         controlId: controlId.length > 0 ? controlId : null,
         useSimulator,
       });
-      setResponse(result);
+      setHistory((current) => [...current, { question: trimmed, response: result }]);
+      setQuestion("");
     } catch (error: unknown) {
-      setResponse(null);
       setSubmitError(formatInfraEvidenceAskApiError(error));
     } finally {
       setSubmitting(false);
@@ -89,13 +115,37 @@ export function InfrastructureAskClient() {
 
   useEffect(() => {
     setQuestion("");
-    setResponse(null);
+    setHistory([]);
     setSubmitError(null);
   }, [cloudResourceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-ask" />
+
+      {contextSummary != null ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-ask-context-banner"
+          aria-label="Ask grounding context"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Grounding context: {contextSummary}.
+          </p>
+          {cloudResourceId.length > 0 ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={governanceInfrastructureResourceHubPath(cloudResourceId)}
+            >
+              Open resource evidence hub
+            </Link>
+          ) : null}
+        </section>
+      ) : (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          Open a resource hub and choose Ask, or pass `cloudResourceId` in the URL to scope questions to one resource.
+        </p>
+      )}
 
       <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Infrastructure Ask prompt">
         <label className="grid gap-1 text-sm">
@@ -158,35 +208,40 @@ export function InfrastructureAskClient() {
         <p className="m-0 text-sm text-destructive" role="alert">{submitError}</p>
       ) : null}
 
-      {response != null ? (
+      {history.map((turn, index) => (
         <section
+          key={`${turn.question}-${index}`}
           className="grid gap-3 rounded border border-border bg-card p-4"
           aria-label="Infrastructure Ask response"
-          data-testid="infra-ask-response"
+          data-testid={index === history.length - 1 ? "infra-ask-response" : undefined}
         >
-          {response.simulatorLabel != null ? (
+          <p className={cn("m-0 text-sm font-medium text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
+            Question: {turn.question}
+          </p>
+
+          {turn.response.simulatorLabel != null ? (
             <p className="m-0 rounded bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:bg-amber-950/40 dark:text-amber-100" data-testid="infra-ask-simulator-banner">
-              {response.simulatorLabel}
+              {turn.response.simulatorLabel}
             </p>
           ) : null}
 
-          {response.insufficientEvidence ? (
+          {turn.response.insufficientEvidence ? (
             <div className="grid gap-2" data-testid="infra-ask-insufficient-evidence">
               <StatusTag kind="needs-attention" label="Insufficient evidence" />
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{response.answer}</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
             </div>
           ) : (
             <div className="grid gap-2">
-              <StatusTag kind="ready" label={response.topicKind} />
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{response.answer}</p>
+              <StatusTag kind="ready" label={turn.response.topicKind} />
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
             </div>
           )}
 
-          {response.citations.length > 0 ? (
+          {turn.response.citations.length > 0 ? (
             <div className="grid gap-2">
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h2>
               <ul className="m-0 grid gap-2 pl-5">
-                {response.citations.map((citation) => {
+                {turn.response.citations.map((citation) => {
                   const link = resolveInfraEvidenceAskCitationLink(citation);
                   const key = `${citation.kind}:${citation.id}`;
 
@@ -204,7 +259,7 @@ export function InfrastructureAskClient() {
             </div>
           ) : null}
         </section>
-      ) : null}
+      ))}
     </div>
   );
 }
