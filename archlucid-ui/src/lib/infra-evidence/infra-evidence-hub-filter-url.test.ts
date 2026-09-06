@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseResourceHubTabFromSearch,
   buildInfrastructureAskHref,
+  resolveResourceHubTabFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -61,5 +62,24 @@ describe("infra-evidence-hub-filter-url", () => {
     ).toBe(
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1",
     );
+  });
+
+  it("builds Infrastructure Ask href with remediation instance context", () => {
+    expect(
+      buildInfrastructureAskHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        instanceId: "instance-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1",
+    );
+  });
+
+  it("resolves hub tab from Ask scope params", () => {
+    expect(resolveResourceHubTabFromAskScope({ findingId: "finding-1" })).toBe("findings");
+    expect(resolveResourceHubTabFromAskScope({ instanceId: "instance-1" })).toBe("remediation");
+    expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
+    expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
   });
 });

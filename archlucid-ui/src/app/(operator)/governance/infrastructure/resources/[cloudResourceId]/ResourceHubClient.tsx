@@ -118,6 +118,18 @@ function buildHubFindingAskHref(
   });
 }
 
+function buildHubRemediationAskHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  instanceId: string,
+): string {
+  return buildInfrastructureAskHref({
+    cloudResourceId,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    instanceId,
+  });
+}
+
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
@@ -538,9 +550,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableHeaderCell>Title</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-                        {stream.streamKind === "OperationalSecurity" ? (
-                          <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
-                        ) : null}
+                        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                       </EnterpriseTableRow>
                     </EnterpriseTableHead>
                     <EnterpriseTableBody>
@@ -549,8 +559,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableCell>{item.title}</EnterpriseTableCell>
                           <EnterpriseTableCell>{item.severity ?? "—"}</EnterpriseTableCell>
                           <EnterpriseTableCell>{item.status ?? "—"}</EnterpriseTableCell>
-                          {stream.streamKind === "OperationalSecurity" ? (
-                            <EnterpriseTableCell>
+                          <EnterpriseTableCell>
+                            {stream.streamKind === "OperationalSecurity" ? (
                               <div className="flex flex-wrap gap-2">
                                 <Button asChild size="sm" variant="outline">
                                   <Link
@@ -582,8 +592,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   </Link>
                                 </Button>
                               </div>
-                            </EnterpriseTableCell>
-                          ) : null}
+                            ) : (
+                              <Button asChild size="sm" variant="outline">
+                                <Link
+                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id)}
+                                  data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
+                                >
+                                  Ask
+                                </Link>
+                              </Button>
+                            )}
+                          </EnterpriseTableCell>
                         </EnterpriseTableRow>
                       ))}
                     </EnterpriseTableBody>
@@ -614,17 +633,27 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>{item.patternKey}</EnterpriseTableCell>
                       <EnterpriseTableCell>{item.status}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <Button asChild size="sm" variant="outline">
-                          <Link
-                            href={buildRemediationWorkbenchHref({
-                              cloudResourceId,
-                              instanceId: item.instanceId,
-                            })}
-                            data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
-                          >
-                            Open in factory
-                          </Link>
-                        </Button>
+                        <div className="flex flex-wrap gap-2">
+                          <Button asChild size="sm" variant="outline">
+                            <Link
+                              href={buildRemediationWorkbenchHref({
+                                cloudResourceId,
+                                instanceId: item.instanceId,
+                              })}
+                              data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
+                            >
+                              Open in factory
+                            </Link>
+                          </Button>
+                          <Button asChild size="sm" variant="outline">
+                            <Link
+                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, item.instanceId)}
+                              data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
+                            >
+                              Ask
+                            </Link>
+                          </Button>
+                        </div>
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
