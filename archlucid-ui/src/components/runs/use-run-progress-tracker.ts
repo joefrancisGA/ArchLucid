@@ -76,13 +76,13 @@ export function useRunProgressTracker({
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
+  const liveTrackingActive = pollEnabled && (clientPhase === "polling" || rerunning);
   const timelineEnabled =
     buyerAssessmentCopy || pollEnabled || preFinalizeTerminal || pipelineTerminalFailure;
   const stageTimelineQuery = useRunStageTimelineQuery(runId, {
     enabled: timelineEnabled,
     pollSession,
-    refetchInterval:
-      pollEnabled && clientPhase === "polling" ? 5_000 : false,
+    refetchInterval: liveTrackingActive ? 5_000 : false,
   });
   const stageTimeline = stageTimelineQuery.data ?? [];
   const [notificationPermission, setNotificationPermission] = useState(() => getDesktopNotificationPermission());
@@ -92,7 +92,7 @@ export function useRunProgressTracker({
   const [lastSummaryChangeAtIso, setLastSummaryChangeAtIso] = useState<string | null>(null);
 
   const { estimate: durationEstimate, loading: durationLoading } = useWorkspaceReviewDurationEstimate(
-    pollEnabled && clientPhase === "polling",
+    liveTrackingActive,
   );
   const pollMaxMs = useMemo(
     () => resolveReviewPipelinePollMaxMs(durationEstimate?.p90Seconds),
@@ -100,10 +100,42 @@ export function useRunProgressTracker({
   );
 
   const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
-    enabled: pollEnabled && clientPhase === "polling",
+    enabled: liveTrackingActive,
     initialSummary,
     retryToken: pollSession,
   });
+
+  const [rerunElapsedMs, setRerunElapsedMs] = useState(0);
+
+  useEffect(() => {
+    if (!rerunning || inFlightOperation === null) {
+      setRerunElapsedMs(0);
+
+      return;
+    }
+
+    const startedAtMs = inFlightOperation.startedAtMs;
+
+    function tick(): void {
+      setRerunElapsedMs(Math.max(0, Date.now() - startedAtMs));
+    }
+
+    tick();
+    const timer = window.setInterval(tick, 1_000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [inFlightOperation?.startedAtMs, rerunning]);
+
+  useEffect(() => {
+    if (!rerunning) {
+      return;
+    }
+
+    setClientPhase("polling");
+    setPollSession((session) => session + 1);
+  }, [inFlightOperation?.startedAtMs, rerunning]);
 
   useEffect(() => {
     if (summary === null) {
@@ -137,7 +169,7 @@ export function useRunProgressTracker({
   });
 
   useEffect(() => {
-    if (!pollEnabled || clientPhase !== "polling" || durationLoading) {
+    if (!pollEnabled || clientPhase !== "polling" || durationLoading || rerunning) {
       return;
     }
 
@@ -148,7 +180,7 @@ export function useRunProgressTracker({
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [durationLoading, pollEnabled, clientPhase, pollSession, pollMaxMs]);
+  }, [durationLoading, pollEnabled, clientPhase, pollSession, pollMaxMs, rerunning]);
 
   useEffect(() => {
     // Create-home Activity: when live summary reaches analysis-complete without a signed
@@ -164,10 +196,14 @@ export function useRunProgressTracker({
       return;
     }
 
+    if (rerunning) {
+      return;
+    }
+
     if (allStagesReady(summary) || streamPhase === "complete") {
       setClientPhase("complete");
     }
-  }, [buyerAssessmentCopy, summary, streamPhase]);
+  }, [buyerAssessmentCopy, rerunning, summary, streamPhase]);
 
   useEffect(() => {
     if (!timelineEnabled) {
@@ -211,10 +247,15 @@ export function useRunProgressTracker({
   const totalProgressStages = buyerAssessmentCopy ? assessmentStageCount : 4;
   const progressValue = (completedStages / totalProgressStages) * 100;
 
-  const currentStageLabel = useMemo(
-    () => resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished),
-    [activeSummary, buyerPolished, stageTimeline],
-  );
+  const currentStageLabel = useMemo(() => {
+    const operationStepLabel = inFlightOperation?.stepLabel?.trim() ?? "";
+
+    if (rerunning && operationStepLabel.length > 0) {
+      return operationStepLabel;
+    }
+
+    return resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished);
+  }, [activeSummary, buyerPolished, inFlightOperation?.stepLabel, rerunning, stageTimeline]);
 
   const pipelineJobLabel = useMemo(
     () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
@@ -314,6 +355,8 @@ export function useRunProgressTracker({
     pipelineTerminalFailure,
     showPipelineTerminalFailure,
     rerunning,
+    liveTrackingActive,
+    rerunElapsedMs,
     clientPhase,
     stageTimeline,
     summary,
