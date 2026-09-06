@@ -35,6 +35,7 @@ import {
 import {
   formatCloudResourceExplorerWorkQueueLabel,
   parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import {
   buildDriftWorkbenchHref,
@@ -137,8 +138,8 @@ export function InfrastructureAskClient() {
     return parts.join(" · ");
   }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
 
-  const hubBackLinkTab = useMemo(
-    () => resolveResourceHubTabFromAskScope({
+  const hubBackLinkTab = useMemo(() => {
+    const scopeTab = resolveResourceHubTabFromAskScope({
       findingId,
       instanceId,
       diffId,
@@ -146,9 +147,14 @@ export function InfrastructureAskClient() {
       auditEvidenceSnapshotId,
       controlId,
       correspondenceId,
-    }),
-    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
-  );
+    });
+
+    if (scopeTab != null) {
+      return scopeTab;
+    }
+
+    return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
 
   const driftWorkbenchBackLinkHref = useMemo(() => {
     if (diffId.length === 0) {

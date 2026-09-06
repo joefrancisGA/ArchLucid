@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   parseResourceHubTabFromSearch,
   buildInfrastructureAskHref,
+  buildResourceHubExplorerHref,
   resolveResourceHubTabFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 
 describe("infra-evidence-hub-filter-url", () => {
   it("builds explorer filter href with trimmed filters", () => {
@@ -111,5 +113,18 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(resolveResourceHubTabFromAskScope({ correspondenceId: "corr-1" })).toBe("diagram");
     expect(resolveResourceHubTabFromAskScope({ diffId: "diff-1" })).toBe("drift");
     expect(resolveResourceHubTabFromAskScope({})).toBeUndefined();
+  });
+
+  it("builds resource hub href from explorer work queue context", () => {
+    expect(resolveResourceHubTabFromExplorerWorkQueue("open-findings")).toBe("findings");
+    expect(resolveResourceHubTabFromExplorerWorkQueue("open-remediation")).toBe("remediation");
+    expect(resolveResourceHubTabFromExplorerWorkQueue("recent-drift")).toBe("drift");
+    expect(resolveResourceHubTabFromExplorerWorkQueue("all")).toBeUndefined();
+    expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111", "open-findings")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
+    expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+    );
   });
 });
