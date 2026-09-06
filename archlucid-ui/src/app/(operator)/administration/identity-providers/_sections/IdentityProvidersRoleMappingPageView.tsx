@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,10 @@ import {
   identityProvidersTenantScopeLine,
 } from "@/lib/identity-providers-settings-copy";
 import { readOperatorScopeFromStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
+import {
+  identityProvidersRoleMappingExamplesDisclosureHrefFromSearch,
+  parseIdentityProvidersRoleMappingExamplesOpenFromSearch,
+} from "@/lib/administration/identity-providers-role-mapping-examples-disclosure-url";
 
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
@@ -78,6 +83,13 @@ function resolveIdentitySourceLabel(
 export function IdentityProvidersRoleMappingPageView(
   props: IdentityProvidersRoleMappingPageViewProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/identity-providers/role-mapping";
+  const searchParams = useSearchParams();
+  const identityProvidersRoleMappingExamplesOpenParam = searchParams.get("identityProvidersRoleMappingExamplesOpen");
+  const [examplesOpen, setExamplesOpenState] = useState(() =>
+    parseIdentityProvidersRoleMappingExamplesOpenFromSearch(identityProvidersRoleMappingExamplesOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [tenantConfig, setTenantConfig] = useState<TenantIdentityProviderConfigurationRecord | null>(null);
   const [tenantConfigLoaded, setTenantConfigLoaded] = useState(false);
@@ -92,6 +104,30 @@ export function IdentityProvidersRoleMappingPageView(
   const primaryCta = resolveRoleMappingPrimaryCta(props.model.authConfigurationDiagnostics);
   const mappingRows = extractPersistedTenantRoleMappingRows(tenantConfig);
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
+
+  const syncExamplesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        identityProvidersRoleMappingExamplesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setExamplesOpen = useCallback(
+    (open: boolean) => {
+      setExamplesOpenState(open);
+      syncExamplesOpenToUrl(open);
+    },
+    [syncExamplesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setExamplesOpenState(
+      parseIdentityProvidersRoleMappingExamplesOpenFromSearch(identityProvidersRoleMappingExamplesOpenParam),
+    );
+  }, [identityProvidersRoleMappingExamplesOpenParam]);
 
   const loadTenantConfig = useCallback(async () => {
     setTenantConfigLoaded(false);
@@ -276,6 +312,10 @@ export function IdentityProvidersRoleMappingPageView(
                   <details
                     className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800"
                     data-testid="identity-providers-role-mapping-examples-disclosure"
+                    open={examplesOpen}
+                    onToggle={(event) => {
+                      setExamplesOpen((event.currentTarget as HTMLDetailsElement).open);
+                    }}
                   >
                     <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                       {IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES_LABEL}

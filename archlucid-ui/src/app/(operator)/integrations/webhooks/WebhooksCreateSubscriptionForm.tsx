@@ -49,6 +49,10 @@ import {
   parseWebhooksDeliveryContractOpenFromSearch,
   webhooksDeliveryContractDisclosureHrefFromSearch,
 } from "@/lib/integrations/webhooks-delivery-contract-disclosure-url";
+import {
+  parseWebhooksTechnicalEventNameEventIdFromSearch,
+  webhooksTechnicalEventNameDisclosureHrefFromSearch,
+} from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -73,6 +77,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
+  const webhooksTechnicalEventNameEventIdParam = searchParams.get("webhooksTechnicalEventNameEventId");
   const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
     parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam),
   );
@@ -98,6 +103,20 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   useEffect(() => {
     setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
   }, [webhooksDeliveryContractOpenParam]);
+
+  const syncTechnicalEventNameOpenToUrl = useCallback(
+    (eventId: string | null) => {
+      router.replace(
+        webhooksTechnicalEventNameDisclosureHrefFromSearch(searchParams.toString(), eventId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const technicalEventNameOpenId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+    webhooksTechnicalEventNameEventIdParam,
+  );
 
   const {
     register,
@@ -362,7 +381,14 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
                         <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                           {option.description}
                         </span>
-                        <details className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        <details
+                          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          open={technicalEventNameOpenId === option.id}
+                          onToggle={(event) => {
+                            const open = (event.currentTarget as HTMLDetailsElement).open;
+                            syncTechnicalEventNameOpenToUrl(open ? option.id : null);
+                          }}
+                        >
                           <summary
                             className={cn(
                               "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
