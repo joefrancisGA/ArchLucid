@@ -25,6 +25,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
           sponsorSynopsis: 'Sponsor synopsis for "Payments edge": finalized architecture review with 3 findings recorded.',
           createdUtc: "2026-08-01T12:00:00Z",
           runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
         }}
       />,
     );

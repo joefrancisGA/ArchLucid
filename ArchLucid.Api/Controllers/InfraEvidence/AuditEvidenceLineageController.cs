@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -27,6 +28,7 @@ public sealed class AuditEvidenceLineageController(
     [ProducesResponseType(typeof(AuditEvidenceLineageRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetControlLineage(
         Guid assessmentId,
         Guid snapshotId,
@@ -42,20 +44,27 @@ public sealed class AuditEvidenceLineageController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        AuditEvidenceLineageQueryResult result = await lineageService.TryGetControlLineageAsync(
-            scope,
-            assessmentId,
-            snapshotId,
-            controlId,
-            cancellationToken);
-
-        if (!result.Succeeded || result.Lineage is null)
+        try
         {
-            return this.NotFoundProblem(
-                result.ErrorMessage ?? "Audit evidence lineage was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            AuditEvidenceLineageQueryResult result = await lineageService.TryGetControlLineageAsync(
+                scope,
+                assessmentId,
+                snapshotId,
+                controlId,
+                cancellationToken);
 
-        return Ok(result.Lineage);
+            if (!result.Succeeded || result.Lineage is null)
+            {
+                return this.NotFoundProblem(
+                    result.ErrorMessage ?? "Audit evidence lineage was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(result.Lineage);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

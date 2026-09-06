@@ -84,6 +84,7 @@ export type PackagePrintPresentation = {
   readonly createdUtc: string;
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
+  readonly manifestVersionForGuard?: string | null;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -231,5 +232,9 @@ export function buildPackagePrintPresentation(
     createdUtc: summary.createdUtc,
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
+    manifestVersionForGuard:
+      summary.currentManifestVersion?.trim()
+      ?? summary.goldenManifestId?.trim()
+      ?? (summary.hasGoldenManifest === true ? summary.runId : null),
   };
 }

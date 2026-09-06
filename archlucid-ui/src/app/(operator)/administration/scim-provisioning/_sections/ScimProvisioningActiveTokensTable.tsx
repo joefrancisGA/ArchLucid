@@ -49,6 +49,7 @@ export type ScimProvisioningActiveTokensTableProps = {
   readonly state: ScimTokensLoadState;
   readonly revokingId: string | null;
   readonly onRequestRevoke: (token: ScimTokenSummary) => void;
+  readonly hideRevokeActions?: boolean;
 };
 
 function resolveTokenStatusLabel(token: ScimTokenSummary): string {
@@ -74,7 +75,7 @@ function resolveTokenStatusTagKind(token: ScimTokenSummary): EnterpriseStatusKin
 export function ScimProvisioningActiveTokensTable(
   props: ScimProvisioningActiveTokensTableProps,
 ): React.JSX.Element {
-  const { state, revokingId, onRequestRevoke } = props;
+  const { state, revokingId, onRequestRevoke, hideRevokeActions = false } = props;
 
   return (
     <Card data-testid="scim-active-tokens-section">
@@ -107,7 +108,9 @@ export function ScimProvisioningActiveTokensTable(
                 <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_IDENTIFIER}</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_CREATED}</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_STATUS}</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_ACTIONS}</EnterpriseTableHeaderCell>
+                {hideRevokeActions ? null : (
+                  <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_ACTIONS}</EnterpriseTableHeaderCell>
+                )}
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
@@ -124,22 +127,24 @@ export function ScimProvisioningActiveTokensTable(
                       data-testid={`scim-token-status-${token.id}`}
                     />
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    {isTokenActive(token) ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={revokingId === token.id}
-                        onClick={() => onRequestRevoke(token)}
-                        data-testid={`scim-revoke-token-${token.id}`}
-                      >
-                        {revokingId === token.id ? SCIM_REVOKING_ACTION : SCIM_REVOKE_ACTION}
-                      </Button>
-                    ) : (
-                      <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>—</span>
-                    )}
-                  </EnterpriseTableCell>
+                  {hideRevokeActions ? null : (
+                    <EnterpriseTableCell>
+                      {isTokenActive(token) ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={revokingId === token.id}
+                          onClick={() => onRequestRevoke(token)}
+                          data-testid={`scim-revoke-token-${token.id}`}
+                        >
+                          {revokingId === token.id ? SCIM_REVOKING_ACTION : SCIM_REVOKE_ACTION}
+                        </Button>
+                      ) : (
+                        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>—</span>
+                      )}
+                    </EnterpriseTableCell>
+                  )}
                 </EnterpriseTableRow>
               ))}
             </EnterpriseTableBody>

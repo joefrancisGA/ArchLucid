@@ -1,7 +1,9 @@
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -141,14 +143,13 @@ public sealed class AuditEvidenceLineageServiceTests
             .Setup(service => service.TryVerifyAsync(scope.TenantId, auditEvidenceSnapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AuditEvidenceSnapshotVerificationResult { IsValid = true });
 
-        AuditEvidenceLineageService sut = new(
+        AuditEvidenceLineageService sut = CreateLineageService(
             assessmentRepository,
             frameworkRepository,
             requirementRepository,
             snapshotRepository,
             evaluationRepository,
-            verificationService.Object,
-            NullLogger<AuditEvidenceLineageService>.Instance);
+            verificationService.Object);
 
         AuditEvidenceLineageQueryResult result = await sut.TryGetControlLineageAsync(
             scope,
@@ -275,7 +276,7 @@ public sealed class AuditEvidenceLineageServiceTests
                 FailureReason = "Evidence row hash does not match stored hash.",
             });
 
-        AuditEvidenceLineageService sut = new(
+        AuditEvidenceLineageService sut = CreateLineageService(
             assessmentRepository,
             new InMemoryAuditFrameworkRepository(frameworkId, scope.TenantId, controlId),
             new InMemoryAuditEvidenceRequirementRepository(
@@ -286,8 +287,7 @@ public sealed class AuditEvidenceLineageServiceTests
                 AuditEvidenceTypeNames.Network),
             snapshotRepository,
             evaluationRepository,
-            verificationService.Object,
-            NullLogger<AuditEvidenceLineageService>.Instance);
+            verificationService.Object);
 
         AuditEvidenceLineageQueryResult result = await sut.TryGetControlLineageAsync(
             scope,
@@ -325,7 +325,7 @@ public sealed class AuditEvidenceLineageServiceTests
             CreatedUtc = DateTime.UtcNow,
         });
 
-        AuditEvidenceLineageService sut = new(
+        AuditEvidenceLineageService sut = CreateLineageService(
             assessmentRepository,
             new InMemoryAuditFrameworkRepository(Guid.NewGuid(), ownerTenantId, Guid.NewGuid()),
             new InMemoryAuditEvidenceRequirementRepository(
@@ -336,8 +336,7 @@ public sealed class AuditEvidenceLineageServiceTests
                 AuditEvidenceTypeNames.Inventory),
             new InMemoryAuditEvidenceSnapshotRepository(),
             new InMemoryAuditControlEvaluationRepository(),
-            Mock.Of<IAuditEvidenceSnapshotVerificationService>(),
-            NullLogger<AuditEvidenceLineageService>.Instance);
+            Mock.Of<IAuditEvidenceSnapshotVerificationService>());
 
         AuditEvidenceLineageQueryResult result = await sut.TryGetControlLineageAsync(
             otherTenantScope,
@@ -348,6 +347,36 @@ public sealed class AuditEvidenceLineageServiceTests
         result.Succeeded.Should().BeFalse();
         result.Lineage.Should().BeNull();
         result.ErrorMessage.Should().Contain("Assessment was not found");
+    }
+
+    private static AuditEvidenceLineageService CreateLineageService(
+        IAuditAssessmentRepository assessmentRepository,
+        IAuditFrameworkRepository frameworkRepository,
+        IAuditEvidenceRequirementRepository requirementRepository,
+        IAuditEvidenceSnapshotRepository snapshotRepository,
+        IAuditControlEvaluationRepository evaluationRepository,
+        IAuditEvidenceSnapshotVerificationService verificationService)
+    {
+        Mock<IAuditManualEvidenceRepository> manualEvidenceRepository = new();
+        manualEvidenceRepository
+            .Setup(repository => repository.ListArchitectureLinksByControlAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return new AuditEvidenceLineageService(
+            assessmentRepository,
+            frameworkRepository,
+            requirementRepository,
+            snapshotRepository,
+            evaluationRepository,
+            manualEvidenceRepository.Object,
+            verificationService,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<AuditEvidenceLineageService>.Instance);
     }
 
     private static AuditEvidenceSnapshotItemRecord CreateHashedSnapshotItem(

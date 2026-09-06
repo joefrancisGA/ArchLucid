@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getFirstValueReportMarkdown } from "@/lib/api";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -12,15 +13,21 @@ export type ShareReviewPackageButtonProps = {
   readonly runId: string;
   readonly systemName: string;
   readonly committed: boolean;
+  readonly manifestVersion?: string | null;
   readonly variant?: "default" | "outline" | "secondary";
   readonly size?: "default" | "sm";
 };
 
 /** Downloads the sponsor first-value Markdown report in one click. */
 export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): React.JSX.Element {
-  const { runId, systemName, committed, variant = "outline", size = "sm" } = props;
+  const { runId, systemName, committed, manifestVersion, variant = "outline", size = "sm" } = props;
   const [busy, setBusy] = useState(false);
-  const shareDisabledReason = committed ? null : whyDisabledNeedsPrerequisite("a finalized review");
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion,
+  });
+  const shareDisabledReason = sealedManifestBlockedReason
+    ?? (committed ? null : whyDisabledNeedsPrerequisite("a finalized review"));
   const shareDisabledHintId = "share-review-package-disabled-hint";
 
   const onShare = useCallback(async () => {
@@ -60,7 +67,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
         type="button"
         variant={variant}
         size={size}
-        disabled={!committed || busy}
+        disabled={shareDisabledReason !== null || busy}
         aria-describedby={shareDisabledReason === null ? undefined : shareDisabledHintId}
         data-testid="share-review-package-button"
         onClick={() => void onShare()}

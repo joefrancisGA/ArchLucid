@@ -124,5 +124,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111",
+    );
   });
 });

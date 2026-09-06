@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -41,6 +42,7 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { buildInfrastructureAskHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -490,6 +492,17 @@ export function DiagramsWorkbenchClient() {
         >
           Export Mermaid (.mmd)
         </Button>
+        {selectedSnapshotId.length > 0 ? (
+          <Button asChild variant="outline" data-testid="infra-diagrams-open-ask">
+            <Link
+              href={buildInfrastructureAskHref({
+                snapshotId: selectedSnapshotId,
+              })}
+            >
+              Ask about this snapshot
+            </Link>
+          </Button>
+        ) : null}
       </section>
 
       {tooLargeForBrowser ? (

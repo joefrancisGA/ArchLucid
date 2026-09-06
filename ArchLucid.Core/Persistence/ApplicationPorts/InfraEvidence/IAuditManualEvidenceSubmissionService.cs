@@ -1,5 +1,7 @@
 namespace ArchLucid.Persistence.InfraEvidence;
 
+using ArchLucid.Core.Scoping;
+
 public sealed class AuditManualEvidenceSubmitRequest
 {
     public Guid AssessmentId
@@ -106,7 +108,7 @@ public interface IAuditManualEvidenceSubmissionService
 public interface IAuditHybridEvidenceQueryService
 {
     Task<AuditHybridControlEvidenceRecord?> TryGetControlEvidenceSourcesAsync(
-        Guid tenantId,
+        ScopeContext scope,
         Guid assessmentId,
         Guid controlId,
         Guid auditEvidenceSnapshotId,

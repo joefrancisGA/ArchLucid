@@ -69,6 +69,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             runId={runId}
             systemName={systemName}
             committed={packageCommitted}
+            manifestVersion={sealedManifestVersion}
           />
           <ReviewPackageWhatIfControl
             runId={runId}

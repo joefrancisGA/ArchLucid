@@ -24,4 +24,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave33Arc
 
 **Hasher baseline note:** wave 33 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) remains for a follow-up wave when those rows are scheduled.
+**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) ships in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE34.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE34.md).

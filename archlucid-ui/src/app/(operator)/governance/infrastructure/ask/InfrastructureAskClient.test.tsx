@@ -111,6 +111,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&diffId=diff-1",
     );
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222",
+    );
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "What changed in this diff?" },
@@ -181,6 +185,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
+    expect(screen.getByTestId("infra-ask-audit-lineage-back-link")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/snapshots/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb/controls/cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
   });
 
   it("shows correspondence scope in context banner and links hub diagram tab", async () => {
@@ -227,6 +235,10 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222",
     );
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {

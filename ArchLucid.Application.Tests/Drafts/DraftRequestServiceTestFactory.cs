@@ -42,14 +42,23 @@ internal static class DraftRequestServiceTestFactory
         IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
         IOptionsMonitor<DraftIntakeBranchOptions> branchOptionsMonitor,
         IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
-        IDraftSemanticAdmissionEvaluator semanticAdmissionEvaluator)
+        IDraftSemanticAdmissionEvaluator semanticAdmissionEvaluator,
+        InMemoryRunRepository? runRepository = null,
+        InMemoryArchitectureRequestRepository? architectureRequestRepository = null)
     {
-        InMemoryRunRepository runRepository = new();
-        InMemoryArchitectureIdentityRepository architectureIdentityRepository = new(repository, runRepository);
+        InMemoryRunRepository resolvedRunRepository = runRepository ?? new InMemoryRunRepository();
+        InMemoryArchitectureRequestRepository resolvedRequestRepository =
+            architectureRequestRepository ?? new InMemoryArchitectureRequestRepository();
+        InMemoryArchitectureIdentityRepository architectureIdentityRepository =
+            new(repository, resolvedRunRepository);
         ArchitectureIdentityService architectureIdentityService = new(
             architectureIdentityRepository,
-            runRepository,
+            resolvedRunRepository,
             repository);
+
+        PresenterIntakeTrailSyncService presenterIntakeTrailSyncService = new(
+            resolvedRunRepository,
+            resolvedRequestRepository);
 
         DraftRequestCrudService crudService = new(
             repository,
@@ -61,7 +70,8 @@ internal static class DraftRequestServiceTestFactory
                 repository,
                 questionSelectionEngine,
                 workspaceSystemNameCollisionGuard,
-                architectureIdentityService),
+                architectureIdentityService,
+                presenterIntakeTrailSyncService),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftAdmissionService admissionService = new(
@@ -75,7 +85,7 @@ internal static class DraftRequestServiceTestFactory
             contentSafetyPrecheck,
             feasibilityVerdictBuilder,
             workspaceSystemNameCollisionGuard,
-            Mock.Of<IRunRepository>(),
+            resolvedRunRepository,
             Mock.Of<IValidator<ArchitectureRequest>>());
 
         DraftBranchingService branchingService = new(
@@ -118,7 +128,9 @@ internal static class DraftRequestServiceTestFactory
         Mock<IEffectiveGovernanceLoader> governanceLoader,
         Mock<IArchitectureRunCommandService> architectureRunCommandService,
         Mock<IRequestContentSafetyPrecheck> contentSafety,
-        DraftIntakeBranchOptions branchOptions)
+        DraftIntakeBranchOptions branchOptions,
+        InMemoryRunRepository? runRepository = null,
+        InMemoryArchitectureRequestRepository? architectureRequestRepository = null)
     {
         governanceLoader
             .Setup(static loader => loader.LoadEffectiveContentAsync(
@@ -145,6 +157,8 @@ internal static class DraftRequestServiceTestFactory
             Mock.Of<IPriorPackageSemanticMergeService>(),
             new FixedDraftIntakeBranchOptionsMonitor(branchOptions),
             WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
-            new PassThroughDraftSemanticAdmissionEvaluator());
+            new PassThroughDraftSemanticAdmissionEvaluator(),
+            runRepository,
+            architectureRequestRepository);
     }
 }
