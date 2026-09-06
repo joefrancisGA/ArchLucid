@@ -124,7 +124,8 @@ export function TenantFindingEngineControlsCard() {
       <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
           Optional finding engines that add Premium LLM judge passes or scan other systems in this workspace. Leave off
-          unless you accept extra model cost and cross-review reads.
+          unless you accept extra model cost and cross-review reads. When deployment runs in Real mode, the
+          insight-density judge defaults on unless you override it off here.
         </p>
 
         {controlsQuery.isPending ? (
