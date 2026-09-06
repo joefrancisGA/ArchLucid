@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,10 @@ import {
   decisionRegisterConfidenceBasisHrefFromSearch,
   type DecisionRegisterConfidenceBasisFilter,
 } from "@/lib/governance/decision-register-advanced-filters-url";
+import {
+  decisionRegisterAdvancedFiltersDisclosureHrefFromSearch,
+  parseDecisionRegisterAdvancedFiltersOpenFromSearch,
+} from "@/lib/governance/decision-register-advanced-filters-disclosure-url";
 import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 
 import {
@@ -70,6 +76,36 @@ type DecisionRegisterFiltersPanelProps = {
 };
 
 export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanelProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_DECISION_REGISTER_PATH;
+  const searchParams = useSearchParams();
+  const decisionRegisterAdvancedFiltersOpenParam = searchParams.get("decisionRegisterAdvancedFiltersOpen");
+  const [advancedFiltersOpen, setAdvancedFiltersOpenState] = useState(() =>
+    parseDecisionRegisterAdvancedFiltersOpenFromSearch(decisionRegisterAdvancedFiltersOpenParam),
+  );
+
+  const syncAdvancedFiltersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        decisionRegisterAdvancedFiltersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedFiltersOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedFiltersOpenState(open);
+      syncAdvancedFiltersOpenToUrl(open);
+    },
+    [syncAdvancedFiltersOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedFiltersOpenState(parseDecisionRegisterAdvancedFiltersOpenFromSearch(decisionRegisterAdvancedFiltersOpenParam));
+  }, [decisionRegisterAdvancedFiltersOpenParam]);
+
   const advancedFilters = (
     <div className="mt-3 grid gap-3 md:grid-cols-3">
       <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
@@ -210,7 +246,12 @@ export function DecisionRegisterFiltersPanel(props: DecisionRegisterFiltersPanel
         </div>
 
         {props.collapseAdvanced ? (
-          <CollapsibleSection title={DECISION_REGISTER_ADVANCED_FILTERS_TITLE} defaultOpen={false} sectionTestId="decision-register-advanced-filters">
+          <CollapsibleSection
+            title={DECISION_REGISTER_ADVANCED_FILTERS_TITLE}
+            open={advancedFiltersOpen}
+            onToggle={setAdvancedFiltersOpen}
+            sectionTestId="decision-register-advanced-filters"
+          >
             {advancedFilters}
           </CollapsibleSection>
         ) : (

@@ -6,7 +6,8 @@ import { DIGESTS_HUB_GET_STARTED_TAB_ID } from "@/lib/digests-hub-tab";
 import { digestsHubScopedHref } from "@/lib/digests-route-paths";
 
 import Link from "next/link";
-import { type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DigestsBrowseContinueLastViewedRow } from "@/components/digests/DigestsBrowseContinueLastViewedRow";
 import { DigestsBrowseDetailPanel } from "@/components/digests/DigestsBrowseDetailPanel";
@@ -30,6 +31,11 @@ import {
   DIGESTS_BROWSE_SETUP_UNKNOWN_DESCRIPTION,
   DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
+import {
+  digestsBrowseDisclosureHrefFromSearch,
+  parseDigestsBrowseIncludesOpenFromSearch,
+  parseDigestsTechnicalDetailsOpenFromSearch,
+} from "@/lib/digests/digests-browse-disclosure-url";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 export type DigestsBrowseContentProps = {
@@ -51,6 +57,43 @@ export type DigestsBrowseContentProps = {
  */
 export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): ReactElement {
   const { hidePageHeader = false, healthSnap = null } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const digestsBrowseIncludesOpenParam = searchParams.get("digestsBrowseIncludesOpen");
+  const [browseIncludesOpen, setBrowseIncludesOpenState] = useState(() =>
+    parseDigestsBrowseIncludesOpenFromSearch(digestsBrowseIncludesOpenParam),
+  );
+
+  const syncBrowseIncludesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        digestsBrowseDisclosureHrefFromSearch(
+          searchParams.toString(),
+          {
+            browseIncludesOpen: open,
+            technicalDetailsOpen: parseDigestsTechnicalDetailsOpenFromSearch(searchParams.get("digestsTechnicalDetailsOpen")),
+          },
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setBrowseIncludesOpen = useCallback(
+    (open: boolean) => {
+      setBrowseIncludesOpenState(open);
+      syncBrowseIncludesOpenToUrl(open);
+    },
+    [syncBrowseIncludesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setBrowseIncludesOpenState(parseDigestsBrowseIncludesOpenFromSearch(digestsBrowseIncludesOpenParam));
+  }, [digestsBrowseIncludesOpenParam]);
+
   const {
     digests,
     rowAttempts,
@@ -143,7 +186,8 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           )}
           <CollapsibleSection
             title={DIGESTS_BROWSE_INCLUDES_SECTION_TITLE}
-            defaultOpen={false}
+            open={browseIncludesOpen}
+            onToggle={setBrowseIncludesOpen}
             sectionTestId="digests-browse-includes-disclosure"
           >
             <DigestsBrowseIncludesPreview />

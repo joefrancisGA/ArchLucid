@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -32,6 +34,10 @@ import {
   governanceLineageVerificationStatusTagPresentation,
   governanceRiskPostureStatusTagPresentation,
 } from "@/lib/governance/governance-lineage-presentation";
+import {
+  approvalLineageRecordDigestDisclosureHrefFromSearch,
+  parseApprovalLineageRecordDigestOpenFromSearch,
+} from "@/lib/governance/approval-lineage-record-digest-disclosure-url";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -50,6 +56,35 @@ export function GovernanceApprovalLineageDetailContent({
   data,
   findingsQueueRunId = null,
 }: GovernanceApprovalLineageDetailContentProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const approvalLineageRecordDigestOpenParam = searchParams.get("approvalLineageRecordDigestOpen");
+  const [recordDigestOpen, setRecordDigestOpenState] = useState(() =>
+    parseApprovalLineageRecordDigestOpenFromSearch(approvalLineageRecordDigestOpenParam),
+  );
+
+  const syncRecordDigestOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(approvalLineageRecordDigestDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRecordDigestOpen = useCallback(
+    (open: boolean) => {
+      setRecordDigestOpenState(open);
+      syncRecordDigestOpenToUrl(open);
+    },
+    [syncRecordDigestOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRecordDigestOpenState(parseApprovalLineageRecordDigestOpenFromSearch(approvalLineageRecordDigestOpenParam));
+  }, [approvalLineageRecordDigestOpenParam]);
+
   const a = data.approvalRequest;
   const displayApprovalTitle = governanceLineageApprovalDisplayTitle(a.requestComment);
   const approvalStatus = governanceApprovalStatusTagPresentation(a.status);
@@ -185,7 +220,8 @@ export function GovernanceApprovalLineageDetailContent({
             {data.manifest.recordDigest ? (
               <CollapsibleSection
                 title="Record digest"
-                defaultOpen={false}
+                open={recordDigestOpen}
+                onToggle={setRecordDigestOpen}
                 sectionTestId="approval-lineage-record-digest"
               >
                 <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
