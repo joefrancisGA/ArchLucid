@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 214
-- **bugs-found:** 846
+- **hunts:** 215
+- **bugs-found:** 858
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — GroupAccessKey/GuestAccessKey/HandleAccessKey redaction, workloads ought-not-implement/enable/deploy/adopt negation, advice must-not-implement/enable/deploy/adopt/use suffix
+- **last-bug:** 2026-09-06 — HashAccessKey/HealthAccessKey/HostAccessKey redaction, workloads ought-not-use/have and should-not-implement/enable negation, advice must-not-have/maintain/provision/apply/configure suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2901,6 +2901,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not deploy` suffix gap — **hit 2026-09-06 (#942):** broad constraint `must not` prefix only; missed imperative-path suffix `must not deploy`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_deploy_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not adopt` suffix gap — **hit 2026-09-06 (#942):** broad constraint `must not` prefix only; missed imperative-path suffix `must not adopt`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_adopt_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not use` suffix gap — **hit 2026-09-06 (#942):** broad constraint `must not` prefix only; missed imperative-path suffix `must not use`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_use_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `HashAccessKey` not redacted — **hit 2026-09-06 (#943):** compound access-key class after #942; embedded `AccessKey`/`accesskey` fragment guard skipped `HashAccessKey`/`hashaccesskey`; fixed with explicit credential detection (`Resolve_redacts_hash_access_key_config_path`, `IsSensitiveKey_detects_hash_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `HealthAccessKey` not redacted — **hit 2026-09-06 (#943):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_health_access_key_config_path`, `IsSensitiveKey_detects_health_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `HostAccessKey` not redacted — **hit 2026-09-06 (#943):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_host_access_key_config_path`, `IsSensitiveKey_detects_host_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `ought not use` negation gap — **hit 2026-09-06 (#943):** #939 added advice suffix `ought not use` only; missed mid-sentence `ought not use {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_ought_not_use_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `ought not have` negation gap — **hit 2026-09-06 (#943):** #939 added advice suffix `ought not have` only; missed mid-sentence `ought not have {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_ought_not_have_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not implement` negation gap — **hit 2026-09-06 (#943):** #939 added advice suffix `should not implement` only; missed mid-sentence `should not implement {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_should_not_implement_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `should not enable` negation gap — **hit 2026-09-06 (#943):** #939 added advice suffix `should not enable` only; missed mid-sentence `should not enable {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_should_not_enable_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not have` suffix gap — **hit 2026-09-06 (#943):** broad constraint `must not` prefix only; missed imperative-path suffix `must not have`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_have_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not maintain` suffix gap — **hit 2026-09-06 (#943):** broad constraint `must not` prefix only; missed imperative-path suffix `must not maintain`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not provision` suffix gap — **hit 2026-09-06 (#943):** broad constraint `must not` prefix only; missed imperative-path suffix `must not provision`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not apply` suffix gap — **hit 2026-09-06 (#943):** broad constraint `must not` prefix only; missed imperative-path suffix `must not apply`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `must not configure` suffix gap — **hit 2026-09-06 (#943):** broad constraint `must not` prefix only; missed imperative-path suffix `must not configure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_must_not_configure_suffix_phrasing`).
+
+2026-09-06 seed hunt #943 (hit): reseeded after #942 closure; proved twelve hunt-ready rows — HashAccessKey/HealthAccessKey/HostAccessKey redaction parity, workloads ought-not-use/have and should-not-implement/enable constraint negation, and advice must-not-have/maintain/provision/apply/configure suffix.
 
 2026-09-06 seed hunt #942 (hit): reseeded after #941 closure; proved twelve hunt-ready rows — GroupAccessKey/GuestAccessKey/HandleAccessKey redaction parity, workloads ought-not-implement/enable/deploy/adopt constraint negation, and advice must-not-implement/enable/deploy/adopt/use suffix.
 
