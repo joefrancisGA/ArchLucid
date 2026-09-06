@@ -40,6 +40,21 @@ function ConvertTo-EscalationUtcDateTime {
     )
 }
 
+function Get-EscalationEntryValue {
+    param(
+        [object] $Entry,
+        [string] $Name
+    )
+
+    # Run-log lines written before ABQ-07 added hunt paths have no 'paths' member at all,
+    # and Set-StrictMode turns a missing-member read into a terminating error.
+    if ($null -eq $Entry -or $null -eq $Entry.PSObject.Properties[$Name]) {
+        return $null
+    }
+
+    return $Entry.PSObject.Properties[$Name].Value
+}
+
 function Test-IsProductionEscalationPath {
     param([string] $Path)
 
@@ -113,17 +128,23 @@ function Get-EscalatedProductionFiles {
             continue
         }
 
-        if ([string]$entry.outcome -ne 'hit') {
+        if ([string](Get-EscalationEntryValue -Entry $entry -Name 'outcome') -ne 'hit') {
             continue
         }
 
-        $at = ConvertTo-EscalationUtcDateTime -IsoTimestamp ([string]$entry.at)
+        $rawAt = [string](Get-EscalationEntryValue -Entry $entry -Name 'at')
+
+        if ([string]::IsNullOrWhiteSpace($rawAt)) {
+            continue
+        }
+
+        $at = ConvertTo-EscalationUtcDateTime -IsoTimestamp $rawAt
 
         if ($at -lt $cutoff) {
             continue
         }
 
-        foreach ($path in @($entry.paths)) {
+        foreach ($path in @(Get-EscalationEntryValue -Entry $entry -Name 'paths')) {
             if (-not (Test-IsProductionEscalationPath -Path ([string]$path))) {
                 continue
             }

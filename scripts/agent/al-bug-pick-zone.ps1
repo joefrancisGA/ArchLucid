@@ -60,6 +60,8 @@ param(
 
     [string] $RunLogPath,
 
+    [string] $AtUtc,
+
     [string] $RepoRoot
 )
 
@@ -195,23 +197,16 @@ function Get-MeanHuntsPerBug {
     param([int] $Hunts, [int] $BugsFound)
 
     # Time unit is hunts, not wall-clock. Lower mean = faster to find a bug.
-    if ($Hunts -gt 0) {
-        $effectiveBugs = [Math]::Min([Math]::Max(0, $BugsFound), $Hunts)
+    $creditedBugs = [Math]::Max(0, $BugsFound)
 
-        if ($effectiveBugs -lt 1) {
-            $effectiveBugs = 1
-        }
-
-        $mean = [double]$Hunts / [double]$effectiveBugs
-
-        if ($mean -lt 1.0) {
-            $mean = 1.0
-        }
-
-        return $mean
+    # Only a zone whose counters honour the one-hit-per-hunt invariant has demonstrated a
+    # yield. Claiming more bugs than hunts makes the ratio unverifiable, and claiming none
+    # demonstrates nothing, so both fall back to the prior rather than earning fast-zone rank.
+    if ($Hunts -gt 0 -and $creditedBugs -gt 0 -and $creditedBugs -le $Hunts) {
+        return [Math]::Max(1.0, [double]$Hunts / [double]$creditedBugs)
     }
 
-    # Untried / dry prior: 2 hunts to first bug; each extra hunt makes first-bug slower.
+    # Untried / dry / untrustworthy prior: 2 hunts to first bug; each extra hunt makes it slower.
     return [double]$Hunts + 2.0
 }
 
@@ -607,6 +602,7 @@ function Read-AlBugHuntLedger {
             Score                  = 0.0
             MeanHuntsPerBug        = 0.0
             ExploreBonus           = 0.0
+            ImpactMultiplier       = 1.0
             Why                    = @()
             Reopened               = $false
             CooledByHitRate        = $false
@@ -1268,7 +1264,8 @@ elseif (-not [IO.Path]::IsPathRooted($resolvedRunLog)) {
     $resolvedRunLog = Join-Path $resolvedRoot ($resolvedRunLog -replace '/', [IO.Path]::DirectorySeparatorChar)
 }
 
-$nowUtc = [datetime]::UtcNow
+# -AtUtc pins the clock so hit-rate cooldown and escalation windows are deterministic in tests.
+$nowUtc = $(if ([string]::IsNullOrWhiteSpace($AtUtc)) { [datetime]::UtcNow } else { ConvertTo-RunLogUtcDateTime -IsoTimestamp $AtUtc })
 $runLogEntries = Read-AlBugHuntRunLog -Path $resolvedRunLog
 $escalatedFiles = @()
 $gitLogText = ''
