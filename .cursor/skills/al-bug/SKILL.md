@@ -84,6 +84,7 @@ Default target is `bugsmash`:
 
 ## Related
 
+- Hunt-quality Composer set **ABQ-01–10** — `.cursor/prompts/al-bug-quality-00-index.md` (do not implement those reforms by running `/al-bug`)
 - `/al-defect` — operator-reported production defects (`PD-###`)
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield and exhaustion
 - `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — rolling hunt outcome log
