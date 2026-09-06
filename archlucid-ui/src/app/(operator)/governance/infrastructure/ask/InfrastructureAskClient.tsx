@@ -12,7 +12,7 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
-import { buildAuditEvidenceLineageUiPath, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
@@ -174,6 +174,14 @@ export function InfrastructureAskClient() {
     });
   }, [correspondenceId, runId, snapshotId]);
 
+  const inventoryDiagramsBackLinkHref = useMemo(() => {
+    if (snapshotId.length === 0) {
+      return null;
+    }
+
+    return buildResourceHubDiagramsWorkbenchHref(snapshotId);
+  }, [snapshotId]);
+
   const remediationFactoryBackLinkHref = useMemo(() => {
     if (findingId.length === 0 && instanceId.length === 0) {
       return null;
@@ -288,6 +296,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-drift-back-link"
             >
               Open drift workbench
+            </Link>
+          ) : null}
+          {inventoryDiagramsBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={inventoryDiagramsBackLinkHref}
+              data-testid="infra-ask-inventory-diagrams-back-link"
+            >
+              Open inventory diagrams
             </Link>
           ) : null}
           {diagramReconcileBackLinkHref != null ? (
