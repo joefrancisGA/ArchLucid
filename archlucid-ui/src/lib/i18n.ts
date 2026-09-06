@@ -63,6 +63,8 @@ export const RUNS_DASHBOARD_LABELS = {
   tabNeedsAttention: "Needs attention",
   tabOpenFindings: "Findings",
   tabMonitoring: "Monitoring",
+  tabAwaitingApproval: "Awaiting approval",
+  tabAwaitingApprovalEmpty: "No reviews awaiting approval in this workspace.",
   tabMonitoredRisks: "Monitored risks",
   tabOutcomes: "Outcomes",
   latestInWorkspace: "Latest in workspace",
@@ -150,7 +152,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",
   decisionRegister: "Decision register",
-  sealedReviewRecords: "Finalized review records",
+  sealedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */

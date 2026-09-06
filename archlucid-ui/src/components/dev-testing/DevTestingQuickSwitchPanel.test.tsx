@@ -10,6 +10,7 @@ vi.mock("next/navigation", () => ({
 import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
 import {
   DEV_AGENT_EXECUTION_MODE_COOKIE,
+  DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY,
   DEV_ROLE_OVERRIDE_COOKIE,
   DEV_SHELL_EXPERIENCE_COOKIE,
   reloadAfterDevTestingOverrideChange,
@@ -46,9 +47,15 @@ vi.mock("@/lib/load-dev-testing-quick-jump-snapshot", () => ({
 
 import { loadDevTestingQuickJumpSnapshot } from "@/lib/load-dev-testing-quick-jump-snapshot";
 
+function openDevTestingQuickSwitchDrawer(): void {
+  localStorage.setItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY, "0");
+}
+
 describe("DevTestingQuickSwitchPanel", () => {
   beforeEach(() => {
     vi.stubEnv("NODE_ENV", "development");
+    localStorage.clear();
+    openDevTestingQuickSwitchDrawer();
     vi.mocked(loadDevTestingQuickJumpSnapshot).mockResolvedValue({
       plans: [{ planId: "11111111-aaaa-bbbb-cccc-dddddddddddd" }],
       runs: [{ runId: "22222222-aaaa-bbbb-cccc-dddddddddddd" }],
@@ -71,15 +78,11 @@ describe("DevTestingQuickSwitchPanel", () => {
     vi.mocked(loadDevTestingQuickJumpSnapshot).mockReset();
   });
 
-  it("renders shell and role override controls inside a collapsed disclosure in development", async () => {
+  it("renders shell and role override controls inside the dev drawer in development", async () => {
     render(<DevTestingQuickSwitchPanel />);
 
     const panel = await screen.findByTestId("dev-testing-quick-switch");
     expect(panel).toBeInTheDocument();
-    expect(panel).not.toHaveAttribute("open");
-
-    fireEvent.click(screen.getByText("Dev testing quick switch"));
-
     expect(await screen.findByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Employee")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Reader")).toBeInTheDocument();
@@ -108,8 +111,6 @@ describe("DevTestingQuickSwitchPanel", () => {
 
   it("renders quick-jump link chips for each entity cluster", async () => {
     render(<DevTestingQuickSwitchPanel runIds={["22222222-aaaa-bbbb-cccc-dddddddddddd"]} />);
-
-    fireEvent.click(screen.getByText("Dev testing quick switch"));
 
     expect(await screen.findByTestId("dev-testing-quick-jump-links")).toBeInTheDocument();
 

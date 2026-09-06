@@ -142,7 +142,7 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
   test.setTimeout(120_000);
 
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources**", async (route) => {
+    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources/**", async (route) => {
       const url = route.request().url();
 
       if (url.includes("/hub")) {
@@ -238,7 +238,10 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
 
     await page.getByTestId("infra-resource-hub-open-drift").click();
     await expect(page).toHaveURL(/\/governance\/infrastructure\/drift\?/);
+    await expect(page).toHaveURL(/cloudResourceId=11111111-1111-1111-1111-111111111111/);
     await expect(page).toHaveURL(/assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/);
+    await expect(page).toHaveURL(/auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb/);
+    await expect(page).toHaveURL(/controlId=cccccccc-cccc-cccc-cccc-cccccccccccc/);
 
     await page.getByTestId("infra-drift-diff-picker").selectOption("diff-1");
     await expect(page.getByTestId("infra-drift-open-ask")).toBeVisible({ timeout: 30_000 });

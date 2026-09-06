@@ -1,3 +1,5 @@
+import { formatElapsedCompactSeconds } from "@/lib/format-elapsed-compact";
+
 /**
  * Tier B staged-wait copy helpers (TB-2078) — named stages, no fake percentages.
  * Escalation thresholds: quiet → 10s tip → 30s tip → timeout recovery framing.
@@ -91,18 +93,7 @@ export function formatQueueStatusElapsedSuffix(elapsedMs: number): string | null
 
   const sec = Math.floor(elapsedMs / 1000);
 
-  if (sec < 60) {
-    return ` (${sec}s)`;
-  }
-
-  const minutes = Math.floor(sec / 60);
-  const seconds = sec % 60;
-
-  if (seconds === 0) {
-    return ` (${minutes}m)`;
-  }
-
-  return ` (${minutes}m ${seconds}s)`;
+  return ` (${formatElapsedCompactSeconds(sec)})`;
 }
 
 export function resolveLongOperationQueueStatusValue(

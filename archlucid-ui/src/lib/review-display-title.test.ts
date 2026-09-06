@@ -78,7 +78,7 @@ describe("toReviewDisplayTitle", () => {
   it("clamps a title that exceeds the single-line budget", () => {
     const title = toReviewDisplayTitle("x".repeat(200));
 
-    expect(title).toHaveLength(80);
+    expect(title).toHaveLength(120);
     expect(title.endsWith("…")).toBe(true);
   });
 

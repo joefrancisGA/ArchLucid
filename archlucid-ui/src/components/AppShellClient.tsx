@@ -22,6 +22,7 @@ import {
   ColorModeToggleDeferred,
   CtoDemoJourneyCaptionBarDeferred,
   DevTestingShellShortcutsDeferred,
+  DevTestingQuickSwitchPanelDeferred,
   FrictionlessTrialBannerDeferred,
   HelpPanelDeferred,
   HelpSearchPanelDeferred,
@@ -340,6 +341,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
       <AppShellTelemetryBundleDeferred />
       <DevTestingShellShortcutsDeferred />
+      <DevTestingQuickSwitchPanelDeferred />
       <AppShellSyncSessionIdleGuard />
       <CommandPaletteWorkActionBridge />
       <AppShellSyncCommandPaletteHost />

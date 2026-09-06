@@ -125,21 +125,45 @@ export function plainLanguageFailureCauseSentence(args: {
   readonly failureClass?: string | null;
   readonly triageScenarioId?: string | null;
   readonly reasonCode?: string | null;
+  readonly completedStages?: number;
 }): string {
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
 
   if (triageTitle !== null) {
-    return triageTitle;
+    const stagePrefix = resolveFailureStageReachedPhrase(args.completedStages ?? 0);
+    const resolutionHint = resolveFailureResolutionHint(args.failureClass, args.reasonCode);
+
+    return `${stagePrefix} ${triageTitle}${resolutionHint.length > 0 ? ` (${resolutionHint})` : ""}`;
   }
 
   const failureClass = (args.failureClass ?? "").trim();
+  const completedStages = args.completedStages ?? 0;
+  const likelyCause = resolveLikelyCauseFromArgs(args);
+
+  if (likelyCause !== null) {
+    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
+
+    return `${stagePrefix} ${likelyCause}`;
+  }
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
-    return FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
+    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
+    const cause = FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
+    const resolutionHint = resolveFailureResolutionHint(failureClass, args.reasonCode);
+
+    return `${stagePrefix} ${cause}${resolutionHint.length > 0 ? ` — ${resolutionHint}` : ""}`;
   }
 
   if (failureClass.length > 0) {
-    return `The review failed (${plainLanguageFailureClassLabel(failureClass).toLowerCase()}).`;
+    const label = plainLanguageFailureClassLabel(failureClass).toLowerCase();
+
+    if (label === "invalid operation") {
+      const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
+
+      return `${stagePrefix} Processing stopped for a configuration or scheduling issue — re-run after your workspace AI setup is confirmed, or share the review ID with support.`;
+    }
+
+    return `The review failed (${label}).`;
   }
 
   const reasonCode = (args.reasonCode ?? "").trim();
@@ -149,6 +173,84 @@ export function plainLanguageFailureCauseSentence(args: {
   }
 
   return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
+}
+
+function resolveFailureStageReachedPhrase(completedStages: number): string {
+  switch (completedStages) {
+    case 0:
+      return "Processing stopped before the first assessment stage.";
+    case 1:
+      return "Processing stopped after source context was captured.";
+    case 2:
+      return "Processing stopped after the evidence graph was built.";
+    case 3:
+      return "Processing stopped after findings were produced.";
+    default:
+      return "Processing stopped before the review finished.";
+  }
+}
+
+const TRANSIENT_FAILURE_CLASSES = new Set(["timeout", "canceled", "circuitBreaker", "dependency"]);
+const CONFIGURATION_FAILURE_CLASSES = new Set([
+  "missingCredentials",
+  "invalidOperation",
+  "parse",
+  "quota",
+  "costBudget",
+]);
+
+function resolveFailureResolutionHint(
+  failureClass: string | null | undefined,
+  reasonCode: string | null | undefined,
+): string {
+  const failureKey = (failureClass ?? "").trim();
+  const reason = (reasonCode ?? "").trim();
+
+  if (reason === "NoScheduledAgentTasks" || reason === "MissingArchitectureRequest") {
+    return "configuration issue — re-run after scheduling is restored, or contact support with the review ID";
+  }
+
+  if (CONFIGURATION_FAILURE_CLASSES.has(failureKey)) {
+    return "configuration issue — your workspace administrator can adjust AI settings, then re-run";
+  }
+
+  if (TRANSIENT_FAILURE_CLASSES.has(failureKey)) {
+    return "transient issue — wait briefly, then re-run";
+  }
+
+  if (failureKey === "qualityGate") {
+    return "enrich evidence and re-run";
+  }
+
+  return "";
+}
+
+function resolveLikelyCauseFromArgs(args: {
+  readonly failureClass?: string | null;
+  readonly reasonCode?: string | null;
+  readonly completedStages?: number;
+}): string | null {
+  const failureClass = (args.failureClass ?? "").trim();
+  const reasonCode = (args.reasonCode ?? "").trim();
+  const completedStages = args.completedStages ?? 0;
+
+  if (reasonCode === "NoScheduledAgentTasks") {
+    return "Execute ran before any agent tasks were scheduled — typical deferred scheduling miss. Re-run should resume the queued work on current builds.";
+  }
+
+  if (reasonCode === "MissingArchitectureRequest") {
+    return "Re-run could not load the architecture request needed to resume — data repair or support may be required.";
+  }
+
+  if (failureClass === "invalidOperation" && completedStages === 0) {
+    return "Pre-stage invalid operation — processing stopped before assessments began. Often the same deferred scheduling miss when reason codes are absent on older failure records.";
+  }
+
+  if (failureClass === "pipelineDeadLetter") {
+    return "Work dead-lettered after repeated failures — inspect worker health and outbox depth.";
+  }
+
+  return null;
 }
 
 export function plainLanguageTriageTitle(triageScenarioId: string | null | undefined): string | null {
