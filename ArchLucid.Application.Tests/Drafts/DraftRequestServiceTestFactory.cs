@@ -48,7 +48,11 @@ internal static class DraftRequestServiceTestFactory
                 repository,
                 priorPackageSemanticMergeService,
                 Mock.Of<IArchitectureIdentityService>()),
-            new DraftRequestMutateStage(repository, questionSelectionEngine, workspaceSystemNameCollisionGuard),
+            new DraftRequestMutateStage(
+                repository,
+                questionSelectionEngine,
+                workspaceSystemNameCollisionGuard,
+                Mock.Of<IArchitectureIdentityService>()),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftAdmissionService admissionService = new(

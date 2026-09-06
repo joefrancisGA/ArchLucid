@@ -247,7 +247,7 @@ public sealed class ArchitectureIdentityBackfillService(
                 if (draft.ArchitectureId.HasValue)
                     continue;
 
-                string displayName = ResolveDraftDisplayName(draft);
+                string displayName = ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(draft.Document);
 
                 ArchitectureIdentityRecord identity = await _architectureIdentityService
                     .EnsureForDraftAsync(scope, draft.DraftId, displayName, cancellationToken)
@@ -295,15 +295,4 @@ public sealed class ArchitectureIdentityBackfillService(
 
     private static bool IsCreatedOriginRun(RunRecord run) =>
         string.Equals(run.PackageOrigin, ArchitecturePackageOrigin.Created, StringComparison.Ordinal);
-
-    private static string ResolveDraftDisplayName(DraftRequestResponse draft)
-    {
-        if (!string.IsNullOrWhiteSpace(draft.Document.SystemName))
-            return draft.Document.SystemName;
-
-        if (!string.IsNullOrWhiteSpace(draft.Document.FreeTextIntent))
-            return draft.Document.FreeTextIntent;
-
-        return ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture;
-    }
 }
