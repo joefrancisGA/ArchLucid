@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_NEW_DRAFT_SEGMENT,
   architectureDraftPath,
+  architectureIdentityDraftHref,
   ARCHITECTURES_NEW_PATH,
   isArchitectureNewDraftSegment,
   startReviewFromArchitectureHref,
@@ -17,6 +18,12 @@ describe("architecture-routes", () => {
     expect(architectureDraftPath("draft-1")).toBe("/architecture/architectures/draft-1");
     expect(startReviewFromArchitectureHref("draft-1")).toBe(
       "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-1",
+    );
+  });
+
+  it("pins identity desk child draft href for post-create navigation (CA-24)", () => {
+    expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
+      "/architecture/architectures/architecture-identity-001?draft=draft-001",
     );
   });
 });
