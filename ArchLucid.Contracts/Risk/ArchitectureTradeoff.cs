@@ -84,4 +84,25 @@ public sealed class ArchitectureTradeoff
         get;
         set;
     }
+
+    /// <summary>LLM-generated architect rendering for conflicting tradeoffs (risk-03).</summary>
+    public string? ExplanationArchitect
+    {
+        get;
+        set;
+    }
+
+    /// <summary>LLM-generated executive consequence rendering for conflicting tradeoffs (risk-03).</summary>
+    public string? ExplanationExecutive
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Closed-form counterfactual statement for conflicting tradeoffs (risk-03).</summary>
+    public string? CounterfactualStatement
+    {
+        get;
+        set;
+    }
 }
