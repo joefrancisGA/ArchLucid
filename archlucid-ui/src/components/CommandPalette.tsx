@@ -51,6 +51,7 @@ import {
   type OpenCommandPaletteEventDetail,
 } from "@/lib/shortcut-registry";
 import { CommandPaletteActions } from "@/components/CommandPaletteActions";
+import { CommandPaletteArchitectureIdentitiesGroup } from "@/components/CommandPaletteArchitectureIdentitiesGroup";
 import { consumePendingCommandPaletteOpen } from "@/lib/command-palette-open-intent";
 import { CommandPaletteAdminNavGroups } from "@/components/CommandPaletteAdminNavGroups";
 import { CommandPaletteCuratedTasks } from "@/components/CommandPaletteCuratedTasks";
@@ -347,6 +348,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
+          <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
           <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />

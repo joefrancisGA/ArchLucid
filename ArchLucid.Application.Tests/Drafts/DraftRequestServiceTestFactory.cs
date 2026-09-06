@@ -9,6 +9,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -16,6 +17,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Options;
@@ -42,17 +44,24 @@ internal static class DraftRequestServiceTestFactory
         IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
         IDraftSemanticAdmissionEvaluator semanticAdmissionEvaluator)
     {
+        InMemoryRunRepository runRepository = new();
+        InMemoryArchitectureIdentityRepository architectureIdentityRepository = new(repository, runRepository);
+        ArchitectureIdentityService architectureIdentityService = new(
+            architectureIdentityRepository,
+            runRepository,
+            repository);
+
         DraftRequestCrudService crudService = new(
             repository,
             new DraftRequestCreateStage(
                 repository,
                 priorPackageSemanticMergeService,
-                Mock.Of<IArchitectureIdentityService>()),
+                architectureIdentityService),
             new DraftRequestMutateStage(
                 repository,
                 questionSelectionEngine,
                 workspaceSystemNameCollisionGuard,
-                Mock.Of<IArchitectureIdentityService>()),
+                architectureIdentityService),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftAdmissionService admissionService = new(
@@ -77,12 +86,29 @@ internal static class DraftRequestServiceTestFactory
             questionSelectionEngine,
             branchOptionsMonitor);
 
+        Mock<IAuthorityQueryService> authorityQueryServiceMock = new();
+        authorityQueryServiceMock
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument { ManifestHash = "deadbeef" },
+            });
+
+        Mock<IManifestHashService> manifestHashServiceMock = new();
+        manifestHashServiceMock
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("deadbeef");
+
         DraftSnapshotCloningService snapshotCloningService = new(
             repository,
             crudService,
             Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            authorityQueryServiceMock.Object,
+            manifestHashServiceMock.Object,
+            architectureIdentityService);
 
         return new DraftRequestService(crudService, admissionService, branchingService, snapshotCloningService);
     }

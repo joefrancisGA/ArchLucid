@@ -8,8 +8,9 @@ export function presentSidebarNavLink(
   link: NavLinkItem,
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
+  workingMode = false,
 ): NavLinkItem {
-  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell, isGovernanceModeEnabled);
+  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell, isGovernanceModeEnabled, workingMode);
 
   return {
     ...link,
@@ -23,8 +24,9 @@ export function presentSidebarNavLinkForCluster(
   buyerPolishedShell: boolean,
   _groupSurface: NavShellSurface,
   isGovernanceModeEnabled = false,
+  workingMode = false,
 ): NavLinkItem {
-  return presentSidebarNavLink(link, buyerPolishedShell, isGovernanceModeEnabled);
+  return presentSidebarNavLink(link, buyerPolishedShell, isGovernanceModeEnabled, workingMode);
 }
 
 export type SidebarNavClusterLinksInput = {

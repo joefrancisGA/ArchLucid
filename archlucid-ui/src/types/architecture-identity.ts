@@ -24,6 +24,13 @@ export type ArchitectureIdentityChildReviewSummary = {
   readonly createdUtc: string;
 };
 
+export type ArchitectureIdentityVersionSummary = {
+  readonly architectureVersionId: string;
+  readonly versionNumber: number;
+  readonly createdUtc: string;
+  readonly linkedReviewId?: string | null;
+};
+
 export type ArchitectureIdentityDetail = {
   readonly architectureId: string;
   readonly displayName: string;
@@ -38,6 +45,7 @@ export type ArchitectureIdentityDetail = {
   readonly updatedUtc: string;
   readonly drafts: readonly ArchitectureIdentityChildDraftSummary[];
   readonly reviews: readonly ArchitectureIdentityChildReviewSummary[];
+  readonly versions: readonly ArchitectureIdentityVersionSummary[];
 };
 
 export type ArchitectureIdentityListPage = {

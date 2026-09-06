@@ -166,7 +166,35 @@ public sealed partial class SqlArchitectureIdentityRepository
                 new CommandDefinition(reviewSql, parameters, cancellationToken: cancellationToken))
             .ConfigureAwait(false)).Select(MapReviewSummary).ToList();
 
-        Guid? currentDraftId = drafts.FirstOrDefault()?.DraftId;
+        const string versionSql = """
+                                  SELECT
+                                      v.ArchitectureVersionId,
+                                      v.VersionNumber,
+                                      v.CreatedUtc,
+                                      (
+                                          SELECT TOP (1) r.RunId
+                                          FROM dbo.Runs r
+                                          WHERE r.ArchitectureVersionId = v.ArchitectureVersionId
+                                            AND r.TenantId = @TenantId
+                                            AND r.WorkspaceId = @WorkspaceId
+                                            AND r.ScopeProjectId = @ScopeProjectId
+                                            AND r.ArchivedUtc IS NULL
+                                          ORDER BY r.CreatedUtc DESC, r.RunId DESC
+                                      ) AS LinkedReviewId
+                                  FROM dbo.ArchitectureVersions v
+                                  WHERE v.ArchitectureId = @ArchitectureId
+                                    AND v.TenantId = @TenantId
+                                    AND v.WorkspaceId = @WorkspaceId
+                                    AND v.ScopeProjectId = @ScopeProjectId
+                                  ORDER BY v.VersionNumber DESC;
+                                  """;
+
+        IReadOnlyList<ArchitectureIdentityVersionSummary> versions = (await connection
+            .QueryAsync<ArchitectureIdentityVersionRow>(
+                new CommandDefinition(versionSql, parameters, cancellationToken: cancellationToken))
+            .ConfigureAwait(false)).Select(MapVersionSummary).ToList();
+
+        Guid? currentDraftId = SelectCurrentDraftId(drafts);
         Guid? latestReviewId = reviews.FirstOrDefault()?.RunId;
 
         return new ArchitectureIdentityDetail
@@ -184,8 +212,33 @@ public sealed partial class SqlArchitectureIdentityRepository
             UpdatedUtc = identity.UpdatedUtc,
             Drafts = drafts,
             Reviews = reviews,
+            Versions = versions,
         };
     }
+
+    private static Guid? SelectCurrentDraftId(IReadOnlyList<ArchitectureIdentityChildDraftSummary> drafts)
+    {
+        ArchitectureIdentityChildDraftSummary? draftingDraft = drafts.FirstOrDefault(draft => draft.Status == DraftRequestStatus.Drafting);
+
+        if (draftingDraft is not null)
+            return draftingDraft.DraftId;
+
+        ArchitectureIdentityChildDraftSummary? spawnLockedDraft = drafts.FirstOrDefault(draft => draft.Status == DraftRequestStatus.RunSpawned);
+
+        if (spawnLockedDraft is not null)
+            return spawnLockedDraft.DraftId;
+
+        return null;
+    }
+
+    private static ArchitectureIdentityVersionSummary MapVersionSummary(ArchitectureIdentityVersionRow row) =>
+        new()
+        {
+            ArchitectureVersionId = row.ArchitectureVersionId,
+            VersionNumber = row.VersionNumber,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
+            LinkedReviewId = row.LinkedReviewId == Guid.Empty ? null : row.LinkedReviewId,
+        };
 
     private static ArchitectureIdentityChildDraftSummary MapDraftSummary(ArchitectureIdentityChildDraftRow row) =>
         new()
@@ -248,6 +301,33 @@ public sealed partial class SqlArchitectureIdentityRepository
         }
 
         public DateTime CreatedUtc
+        {
+            get;
+            set;
+        }
+    }
+
+    private sealed class ArchitectureIdentityVersionRow
+    {
+        public Guid ArchitectureVersionId
+        {
+            get;
+            set;
+        }
+
+        public int VersionNumber
+        {
+            get;
+            set;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            set;
+        }
+
+        public Guid LinkedReviewId
         {
             get;
             set;

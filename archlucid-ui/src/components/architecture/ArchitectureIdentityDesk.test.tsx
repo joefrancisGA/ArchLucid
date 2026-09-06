@@ -39,16 +39,17 @@ const identityFixture: ArchitectureIdentityDetail = {
   ],
   reviews: [
     {
-      runId: "review-1",
-      description: "First sealed review",
-      createdUtc: "2026-01-01T10:00:00Z",
-    },
-    {
       runId: "review-2",
       description: "Second in-flight review",
       createdUtc: "2026-01-02T11:00:00Z",
     },
+    {
+      runId: "review-1",
+      description: "First sealed review",
+      createdUtc: "2026-01-01T10:00:00Z",
+    },
   ],
+  versions: [],
 };
 
 describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
@@ -66,10 +67,11 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-desk-honesty")).toHaveTextContent(
       "durable architecture identity",
     );
+    expect(screen.getByTestId("architecture-identity-compare-entry")).toHaveAttribute(
+      "href",
+      "/insights/compare-two-reviews?leftRunId=review-1&rightRunId=review-2",
+    );
     expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
-    expect(screen.getByTestId("architecture-identity-review-row-review-1")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-identity-review-row-review-2")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-identity-compare-entry")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-latest-seal-link")).toBeInTheDocument();
   });
 
@@ -94,5 +96,52 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
       "href",
       "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-open-1",
     );
+  });
+
+  it("shows spawn-locked handoff controls instead of continue draft", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        currentDraftId: "draft-spawned",
+        drafts: [
+          {
+            draftId: "draft-spawned",
+            status: "RunSpawned",
+            systemName: "Payments",
+            updatedUtc: "2026-01-02T00:00:00Z",
+          },
+        ],
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.queryByTestId("architecture-identity-open-current-draft")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-open-review")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/review-2",
+    );
+    expect(screen.getByTestId("architecture-identity-new-version-from-snapshot")).toBeInTheDocument();
+  });
+
+  it("shows disabled compare reason when only one review exists", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        ...identityFixture,
+        reviews: [identityFixture.reviews[0]!],
+        reviewCount: 1,
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
   });
 });

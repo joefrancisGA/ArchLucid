@@ -80,4 +80,10 @@ public sealed class ArchitectureIdentityDetail
         get;
         set;
     } = [];
+
+    public IReadOnlyList<ArchitectureIdentityVersionSummary> Versions
+    {
+        get;
+        set;
+    } = [];
 }

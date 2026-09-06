@@ -129,4 +129,27 @@ public sealed class InMemoryArchitectureVersionRepository : IArchitectureVersion
 
         return Task.FromResult(match);
     }
+
+    public Task<IReadOnlyList<ArchitectureVersionRecord>> ListByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        if (architectureId == Guid.Empty)
+            return Task.FromResult<IReadOnlyList<ArchitectureVersionRecord>>([]);
+
+        IReadOnlyList<ArchitectureVersionRecord> matches = _byId.Values
+            .Where(record =>
+                record.ArchitectureId == architectureId
+                && record.TenantId == scope.TenantId
+                && record.WorkspaceId == scope.WorkspaceId
+                && record.ScopeProjectId == scope.ProjectId)
+            .OrderByDescending(record => record.VersionNumber)
+            .ToList();
+
+        return Task.FromResult(matches);
+    }
 }
