@@ -56,6 +56,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
             InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
+        services.AddSingleton<IFindingDispositionConcurrencyRepository, NoOpFindingDispositionConcurrencyRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
         services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();
         services.AddSingleton<IArchitecturePostureReader, NoOpArchitecturePostureReader>();
