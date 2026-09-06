@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -36,6 +38,10 @@ import {
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
 } from "@/lib/recurrence-schedules-copy";
+import {
+  parseRecurrenceSchedulesHowItWorksOpenFromSearch,
+  recurrenceSchedulesHowItWorksDisclosureHrefFromSearch,
+} from "@/lib/governance/recurrence-schedules-how-it-works-disclosure-url";
 
 import { RecurrenceSchedulesListSection } from "./RecurrenceSchedulesListSection";
 import { RecurrenceSchedulesBuyerChrome } from "./RecurrenceSchedulesBuyerChrome";
@@ -43,6 +49,13 @@ import { useRecurrenceSchedulesClient } from "./use-recurrence-schedules-client"
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? GOVERNANCE_RECURRENCE_SCHEDULES_PATH;
+  const searchParams = useSearchParams();
+  const recurrenceSchedulesHowItWorksOpenParam = searchParams.get("recurrenceSchedulesHowItWorksOpen");
+  const [howItWorksOpen, setHowItWorksOpenState] = useState(() =>
+    parseRecurrenceSchedulesHowItWorksOpenFromSearch(recurrenceSchedulesHowItWorksOpenParam),
+  );
   const {
     scopedRunId,
     scopedRunFilterActive,
@@ -82,6 +95,27 @@ export default function RecurrenceSchedulesClient() {
     setEditorState,
     displayTimeZoneId,
   } = useRecurrenceSchedulesClient();
+
+  const syncHowItWorksOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(recurrenceSchedulesHowItWorksDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHowItWorksOpen = useCallback(
+    (open: boolean) => {
+      setHowItWorksOpenState(open);
+      syncHowItWorksOpenToUrl(open);
+    },
+    [syncHowItWorksOpenToUrl],
+  );
+
+  useEffect(() => {
+    setHowItWorksOpenState(parseRecurrenceSchedulesHowItWorksOpenFromSearch(recurrenceSchedulesHowItWorksOpenParam));
+  }, [recurrenceSchedulesHowItWorksOpenParam]);
 
   const populatedSecondaryActions = [
     { label: "View architecture reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
@@ -225,6 +259,8 @@ export default function RecurrenceSchedulesClient() {
         <CollapsibleSection
           title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
           sectionTestId="recurrence-schedules-how-it-works"
+          open={howItWorksOpen}
+          onToggle={setHowItWorksOpen}
         >
           <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY}

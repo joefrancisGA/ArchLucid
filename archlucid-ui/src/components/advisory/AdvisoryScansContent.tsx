@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryScansListHeader } from "@/components/advisory/AdvisoryScansListHeader";
 import { AdvisoryScansNextReviewFooterClient } from "@/components/advisory/AdvisoryScansNextReviewFooterClient";
@@ -14,6 +17,10 @@ import {
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import {
+  advisoryScansHowItWorksDisclosureHrefFromSearch,
+  parseAdvisoryScansHowItWorksOpenFromSearch,
+} from "@/lib/advisory/advisory-scans-how-it-works-disclosure-url";
 
 import { AdvisoryScansResultsPanel } from "./AdvisoryScansResultsPanel";
 import { AdvisoryScansToolbar } from "./AdvisoryScansToolbar";
@@ -29,6 +36,34 @@ export type { AdvisoryScansContentProps };
  */
 export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): React.JSX.Element {
   const content = useAdvisoryScansContent(props);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const advisoryScansHowItWorksOpenParam = searchParams.get("advisoryScansHowItWorksOpen");
+  const [howItWorksOpen, setHowItWorksOpenState] = useState(() =>
+    parseAdvisoryScansHowItWorksOpenFromSearch(advisoryScansHowItWorksOpenParam),
+  );
+
+  const syncHowItWorksOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(advisoryScansHowItWorksDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setHowItWorksOpen = useCallback(
+    (open: boolean) => {
+      setHowItWorksOpenState(open);
+      syncHowItWorksOpenToUrl(open);
+    },
+    [syncHowItWorksOpenToUrl],
+  );
+
+  useEffect(() => {
+    setHowItWorksOpenState(parseAdvisoryScansHowItWorksOpenFromSearch(advisoryScansHowItWorksOpenParam));
+  }, [advisoryScansHowItWorksOpenParam]);
 
   return (
     <OperatorPageContainer variant="workflow" data-testid="advisory-scans-content">
@@ -78,7 +113,12 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
         {content.runId.trim().length > 0 ? <AdvisoryScansNextReviewFooterClient runId={content.runId.trim()} /> : null}
         <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
         <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
-        <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
+        <CollapsibleSection
+          title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE}
+          sectionTestId="advisory-scans-how-it-works"
+          open={howItWorksOpen}
+          onToggle={setHowItWorksOpen}
+        >
           <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
           </p>

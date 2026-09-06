@@ -9,6 +9,19 @@ vi.mock("@/hooks/use-architecture-seal-delta-query", () => ({
   useArchitectureSealDeltaQuery: (...args: unknown[]) => useArchitectureSealDeltaQuery(...args),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/created/arch-1",
+  useRouter: () => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("ArchitectureSealDeltaPanel (PC-06)", () => {
   it("shows honesty copy and one changed assumption row", () => {
     useArchitectureSealDeltaQuery.mockReturnValue({

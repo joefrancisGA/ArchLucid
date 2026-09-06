@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -23,6 +25,10 @@ import {
 } from "@/lib/servicenow-integration-connect-checklist";
 import type { ServiceNowConnectionStatusPresentation } from "@/lib/servicenow-integration-present";
 import { cn } from "@/lib/utils";
+import {
+  parseServicenowPlatformNotesOpenFromSearch,
+  servicenowPlatformNotesDisclosureHrefFromSearch,
+} from "@/lib/integrations/servicenow-platform-notes-disclosure-url";
 
 type Props = {
   readonly className?: string;
@@ -38,6 +44,35 @@ type Props = {
 };
 
 export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const servicenowPlatformNotesOpenParam = searchParams.get("servicenowPlatformNotesOpen");
+  const [platformNotesOpen, setPlatformNotesOpenState] = useState(() =>
+    parseServicenowPlatformNotesOpenFromSearch(servicenowPlatformNotesOpenParam),
+  );
+
+  const syncPlatformNotesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(servicenowPlatformNotesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPlatformNotesOpen = useCallback(
+    (open: boolean) => {
+      setPlatformNotesOpenState(open);
+      syncPlatformNotesOpenToUrl(open);
+    },
+    [syncPlatformNotesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPlatformNotesOpenState(parseServicenowPlatformNotesOpenFromSearch(servicenowPlatformNotesOpenParam));
+  }, [servicenowPlatformNotesOpenParam]);
+
   const connectSteps = resolveServiceNowIntegrationConnectSteps({
     credentialsReady: props.credentialsReady,
     destinationConfigured: props.destinationConfigured,
@@ -120,7 +155,12 @@ export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
       </div>
 
       {props.showOperatorNotes ? (
-        <CollapsibleSection title="Platform administrator notes" sectionTestId="servicenow-operator-notes">
+        <CollapsibleSection
+          title="Platform administrator notes"
+          sectionTestId="servicenow-operator-notes"
+          open={platformNotesOpen}
+          onToggle={setPlatformNotesOpen}
+        >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Outbound incident creation is {props.nativeEnabled ? "enabled" : "disabled"} for this deployment.
           </p>

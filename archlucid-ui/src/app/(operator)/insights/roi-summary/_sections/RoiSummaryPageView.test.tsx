@@ -13,6 +13,7 @@ import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
 const searchParamsState = { value: "runId=run-roi-1" };
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/insights/roi-summary",
   useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(searchParamsState.value),
 }));
