@@ -59,6 +59,7 @@ export type ArchitecturePostureSummary = {
 export type ArchitectureReviewRecurrenceSchedule = {
   scheduleId: string;
   sourceRunId: string;
+  architectureId?: string | null;
   name: string;
   cronExpression: string;
   isEnabled: boolean;

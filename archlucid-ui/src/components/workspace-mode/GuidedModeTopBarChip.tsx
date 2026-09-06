@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
+import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -95,6 +96,7 @@ export function GuidedModeTopBarChip(props: GuidedModeTopBarChipProps): ReactEle
             className="inline-block size-2 shrink-0 rounded-full bg-[var(--al-accent-interactive)]"
           />
           {WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL}
+          <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden />
         </button>
         <FieldHelpTooltip label={WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL} hint={WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_DETAIL} />
       </span>

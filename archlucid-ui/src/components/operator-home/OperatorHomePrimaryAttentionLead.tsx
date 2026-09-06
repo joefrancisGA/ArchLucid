@@ -58,7 +58,7 @@ export function OperatorHomePrimaryAttentionLead(): React.JSX.Element | null {
           className={cn("shrink-0 font-semibold", OPERATOR_LINK.nav)}
           data-testid={`operator-home-primary-attention-lead-link-${leadKind}`}
         >
-          View {count === 1 ? "package" : "packages"}
+          {destination.ctaLabel}
         </Link>
       </div>
     </div>

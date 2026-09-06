@@ -11,6 +11,7 @@ import {
   isSystemAdministrationNavGroupVisible,
   resolveNavShellPresetId,
 } from "@/lib/nav-shell-preset";
+import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
 
 function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkItem[] {
   if (isApiKeysSettingsSurfaceEnabled()) {
@@ -112,19 +113,24 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
+    let effectiveGroup = group;
+
     if (group.surface === "system-admin") {
       if (!isSystemAdministrationNavGroupVisible(presetId, showVendorInternalNav)) {
         continue;
       }
+
+      // NAV_GROUPS is built at module load; re-resolve internal links when runtime env allows.
+      effectiveGroup = { ...group, links: buildOperatorSystemAdminNavLinks() };
     }
 
-    if (surfaceFilter !== "all" && group.surface !== surfaceFilter) {
+    if (surfaceFilter !== "all" && effectiveGroup.surface !== surfaceFilter) {
       continue;
     }
 
     const visibleLinks = filterNavLinksByPublishReadiness(
       filterNavLinksForOperatorShell(
-        group.links,
+        effectiveGroup.links,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
         hideGettingStartedFromMainNav,
@@ -135,7 +141,7 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    out.push({ group, visibleLinks });
+    out.push({ group: effectiveGroup, visibleLinks });
   }
 
   return out;

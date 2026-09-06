@@ -1,4 +1,5 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -43,6 +44,24 @@ public sealed class RemediationInstanceSummary
     }
 
     public Guid? WaveId
+    {
+        get;
+        init;
+    }
+
+    public Guid? PreflightSnapshotId
+    {
+        get;
+        init;
+    }
+
+    public Guid? ExecutionSnapshotId
+    {
+        get;
+        init;
+    }
+
+    public Guid? VerificationSnapshotId
     {
         get;
         init;
@@ -119,6 +138,7 @@ public interface IRemediationInstanceQueryService
 {
     Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default);
 
     Task<RemediationInstanceDetail?> TryGetInstanceAsync(
@@ -134,12 +154,29 @@ public sealed class RemediationInstanceQueryService(
 {
     public async Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
+        Guid? cloudResourceId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        IReadOnlyList<RemediationInstanceRecord> instances;
+
+        if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+        {
+            (IReadOnlyList<RemediationInstanceRecord> items, _) =
+                await instanceRepository.ListByCloudResourceIdPagedAsync(
+                    scope.TenantId,
+                    resourceId,
+                    PaginationDefaults.DefaultPage,
+                    PaginationDefaults.MaxPageSize,
+                    cancellationToken);
+
+            instances = items;
+        }
+        else
+        {
+            instances = await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
+        }
 
         return instances
             .OrderByDescending(item => item.UpdatedUtc)
@@ -197,6 +234,9 @@ public sealed class RemediationInstanceQueryService(
             AutomationLevel = instance.AutomationLevel,
             CloudResourceId = instance.CloudResourceId,
             WaveId = instance.WaveId,
+            PreflightSnapshotId = instance.PreflightSnapshotId,
+            ExecutionSnapshotId = instance.ExecutionSnapshotId,
+            VerificationSnapshotId = instance.VerificationSnapshotId,
             CreatedUtc = instance.CreatedUtc,
             UpdatedUtc = instance.UpdatedUtc,
         };

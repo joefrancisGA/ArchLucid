@@ -22,6 +22,10 @@ _MIN_TIMEOUT_MINUTES = 45
 _LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
 _TYPECHECK_COMMAND = "npm run typecheck"
 _WAIT_FOR_API_READY = "wait-for-api-ready.sh"
+_TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
+_PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
+_CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
+_RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
 
 
 def repo_root() -> Path:
@@ -169,6 +173,36 @@ def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) ->
         )
 
 
+def _require_private_beta_failure_triage_wiring(
+    rel_path: str,
+    text: str,
+    artifact_name: str,
+    errors: list[str],
+) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _TRIAGE_SCRIPT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_TRIAGE_SCRIPT} on failure "
+            "(machine-readable triage rollup for invite-wave operators)",
+        )
+
+    if artifact_name not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must upload {artifact_name} artifact on failure",
+        )
+
+    if "if: failure()" not in job_text or "Private-beta Playwright failure triage rollup" not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must include a failure-only Private-beta Playwright failure triage rollup step",
+        )
+
+
 def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -222,6 +256,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_job_timeout(_CI_REL, ci_text, errors)
         _require_live_e2e_build(_CI_REL, ci_text, errors)
         _require_post_warm_api_ready(_CI_REL, ci_text, errors)
+        _require_private_beta_failure_triage_wiring(_CI_REL, ci_text, _CI_TRIAGE_ARTIFACT, errors)
 
     if not push_path.is_file():
         errors.append(f"missing {_PUSH_REL} (trunk push must run private-beta Playwright before invites)")
@@ -242,6 +277,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_live_e2e_build(_PUSH_REL, text, errors)
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
+        _require_private_beta_failure_triage_wiring(_PUSH_REL, text, _PUSH_TRIAGE_ARTIFACT, errors)
 
         if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
@@ -260,6 +296,13 @@ def main(argv: list[str] | None = None) -> int:
                 f"{_PUSH_REL}: must not wait on {_FULL_REGRESSION_NEED} "
                 "(invite-wave path must start without full ci.yml regression)",
             )
+
+    retrigger_path = root / _RETRIGGER_SCRIPT
+
+    if not retrigger_path.is_file():
+        errors.append(f"missing private-beta retrigger helper: {_RETRIGGER_SCRIPT}")
+    elif not retrigger_path.stat().st_mode & 0o111:
+        errors.append(f"{_RETRIGGER_SCRIPT}: must be executable")
 
     if errors:
         for error in errors:

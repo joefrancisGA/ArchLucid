@@ -27,6 +27,9 @@ export type RemediationInstanceSummary = {
   automationLevel: string;
   cloudResourceId: string | null;
   waveId: string | null;
+  preflightSnapshotId: string | null;
+  executionSnapshotId: string | null;
+  verificationSnapshotId: string | null;
   createdUtc: string;
   updatedUtc: string;
 };

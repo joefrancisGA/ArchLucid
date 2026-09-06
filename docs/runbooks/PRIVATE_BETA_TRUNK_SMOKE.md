@@ -29,6 +29,7 @@
 | OpenAPI push corset unblocked | #1727 / `a63198e` | Snapshot regen after IE-UX + CA prompt API drift |
 | First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
+| Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
 
 ## Common failure modes
 
@@ -49,6 +50,14 @@
 | Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
+**Re-trigger after cancellation:** from a clone with `gh` authenticated:
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
+
+Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):
@@ -57,8 +66,21 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 2. `ui-e2e-live-beta-access-on-push-playwright-report` — HTML trace summary
 3. `ui-e2e-live-beta-access-on-push-test-results` — per-test screenshots and traces
 4. `ui-e2e-live-beta-access-on-push-blob-report` — blob report for Playwright merge
+5. `ui-e2e-live-beta-access-on-push-failure-triage` — machine-readable triage rollup (push workflow)
+6. `ui-e2e-live-beta-access-failure-triage` — same rollup from full-matrix `ci.yml` job
 
 **Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
+
+For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
+
+**OpenAPI drift on push corset:** when `.NET: OpenAPI v1 contract snapshot (fail-fast)` fails after architecture or infrastructure API merges, regenerate from repo root:
+
+```bash
+ARCHLUCID_REGENERATE_UI_API_TYPES=1 bash scripts/ci/update_openapi_contract_snapshot.sh
+git add ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json archlucid-ui/src/lib/api-types archlucid-ui/packages/api-types
+```
+
+Then re-run `npm run typecheck` in `archlucid-ui` before pushing.
 
 ## Local reproduction (heavy)
 

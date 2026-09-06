@@ -1,10 +1,13 @@
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import type { InfraEvidenceAskCitation } from "@/lib/infra-evidence/infra-evidence-ask-types";
 
 export type InfraEvidenceAskCitationLink = {
@@ -27,11 +30,11 @@ export function resolveInfraEvidenceAskCitationLink(
     case "CloudResourceId":
       return { href: governanceInfrastructureResourceHubPath(id), label };
     case "ChangeId":
-      return { href: `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?changeId=${encodeURIComponent(id)}`, label };
+      return { href: buildDriftWorkbenchHref({ changeId: id }), label };
     case "SnapshotId":
-      return { href: `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(id)}`, label };
+      return { href: buildDriftWorkbenchHref({ snapshotId: id }), label };
     case "DiffId":
-      return { href: `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?diffId=${encodeURIComponent(id)}`, label };
+      return { href: buildDriftWorkbenchHref({ diffId: id }), label };
     case "FindingId":
       return null;
     case "DiagramCorrespondenceId":
@@ -41,7 +44,7 @@ export function resolveInfraEvidenceAskCitationLink(
       };
     case "RemediationInstanceId":
       return {
-        href: `${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?instanceId=${encodeURIComponent(id)}`,
+        href: buildRemediationWorkbenchHref({ instanceId: id }),
         label,
       };
     case "PatternKey":
@@ -53,12 +56,11 @@ export function resolveInfraEvidenceAskCitationLink(
   }
 }
 
-export function buildResourceHubDriftWorkbenchHref(snapshotId: string | null | undefined): string {
-  if (snapshotId == null || snapshotId.trim().length === 0) {
-    return GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH;
-  }
-
-  return `${GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(snapshotId.trim())}`;
+export function buildResourceHubDriftWorkbenchHref(
+  snapshotId: string | null | undefined,
+  cloudResourceId?: string | null,
+): string {
+  return buildDriftWorkbenchHref({ snapshotId, cloudResourceId });
 }
 
 export function buildResourceHubDiagramsWorkbenchHref(snapshotId: string | null | undefined): string {

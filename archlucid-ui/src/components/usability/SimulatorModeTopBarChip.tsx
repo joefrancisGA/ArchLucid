@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -114,9 +115,13 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         size="sm"
-        className={cn("h-8 max-w-[min(100%,16rem)] shrink-0 px-2.5", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        className={cn(
+          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 border-neutral-400 bg-neutral-100 px-2.5 text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.helper,
+          props.className,
+        )}
         data-testid="simulator-mode-top-bar-chip-toggle"
         aria-haspopup="dialog"
         onClick={() => {
@@ -124,6 +129,7 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
         }}
       >
         {buttonLabel}
+        <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden />
       </Button>
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent data-testid="analysis-mode-switch-dialog">

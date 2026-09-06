@@ -80355,6 +80355,7 @@ export interface paths {
                     namePrefix?: string;
                     resourceType?: string;
                     resourceGroup?: string;
+                    workQueue?: string;
                     page?: number;
                     pageSize?: number;
                 };
@@ -81080,7 +81081,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    cloudResourceId?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;

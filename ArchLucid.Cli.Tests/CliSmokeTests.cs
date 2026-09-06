@@ -35,4 +35,24 @@ public sealed class CliSmokeTests
 
         sb.ToString().Should().Contain("Usage: archlucid comparisons");
     }
+
+    [Fact]
+    public async Task RunAsync_ArchitecturesWithNoSubcommand_ShowsUsageAndReturns1()
+    {
+        StringBuilder sb = new();
+        TextWriter oldOut = Console.Out;
+        try
+        {
+            Console.SetOut(new StringWriter(sb));
+            int exit = await Program.RunAsync(["architectures"]);
+            exit.Should().Be(1);
+        }
+        finally
+        {
+            Console.SetOut(oldOut);
+        }
+
+        sb.ToString().Should().Contain("Usage: archlucid architectures");
+        sb.ToString().Should().Contain("Architecture identities are durable customer objects");
+    }
 }

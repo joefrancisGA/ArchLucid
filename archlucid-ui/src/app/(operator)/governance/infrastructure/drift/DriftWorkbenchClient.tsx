@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
@@ -27,7 +28,14 @@ import type {
   InfraEvidenceDiffSummary,
   InfraEvidenceSnapshotSummary,
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  DRIFT_WORKBENCH_CHANGE_ID_PARAM,
+  DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+  DRIFT_WORKBENCH_DIFF_ID_PARAM,
+  DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM,
+  parseInfraEvidenceWorkbenchQueryValue,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
@@ -48,6 +56,14 @@ function formatDiffLabel(diff: InfraEvidenceDiffSummary, selectedSnapshotId: str
 }
 
 export function DriftWorkbenchClient() {
+  const searchParams = useSearchParams();
+  const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
+  const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
+  );
+  const urlChangeId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_CHANGE_ID_PARAM));
+  const urlDiffId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_DIFF_ID_PARAM));
+
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [diffs, setDiffs] = useState<InfraEvidenceDiffSummary[]>([]);
   const [changes, setChanges] = useState<InfraEvidenceDiffChange[]>([]);
@@ -60,10 +76,36 @@ export function DriftWorkbenchClient() {
   const [exportBusy, setExportBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const visibleChanges = useMemo(() => {
+    if (urlCloudResourceId.length === 0) {
+      return changes;
+    }
+
+    return changes.filter((row) => row.cloudResourceId === urlCloudResourceId);
+  }, [changes, urlCloudResourceId]);
+
   const selectedChange = useMemo(
-    () => changes.find((row) => row.changeId === selectedChangeId) ?? null,
-    [changes, selectedChangeId],
+    () => visibleChanges.find((row) => row.changeId === selectedChangeId) ?? null,
+    [selectedChangeId, visibleChanges],
   );
+
+  const deepLinkedChangeMissing = useMemo(() => {
+    if (urlChangeId.length === 0 || loadingChanges || selectedDiffId.length === 0) {
+      return false;
+    }
+
+    return !visibleChanges.some((row) => row.changeId === urlChangeId);
+  }, [loadingChanges, selectedDiffId.length, urlChangeId, visibleChanges]);
+
+  useEffect(() => {
+    if (urlChangeId.length === 0 || selectedChangeId !== urlChangeId) {
+      return;
+    }
+
+    document
+      .querySelector(`[data-testid="infra-drift-change-row-${urlChangeId}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [selectedChangeId, urlChangeId, visibleChanges.length]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +122,12 @@ export function DriftWorkbenchClient() {
           setSnapshots(items);
 
           if (items.length > 0) {
-            setSelectedSnapshotId((current) => (current.length > 0 ? current : items[0].snapshotId));
+            const preferredSnapshotId =
+              urlSnapshotId.length > 0 && items.some((item) => item.snapshotId === urlSnapshotId)
+                ? urlSnapshotId
+                : items[0].snapshotId;
+
+            setSelectedSnapshotId((current) => (current.length > 0 ? current : preferredSnapshotId));
           }
         }
       } catch (error: unknown) {
@@ -99,7 +146,15 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [urlSnapshotId]);
+
+  useEffect(() => {
+    if (urlSnapshotId.length === 0) {
+      return;
+    }
+
+    setSelectedSnapshotId(urlSnapshotId);
+  }, [urlSnapshotId]);
 
   useEffect(() => {
     if (selectedSnapshotId.length === 0) {
@@ -119,7 +174,12 @@ export function DriftWorkbenchClient() {
 
         if (!cancelled) {
           setDiffs(rows);
-          setSelectedDiffId(rows[0]?.diffId ?? "");
+          const preferredDiffId =
+            urlDiffId.length > 0 && rows.some((row) => row.diffId === urlDiffId)
+              ? urlDiffId
+              : rows[0]?.diffId ?? "";
+
+          setSelectedDiffId(preferredDiffId);
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -139,7 +199,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedSnapshotId]);
+  }, [selectedSnapshotId, urlDiffId]);
 
   useEffect(() => {
     if (selectedDiffId.length === 0) {
@@ -159,7 +219,12 @@ export function DriftWorkbenchClient() {
 
         if (!cancelled) {
           setChanges(response.items ?? []);
-          setSelectedChangeId(null);
+
+          if (urlChangeId.length > 0) {
+            setSelectedChangeId(urlChangeId);
+          } else {
+            setSelectedChangeId(null);
+          }
         }
       } catch (error: unknown) {
         if (!cancelled) {
@@ -178,7 +243,7 @@ export function DriftWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDiffId]);
+  }, [selectedDiffId, urlChangeId]);
 
   const runExport = useCallback(async () => {
     if (selectedSnapshotId.length === 0) {
@@ -203,6 +268,38 @@ export function DriftWorkbenchClient() {
         Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot
         evidence. This is not original Terraform and must not be applied without human review.
       </p>
+
+      {urlCloudResourceId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-drift-resource-scope-banner"
+          aria-label="Drift workbench resource scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+          </p>
+          <Link
+            className="mt-2 inline-block text-sm text-al-link hover:underline"
+            href={resourceHubFilterHrefFromSearch(urlCloudResourceId, "", {
+              tab: "drift",
+              snapshotId: selectedSnapshotId,
+            })}
+          >
+            Open resource evidence hub
+          </Link>
+        </section>
+      ) : null}
+
+      {deepLinkedChangeMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-drift-change-deep-link-missing"
+          role="status"
+        >
+          The linked drift change is not in the selected diff
+          {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
+        </p>
+      ) : null}
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -284,12 +381,16 @@ export function DriftWorkbenchClient() {
               <EnterpriseTableCell colSpan={4}>Loading changes…</EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {!loadingChanges && changes.length === 0 ? (
+          {!loadingChanges && visibleChanges.length === 0 ? (
             <EnterpriseTableRow>
-              <EnterpriseTableCell colSpan={4}>Select a snapshot and diff to view property-level changes.</EnterpriseTableCell>
+              <EnterpriseTableCell colSpan={4}>
+                {urlCloudResourceId.length > 0
+                  ? "No drift rows match the scoped cloud resource for this diff."
+                  : "Select a snapshot and diff to view property-level changes."}
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ) : null}
-          {changes.map((row) => (
+          {visibleChanges.map((row) => (
             <EnterpriseTableRow
               key={row.changeId}
               data-testid={`infra-drift-change-row-${row.changeId}`}
@@ -332,9 +433,11 @@ export function DriftWorkbenchClient() {
             <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
               <Link
                 className="text-al-link hover:underline"
-                href={`${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${selectedChange.cloudResourceId}`}
+                href={resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {
+                  snapshotId: selectedSnapshotId,
+                })}
               >
-                Open resource explorer (stub until IE-UX-04)
+                Open resource evidence hub
               </Link>
             </p>
           ) : null}

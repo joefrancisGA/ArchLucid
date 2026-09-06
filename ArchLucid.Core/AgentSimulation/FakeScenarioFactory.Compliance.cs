@@ -14,15 +14,54 @@ public static partial class FakeScenarioFactory
         string taskId,
         ArchitectureRequest request)
     {
-        List<string> requiredControls =
-        [
-            "Managed Identity",
-            "Private Endpoints",
-            "Key Vault"
-        ];
+        List<string> requiredControls = ["Key Vault"];
+
+        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
+            requiredControls.Add("Managed Identity");
+
+        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
+            requiredControls.Add("Private Endpoints");
 
         if (RequestConstraintClassifier.HasEncryptionConstraint(request))
             requiredControls.Add("Encryption At Rest");
+
+        List<string> claims = ["Secrets should be stored in Key Vault."];
+
+        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
+            claims.Insert(0, "Managed identity is required.");
+
+        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
+            claims.Insert(
+                RequestConstraintClassifier.HasManagedIdentityConstraint(request) ? 1 : 0,
+                "Private endpoints are required for data-bearing services.");
+
+        List<ArchitectureFinding> findings = [];
+
+        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
+        {
+            findings.Add(new ArchitectureFinding
+            {
+                FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
+                SourceAgent = AgentType.Compliance,
+                Severity = FindingSeverity.Critical,
+                Category = "Compliance",
+                Message = "PrivateNetworkingRequired",
+                EvidenceRefs = ["policy-pack:enterprise-default"]
+            });
+        }
+
+        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
+        {
+            findings.Add(new ArchitectureFinding
+            {
+                FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
+                SourceAgent = AgentType.Compliance,
+                Severity = FindingSeverity.Critical,
+                Category = "Compliance",
+                Message = "ManagedIdentityRequired",
+                EvidenceRefs = ["policy-pack:azure-security-baseline"]
+            });
+        }
 
         return new AgentResult
         {
@@ -30,39 +69,14 @@ public static partial class FakeScenarioFactory
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Compliance,
-            Claims =
-            [
-                "Managed identity is required.",
-                "Private endpoints are required for data-bearing services.",
-                "Secrets should be stored in Key Vault."
-            ],
+            Claims = claims,
             EvidenceRefs =
             [
                 "policy-pack:enterprise-default",
                 "policy-pack:azure-security-baseline"
             ],
             Confidence = 0.96,
-            Findings =
-            [
-                new ArchitectureFinding
-                {
-                    FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
-                    SourceAgent = AgentType.Compliance,
-                    Severity = FindingSeverity.Critical,
-                    Category = "Compliance",
-                    Message = "PrivateNetworkingRequired",
-                    EvidenceRefs = ["policy-pack:enterprise-default"]
-                },
-                new ArchitectureFinding
-                {
-                    FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
-                    SourceAgent = AgentType.Compliance,
-                    Severity = FindingSeverity.Critical,
-                    Category = "Compliance",
-                    Message = "ManagedIdentityRequired",
-                    EvidenceRefs = ["policy-pack:azure-security-baseline"]
-                }
-            ],
+            Findings = findings,
             ProposedChanges = new AgentTopologyProposal
             {
                 ProposalId = StableHexId(runId, taskId, "compliance-proposal"),

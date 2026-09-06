@@ -479,6 +479,13 @@ public sealed class AuditContinuousReadinessServiceTests
             string baselineName,
             CancellationToken cancellationToken = default)
             => Task.FromResult<AuditEvidenceBaselineRecord?>(null);
+
+        public Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
+            Guid tenantId,
+            Guid cloudResourceId,
+            int take,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>>([]);
     }
 
     private sealed class CapturingTimelineRepository : IAuditControlTimelineRepository

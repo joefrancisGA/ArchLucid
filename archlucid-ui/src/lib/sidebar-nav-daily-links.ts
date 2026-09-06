@@ -140,10 +140,11 @@ export function splitSidebarLinksDailyVsMore(
 /** Secondary nav rows under a group heading — name what the disclosure reveals. */
 const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>> = {
   "operate-analysis": "Insights",
-  "operate-governance": "approval",
-  "operate-policy": "policy",
-  "operator-admin": "administration",
-  "operator-system-admin": "internal",
+  "operate-governance": "Approval",
+  "operate-policy": "Policy",
+  "operate-infrastructure": "Infrastructure",
+  "operator-admin": "Administration",
+  "operator-system-admin": "Internal",
 };
 
 export function sidebarMoreLinksLabel(groupId: string, count: number, expanded = false): string {

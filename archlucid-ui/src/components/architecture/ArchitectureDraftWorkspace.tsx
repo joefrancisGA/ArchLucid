@@ -27,7 +27,7 @@ import {
   replaceArchitectureCreationUrlWithoutNavigation,
 } from "@/lib/architecture/architecture-creation-session";
 import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advisory-draft-in-flight";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
@@ -62,7 +62,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
   const searchParams = useSearchParams();
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const draftRegistryEntries = useArchitectureDraftRegistryEntries();
   const acceptServerBaselineRef = useRef<
     (fields: ArchitectureDraftFieldState, serverUpdatedUtc: string, actorSet: ActorSet) => void

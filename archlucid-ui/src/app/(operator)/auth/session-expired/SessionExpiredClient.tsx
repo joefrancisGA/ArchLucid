@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { SessionExpiredBuyerChrome } from "@/app/(operator)/auth/session-expired/SessionExpiredBuyerChrome";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { SESSION_CLEARED_AT_STORAGE_KEY } from "@/lib/auth/session-idle-timeout";
 import { assertOidcSignInConfig, isJwtAuthMode } from "@/lib/oidc/config";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
@@ -55,11 +56,19 @@ export function SessionExpiredClient() {
 
   if (error) {
     return sessionExpiredChrome(
-      <AuthErrorPanel
-        title={SESSION_EXPIRED_SIGN_IN_ERROR_TITLE}
-        message={error}
-        onTryAgain={handleSignIn}
-      />,
+      <>
+        <AuthErrorPanel
+          title={SESSION_EXPIRED_SIGN_IN_ERROR_TITLE}
+          message={error}
+          onTryAgain={handleSignIn}
+        />
+        <FatalPageReportProblemSupportRow
+          surfaceId="session-expired-sign-in-failure"
+          routePath="/auth/session-expired"
+          errorTitle={SESSION_EXPIRED_SIGN_IN_ERROR_TITLE}
+          errorCode="session-expired-sign-in-failure"
+        />
+      </>,
     );
   }
 

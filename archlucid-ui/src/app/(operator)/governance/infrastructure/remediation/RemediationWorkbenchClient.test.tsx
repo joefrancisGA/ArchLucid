@@ -2,9 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
+import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
+
+let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => searchParams,
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
@@ -108,6 +111,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 
 describe("RemediationWorkbenchClient", () => {
   it("renders lifecycle board and disables approve when preflight blocked", async () => {
+    searchParams = new URLSearchParams("");
     render(<RemediationWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-remediation-board")).toBeInTheDocument();
@@ -119,5 +123,37 @@ describe("RemediationWorkbenchClient", () => {
     expect(screen.getByTestId("infra-remediation-execute-disclaimer")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-approve")).toBeDisabled();
     expect(screen.getByTestId("infra-remediation-preflight")).toBeDisabled();
+  });
+
+  it("shows resource scope banner when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams("cloudResourceId=33333333-3333-3333-3333-333333333333");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
+      "33333333-3333-3333-3333-333333333333",
+    );
+    expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
+      cloudResourceId: "33333333-3333-3333-3333-333333333333",
+    });
+  });
+
+  it("selects the matching instance when findingId is deep-linked", async () => {
+    searchParams = new URLSearchParams("findingId=22222222-2222-2222-2222-222222222222");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
+      "22222222-2222-2222-2222-222222222222",
+    );
+    expect(await screen.findByTestId("infra-remediation-detail")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-finding-id")).toHaveValue("22222222-2222-2222-2222-222222222222");
+  });
+
+  it("shows create guidance when findingId has no remediation instance yet", async () => {
+    searchParams = new URLSearchParams("findingId=99999999-9999-9999-9999-999999999999");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
+      "No remediation instance exists yet",
+    );
   });
 });

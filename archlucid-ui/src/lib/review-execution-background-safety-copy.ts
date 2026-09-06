@@ -19,8 +19,6 @@ export const REVIEW_PIPELINE_DURATION_ESTIMATE_DISCLAIMER =
 
 export const REVIEW_PIPELINE_ENABLE_NOTIFICATIONS_LABEL = "Enable browser notifications";
 
-export const REVIEW_PIPELINE_NOTIFICATIONS_ENABLED_LABEL = "Browser notifications enabled";
-
 export const REVIEW_PIPELINE_COMPLETION_NOTIFICATION_TITLE = "Architecture review analysis finished";
 
 export const REVIEW_PIPELINE_COMPLETION_TOAST_TITLE = "Architecture review analysis finished";

@@ -271,6 +271,19 @@ public sealed class CloudResourceEvidenceHubServiceTests
         Mock<IDiagramInfrastructureReconciliationService> diagramReconciliation = new();
         Mock<IRemediationInstanceRepository> remediationRepository = new();
         Mock<IAuthorityQueryService> authorityQuery = new();
+        Mock<ICloudResourceAuditLineageResolver> auditLineageResolver = new();
+
+        auditLineageResolver
+            .Setup(resolver => resolver.ResolveAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CloudResourceEvidenceHubQuery>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CloudResourceAuditLineageLink
+            {
+                Available = false,
+                DegradedReason = "No audit evidence snapshot rows reference this cloud resource yet.",
+            });
 
         remediationRepository
             .Setup(repo => repo.ListByCloudResourceIdPagedAsync(
@@ -302,7 +315,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             diagramReconciliation.Object,
             operationalRepository,
             remediationRepository.Object,
-            authorityQueryService ?? authorityQuery.Object);
+            authorityQueryService ?? authorityQuery.Object,
+            auditLineageResolver.Object);
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory
@@ -347,16 +361,25 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+        public Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(
             ScopeContext scope,
             string? namePrefix,
             string? resourceType,
             string? resourceGroup,
+            CloudResourceExplorerWorkQueue workQueue,
             int page,
             int pageSize,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)>(
-                (Records.Values.Where(row => row.TenantId == scope.TenantId).ToList(), Records.Count));
+            => Task.FromResult<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)>(
+                (Records.Values
+                    .Where(row => row.TenantId == scope.TenantId)
+                    .Select(row => new CloudResourceExplorerListItem
+                    {
+                        Identity = row,
+                        WorkCounts = new CloudResourceExplorerWorkCounts(),
+                    })
+                    .ToList(),
+                Records.Count));
     }
 
     private sealed class FakeOperationalSecurityFindingRepository : IOperationalSecurityFindingRepository

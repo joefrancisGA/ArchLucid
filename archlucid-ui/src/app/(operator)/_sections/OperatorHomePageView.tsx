@@ -9,6 +9,7 @@ import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/Op
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
+import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
@@ -32,6 +33,8 @@ import {
   type OperatorHomeSectionDescriptor,
   type OperatorHomeSectionId,
 } from "@/lib/compose-operator-home-sections";
+import { resolveHighestNonZeroAttentionKind } from "@/lib/operator/operator-attention-chip-needs-action";
+import { OPERATOR_ATTENTION_KIND_IDS } from "@/lib/operator/operator-attention-taxonomy";
 import {
   BuyerPolishedHomeHeroSectionDeferred,
   DevTestingQuickSwitchPanelDeferred,
@@ -232,6 +235,15 @@ function OperatorHomePageBody(props: {
   readonly buyerPolishedShell: boolean;
   readonly workingMode: boolean;
 }): React.JSX.Element {
+  const { summaries } = useOperatorAttentionSummary();
+  const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
+  const attentionCountsByKind = Object.fromEntries(
+    OPERATOR_ATTENTION_KIND_IDS.map((kind) => [kind, summaryByPartition.get(kind)?.totalCount ?? 0]),
+  ) as Partial<Record<(typeof OPERATOR_ATTENTION_KIND_IDS)[number], number>>;
+  const promotedAttentionKind = resolveHighestNonZeroAttentionKind(
+    attentionCountsByKind,
+    OPERATOR_ATTENTION_KIND_IDS,
+  );
   const workspaceMetrics = deriveOperatorHomeTenantCountingSnapshot({
     displayItems: props.model.runsDashboard.items,
     previewItems: props.model.runsDashboard.items,
@@ -252,6 +264,7 @@ function OperatorHomePageBody(props: {
     buyerPolishedShell: props.buyerPolishedShell,
     metrics: workspaceMetrics,
     workingMode: props.workingMode,
+    promotedAttentionKind,
   });
 
   return (

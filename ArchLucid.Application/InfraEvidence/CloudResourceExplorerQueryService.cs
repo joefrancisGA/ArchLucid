@@ -12,6 +12,7 @@ public interface ICloudResourceExplorerQueryService
         string? namePrefix,
         string? resourceType,
         string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
@@ -25,18 +26,20 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
         string? namePrefix,
         string? resourceType,
         string? resourceGroup,
+        CloudResourceExplorerWorkQueue workQueue,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        (IReadOnlyList<CloudResourceIdentityRecord> items, int totalCount) =
+        (IReadOnlyList<CloudResourceExplorerListItem> items, int totalCount) =
             await identityDirectory.ListForExplorerAsync(
                 scope,
                 namePrefix,
                 resourceType,
                 resourceGroup,
+                workQueue,
                 page,
                 pageSize,
                 cancellationToken);
@@ -44,13 +47,14 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
         List<CloudResourceSummary> summaries = items
             .Select(row => new CloudResourceSummary
             {
-                CloudResourceId = row.CloudResourceId,
-                ExternalResourceId = row.ExternalResourceIdNormalized,
-                DisplayName = row.DisplayName,
-                ResourceType = row.ResourceType,
-                ResourceGroup = row.ResourceGroupOrProject,
-                Region = row.Region,
-                LastSeenUtc = row.LastSeenUtc,
+                CloudResourceId = row.Identity.CloudResourceId,
+                ExternalResourceId = row.Identity.ExternalResourceIdNormalized,
+                DisplayName = row.Identity.DisplayName,
+                ResourceType = row.Identity.ResourceType,
+                ResourceGroup = row.Identity.ResourceGroupOrProject,
+                Region = row.Identity.Region,
+                LastSeenUtc = row.Identity.LastSeenUtc,
+                WorkCounts = row.WorkCounts,
             })
             .ToList();
 
