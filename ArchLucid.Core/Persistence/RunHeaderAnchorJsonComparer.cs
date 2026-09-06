@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Explanation;
+
 namespace ArchLucid.Core.Persistence;
 
 /// <summary>
@@ -67,10 +69,10 @@ internal static class RunHeaderAnchorJsonComparer
         HashSet<string> propertyNames = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty property in left.EnumerateObject())
-            propertyNames.Add(property.Name);
+            propertyNames.Add(property.Name.Trim());
 
         foreach (JsonProperty property in right.EnumerateObject())
-            propertyNames.Add(property.Name);
+            propertyNames.Add(property.Name.Trim());
 
         foreach (string propertyName in propertyNames)
         {
@@ -112,6 +114,9 @@ internal static class RunHeaderAnchorJsonComparer
 
     private static bool ArraysEquivalent(JsonElement left, JsonElement right)
     {
+        if (TryNestedEmptyArrayEquivalent(left, right))
+            return true;
+
         List<JsonElement> leftItems = left.EnumerateArray().ToList();
         List<JsonElement> rightItems = right.EnumerateArray().ToList();
 
@@ -125,6 +130,28 @@ internal static class RunHeaderAnchorJsonComparer
         }
 
         return true;
+    }
+
+    private static bool TryNestedEmptyArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind != JsonValueKind.Array || right.ValueKind != JsonValueKind.Array)
+            return false;
+
+        return IsDeeplyNestedEmptyArray(left) && IsDeeplyNestedEmptyArray(right);
+    }
+
+    private static bool IsDeeplyNestedEmptyArray(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Array)
+            return false;
+
+        if (element.GetArrayLength() == 0)
+            return true;
+
+        if (element.GetArrayLength() != 1)
+            return false;
+
+        return IsDeeplyNestedEmptyArray(element[0]);
     }
 
     private static bool TryCrossKindEquivalent(JsonElement left, JsonElement right)
@@ -141,16 +168,190 @@ internal static class RunHeaderAnchorJsonComparer
         if (TryNullEmptyStringEquivalent(left, right))
             return true;
 
+        if (TryNullEmptyObjectEquivalent(left, right))
+            return true;
+
+        if (TryScalarSingleElementArrayEquivalent(left, right))
+            return true;
+
+        if (TryNullSingleElementNullArrayEquivalent(left, right))
+            return true;
+
+        if (TryNumberBooleanEquivalent(left, right))
+            return true;
+
+        if (TryAbsentEmptyStringEquivalent(left, right))
+            return true;
+
+        if (TryAbsentEmptyObjectEquivalent(left, right))
+            return true;
+
+        if (TryAbsentEmptyArrayEquivalent(left, right))
+            return true;
+
+        if (TryObjectSingleElementArrayEquivalent(left, right))
+            return true;
+
+        return false;
+    }
+
+    private static bool TryObjectSingleElementArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Array)
+        {
+            if (right.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left, right[0]);
+        }
+
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Object)
+        {
+            if (left.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left[0], right);
+        }
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyObjectEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Undefined)
+            return !left.EnumerateObject().Any();
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.Object)
+            return !right.EnumerateObject().Any();
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Undefined)
+            return left.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(left);
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.Array)
+            return right.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(right);
+
+        return false;
+    }
+
+    private static bool TryAbsentEmptyStringEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Undefined)
+            return string.IsNullOrWhiteSpace(left.GetString());
+
+        if (left.ValueKind == JsonValueKind.Undefined && right.ValueKind == JsonValueKind.String)
+            return string.IsNullOrWhiteSpace(right.GetString());
+
+        return false;
+    }
+
+    private static bool TryNumberBooleanEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Number && right.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryReadNumericBoolean(left, out bool leftBoolean) && leftBoolean == right.GetBoolean();
+
+        if (right.ValueKind == JsonValueKind.Number && left.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return TryReadNumericBoolean(right, out bool rightBoolean) && rightBoolean == left.GetBoolean();
+
+        return false;
+    }
+
+    private static bool TryReadNumericBoolean(JsonElement element, out bool value)
+    {
+        value = false;
+
+        if (element.TryGetInt32(out int numeric))
+        {
+            value = numeric != 0;
+
+            return true;
+        }
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            value = wholeNumber != 0;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryNullSingleElementNullArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.Array)
+            return IsDeeplyNestedNullScalar(right);
+
+        if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Null)
+            return IsDeeplyNestedNullScalar(left);
+
+        return false;
+    }
+
+    private static bool IsDeeplyNestedNullScalar(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Null)
+            return true;
+
+        if (element.ValueKind != JsonValueKind.Array || element.GetArrayLength() != 1)
+            return false;
+
+        return IsDeeplyNestedNullScalar(element[0]);
+    }
+
+    private static bool TryScalarSingleElementArrayEquivalent(JsonElement left, JsonElement right)
+    {
+        if (IsScalarJsonKind(left.ValueKind) && right.ValueKind == JsonValueKind.Array)
+        {
+            if (right.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left, right[0]);
+        }
+
+        if (left.ValueKind == JsonValueKind.Array && IsScalarJsonKind(right.ValueKind))
+        {
+            if (left.GetArrayLength() != 1)
+                return false;
+
+            return ElementsEquivalent(left[0], right);
+        }
+
+        return false;
+    }
+
+    private static bool IsScalarJsonKind(JsonValueKind kind)
+    {
+        return kind is JsonValueKind.String
+            or JsonValueKind.Number
+            or JsonValueKind.True
+            or JsonValueKind.False;
+    }
+
+    private static bool TryNullEmptyObjectEquivalent(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.Object)
+            return !right.EnumerateObject().Any();
+
+        if (left.ValueKind == JsonValueKind.Object && right.ValueKind == JsonValueKind.Null)
+            return !left.EnumerateObject().Any();
+
         return false;
     }
 
     private static bool TryNullEmptyArrayEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.Array)
-            return right.GetArrayLength() == 0;
+            return right.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(right);
 
         if (left.ValueKind == JsonValueKind.Array && right.ValueKind == JsonValueKind.Null)
-            return left.GetArrayLength() == 0;
+            return left.GetArrayLength() == 0 || IsDeeplyNestedEmptyArray(left);
 
         return false;
     }
@@ -158,10 +359,10 @@ internal static class RunHeaderAnchorJsonComparer
     private static bool TryNullEmptyStringEquivalent(JsonElement left, JsonElement right)
     {
         if (left.ValueKind == JsonValueKind.Null && right.ValueKind == JsonValueKind.String)
-            return string.IsNullOrEmpty(right.GetString());
+            return string.IsNullOrWhiteSpace(right.GetString());
 
         if (left.ValueKind == JsonValueKind.String && right.ValueKind == JsonValueKind.Null)
-            return string.IsNullOrEmpty(left.GetString());
+            return string.IsNullOrWhiteSpace(left.GetString());
 
         return false;
     }
@@ -186,7 +387,7 @@ internal static class RunHeaderAnchorJsonComparer
         if (text is null)
             return false;
 
-        return bool.TryParse(text, out value);
+        return RunExplanationAggregateJsonReader.TryParseBooleanString(text, out value);
     }
 
     private static bool TryNumberStringEquivalent(JsonElement left, JsonElement right)
@@ -239,7 +440,7 @@ internal static class RunHeaderAnchorJsonComparer
     {
         foreach (JsonProperty property in element.EnumerateObject())
         {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(property.Name.Trim(), propertyName.Trim(), StringComparison.OrdinalIgnoreCase))
                 continue;
 
             value = property.Value;

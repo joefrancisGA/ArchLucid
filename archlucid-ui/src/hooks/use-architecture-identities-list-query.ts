@@ -14,13 +14,14 @@ import {
 export function useArchitectureIdentitiesListQuery(
   page = 1,
   pageSize = ARCHITECTURE_IDENTITIES_DEFAULT_PAGE_SIZE,
-  options?: { readonly enabled?: boolean },
+  options?: { readonly enabled?: boolean; readonly includeArchived?: boolean },
 ) {
   const scopeKey = useOperatorScopeQueryKey();
+  const includeArchived = options?.includeArchived ?? false;
 
   return useQuery({
-    queryKey: operatorQueryKeys.architectureIdentityList(scopeKey, page, pageSize),
-    queryFn: () => listArchitectureIdentities({ page, pageSize }),
+    queryKey: operatorQueryKeys.architectureIdentityList(scopeKey, page, pageSize, includeArchived),
+    queryFn: () => listArchitectureIdentities({ page, pageSize, includeArchived }),
     enabled: options?.enabled ?? true,
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,

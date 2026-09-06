@@ -153,7 +153,7 @@ export function OperationalErrorsPageClient() {
       if (!response.ok) {
         setState({
           status: "blocked",
-          message: `Could not load operational errors (HTTP ${response.status}). Admin authority is required.`,
+          message: `Could not load operational errors (HTTP ${response.status}). ArchLucid vendor-staff authority is required.`,
         });
 
         return;

@@ -217,7 +217,11 @@ export function PilotValueReportPageView(props: Props) {
 
         {m.error && m.data === null && !m.busy ? (
           buyerPolishedShell ? (
-            <PilotOutcomesLoadFailure message={m.error.message} onRetry={() => void m.load()} />
+            <PilotOutcomesLoadFailure
+              message={m.error.message}
+              correlationId={m.error.correlationId}
+              onRetry={() => void m.load()}
+            />
           ) : (
             <OperatorApiProblem
               fallbackMessage={m.error.message}

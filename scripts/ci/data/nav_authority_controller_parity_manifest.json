@@ -726,7 +726,7 @@
     },
     {
       "nav_href": "/internal/agent-model-catalog",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -735,7 +735,7 @@
     },
     {
       "nav_href": "/internal/configuration",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -744,7 +744,7 @@
     },
     {
       "nav_href": "/internal/demo-readiness",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -753,7 +753,7 @@
     },
     {
       "nav_href": "/internal/deployment-status",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -762,7 +762,7 @@
     },
     {
       "nav_href": "/internal/evidence-proposals",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -771,7 +771,7 @@
     },
     {
       "nav_href": "/internal/failed-integration-messages",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -780,7 +780,7 @@
     },
     {
       "nav_href": "/internal/fleet-llm-cogs",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -789,39 +789,39 @@
     },
     {
       "nav_href": "/internal/health",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
-      "controller_primary_get_policy_strictest": "AdminAuthority",
-      "controller_primary_get_policy_loosest": "AdminAuthority",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": "PlatformInternalOperationsAuthority",
       "controller_files": [
         {
           "controller_file": "Diagnostics/ConfigurationHealthController.cs",
-          "primary_get_policy": "AdminAuthority",
+          "primary_get_policy": "PlatformInternalOperationsAuthority",
           "method": "GetAsync",
           "http_get_route": "configuration-health"
         }
       ],
-      "parity": "match"
+      "parity": "unmapped"
     },
     {
       "nav_href": "/internal/operational-errors",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
-      "controller_primary_get_policy_strictest": "AdminAuthority",
-      "controller_primary_get_policy_loosest": "AdminAuthority",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": "PlatformInternalOperationsAuthority",
       "controller_files": [
         {
           "controller_file": "Admin/OperationalErrorsAdminController.cs",
-          "primary_get_policy": "AdminAuthority",
+          "primary_get_policy": "PlatformInternalOperationsAuthority",
           "method": "ListOperationalErrors",
           "http_get_route": null
         }
       ],
-      "parity": "match"
+      "parity": "unmapped"
     },
     {
       "nav_href": "/internal/platform-bundled-policy-packs",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -830,7 +830,7 @@
     },
     {
       "nav_href": "/internal/pricing-quote-aging",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -855,7 +855,7 @@
     },
     {
       "nav_href": "/internal/tenant-health",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -864,7 +864,7 @@
     },
     {
       "nav_href": "/internal/tenants",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,
@@ -873,7 +873,7 @@
     },
     {
       "nav_href": "/internal/trial-funnel",
-      "nav_required_authority": "AdminAuthority",
+      "nav_required_authority": "PlatformInternalOperationsAuthority",
       "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
       "controller_primary_get_policy_strictest": null,
       "controller_primary_get_policy_loosest": null,

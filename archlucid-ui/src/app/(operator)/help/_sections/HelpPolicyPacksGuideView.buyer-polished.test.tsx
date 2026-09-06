@@ -68,6 +68,7 @@ describe("HelpPolicyPacksGuideView buyer-polished shell (HEO)", () => {
     expect(screen.queryByTestId("help-topic-print-button")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: POLICY_PACKS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-packs-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-packs-mermaid-diagram")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(POLICY_PACKS_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(POLICY_PACKS_HELP_FIRST_VIEWPORT_TEST_ID);

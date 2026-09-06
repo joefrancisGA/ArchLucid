@@ -89,9 +89,18 @@ describe("HelpEnterpriseOnboardingGuideView buyer-polished shell (HEX)", () => {
     expect(firstViewport).toContainElement(actionPanel);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
+    const headerActions = screen.getByTestId("help-enterprise-onboarding-header-actions");
+
     expect(
-      within(actionPanel).getByRole("link", { name: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label }),
+      within(headerActions).getByRole("link", { name: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.label }),
     ).toHaveAttribute("href", ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.configureSso.href);
+    expect(
+      within(actionPanel).getByRole("link", { name: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.label }),
+    ).toHaveAttribute("href", ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.href);
+    expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.testId)).toHaveAttribute(
+      "href",
+      "#onboarding-hub",
+    );
 
     for (const source of filterWhereToGoNextFollowUpLinks(ENTERPRISE_ONBOARDING_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

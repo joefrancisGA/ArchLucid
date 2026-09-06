@@ -7,7 +7,7 @@
       "route_template": "v{version:apiVersion}/admin/agent-model-catalog",
       "normalized_prefix": "/v1/admin/agent-model-catalog",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -67,7 +67,7 @@
       "route_template": "v{version:apiVersion}/admin",
       "normalized_prefix": "/v1/admin",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -87,7 +87,7 @@
       "route_template": "v{version:apiVersion}/admin",
       "normalized_prefix": "/v1/admin",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -97,7 +97,7 @@
       "route_template": "v{version:apiVersion}/admin",
       "normalized_prefix": "/v1/admin",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -107,7 +107,7 @@
       "route_template": "v{version:apiVersion}/admin/operational",
       "normalized_prefix": "/v1/admin/operational",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -127,7 +127,7 @@
       "route_template": "v{version:apiVersion}/admin/integrations",
       "normalized_prefix": "/v1/admin/integrations",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -157,7 +157,7 @@
       "route_template": "v{version:apiVersion}/admin/platform-bundled-policy-packs",
       "normalized_prefix": "/v1/admin/platform-bundled-policy-packs",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -207,7 +207,7 @@
       "route_template": "v{version:apiVersion}/admin",
       "normalized_prefix": "/v1/admin",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -237,7 +237,7 @@
       "route_template": "v{version:apiVersion}/admin/operational",
       "normalized_prefix": "/v1/admin/operational",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -327,7 +327,7 @@
       "route_template": "v{version:apiVersion}/admin/evidence",
       "normalized_prefix": "/v1/admin/evidence",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -407,7 +407,7 @@
       "route_template": "v{version:apiVersion}/admin/marketing/pricing-quote-aging",
       "normalized_prefix": "/v1/admin/marketing/pricing-quote-aging",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -417,7 +417,7 @@
       "route_template": "v{version:apiVersion}/admin/marketing/pricing-quote-requests",
       "normalized_prefix": "/v1/admin/marketing/pricing-quote-requests",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -437,7 +437,7 @@
       "route_template": "v{version:apiVersion}/admin/operational-errors",
       "normalized_prefix": "/v1/admin/operational-errors",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": "/internal/operational-errors"
     },
@@ -547,7 +547,7 @@
       "route_template": "v{version:apiVersion}/admin/tenants",
       "normalized_prefix": "/v1/admin/tenants",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": "/administration/users"
     },
@@ -1257,7 +1257,7 @@
       "route_template": "v{version:apiVersion}/diagnostics",
       "normalized_prefix": "/v1/diagnostics",
       "commercial_tier": "none",
-      "class_policy": "RequireAdmin",
+      "class_policy": "PlatformInternalOperationsAuthority",
       "exemption": null,
       "nav_operator_href": "/internal/health"
     },
@@ -1572,10 +1572,40 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceOperationalFindingRemediationController.cs",
+      "class_name": "InfraEvidenceOperationalFindingRemediationController",
+      "route_template": "v{version:apiVersion}/infra-evidence/operational-findings/{findingId:guid}",
+      "normalized_prefix": "/v1/infra-evidence/operational-findings/{findingId:guid}",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceSnapshotsController.cs",
       "class_name": "InfraEvidenceSnapshotsController",
       "route_template": "v{version:apiVersion}/infra-evidence/snapshots",
       "normalized_prefix": "/v1/infra-evidence/snapshots",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "InfraEvidence/RemediationFactoryWorkbenchController.cs",
+      "class_name": "RemediationFactoryWorkbenchController",
+      "route_template": "v{version:apiVersion}/infra-evidence/remediation-factory",
+      "normalized_prefix": "/v1/infra-evidence/remediation-factory",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "InfraEvidence/RemediationInstancesController.cs",
+      "class_name": "RemediationInstancesController",
+      "route_template": "v{version:apiVersion}/infra-evidence/remediation-instances",
+      "normalized_prefix": "/v1/infra-evidence/remediation-instances",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,

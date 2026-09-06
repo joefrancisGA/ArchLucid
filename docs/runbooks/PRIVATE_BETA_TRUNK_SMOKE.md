@@ -1,4 +1,4 @@
-> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate.
+> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate. Insight-density findings in beta reviews remain **advisory** under the `typed-engine-protected` claim boundary — do not treat them as procurement attestations.
 
 # Private-beta trunk smoke — triage runbook
 
@@ -49,6 +49,14 @@
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
 | Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
+
+**Re-trigger after cancellation:** from a clone with `gh` authenticated:
+
+```bash
+bash scripts/ci/retrigger_private_beta_access_on_push.sh master
+```
+
+Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
 
 ## Artifacts
 

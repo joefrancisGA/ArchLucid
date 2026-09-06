@@ -45,8 +45,9 @@ const METRIC_CARD_CLASS =
   "min-w-0 flex-1 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900";
 
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Source:";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE = "reviews in this workspace.";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Scope:";
+const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE =
+  "Each tile states its partition inline — reviews inventory, findings queue, or governance approval warnings.";
 
 /** Compact KPI strip for populated workspaces. */
 export function OperatorHomeWorkspaceMetricsStrip(

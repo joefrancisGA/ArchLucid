@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Controllers.Diagnostics;
 
 /// <summary>Admin connectivity probes for pilot SQL / OIDC / Key Vault setup.</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.RequireAdmin)]
+[Authorize(Policy = ArchLucidPolicies.PlatformInternalOperationsAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/diagnostics")]
 [EnableRateLimiting("expensive")]

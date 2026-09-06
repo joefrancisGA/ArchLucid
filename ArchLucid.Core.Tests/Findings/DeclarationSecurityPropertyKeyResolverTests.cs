@@ -65,6 +65,82 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_arm_sslEnforcementEnabled()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["sslEnforcementEnabled"] = "Enabled",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("sslEnforcementEnabled");
+        value.Should().Be("Enabled");
+    }
+
+    [Fact]
+    public void TryGet_resolves_tf_networkacls_for_ingress_blob()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.networkacls"] = "0.0.0.0/0:22",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.IngressBlob,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.networkacls");
+        value.Should().Be("0.0.0.0/0:22");
+    }
+
+    [Fact]
+    public void TryGet_resolves_tf_ipsecurityrestrictions_for_ingress_blob()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ipsecurityrestrictions"] = """[{"ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.IngressBlob,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.ipsecurityrestrictions");
+        value.Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
+    public void TryGet_resolves_tf_network_acls_for_ingress_blob()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.network_acls"] = """[{"ipAddress":"0.0.0.0/0","action":"Allow"}]""",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.IngressBlob,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.network_acls");
+        value.Should().Contain("0.0.0.0/0");
+    }
+
+    [Fact]
     public void TryGet_returns_false_for_empty_properties()
     {
         bool found = DeclarationSecurityPropertyKeyResolver.TryGet(

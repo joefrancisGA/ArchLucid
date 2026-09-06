@@ -711,4 +711,43 @@ describe("RunProgressTracker", () => {
     expect(screen.queryByText(/We're preparing this review; this can take a moment/i)).not.toBeInTheDocument();
     expect(screen.getByText(/often take longer than a few minutes/i)).toBeInTheDocument();
   });
+
+  it("does not show a browser-notifications-enabled confirmation while the pipeline is live", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    vi.stubGlobal(
+      "Notification",
+      class MockNotification {
+        static permission: NotificationPermission = "granted";
+
+        static async requestPermission(): Promise<NotificationPermission> {
+          return "granted";
+        }
+      },
+    );
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "notify-granted-1",
+      hasContextSnapshot: true,
+    });
+
+    render(
+      <RunProgressTracker
+        runId="notify-granted-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "notify-granted-1",
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    expect(screen.getByTestId("run-progress-tracker")).toBeInTheDocument();
+    expect(screen.queryByText("Browser notifications enabled")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("run-progress-notifications-enabled")).not.toBeInTheDocument();
+  });
 });

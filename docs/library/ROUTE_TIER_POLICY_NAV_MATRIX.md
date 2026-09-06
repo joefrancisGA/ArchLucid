@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **237** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **240** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,34 +68,34 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:237 -->
+<!-- route-tier-policy-nav-registry-count:240 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
-| `Admin/AdminAgentModelCatalogController.cs` | `/v1/admin/agent-model-catalog` | none | AdminAuthority |  |  |
+| `Admin/AdminAgentModelCatalogController.cs` | `/v1/admin/agent-model-catalog` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AdminAiUsageDashboardController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority |  |  |
 | `Admin/AdminArchitectureIdentityBackfillController.cs` | `/v1/admin/tenants` | none | AdminAuthority |  |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminAzureOpenAiConnectionController.cs` | `/v1/admin/settings/azure-openai-connection` | none | AdminAuthority |  |  |
-| `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminController.cs` | `/v1/admin` | none | AuthenticatedUserOnly |  |  |
 | `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | PlatformCrossTenantReadAuthority |  |  |
-| `Admin/AdminCustomerSuccessController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminDeploymentStatusController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
+| `Admin/AdminCustomerSuccessController.cs` | `/v1/admin` | none | PlatformInternalOperationsAuthority |  |  |
+| `Admin/AdminDeploymentStatusController.cs` | `/v1/admin` | none | PlatformInternalOperationsAuthority |  |  |
+| `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
-| `Admin/AdminIntegrationsController.cs` | `/v1/admin/integrations` | none | AdminAuthority |  |  |
+| `Admin/AdminIntegrationsController.cs` | `/v1/admin/integrations` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /administration/ai-usage |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
-| `Admin/AdminPlatformBundledPolicyPacksController.cs` | `/v1/admin/platform-bundled-policy-packs` | none | AdminAuthority |  |  |
+| `Admin/AdminPlatformBundledPolicyPacksController.cs` | `/v1/admin/platform-bundled-policy-packs` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AdminPrerequisitesController.cs` | `/v1/admin/prerequisites` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminQuickScanBudgetController.cs` | `/v1/admin/quick-scan/budget` | none | AdminAuthority |  |  |
 | `Admin/AdminQuickScanSafetyController.cs` | `/v1/admin/quick-scan/safety` | none | AdminAuthority |  |  |
-| `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AdminTenantCatalogMigrationController.cs` | `/v1/admin/tenants` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /administration/users |  |
-| `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
+| `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /governance/audit |  |
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
 | `Admin/ClientErrorTelemetryController.cs` | `/v1/diagnostics` | none | ReadAuthority |  |  |
@@ -104,7 +104,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/DemoController.cs` | `/v1/demo` | none | ExecuteAuthority |  | demo_tooling |
 | `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
-| `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | AdminAuthority |  |  |
+| `Admin/EvidenceProposalsController.cs` | `/v1/admin/evidence` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/HostedAwsExtractorRunController.cs` | `/v1/admin/aws-extractor/hosted` | none | AdminAuthority | /integrations/cloud-connections |  |
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
@@ -112,10 +112,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/IdentityMigrationReviewAdminController.cs` | `/v1/admin/identity/migration-reviews` | none | AdminAuthority |  |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
-| `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
-| `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | AdminAuthority |  |  |
+| `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | PlatformInternalOperationsAuthority |  |  |
+| `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | PlatformInternalOperationsAuthority |  |  |
 | `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /administration/ai-usage |  |
-| `Admin/OperationalErrorsAdminController.cs` | `/v1/admin/operational-errors` | none | AdminAuthority | /internal/operational-errors |  |
+| `Admin/OperationalErrorsAdminController.cs` | `/v1/admin/operational-errors` | none | PlatformInternalOperationsAuthority | /internal/operational-errors |  |
 | `Admin/OperationsController.cs` | `/v1/operations` | none | ReadAuthority |  |  |
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
 | `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |
@@ -126,7 +126,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /administration/workspace-settings |  |
 | `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /administration/support |  |
 | `Admin/TenantAuthDomainAdminController.cs` | `/v1/admin/identity/domains` | none | AdminAuthority |  |  |
-| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /administration/users |  |
+| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | PlatformInternalOperationsAuthority | /administration/users |  |
 | `Admin/UsersAdminController.cs` | `/v1/admin/users` | none | AdminAuthority |  |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /governance/advisory-scans |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
@@ -197,7 +197,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Demo/DemoExplainController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
 | `Demo/DemoViewerController.cs` | `/v1/demo/viewer` | none | AllowAnonymous |  | demo_tooling |
 | `Demo/QuickStartController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
-| `Diagnostics/ConfigurationHealthController.cs` | `/v1/diagnostics` | none | RequireAdmin | /internal/health |  |
+| `Diagnostics/ConfigurationHealthController.cs` | `/v1/diagnostics` | none | PlatformInternalOperationsAuthority | /internal/health |  |
 | `Diagnostics/DevelopmentCatalogResetController.cs` | `/v1/diagnostics` | none | RequireAdmin |  |  |
 | `Diagnostics/OperatorTaskSuccessDiagnosticsController.cs` | `/v1/diagnostics` | standard | ReadAuthority |  |  |
 | `Diagnostics/SyntheticOperatorDemoPackController.cs` | `/v1/diagnostics` | none | RequireAdmin |  | synthetic_demo_admin_pack |
@@ -229,7 +229,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `InfraEvidence/InfraEvidenceAskController.cs` | `/v1/infra-evidence/ask` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceDiffsController.cs` | `/v1/infra-evidence/diffs` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceInventoryController.cs` | `/v1/infra-evidence/azure-inventory` | standard | ReadAuthority |  |  |
+| `InfraEvidence/InfraEvidenceOperationalFindingRemediationController.cs` | `/v1/infra-evidence/operational-findings/{findingId:guid}` | standard | ReadAuthority |  |  |
 | `InfraEvidence/InfraEvidenceSnapshotsController.cs` | `/v1/infra-evidence/snapshots` | standard | ReadAuthority |  |  |
+| `InfraEvidence/RemediationFactoryWorkbenchController.cs` | `/v1/infra-evidence/remediation-factory` | standard | ReadAuthority |  |  |
+| `InfraEvidence/RemediationInstancesController.cs` | `/v1/infra-evidence/remediation-instances` | standard | ReadAuthority |  |  |
 | `InfraEvidence/TenantBrandingAdminController.cs` | `/v1/infra-evidence/branding/admin` | standard | AdminAuthority |  |  |
 | `InfraEvidence/TenantBrandingController.cs` | `/v1/infra-evidence/branding` | standard | ReadAuthority |  |  |
 | `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
