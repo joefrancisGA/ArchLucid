@@ -89,6 +89,13 @@ describe("OperatorAccessDeniedPageClient", () => {
     expect(screen.getByTestId("operator-access-denied-jwt-role-callout")).not.toBeVisible();
   });
 
+  it("wires auth-jwt-insufficient-scope Report Problem on JwtBearer 403 without wrong-tenant supplement", () => {
+    render(<OperatorAccessDeniedPageClient />);
+
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.queryByText(/wrong tenant/i)).not.toBeInTheDocument();
+  });
+
   it("keeps JWT role-mapping guidance inside the administrator disclosure", () => {
     render(<OperatorAccessDeniedPageClient />);
 
