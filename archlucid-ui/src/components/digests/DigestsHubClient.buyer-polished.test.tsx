@@ -34,7 +34,7 @@ vi.mock("@/lib/api", () => ({
 }));
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
-import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests } from "@/lib/api";
+import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests, listDigestSubscriptions } from "@/lib/api";
 import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER, DIGESTS_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
 
 describe("DigestsHubClient buyer-polished shell", () => {
@@ -43,7 +43,9 @@ describe("DigestsHubClient buyer-polished shell", () => {
     vi.mocked(fetchWeeklyDigestHealth).mockReset();
     vi.mocked(listArchitectureDigests).mockReset();
     vi.mocked(getExecDigestPreferences).mockReset();
+    vi.mocked(listDigestSubscriptions).mockReset();
     vi.mocked(listArchitectureDigests).mockResolvedValue([]);
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
     vi.mocked(getExecDigestPreferences).mockResolvedValue({
       schemaVersion: 1,
       tenantId: "t",
@@ -126,5 +128,24 @@ describe("DigestsHubClient buyer-polished shell", () => {
       .map((node) => node.getAttribute("data-testid"));
 
     expect(orderedLandmarks).toEqual(["exec-digest-schedule-content", "digests-schedule-orientation-top"]);
+  });
+
+  it("renders subscriptions-tab buyer chrome with orientation below subscriptions workspace", async () => {
+    searchParams = new URLSearchParams("tab=subscriptions");
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
+
+    render(<DigestsHubClient />);
+
+    expect(await screen.findByTestId("digest-subscriptions-content")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-subscriptions-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-subscriptions-settings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+
+    const orderedLandmarks = ["digest-subscriptions-content", "digests-subscriptions-orientation-top"]
+      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
+      .filter((node): node is HTMLElement => node !== null)
+      .map((node) => node.getAttribute("data-testid"));
+
+    expect(orderedLandmarks).toEqual(["digest-subscriptions-content", "digests-subscriptions-orientation-top"]);
   });
 });
