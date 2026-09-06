@@ -38,10 +38,10 @@ describe("RECURRENCE_SCHEDULE_EXAMPLES (TB-1132)", () => {
 
 describe("recurrence schedules page copy (P0-5)", () => {
   it("states due-date effect and prerequisite without non-canonical nouns", () => {
-    expect(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION).toMatch(/follow-up architecture review/i);
+    expect(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION).toMatch(/follow-up review for the same architecture/i);
     expect(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION).toMatch(/finalized architecture review/i);
-    expect(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY).toMatch(/follow-up architecture review/i);
-    expect(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY).toMatch(/finalized architecture reviews/i);
+    expect(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY).toMatch(/follow-up review for that architecture/i);
+    expect(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY).toMatch(/architecture identity/i);
     expect(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY).not.toMatch(/committed architecture records/i);
     expect(RECURRENCE_SCHEDULES_HELPER_BODY).toMatch(/not configured on this page/i);
   });
