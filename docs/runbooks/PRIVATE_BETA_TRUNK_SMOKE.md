@@ -30,6 +30,7 @@
 | First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
 | Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
+| Loader smoke + signin/invite Report Problem | #1792 / `159c5fab6a` | Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts`; TB-782 surfaces on `/auth/signin` + `/auth/invite` |
 
 ## Common failure modes
 
@@ -49,7 +50,7 @@
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
-| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
+| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
 **Re-trigger after cancellation:** from a clone with `gh` authenticated:

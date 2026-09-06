@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 _REQUIRED_FRAGMENT = (
-    "--include-path-regex='^(/v1/auth|/v1/admin|/v1/architecture|/scim|/v1/invitations)'"
+    "--include-path-regex='^(/v1/auth|/v1/admin|/v1/architecture|/v1/tenant|/scim|/v1/invitations)'"
 )
 
 
