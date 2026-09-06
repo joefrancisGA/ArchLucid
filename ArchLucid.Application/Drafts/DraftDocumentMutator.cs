@@ -136,6 +136,24 @@ public static class DraftDocumentMutator
         UpsertAsserted(document.TransparencyTrail, $"answer.{questionKey}", answer);
     }
 
+    public static void RecordPresenterAssertedAnswer(
+        DraftRequestDocument document,
+        string questionKey,
+        string answer,
+        string responderLabel,
+        DateTime recordedUtc)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        UpsertAsserted(
+            document.TransparencyTrail,
+            $"answer.{questionKey}",
+            answer,
+            questionId: questionKey,
+            recordedUtc: recordedUtc,
+            responderLabel: responderLabel);
+    }
+
     public static string? NormalizeWorkflowIntent(string? workflowIntent)
     {
         string? intent = workflowIntent?.Trim();
@@ -193,19 +211,41 @@ public static class DraftDocumentMutator
         return copied;
     }
 
-    private static void UpsertAsserted(TransparencyTrail trail, string key, string value)
+    private static void UpsertAsserted(
+        TransparencyTrail trail,
+        string key,
+        string value,
+        string? questionId = null,
+        DateTime? recordedUtc = null,
+        string? responderLabel = null)
     {
         AssertedTrailEntry? existing = trail.Asserted.Find(entry =>
             string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase));
 
         if (existing is null)
         {
-            trail.Asserted.Add(new AssertedTrailEntry { Key = key, Value = value });
+            trail.Asserted.Add(new AssertedTrailEntry
+            {
+                Key = key,
+                Value = value,
+                QuestionId = questionId,
+                RecordedUtc = recordedUtc,
+                ResponderLabel = responderLabel,
+            });
 
             return;
         }
 
         existing.Value = value;
+
+        if (questionId is not null)
+            existing.QuestionId = questionId;
+
+        if (recordedUtc.HasValue)
+            existing.RecordedUtc = recordedUtc;
+
+        if (responderLabel is not null)
+            existing.ResponderLabel = responderLabel;
     }
 
     private static void UpsertInferred(TransparencyTrail trail, string key, string value, int confidence)
