@@ -382,6 +382,11 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("would not enable", StringComparison.Ordinal)
             || after.StartsWith("would not deploy", StringComparison.Ordinal)
             || after.StartsWith("would not adopt", StringComparison.Ordinal)
+            || after.StartsWith("would not use", StringComparison.Ordinal)
+            || after.StartsWith("would not have", StringComparison.Ordinal)
+            || after.StartsWith("ought not implement", StringComparison.Ordinal)
+            || after.StartsWith("ought not enable", StringComparison.Ordinal)
+            || after.StartsWith("ought not deploy", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
