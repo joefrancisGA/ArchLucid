@@ -526,7 +526,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link
-                  href={buildResourceHubDiagramsWorkbenchHref(resolvedSnapshotId, cloudResourceId)}
+                  href={buildResourceHubDiagramsWorkbenchHref(
+                    resolvedSnapshotId,
+                    cloudResourceId,
+                    hub.externalResourceId,
+                  )}
                   data-testid="infra-resource-hub-diagrams-workbench"
                 >
                   Open inventory diagrams

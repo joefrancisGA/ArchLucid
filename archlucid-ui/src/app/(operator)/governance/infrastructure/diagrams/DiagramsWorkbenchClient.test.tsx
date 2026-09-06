@@ -65,11 +65,11 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
       },
     ],
   })),
-  fetchInfraEvidenceMermaidRender: vi.fn(async () => ({
+  fetchInfraEvidenceMermaidRender: vi.fn(async (_snapshotId, query) => ({
     snapshotId: "11111111-1111-1111-1111-111111111111",
-    mode: "executive",
-    fallbackKey: null,
-    status: "Partitioned",
+    mode: query.mode ?? "executive",
+    fallbackKey: query.fallbackKey ?? null,
+    status: query.mode === "dependencyNeighborhood" ? "Succeeded" : "Partitioned",
     mermaid: "flowchart LR\n  A-->B",
     metrics: {
       nodeCount: 500,
@@ -150,5 +150,16 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",
     );
+  });
+
+  it("opens dependency neighborhood drill-down when seed node is in the URL", async () => {
+    const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
+    searchParams = new URLSearchParams(
+      `snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-seed-node-input")).toHaveValue(armId);
+    expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
   });
 });

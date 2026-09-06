@@ -127,8 +127,16 @@ export function buildResourceHubDriftWorkbenchHref(
 export function buildResourceHubDiagramsWorkbenchHref(
   snapshotId: string | null | undefined,
   cloudResourceId?: string | null,
+  externalResourceId?: string | null,
 ): string {
-  return buildDiagramsWorkbenchHref({ snapshotId, cloudResourceId });
+  const seedNodeId = externalResourceId?.trim() ?? "";
+
+  return buildDiagramsWorkbenchHref({
+    snapshotId,
+    cloudResourceId,
+    mermaidMode: seedNodeId.length > 0 ? "dependencyNeighborhood" : undefined,
+    seedNodeId: seedNodeId.length > 0 ? seedNodeId : undefined,
+  });
 }
 
 export function buildResourceHubDiagramReconcileWorkbenchHref(
