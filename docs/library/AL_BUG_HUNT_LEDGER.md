@@ -17,6 +17,8 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
 4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
 
+For proven-row validity sampling see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`).
+
 ### Zone status
 
 | Status | Meaning |
@@ -5899,6 +5901,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: core-azure-extractor
 
 - **id:** core-azure-extractor
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** high
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
@@ -5920,6 +5923,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-configuration-summary
 
 - **id:** core-configuration-summary
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** high
 - **aliases:** configuration summary; config paths; split from archlucid-core
@@ -5941,6 +5945,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-findings-advice
 
 - **id:** core-findings-advice
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** medium
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
@@ -5962,6 +5967,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-requests-constraints
 
 - **id:** core-requests-constraints
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** medium
 - **aliases:** request constraints; split from archlucid-core
@@ -5983,6 +5989,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-authority-runs
 
 - **id:** core-authority-runs
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** high
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
@@ -6004,6 +6011,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-tenancy-commercial
 
 - **id:** core-tenancy-commercial
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** high
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
@@ -6025,6 +6033,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-safety-network
 
 - **id:** core-safety-network
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** high
 - **aliases:** private network guard; SSRF; split from archlucid-core
@@ -6046,6 +6055,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-costing
 
 - **id:** core-costing
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** medium
 - **aliases:** costing; retail prices; split from archlucid-core
@@ -6067,6 +6077,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: core-explanation-json
 
 - **id:** core-explanation-json
+- **split-from:** archlucid-core
 - **status:** unseeded
 - **impact:** medium
 - **aliases:** run explanation; explanation json; split from archlucid-core
@@ -8117,6 +8128,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ## Zone: api-policy-packs
 
 - **id:** api-policy-packs
+- **split-from:** api-governance-tenancy-controllers
 - **status:** unseeded
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
@@ -8138,6 +8150,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: api-governance-stickiness
 
 - **id:** api-governance-stickiness
+- **split-from:** api-governance-tenancy-controllers
 - **status:** unseeded
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
@@ -8159,6 +8172,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: api-tenancy-workspaces
 
 - **id:** api-tenancy-workspaces
+- **split-from:** api-governance-tenancy-controllers
 - **status:** unseeded
 - **impact:** high
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
