@@ -2242,6 +2242,9 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugEscalation.Tests.ps1'
 
+      - name: al-bug-lint-ledger-counters.py
+        run: python3 scripts/agent/al-bug-lint-ledger-counters.py
+
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
     # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that

@@ -779,6 +779,38 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.meanHuntsPerBug | Should -Be 2
     }
 
+    It 'exposes effective bugs and invariant flag for inflated counters' {
+        $content = @"
+# fixture
+
+## Zone: zone-inflated
+
+- **id:** zone-inflated
+- **status:** open
+- **impact:** high
+- **aliases:** inflated
+- **paths:** ArchLucid.Core/Inflated/
+- **test-filter:** FullyQualifiedName~InflatedTests
+- **hunts:** 10
+- **bugs-found:** 100
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Remaining hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.bugsFound | Should -Be 100
+        $result.effectiveBugs | Should -Be 10
+        $result.bugsFoundInvariantViolating | Should -BeTrue
+    }
+
     It 'applies impact multiplier when ordering zones' {
         $content = @"
 # fixture

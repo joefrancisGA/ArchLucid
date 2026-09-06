@@ -210,6 +210,22 @@ function Get-MeanHuntsPerBug {
     return [double]$Hunts + 2.0
 }
 
+function Get-EffectiveBugs {
+    param([int] $Hunts, [int] $BugsFound)
+
+    if ($Hunts -le 0) {
+        return 0
+    }
+
+    return [Math]::Min($BugsFound, $Hunts)
+}
+
+function Test-BugsFoundInvariantViolating {
+    param([int] $Hunts, [int] $BugsFound)
+
+    return ($Hunts -gt 0) -and ($BugsFound -gt $Hunts)
+}
+
 function Get-ImpactMultiplier {
     param([string] $Impact)
 
@@ -1127,6 +1143,8 @@ function ConvertTo-PickResult {
             testFilter             = ''
             hunts                  = 0
             bugsFound              = 0
+            effectiveBugs          = 0
+            bugsFoundInvariantViolating = $false
             meanHuntsPerBug        = 0.0
             exploreBonus           = 0.0
             consecutiveDryHunts    = 0
@@ -1168,6 +1186,8 @@ function ConvertTo-PickResult {
         testFilter             = $Zone.TestFilter
         hunts                  = $Zone.Hunts
         bugsFound              = $Zone.BugsFound
+        effectiveBugs          = Get-EffectiveBugs -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
+        bugsFoundInvariantViolating = Test-BugsFoundInvariantViolating -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
         meanHuntsPerBug        = $Zone.MeanHuntsPerBug
         exploreBonus           = $Zone.ExploreBonus
         consecutiveDryHunts    = $Zone.ConsecutiveDryHunts
@@ -1215,6 +1235,10 @@ function Write-ZonePreview {
     Write-Host ("| Score | {0} |" -f $Result.score)
     Write-Host ("| Impact | {0} |" -f $(if ($null -eq $Result.impact) { 'n/a' } else { $Result.impact }))
     Write-Host ("| Cooled | {0} |" -f $Result.cooledByHitRate)
+    Write-Host ("| Hunts | {0} |" -f $Result.hunts)
+    Write-Host ("| Bugs found (raw) | {0} |" -f $Result.bugsFound)
+    Write-Host ("| Bugs found (effective) | {0} |" -f $Result.effectiveBugs)
+    Write-Host ("| Counter invariant | {0} |" -f $(if ($Result.bugsFoundInvariantViolating) { 'violating (bugs > hunts)' } else { 'ok' }))
     Write-Host ("| Mean hunts/bug | {0} |" -f $Result.meanHuntsPerBug)
     Write-Host ("| Explore bonus | {0} |" -f $Result.exploreBonus)
     Write-Host ("| Why | {0} |" -f ($Result.why -join '; '))
