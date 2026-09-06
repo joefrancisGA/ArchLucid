@@ -152,6 +152,46 @@ function registryHrefInput(input: ResolveReviewPackageDoThisNextInput): BuildRev
   };
 }
 
+function buildReviewWorkspaceOverviewHref(runId: string): string {
+  return buildReviewWorkspaceTabHref(runId, "overview");
+}
+
+function resolveFailureRecoverySecondaryAction(
+  input: ResolveReviewPackageDoThisNextInput,
+  failureRecovery: ReviewFailureRecoveryGuidance,
+): { readonly label: string; readonly href: string } | null {
+  const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
+
+  if (workspaceAiSignal !== null && workspaceAiSignal !== undefined && input.canConfigureWorkspaceAi === true) {
+    const adminLink = failureRecovery.adminConfigurationHref?.trim() ?? "";
+
+    if (adminLink.length > 0) {
+      return {
+        label: failureRecovery.adminConfigurationLabel ?? "Open workspace AI settings",
+        href: adminLink,
+      };
+    }
+
+    return {
+      label: "Open workspace AI settings",
+      href: "/administration/workspace-settings",
+    };
+  }
+
+  if (
+    failureRecovery.submittedIntakeRecap !== null
+    && failureRecovery.submittedIntakeRecap !== undefined
+    && failureRecovery.submittedIntakeRecap.fields.length + failureRecovery.submittedIntakeRecap.attachedFiles.length > 0
+  ) {
+    return {
+      label: "Review submitted intake",
+      href: buildReviewWorkspaceOverviewHref(input.runId),
+    };
+  }
+
+  return null;
+}
+
 function buildPostFinalizeQuickLinks(
   input: ResolveReviewPackageDoThisNextInput,
 ): readonly ReviewPackageDoThisNextQuickLink[] {
@@ -283,6 +323,11 @@ export function resolveReviewPackageDoThisNext(
       effectiveSessionMode: input.effectiveSessionMode ?? null,
     });
 
+    const secondaryAction =
+      failureRecovery !== null
+        ? resolveFailureRecoverySecondaryAction(input, failureRecovery)
+        : null;
+
     return {
       kind: "rerun-review",
       sentence:
@@ -293,6 +338,7 @@ export function resolveReviewPackageDoThisNext(
           : "Execution failed — re-run the review with the same intake.",
       actionLabel: "Re-run review",
       href: resolveRerunHref(input),
+      secondaryAction,
       failureRecovery,
     };
   }

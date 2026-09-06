@@ -13,6 +13,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly suppressMeasurementDenominator?: boolean;
   readonly enginesSucceeded?: number | null;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
@@ -37,7 +38,10 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
-        <RunDetailInsightDensityMeasurementDenominatorStrip enginesSucceeded={props.enginesSucceeded} />
+        <RunDetailInsightDensityMeasurementDenominatorStrip
+          enginesSucceeded={props.enginesSucceeded}
+          suppressOnTerminalFailure={props.suppressMeasurementDenominator}
+        />
         <RunDetailReviewPackageDecisionReceiptStrip
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}
@@ -55,7 +59,9 @@ export function RunDetailReviewPackageStampViewport(
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
-      <RunDetailInsightDensityMeasurementDenominatorStrip />
+      <RunDetailInsightDensityMeasurementDenominatorStrip
+        suppressOnTerminalFailure={props.suppressMeasurementDenominator}
+      />
       <RunDetailOverviewTransparencyTrail
         feasibilityVerdict={feasibilityVerdict}
         runCompleted={props.runCompleted}
