@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -17,6 +18,10 @@ import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import {
+  findingAskInlineDisclosureHrefFromSearch,
+  parseFindingAskInlineOpenFromSearch,
+} from "@/lib/findings/finding-ask-inline-disclosure-url";
 
 const DEFAULT_FINDING_QUESTION =
   "Why is this a finding, what evidence supports it, and what is the smallest concrete fix?";
@@ -36,6 +41,13 @@ type AskTurn = {
  * Inline grounded Q&A for a single finding via POST /v1/architecture/finding/{findingId}/ask.
  */
 export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingAskInlineOpenParam = searchParams.get("findingAskInlineOpen");
+  const [panelOpen, setPanelOpenState] = useState(
+    () => parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true,
+  );
   const [question, setQuestion] = useState(DEFAULT_FINDING_QUESTION);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AskTurn[]>([]);
@@ -45,6 +57,41 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(findingAskInlineDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam)) {
+      setPanelOpenState(true);
+
+      return;
+    }
+
+    if (findingAskInlineOpenParam !== null) {
+      setPanelOpenState(false);
+
+      return;
+    }
+
+    if (props.defaultOpen === true) {
+      setPanelOpenState(true);
+    }
+  }, [findingAskInlineOpenParam, props.defaultOpen]);
 
   async function submitQuestion(): Promise<void> {
     const trimmed = question.trim();
@@ -84,7 +131,11 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   }
 
   return (
-    <CollapsibleSection title="Ask about this finding" defaultOpen={props.defaultOpen === true}>
+    <CollapsibleSection
+      title="Ask about this finding"
+      open={panelOpen}
+      onToggle={setPanelOpen}
+    >
       <div className="finding-ask-inline-panel space-y-4">
           {props.runId !== undefined && props.runId.trim().length > 0 ? (
             <AskRunCoverageHonestyStrip runId={props.runId} />
