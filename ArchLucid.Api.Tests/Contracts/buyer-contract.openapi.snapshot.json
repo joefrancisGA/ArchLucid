@@ -4083,6 +4083,13 @@
             "format": "uuid",
             "type": "string"
           },
+          "archivedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -4162,6 +4169,13 @@
             "format": "uuid",
             "type": "string"
           },
+          "archivedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "currentDraftId": {
             "format": "uuid",
             "type": [
@@ -4197,6 +4211,36 @@
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityListPage": {
+        "properties": {
+          "archivedHiddenCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityListItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -21769,32 +21813,6 @@
         },
         "type": "object"
       },
-      "PagedResponseOfArchitectureIdentityListItem": {
-        "properties": {
-          "hasMore": {
-            "type": "boolean"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureIdentityListItem"
-            },
-            "type": "array"
-          },
-          "page": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "pageSize": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "totalCount": {
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "PagedResponseOfAzureInventoryChangeRecord": {
         "properties": {
           "hasMore": {
@@ -21927,6 +21945,12 @@
       },
       "PatchArchitectureIdentityRequest": {
         "properties": {
+          "archived": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "description": {
             "type": [
               "null",
@@ -21940,6 +21964,9 @@
             ]
           },
           "hasAnyPatch": {
+            "type": "boolean"
+          },
+          "hasArchived": {
             "type": "boolean"
           },
           "hasDescription": {

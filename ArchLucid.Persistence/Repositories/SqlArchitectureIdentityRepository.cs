@@ -85,7 +85,7 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
         const string sql = """
                            SELECT ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
                                   DisplayName, Description, CurrentModelId, LatestSealedManifestId,
-                                  CreatedUtc, UpdatedUtc
+                                  CreatedUtc, UpdatedUtc, ArchivedUtc
                            FROM dbo.Architectures
                            WHERE ArchitectureId = @ArchitectureId
                              AND TenantId = @TenantId
@@ -274,5 +274,75 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows > 0;
+    }
+
+    public async Task<bool> TrySetArchivedAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool archived,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+        const string sql = """
+                           UPDATE dbo.Architectures
+                           SET ArchivedUtc = @ArchivedUtc,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE ArchitectureId = @ArchitectureId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ArchitectureId = architectureId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ArchivedUtc = archived ? nowUtc : (DateTime?)null,
+                    UpdatedUtc = nowUtc,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows > 0;
+    }
+
+    public async Task<int> CountArchivedInScopeAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT COUNT(1)
+                           FROM dbo.Architectures
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchivedUtc IS NOT NULL;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 }

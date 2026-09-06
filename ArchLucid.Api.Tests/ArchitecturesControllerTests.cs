@@ -40,7 +40,7 @@ public sealed class ArchitecturesControllerTests
     [Fact]
     public async Task ListArchitectures_ReturnsPagedItems()
     {
-        PagedResponse<ArchitectureIdentityListItem> page = new()
+        ArchitectureIdentityListPage page = new()
         {
             Items =
             [
@@ -56,7 +56,7 @@ public sealed class ArchitecturesControllerTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
