@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { HelpSlackIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpSlackIntegrationHeaderActions";
 import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationSourcesOrientationStrip";
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
@@ -9,10 +7,10 @@ import { SlackIntegrationHelpEvidenceOrientationStrip } from "@/components/help/
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { Button } from "@/components/ui/button";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -30,7 +28,7 @@ import {
   SLACK_INTEGRATION_HELP_OVERVIEW,
   SLACK_INTEGRATION_HELP_PAGE_SUBTITLE,
   SLACK_INTEGRATION_HELP_PAGE_TITLE,
-  SLACK_INTEGRATION_HELP_PRIMARY_ACTION,
+  SLACK_INTEGRATION_HELP_BUYER_START_HERE_HELPER,
   SLACK_INTEGRATION_HELP_SETUP_STEPS,
   SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE,
   SLACK_INTEGRATION_HELP_CLAIM_HEADING_ID,
@@ -64,7 +62,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function SlackIntegrationStartHerePanel(props: { readonly showPrimaryAction: boolean }): React.ReactElement {
+function SlackIntegrationStartHerePanel(props: { readonly buyerPolishedShell: boolean }): React.ReactElement {
   return (
     <section
       className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -77,11 +75,14 @@ function SlackIntegrationStartHerePanel(props: { readonly showPrimaryAction: boo
       >
         {SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE}
       </h2>
-      <HelpSlackIntegrationWorkspaceReadinessStrip showSetupPrecondition />
-      {props.showPrimaryAction ? (
-        <Button asChild size="sm" variant="primary">
-          <Link href={SLACK_INTEGRATION_HELP_PRIMARY_ACTION.href}>{SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label}</Link>
-        </Button>
+      <HelpSlackIntegrationWorkspaceReadinessStrip showSetupPrecondition={!props.buyerPolishedShell} />
+      {props.buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="help-slack-integration-buyer-start-here-helper"
+        >
+          {SLACK_INTEGRATION_HELP_BUYER_START_HERE_HELPER}
+        </p>
       ) : null}
     </section>
   );
@@ -101,6 +102,18 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
     : guideHeadings;
   const contentGridClass = resolveHelpPageContentGridClass(tocHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const buyerProvenanceLine = formatHelpTopicApplicabilityMetadata(entry);
+  const buyerHeaderMetadata =
+    buyerProvenanceLine === null
+      ? null
+      : (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}
+          data-testid="help-slack-integration-buyer-provenance"
+        >
+          {buyerProvenanceLine}
+        </p>
+      );
 
   return (
     <article
@@ -128,6 +141,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             headingLevel="h1"
             claimDiscipline={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+            metadata={buyerHeaderMetadata}
             actions={<HelpSlackIntegrationHeaderActions />}
           />
         ) : (
@@ -153,7 +167,10 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
-            <SlackIntegrationStartHerePanel showPrimaryAction />
+            <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
+            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
+              {SLACK_INTEGRATION_HELP_OVERVIEW}
+            </p>
           </div>
         ) : null}
 
@@ -163,11 +180,15 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-              {SLACK_INTEGRATION_HELP_OVERVIEW}
-            </p>
+            {!buyerPolishedShell ? (
+              <p className={readingBodyClass} data-testid="help-slack-integration-overview">
+                {SLACK_INTEGRATION_HELP_OVERVIEW}
+              </p>
+            ) : null}
 
-            {!buyerPolishedShell ? <SlackIntegrationStartHerePanel showPrimaryAction={false} /> : null}
+            {!buyerPolishedShell ? (
+              <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
+            ) : null}
 
             <section
               aria-labelledby="what-slack-notifications-do"

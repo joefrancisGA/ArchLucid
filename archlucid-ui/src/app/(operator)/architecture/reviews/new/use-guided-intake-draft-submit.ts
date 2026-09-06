@@ -65,7 +65,9 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
       );
       await invalidateOperatorHomeRunsCaches();
       recordFirstTenantFunnelEvent("first_run_started");
-      trackReviewPipelineInFlight(result.runId);
+      trackReviewPipelineInFlight(result.runId, {
+        architectureId: submittedDraft.architectureId ?? null,
+      });
       clearSession();
 
       const compareParentRunId = result.parentSpawnedRunId ?? core.parentSpawnedRunId;

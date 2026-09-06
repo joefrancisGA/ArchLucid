@@ -49,6 +49,12 @@ import {
   type RemediationInstanceSummary,
   type RemediationWorkbenchColumn,
 } from "@/lib/infra-evidence/infra-evidence-remediation-types";
+import {
+  buildResourceHubWorkbenchHref,
+  parseInfraEvidenceWorkbenchQueryValue,
+  REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
+  REMEDIATION_WORKBENCH_FINDING_ID_PARAM,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -64,9 +70,12 @@ function buildDiagramReconcileHref(correspondenceId: string | null): string | nu
 
 export function RemediationWorkbenchClient() {
   const searchParams = useSearchParams();
-  const urlFindingId = searchParams.get("findingId")?.trim() ?? "";
+  const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = searchParams.get("correspondenceId")?.trim() ?? "";
+  const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
+  );
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
@@ -87,6 +96,13 @@ export function RemediationWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  const visibleInstances = instances;
+
+  const findingScopedInstance = useMemo(
+    () => visibleInstances.find((instance) => instance.findingId === urlFindingId) ?? null,
+    [urlFindingId, visibleInstances],
+  );
+
   const groupedInstances = useMemo(() => {
     const groups = new Map<RemediationWorkbenchColumn, RemediationInstanceSummary[]>();
 
@@ -94,13 +110,13 @@ export function RemediationWorkbenchClient() {
       groups.set(column.id, []);
     }
 
-    for (const instance of instances) {
+    for (const instance of visibleInstances) {
       const column = mapRemediationInstanceStatusToColumn(instance.status);
       groups.get(column)?.push(instance);
     }
 
     return groups;
-  }, [instances]);
+  }, [visibleInstances]);
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -108,7 +124,9 @@ export function RemediationWorkbenchClient() {
 
     try {
       const [instanceRows, summary, prioritized, waveRows, snapshotResponse] = await Promise.all([
-        fetchRemediationInstances(),
+        fetchRemediationInstances({
+          cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : null,
+        }),
         fetchRemediationFactorySummary(),
         fetchRemediationPrioritizedFindings(),
         fetchRemediationWaves(),
@@ -148,7 +166,7 @@ export function RemediationWorkbenchClient() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSnapshotId, selectedWaveId]);
+  }, [selectedSnapshotId, selectedWaveId, urlCloudResourceId]);
 
   const loadDetail = useCallback(async (instanceId: string) => {
     if (instanceId.length === 0) {
@@ -174,10 +192,24 @@ export function RemediationWorkbenchClient() {
   }, [loadWorkbench]);
 
   useEffect(() => {
+    setFindingIdInput(urlFindingId);
+  }, [urlFindingId]);
+
+  useEffect(() => {
     if (urlInstanceId.length > 0) {
       setSelectedInstanceId(urlInstanceId);
+      return;
     }
-  }, [urlInstanceId]);
+
+    if (findingScopedInstance != null) {
+      setSelectedInstanceId(findingScopedInstance.instanceId);
+      return;
+    }
+
+    if (urlCloudResourceId.length > 0 && visibleInstances.length > 0) {
+      setSelectedInstanceId(visibleInstances[0].instanceId);
+    }
+  }, [findingScopedInstance, urlCloudResourceId, urlInstanceId, visibleInstances]);
 
   useEffect(() => {
     void loadDetail(selectedInstanceId);
@@ -243,14 +275,68 @@ export function RemediationWorkbenchClient() {
   };
 
   const selectedStatus = detail?.instance.status ?? null;
+  const executionSnapshotId = detail?.instance.executionSnapshotId ?? null;
   const blockers = detail?.instance.status === "PreflightBlocked" ? ["Preflight blocked"] : [];
   const transitionsBlocked = selectedStatus != null && isRemediationTransitionBlocked(selectedStatus, blockers);
+
+  const snapshotOptions = useMemo(() => {
+    if (selectedStatus !== "Executed" || executionSnapshotId == null || executionSnapshotId.length === 0) {
+      return snapshots;
+    }
+
+    return snapshots.filter((snapshot) => snapshot.snapshotId !== executionSnapshotId);
+  }, [executionSnapshotId, selectedStatus, snapshots]);
+
+  useEffect(() => {
+    if (selectedStatus !== "Executed" || snapshotOptions.length === 0) {
+      return;
+    }
+
+    const currentIsEligible = snapshotOptions.some((snapshot) => snapshot.snapshotId === selectedSnapshotId);
+
+    if (!currentIsEligible) {
+      setSelectedSnapshotId(snapshotOptions[0].snapshotId);
+    }
+  }, [selectedSnapshotId, selectedStatus, snapshotOptions]);
 
   const diagramReconcileHref = buildDiagramReconcileHref(urlCorrespondenceId);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-remediation" />
+
+      {urlCloudResourceId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-remediation-resource-scope-banner"
+          aria-label="Remediation factory resource scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+          </p>
+          <Link
+            className="mt-2 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubWorkbenchHref({ cloudResourceId: urlCloudResourceId, tab: "remediation" })}
+          >
+            Open resource evidence hub
+          </Link>
+        </section>
+      ) : null}
+
+      {urlFindingId.length > 0 ? (
+        <section
+          className="rounded border border-border bg-card p-4"
+          data-testid="infra-remediation-finding-scope-banner"
+          aria-label="Remediation factory finding scope"
+        >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            Linked from finding <span className="font-mono text-xs">{urlFindingId}</span>.
+            {findingScopedInstance == null
+              ? " No remediation instance exists yet — use Match + create below."
+              : " Matching remediation instance is selected on the board."}
+          </p>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 md:grid-cols-3" aria-label="Remediation factory metrics">
         <div className="rounded border border-border bg-card p-4">
@@ -400,13 +486,20 @@ export function RemediationWorkbenchClient() {
                   value={selectedSnapshotId}
                   onChange={(event) => setSelectedSnapshotId(event.target.value)}
                 >
-                  {snapshots.map((snapshot) => (
+                  {snapshotOptions.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
                       {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
                     </option>
                   ))}
                 </select>
               </label>
+
+              {selectedStatus === "Executed" && executionSnapshotId != null ? (
+                <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
+                  Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
+                  snapshot is excluded from the picker.
+                </p>
+              ) : null}
 
               <div className="flex flex-wrap gap-2">
                 <Button

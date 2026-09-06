@@ -36,6 +36,7 @@ public static class CompletionsCommand
         "real-llm-evidence",
         "proof-pack",
         "comparisons",
+        "architectures",
         "policy",
         "graph",
         "rules",

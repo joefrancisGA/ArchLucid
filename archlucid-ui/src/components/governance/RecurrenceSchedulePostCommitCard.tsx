@@ -30,12 +30,18 @@ import {
   RECURRENCE_DECLINED_STATUS,
   RECURRENCE_PROPOSAL_LEAD,
 } from "@/lib/recurrence-schedule-activation-copy";
+import {
+  buildRecurrenceArchitectureScopeLead,
+  filterRecurrenceSchedulesForReviewScope,
+} from "@/lib/governance/recurrence-schedule-architecture-scope";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";
 
 type RecurrenceSchedulePostCommitCardProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
+  readonly architectureDisplayName?: string | null;
   readonly hasStickinessPrompt?: boolean;
   /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
@@ -44,6 +50,8 @@ type RecurrenceSchedulePostCommitCardProps = {
 /** TB-222 — post-commit recurrence scheduling with cron + display name. */
 export function RecurrenceSchedulePostCommitCard({
   runId,
+  architectureId = null,
+  architectureDisplayName = null,
   hasStickinessPrompt = false,
   pagePrimaryOwnedElsewhere = false,
 }: RecurrenceSchedulePostCommitCardProps) {
@@ -71,11 +79,13 @@ export function RecurrenceSchedulePostCommitCard({
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
     setSchedules(
-      normalizedRunId === null
-        ? []
-        : rows.filter((row) => row.sourceRunId.replace(/-/g, "").toLowerCase() === normalizedRunId.replace(/-/g, "")),
+      filterRecurrenceSchedulesForReviewScope({
+        schedules: rows,
+        sourceRunId: runId,
+        architectureId,
+      }),
     );
-  }, [normalizedRunId]);
+  }, [architectureId, runId]);
 
   useEffect(() => {
     let canceled = false;
@@ -138,6 +148,9 @@ export function RecurrenceSchedulePostCommitCard({
   }
 
   const existing = schedules[0] ?? null;
+  const architectureScopeLead = buildRecurrenceArchitectureScopeLead({
+    architectureDisplayName,
+  });
 
   return (
     <Collapsible
@@ -152,6 +165,12 @@ export function RecurrenceSchedulePostCommitCard({
         <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{open ? "Hide" : "Show"}</span>
       </CollapsibleTrigger>
       <CollapsibleContent className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-700">
+        <p
+          className={cn("m-0 mb-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="recurrence-architecture-scope-lead"
+        >
+          {architectureScopeLead}
+        </p>
         <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)} data-testid="recurrence-proposal-lead">
           {existing === null && !declined
             ? RECURRENCE_PROPOSAL_LEAD

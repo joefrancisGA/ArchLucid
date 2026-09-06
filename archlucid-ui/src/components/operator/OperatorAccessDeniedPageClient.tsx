@@ -178,7 +178,11 @@ export function OperatorAccessDeniedPageClient() {
         </div>
 
         <FatalPageReportProblemSupportRow
-          surfaceId="operator-role-gate-session-break"
+          surfaceId={
+            supplementMessage === "wrong-tenant"
+              ? "access-denied-wrong-tenant"
+              : "operator-role-gate-session-break"
+          }
           errorTitle={ACCESS_DENIED_HEADING}
           correlationId={correlationId}
           errorCode="access-denied"

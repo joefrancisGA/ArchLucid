@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  DEV_EMPLOYEE_API_ACTOR_ROLE,
   DEV_ROLE_OVERRIDE_COOKIE,
   DEV_TEST_ACTOR_ROLE_HEADER,
-  DEV_EMPLOYEE_API_ACTOR_ROLE,
 } from "@/lib/dev-testing-overrides";
 import {
   applyDevRoleOverrideUpstreamHeader,
@@ -31,7 +31,7 @@ describe("dev-role-override-upstream", () => {
     expect(resolveDevRoleOverrideUpstreamHeader(createRequest(null) as never)).toBeNull();
   });
 
-  it("forwards PlatformOperator when Employee override cookie is set", () => {
+  it("maps Employee to PlatformOperator for DevelopmentBypass upstream shaping", () => {
     vi.stubEnv("NODE_ENV", "development");
 
     const cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=Employee; Path=/`;
@@ -39,6 +39,14 @@ describe("dev-role-override-upstream", () => {
     expect(resolveDevRoleOverrideUpstreamHeader(createRequest(cookie) as never)).toBe(
       DEV_EMPLOYEE_API_ACTOR_ROLE,
     );
+  });
+
+  it("forwards Admin unchanged", () => {
+    vi.stubEnv("NODE_ENV", "development");
+
+    const cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=Admin; Path=/`;
+
+    expect(resolveDevRoleOverrideUpstreamHeader(createRequest(cookie) as never)).toBe("Admin");
   });
 
   it("applies the header to upstream headers", () => {

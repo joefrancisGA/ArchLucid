@@ -9,6 +9,7 @@ import { useReviewClarificationQuestions } from "@/hooks/use-review-clarificatio
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
+import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
@@ -53,6 +54,7 @@ import {
 } from "@/lib/review-detail-workspace-tabs";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveReviewWorkspaceVisibleTabs } from "@/lib/resolve-review-workspace-visible-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -90,6 +92,7 @@ function resolveUserAssertions(
 
 /** Tabbed post-creation architecture workspace with compact first viewport and lazy tab panels. */
 export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspaceProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -241,7 +244,8 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "clarifications" ||
     activeTab === "diagram" ||
     activeTab === "findings" ||
-    activeTab === "governance"
+    activeTab === "governance" ||
+    (buyerPolishedShell && activeTab === "overview")
       ? "context-bar"
       : "full";
 
@@ -276,10 +280,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
       <div hidden={activeTab !== "overview"} data-testid="architecture-workspace-panel-overview">
           <div className="space-y-4">
-            <OverviewDiagramVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="overview"
-            />
+            {buyerPolishedShell ? null : (
+              <OverviewDiagramVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="overview"
+              />
+            )}
             <ArchitectureCreatedOverviewPanel
               model={model}
               sourceText={props.architectureSourceText}
@@ -290,6 +296,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               submittedArchitectureSection={props.panels.submittedArchitecture}
               pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
+            {buyerPolishedShell ? <ArchitectureCreatedOverviewBuyerChrome /> : null}
           </div>
       </div>
 

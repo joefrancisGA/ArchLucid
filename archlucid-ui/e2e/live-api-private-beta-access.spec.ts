@@ -38,6 +38,7 @@ import {
   liveApiBase,
   liveE2eArchitectureDescription,
   liveE2ePrivateBetaAccessPlaywrightTimeoutMs,
+  resolveArchitectureIdentityIdForRun,
   resolveLiveJwtMode,
   toRunGuidPathSegment,
   liveJsonHeaders,
@@ -51,7 +52,12 @@ const expectedScope = {
   projectId: LIVE_E2E_DEFAULT_PROJECT_ID,
 };
 
-test.describe("live-api-private-beta-access", () => {
+const releaseGateTag = "@release-gate";
+
+test.describe(
+  `live-api-private-beta-access (${releaseGateTag})`,
+  { tag: [releaseGateTag, "@critical", "@buyer-journey"] },
+  () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run private-beta JwtBearer access-path smoke.");
 
   test.beforeAll(async ({ request }) => {
@@ -150,7 +156,7 @@ test.describe("live-api-private-beta-access", () => {
     await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
 
     const runDetail = await getRunDetailsWithTransientRetries(request, runId, scope);
-    const architectureId = runDetail.run?.architectureId?.trim() ?? "";
+    const architectureId = (await resolveArchitectureIdentityIdForRun(request, runId, runDetail, scope)) ?? "";
 
     if (architectureId.length > 0) {
       await page.goto(`/architecture/architectures/${encodeURIComponent(architectureId)}`, {

@@ -65,7 +65,7 @@ public sealed class ArchitectureIdentityBackfillServiceTests
         reloadedSecond!.ArchitectureId.Should().NotBeNull();
         reloadedFirst.ArchitectureId!.Value.Should().NotBe(reloadedSecond.ArchitectureId!.Value);
 
-        var page = await identityRepository.ListAsync(Scope, 1, 50, CancellationToken.None);
+        var page = await identityRepository.ListAsync(Scope, 1, 50, includeArchived: true, CancellationToken.None);
         page.TotalCount.Should().Be(2);
     }
 

@@ -1092,6 +1092,28 @@ export async function listArchitectureRuns(
   return rows;
 }
 
+export type ArchitectureIdentityListItemJson = {
+  architectureId?: string;
+  latestReviewId?: string | null;
+};
+
+/** GET `/v1/architectures` — scoped architecture identity list (buyer desk picker). */
+export async function listArchitectureIdentities(
+  request: APIRequestContext,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
+): Promise<ArchitectureIdentityListItemJson[]> {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/architectures?page=1&pageSize=50`, {
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
+  });
+
+  await throwIfNotOk(res, "GET /v1/architectures");
+
+  const body: unknown = await res.json();
+
+  return unwrapCursorPagedResponseItems<ArchitectureIdentityListItemJson>(body);
+}
+
 export type LiveGovernanceReviewRequestOptions = {
   readonly apiKey?: string | null;
   /** JwtBearer lane — overrides `LIVE_JWT_TOKEN` for this request (peer reviewer / rejector SoD). */
@@ -1185,6 +1207,51 @@ export type RunDetailsJson = {
   };
   results?: unknown[];
 };
+
+/**
+ * Resolve architecture identity id for identity-desk smoke when run detail omits `architectureId`.
+ * Falls back to `GET /v1/architectures` and matches `latestReviewId` to the created run.
+ * Polls until timeout because list projection can lag run detail on cold SQL.
+ */
+export async function resolveArchitectureIdentityIdForRun(
+  request: APIRequestContext,
+  runId: string,
+  runDetail: RunDetailsJson,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
+  pollTimeoutMs = 120_000,
+): Promise<string | null> {
+  const fromRun = runDetail.run?.architectureId?.trim() ?? "";
+
+  if (fromRun.length > 0) {
+    return fromRun;
+  }
+
+  const normalizedRunId = normalizeRunIdForCompare(runId);
+  const deadlineMs = Date.now() + pollTimeoutMs;
+
+  while (Date.now() < deadlineMs) {
+    const identities = await listArchitectureIdentities(request, tenantScope, explicitBearerToken);
+    const match = identities.find((row) => {
+      const latestReviewId = row.latestReviewId?.trim() ?? "";
+
+      if (latestReviewId.length === 0) {
+        return false;
+      }
+
+      return normalizeRunIdForCompare(latestReviewId) === normalizedRunId;
+    });
+    const architectureId = match?.architectureId?.trim() ?? "";
+
+    if (architectureId.length > 0) {
+      return architectureId;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
+
+  return null;
+}
 
 /** POST `/v1/governance/approval-requests` — submit promotion approval request. */
 export async function createApprovalRequest(

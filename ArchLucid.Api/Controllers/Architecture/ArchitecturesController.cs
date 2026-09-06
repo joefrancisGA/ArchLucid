@@ -47,18 +47,20 @@ public sealed class ArchitecturesController(
     /// <summary>Lists architecture identities in the current tenant/workspace/project scope.</summary>
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<ArchitectureIdentityListItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ArchitectureIdentityListPage), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListArchitectures(
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        [FromQuery] bool includeArchived = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        PagedResponse<ArchitectureIdentityListItem> response = await _architectureIdentityService.ListIdentitiesAsync(
+        ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
             scope,
             page,
             pageSize,
+            includeArchived,
             cancellationToken);
 
         return Ok(response);
@@ -134,15 +136,22 @@ public sealed class ArchitecturesController(
                     ProblemTypes.ResourceNotFound);
             }
 
+            string auditEventType = body.HasArchived
+                ? body.Archived!.Value
+                    ? AuditEventTypes.ArchitectureIdentityArchived
+                    : AuditEventTypes.ArchitectureIdentityRestored
+                : AuditEventTypes.ArchitectureIdentityPatched;
+
             await _auditService.LogAsync(
                 BuildArchitectureAuditEvent(
                     scope,
-                    AuditEventTypes.ArchitectureIdentityPatched,
+                    auditEventType,
                     new
                     {
                         architectureId,
                         displayName = detail.DisplayName,
                         hasDescriptionPatch = body.HasDescription,
+                        archived = detail.ArchivedUtc.HasValue,
                     }),
                 cancellationToken);
 

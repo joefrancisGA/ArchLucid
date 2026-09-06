@@ -9,6 +9,7 @@ export type SidebarCollapsibleNavGroupId =
   | "operate-governance"
   | "operate-policy"
   | "operate-integrations"
+  | "operate-infrastructure"
   | "operator-admin"
   | "operator-system-admin";
 
@@ -27,6 +28,7 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   "operate-governance": false,
   "operate-policy": false,
   "operate-integrations": false,
+  "operate-infrastructure": false,
   "operator-admin": false,
   "operator-system-admin": false,
 };
@@ -127,6 +129,7 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
       "operate-governance": record["operate-governance"] === true,
       "operate-policy": record["operate-policy"] === true || record["operate-governance"] === true,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
+      "operate-infrastructure": record["operate-infrastructure"] === true,
       "operator-admin":
         record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
       "operator-system-admin": record["operator-system-admin"] === true,
@@ -186,6 +189,7 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "operate-governance" ||
     groupId === "operate-policy" ||
     groupId === "operate-integrations" ||
+    groupId === "operate-infrastructure" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"
   );

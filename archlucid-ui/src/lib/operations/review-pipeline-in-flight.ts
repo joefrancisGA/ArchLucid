@@ -27,7 +27,10 @@ export function reviewPipelineDetailHref(runId: string): string {
  *
  * Returns the tracked operation id, or `null` when nothing was registered.
  */
-export function trackReviewPipelineInFlight(runId: string | null | undefined): string | null {
+export function trackReviewPipelineInFlight(
+  runId: string | null | undefined,
+  options?: { readonly architectureId?: string | null },
+): string | null {
   const trimmed = runId?.trim() ?? "";
 
   if (trimmed.length === 0) {
@@ -41,12 +44,14 @@ export function trackReviewPipelineInFlight(runId: string | null | undefined): s
   }
 
   const operationId = reviewPipelineOperationId(trimmed);
+  const architectureId = options?.architectureId?.trim() ?? null;
 
   trackInFlightOperation({
     operationId,
     title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
     href: reviewPipelineDetailHref(trimmed),
     runId: trimmed,
+    architectureId: architectureId !== null && architectureId.length > 0 ? architectureId : null,
     stepLabel: "Queued",
     state: "Pending",
   });
@@ -61,6 +66,7 @@ export function trackReviewPipelineInFlight(runId: string | null | undefined): s
 export function restartReviewPipelineInFlight(
   runId: string,
   startedAtMs: number = Date.now(),
+  options?: { readonly architectureId?: string | null },
 ): string | null {
   const trimmed = runId.trim();
 
@@ -73,6 +79,7 @@ export function restartReviewPipelineInFlight(
   }
 
   const operationId = reviewPipelineOperationId(trimmed);
+  const architectureId = options?.architectureId?.trim() ?? null;
 
   removeInFlightOperation(operationId);
   trackInFlightOperation({
@@ -80,6 +87,7 @@ export function restartReviewPipelineInFlight(
     title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
     href: reviewPipelineDetailHref(trimmed),
     runId: trimmed,
+    architectureId: architectureId !== null && architectureId.length > 0 ? architectureId : null,
     stepLabel: "Queued",
     state: "Pending",
     startedAtMs,

@@ -4,6 +4,13 @@
 export const ADVISORY_SCANS_PAGE_LEAD =
   "Generate prioritized follow-up recommendations from finalized reviews.";
 
+export const ADVISORY_SCANS_PAGE_LEAD_BUYER =
+  "Prioritized follow-up recommendations from finalized reviews.";
+
+export function advisoryScansPageLead(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? ADVISORY_SCANS_PAGE_LEAD_BUYER : ADVISORY_SCANS_PAGE_LEAD;
+}
+
 /** @deprecated Prefer `ADVISORY_SCANS_PAGE_LEAD` — same string. */
 export const ADVISORY_SCANS_PAGE_SUBTITLE = ADVISORY_SCANS_PAGE_LEAD;
 
@@ -151,6 +158,9 @@ export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
 export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Resolve outcome";
 
 export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
+
+export const ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER =
+  "Review how recurring advisory scans are configured in this workspace — schedule changes require admin access on the Schedules workspace below.";
 
 export const ADVISORY_SCANS_SCHEDULES_INTRO =
   "Run advisory scans automatically after reviews are finalized.";

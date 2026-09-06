@@ -103,6 +103,7 @@ jobs:
           python3 scripts/ci/check_status_tag_kind_warning.py
           python3 scripts/ci/check_npm_overrides_lockfile_sync.py
           python3 scripts/ci/check_live_e2e_simulator_azure_openai_env.py
+          python3 scripts/ci/check_schemathesis_light_auth_paths.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -120,6 +121,8 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_status_tag_kind_warning.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_npm_overrides_lockfile_sync.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_e2e_simulator_azure_openai_env.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_schemathesis_light_auth_paths.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"

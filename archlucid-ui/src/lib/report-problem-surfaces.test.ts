@@ -20,7 +20,9 @@ const UI_ROOT = process.cwd();
 
 describe("report-problem-surfaces (TB-782)", () => {
   it("lists initial high-stakes surfaces with component paths", () => {
-    expect(REPORT_PROBLEM_V1_SURFACES.length).toBeGreaterThanOrEqual(9);
+    expect(REPORT_PROBLEM_V1_SURFACES.length).toBeGreaterThanOrEqual(10);
+    expect(findReportProblemSurfaceById("session-expired-sign-in-failure")).toBeDefined();
+    expect(findReportProblemSurfaceById("access-denied-wrong-tenant")).toBeDefined();
     expect(findReportProblemSurfaceById("contact-support-help-orientation")).toBeDefined();
     expect(findReportProblemSurfaceById("reviews-hub-unexpected-response")).toBeDefined();
     expect(findReportProblemSurfaceById("operator-api-problem-high-stakes")?.componentPath).toContain(

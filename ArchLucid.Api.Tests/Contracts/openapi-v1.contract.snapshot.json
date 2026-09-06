@@ -4083,6 +4083,13 @@
             "format": "uuid",
             "type": "string"
           },
+          "archivedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -4162,6 +4169,13 @@
             "format": "uuid",
             "type": "string"
           },
+          "archivedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "currentDraftId": {
             "format": "uuid",
             "type": [
@@ -4197,6 +4211,36 @@
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityListPage": {
+        "properties": {
+          "archivedHiddenCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityListItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -8048,8 +8092,41 @@
       },
       "CloudResourceAuditLineageLink": {
         "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "available": {
             "type": "boolean"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "controlTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "degradedReason": {
             "type": [
@@ -8057,11 +8134,44 @@
               "string"
             ]
           },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/CloudResourceAuditLineageMatch"
+            },
+            "type": "array"
+          },
           "relativePath": {
             "type": [
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "CloudResourceAuditLineageMatch": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "auditEvidenceSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlNumber": {
+            "type": "string"
+          },
+          "controlTitle": {
+            "type": "string"
+          },
+          "snapshotCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -8263,6 +8373,23 @@
         },
         "type": "object"
       },
+      "CloudResourceExplorerWorkCounts": {
+        "properties": {
+          "inventoryDriftChangeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openOperationalFindingsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openRemediationInstancesCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "CloudResourceInventoryChangeSummary": {
         "properties": {
           "changeId": {
@@ -8415,6 +8542,16 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "workCounts": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CloudResourceExplorerWorkCounts"
+              }
             ]
           }
         },
@@ -21676,32 +21813,6 @@
         },
         "type": "object"
       },
-      "PagedResponseOfArchitectureIdentityListItem": {
-        "properties": {
-          "hasMore": {
-            "type": "boolean"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureIdentityListItem"
-            },
-            "type": "array"
-          },
-          "page": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "pageSize": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "totalCount": {
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "PagedResponseOfAzureInventoryChangeRecord": {
         "properties": {
           "hasMore": {
@@ -21834,6 +21945,12 @@
       },
       "PatchArchitectureIdentityRequest": {
         "properties": {
+          "archived": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "description": {
             "type": [
               "null",
@@ -21847,6 +21964,9 @@
             ]
           },
           "hasAnyPatch": {
+            "type": "boolean"
+          },
+          "hasArchived": {
             "type": "boolean"
           },
           "hasDescription": {
@@ -27009,6 +27129,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "executionSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingId": {
             "format": "uuid",
             "type": "string"
@@ -27020,12 +27147,26 @@
           "patternKey": {
             "type": "string"
           },
+          "preflightSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "status": {
             "$ref": "#/components/schemas/RemediationInstanceStatus"
           },
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "waveId": {
             "format": "uuid",
@@ -99751,6 +99892,14 @@
               "format": "int32",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "includeArchived",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -99758,17 +99907,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfArchitectureIdentityListItem"
+                  "$ref": "#/components/schemas/ArchitectureIdentityListPage"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfArchitectureIdentityListItem"
+                  "$ref": "#/components/schemas/ArchitectureIdentityListPage"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfArchitectureIdentityListItem"
+                  "$ref": "#/components/schemas/ArchitectureIdentityListPage"
                 }
               }
             },
@@ -141411,6 +141560,13 @@
           },
           {
             "in": "query",
+            "name": "workQueue",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "page",
             "schema": {
               "default": 1,
@@ -142332,6 +142488,16 @@
     },
     "/v1/infra-evidence/remediation-instances": {
       "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cloudResourceId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

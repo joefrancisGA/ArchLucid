@@ -7,7 +7,7 @@ import {
   resolveDevRoleOverrideApiActorRole,
 } from "@/lib/dev-testing-overrides";
 
-/** Resolves the upstream dev role override header from the browser cookie (local dev only). */
+/** Resolves the upstream DevelopmentBypass test-actor role header from the browser cookie (local dev only). */
 export function resolveDevRoleOverrideUpstreamHeader(request: NextRequest): string | null {
   if (!isDevTestingOverridesEnabled()) {
     return null;
@@ -43,9 +43,9 @@ export function resolveDevRoleOverrideUpstreamHeader(request: NextRequest): stri
 }
 
 export function applyDevRoleOverrideUpstreamHeader(headers: Headers, request: NextRequest): void {
-  const role = resolveDevRoleOverrideUpstreamHeader(request);
+  const actorRole = resolveDevRoleOverrideUpstreamHeader(request);
 
-  if (role !== null) {
-    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, role);
+  if (actorRole !== null) {
+    headers.set(DEV_TEST_ACTOR_ROLE_HEADER, actorRole);
   }
 }

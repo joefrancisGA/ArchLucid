@@ -1211,6 +1211,8 @@ export interface components {
             /** Format: uuid */
             architectureId?: string;
             /** Format: date-time */
+            archivedUtc?: null | string;
+            /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
             currentDraftId?: null | string;
@@ -1234,6 +1236,8 @@ export interface components {
         ArchitectureIdentityListItem: {
             /** Format: uuid */
             architectureId?: string;
+            /** Format: date-time */
+            archivedUtc?: null | string;
             /** Format: uuid */
             currentDraftId?: null | string;
             displayName?: string;
@@ -1247,6 +1251,18 @@ export interface components {
             reviewCount?: number;
             /** Format: date-time */
             updatedUtc?: string;
+        };
+        ArchitectureIdentityListPage: {
+            /** Format: int32 */
+            archivedHiddenCount?: number;
+            hasMore?: boolean;
+            items?: components["schemas"]["ArchitectureIdentityListItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
         };
         ArchitectureIdentityVersionSummary: {
             /** Format: uuid */
@@ -2329,9 +2345,30 @@ export interface components {
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
         CloudResourceAuditLineageLink: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
             available?: boolean;
+            /** Format: uuid */
+            controlId?: null | string;
+            controlNumber?: null | string;
+            controlTitle?: null | string;
             degradedReason?: null | string;
+            matches?: components["schemas"]["CloudResourceAuditLineageMatch"][];
             relativePath?: null | string;
+        };
+        CloudResourceAuditLineageMatch: {
+            /** Format: uuid */
+            assessmentId?: string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: string;
+            /** Format: uuid */
+            controlId?: string;
+            controlNumber?: string;
+            controlTitle?: string;
+            /** Format: date-time */
+            snapshotCreatedUtc?: string;
         };
         CloudResourceCurrentConfigurationSection: {
             azureResourceId?: string;
@@ -2389,6 +2426,14 @@ export interface components {
             kind?: string;
             relativePath?: string;
         };
+        CloudResourceExplorerWorkCounts: {
+            /** Format: int32 */
+            inventoryDriftChangeCount?: number;
+            /** Format: int32 */
+            openOperationalFindingsCount?: number;
+            /** Format: int32 */
+            openRemediationInstancesCount?: number;
+        };
         CloudResourceInventoryChangeSummary: {
             /** Format: uuid */
             changeId?: string;
@@ -2440,6 +2485,7 @@ export interface components {
             region?: null | string;
             resourceGroup?: null | string;
             resourceType?: null | string;
+            workCounts?: null | components["schemas"]["CloudResourceExplorerWorkCounts"];
         };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
@@ -6281,16 +6327,6 @@ export interface components {
             statusCode?: number;
             transportSucceeded?: boolean;
         };
-        PagedResponseOfArchitectureIdentityListItem: {
-            hasMore?: boolean;
-            items?: components["schemas"]["ArchitectureIdentityListItem"][];
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int32 */
-            totalCount?: number;
-        };
         PagedResponseOfAzureInventoryChangeRecord: {
             hasMore?: boolean;
             items?: components["schemas"]["AzureInventoryChangeRecord"][];
@@ -6342,9 +6378,11 @@ export interface components {
             totalCount?: number;
         };
         PatchArchitectureIdentityRequest: {
+            archived?: null | boolean;
             description?: null | string;
             displayName?: null | string;
             hasAnyPatch?: boolean;
+            hasArchived?: boolean;
             hasDescription?: boolean;
             hasDisplayName?: boolean;
         };
@@ -7945,13 +7983,19 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
+            executionSnapshotId?: null | string;
+            /** Format: uuid */
             findingId?: string;
             /** Format: uuid */
             instanceId?: string;
             patternKey?: string;
+            /** Format: uuid */
+            preflightSnapshotId?: null | string;
             status?: components["schemas"]["RemediationInstanceStatus"];
             /** Format: date-time */
             updatedUtc?: string;
+            /** Format: uuid */
+            verificationSnapshotId?: null | string;
             /** Format: uuid */
             waveId?: null | string;
         };
