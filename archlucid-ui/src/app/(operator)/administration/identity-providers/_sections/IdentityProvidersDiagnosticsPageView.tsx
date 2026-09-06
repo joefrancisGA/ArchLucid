@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
@@ -44,6 +45,10 @@ import {
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
+import {
+  identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch,
+  parseIdentityProvidersDiagnosticsProtocolOpenFromSearch,
+} from "@/lib/administration/identity-providers-diagnostics-protocol-disclosure-url";
 
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
@@ -75,13 +80,43 @@ export function IdentityProvidersDiagnosticsPageView(
   props: IdentityProvidersDiagnosticsPageViewProps,
 ): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/identity-providers/diagnostics";
+  const searchParams = useSearchParams();
+  const identityProvidersDiagnosticsProtocolOpenParam = searchParams.get("identityProvidersDiagnosticsProtocolOpen");
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
     props.model.oidcDiagnosticsLoaded || props.model.samlOperationalHealthLoaded;
   const collapseHealthIntoProtocol = bothIdentityProviderProbesNotApplicable(props.model.identityProviderDiagnostics);
-  const protocolDetailsRef = useRef<HTMLDetailsElement>(null);
+  const [protocolDetailsOpen, setProtocolDetailsOpenState] = useState(() =>
+    parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
+  );
   const oidcDeepLinkHandledRef = useRef<boolean>(false);
+
+  const syncProtocolDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        identityProvidersDiagnosticsProtocolDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setProtocolDetailsOpen = useCallback(
+    (open: boolean) => {
+      setProtocolDetailsOpenState(open);
+      syncProtocolDetailsOpenToUrl(open);
+    },
+    [syncProtocolDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setProtocolDetailsOpenState(
+      parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
+    );
+  }, [identityProvidersDiagnosticsProtocolOpenParam]);
 
   // The disclosure this deep link targets only mounts once the protocol payloads settle, so the
   // effect has to wait for that render rather than firing once on mount.
@@ -96,11 +131,7 @@ export function IdentityProvidersDiagnosticsPageView(
       return;
     }
 
-    const details = protocolDetailsRef.current;
-
-    if (details !== null) {
-      details.open = true;
-    }
+    setProtocolDetailsOpenState(true);
 
     const target = document.getElementById(IDENTITY_PROVIDERS_DIAGNOSTICS_OIDC_SECTION_ID);
 
@@ -165,9 +196,12 @@ export function IdentityProvidersDiagnosticsPageView(
 
         {showProtocolDetails ? (
           <details
-            ref={protocolDetailsRef}
             className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
             data-testid="identity-providers-diagnostics-protocol-details"
+            open={protocolDetailsOpen}
+            onToggle={(event) => {
+              setProtocolDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE}

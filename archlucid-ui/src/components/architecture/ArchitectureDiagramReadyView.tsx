@@ -15,8 +15,14 @@ import {
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
 } from "@/lib/architecture/architecture-diagram-copy";
+import {
+  architectureDiagramMermaidSourceDisclosureHrefFromSearch,
+  parseArchitectureDiagramMermaidSourceOpenFromSearch,
+} from "@/lib/architecture/architecture-diagram-mermaid-source-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ArchitectureDiagramPanelState } from "./use-architecture-diagram-panel";
 
@@ -26,6 +32,37 @@ type ArchitectureDiagramReadyViewProps = {
 
 export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyViewProps): React.JSX.Element | null {
   const { panel } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureDiagramMermaidSourceOpenParam = searchParams.get("architectureDiagramMermaidSourceOpen");
+  const [mermaidSourceOpen, setMermaidSourceOpenState] = useState(() =>
+    parseArchitectureDiagramMermaidSourceOpenFromSearch(architectureDiagramMermaidSourceOpenParam),
+  );
+
+  const syncMermaidSourceOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureDiagramMermaidSourceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMermaidSourceOpen = useCallback(
+    (open: boolean) => {
+      setMermaidSourceOpenState(open);
+      syncMermaidSourceOpenToUrl(open);
+    },
+    [syncMermaidSourceOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMermaidSourceOpenState(
+      parseArchitectureDiagramMermaidSourceOpenFromSearch(architectureDiagramMermaidSourceOpenParam),
+    );
+  }, [architectureDiagramMermaidSourceOpenParam]);
 
   if (panel.displayMermaidSource === null) {
     return null;
@@ -76,7 +113,13 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
         <Button type="button" variant="outline" size="sm" onClick={() => void panel.runGeneration(true)} data-testid="architecture-diagram-regenerate">
           {ARCHITECTURE_DIAGRAM_REGENERATE_ACTION}
         </Button>
-        <details data-testid="architecture-diagram-mermaid-source">
+        <details
+          data-testid="architecture-diagram-mermaid-source"
+          open={mermaidSourceOpen}
+          onToggle={(event) => {
+            setMermaidSourceOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer px-1 py-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             {ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION}
           </summary>

@@ -1,7 +1,15 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  findingInsightDensityDisclosureHrefFromSearch,
+  parseFindingInsightDensityOpenFromSearch,
+} from "@/lib/findings/finding-insight-density-disclosure-url";
 
 export type FindingInsightDensityDisclosureProps = {
   readonly insightDensityScore: number | null;
@@ -11,8 +19,37 @@ export type FindingInsightDensityDisclosureProps = {
 
 /** Optional insight-density fields behind disclosure on finding detail surfaces. */
 export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisclosureProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingInsightDensityOpenParam = searchParams.get("findingInsightDensityOpen");
+  const [open, setOpenState] = useState(() =>
+    parseFindingInsightDensityOpenFromSearch(findingInsightDensityOpenParam),
+  );
   const hasScore = props.insightDensityScore !== null && Number.isFinite(props.insightDensityScore);
   const whyText = props.whyThisIsNotGeneric?.trim() ?? "";
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        findingInsightDensityDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseFindingInsightDensityOpenFromSearch(findingInsightDensityOpenParam));
+  }, [findingInsightDensityOpenParam]);
 
   if (!hasScore && whyText.length === 0) {
     return null;
@@ -22,6 +59,10 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
     <details
       className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", props.className)}
       data-testid="finding-insight-density-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Insight density signals

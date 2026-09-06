@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
@@ -33,6 +37,10 @@ import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-lis
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
+import {
+  operatorHomeBuyerProofDetailsDisclosureHrefFromSearch,
+  parseOperatorHomeBuyerProofDetailsOpenFromSearch,
+} from "@/lib/operator/operator-home-buyer-proof-details-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeReviewSummaryCardProps = {
@@ -80,6 +88,84 @@ type FeaturedShowcaseSummaryProps = {
   readonly primaryAction?: { readonly href: string; readonly label: string } | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
+
+function BuyerProofDetailsDisclosure(props: {
+  readonly run: RunSummary;
+  readonly buyerPolishedShell: boolean;
+  readonly recordHref: string;
+  readonly recordLabel: string;
+  readonly monitoredRiskClarifier: string | null;
+  readonly showcaseApprovalAuthority: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const operatorHomeBuyerProofDetailsOpenParam = searchParams.get("operatorHomeBuyerProofDetailsOpen");
+  const [open, setOpenState] = useState(() =>
+    parseOperatorHomeBuyerProofDetailsOpenFromSearch(operatorHomeBuyerProofDetailsOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        operatorHomeBuyerProofDetailsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseOperatorHomeBuyerProofDetailsOpenFromSearch(operatorHomeBuyerProofDetailsOpenParam));
+  }, [operatorHomeBuyerProofDetailsOpenParam]);
+
+  return (
+    <details
+      className="group"
+      data-testid="runs-dashboard-buyer-proof-details"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
+      <summary className={cn("cursor-pointer list-none", OPERATOR_LINK.nav)}>
+        <span className="group-open:hidden">Details</span>
+        <span className="hidden group-open:inline">Hide details</span>
+      </summary>
+      <div className="mt-2 space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+        {props.monitoredRiskClarifier !== null ? (
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
+            {props.monitoredRiskClarifier}
+          </p>
+        ) : null}
+        <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
+          Approver: {props.showcaseApprovalAuthority}
+        </p>
+        <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className="font-medium text-neutral-600 dark:text-neutral-400">Finalized review record: </span>
+          <Link
+            href={props.recordHref}
+            className={OPERATOR_LINK.nav}
+            title={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
+            data-testid="runs-dashboard-buyer-proof-finalized-record-link"
+          >
+            {props.recordLabel}
+          </Link>
+          <CopyIdButton value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} aria-label="Copy finalized review record ID" />
+        </p>
+      </div>
+    </details>
+  );
+}
 
 function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): React.JSX.Element | null {
   const showcaseProofMeta = buyerDemoPackageCardMeta(props.run.runId ?? "");
@@ -137,35 +223,14 @@ function FeaturedShowcaseReviewSummary(props: FeaturedShowcaseSummaryProps): Rea
             View record
           </Link>
         </div>
-        <details className="group" data-testid="runs-dashboard-buyer-proof-details">
-          <summary className={cn("cursor-pointer list-none", OPERATOR_LINK.nav)}>
-            <span className="group-open:hidden">Details</span>
-            <span className="hidden group-open:inline">Hide details</span>
-          </summary>
-          <div className="mt-2 space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-800">
-            {monitoredRiskClarifier !== null ? (
-              <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
-                {monitoredRiskClarifier}
-              </p>
-            ) : null}
-            <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
-            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.navHelper)}>
-              Approver: {showcaseProofMeta.approvalAuthority}
-            </p>
-            <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-              <span className="font-medium text-neutral-600 dark:text-neutral-400">Finalized review record: </span>
-              <Link
-                href={recordHref}
-                className={OPERATOR_LINK.nav}
-                title={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
-                data-testid="runs-dashboard-buyer-proof-finalized-record-link"
-              >
-                {recordLabel}
-              </Link>
-              <CopyIdButton value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} aria-label="Copy finalized review record ID" />
-            </p>
-          </div>
-        </details>
+        <BuyerProofDetailsDisclosure
+          run={props.run}
+          buyerPolishedShell={props.buyerPolishedShell}
+          recordHref={recordHref}
+          recordLabel={recordLabel}
+          monitoredRiskClarifier={monitoredRiskClarifier}
+          showcaseApprovalAuthority={showcaseProofMeta.approvalAuthority}
+        />
       </div>
     </div>
   );

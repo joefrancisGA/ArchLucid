@@ -11,6 +11,12 @@ import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { useNavSurface } from "@/lib/use-nav-surface";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  evidenceTrailGuidanceDisclosureHrefFromSearch,
+  parseEvidenceTrailGuidanceOpenFromSearch,
+} from "@/lib/insights/evidence-trail-guidance-disclosure-url";
 
 export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;
@@ -20,8 +26,37 @@ const GRAPH_PAGE_HELP_TOPIC = pageHelpTopicForPathname("/insights/evidence-graph
 
 /** Collapses long graph explanation so the page leads with selection and load actions. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/insights/evidence-graph";
+  const searchParams = useSearchParams();
+  const evidenceTrailGuidanceOpenParam = searchParams.get("evidenceTrailGuidanceOpen");
   const surface = useNavSurface("graph");
   const block = mergeLayerGuidanceForGraphDisclosure(surface.layerGuidance);
+  const [open, setOpenState] = useState(() =>
+    parseEvidenceTrailGuidanceOpenFromSearch(evidenceTrailGuidanceOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        evidenceTrailGuidanceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseEvidenceTrailGuidanceOpenFromSearch(evidenceTrailGuidanceOpenParam));
+  }, [evidenceTrailGuidanceOpenParam]);
 
   return (
     <details
@@ -30,6 +65,10 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
         props.className,
       )}
       data-testid="evidence-trail-guidance-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE}

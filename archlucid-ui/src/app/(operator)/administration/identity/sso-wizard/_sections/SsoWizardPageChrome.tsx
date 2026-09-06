@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
@@ -43,6 +45,10 @@ import {
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 
 import { SsoWizardBuyerChrome } from "./SsoWizardBuyerChrome";
+import {
+  parseSsoWizardRelatedSurfacesOpenFromSearch,
+  ssoWizardRelatedSurfacesDisclosureHrefFromSearch,
+} from "@/lib/administration/sso-wizard-related-surfaces-disclosure-url";
 
 import { SsoWizardExistingConfigSummary } from "./SsoWizardExistingConfigSummary";
 import { SsoWizardStepper } from "./SsoWizardStepper";
@@ -66,6 +72,57 @@ type Props = Pick<
   | "setPendingCancelConfirm"
   | "leaveWizard"
 >;
+
+function SsoWizardRelatedSurfacesDisclosure() {
+  const router = useRouter();
+  const pathname = usePathname() ?? SSO_WIZARD_CANONICAL_PATH;
+  const searchParams = useSearchParams();
+  const ssoWizardRelatedSurfacesOpenParam = searchParams.get("ssoWizardRelatedSurfacesOpen");
+  const [open, setOpenState] = useState(() =>
+    parseSsoWizardRelatedSurfacesOpenFromSearch(ssoWizardRelatedSurfacesOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        ssoWizardRelatedSurfacesDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseSsoWizardRelatedSurfacesOpenFromSearch(ssoWizardRelatedSurfacesOpenParam));
+  }, [ssoWizardRelatedSurfacesOpenParam]);
+
+  return (
+    <details
+      className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+      data-testid="sso-wizard-related-surfaces-disclosure"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
+      <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
+      </summary>
+      <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+        <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
+        <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
+      </div>
+    </details>
+  );
+}
 
 export function SsoWizardPageChrome({
   existingConfigLoading,
@@ -210,20 +267,7 @@ export function SsoWizardPageChrome({
         </div>
       ) : null}
 
-      {!buyerPolishedShell ? (
-        <details
-          className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-          data-testid="sso-wizard-related-surfaces-disclosure"
-        >
-          <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {SSO_WIZARD_RELATED_SURFACES_DISCLOSURE_TITLE}
-          </summary>
-          <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
-            <IdentityProvidersSsoWizardVocabularyRail currentSurfaceId="sso-wizard" />
-            <SsoWizardScimVocabularyRail currentSurfaceId="sso-wizard" />
-          </div>
-        </details>
-      ) : null}
+      {!buyerPolishedShell ? <SsoWizardRelatedSurfacesDisclosure /> : null}
 
       <ConfirmationDialog
         open={pendingCancelConfirm}

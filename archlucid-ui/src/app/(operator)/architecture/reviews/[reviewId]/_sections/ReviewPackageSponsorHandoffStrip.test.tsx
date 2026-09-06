@@ -21,6 +21,14 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({ callerAuthorityRank: 900 }),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/architecture/reviews/run-1",
+  });
+});
+
 vi.mock("next/link", () => ({
   default: ({
     href,
