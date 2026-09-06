@@ -1,4 +1,5 @@
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -11,7 +12,8 @@ namespace ArchLucid.Application.Configuration;
 public sealed class InsightDensityGateOptionsResolver(
     IOptions<InsightDensityGateOptions> hostOptions,
     IScopeContextProvider scopeContextProvider,
-    ITenantSettingsRepository tenantSettingsRepository) : IInsightDensityGateOptionsResolver
+    ITenantSettingsRepository tenantSettingsRepository,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor) : IInsightDensityGateOptionsResolver
 {
     private readonly IOptions<InsightDensityGateOptions> _hostOptions =
         hostOptions ?? throw new ArgumentNullException(nameof(hostOptions));
@@ -22,40 +24,76 @@ public sealed class InsightDensityGateOptionsResolver(
     private readonly ITenantSettingsRepository _tenantSettingsRepository =
         tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
 
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor
+        ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
+
     public InsightDensityGateOptions Resolve(CancellationToken cancellationToken = default)
     {
         InsightDensityGateOptions effective = Clone(_hostOptions.Value);
+        bool isRealExecutionMode = InsightDensityGateEffectiveOptionsMerger.IsRealExecutionMode(
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (scope.TenantId == Guid.Empty)
         {
+            InsightDensityGateEffectiveOptionsMerger.ApplyExecutionModePolicy(
+                effective,
+                isRealExecutionMode,
+                llmJudgeOverridden: false,
+                llmJudgeTenantValue: false,
+                engineJudgeOverridden: false,
+                engineJudgeTenantValue: false);
+
             return effective;
         }
 
-        string? llmJudge = _tenantSettingsRepository
-            .TryGetAsync(scope.TenantId, TenantSettingKeys.FindingsInsightDensityLlmJudgeEnabled, cancellationToken)
-            .GetAwaiter()
-            .GetResult();
+        bool llmJudgeOverridden = TryReadTenantBoolean(
+            scope.TenantId,
+            TenantSettingKeys.FindingsInsightDensityLlmJudgeEnabled,
+            cancellationToken,
+            out bool llmJudgeTenantValue);
 
-        if (TenantSettingBooleanParser.TryParse(llmJudge, out bool enableLlmJudge))
+        if (llmJudgeOverridden)
         {
-            effective.EnableLlmJudge = enableLlmJudge;
+            effective.EnableLlmJudge = llmJudgeTenantValue;
         }
 
-        string? engineJudge = _tenantSettingsRepository
-            .TryGetAsync(
-                scope.TenantId,
-                TenantSettingKeys.FindingsInsightDensityLlmJudgeEngineFindingsEnabled,
-                cancellationToken)
-            .GetAwaiter()
-            .GetResult();
+        bool engineJudgeOverridden = TryReadTenantBoolean(
+            scope.TenantId,
+            TenantSettingKeys.FindingsInsightDensityLlmJudgeEngineFindingsEnabled,
+            cancellationToken,
+            out bool engineJudgeTenantValue);
 
-        if (TenantSettingBooleanParser.TryParse(engineJudge, out bool enableEngineJudge))
+        if (engineJudgeOverridden)
         {
-            effective.EnableLlmJudgeForEngineFindings = enableEngineJudge;
+            effective.EnableLlmJudgeForEngineFindings = engineJudgeTenantValue;
         }
+
+        InsightDensityGateEffectiveOptionsMerger.ApplyExecutionModePolicy(
+            effective,
+            isRealExecutionMode,
+            llmJudgeOverridden,
+            llmJudgeTenantValue,
+            engineJudgeOverridden,
+            engineJudgeTenantValue);
 
         return effective;
+    }
+
+    private bool TryReadTenantBoolean(
+        Guid tenantId,
+        string settingKey,
+        CancellationToken cancellationToken,
+        out bool value)
+    {
+        string? stored = _tenantSettingsRepository
+            .TryGetAsync(tenantId, settingKey, cancellationToken)
+            .GetAwaiter()
+            .GetResult();
+
+        return TenantSettingBooleanParser.TryParse(stored, out value);
     }
 
     private static InsightDensityGateOptions Clone(InsightDensityGateOptions source)
