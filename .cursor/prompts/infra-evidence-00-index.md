@@ -17,5 +17,6 @@ One Azure collection feeds architecture, drift, security remediation, ARC-AMPE a
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_IE16_IE22.md` | IE-16–IE-22 Mermaid/hub/Ask |
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_AE.md` | AE-01–AE-10 + CW-01 (no second collector) |
 | `INFRA_EVIDENCE_COMPOSER_PROMPTS_BR.md` | BR-01–BR-09 tenant branding |
+| `INFRA_EVIDENCE_COMPOSER_PROMPTS_IEUX.md` | IE-UX-00–IE-UX-05 operator workbenches + Infrastructure nav |
 
 Do **not** re-run FIT/WK coverage-engine holds. Do **not** add ARM write or `terraform apply`. Do **not** invent ARC-AMPE controls. Do **not** treat pack #24 as this assessment plane.
