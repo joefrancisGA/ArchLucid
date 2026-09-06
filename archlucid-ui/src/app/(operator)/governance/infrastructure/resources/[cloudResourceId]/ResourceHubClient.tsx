@@ -167,6 +167,18 @@ function buildHubAuditLineageTabHref(
   });
 }
 
+function buildHubDiagramTabHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  runId: string,
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+    tab: "diagram",
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+  });
+}
+
 function buildHubDiagramCorrespondenceAskHref(
   cloudResourceId: string,
   snapshotId: string,
@@ -631,6 +643,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Open diagram reconciliation
                 </Link>
               </Button>
+              {hub.remediationInstances.totalCount > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-remediation-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "remediation",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View remediation in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {hub.diagramCorrespondence != null ? (
               <section className="rounded border border-border bg-card p-4">
@@ -827,6 +852,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   View findings in hub
                 </Link>
               </Button>
+              {hub.diagramCorrespondence != null ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-diagram-tab">
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                    View diagram correspondence in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {hub.remediationInstances.items.length === 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>

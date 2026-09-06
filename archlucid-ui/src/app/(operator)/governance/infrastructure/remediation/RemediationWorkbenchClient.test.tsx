@@ -197,6 +197,10 @@ describe("RemediationWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=33333333-3333-3333-3333-333333333333&reconcileFilter=Conflict&correspondenceId=corr-1",
     );
+    expect(screen.getByTestId("infra-remediation-open-diagram-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=diagram&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
