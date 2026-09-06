@@ -87,7 +87,7 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
     }
 
     [Fact]
-    public void ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_emits_rule()
+    public void ShouldEmitFinding_production_real_string_encoded_boolean_warn_only_ignores_synonym()
     {
         IConfiguration configuration = BuildConfig("Real", "False");
 
@@ -95,7 +95,7 @@ public sealed class QualityGateWarnOnlyProductionLikeConfigurationLintTests
                 configuration,
                 Environments.Production)
             .Should()
-            .BeTrue();
+            .BeFalse();
     }
 
     [Fact]
