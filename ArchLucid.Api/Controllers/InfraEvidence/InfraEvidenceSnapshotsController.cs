@@ -1,6 +1,8 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -24,6 +26,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 public sealed class InfraEvidenceSnapshotsController(
     IInfraEvidenceDriftWorkbenchQueryService driftWorkbenchQueryService,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
+    IInfraEvidenceSnapshotMermaidService snapshotMermaidService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     [HttpGet]
@@ -94,5 +97,128 @@ public sealed class InfraEvidenceSnapshotsController(
         string filename = $"terraform-advisory-{snapshotId:D}.zip";
 
         return File(zipBytes, "application/zip", filename);
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid/preview")]
+    [ProducesResponseType(typeof(InfraEvidenceMermaidPreviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMermaidPreview(
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> result =
+            await snapshotMermaidService.TryGetPreviewAsync(scope, snapshotId, cancellationToken);
+
+        if (result.IsNotFound)
+        {
+            return this.NotFoundProblem(
+                result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (!result.Succeeded || result.Value is null)
+        {
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Mermaid preview failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid")]
+    [ProducesResponseType(typeof(InfraEvidenceMermaidRenderResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMermaid(
+        Guid snapshotId,
+        [FromQuery] string? mode,
+        [FromQuery] string? fallbackKey,
+        [FromQuery] string? seedNodeId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await snapshotMermaidService.TryGetMermaidAsync(
+                scope,
+                snapshotId,
+                mode,
+                fallbackKey,
+                seedNodeId,
+                cancellationToken);
+
+        if (result.IsNotFound)
+        {
+            return this.NotFoundProblem(
+                result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (result.IsBadRequest)
+        {
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Invalid Mermaid mode.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!result.Succeeded || result.Value is null)
+        {
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Mermaid render failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{snapshotId:guid}/mermaid/export.png")]
+    [Produces("image/png")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportMermaidPng(
+        Guid snapshotId,
+        [FromQuery] string? mode,
+        [FromQuery] string? fallbackKey,
+        [FromQuery] string? seedNodeId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        InfraEvidenceMermaidServiceResult<byte[]> result = await snapshotMermaidService.TryExportPngAsync(
+            scope,
+            snapshotId,
+            mode,
+            fallbackKey,
+            seedNodeId,
+            cancellationToken);
+
+        if (result.IsNotFound)
+        {
+            return this.NotFoundProblem(
+                result.ErrorMessage ?? $"Snapshot '{snapshotId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (result.IsBadRequest)
+        {
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Invalid Mermaid export request.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!result.Succeeded || result.Value is null || result.Value.Length == 0)
+        {
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Mermaid PNG export failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string filename = $"infra-evidence-mermaid-{snapshotId:D}.png";
+
+        return File(result.Value, "image/png", filename);
     }
 }
