@@ -1,9 +1,13 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -223,6 +227,8 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             ExpirationUtc = DateTime.UtcNow.AddYears(1),
         });
 
+        Guid linkedRunId = Guid.NewGuid();
+
         await manualRepository.InsertArchitectureLinkAsync(new AuditArchitectureEvidenceLinkRecord
         {
             LinkId = Guid.NewGuid(),
@@ -230,7 +236,7 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             AssessmentId = assessmentId,
             ControlId = controlId,
             RequirementId = requirementId,
-            RunId = Guid.NewGuid(),
+            RunId = linkedRunId,
             GoldenManifestId = Guid.NewGuid(),
             LinkedBy = "reviewer@example.com",
             LinkedUtc = DateTime.UtcNow,
@@ -240,10 +246,14 @@ public sealed class AuditManualEvidenceSubmissionServiceTests
             snapshotRepository,
             manualRepository,
             requirementRepository,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AuditHybridEvidenceQueryService>.Instance);
 
+        ScopeContext scope = new() { TenantId = tenantId };
+
         AuditHybridControlEvidenceRecord? hybrid = await hybridService.TryGetControlEvidenceSourcesAsync(
-            tenantId,
+            scope,
             assessmentId,
             controlId,
             snapshotId);

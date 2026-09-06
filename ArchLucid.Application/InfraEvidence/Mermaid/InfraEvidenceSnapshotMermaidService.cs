@@ -5,8 +5,11 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
@@ -16,6 +19,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     IMermaidDiagramRenderPipeline renderPipeline,
     IBrandedDiagramExportService brandedDiagramExportService,
     IDiagramImageRenderer diagramImageRenderer,
+    IArchitectureDiagramReconciliationRepository reconciliationRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     MermaidDiagramReadabilityThresholds? readabilityThresholds = null) : IInfraEvidenceSnapshotMermaidService
 {
     private static readonly (string ModeKey, DiagramMode DiagramMode)[] PreviewModes =
@@ -42,6 +48,15 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     private readonly IDiagramImageRenderer _diagramImageRenderer =
         diagramImageRenderer ?? throw new ArgumentNullException(nameof(diagramImageRenderer));
 
+    private readonly IArchitectureDiagramReconciliationRepository _reconciliationRepository =
+        reconciliationRepository ?? throw new ArgumentNullException(nameof(reconciliationRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly MermaidDiagramReadabilityThresholds _thresholds =
         readabilityThresholds ?? new MermaidDiagramReadabilityThresholds();
 
@@ -51,6 +66,14 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+
+        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         AzureInventorySnapshotGraphResolveResult graphResult =
             await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken);
@@ -94,6 +117,14 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+
+        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         AzureInventorySnapshotGraphResolveResult graphResult =
             await _graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken);

@@ -9,6 +9,7 @@ using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Serialization;
 
@@ -241,13 +242,30 @@ public sealed partial class AnalysisReportsController
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
-        AnalysisReportDocxWorkUnit workUnit = new(
-            AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
-            $"analysis-report-{runId}.docx",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
+            await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
 
-        return Accepted(new AsyncJobResponse { JobId = jobId });
+            AnalysisReportDocxWorkUnit workUnit = new(
+                AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
+                $"analysis-report-{runId}.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+            string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
+
+            return Accepted(new AsyncJobResponse { JobId = jobId });
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "Async DOCX export blocked for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

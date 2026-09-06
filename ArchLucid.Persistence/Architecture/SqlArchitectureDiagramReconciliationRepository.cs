@@ -73,4 +73,26 @@ public sealed class SqlArchitectureDiagramReconciliationRepository(ISqlConnectio
                 new { TenantId = tenantId, RunId = runId, SnapshotId = snapshotId },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<IReadOnlyList<Guid>> ListRunIdsBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT DISTINCT RunId
+            FROM dbo.ArchitectureDiagramReconciliations
+            WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
+            """;
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<Guid> rows = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, SnapshotId = snapshotId },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

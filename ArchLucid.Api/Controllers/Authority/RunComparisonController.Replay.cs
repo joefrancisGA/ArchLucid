@@ -1,6 +1,8 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -20,6 +22,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(EndToEndReplayComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareRunsEndToEnd(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -35,6 +38,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareRunsEndToEndSummary(
         [FromQuery] RunPairQuery query,
         [FromBody] PersistComparisonRequest? request,
@@ -62,6 +66,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(EndToEndReplayComparisonExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportRunsEndToEndComparisonMarkdown(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -79,6 +84,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadRunsEndToEndComparisonMarkdown(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -97,6 +103,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportRunsEndToEndComparisonDocx(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -124,12 +131,21 @@ public sealed partial class RunComparisonController
         CancellationToken cancellationToken)
     {
         IActionResult? error = await ValidateRunPairQueryAsync(query, cancellationToken);
+
         if (error is not null)
             return (error, null);
 
-        EndToEndReplayComparisonReport report =
-            await _endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        return (null, report);
+        try
+        {
+            EndToEndReplayComparisonReport report =
+                await _endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
+
+            return (null, report);
+        }
+        catch (ConflictException ex)
+        {
+            return (this.ConflictProblem(ex.Message, ProblemTypes.Conflict), null);
+        }
     }
 
     private async Task LogComparisonExportDownloadAsync(

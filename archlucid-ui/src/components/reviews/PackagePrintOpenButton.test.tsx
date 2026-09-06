@@ -6,7 +6,12 @@ import { PACKAGE_PRINT_OPEN_LABEL } from "@/lib/package-print-view";
 
 describe("PackagePrintOpenButton (TB-2205)", () => {
   it("links to the package print route", () => {
-    render(<PackagePrintOpenButton runId="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" />);
+    render(
+      <PackagePrintOpenButton
+        runId="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        manifestVersion="manifest-1"
+      />,
+    );
 
     const link = screen.getByTestId("package-print-open");
 

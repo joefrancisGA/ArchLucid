@@ -7,8 +7,11 @@ using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -118,6 +121,9 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             pipeline,
             brandedDiagramExportService.Object,
             new NullDiagramImageRenderer(),
+            new NoOpArchitectureDiagramReconciliationRepository(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             thresholds);
     }
 
