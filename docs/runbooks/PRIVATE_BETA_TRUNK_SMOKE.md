@@ -61,7 +61,7 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 
 **Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
 
-For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
+For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root. On CI failure, the push workflow uploads artifact `ui-e2e-live-beta-access-on-push-failure-triage`.
 
 ## Local reproduction (heavy)
 

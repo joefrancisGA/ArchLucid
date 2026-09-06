@@ -134,13 +134,18 @@ function migrateLegacyRecentViewsState(parsed: {
   return { schemaVersion: 2, entries };
 }
 
+type StoredRecentViewsPayload = {
+  schemaVersion?: number;
+  entries?: unknown;
+};
+
 export function parseStoredRecentViews(raw: string | null): OperatorRecentViewsState {
   if (raw === null || raw.trim().length === 0) {
     return createEmptyRecentViewsState();
   }
 
   try {
-    const parsed = JSON.parse(raw) as OperatorRecentViewsState;
+    const parsed = JSON.parse(raw) as StoredRecentViewsPayload;
 
     if (parsed?.schemaVersion === 2 && Array.isArray(parsed.entries)) {
       return migrateLegacyRecentViewsState(parsed);
