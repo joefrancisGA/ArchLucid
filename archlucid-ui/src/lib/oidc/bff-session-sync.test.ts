@@ -29,6 +29,7 @@ describe("bff-session-sync (LK-05 P1)", () => {
           expires_in: 3600,
           refresh_token: "refresh-1",
           id_token: "id-1",
+          working_mode: true,
         }),
       }),
     );

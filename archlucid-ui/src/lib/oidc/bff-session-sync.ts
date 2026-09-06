@@ -1,8 +1,27 @@
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
+import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { readWorkspaceModeFromStorage } from "@/lib/workspace-mode/workspace-mode-preference";
 
 const BFF_SESSION_SYNC_PATH = "/api/auth/bff-session";
 const BFF_SESSION_REFRESH_PATH = "/api/auth/bff-session/refresh";
+const BFF_SESSION_ACTIVITY_PATH = "/api/auth/bff-session/activity";
 const BFF_SESSION_RP_LOGOUT_URL_PATH = "/api/auth/bff-session/rp-logout-url";
+
+function resolveWorkingModeForBffSession(): boolean {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  return isWorkingWorkspaceMode(readWorkspaceModeFromStorage());
+}
+
+function buildBffMutationHeaders(): Headers {
+  const headers = new Headers({ "Content-Type": "application/json" });
+  applyBffCsrfHeader(headers);
+
+  return headers;
+}
 
 function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   const defaultExpiresInSec = 3600;
@@ -42,6 +61,7 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
         expires_in: resolveExpiresInSeconds(tokens.expires_in),
         refresh_token: tokens.refresh_token ?? undefined,
         id_token: tokens.id_token ?? undefined,
+        working_mode: resolveWorkingModeForBffSession(),
       }),
     });
   } catch {
@@ -79,6 +99,7 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
     const response = await fetch(BFF_SESSION_REFRESH_PATH, {
       method: "POST",
       credentials: "same-origin",
+      headers: buildBffMutationHeaders(),
     });
 
     if (response.ok) {
@@ -98,6 +119,32 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
     };
   } catch {
     return { ok: false, shouldClearSession: false };
+  }
+}
+
+/** Slides server-side BFF idle activity during presenter / print / export keepalive (LK-07). */
+export async function pulseBffSessionActivity(): Promise<void> {
+  if (typeof fetch === "undefined") {
+    return;
+  }
+
+  const csrfToken = readBffCsrfTokenFromDocument();
+
+  if (csrfToken === undefined) {
+    return;
+  }
+
+  try {
+    await fetch(BFF_SESSION_ACTIVITY_PATH, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: buildBffMutationHeaders(),
+      body: JSON.stringify({
+        working_mode: resolveWorkingModeForBffSession(),
+      }),
+    });
+  } catch {
+    // Client idle UX still runs when the activity route is unavailable.
   }
 }
 
