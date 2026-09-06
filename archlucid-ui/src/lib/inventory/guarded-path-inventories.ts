@@ -1,6 +1,7 @@
 import type { InventoryPathSource } from "@/lib/inventory/inventory-path-source";
 
 import { TB_2295_BUTTON_CLASSNAME_COLOR_ALLOWLIST } from "@/lib/button-classname-color-override-inventory";
+import { PROFESSIONAL_CORE_ACCEPTANCE_CASES } from "@/lib/professional-core-acceptance-inventory";
 import { CAREER_EXPORT_MOUNTED_UI_PATHS } from "@/lib/career-export-mounted-ui-paths";
 import { CUSTOMER_ARCHITECTURE_ACCEPTANCE_UI_SCAN_ROOTS } from "@/lib/architecture/customer-architecture-acceptance-inventory";
 import { CRAMPED_FORM_HELPER_STACK_INVENTORY } from "@/lib/cramped-form-helper-stack-inventory";
@@ -143,5 +144,11 @@ export const GUARDED_PATH_INVENTORIES: readonly InventoryPathSource[] = [
     module: "lib/architecture/customer-architecture-acceptance-inventory.ts",
     base: "src",
     paths: CUSTOMER_ARCHITECTURE_ACCEPTANCE_UI_SCAN_ROOTS,
+  },
+  {
+    id: "PROFESSIONAL_CORE_ACCEPTANCE_CASES",
+    module: "lib/professional-core-acceptance-inventory.ts",
+    base: "src",
+    paths: PROFESSIONAL_CORE_ACCEPTANCE_CASES.map((caseRow) => caseRow.relativeTestPath),
   },
 ];
