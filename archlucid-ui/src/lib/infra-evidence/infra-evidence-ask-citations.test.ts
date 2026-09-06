@@ -90,4 +90,22 @@ describe("infra-evidence-ask-citations", () => {
       `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&cloudResourceId=${resourceId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
     );
   });
+
+  it("forwards audit scope on ChangeId citations when Ask session includes audit lineage", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "ChangeId", id: changeId, label: "sku change" },
+      {
+        cloudResourceId: resourceId,
+        snapshotId,
+        diffId,
+        assessmentId,
+        auditEvidenceSnapshotId: auditSnapshotId,
+        controlId,
+      },
+    );
+
+    expect(link?.href).toContain("assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(link?.href).toContain("auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(link?.href).toContain("controlId=cccccccc-cccc-cccc-cccc-cccccccccccc");
+  });
 });
