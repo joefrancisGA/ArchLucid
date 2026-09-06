@@ -2572,6 +2572,60 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_item_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ItemAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ItemAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_job_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:JobAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:JobAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_join_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:JoinAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:JoinAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_certificate_thumbprint_config_path_matching_azure_redactor()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
