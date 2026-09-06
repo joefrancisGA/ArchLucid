@@ -161,6 +161,14 @@ describe("DiagramReconcileWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
     );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-remediation-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=remediation&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
   });
