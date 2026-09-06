@@ -276,7 +276,7 @@ describe("InfrastructureAskClient", () => {
     );
     render(<InfrastructureAskClient />);
 
-    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("work queue Open findings");
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("explorer Open findings");
     expect(screen.getByTestId("infra-ask-open-work-queue-hub-tab")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",

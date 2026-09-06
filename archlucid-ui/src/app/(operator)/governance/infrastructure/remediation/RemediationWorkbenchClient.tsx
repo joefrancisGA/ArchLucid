@@ -11,10 +11,13 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -169,6 +172,10 @@ export function RemediationWorkbenchClient() {
   }, [visibleInstances]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const remediationSnapshotId = urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : selectedSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(remediationSnapshotId, auditScope, urlReconcileRunId),
@@ -440,9 +447,27 @@ export function RemediationWorkbenchClient() {
     urlReconcileSnapshotId,
   ]);
 
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedInstanceId == null || selectedInstanceId.length === 0) {
+      return null;
+    }
+
+    const selectedInstance = visibleInstances.find((instance) => instance.instanceId === selectedInstanceId);
+
+    if (selectedInstance == null) {
+      return `Showing remediation instance ${selectedInstanceId}.`;
+    }
+
+    return `Showing remediation instance ${selectedInstance.patternKey}.`;
+  }, [selectedInstanceId, visibleInstances]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-remediation" />
+      <div className="flex justify-end">
+        <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (
         <section
@@ -453,10 +478,16 @@ export function RemediationWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {(auditScope != null || resourceHub?.auditLineageLink.available === false) ? (
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
               hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={remediationSnapshotId}
+              runId={urlReconcileRunId}
+              activeTab="remediation"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
               provenanceTestId="infra-remediation-audit-provenance"
               unavailableTestId="infra-remediation-audit-unavailable"
             />

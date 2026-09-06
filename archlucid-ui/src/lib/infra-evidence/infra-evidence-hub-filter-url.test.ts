@@ -234,7 +234,7 @@ describe("infra-evidence-hub-filter-url", () => {
     expect(resolveResourceHubTabFromExplorerWorkQueue("recent-drift")).toBe("drift");
     expect(resolveResourceHubTabFromExplorerWorkQueue("all")).toBeUndefined();
     expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111", "open-findings")).toBe(
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&workQueue=open-findings",
     );
     expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",

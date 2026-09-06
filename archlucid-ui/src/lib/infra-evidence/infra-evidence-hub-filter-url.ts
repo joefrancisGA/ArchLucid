@@ -402,6 +402,7 @@ export function resourceHubFilterHrefFromSearch(
     readonly tab?: ResourceHubTab;
     readonly runId?: string;
     readonly snapshotId?: string;
+    readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
@@ -435,6 +436,14 @@ export function resourceHubFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_SNAPSHOT_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.workQueue !== undefined) {
+    if (patch.workQueue === "all") {
+      params.delete(RESOURCE_EXPLORER_WORK_QUEUE_PARAM);
+    } else {
+      params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, patch.workQueue);
     }
   }
 
@@ -505,6 +514,7 @@ export function buildResourceHubExplorerHref(
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
     ...(tab != null ? { tab } : {}),
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    workQueue: workQueue !== "all" ? workQueue : undefined,
   });
 }
 
@@ -513,6 +523,7 @@ export function buildResourceHubOverviewHref(
   context?: {
     readonly snapshotId?: string | null;
     readonly runId?: string | null;
+    readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly assessmentId?: string | null;
     readonly auditEvidenceSnapshotId?: string | null;
     readonly controlId?: string | null;
@@ -525,6 +536,7 @@ export function buildResourceHubOverviewHref(
     tab: "overview",
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
     runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+    workQueue: context?.workQueue != null && context.workQueue !== "all" ? context.workQueue : undefined,
     assessmentId: context?.assessmentId?.trim().length ? context.assessmentId?.trim() : undefined,
     auditEvidenceSnapshotId: context?.auditEvidenceSnapshotId?.trim().length
       ? context.auditEvidenceSnapshotId?.trim()
