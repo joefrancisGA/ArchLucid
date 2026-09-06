@@ -37,6 +37,7 @@ import {
   buildResourceHubWorkbenchHref,
   buildResourceScopedWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
@@ -315,6 +316,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return hub.operationalSecurityFindings.totalCount + hub.architectureReviewFindings.totalCount;
   }, [hub]);
+
+  const diagramCorrespondenceRemediationHref = useMemo(() => {
+    if (hub?.diagramCorrespondence == null) {
+      return null;
+    }
+
+    return buildDiagramReconcileRemediationHref({
+      row: hub.diagramCorrespondence,
+      runId,
+      snapshotId: resolvedSnapshotId,
+      scopedCloudResourceId: cloudResourceId,
+    });
+  }, [cloudResourceId, hub?.diagramCorrespondence, resolvedSnapshotId, runId]);
 
   const runMatchRemediationFromFinding = async (findingId: string) => {
     const trimmedFindingId = findingId.trim();
@@ -639,30 +653,37 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <span className="text-sm text-muted-foreground">{hub.diagramCorrespondence.confidenceBand}</span>
                 </div>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
-                <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-diagram-reconcile">
-                  <Link
-                    href={buildResourceHubDiagramReconcileWorkbenchHref(
-                      resolvedSnapshotId,
-                      runId,
-                      hub.diagramCorrespondence.correspondenceId,
-                      cloudResourceId,
-                    )}
-                  >
-                    Open in reconciliation workbench
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm" className="mt-3" data-testid="infra-resource-hub-diagram-ask">
-                  <Link
-                    href={buildHubDiagramCorrespondenceAskHref(
-                      cloudResourceId,
-                      resolvedSnapshotId,
-                      runId,
-                      hub.diagramCorrespondence.correspondenceId,
-                    )}
-                  >
-                    Ask about this correspondence
-                  </Link>
-                </Button>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-reconcile">
+                    <Link
+                      href={buildResourceHubDiagramReconcileWorkbenchHref(
+                        resolvedSnapshotId,
+                        runId,
+                        hub.diagramCorrespondence.correspondenceId,
+                        cloudResourceId,
+                      )}
+                    >
+                      Open in reconciliation workbench
+                    </Link>
+                  </Button>
+                  {diagramCorrespondenceRemediationHref != null ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-remediation">
+                      <Link href={diagramCorrespondenceRemediationHref}>Open in remediation factory</Link>
+                    </Button>
+                  ) : null}
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-ask">
+                    <Link
+                      href={buildHubDiagramCorrespondenceAskHref(
+                        cloudResourceId,
+                        resolvedSnapshotId,
+                        runId,
+                        hub.diagramCorrespondence.correspondenceId,
+                      )}
+                    >
+                      Ask about this correspondence
+                    </Link>
+                  </Button>
+                </div>
               </section>
             ) : (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No diagram correspondence row is linked for this resource.</p>

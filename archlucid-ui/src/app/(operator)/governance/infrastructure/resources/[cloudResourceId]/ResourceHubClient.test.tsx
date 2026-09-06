@@ -232,6 +232,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1",
     );
+    expect(screen.getByTestId("infra-resource-hub-diagram-remediation")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
   });
 
   it("shows tab count badges for findings and drift", async () => {
