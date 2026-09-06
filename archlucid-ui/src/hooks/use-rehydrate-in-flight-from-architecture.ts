@@ -1,39 +1,62 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { rehydrateInFlightOperationsFromArchitecture } from "@/lib/operations/rehydrate-in-flight-from-architecture";
-import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import {
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
+  readOperatorScopeFromStorage,
+} from "@/lib/operator/operator-scope-storage";
 
-export function useRehydrateInFlightOperationsFromArchitecture(architectureId: string | null | undefined): void {
-  const lastScopeKeyRef = useRef<string | null>(null);
+function useOperatorScopeGeneration(): number {
+  const [scopeGeneration, setScopeGeneration] = useState(0);
 
   useEffect(() => {
-    const trimmedArchitectureId = architectureId?.trim() ?? "";
-
-    if (trimmedArchitectureId.length === 0) {
-      return;
+    function handleScopeChanged(): void {
+      setScopeGeneration((value) => value + 1);
     }
 
-    const scopeRecord = readOperatorScopeFromStorage();
-    const scopeKey = [
-      scopeRecord?.tenantId ?? "",
-      scopeRecord?.workspaceId ?? "",
-      scopeRecord?.projectId ?? "",
-      trimmedArchitectureId,
-    ].join("|");
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handleScopeChanged);
 
-    if (lastScopeKeyRef.current === scopeKey) {
-      return;
-    }
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handleScopeChanged);
+    };
+  }, []);
 
-    lastScopeKeyRef.current = scopeKey;
+  return scopeGeneration;
+}
 
-    void rehydrateInFlightOperationsFromArchitecture({
-      tenantId: scopeRecord?.tenantId,
-      workspaceId: scopeRecord?.workspaceId,
-      projectId: scopeRecord?.projectId,
-      architectureId: trimmedArchitectureId,
-    });
-  }, [architectureId]);
+function runRehydrateForArchitectureId(architectureId: string | null | undefined): void {
+  const trimmedArchitectureId = architectureId?.trim() ?? "";
+
+  if (trimmedArchitectureId.length === 0) {
+    return;
+  }
+
+  const scopeRecord = readOperatorScopeFromStorage();
+
+  void rehydrateInFlightOperationsFromArchitecture({
+    tenantId: scopeRecord?.tenantId,
+    workspaceId: scopeRecord?.workspaceId,
+    projectId: scopeRecord?.projectId,
+    architectureId: trimmedArchitectureId,
+  });
+}
+
+export function useRehydrateInFlightOperationsFromArchitecture(architectureId: string | null | undefined): void {
+  const scopeGeneration = useOperatorScopeGeneration();
+
+  useEffect(() => {
+    runRehydrateForArchitectureId(architectureId);
+  }, [architectureId, scopeGeneration]);
+}
+
+/** Working shell: rebuild in-flight rows for the last-open architecture desk (DA-10 / CA-46). */
+export function useRehydrateInFlightFromWorkingContinuity(): void {
+  const scopeGeneration = useOperatorScopeGeneration();
+
+  useEffect(() => {
+    runRehydrateForArchitectureId(readCachedLastOpenArchitectureId());
+  }, [scopeGeneration]);
 }
