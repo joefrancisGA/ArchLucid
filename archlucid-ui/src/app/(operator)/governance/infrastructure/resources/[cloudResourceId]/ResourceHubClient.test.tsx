@@ -58,12 +58,27 @@ vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
       pageSize: 25,
       hasMore: false,
     },
-    remediationInstances: { items: [], totalCount: 0, page: 1, pageSize: 25, hasMore: false },
+    remediationInstances: {
+      items: [
+        {
+          instanceId: "instance-1",
+          patternKey: "public-ip-restrict",
+          status: "Draft",
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 25,
+      hasMore: false,
+    },
     rbacAssignments: [],
     networkRelationships: [],
     recentChanges: [
       {
         changeId: "change-1",
+        diffId: "diff-1",
+        snapshotAId: "11111111-1111-1111-1111-111111111111",
+        snapshotBId: "22222222-2222-2222-2222-222222222222",
         property: "sku",
         changeType: "Modified",
         oldValue: "Basic",
@@ -137,5 +152,35 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (1)");
     expect(screen.getByTestId("infra-resource-hub-tab-drift")).toHaveTextContent("Drift (1)");
+  });
+
+  it("links drift rows to the scoped drift workbench", async () => {
+    searchParams = new URLSearchParams("tab=overview&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=change-1&diffId=diff-1",
+    );
+  });
+
+  it("links findings rows into the scoped remediation factory", async () => {
+    searchParams = new URLSearchParams("tab=findings");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+    );
+  });
+
+  it("links remediation rows into the scoped factory with instance id", async () => {
+    searchParams = new URLSearchParams("tab=remediation");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
+    );
   });
 });

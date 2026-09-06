@@ -24,6 +24,31 @@ describe("infra-evidence-workbench-url", () => {
     );
   });
 
+  it("builds remediation workbench links with finding and instance scope", () => {
+    expect(
+      buildRemediationWorkbenchHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        findingId: "finding-1",
+        instanceId: "instance-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1&instanceId=instance-1",
+    );
+  });
+
+  it("builds drift workbench links for a hub change row", () => {
+    expect(
+      buildDriftWorkbenchHref({
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        changeId: "change-1",
+        diffId: "diff-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&changeId=change-1&diffId=diff-1",
+    );
+  });
+
   it("routes work-count kinds to the expected destinations", () => {
     expect(buildResourceScopedWorkbenchHref("11111111-1111-1111-1111-111111111111", "findings")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/enterprise-tabs";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
@@ -33,6 +32,7 @@ import {
   buildResourceHubDriftWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import {
+  buildDriftWorkbenchHref,
   buildRemediationWorkbenchHref,
   buildResourceScopedWorkbenchHref,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
@@ -60,6 +60,7 @@ import {
 import type {
   CloudResourceAuditLineageMatch,
   CloudResourceEvidenceHubResponse,
+  CloudResourceInventoryChangeSummary,
   ResourceHubTab,
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -79,6 +80,19 @@ const HUB_TABS: readonly { readonly id: ResourceHubTab; readonly label: string }
 type ResourceHubClientProps = {
   readonly cloudResourceId: string;
 };
+
+function buildHubDriftChangeWorkbenchHref(
+  cloudResourceId: string,
+  snapshotId: string,
+  change: CloudResourceInventoryChangeSummary,
+): string {
+  return buildDriftWorkbenchHref({
+    cloudResourceId,
+    snapshotId,
+    changeId: change.changeId,
+    diffId: change.diffId,
+  });
+}
 
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
@@ -357,7 +371,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <EnterpriseTableBody>
                     {hub.recentChanges.map((change) => (
                       <EnterpriseTableRow key={change.changeId}>
-                        <EnterpriseTableCell>{change.property ?? "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <Link
+                            className="text-al-link hover:underline"
+                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                            data-testid={`infra-resource-hub-drift-change-${change.changeId}`}
+                          >
+                            {change.property ?? change.changeType}
+                          </Link>
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>{change.changeType}</EnterpriseTableCell>
                         <EnterpriseTableCell>{change.riskClassification ?? "—"}</EnterpriseTableCell>
                       </EnterpriseTableRow>
@@ -389,7 +411,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <EnterpriseTableBody>
                   {hub.recentChanges.map((change) => (
                     <EnterpriseTableRow key={change.changeId}>
-                      <EnterpriseTableCell>{change.property ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        <Link
+                          className="text-al-link hover:underline"
+                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change)}
+                          data-testid={`infra-resource-hub-drift-tab-change-${change.changeId}`}
+                        >
+                          {change.property ?? change.changeType}
+                        </Link>
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "—"}</EnterpriseTableCell>
                       <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "—"}</EnterpriseTableCell>
                     </EnterpriseTableRow>
@@ -475,16 +505,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableCell>{item.status ?? "—"}</EnterpriseTableCell>
                           {stream.streamKind === "OperationalSecurity" ? (
                             <EnterpriseTableCell>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                data-testid={`infra-resource-hub-match-${item.id}`}
-                                disabled={findingActionBusyId === item.id}
-                                onClick={() => void runMatchRemediationFromFinding(item.id)}
-                              >
-                                {findingActionBusyId === item.id ? "Matching…" : "Match remediation"}
-                              </Button>
+                              <div className="flex flex-wrap gap-2">
+                                <Button asChild size="sm" variant="outline">
+                                  <Link
+                                    href={buildRemediationWorkbenchHref({
+                                      cloudResourceId,
+                                      findingId: item.id,
+                                    })}
+                                    data-testid={`infra-resource-hub-finding-factory-${item.id}`}
+                                  >
+                                    Open in factory
+                                  </Link>
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  data-testid={`infra-resource-hub-match-${item.id}`}
+                                  disabled={findingActionBusyId === item.id}
+                                  onClick={() => void runMatchRemediationFromFinding(item.id)}
+                                >
+                                  {findingActionBusyId === item.id ? "Matching…" : "Match remediation"}
+                                </Button>
+                              </div>
                             </EnterpriseTableCell>
                           ) : null}
                         </EnterpriseTableRow>
@@ -519,7 +562,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Button asChild size="sm" variant="outline">
                           <Link
-                            href={`${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?instanceId=${encodeURIComponent(item.instanceId)}`}
+                            href={buildRemediationWorkbenchHref({
+                              cloudResourceId,
+                              instanceId: item.instanceId,
+                            })}
+                            data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
                           >
                             Open in factory
                           </Link>

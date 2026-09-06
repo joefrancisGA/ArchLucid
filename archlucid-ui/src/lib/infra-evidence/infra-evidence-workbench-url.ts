@@ -11,11 +11,14 @@ export const DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const DRIFT_WORKBENCH_CHANGE_ID_PARAM = "changeId";
 export const DRIFT_WORKBENCH_DIFF_ID_PARAM = "diffId";
 export const REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
+export const REMEDIATION_WORKBENCH_FINDING_ID_PARAM = "findingId";
+export const REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM = "instanceId";
 
 export type InfraEvidenceWorkbenchContext = {
   readonly cloudResourceId?: string | null;
   readonly snapshotId?: string | null;
   readonly instanceId?: string | null;
+  readonly findingId?: string | null;
   readonly changeId?: string | null;
   readonly diffId?: string | null;
 };
@@ -59,8 +62,12 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
     params.set(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM, context.cloudResourceId.trim());
   }
 
+  if (context.findingId != null && context.findingId.trim().length > 0) {
+    params.set(REMEDIATION_WORKBENCH_FINDING_ID_PARAM, context.findingId.trim());
+  }
+
   if (context.instanceId != null && context.instanceId.trim().length > 0) {
-    params.set("instanceId", context.instanceId.trim());
+    params.set(REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM, context.instanceId.trim());
   }
 
   const query = params.toString();
