@@ -1246,6 +1246,26 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </Link>
                     </Button>
                   ) : null}
+                  {hub.diagramCorrespondence != null ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-diagram-tab">
+                      <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                        View diagram correspondence in hub
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {hasTerraformMapping ? (
+                    <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-terraform-tab">
+                      <Link
+                        href={buildResourceHubWorkbenchHref({
+                          cloudResourceId,
+                          tab: "terraform",
+                          snapshotId: resolvedSnapshotId,
+                        })}
+                      >
+                        View terraform mapping in hub
+                      </Link>
+                    </Button>
+                  ) : null}
                 </div>
                 {resolvedAuditLineage.matches.length > 1 ? (
                   <section className="rounded border border-border bg-card p-4" aria-label="Additional audit controls">
