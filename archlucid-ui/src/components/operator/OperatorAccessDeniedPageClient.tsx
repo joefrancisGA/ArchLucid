@@ -181,7 +181,9 @@ export function OperatorAccessDeniedPageClient() {
           surfaceId={
             supplementMessage === "wrong-tenant"
               ? "access-denied-wrong-tenant"
-              : "operator-role-gate-session-break"
+              : showJwtAdminCallout
+                ? "auth-jwt-insufficient-scope"
+                : "operator-role-gate-session-break"
           }
           errorTitle={ACCESS_DENIED_HEADING}
           correlationId={correlationId}

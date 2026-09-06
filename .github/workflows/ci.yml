@@ -5565,7 +5565,7 @@ jobs:
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
             --phases=examples \
-            --include-path-regex='^(/v1/auth|/v1/admin|/scim|/v1/invitations)' \
+            --include-path-regex='^(/v1/auth|/v1/admin|/v1/architecture|/scim|/v1/invitations)' \
             --request-timeout 5 \
             --max-response-time 10
 

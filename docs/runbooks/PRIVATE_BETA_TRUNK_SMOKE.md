@@ -35,6 +35,8 @@
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
+| `TypeError: sandbox-mock-data.json needs an import attribute` / Playwright **No tests found** | Bare JSON import in `sandbox-api-mocks.ts` under Node ESM loader | Use `import … with { type: "json" }`; `check_live_api_private_beta_access_ci_wiring.py` guards the pattern |
+| `Operator UI: jwt-bearer production build` fails on `docs pdf render` / `PagedResponseOfArchitectureIdentityListItem` | `ArchLucid.Cli` client drift after `ArchitectureIdentityListPage` API change | Regenerate `ArchLucid.Api.Client` and align `ArchLucidCliApiClient.Architectures.cs`; `build-docs-pdf.ts` preflights `dotnet build` on Cli |
 | `Failed to warm draft inventory` before Playwright | Pre-#1669 required draft warm; cold SQL hang | **Shipped #1669** — draft warm is best-effort in CI |
 | `Failed to warm create architecture run` before Playwright | Cold SQL + inline Simulator pipeline on first POST | **Shipped** — create-run warm is best-effort (300s default); Playwright `createRun` JIT-warms with 300s per-attempt budget |
 | `npm ci` fails before Playwright (`package.json` / `package-lock.json` out of sync) | Override bumped in `package.json` without `npm install` (e.g. `@tanstack/query-core` **5.102.8**) | Run `npm install` in `archlucid-ui/`, commit lockfile; `check_npm_overrides_lockfile_sync.py` fails in beta-readiness guards pre-merge |

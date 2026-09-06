@@ -4,6 +4,7 @@ import {
   INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
 } from "@/lib/quality/insight-density-measurement-denominator";
 
+/** Advisory-only measurement floor copy — findings remain typed-engine-protected, not procurement attestations. */
 export type InsightDensityMeasurementFloorCounts = {
   readonly catalogEngineCount: number;
   readonly measuredThisRunEngineCount: number | null;
