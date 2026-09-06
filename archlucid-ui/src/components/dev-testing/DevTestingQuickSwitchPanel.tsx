@@ -49,6 +49,7 @@ const SHELL_OPTIONS: ShellOption[] = [
 ];
 
 const ROLE_OPTIONS: RoleOption[] = [
+  { value: "Employee", label: "Employee (full nav)" },
   { value: "Admin", label: "Admin" },
   { value: "Operator", label: "Operator" },
   { value: "Reader", label: "Reader" },

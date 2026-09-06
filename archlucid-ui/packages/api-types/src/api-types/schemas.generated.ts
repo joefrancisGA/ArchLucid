@@ -1866,6 +1866,10 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        /** @enum {string} */
+        AzureInventoryCaptureMethod: "Unknown" | "CustomerScript" | "HostedReader";
+        /** @enum {string} */
+        AzureInventoryCaptureStatus: "Pending" | "Succeeded" | "Partial" | "Failed";
         AzureInventoryChangeRecord: {
             architectureSignificance?: null | string;
             azureResourceId?: null | string;
@@ -1959,6 +1963,45 @@ export interface components {
             activeBaselines?: components["schemas"]["AzureInventoryBaselineRecord"][];
             changes?: components["schemas"]["AzureInventoryClassifiedChangeRecord"][];
             summary?: components["schemas"]["AzureInventoryDiffSummaryRecord"];
+        };
+        AzureInventorySnapshotRecord: {
+            captureMethod?: components["schemas"]["AzureInventoryCaptureMethod"];
+            captureStatus?: components["schemas"]["AzureInventoryCaptureStatus"];
+            captureVersion?: null | string;
+            /** Format: date-time */
+            capturedUtc?: null | string;
+            collectorVersion?: null | string;
+            /** Format: double */
+            completenessScore?: null | number | string;
+            /** Format: byte */
+            contentHashSha256?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            durationMs?: null | number;
+            /** Format: int32 */
+            errorCount?: number;
+            /** Format: uuid */
+            packageId?: string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: int32 */
+            relationshipCount?: number;
+            requestedBy?: null | string;
+            /** Format: int32 */
+            resourceCount?: number;
+            /** Format: uuid */
+            snapshotId?: string;
+            subscriptionId?: null | string;
+            subscriptionName?: null | string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            warningCount?: number;
+            /** Format: uuid */
+            workspaceId?: string;
         };
         BackgroundJobInfo: {
             /** Format: date-time */
@@ -5061,6 +5104,56 @@ export interface components {
             simulatorLabel?: null | string;
             topicKind?: string;
         };
+        InfraEvidenceMermaidComplexityMetrics: {
+            /** Format: int32 */
+            crossSubgraphEdgeCount?: number;
+            /** Format: int32 */
+            edgeCount?: number;
+            /** Format: int32 */
+            layoutEstimate?: number;
+            /** Format: int32 */
+            maxDegree?: number;
+            /** Format: int32 */
+            nodeCount?: number;
+            /** Format: int32 */
+            subgraphCount?: number;
+            /** Format: int32 */
+            textSizeBytes?: number;
+        };
+        InfraEvidenceMermaidFallbackArtifactSummary: {
+            /** Format: int32 */
+            edgeCount?: number;
+            key?: string;
+            label?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidModePreview: {
+            /** Format: int32 */
+            edgeCount?: number;
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            mermaid?: null | string;
+            mode?: string;
+            /** Format: int32 */
+            nodeCount?: number;
+            status?: string;
+        };
+        InfraEvidenceMermaidPreviewResponse: {
+            modes?: components["schemas"]["InfraEvidenceMermaidModePreview"][];
+            /** Format: uuid */
+            snapshotId?: string;
+        };
+        InfraEvidenceMermaidRenderResponse: {
+            fallbackArtifacts?: components["schemas"]["InfraEvidenceMermaidFallbackArtifactSummary"][];
+            fallbackKey?: null | string;
+            mermaid?: null | string;
+            metrics?: null | components["schemas"]["InfraEvidenceMermaidComplexityMetrics"];
+            mode?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            status?: string;
+        };
         InfrastructureDeclarationRequest: {
             content?: string;
             format?: string;
@@ -6169,6 +6262,26 @@ export interface components {
         PagedResponseOfArchitectureIdentityListItem: {
             hasMore?: boolean;
             items?: components["schemas"]["ArchitectureIdentityListItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfAzureInventoryChangeRecord: {
+            hasMore?: boolean;
+            items?: components["schemas"]["AzureInventoryChangeRecord"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfAzureInventorySnapshotRecord: {
+            hasMore?: boolean;
+            items?: components["schemas"]["AzureInventorySnapshotRecord"][];
             /** Format: int32 */
             page?: number;
             /** Format: int32 */

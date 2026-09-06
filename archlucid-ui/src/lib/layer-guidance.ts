@@ -313,14 +313,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Render inventory diagrams at scale with honest partitioned fallbacks.",
     useWhen: "Choose a snapshot and diagram mode before exporting PNG or Mermaid.",
-    firstPilotNote: "Shipped in IE-UX-02 — workbench wiring in progress.",
+    firstPilotNote: "Partitioned views default to Executive when the full graph exceeds readability thresholds.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-diagram-reconcile": {
     layerBadge: "Advanced operations",
     headline: "Reconcile diagrams against inventory snapshots.",
     useWhen: "Upload or select a diagram, pick a snapshot, then review correspondence rows.",
-    firstPilotNote: "Shipped in IE-UX-03 — workbench wiring in progress.",
+    firstPilotNote: "Conflict rows show both diagram and inventory sides; create operational findings without leaving the page.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-resources": {

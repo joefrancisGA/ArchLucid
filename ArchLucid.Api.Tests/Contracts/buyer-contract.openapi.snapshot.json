@@ -6385,6 +6385,23 @@
         },
         "type": "object"
       },
+      "AzureInventoryCaptureMethod": {
+        "enum": [
+          "Unknown",
+          "CustomerScript",
+          "HostedReader"
+        ],
+        "type": "string"
+      },
+      "AzureInventoryCaptureStatus": {
+        "enum": [
+          "Pending",
+          "Succeeded",
+          "Partial",
+          "Failed"
+        ],
+        "type": "string"
+      },
       "AzureInventoryChangeRecord": {
         "properties": {
           "architectureSignificance": {
@@ -6698,6 +6715,121 @@
           },
           "summary": {
             "$ref": "#/components/schemas/AzureInventoryDiffSummaryRecord"
+          }
+        },
+        "type": "object"
+      },
+      "AzureInventorySnapshotRecord": {
+        "properties": {
+          "captureMethod": {
+            "$ref": "#/components/schemas/AzureInventoryCaptureMethod"
+          },
+          "captureStatus": {
+            "$ref": "#/components/schemas/AzureInventoryCaptureStatus"
+          },
+          "captureVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "capturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "collectorVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completenessScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "contentHashSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "durationMs": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "errorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "packageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "relationshipCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "requestedBy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subscriptionName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -17546,6 +17678,150 @@
         },
         "type": "object"
       },
+      "InfraEvidenceMermaidComplexityMetrics": {
+        "properties": {
+          "crossSubgraphEdgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "layoutEstimate": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "maxDegree": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "subgraphCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "textSizeBytes": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidFallbackArtifactSummary": {
+        "properties": {
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidModePreview": {
+        "properties": {
+          "edgeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "fallbackArtifacts": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
+            },
+            "type": "array"
+          },
+          "mermaid": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "nodeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidPreviewResponse": {
+        "properties": {
+          "modes": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidModePreview"
+            },
+            "type": "array"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfraEvidenceMermaidRenderResponse": {
+        "properties": {
+          "fallbackArtifacts": {
+            "items": {
+              "$ref": "#/components/schemas/InfraEvidenceMermaidFallbackArtifactSummary"
+            },
+            "type": "array"
+          },
+          "fallbackKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mermaid": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InfraEvidenceMermaidComplexityMetrics"
+              }
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "InfrastructureDeclarationRequest": {
         "properties": {
           "content": {
@@ -21338,6 +21614,58 @@
           "items": {
             "items": {
               "$ref": "#/components/schemas/ArchitectureIdentityListItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PagedResponseOfAzureInventoryChangeRecord": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AzureInventoryChangeRecord"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PagedResponseOfAzureInventorySnapshotRecord": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AzureInventorySnapshotRecord"
             },
             "type": "array"
           },
@@ -43476,7 +43804,13 @@
       "name": "InfraEvidenceAsk"
     },
     {
+      "name": "InfraEvidenceDiffs"
+    },
+    {
       "name": "InfraEvidenceInventory"
+    },
+    {
+      "name": "InfraEvidenceSnapshots"
     },
     {
       "name": "InternalArchitectureDiagnostics"

@@ -1,4 +1,6 @@
 import { normalizeAuthMeResponse, type AuthMeResponse, type CurrentPrincipal } from "@/lib/current-principal";
+import { ARCHLUCID_VENDOR_STAFF_CROSS_TENANT_PERMISSION } from "@/lib/vendor-staff-principal";
+import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
 
 /** Browser cookie — overrides {@link isOperatorExperienceFullShellEnv} in local development only. */
 export const DEV_SHELL_EXPERIENCE_COOKIE = "archlucid_dev_shell_experience_v1";
@@ -20,12 +22,15 @@ export const DEV_AGENT_EXECUTION_MODE_HEADER = "X-ArchLucid-Dev-Agent-Execution-
 
 export type DevShellExperienceOverride = "buyer-polished" | "full-operator";
 
-export type DevRoleOverride = "Admin" | "Operator" | "Reader" | "Auditor";
+export type DevRoleOverride = "Employee" | "Admin" | "Operator" | "Reader" | "Auditor";
+
+/** API DevelopmentBypass role for the dev Employee persona (vendor staff / Internal Operations). */
+export const DEV_EMPLOYEE_API_ACTOR_ROLE = "PlatformOperator";
 
 export type DevAgentExecutionModeOverride = "Real" | "Simulator";
 
 const DEV_SHELL_VALUES = new Set<string>(["buyer-polished", "full-operator"]);
-const DEV_ROLE_VALUES = new Set<string>(["Admin", "Operator", "Reader", "Auditor"]);
+const DEV_ROLE_VALUES = new Set<string>(["Employee", "Admin", "Operator", "Reader", "Auditor"]);
 const DEV_AGENT_EXECUTION_MODE_VALUES = new Set<string>(["Real", "Simulator"]);
 
 const COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30;
@@ -210,12 +215,43 @@ export function persistDevShellExperienceOverride(value: DevShellExperienceOverr
   writeCookieValue(DEV_SHELL_EXPERIENCE_COOKIE, value);
 }
 
+function persistDevRoleNavDensityShowFullNav(showFullNav: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY, showFullNav ? "true" : "false");
+  } catch {
+    // Ignore quota / private-mode failures — density falls back to collapsed defaults.
+  }
+}
+
+/** Maps a dev quick-switch role to the DevelopmentBypass test-actor role header value. */
+export function resolveDevRoleOverrideApiActorRole(role: DevRoleOverride): string {
+  if (role === "Employee") {
+    return DEV_EMPLOYEE_API_ACTOR_ROLE;
+  }
+
+  return role;
+}
+
+export function isDevEmployeeRoleOverrideActive(): boolean {
+  return readDevRoleOverrideFromDocument() === "Employee";
+}
+
 export function persistDevRoleOverride(value: DevRoleOverride | null): void {
   if (!isDevTestingOverridesEnabled()) {
     return;
   }
 
   writeCookieValue(DEV_ROLE_OVERRIDE_COOKIE, value);
+
+  if (value === "Employee") {
+    // Employee is the "see everything" persona — expand role-shaped nav density and full-operator shell.
+    persistDevRoleNavDensityShowFullNav(true);
+    persistDevShellExperienceOverride("full-operator");
+  }
 }
 
 export function persistDevAgentExecutionModeOverride(value: DevAgentExecutionModeOverride | null): void {
@@ -291,6 +327,17 @@ export function buildDevRoleOverrideAuthMeResponse(
   role: DevRoleOverride,
   base?: Pick<CurrentPrincipal, "name" | "hasCommittedArchitectureReview">,
 ): AuthMeResponse {
+  if (role === "Employee") {
+    return {
+      name: base?.name ?? "Dev Employee",
+      claims: [
+        { type: "roles", value: DEV_EMPLOYEE_API_ACTOR_ROLE },
+        { type: "permission", value: ARCHLUCID_VENDOR_STAFF_CROSS_TENANT_PERMISSION },
+      ],
+      hasCommittedArchitectureReview: base?.hasCommittedArchitectureReview ?? true,
+    };
+  }
+
   return {
     name: base?.name ?? `Dev ${role}`,
     claims: [{ type: "roles", value: role }],

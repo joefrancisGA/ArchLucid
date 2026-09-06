@@ -15,7 +15,6 @@ import {
   operatorHomeDataCurrencyValue,
 } from "@/lib/operator/operator-last-refreshed-label";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;
@@ -52,7 +51,6 @@ function operatorHomeFreshnessContent(input: {
 /** Shared `/` Overview hero — title, lead, refresh, data-currency timestamp, and resume/start primary. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const { isWorkingMode } = useWorkspaceMode();
   const freshnessContent = operatorHomeFreshnessContent({
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
     refreshing,
@@ -85,10 +83,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
         </div>
       }
     >
-      <OperatorHomeWorkingPrimaryCta
-        variant="primary"
-        showNewReviewWhenResuming={isWorkingMode}
-      />
+      <OperatorHomeWorkingPrimaryCta variant="primary" />
     </OperatorPageHeader>
   );
 }
