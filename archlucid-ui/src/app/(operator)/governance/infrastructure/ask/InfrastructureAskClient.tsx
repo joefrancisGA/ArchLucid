@@ -17,6 +17,7 @@ import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-e
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
+  buildResourceHubOverviewHref,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   resolveResourceHubTabFromAskScope,
@@ -307,6 +308,18 @@ export function InfrastructureAskClient() {
               })}
             >
               Open resource evidence hub
+            </Link>
+          ) : null}
+          {cloudResourceId.length > 0 && hubBackLinkTab != null ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={buildResourceHubOverviewHref(cloudResourceId, {
+                snapshotId: snapshotId.length > 0 ? snapshotId : null,
+                runId: runId.length > 0 ? runId : null,
+              })}
+              data-testid="infra-ask-open-overview-hub"
+            >
+              View overview in hub
             </Link>
           ) : null}
           {workQueue !== "all" ? (

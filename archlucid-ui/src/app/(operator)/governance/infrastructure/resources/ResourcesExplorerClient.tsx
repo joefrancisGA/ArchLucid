@@ -24,6 +24,7 @@ import {
 import {
   buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
+  buildResourceHubOverviewHref,
   buildResourceHubWorkCountHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
@@ -302,17 +303,29 @@ export function ResourcesExplorerClient() {
                 {row.lastSeenUtc.length > 0 ? new Date(row.lastSeenUtc).toLocaleString() : "—"}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
-                <Button asChild size="sm" variant="outline">
-                  <Link
-                    href={buildInfrastructureAskHref({
-                      cloudResourceId: row.cloudResourceId,
-                      workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
-                    })}
-                    data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
-                  >
-                    Ask
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {urlWorkQueue !== "all" ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link
+                        href={buildResourceHubOverviewHref(row.cloudResourceId)}
+                        data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
+                      >
+                        Overview
+                      </Link>
+                    </Button>
+                  ) : null}
+                  <Button asChild size="sm" variant="outline">
+                    <Link
+                      href={buildInfrastructureAskHref({
+                        cloudResourceId: row.cloudResourceId,
+                        workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
+                      })}
+                      data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
+                    >
+                      Ask
+                    </Link>
+                  </Button>
+                </div>
               </EnterpriseTableCell>
             </EnterpriseTableRow>
             );

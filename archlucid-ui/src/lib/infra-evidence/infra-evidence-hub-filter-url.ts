@@ -374,6 +374,23 @@ export function buildResourceHubExplorerHref(
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
 }
 
+export function buildResourceHubOverviewHref(
+  cloudResourceId: string,
+  context?: {
+    readonly snapshotId?: string | null;
+    readonly runId?: string | null;
+  },
+): string {
+  const trimmedSnapshotId = context?.snapshotId?.trim() ?? "";
+  const trimmedRunId = context?.runId?.trim() ?? "";
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId.trim(), "", {
+    tab: "overview",
+    snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
+    runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+  });
+}
+
 export function buildResourceHubWorkCountHref(
   cloudResourceId: string,
   kind: CloudResourceExplorerWorkCountKind,
