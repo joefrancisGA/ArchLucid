@@ -136,6 +136,10 @@ describe("RemediationWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings",
     );
+    expect(screen.getByTestId("infra-remediation-open-drift-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=drift",
+    );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
       findingId: null,

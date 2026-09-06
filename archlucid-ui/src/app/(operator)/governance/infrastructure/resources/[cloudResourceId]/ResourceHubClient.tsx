@@ -590,6 +590,32 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Open terraform mapping
                 </Link>
               </Button>
+              {openFindingsCount > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-findings-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "findings",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View findings in hub
+                  </Link>
+                </Button>
+              ) : null}
+              {hub.remediationInstances.totalCount > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-remediation-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "remediation",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View remediation in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {hub.recentChanges.length > 0 ? (
               <EnterpriseTable ariaLabel="Drift changes for resource">
@@ -779,6 +805,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                 </Button>
               ) : null}
+              {hub.recentChanges.length > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-drift-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "drift",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View drift in hub
+                  </Link>
+                </Button>
+              ) : null}
             </div>
             {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
               <section key={stream.streamKind} className="rounded border border-border bg-card p-4">
@@ -877,6 +916,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-diagram-tab">
                   <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
                     View diagram correspondence in hub
+                  </Link>
+                </Button>
+              ) : null}
+              {hub.recentChanges.length > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-drift-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "drift",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View drift in hub
                   </Link>
                 </Button>
               ) : null}
