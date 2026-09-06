@@ -42,6 +42,8 @@ public sealed partial class ArchitectureReviewDocxBuilder
             AddCoverPageSection(mainPart, body, model, whitelabel, logoImageBytes, activeTrialExportNotice, exportTimestampUtc);
             ArchitectureReviewDocxOpenXmlPrimitives.AddPageBreak(body);
 
+            AddCareerExportHonestySection(body, model);
+
             ArchitectureReviewBoardExportSectionVisitor.VisitBodySections((kind, _) =>
                 RenderDocxBodySection(body, kind, model));
 

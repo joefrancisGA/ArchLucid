@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -57,6 +57,10 @@ import {
   resolveRoiSummarySummarizingEmphasizedStepId,
   resolveRoiSummarySummarizingSteps,
 } from "@/lib/roi-summary-summarizing-checklist";
+import {
+  parseRoiSummaryMethodologyOpenFromSearch,
+  roiSummaryMethodologyDisclosureHrefFromSearch,
+} from "@/lib/insights/roi-summary-methodology-disclosure-url";
 
 import { RoiSummaryBuyerChrome } from "./RoiSummaryBuyerChrome";
 import { RoiSummaryHeroStrip } from "./RoiSummaryHeroStrip";
@@ -72,12 +76,38 @@ type Props = {
 export function RoiSummaryPageView(props: Props) {
   const m = props.model;
   const router = useRouter();
+  const pathname = usePathname() ?? SPONSOR_REPORT_ROI_SUMMARY_PATH;
   const searchParams = useSearchParams();
+  const roiSummaryMethodologyOpenParam = searchParams.get("roiSummaryMethodologyOpen");
+  const [methodologyOpen, setMethodologyOpenState] = useState(() =>
+    parseRoiSummaryMethodologyOpenFromSearch(roiSummaryMethodologyOpenParam),
+  );
   const hourly = useRoiLoadedHourlyUsd();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const layerHeader = buyerPolishedShell ? null : <LayerHeader pageKey="value-report-roi" />;
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
+
+  const syncMethodologyOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(roiSummaryMethodologyDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMethodologyOpen = useCallback(
+    (open: boolean) => {
+      setMethodologyOpenState(open);
+      syncMethodologyOpenToUrl(open);
+    },
+    [syncMethodologyOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMethodologyOpenState(parseRoiSummaryMethodologyOpenFromSearch(roiSummaryMethodologyOpenParam));
+  }, [roiSummaryMethodologyOpenParam]);
 
   const onPickReviewForSummarizing = useCallback(
     (reviewId: string) => {
@@ -338,7 +368,12 @@ export function RoiSummaryPageView(props: Props) {
           </ul>
         </section>
 
-        <CollapsibleSection title="Methodology" sectionTestId="roi-summary-methodology">
+        <CollapsibleSection
+          title="Methodology"
+          sectionTestId="roi-summary-methodology"
+          open={methodologyOpen}
+          onToggle={setMethodologyOpen}
+        >
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Estimated hours saved use a directional weighting model: {roiSummaryMethodologyFormula()}.
           </p>

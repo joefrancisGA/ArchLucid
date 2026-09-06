@@ -3,6 +3,7 @@ import type { DiagramReconcileMatchKindFilter } from "@/lib/infra-evidence/infra
 
 export const DIAGRAM_RECONCILE_RUN_ID_PARAM = "runId";
 export const DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM = "snapshotId";
+export const DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const DIAGRAM_RECONCILE_FILTER_PARAM = "reconcileFilter";
 export const DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM = "correspondenceId";
 
@@ -24,6 +25,14 @@ export function parseDiagramReconcileRunIdFromSearch(raw: string | null | undefi
 }
 
 export function parseDiagramReconcileSnapshotIdFromSearch(raw: string | null | undefined): string {
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+
+  return raw.trim();
+}
+
+export function parseDiagramReconcileCloudResourceIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
   }
@@ -56,6 +65,7 @@ export function parseDiagramReconcileCorrespondenceIdFromSearch(raw: string | nu
 export function buildDiagramReconcileWorkbenchHref(context: {
   readonly runId?: string | null;
   readonly snapshotId?: string | null;
+  readonly cloudResourceId?: string | null;
   readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
   readonly correspondenceId?: string | null;
 }): string {
@@ -67,6 +77,10 @@ export function buildDiagramReconcileWorkbenchHref(context: {
 
   if (context.snapshotId != null && context.snapshotId.trim().length > 0) {
     params.set(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM, context.snapshotId.trim());
+  }
+
+  if (context.cloudResourceId != null && context.cloudResourceId.trim().length > 0) {
+    params.set(DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM, context.cloudResourceId.trim());
   }
 
   if (context.reconcileFilter != null && context.reconcileFilter !== "all") {
@@ -89,6 +103,7 @@ export function diagramReconcileFilterHrefFromSearch(
   patch: {
     readonly runId?: string;
     readonly snapshotId?: string;
+    readonly cloudResourceId?: string;
     readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
     readonly correspondenceId?: string;
   },
@@ -113,6 +128,16 @@ export function diagramReconcileFilterHrefFromSearch(
       params.delete(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM);
     } else {
       params.set(DIAGRAM_RECONCILE_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.cloudResourceId !== undefined) {
+    const trimmed = patch.cloudResourceId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM);
+    } else {
+      params.set(DIAGRAM_RECONCILE_CLOUD_RESOURCE_ID_PARAM, trimmed);
     }
   }
 

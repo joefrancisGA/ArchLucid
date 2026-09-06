@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { resolveInfraEvidenceAskCitationLink, buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 
 const resourceId = "11111111-1111-1111-1111-111111111111";
 const snapshotId = "22222222-2222-2222-2222-222222222222";
@@ -66,6 +66,14 @@ describe("infra-evidence-ask-citations", () => {
 
     expect(link?.href).toBe(
       `/governance/infrastructure/diagram-reconcile?snapshotId=${snapshotId}&correspondenceId=${correspondenceId}`,
+    );
+  });
+
+  it("prefills hub diagrams workbench with dependency neighborhood seed from ARM id", () => {
+    const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
+
+    expect(buildResourceHubDiagramsWorkbenchHref(snapshotId, resourceId, armId)).toBe(
+      `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&cloudResourceId=${resourceId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
     );
   });
 });

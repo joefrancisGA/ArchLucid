@@ -107,6 +107,15 @@ describe("InfrastructureAskClient", () => {
 
     expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("diff diff-1");
 
+    expect(screen.getByTestId("infra-ask-drift-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&diffId=diff-1",
+    );
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
+
     fireEvent.change(screen.getByTestId("infra-ask-question"), {
       target: { value: "What changed in this diff?" },
     });
@@ -140,6 +149,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
+    );
   });
 
   it("shows instance scope in context banner and links hub remediation tab", async () => {
@@ -152,6 +165,10 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-remediation-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
     );
   });
 
@@ -168,6 +185,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
+    expect(screen.getByTestId("infra-ask-audit-lineage-back-link")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/snapshots/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb/controls/cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
   });
 
   it("shows correspondence scope in context banner and links hub diagram tab", async () => {
@@ -181,6 +202,10 @@ describe("InfrastructureAskClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
     );
+    expect(screen.getByTestId("infra-ask-diagram-reconcile-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&correspondenceId=corr-1",
+    );
   });
 
   it("shows explorer work queue in context banner and links back to filtered explorer", async () => {
@@ -190,9 +215,26 @@ describe("InfrastructureAskClient", () => {
     render(<InfrastructureAskClient />);
 
     expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("work queue Open findings");
+    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
     expect(screen.getByTestId("infra-ask-explorer-back-link")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources?workQueue=open-findings",
+    );
+  });
+
+  it("preserves diagram neighborhood seed in inventory diagrams back link", async () => {
+    const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
+    searchParams = new URLSearchParams(
+      `cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
     );
   });
 
@@ -210,6 +252,10 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
 
     fireEvent.change(screen.getByTestId("infra-ask-question"), {

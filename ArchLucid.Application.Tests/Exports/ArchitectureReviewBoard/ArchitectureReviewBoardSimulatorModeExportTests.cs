@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Queries;
@@ -108,6 +109,7 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             runDetailQuery.Object,
             authorityQuery,
             manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),

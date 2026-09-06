@@ -2,12 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseTenantSettingsRoutingScopeOpenFromSearch,
+  tenantSettingsRoutingScopeDisclosureHrefFromSearch,
+} from "@/lib/administration/tenant-settings-routing-scope-disclosure-url";
 import { TENANT_SETTINGS_ORGANIZATION_IDP_NOTE } from "@/lib/tenant-settings-page-copy";
 import { PROJECTS_RECYCLE_BIN_PATH } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 
@@ -21,6 +27,36 @@ type Props = {
 };
 
 export function TenantSettingsOrganizationCards({ tenantDisplayName, scope, model }: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/workspace-settings";
+  const searchParams = useSearchParams();
+  const tenantSettingsRoutingScopeOpenParam = searchParams.get("tenantSettingsRoutingScopeOpen");
+  const [routingScopeOpen, setRoutingScopeOpenState] = useState(() =>
+    parseTenantSettingsRoutingScopeOpenFromSearch(tenantSettingsRoutingScopeOpenParam),
+  );
+
+  const syncRoutingScopeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        tenantSettingsRoutingScopeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRoutingScopeOpen = useCallback(
+    (open: boolean) => {
+      setRoutingScopeOpenState(open);
+      syncRoutingScopeOpenToUrl(open);
+    },
+    [syncRoutingScopeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRoutingScopeOpenState(parseTenantSettingsRoutingScopeOpenFromSearch(tenantSettingsRoutingScopeOpenParam));
+  }, [tenantSettingsRoutingScopeOpenParam]);
+
   return (
     <>
       <Card data-testid="tenant-settings-organization-card">
@@ -61,7 +97,7 @@ export function TenantSettingsOrganizationCards({ tenantDisplayName, scope, mode
             </Link>
           </Button>
 
-          <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
+          <CollapsibleSection title="Technical details — routing scope" open={routingScopeOpen} onToggle={setRoutingScopeOpen}>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
               current selection.

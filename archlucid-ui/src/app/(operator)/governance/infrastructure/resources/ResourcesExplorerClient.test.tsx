@@ -110,5 +110,9 @@ describe("ResourcesExplorerClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=open-findings",
     );
+    expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
   });
 });

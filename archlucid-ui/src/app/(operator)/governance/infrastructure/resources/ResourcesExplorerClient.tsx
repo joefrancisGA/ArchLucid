@@ -23,6 +23,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import {
   buildInfrastructureAskHref,
+  buildResourceHubExplorerHref,
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceGroupFromSearch,
@@ -268,7 +269,8 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell>
                 <Link
                   className="font-medium text-al-link hover:underline"
-                  href={governanceInfrastructureResourceHubPath(row.cloudResourceId)}
+                  href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue)}
+                  data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
                 >
                   {formatResourceLabel(row)}
                 </Link>

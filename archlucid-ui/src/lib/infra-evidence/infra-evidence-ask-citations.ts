@@ -1,9 +1,9 @@
 import {
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
+import { buildDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   buildDriftWorkbenchHref,
@@ -124,23 +124,32 @@ export function buildResourceHubDriftWorkbenchHref(
   return buildDriftWorkbenchHref({ snapshotId, cloudResourceId });
 }
 
-export function buildResourceHubDiagramsWorkbenchHref(snapshotId: string | null | undefined): string {
-  if (snapshotId == null || snapshotId.trim().length === 0) {
-    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH;
-  }
+export function buildResourceHubDiagramsWorkbenchHref(
+  snapshotId: string | null | undefined,
+  cloudResourceId?: string | null,
+  externalResourceId?: string | null,
+): string {
+  const seedNodeId = externalResourceId?.trim() ?? "";
 
-  return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH}?snapshotId=${encodeURIComponent(snapshotId.trim())}`;
+  return buildDiagramsWorkbenchHref({
+    snapshotId,
+    cloudResourceId,
+    mermaidMode: seedNodeId.length > 0 ? "dependencyNeighborhood" : undefined,
+    seedNodeId: seedNodeId.length > 0 ? seedNodeId : undefined,
+  });
 }
 
 export function buildResourceHubDiagramReconcileWorkbenchHref(
   snapshotId: string | null | undefined,
   runId: string | null | undefined,
   correspondenceId?: string | null,
+  cloudResourceId?: string | null,
 ): string {
   return buildDiagramReconcileWorkbenchHref({
     snapshotId,
     runId,
     correspondenceId,
+    cloudResourceId,
   });
 }
 

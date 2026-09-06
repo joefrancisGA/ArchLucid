@@ -1,8 +1,21 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { PricingQuoteAgingPageView } from "./PricingQuoteAgingPageView";
 import type { PricingQuoteAgingPageViewModel } from "./use-pricing-quote-aging-page";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/internal/pricing-quote-aging",
+  useRouter: () => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 function adminModel(overrides: Partial<PricingQuoteAgingPageViewModel> = {}): PricingQuoteAgingPageViewModel {
   return {

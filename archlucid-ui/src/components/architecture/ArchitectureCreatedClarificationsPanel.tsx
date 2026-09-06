@@ -2,13 +2,15 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedClarificationsEvidenceOrientationStrip";
 import { ClarificationAnswerCapturePanel } from "@/components/architecture/ClarificationAnswerCapturePanel";
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
@@ -19,6 +21,10 @@ import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { buildReviewClarificationDeltaPresentation } from "@/lib/architecture/review-clarification-delta-presentation";
+import {
+  architectureAnsweredBriefDisclosureHrefFromSearch,
+  parseArchitectureAnsweredBriefOpenFromSearch,
+} from "@/lib/architecture/architecture-answered-brief-disclosure-url";
 import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
@@ -83,6 +89,34 @@ export function ArchitectureCreatedClarificationsPanel(
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureAnsweredBriefOpenParam = searchParams.get("architectureAnsweredBriefOpen");
+  const [answeredBriefOpen, setAnsweredBriefOpenState] = useState(() =>
+    parseArchitectureAnsweredBriefOpenFromSearch(architectureAnsweredBriefOpenParam),
+  );
+
+  const syncAnsweredBriefOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(architectureAnsweredBriefDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAnsweredBriefOpen = useCallback(
+    (open: boolean) => {
+      setAnsweredBriefOpenState(open);
+      syncAnsweredBriefOpenToUrl(open);
+    },
+    [syncAnsweredBriefOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAnsweredBriefOpenState(parseArchitectureAnsweredBriefOpenFromSearch(architectureAnsweredBriefOpenParam));
+  }, [architectureAnsweredBriefOpenParam]);
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
@@ -239,11 +273,13 @@ export function ArchitectureCreatedClarificationsPanel(
       ) : null}
 
       {answeredSections.length > 0 ? (
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
-          <summary className="cursor-pointer font-semibold">
-            Answered from your brief ({answeredSections.length})
-          </summary>
-          <div className="mt-3 space-y-3">
+        <CollapsibleSection
+          title={`Answered from your brief (${answeredSections.length})`}
+          open={answeredBriefOpen}
+          onToggle={setAnsweredBriefOpen}
+          sectionTestId="architecture-answered-brief"
+        >
+          <div className="space-y-3">
             {answeredSections.map((section) => (
               <ArchitectureStructuredSectionView
                 key={section.key}
@@ -253,7 +289,7 @@ export function ArchitectureCreatedClarificationsPanel(
               />
             ))}
           </div>
-        </details>
+        </CollapsibleSection>
       ) : null}
 
       {!isZeroGapSuccess ? (

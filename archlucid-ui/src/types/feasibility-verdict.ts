@@ -6,7 +6,11 @@ export type FeasibilityVerdictKind = components["schemas"]["FeasibilityVerdictKi
 type AssertedTrailEntrySchema = components["schemas"]["AssertedTrailEntry"];
 
 export type AssertedTrailEntry = AssertedTrailEntrySchema &
-  Required<Pick<AssertedTrailEntrySchema, "key" | "value">>;
+  Required<Pick<AssertedTrailEntrySchema, "key" | "value">> & {
+    questionId?: string | null;
+    recordedUtc?: string | null;
+    responderLabel?: string | null;
+  };
 
 type InferredTrailEntrySchema = components["schemas"]["InferredTrailEntry"];
 

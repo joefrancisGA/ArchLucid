@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { PricingQuoteAgingEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -50,6 +51,14 @@ import {
 import { pricingQuoteAgingRowTone, type PricingQuoteAgingRow } from "@/lib/pricing-quote-aging";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
+import {
+  parsePricingQuoteSlaSettingsOpenFromSearch,
+  pricingQuoteSlaSettingsDisclosureHrefFromSearch,
+} from "@/lib/internal/pricing-quote-sla-settings-disclosure-url";
+import {
+  parsePricingQuoteSupportDetailsOpenFromSearch,
+  pricingQuoteSupportDetailsDisclosureHrefFromSearch,
+} from "@/lib/internal/pricing-quote-support-details-disclosure-url";
 
 import type { PricingQuoteAgingPageViewModel } from "./use-pricing-quote-aging-page";
 
@@ -189,7 +198,60 @@ function PricingQuoteFollowUpRowActions(props: PricingQuoteFollowUpRowActionsPro
 
 export function PricingQuoteAgingPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_PRICING_QUOTE_AGING_PATH;
+  const searchParams = useSearchParams();
+  const pricingQuoteSlaSettingsOpenParam = searchParams.get("pricingQuoteSlaSettingsOpen");
+  const pricingQuoteSupportDetailsOpenParam = searchParams.get("pricingQuoteSupportDetailsOpen");
+  const [slaSettingsOpen, setSlaSettingsOpenState] = useState(() =>
+    parsePricingQuoteSlaSettingsOpenFromSearch(pricingQuoteSlaSettingsOpenParam),
+  );
+  const [supportDetailsOpen, setSupportDetailsOpenState] = useState(() =>
+    parsePricingQuoteSupportDetailsOpenFromSearch(pricingQuoteSupportDetailsOpenParam),
+  );
   const showSupportDetails = isShowSystemAdministrationNavEnabled();
+
+  const syncSlaSettingsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(pricingQuoteSlaSettingsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSlaSettingsOpen = useCallback(
+    (open: boolean) => {
+      setSlaSettingsOpenState(open);
+      syncSlaSettingsOpenToUrl(open);
+    },
+    [syncSlaSettingsOpenToUrl],
+  );
+
+  const syncSupportDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(pricingQuoteSupportDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSupportDetailsOpen = useCallback(
+    (open: boolean) => {
+      setSupportDetailsOpenState(open);
+      syncSupportDetailsOpenToUrl(open);
+    },
+    [syncSupportDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSlaSettingsOpenState(parsePricingQuoteSlaSettingsOpenFromSearch(pricingQuoteSlaSettingsOpenParam));
+  }, [pricingQuoteSlaSettingsOpenParam]);
+
+  useEffect(() => {
+    setSupportDetailsOpenState(parsePricingQuoteSupportDetailsOpenFromSearch(pricingQuoteSupportDetailsOpenParam));
+  }, [pricingQuoteSupportDetailsOpenParam]);
 
   if (m.surface === "demo") {
     return (
@@ -285,7 +347,12 @@ export function PricingQuoteAgingPageView(props: Props) {
         </section>
       ) : null}
 
-      <CollapsibleSection title="SLA settings" sectionTestId="pricing-quote-follow-up-sla-settings">
+      <CollapsibleSection
+        title="SLA settings"
+        sectionTestId="pricing-quote-follow-up-sla-settings"
+        open={slaSettingsOpen}
+        onToggle={setSlaSettingsOpen}
+      >
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Manual follow-up SLAs for open pricing requests submitted through the public pricing form.
         </p>
@@ -402,7 +469,12 @@ export function PricingQuoteAgingPageView(props: Props) {
       </Card>
 
       {showSupportDetails ? (
-        <CollapsibleSection title="Support details" sectionTestId="pricing-quote-follow-up-support-details">
+        <CollapsibleSection
+          title="Support details"
+          sectionTestId="pricing-quote-follow-up-support-details"
+          open={supportDetailsOpen}
+          onToggle={setSupportDetailsOpen}
+        >
           <dl className={cn("m-0 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <div>
               <dt className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>API route</dt>

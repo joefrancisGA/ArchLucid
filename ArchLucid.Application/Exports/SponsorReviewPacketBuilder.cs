@@ -98,11 +98,12 @@ public sealed class SponsorReviewPacketBuilder(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        SponsorReviewCoverageHonestyContext coverageHonesty = await SponsorReviewCoverageHonestyMaterialLoader.LoadAsync(
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
             scope,
+            workingDesk: true,
             cancellationToken);
 
         return SponsorReviewPacketComposer.ComposeMarkdown(
@@ -114,7 +115,7 @@ public sealed class SponsorReviewPacketBuilder(
             topDecisions,
             portfolioSignals,
             activeTrialExportNotice,
-            coverageHonesty);
+            careerExportHonesty);
     }
 
     private static string BuildDeterministicSponsorReport(

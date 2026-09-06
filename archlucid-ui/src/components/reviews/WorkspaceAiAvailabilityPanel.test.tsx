@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { WorkspaceAiAvailabilityPanel } from "./WorkspaceAiAvailabilityPanel";
 
 const fetchWorkspaceAiAvailabilityMock = vi.fn();

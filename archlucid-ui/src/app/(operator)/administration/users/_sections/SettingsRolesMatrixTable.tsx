@@ -63,6 +63,7 @@ export type SettingsRolesMatrixTableProps = {
   readonly baseline: RolePermissionBaseline;
   readonly collapsedGroups: ReadonlySet<string>;
   readonly savingRoleId: string | null;
+  readonly readOnly?: boolean;
   readonly onToggleGroupCollapsed: (area: string) => void;
   readonly onTogglePermission: (roleKey: string, permissionId: string) => void;
   readonly onRequestSaveRole: (role: DraftRole) => void;
@@ -75,6 +76,7 @@ export function SettingsRolesMatrixTable({
   baseline,
   collapsedGroups,
   savingRoleId,
+  readOnly = false,
   onToggleGroupCollapsed,
   onTogglePermission,
   onRequestSaveRole,
@@ -129,7 +131,7 @@ export function SettingsRolesMatrixTable({
                           {claimCaption}
                         </span>
                       ) : null}
-                      {isDirty ? (
+                      {readOnly ? null : isDirty ? (
                         <span
                           data-testid={`settings-roles-unsaved-badge-${roleKey}`}
                           className={cn("font-medium text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.micro)}
@@ -137,7 +139,7 @@ export function SettingsRolesMatrixTable({
                           Unsaved
                         </span>
                       ) : null}
-                      {role.isSystem ? (
+                      {readOnly ? null : role.isSystem ? (
                         <Button
                           type="button"
                           size="sm"
@@ -228,7 +230,7 @@ export function SettingsRolesMatrixTable({
                               allowed={role.permissions.has(permission.id)}
                               roleName={roleDisplayLabel(role.name)}
                               permissionLabel={permission.label}
-                              editable={!role.isSystem}
+                              editable={!readOnly && !role.isSystem}
                               checked={role.permissions.has(permission.id)}
                               onToggle={() => onTogglePermission(roleMatrixKey(role), permission.id)}
                             />

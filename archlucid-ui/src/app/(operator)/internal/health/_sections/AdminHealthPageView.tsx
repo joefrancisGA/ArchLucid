@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +17,8 @@ import {
   HealthRefreshToolbar,
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
+import { AdminHealthCircuitGateTechnicalDisclosure } from "@/components/health-dashboard/AdminHealthCircuitGateTechnicalDisclosure";
+import { AdminHealthLintRuleTechnicalDisclosure } from "@/components/health-dashboard/AdminHealthLintRuleTechnicalDisclosure";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
 import { TenantCatalogMigrationDiagnosticsSection } from "@/components/tenancy/TenantCatalogMigrationDiagnosticsSection";
 import { AdminHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -22,6 +26,10 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { INTERNAL_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
+import {
+  adminHealthConfigProbesDisclosureHrefFromSearch,
+  parseAdminHealthConfigProbesOpenFromSearch,
+} from "@/lib/health-dashboard/admin-health-config-probes-disclosure-url";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 import { presentConfigLintFindings } from "@/lib/health-config-lint-presentation";
@@ -43,6 +51,34 @@ type Props = {
  */
 export function AdminHealthPageView(props: Props) {
   const m = props.model;
+  const router = useRouter();
+  const pathname = usePathname() ?? INTERNAL_HEALTH_PATH;
+  const searchParams = useSearchParams();
+  const adminHealthConfigProbesOpenParam = searchParams.get("adminHealthConfigProbesOpen");
+  const [configProbesOpen, setConfigProbesOpenState] = useState(() =>
+    parseAdminHealthConfigProbesOpenFromSearch(adminHealthConfigProbesOpenParam),
+  );
+
+  const syncConfigProbesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(adminHealthConfigProbesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setConfigProbesOpen = useCallback(
+    (open: boolean) => {
+      setConfigProbesOpenState(open);
+      syncConfigProbesOpenToUrl(open);
+    },
+    [syncConfigProbesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setConfigProbesOpenState(parseAdminHealthConfigProbesOpenFromSearch(adminHealthConfigProbesOpenParam));
+  }, [adminHealthConfigProbesOpenParam]);
 
   if (m.isDemo) {
     return (
@@ -156,7 +192,11 @@ export function AdminHealthPageView(props: Props) {
                     <HealthEmptyGoodState message="No configuration connectivity probes were returned for this session." />
                   )
                 )}
-                <CollapsibleSection title="Technical details — configuration probes API" defaultOpen={false}>
+                <CollapsibleSection
+                  title="Technical details — configuration probes API"
+                  open={configProbesOpen}
+                  onToggle={setConfigProbesOpen}
+                >
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Support engineers can trace probe payloads from the authenticated configuration-health diagnostics endpoint.
                   </p>
@@ -195,9 +235,7 @@ export function AdminHealthPageView(props: Props) {
                                   <span className="font-medium">Recommended action:</span> {finding.recommendedAction}
                                 </p>
                               ) : null}
-                              <CollapsibleSection title="Technical details" defaultOpen={false}>
-                                <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{finding.ruleId}</p>
-                              </CollapsibleSection>
+                              <AdminHealthLintRuleTechnicalDisclosure ruleId={finding.ruleId} />
                             </li>
                           ))}
                         </ul>
@@ -218,9 +256,7 @@ export function AdminHealthPageView(props: Props) {
                                   <span className="font-medium">Recommended action:</span> {finding.recommendedAction}
                                 </p>
                               ) : null}
-                              <CollapsibleSection title="Technical details" defaultOpen={false}>
-                                <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{finding.ruleId}</p>
-                              </CollapsibleSection>
+                              <AdminHealthLintRuleTechnicalDisclosure ruleId={finding.ruleId} />
                             </li>
                           ))}
                         </ul>
@@ -258,14 +294,10 @@ export function AdminHealthPageView(props: Props) {
                         </p>
                         <HealthStatusChip status={gate.state} className={OPERATOR_TYPOGRAPHY.badge} />
                       </div>
-                      <CollapsibleSection title="Technical details" defaultOpen={false}>
-                        <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{gate.name}</p>
-                        {gate.breakDurationSeconds != null ? (
-                          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                            Open duration: {gate.breakDurationSeconds}s
-                          </p>
-                        ) : null}
-                      </CollapsibleSection>
+                      <AdminHealthCircuitGateTechnicalDisclosure
+                        gateName={gate.name}
+                        breakDurationSeconds={gate.breakDurationSeconds}
+                      />
                     </div>
                   ))}
                 </div>

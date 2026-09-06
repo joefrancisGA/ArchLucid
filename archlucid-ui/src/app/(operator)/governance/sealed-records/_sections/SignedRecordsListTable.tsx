@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 import { HelpCopyableValue } from "@/components/help/HelpCopyableValue";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -24,6 +24,10 @@ import {
   signedRecordsListSortHrefFromSearch,
   type SignedRecordsListSortKey,
 } from "@/lib/signed-records/signed-records-list-sort-url";
+import {
+  parseSignedRecordsListSealDetailsRunIdFromSearch,
+  signedRecordsListSealDetailsDisclosureHrefFromSearch,
+} from "@/lib/signed-records/signed-records-list-seal-details-disclosure-url";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -95,6 +99,41 @@ function SignedRecordsListSealDetails(props: {
 }): React.JSX.Element | null {
   const { row } = props;
   const digestFull = row.sealDigestFull?.trim() ?? "";
+  const router = useRouter();
+  const pathname = usePathname() ?? SIGNED_RECORDS_LIST_PATH;
+  const searchParams = useSearchParams();
+  const signedRecordsListSealDetailsRunIdParam = searchParams.get("signedRecordsListSealDetailsRunId");
+  const [sealDetailsOpen, setSealDetailsOpenState] = useState(
+    () => parseSignedRecordsListSealDetailsRunIdFromSearch(signedRecordsListSealDetailsRunIdParam) === row.runId,
+  );
+
+  const syncSealDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        signedRecordsListSealDetailsDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? row.runId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, row.runId, searchParams],
+  );
+
+  const setSealDetailsOpen = useCallback(
+    (open: boolean) => {
+      setSealDetailsOpenState(open);
+      syncSealDetailsOpenToUrl(open);
+    },
+    [syncSealDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSealDetailsOpenState(
+      parseSignedRecordsListSealDetailsRunIdFromSearch(signedRecordsListSealDetailsRunIdParam) === row.runId,
+    );
+  }, [row.runId, signedRecordsListSealDetailsRunIdParam]);
 
   if (digestFull.length === 0) {
     return null;
@@ -105,6 +144,8 @@ function SignedRecordsListSealDetails(props: {
       title={SIGNED_RECORDS_LIST_SEAL_DETAILS_DISCLOSURE}
       summaryAriaLabel={`${SIGNED_RECORDS_LIST_SEAL_DETAILS_DISCLOSURE} for ${row.reviewTitle}`}
       sectionTestId={`signed-record-seal-details-${row.runId}`}
+      open={sealDetailsOpen}
+      onToggle={setSealDetailsOpen}
     >
       <HelpCopyableValue
         label={SIGNED_RECORDS_LIST_SEAL_DIGEST_LABEL}

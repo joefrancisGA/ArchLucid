@@ -19,10 +19,10 @@ describe("FindingEvidenceLinkChip", () => {
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence: 3 linked");
   });
 
-  it("falls back to evidence trail label without count", () => {
+  it("falls back to evidence graph label without count", () => {
     render(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" />);
 
-    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence trail");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence graph");
   });
 
   it("uses column-scoped labels without repeating the Evidence category prefix", () => {

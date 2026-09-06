@@ -5,6 +5,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -22,6 +23,7 @@ export const RESOURCE_HUB_DIFF_ID_PARAM = "diffId";
 export const RESOURCE_HUB_FINDING_ID_PARAM = "findingId";
 export const RESOURCE_HUB_INSTANCE_ID_PARAM = "instanceId";
 export const RESOURCE_HUB_CORRESPONDENCE_ID_PARAM = "correspondenceId";
+export const RESOURCE_HUB_SEED_NODE_ID_PARAM = "seedNodeId";
 
 const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "overview",
@@ -99,6 +101,7 @@ export function buildInfrastructureAskHref(context: {
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
   readonly workQueue?: CloudResourceExplorerWorkQueue;
+  readonly seedNodeId?: string;
 }): string {
   const params = new URLSearchParams();
 
@@ -144,6 +147,10 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.workQueue != null && context.workQueue !== "all") {
     params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, context.workQueue);
+  }
+
+  if (context.seedNodeId != null && context.seedNodeId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SEED_NODE_ID_PARAM, context.seedNodeId.trim());
   }
 
   const query = params.toString();
@@ -334,4 +341,13 @@ export function resourceHubFilterHrefFromSearch(
   const nextQuery = params.toString();
 
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
+export function buildResourceHubExplorerHref(
+  cloudResourceId: string,
+  workQueue: CloudResourceExplorerWorkQueue = "all",
+): string {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
 }

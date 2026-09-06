@@ -20,6 +20,19 @@ import {
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
 import type { RecommendationRecord } from "@/types/advisory";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/advisory/scans",
+  useRouter: () => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 function sampleRecommendation(): RecommendationRecord {
   return {
     recommendationId: "rec-1",

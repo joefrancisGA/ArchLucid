@@ -136,4 +136,21 @@ describe("DiagramReconcileWorkbenchClient", () => {
       "linked diagram correspondence row is not in the loaded reconciliation",
     );
   });
+
+  it("shows resource scope banner and filters rows when cloudResourceId is in the URL", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-resource-scope-banner")).toHaveTextContent(
+      "22222222-3333-4444-5555-666666666666",
+    );
+    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=diagram&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
 });

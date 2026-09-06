@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,10 @@ import {
 } from "@/lib/architecture/architecture-seal-delta-copy";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import {
+  architectureSealDeltaDisclosureHrefFromSearch,
+  parseArchitectureSealDeltaOpenFromSearch,
+} from "@/lib/architecture/architecture-seal-delta-disclosure-url";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DiffItem } from "@/types/authority-manifest";
 import { cn } from "@/lib/utils";
@@ -43,8 +49,51 @@ function groupDiffsBySection(diffs: readonly DiffItem[]): Map<string, DiffItem[]
 }
 
 export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureSealDeltaOpenParam = searchParams.get("architectureSealDeltaOpen");
   const query = useArchitectureSealDeltaQuery(props.architectureId);
   const delta = query.data;
+  const diffCount = delta?.diffs.length ?? 0;
+  const [panelOpen, setPanelOpenState] = useState(() => parseArchitectureSealDeltaOpenFromSearch(architectureSealDeltaOpenParam));
+  const [appliedContentDefault, setAppliedContentDefault] = useState(false);
+
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(architectureSealDeltaDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseArchitectureSealDeltaOpenFromSearch(architectureSealDeltaOpenParam)) {
+      setPanelOpenState(true);
+
+      return;
+    }
+
+    if (architectureSealDeltaOpenParam !== null) {
+      setPanelOpenState(false);
+
+      return;
+    }
+
+    if (!appliedContentDefault && delta !== undefined) {
+      setPanelOpenState(diffCount > 0);
+      setAppliedContentDefault(true);
+    }
+  }, [appliedContentDefault, architectureSealDeltaOpenParam, delta, diffCount]);
 
   if (query.isLoading) {
     return (
@@ -77,14 +126,14 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
       : null;
   const whatIfHref =
     sealedReviewRunId.length > 0 ? `${reviewDetailPath(sealedReviewRunId)}#run-actions` : null;
-  const diffCount = delta.diffs.length;
   const groupedDiffs = groupDiffsBySection(delta.diffs);
 
   return (
     <CollapsibleSection
       title={ARCHITECTURE_SEAL_DELTA_PANEL_TITLE}
       headingLevel={2}
-      defaultOpen={diffCount > 0}
+      open={panelOpen}
+      onToggle={setPanelOpen}
       summaryLine={
         diffCount > 0
           ? ARCHITECTURE_SEAL_DELTA_DIFF_COUNT_LABEL(diffCount)

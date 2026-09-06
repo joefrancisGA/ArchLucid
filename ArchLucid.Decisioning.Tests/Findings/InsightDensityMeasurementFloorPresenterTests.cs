@@ -60,4 +60,18 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         presentation.MeetsCareerExportFloor.Should().BeTrue();
         presentation.Sentence.Should().NotContain("analytically incomplete");
     }
+
+    [Fact]
+    public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
+    {
+        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(16).Should().BeNull();
+    }
+
+    [Fact]
+    public void FormatCareerExportBlockedReason_returns_gate_copy_when_floor_is_unmet()
+    {
+        string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(10);
+
+        reason.Should().Contain("measurement floor");
+    }
 }

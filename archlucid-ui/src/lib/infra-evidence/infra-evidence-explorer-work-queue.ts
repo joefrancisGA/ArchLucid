@@ -68,3 +68,18 @@ export function formatCloudResourceExplorerWorkQueueLabel(
 
   return option?.label ?? workQueue;
 }
+
+export function resolveResourceHubTabFromExplorerWorkQueue(
+  workQueue: CloudResourceExplorerWorkQueue,
+): "findings" | "remediation" | "drift" | undefined {
+  switch (workQueue) {
+    case "open-findings":
+      return "findings";
+    case "open-remediation":
+      return "remediation";
+    case "recent-drift":
+      return "drift";
+    default:
+      return undefined;
+  }
+}

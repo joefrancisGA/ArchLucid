@@ -13,6 +13,25 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    usePathname: () => "/governance/exceptions",
+    useRouter: () => ({
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+    }),
+    useSearchParams: () =>
+      new URLSearchParams({ runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }),
+  };
+});
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   defaultRiskExceptionExpiresAtUtc: vi.fn(() => "2099-01-01T00:00:00.000Z"),
   listRiskExceptions: vi.fn(),
@@ -22,10 +41,15 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 const demoUiEnvMock = vi.hoisted(() => ({ buyerPolishedShell: false }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => demoUiEnvMock.buyerPolishedShell,
-  isNextPublicDemoMode: () => false,
-}));
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoUiEnvMock.buyerPolishedShell,
+    isNextPublicDemoMode: () => false,
+  };
+});
 
 vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({
@@ -70,6 +94,7 @@ describe("RiskExceptionsClient", () => {
         rationale: "Accepted residual risk for legacy subnet.",
         expiresAtUtc: laterExpiry,
         status: "Active",
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       },
       {
         riskExceptionId: "22222222-2222-2222-2222-222222222222",
@@ -78,6 +103,7 @@ describe("RiskExceptionsClient", () => {
         rationale: "Short-term waiver while patch ships.",
         expiresAtUtc: soonExpiry,
         status: "Active",
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       },
       {
         riskExceptionId: "33333333-3333-3333-3333-333333333333",
@@ -86,6 +112,7 @@ describe("RiskExceptionsClient", () => {
         rationale: "Third waiver.",
         expiresAtUtc: laterExpiry,
         status: "Active",
+        runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       },
     ]);
     vi.mocked(governanceApi.revokeRiskException).mockResolvedValue(undefined);
@@ -126,7 +153,7 @@ describe("RiskExceptionsClient", () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByTestId("risk-exceptions-empty-state")).toBeInTheDocument();
-    expect(screen.getByTestId("risk-exceptions-breadcrumb")).toBeInTheDocument();
+    expect(await screen.findByTestId("risk-exceptions-claim-discipline")).toBeInTheDocument();
     expect(screen.getByText(RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(
       screen.queryByText("Track active waivers, expirations, owners, and linked approval decisions."),

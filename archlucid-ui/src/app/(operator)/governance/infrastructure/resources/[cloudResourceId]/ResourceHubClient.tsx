@@ -400,6 +400,29 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open drift workbench
                   </Link>
                 </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagrams-work">
+                  <Link
+                    href={buildResourceHubDiagramsWorkbenchHref(
+                      resolvedSnapshotId,
+                      cloudResourceId,
+                      hub.externalResourceId,
+                    )}
+                  >
+                    Open inventory diagrams
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-reconcile-work">
+                  <Link
+                    href={buildResourceHubDiagramReconcileWorkbenchHref(
+                      resolvedSnapshotId,
+                      runId,
+                      undefined,
+                      cloudResourceId,
+                    )}
+                  >
+                    Open diagram reconciliation
+                  </Link>
+                </Button>
               </div>
             </section>
 
@@ -525,10 +548,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </p>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link href={buildResourceHubDiagramsWorkbenchHref(resolvedSnapshotId)}>Open inventory diagrams</Link>
+                <Link
+                  href={buildResourceHubDiagramsWorkbenchHref(
+                    resolvedSnapshotId,
+                    cloudResourceId,
+                    hub.externalResourceId,
+                  )}
+                  data-testid="infra-resource-hub-diagrams-workbench"
+                >
+                  Open inventory diagrams
+                </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href={buildResourceHubDiagramReconcileWorkbenchHref(resolvedSnapshotId, runId)}>
+                <Link
+                  href={buildResourceHubDiagramReconcileWorkbenchHref(resolvedSnapshotId, runId, undefined, cloudResourceId)}
+                  data-testid="infra-resource-hub-diagram-reconcile-workbench"
+                >
                   Open diagram reconciliation
                 </Link>
               </Button>
@@ -546,6 +581,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       resolvedSnapshotId,
                       runId,
                       hub.diagramCorrespondence.correspondenceId,
+                      cloudResourceId,
                     )}
                   >
                     Open in reconciliation workbench

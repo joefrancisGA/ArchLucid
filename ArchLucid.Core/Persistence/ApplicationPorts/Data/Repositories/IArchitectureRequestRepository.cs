@@ -42,4 +42,7 @@ public interface IArchitectureRequestRepository
     ///     Restores an archived request (clears <see cref="ArchitectureRequest.IsArchived" />).
     /// </summary>
     Task RestoreAsync(string requestId, CancellationToken cancellationToken = default);
+
+    /// <summary>Replaces the stored JSON payload for an existing architecture request.</summary>
+    Task<bool> ReplaceAsync(ArchitectureRequest request, CancellationToken cancellationToken = default);
 }

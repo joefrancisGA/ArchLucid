@@ -12,7 +12,8 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
-import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
@@ -29,12 +30,18 @@ import {
   RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   formatCloudResourceExplorerWorkQueueLabel,
   parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
@@ -65,6 +72,7 @@ export function InfrastructureAskClient() {
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
@@ -132,8 +140,8 @@ export function InfrastructureAskClient() {
     return parts.join(" · ");
   }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
 
-  const hubBackLinkTab = useMemo(
-    () => resolveResourceHubTabFromAskScope({
+  const hubBackLinkTab = useMemo(() => {
+    const scopeTab = resolveResourceHubTabFromAskScope({
       findingId,
       instanceId,
       diffId,
@@ -141,9 +149,75 @@ export function InfrastructureAskClient() {
       auditEvidenceSnapshotId,
       controlId,
       correspondenceId,
-    }),
-    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
-  );
+    });
+
+    if (scopeTab != null) {
+      return scopeTab;
+    }
+
+    return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
+
+  const driftWorkbenchBackLinkHref = useMemo(() => {
+    if (diffId.length === 0) {
+      return null;
+    }
+
+    return buildDriftWorkbenchHref({
+      diffId,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+    });
+  }, [cloudResourceId, diffId, snapshotId]);
+
+  const diagramReconcileBackLinkHref = useMemo(() => {
+    if (correspondenceId.length === 0) {
+      return null;
+    }
+
+    return buildDiagramReconcileWorkbenchHref({
+      runId: runId.length > 0 ? runId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      correspondenceId,
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+    });
+  }, [cloudResourceId, correspondenceId, runId, snapshotId]);
+
+  const inventoryDiagramsBackLinkHref = useMemo(() => {
+    if (snapshotId.length === 0) {
+      return null;
+    }
+
+    return buildResourceHubDiagramsWorkbenchHref(
+      snapshotId,
+      cloudResourceId.length > 0 ? cloudResourceId : null,
+      seedNodeId.length > 0 ? seedNodeId : null,
+    );
+  }, [cloudResourceId, seedNodeId, snapshotId]);
+
+  const remediationFactoryBackLinkHref = useMemo(() => {
+    if (findingId.length === 0 && instanceId.length === 0) {
+      return null;
+    }
+
+    return buildRemediationWorkbenchHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      instanceId: instanceId.length > 0 ? instanceId : null,
+    });
+  }, [cloudResourceId, findingId, instanceId]);
+
+  const auditLineageBackLinkHref = useMemo(() => {
+    if (
+      assessmentId.length === 0
+      || auditEvidenceSnapshotId.length === 0
+      || controlId.length === 0
+    ) {
+      return null;
+    }
+
+    return buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, controlId);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -189,7 +263,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -226,6 +300,51 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-explorer-back-link"
             >
               Back to resource explorer
+            </Link>
+          ) : null}
+          {driftWorkbenchBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={driftWorkbenchBackLinkHref}
+              data-testid="infra-ask-drift-back-link"
+            >
+              Open drift workbench
+            </Link>
+          ) : null}
+          {inventoryDiagramsBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={inventoryDiagramsBackLinkHref}
+              data-testid="infra-ask-inventory-diagrams-back-link"
+            >
+              Open inventory diagrams
+            </Link>
+          ) : null}
+          {diagramReconcileBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={diagramReconcileBackLinkHref}
+              data-testid="infra-ask-diagram-reconcile-back-link"
+            >
+              Open diagram reconciliation workbench
+            </Link>
+          ) : null}
+          {remediationFactoryBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={remediationFactoryBackLinkHref}
+              data-testid="infra-ask-remediation-back-link"
+            >
+              Open remediation factory
+            </Link>
+          ) : null}
+          {auditLineageBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={auditLineageBackLinkHref}
+              data-testid="infra-ask-audit-lineage-back-link"
+            >
+              Open audit evidence control
             </Link>
           ) : null}
         </section>

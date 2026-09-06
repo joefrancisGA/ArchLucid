@@ -2,6 +2,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FINDING_EVIDENCE_LINK_GRAPH_LABEL,
+  FINDING_EVIDENCE_LINK_VIEW_GRAPH_ACCESSIBLE_LABEL,
+  FINDING_EVIDENCE_LINK_VIEW_GRAPH_LABEL,
+} from "@/lib/vocabulary/finding-evidence-link-chip-copy";
 
 export type FindingEvidenceLinkChipProps = {
   readonly href: string;
@@ -28,8 +33,8 @@ function resolveFindingEvidenceLinkLabel(
   }
 
   return useColumnScope
-    ? { visible: "View trail", accessible: "View evidence trail" }
-    : { visible: "Evidence trail", accessible: "Evidence trail" };
+    ? { visible: FINDING_EVIDENCE_LINK_VIEW_GRAPH_LABEL, accessible: FINDING_EVIDENCE_LINK_VIEW_GRAPH_ACCESSIBLE_LABEL }
+    : { visible: FINDING_EVIDENCE_LINK_GRAPH_LABEL, accessible: FINDING_EVIDENCE_LINK_GRAPH_LABEL };
 }
 
 export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): React.JSX.Element {
