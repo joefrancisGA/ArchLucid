@@ -29,7 +29,7 @@
 | OpenAPI push corset unblocked | #1727 / `a63198e` | Snapshot regen after IE-UX + CA prompt API drift |
 | First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
-| Create-run preflight + identity desk e2e | #1736 / follow-up | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
+| Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
 
 ## Common failure modes
 

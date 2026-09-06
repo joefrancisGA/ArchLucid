@@ -32,13 +32,13 @@ export type DigestPreviewBeforeSubscribeSpecimen = {
   readonly footnote: string;
 };
 
-export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE = "Preview before you subscribe" as const;
+export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_TITLE = "Delivery preview" as const;
 
 export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_HELPER =
-  "Review a faithful specimen of digest content for the destination and cadence you configured. This is not a live compose from your workspace data." as const;
+  "Representative layout for the destination you configure. Content reflects your next generated architecture digest." as const;
 
 export const DIGEST_PREVIEW_BEFORE_SUBSCRIBE_SCHEDULE_HELPER =
-  "Review a specimen of the sponsor digest email for the recipients and schedule below. This is not a live compose from your workspace data." as const;
+  "Representative sponsor email layout for the recipients and cadence below." as const;
 
 export const DIGEST_PREVIEW_SECTIONS_HEADING = "Sections included" as const;
 

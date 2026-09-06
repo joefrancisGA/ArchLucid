@@ -4146,6 +4146,12 @@
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureIdentityVersionSummary"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -4191,6 +4197,30 @@
           "updatedUtc": {
             "format": "date-time",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIdentityVersionSummary": {
+        "properties": {
+          "architectureVersionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "linkedReviewId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "versionNumber": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"

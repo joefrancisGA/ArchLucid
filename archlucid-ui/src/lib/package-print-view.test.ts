@@ -75,4 +75,13 @@ describe("package-print-view (TB-2205)", () => {
     expect(printMock).toHaveBeenCalledTimes(1);
     printMock.mockRestore();
   });
+
+  it("CA-41: adds showing N of M when listed findings are fewer than the run total", () => {
+    const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
+      findingsListedCount: 20,
+    });
+
+    expect(presentation.findingsSummary).toContain("Showing 20 of 25");
+    expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
 });
