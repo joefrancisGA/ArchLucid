@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -27,6 +27,10 @@ import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
+import {
+  parseReviewsNewReturningJobChooserOpenFromSearch,
+  reviewsNewReturningJobChooserDisclosureHrefFromSearch,
+} from "@/lib/reviews/reviews-new-returning-job-chooser-disclosure-url";
 import {
   buildReviewsNewPathHref,
   persistActivePath,
@@ -90,6 +94,34 @@ export function ReviewsNewPathSwitcher() {
   const commitQuery = useCorePilotCommitContextQuery();
   const isReturningTenant =
     commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
+  const reviewsNewReturningJobChooserOpenParam = searchParams?.get("reviewsNewReturningJobChooserOpen");
+  const [returningJobChooserOpen, setReturningJobChooserOpenState] = useState(() =>
+    parseReviewsNewReturningJobChooserOpenFromSearch(reviewsNewReturningJobChooserOpenParam),
+  );
+
+  const syncReturningJobChooserOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        reviewsNewReturningJobChooserDisclosureHrefFromSearch(searchParams?.toString() ?? "", open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setReturningJobChooserOpen = useCallback(
+    (open: boolean) => {
+      setReturningJobChooserOpenState(open);
+      syncReturningJobChooserOpenToUrl(open);
+    },
+    [syncReturningJobChooserOpenToUrl],
+  );
+
+  useEffect(() => {
+    setReturningJobChooserOpenState(
+      parseReviewsNewReturningJobChooserOpenFromSearch(reviewsNewReturningJobChooserOpenParam),
+    );
+  }, [reviewsNewReturningJobChooserOpenParam]);
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -140,7 +172,8 @@ export function ReviewsNewPathSwitcher() {
                 <CollapsibleSection
                   title={ACCELERATOR_JOB_CHOOSER_HEADING}
                   summaryLine={ACCELERATOR_JOB_CHOOSER_LEAD}
-                  defaultOpen={false}
+                  open={returningJobChooserOpen}
+                  onToggle={setReturningJobChooserOpen}
                   sectionTestId="reviews-new-returning-job-chooser"
                 >
                   <ReviewsNewJobChooserSection hideHeading />

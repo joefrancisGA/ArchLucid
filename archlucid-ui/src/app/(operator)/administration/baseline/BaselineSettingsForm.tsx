@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,10 @@ import {
   baselineFieldProvenanceKind,
   baselineFieldProvenanceLabel,
 } from "@/lib/baseline-settings-present";
+import {
+  baselineSettingsMethodologyDisclosureHrefFromSearch,
+  parseBaselineSettingsMethodologyOpenFromSearch,
+} from "@/lib/administration/baseline-settings-methodology-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
@@ -101,6 +106,35 @@ export function BaselineSettingsForm(props: BaselineSettingsFormProps): React.JS
     onSave,
     onResetToLoaded,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/baseline";
+  const searchParams = useSearchParams();
+  const baselineSettingsMethodologyOpenParam = searchParams.get("baselineSettingsMethodologyOpen");
+  const [methodologyOpen, setMethodologyOpenState] = useState(() =>
+    parseBaselineSettingsMethodologyOpenFromSearch(baselineSettingsMethodologyOpenParam),
+  );
+
+  const syncMethodologyOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        baselineSettingsMethodologyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMethodologyOpen = useCallback(
+    (open: boolean) => {
+      setMethodologyOpenState(open);
+      syncMethodologyOpenToUrl(open);
+    },
+    [syncMethodologyOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMethodologyOpenState(parseBaselineSettingsMethodologyOpenFromSearch(baselineSettingsMethodologyOpenParam));
+  }, [baselineSettingsMethodologyOpenParam]);
 
   return (
     <form onSubmit={onSave} className="space-y-4">
@@ -222,7 +256,8 @@ export function BaselineSettingsForm(props: BaselineSettingsFormProps): React.JS
 
       <CollapsibleSection
         title="Assumptions and methodology"
-        defaultOpen={false}
+        open={methodologyOpen}
+        onToggle={setMethodologyOpen}
         sectionTestId="baseline-settings-methodology"
       >
         <ul className={cn("m-0 list-disc space-y-2 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

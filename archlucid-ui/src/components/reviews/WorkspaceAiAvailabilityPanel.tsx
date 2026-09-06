@@ -12,6 +12,10 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
+import {
+  parseWorkspaceAiProbeDiagnosticsOpenFromSearch,
+  workspaceAiProbeDiagnosticsDisclosureHrefFromSearch,
+} from "@/lib/reviews/workspace-ai-probe-diagnostics-disclosure-url";
 import type { WorkspaceAiAvailabilityResult } from "@/lib/workspace-ai-availability";
 import {
   workspaceAiAvailabilityStatusLabel,
@@ -19,6 +23,8 @@ import {
   workspaceAiUnavailableDetail,
 } from "@/lib/workspace-ai-availability";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 export type WorkspaceAiAvailabilityPanelProps = {
   readonly workspaceAiSignal: WorkspaceAiConfigurationSignal;
@@ -290,6 +296,37 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
     probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "Probe details";
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const workspaceAiProbeDiagnosticsOpenParam = searchParams.get("workspaceAiProbeDiagnosticsOpen");
+  const [probeDiagnosticsOpen, setProbeDiagnosticsOpenState] = useState(() =>
+    parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
+  );
+
+  const syncProbeDiagnosticsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        workspaceAiProbeDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setProbeDiagnosticsOpen = useCallback(
+    (open: boolean) => {
+      setProbeDiagnosticsOpenState(open);
+      syncProbeDiagnosticsOpenToUrl(open);
+    },
+    [syncProbeDiagnosticsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setProbeDiagnosticsOpenState(
+      parseWorkspaceAiProbeDiagnosticsOpenFromSearch(workspaceAiProbeDiagnosticsOpenParam),
+    );
+  }, [workspaceAiProbeDiagnosticsOpenParam]);
 
   return (
     <div
@@ -376,7 +413,12 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
 
       {probeLoaded ? (
         probeAvailable && !neutralProbeOnTerminalFailure ? (
-          <AdvancedOptionsAccordion triggerLabel={probeTriggerLabel} defaultOpen={false} className="mt-2">
+          <AdvancedOptionsAccordion
+            triggerLabel={probeTriggerLabel}
+            open={probeDiagnosticsOpen}
+            onOpenChange={setProbeDiagnosticsOpen}
+            className="mt-2"
+          >
             <WorkspaceAiProbeDiagnostics result={state.result} compact />
           </AdvancedOptionsAccordion>
         ) : (
