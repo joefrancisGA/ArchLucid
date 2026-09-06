@@ -13,8 +13,10 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 using QuestPDF.Fluent;
@@ -41,6 +43,8 @@ public sealed class SponsorOnePagerPdfBuilder(
     IManifestHashService manifestHashService,
     IScopeContextProvider scopeContextProvider,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
@@ -55,6 +59,10 @@ public sealed class SponsorOnePagerPdfBuilder(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
@@ -100,8 +108,10 @@ public sealed class SponsorOnePagerPdfBuilder(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
         IReadOnlyList<string> coverageHonestyLines =
             CareerExportCoverageHonestyComposer.RenderPlainTextLines(careerExportHonesty);

@@ -40,8 +40,17 @@ public static class InsightDensityMeasurementFloorPresenter
     }
 
     /// <summary>Null when the measured engine count meets the career export floor; otherwise a gate reason for Working exports.</summary>
-    public static string? FormatCareerExportBlockedReason(int? measuredEnginesSucceeded)
+    public static string? FormatCareerExportBlockedReason(
+        int? measuredEnginesSucceeded,
+        int catalogAdvisoryEngineFailureCount = 0)
     {
+        if (catalogAdvisoryEngineFailureCount > 0)
+        {
+            return catalogAdvisoryEngineFailureCount == 1
+                ? "1 catalog engine failed or did not run — career export requires typed findings from every catalog engine that executed."
+                : $"{catalogAdvisoryEngineFailureCount} catalog engines failed or did not run — career export requires complete typed-engine coverage for this package.";
+        }
+
         InsightDensityMeasurementFloorPresentation presentation = Present(measuredEnginesSucceeded);
 
         if (presentation.MeetsCareerExportFloor)

@@ -1,4 +1,4 @@
-/** Sticky identity columns for governance findings queues at working laptop width (AD-12). */
+/** Sticky identity columns for policy findings queues at working laptop width (AD-12). */
 export const GOVERNANCE_FINDINGS_QUEUE_TITLE_STICKY_CLASS =
   "min-w-[12rem] max-w-[18rem] lg:sticky lg:left-0 lg:z-[2] lg:bg-al-surface-raised";
 

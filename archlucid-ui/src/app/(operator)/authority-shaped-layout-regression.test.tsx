@@ -219,7 +219,7 @@ describe("authority-shaped layout regression", () => {
    * Reader / non-mutating shell: submit card moves after inspect sections so "Load a run" is not buried under writes.
    * Regression: dropping `flex-col-reverse` would equal-weight submit vs inspect again.
    */
-  it("Governance workflow: inspect-first column order when mutation capability is false", async () => {
+  it("Approval workflow: inspect-first column order when mutation capability is false", async () => {
     mutateCapability.current = false;
     const { container } = render(<GovernanceWorkflowPage />);
 

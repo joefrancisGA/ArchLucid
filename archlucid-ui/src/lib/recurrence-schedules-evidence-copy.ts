@@ -17,5 +17,5 @@ export const RECURRENCE_SCHEDULES_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;

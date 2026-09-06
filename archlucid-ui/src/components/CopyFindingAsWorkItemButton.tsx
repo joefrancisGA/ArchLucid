@@ -305,7 +305,7 @@ export type CopyGovernanceQueueWorkItemButtonProps = {
 };
 
 /**
- * Minimal copy affordance for governance findings queue rows (no inspect payload on the client).
+ * Minimal copy affordance for policy findings queue rows (no inspect payload on the client).
  */
 export function CopyGovernanceQueueWorkItemButton({
   runId,

@@ -3,8 +3,11 @@ import {
   formatInsightDensityMeasurementFloorPresentation,
   type InsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
+import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
+import { formatQualityGateCareerExportBlockedReason } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export type CareerExportClassificationCounts = {
   readonly decisionGrade: number;
@@ -15,6 +18,13 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly enginesSucceeded?: number | null;
   readonly workingDesk?: boolean;
   readonly classificationCounts?: CareerExportClassificationCounts | null;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly preCommitGateEnabled?: boolean | null;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+  readonly isSample?: boolean | null;
+  readonly hostAgentExecutionMode?: string | null;
+  readonly hostQualityGateMode?: string | null;
+  readonly aggregateQualityGateOutcome?: number | null;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -31,14 +41,28 @@ export function resolveCareerExportCoverageHonesty(
   const measurementFloor = formatInsightDensityMeasurementFloorPresentation(input.enginesSucceeded ?? null);
   const measurementFloorBlockedReason = formatInsightDensityMeasurementFloorBlockedReason(
     input.enginesSucceeded ?? null,
+    input.catalogAdvisoryEngineFailureCount ?? 0,
   );
+  const preCommitGateBlockedReason = formatPreCommitGateDisabledCareerBlockedReason(
+    input.preCommitGateEnabled,
+  );
+  const qualityGateBlockedReason = formatQualityGateCareerExportBlockedReason({
+    workingDesk: input.workingDesk,
+    structuralExecutionMode: input.structuralExecutionMode,
+    isSample: input.isSample,
+    hostAgentExecutionMode: input.hostAgentExecutionMode,
+    hostQualityGateMode: input.hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome,
+  });
+  const workingCareerExportBlockedReason =
+    preCommitGateBlockedReason ?? qualityGateBlockedReason ?? measurementFloorBlockedReason;
   const sponsorHonestyMarkdown = formatSponsorReviewCoverageHonestyMarkdown(input);
   const blockedForWorkingCareerExport =
-    input.workingDesk === true && measurementFloorBlockedReason !== null;
+    input.workingDesk === true && workingCareerExportBlockedReason !== null;
 
   return {
     measurementFloor,
-    measurementFloorBlockedReason,
+    measurementFloorBlockedReason: workingCareerExportBlockedReason ?? measurementFloorBlockedReason,
     sponsorHonestyMarkdown,
     blockedForWorkingCareerExport,
   };

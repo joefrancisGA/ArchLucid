@@ -24,7 +24,7 @@ export type ReversibleMutationSuccessCalloutProps = {
   readonly recordCorrectionBusy?: boolean;
 };
 
-/** Durable success with optional short undo window for reversible governance mutations (TB-2148). */
+/** Durable success with optional short undo window for reversible approval mutations (TB-2148). */
 export function ReversibleMutationSuccessCallout(
   props: ReversibleMutationSuccessCalloutProps,
 ): React.JSX.Element {

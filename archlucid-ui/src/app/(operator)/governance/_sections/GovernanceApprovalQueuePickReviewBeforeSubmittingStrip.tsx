@@ -12,7 +12,7 @@ export type GovernanceApprovalQueuePickReviewBeforeSubmittingStripProps = {
   readonly onSelectReview: (reviewId: string) => void;
 };
 
-/** Review picker shown before submitting governance approvals without a scoped review. */
+/** Review picker shown before submitting approvals without a scoped review. */
 export function GovernanceApprovalQueuePickReviewBeforeSubmittingStrip(
   props: GovernanceApprovalQueuePickReviewBeforeSubmittingStripProps,
 ): React.JSX.Element {

@@ -61,7 +61,7 @@ describe("operator-governance-sponsor-page-help-surfaces (TB-1668)", () => {
     expect(pageHelpTopicForPathname("/governance")?.slug).toBe("governance-approval");
   });
 
-  it("governance setup and recurrence schedules map to honest topics (TB-1668)", () => {
+  it("approval setup and recurrence schedules map to honest topics (TB-1668)", () => {
     expect(pageHelpTopicForPathname("/governance/setup")?.slug).toBe("governance-approval");
     expect(pageHelpTopicForPathname("/governance/recurrence-schedules")?.slug).toBe("recurrence-schedules");
     expect(pageHelpTopicForPathname("/insights/roi-summary")?.slug).toBe("roi-summary");

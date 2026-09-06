@@ -210,6 +210,10 @@ function resolveFailureResolutionHint(
     return "configuration issue — re-run after scheduling is restored, or contact support with the review ID";
   }
 
+  if (reason === "ExecuteOwnershipLeaseExpired") {
+    return "worker lost — reopen or retry execute; any unpersisted LLM spend may rebill on retry";
+  }
+
   if (CONFIGURATION_FAILURE_CLASSES.has(failureKey)) {
     return "configuration issue — your workspace administrator can adjust AI settings, then re-run";
   }
@@ -240,6 +244,10 @@ function resolveLikelyCauseFromArgs(args: {
 
   if (reasonCode === "MissingArchitectureRequest") {
     return "Re-run could not load the architecture request needed to resume — data repair or support may be required.";
+  }
+
+  if (reasonCode === "ExecuteOwnershipLeaseExpired") {
+    return "The execute worker lost its ownership lease before finishing. Reopen this review or retry execute; persisted agent results are kept and retry skips them, but unpersisted in-flight LLM spend may rebill.";
   }
 
   if (failureClass === "invalidOperation" && completedStages === 0) {

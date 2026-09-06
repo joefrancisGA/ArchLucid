@@ -143,7 +143,7 @@ const failureRecoveryFixture = {
   },
   adminHandoff: {
     markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-    verificationLines: ["Connection probe passes on Administration → Model governance."],
+    verificationLines: ["Connection probe passes on Administration → Model policy."],
   },
   submittedIntakeRecap: {
     fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -218,7 +218,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -270,7 +270,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -377,7 +377,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],

@@ -45,7 +45,7 @@ export function governanceApprovalCardTitle(row: GovernanceApprovalRequest): str
     return c.length > 120 ? `${c.slice(0, 117)}…` : c;
   }
 
-  return "Governance approval request";
+  return "Approval request";
 }
 
 export type GovernanceWorkflowToastState = { kind: "ok" | "err"; message: string } | null;

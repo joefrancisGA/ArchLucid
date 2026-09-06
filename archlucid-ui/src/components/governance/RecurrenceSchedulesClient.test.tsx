@@ -97,7 +97,7 @@ describe("RecurrenceSchedulesClient", () => {
       RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE,
     );
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Workspace governance status, pending approvals/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Workspace approval status, pending approvals/i)).not.toBeInTheDocument();
   });
 
   it("keeps one short lead and folds longer prose into How-it-works (TB-1130)", async () => {

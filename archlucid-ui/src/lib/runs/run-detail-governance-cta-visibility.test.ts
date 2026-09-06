@@ -54,7 +54,7 @@ describe("shouldShowRunDetailGovernanceCta", () => {
     ).toBe(false);
   });
 
-  it("hides when manifest governance gate already passed", () => {
+  it("hides when manifest approval gate already passed", () => {
     expect(
       shouldShowRunDetailGovernanceCta({
         manifestId: "manifest-1",
@@ -83,13 +83,13 @@ describe("shouldShowRunDetailGovernanceCta", () => {
 });
 
 describe("runDetailGovernanceWorkflowHref", () => {
-  it("links governance workflow with run id query param", () => {
+  it("links approval workflow with run id query param", () => {
     expect(runDetailGovernanceWorkflowHref("run-abc")).toBe("/governance/approval-queue?runId=run-abc");
   });
 });
 
 describe("RUN_DETAIL_GOVERNANCE_CTA_LABEL", () => {
-  it("uses governance approval forward copy", () => {
-    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for governance approval");
+  it("uses approval forward copy", () => {
+    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for approval");
   });
 });

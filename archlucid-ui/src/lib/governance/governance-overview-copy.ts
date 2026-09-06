@@ -34,12 +34,12 @@ export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE =
   "Showing approval workflow for the Claims Intake sample review — illustrative demo data.";
 
 export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
-  "Sample reviews already include recorded governance decisions. Open the audit trail to inspect approval events — you do not need to submit or approve sample packages here.";
+  "Sample reviews already include recorded approval decisions. Open the audit trail to inspect approval events — you do not need to submit or approve sample packages here.";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT =
-  "Select a review before submitting for governance approval.";
+  "Select a review before submitting for approval.";
 
 export const GOVERNANCE_OVERVIEW_PENDING_ACTION = "View pending approvals";
 

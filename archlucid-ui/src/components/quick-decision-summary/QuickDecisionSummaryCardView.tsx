@@ -140,7 +140,7 @@ export function QuickDecisionSummaryCardView({
               </h3>
               {derived.policyViolations.length === 0 ? (
                 <p className="m-0 text-neutral-600 dark:text-neutral-400">
-                  No governance-blocking findings on this review. Baseline guidance may still appear under advisory
+                  No policy-blocking findings on this review. Baseline guidance may still appear under advisory
                   notes.
                 </p>
               ) : (

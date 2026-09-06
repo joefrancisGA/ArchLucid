@@ -32,7 +32,7 @@
     ],
     "expectedOutputs": [
       "Advisory findings on fs-ctrl-* compliance rules",
-      "Audit-friendly governance dry-run notes when simulated"
+      "Audit-friendly policy dry-run notes when simulated"
     ],
     "scopeLabel": "Product-ready",
     "doNotUseWhen": [

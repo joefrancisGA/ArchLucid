@@ -23,7 +23,7 @@ export async function generateMetadata({
 
 /**
  * Canonical evidence trace: persisted payload, rule linkage, evidence citations, and audit correlation.
- * ReadAuthority only; governance mutations live in the governance action region below the trace.
+ * ReadAuthority only; approval mutations live in the governance action region below the trace.
  */
 export default async function FindingEvidenceTracePage({
   params,

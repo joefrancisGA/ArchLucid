@@ -6,6 +6,7 @@ import Link from "next/link";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundCreateIssueDialog } from "@/components/itsm/ItsmOutboundCreateIssueDialog";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, OPERATOR_RESUME } from "@/lib/design-tokens";
+import { isChecklistCoverageInspectPayload } from "@/lib/findings/finding-inspect-export-classification";
 import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm/itsm-native-create-readiness-alignment";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -19,6 +20,7 @@ export type FindingItsmExportPanelProps = {
 /** Finding handoff: native Jira/ServiceNow create when probes validate; copy-as-work-item fallback otherwise (Tier 2 #6). */
 export function FindingItsmExportPanel({ runId, findingId, payload }: FindingItsmExportPanelProps) {
   const { defaultPathReady, deploymentEnabled } = useItsmNativeCreateReadiness();
+  const checklistCoverageFinding = isChecklistCoverageInspectPayload(payload);
 
   if (defaultPathReady) {
     return (
@@ -37,9 +39,19 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
           Tenant work management connectors passed connection validation — create a linked issue in one click. Clipboard
           export remains available below when you need manual paste.
         </p>
-        <div className="flex flex-wrap items-center gap-3 pt-3">
-          <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
-        </div>
+        {checklistCoverageFinding ? (
+          <p
+            className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="finding-itsm-checklist-coverage-blocked"
+          >
+            Checklist coverage findings cannot be exported as ITSM work items. They remain on the review desk checklist
+            band.
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3 pt-3">
+            <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
+          </div>
+        )}
         <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Prefer clipboard export?

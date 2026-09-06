@@ -1,5 +1,5 @@
 /**
- * TB-2392 — Governance mode toggle first-use teaching.
+ * TB-2392 — Approval view mode toggle first-use teaching.
  */
 
 import { GOVERNANCE_MODE_COPY } from "@/lib/vocabulary/governance-mode-vocabulary";
