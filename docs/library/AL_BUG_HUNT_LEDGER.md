@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 202
-- **bugs-found:** 702
+- **hunts:** 203
+- **bugs-found:** 714
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — DirectAccessKey/DigitalAccessKey/DirectoryAccessKey redaction, workloads doesn't-apply/configure/mandate/maintain negation, advice doesn't-apply/mandate/maintain/ensure/provision suffix
+- **last-bug:** 2026-09-05 — DistributedAccessKey/DocumentAccessKey/DomainAccessKey redaction, workloads doesn't-enforce/ensure/provision/use negation, advice doesn't-enforce and need-not-enforce/apply/mandate/provision suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2745,6 +2745,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `doesn't maintain` suffix gap — **hit 2026-09-05 (#930):** #924 added `shouldn't maintain` suffix only; missed imperative-path `doesn't maintain`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_doesnt_maintain_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `doesn't ensure` suffix gap — **hit 2026-09-05 (#930):** #925 added `shouldn't ensure` suffix only; missed imperative-path `doesn't ensure`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_doesnt_ensure_suffix_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `doesn't provision` suffix gap — **hit 2026-09-05 (#930):** #925 added `shouldn't provision` suffix only; missed imperative-path `doesn't provision`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_doesnt_provision_suffix_phrasing`).
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DistributedAccessKey` not redacted — **hit 2026-09-05 (#931):** compound access-key class after #930; embedded `AccessKey`/`accesskey` fragment guard skipped `DistributedAccessKey`/`distributedaccesskey`; fixed with explicit credential detection (`Resolve_redacts_distributed_access_key_config_path`, `IsSensitiveKey_detects_distributed_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DocumentAccessKey` not redacted — **hit 2026-09-05 (#931):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_document_access_key_config_path`, `IsSensitiveKey_detects_document_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DomainAccessKey` not redacted — **hit 2026-09-05 (#931):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_domain_access_key_config_path`, `IsSensitiveKey_detects_domain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't enforce` negation gap — **hit 2026-09-05 (#931):** #922 added `shouldn't enforce` only; missed prohibitive `doesn't enforce {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_enforce_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't ensure` negation gap — **hit 2026-09-05 (#931):** #925 added `shouldn't ensure` only; missed prohibitive `doesn't ensure {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_ensure_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't provision` negation gap — **hit 2026-09-05 (#931):** #925 added `shouldn't provision` only; missed prohibitive `doesn't provision {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_provision_encryption_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsMidSentenceNegation` — `doesn't use` negation gap — **hit 2026-09-05 (#931):** #928 added `shouldn't use` only; missed prohibitive `doesn't use {token}`; fixed with mid-sentence negation guard (`HasEncryptionConstraint_does_not_false_positive_on_workloads_doesnt_use_encryption_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — imperative-path `doesn't enforce` suffix gap — **hit 2026-09-05 (#931):** #922 added `do not enforce` suffix only; missed imperative-path `doesn't enforce`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_doesnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `need not enforce` suffix gap — **hit 2026-09-05 (#931):** #922 added `do not enforce` suffix only; missed `need not enforce`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `need not apply` suffix gap — **hit 2026-09-05 (#931):** #923 added `do not apply` suffix only; missed `need not apply`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `need not mandate` suffix gap — **hit 2026-09-05 (#931):** #921 added `do not mandate` suffix only; missed `need not mandate`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `need not provision` suffix gap — **hit 2026-09-05 (#931):** #920 added `do not provision` suffix only; missed `need not provision`; fixed with suffix guard parity (`IsObviousGenericAdvice_does_not_flag_need_not_provision_suffix_phrasing`).
+
+2026-09-05 seed hunt #931 (hit): reseeded after #930 closure; proved twelve hunt-ready rows — DistributedAccessKey/DocumentAccessKey/DomainAccessKey redaction parity, workloads doesn't-enforce/ensure/provision/use constraint negation, and advice doesn't-enforce and need-not-enforce/apply/mandate/provision suffix.
 
 2026-09-05 seed hunt #930 (hit): reseeded after #929 closure; proved twelve hunt-ready rows — DirectAccessKey/DigitalAccessKey/DirectoryAccessKey redaction parity, workloads doesn't-apply/configure/mandate/maintain constraint negation, and advice doesn't-apply/mandate/maintain/ensure/provision suffix.
 
