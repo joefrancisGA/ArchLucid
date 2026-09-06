@@ -347,6 +347,9 @@ public sealed class ComparisonReplayService(
                                throw new InvalidOperationException($"Export record '{record.LeftExportRecordId}' was not found.");
         RunExportRecord right = await _runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken) ??
                                 throw new InvalidOperationException($"Export record '{record.RightExportRecordId}' was not found.");
+
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(left.RunId, right.RunId, cancellationToken);
+
         return await _exportRecordDiffService.CompareAsync(left, right, cancellationToken).ConfigureAwait(false);
     }
 }

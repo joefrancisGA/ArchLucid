@@ -52,12 +52,14 @@ import { buildArchitectureSponsorShareMarkdown } from "@/lib/architecture/archit
 import { writeWorkItemBodyToClipboard } from "@/lib/copy-finding-as-work-item";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureSponsorSharingPanelProps = {
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly architecture: BuildArchitectureCreatedHomeModelInput;
   readonly architectureSourceText: string;
   readonly findings: readonly QuickDecisionFinding[];
@@ -149,8 +151,18 @@ export function ArchitectureSponsorSharingPanel(
 
   const knownGaps = assessment.issues.map((issue) => issue.label);
   const requiresPreliminaryOverride = assessment.status !== "ready";
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: props.runId,
+    manifestVersion: props.manifestVersion ?? null,
+  });
 
   async function copySponsorMarkdown(overrideAcknowledged: boolean, deliveryMethod: string): Promise<void> {
+    if (sealedManifestBlockedReason !== null) {
+      showError(sealedManifestBlockedReason);
+
+      return;
+    }
+
     setBusy(true);
 
     try {
@@ -265,6 +277,14 @@ export function ArchitectureSponsorSharingPanel(
               : assessment.sharingBlockReason === "policy"
                 ? ARCHITECTURE_SPONSOR_POLICY_BLOCKED
                 : ARCHITECTURE_SPONSOR_RESTRICTED_INFORMATION}
+          </p>
+        ) : sealedManifestBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-sponsor-sealed-manifest-blocked-reason"
+          >
+            {sealedManifestBlockedReason}
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">

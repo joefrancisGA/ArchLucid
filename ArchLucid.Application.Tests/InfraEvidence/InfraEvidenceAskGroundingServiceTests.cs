@@ -3,6 +3,7 @@ using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
@@ -56,6 +57,7 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             llm.Object,
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
@@ -105,6 +107,7 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             Mock.Of<IAgentCompletionClient>(),
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
@@ -165,6 +168,7 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             llm.Object,
             redactor.Object,
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);
@@ -198,6 +202,7 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             collector.Object,
             Mock.Of<IAgentCompletionClient>(),
             Mock.Of<IPromptRedactor>(),
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             NullLogger<InfraEvidenceAskGroundingService>.Instance);

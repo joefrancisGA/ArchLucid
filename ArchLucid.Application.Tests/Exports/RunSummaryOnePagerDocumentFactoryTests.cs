@@ -74,4 +74,39 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
 
         model.TopFindingTitles.Should().Equal(titles);
     }
+
+    [Fact]
+    public void SelectTopHighCriticalFindings_excludes_muted_findings()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Muted critical",
+                            IsMuted = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Error,
+                            Message = "Active high",
+                        },
+                    ],
+                },
+            ],
+        };
+
+        IReadOnlyList<ArchitectureFinding> top =
+            RunSummaryOnePagerDocumentFactory.SelectTopHighCriticalFindings(detail, maxCount: 5);
+
+        top.Should().ContainSingle();
+        top[0].Message.Should().Be("Active high");
+    }
 }
