@@ -1,4 +1,7 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -69,12 +72,26 @@ public sealed class ExportReplayService(
         if (record is null)
             throw new InvalidOperationException($"Export record '{request.ExportRecordId}' was not found.");
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
             record.RunId,
-            _scopeContextProvider.GetCurrentScope(),
+            scope,
             _authorityQueryService,
             _manifestHashService,
             cancellationToken);
+
+        if (Guid.TryParse(record.RunId, out Guid runGuid))
+        {
+            RunDetailDto? runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+            if (runDetail is not null)
+            {
+                AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                    AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(runDetail.Run),
+                    record.RunId);
+            }
+        }
 
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record) ??
                                                           throw new InvalidOperationException(

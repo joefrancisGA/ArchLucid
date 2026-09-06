@@ -32,6 +32,7 @@ public sealed class InfraEvidenceSnapshotsController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<AzureInventorySnapshotRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListSnapshots(
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
@@ -40,36 +41,51 @@ public sealed class InfraEvidenceSnapshotsController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        PagedResponse<AzureInventorySnapshotRecord> response = await driftWorkbenchQueryService.ListSnapshotsAsync(
-            scope,
-            page,
-            pageSize,
-            subscriptionId,
-            cancellationToken);
+        try
+        {
+            PagedResponse<AzureInventorySnapshotRecord> response = await driftWorkbenchQueryService.ListSnapshotsAsync(
+                scope,
+                page,
+                pageSize,
+                subscriptionId,
+                cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("{snapshotId:guid}/diffs")]
     [ProducesResponseType(typeof(IReadOnlyList<AzureInventoryDiffSummaryRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListDiffsForSnapshot(
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<AzureInventoryDiffSummaryRecord>? diffs =
-            await driftWorkbenchQueryService.ListDiffsForSnapshotAsync(scope, snapshotId, cancellationToken);
-
-        if (diffs is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Snapshot '{snapshotId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            IReadOnlyList<AzureInventoryDiffSummaryRecord>? diffs =
+                await driftWorkbenchQueryService.ListDiffsForSnapshotAsync(scope, snapshotId, cancellationToken);
 
-        return Ok(diffs);
+            if (diffs is null)
+            {
+                return this.NotFoundProblem(
+                    $"Snapshot '{snapshotId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(diffs);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("{snapshotId:guid}/terraform-advisory")]

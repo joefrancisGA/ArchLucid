@@ -24,4 +24,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave34Arc
 
 **Hasher baseline note:** wave 34 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) is closed in this wave.
+**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) is closed in this wave. Wave 35 continues in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE35.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE35.md).

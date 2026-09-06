@@ -1,8 +1,11 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -102,8 +105,21 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
     private static InfraEvidenceDriftWorkbenchQueryService CreateService(
         IAzureInventorySnapshotRepository? snapshotRepository = null,
-        IAzureInventoryDiffRepository? diffRepository = null) =>
-        new(
+        IAzureInventoryDiffRepository? diffRepository = null)
+    {
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
+        reconciliation
+            .Setup(repo => repo.ListRunIdsBySnapshotAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+
+        return new InfraEvidenceDriftWorkbenchQueryService(
             snapshotRepository ?? new Mock<IAzureInventorySnapshotRepository>().Object,
-            diffRepository ?? new Mock<IAzureInventoryDiffRepository>().Object);
+            diffRepository ?? new Mock<IAzureInventoryDiffRepository>().Object,
+            reconciliation.Object,
+            new Mock<IAuthorityQueryService>().Object,
+            new Mock<IManifestHashService>().Object);
+    }
 }

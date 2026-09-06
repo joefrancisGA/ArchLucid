@@ -24,7 +24,7 @@ export function RunDetailReviewPackageShareRow(props: RunDetailReviewPackageShar
       <ReviewPackageShareWhenToSharePreview />
       <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
         <ExportDeliverableDialog runId={props.runId} manifestId={props.manifestId} />
-        <ShareableReviewLinkButton runId={props.runId} isCommitted />
+        <ShareableReviewLinkButton runId={props.runId} isCommitted manifestVersion={props.manifestId} />
         {props.completedUtc ? <ReviewSealedIndicatorChip sealedUtc={props.completedUtc} /> : null}
       </div>
     </>

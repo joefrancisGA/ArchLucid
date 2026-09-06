@@ -1,4 +1,7 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -164,7 +167,42 @@ public sealed class ComparisonReplayService(
         if (string.IsNullOrWhiteSpace(record.LeftRunId) || string.IsNullOrWhiteSpace(record.RightRunId))
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftRunId/RightRunId; cannot regenerate end-to-end comparison.");
+
+        await EnsureRunPairLifecycleCompleteOrThrowAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+
         return await _endToEndReplayComparisonService.BuildAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+    }
+
+    private async Task EnsureRunPairLifecycleCompleteOrThrowAsync(
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (Guid.TryParse(leftRunId, out Guid leftGuid))
+        {
+            RunDetailDto? leftDetail = await _authorityQueryService.GetRunDetailAsync(scope, leftGuid, cancellationToken);
+
+            if (leftDetail is not null)
+            {
+                AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                    AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(leftDetail.Run),
+                    leftRunId);
+            }
+        }
+
+        if (Guid.TryParse(rightRunId, out Guid rightGuid))
+        {
+            RunDetailDto? rightDetail = await _authorityQueryService.GetRunDetailAsync(scope, rightGuid, cancellationToken);
+
+            if (rightDetail is not null)
+            {
+                AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(
+                    AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(rightDetail.Run),
+                    rightRunId);
+            }
+        }
     }
 
     private async Task<ReplayComparisonResult> BuildEndToEndResultAsync(ComparisonRecord record, EndToEndReplayComparisonReport report, string format,

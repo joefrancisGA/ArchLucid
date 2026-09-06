@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -60,7 +60,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         bool demo = isDemoTenant
                     ?? (ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
                         || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId));
-        bool isSimulatorMode = detail.Run.StructuralExecutionMode == StructuralExecutionMode.Simulator;
+        (string? executionModeNoticeTitle, string? executionModeNoticeBody) =
+            BoardExportExecutionModeNoticeResolver.TryGetNotice(detail.Run);
 
         return new ArchitectureReviewBoardExportDocumentModel
         {
@@ -85,8 +86,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             ExplanationConfidenceCallout = string.IsNullOrWhiteSpace(explanationConfidenceCallout)
                 ? null
                 : explanationConfidenceCallout.Trim(),
-            SimulatorRehearsalTitle = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeTitle : null,
-            SimulatorRehearsalBody = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeBody : null,
+            SimulatorRehearsalTitle = executionModeNoticeTitle,
+            SimulatorRehearsalBody = executionModeNoticeBody,
         };
     }
 }
