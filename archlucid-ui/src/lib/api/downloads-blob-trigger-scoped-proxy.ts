@@ -1,7 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "./http";
@@ -29,11 +28,6 @@ async function fetchScopedProxyFileGet(
   await ensureOidcBearerReady();
   const headers = new Headers();
   headers.set("Accept", options.accept);
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

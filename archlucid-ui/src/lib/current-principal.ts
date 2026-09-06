@@ -87,7 +87,7 @@ import {
   type RequiredAuthority,
 } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { ensureAccessTokenFresh, getAccessTokenForApi, isLikelySignedIn } from "@/lib/oidc/session";
+import { ensureAccessTokenFresh, isLikelySignedIn } from "@/lib/oidc/session";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /** JSON body shape for `GET /api/auth/me` — mirrors `CallerIdentityResponse`. */
@@ -182,12 +182,6 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
   await ensureAccessTokenFresh();
 
   const headers = new Headers({ Accept: "application/json" });
-  const bearer = getAccessTokenForApi();
-
-  if (bearer !== undefined && bearer !== null && bearer.trim().length > 0) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
-
   const devRoleOverride = readDevRoleOverrideFromDocument();
 
   if (devRoleOverride !== null) {

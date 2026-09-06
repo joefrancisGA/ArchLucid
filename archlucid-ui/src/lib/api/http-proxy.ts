@@ -8,7 +8,6 @@ import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 
 import {
   audienceHeadersForCurrentShell,
-  getBearerToken,
   getServerAuthHeaders,
   isBrowser,
 } from "./http-auth";
@@ -47,11 +46,6 @@ export async function resolveBinaryGetRequest(path: string): Promise<{ url: stri
       Accept: "*/*",
       ...(await resolveScopeHeadersForRequest()),
     };
-    const bearer = getBearerToken();
-
-    if (bearer) {
-      headers.Authorization = `Bearer ${bearer}`;
-    }
 
     return { url, headers };
   }
@@ -83,11 +77,6 @@ export async function resolveRequest(
       ...(await resolveScopeHeadersForRequest()),
       ...audienceHeadersForCurrentShell(),
     };
-    const bearer = getBearerToken();
-
-    if (bearer) {
-      headers.Authorization = `Bearer ${bearer}`;
-    }
 
     return { url, headers };
   }

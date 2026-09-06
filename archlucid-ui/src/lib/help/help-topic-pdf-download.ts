@@ -1,7 +1,6 @@
 import {
   applyCorrelationHeaders,
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "@/lib/api/http";
@@ -31,11 +30,6 @@ export async function downloadHelpTopicPdf(slug: string): Promise<void> {
   await ensureOidcBearerReady();
 
   const headers = new Headers({ Accept: "application/pdf, application/json" });
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",
