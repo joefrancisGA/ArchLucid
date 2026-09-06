@@ -18,6 +18,7 @@ import {
   PACKAGE_PRINT_LOADING_LABEL,
   buildPackagePrintBackHref,
   buildPackagePrintPresentation,
+  PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
@@ -102,7 +103,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         </p>
         <Button type="button" variant="secondary" asChild>
           <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
-            Back to review package
+            {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>
       </div>

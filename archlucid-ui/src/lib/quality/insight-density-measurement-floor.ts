@@ -43,7 +43,7 @@ function buildMeasurementFloorLine(counts: InsightDensityMeasurementFloorCounts)
   const measured = counts.measuredThisRunEngineCount;
 
   if (measured === null) {
-    return `This run has no measured engine coverage yet. The product catalog includes ${counts.catalogEngineCount} built-in engines; CI proves ${counts.harnessEngineCount} in the golden corpus harness.`;
+    return `This review has no measured engine coverage yet. The product catalog includes ${counts.catalogEngineCount} built-in engines; CI proves ${counts.harnessEngineCount} in the golden corpus harness.`;
   }
 
   if (measured < counts.harnessEngineCount) {

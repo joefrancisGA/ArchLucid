@@ -373,7 +373,7 @@ export function DiagramReconcileWorkbenchClient() {
       showSuccess(
         result.warnings?.length
           ? `Diagram ingested with ${result.warnings.length} warning(s).`
-          : "Structured diagram model saved for this run.",
+          : "Structured diagram model saved for this review.",
       );
     } catch (error: unknown) {
       showError("Diagram ingest failed", formatInfraEvidenceDiagramReconcileApiError(error));
@@ -543,7 +543,7 @@ export function DiagramReconcileWorkbenchClient() {
           data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
           role="status"
         >
-          The linked diagram correspondence row is not in the loaded reconciliation for this run and snapshot
+          The linked diagram correspondence row is not in the loaded reconciliation for this review and snapshot
           {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
         </p>
       ) : null}
