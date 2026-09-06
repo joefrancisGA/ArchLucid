@@ -101,7 +101,7 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
   const briefLength = input.brief.trim().length;
   const evidenceReady = input.evidenceFileCount > 0;
   const titleReady = isFirstPilotReviewTitleReady(input.title, { evidenceAttached: evidenceReady });
-  const l0Gap = describeUniversalIntakeMustGap(input.l0Must);
+  const l0Gap = describeUniversalIntakeMustGap(input.l0Must, { measurementHonesty: true });
   const titleGap = describeFirstPilotReviewTitleGap(input.title, { evidenceAttached: evidenceReady });
 
   if (!titleReady && !evidenceReady && briefLength === 0 && input.title.trim().length === 0) {

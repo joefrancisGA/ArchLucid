@@ -8,6 +8,15 @@ export const REVIEW_PIPELINE_DEFAULT_POLL_MAX_MS = 180_000;
 /** Hard cap aligned with Tier C server allowance (15 minutes). */
 export const REVIEW_PIPELINE_POLL_MAX_CAP_MS = 900_000;
 
+/** Working review-detail headline when execute polls in the background (PC-08 / LK-10). */
+export const REVIEW_PIPELINE_WORKING_BACKGROUND_HEADLINE = "Review running in background";
+
+/** Opens the shell header in-progress popover (TB-2077). */
+export const REVIEW_PIPELINE_OPEN_IN_FLIGHT_STRIP_LABEL = "Open in-progress strip";
+
+export const REVIEW_PIPELINE_WORKING_BACKGROUND_HELPER =
+  "Triage findings or open another package — analysis continues on the server. Track progress from the in-progress strip in the shell header.";
+
 export const REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE =
   `You can leave this page — analysis continues on the server and your review will keep running. ${LONG_OPERATION_HOME_PAGE_STATUS_HINT}`;
 

@@ -4,6 +4,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -25,6 +26,7 @@ import {
   resolveDraftIntakeSelectChange,
   resolveDraftIntakeSelectValue,
 } from "@/lib/draft-intake-select-unset-value";
+import { resolveUniversalIntakeMustEngineFieldHint } from "@/lib/intake/universal-intake-must-engine-coverage";
 import {
   UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
   UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER,
@@ -73,6 +75,7 @@ function clarificationControlId(questionKey: string): string {
 export function DraftIntakeRequiredClarificationField(
   props: DraftIntakeRequiredClarificationFieldProps,
 ) {
+  const { isWorkingMode } = useWorkspaceMode();
   const actionSize = props.compactActions === true ? "sm" : "default";
   const isPrimary = props.isPrimary !== false;
   const isFocused = props.isFocused === true || isPrimary;
@@ -81,6 +84,10 @@ export function DraftIntakeRequiredClarificationField(
   const controlId = clarificationControlId(props.question.questionKey);
   const labelId = `${controlId}-label`;
   const saveLabel = showAllMode ? GUIDED_INTAKE_SAVE_ANSWER_LABEL : GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL;
+  const measurementEngineHint =
+    isWorkingMode && props.answer.trim().length === 0
+      ? resolveUniversalIntakeMustEngineFieldHint(props.question.questionKey)
+      : null;
 
   return (
     <fieldset
@@ -128,6 +135,14 @@ export function DraftIntakeRequiredClarificationField(
           {props.suggestionWasRephrased === true
             ? UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER
             : UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_SYNTHESIS_HELPER}
+        </p>
+      ) : null}
+      {measurementEngineHint !== null ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="socratic-question-measurement-engine-hint"
+        >
+          {measurementEngineHint}
         </p>
       ) : null}
       {isCloudTargetQuestion ? (
