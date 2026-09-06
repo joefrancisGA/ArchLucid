@@ -83,3 +83,24 @@ export function resolveResourceHubTabFromExplorerWorkQueue(
       return undefined;
   }
 }
+
+export function formatResourceHubTabActionLabelFromExplorerWorkQueue(
+  workQueue: CloudResourceExplorerWorkQueue,
+): string | null {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (tab == null) {
+    return null;
+  }
+
+  switch (tab) {
+    case "findings":
+      return "Findings";
+    case "remediation":
+      return "Remediation";
+    case "drift":
+      return "Drift";
+    default:
+      return null;
+  }
+}
