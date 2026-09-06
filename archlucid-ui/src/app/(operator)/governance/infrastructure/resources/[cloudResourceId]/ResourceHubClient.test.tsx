@@ -272,7 +272,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=findings");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-findings-open-remediation-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&findingId=finding-1",
     );
@@ -282,7 +286,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=findings&snapshotId=22222222-2222-2222-2222-222222222222");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-findings-open-remediation-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1",
     );
@@ -292,7 +300,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=remediation");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-remediation-open-findings-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&instanceId=instance-1",
     );
@@ -302,7 +314,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams("tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222");
     render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
 
-    expect(await screen.findByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
+    expect(await screen.findByTestId("infra-resource-hub-remediation-open-findings-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
+    expect(screen.getByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1",
     );
