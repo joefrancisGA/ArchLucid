@@ -152,14 +152,14 @@ export function sidebarMoreLinksLabel(groupId: string, count: number, expanded =
     SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
   if (expanded) {
-    return `Show fewer ${destination} destinations`;
+    return `Show fewer in ${destination}`;
   }
 
   if (count === 1) {
-    return `Show 1 more ${destination} destination`;
+    return `Show 1 more in ${destination}`;
   }
 
-  return `Show ${count} more ${destination} destinations`;
+  return `Show ${count} more in ${destination}`;
 }
 
 /** Collapse label when the secondary nav disclosure is expanded. */
@@ -167,5 +167,5 @@ export function sidebarMoreLinksCollapseLabel(groupId: string): string {
   const destination =
     SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
-  return `Show fewer ${destination} destinations`;
+  return `Show fewer in ${destination}`;
 }
