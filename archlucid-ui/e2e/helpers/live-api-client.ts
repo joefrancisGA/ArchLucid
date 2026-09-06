@@ -70,10 +70,18 @@ export async function postArchitectureRequestRaw(
 /** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — fail faster than the 12×300s create-run loop. */
 function maxArchitectureMutationAttempts(): number {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
-    return 4;
+    return 5;
   }
 
   return getMaxInfrastructureMutationAttempts();
+}
+
+async function ensurePrivateBetaApiReadyBeforeCreateRun(request: APIRequestContext): Promise<void> {
+  if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
+    return;
+  }
+
+  await waitForLiveApiReady(request, { timeoutMs: 120_000 });
 }
 
 /** Per-attempt HTTP timeout — prevents a wedged create from burning the whole Playwright test timeout. */
@@ -147,6 +155,8 @@ export async function createRun(
   tenantScope?: LiveTenantScopeHeaders | null,
   explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
+  await ensurePrivateBetaApiReadyBeforeCreateRun(request);
+
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
     let res: APIResponse;
 
@@ -1082,6 +1092,28 @@ export async function listArchitectureRuns(
   return rows;
 }
 
+export type ArchitectureIdentityListItemJson = {
+  architectureId?: string;
+  latestReviewId?: string | null;
+};
+
+/** GET `/v1/architectures` — scoped architecture identity list (buyer desk picker). */
+export async function listArchitectureIdentities(
+  request: APIRequestContext,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
+): Promise<ArchitectureIdentityListItemJson[]> {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/architectures?page=1&pageSize=50`, {
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
+  });
+
+  await throwIfNotOk(res, "GET /v1/architectures");
+
+  const body: unknown = await res.json();
+
+  return unwrapCursorPagedResponseItems<ArchitectureIdentityListItemJson>(body);
+}
+
 export type LiveGovernanceReviewRequestOptions = {
   readonly apiKey?: string | null;
   /** JwtBearer lane — overrides `LIVE_JWT_TOKEN` for this request (peer reviewer / rejector SoD). */
@@ -1167,6 +1199,7 @@ export async function postGovernanceApproveRaw(
 
 export type RunDetailsJson = {
   run?: {
+    architectureId?: string | null;
     goldenManifestId?: string | null;
     currentManifestVersion?: string | null;
     /** Numeric enum from API JSON, or string name when serialized as string. */
@@ -1174,6 +1207,39 @@ export type RunDetailsJson = {
   };
   results?: unknown[];
 };
+
+/**
+ * Resolve architecture identity id for identity-desk smoke when run detail omits `architectureId`.
+ * Falls back to `GET /v1/architectures` and matches `latestReviewId` to the created run.
+ */
+export async function resolveArchitectureIdentityIdForRun(
+  request: APIRequestContext,
+  runId: string,
+  runDetail: RunDetailsJson,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
+): Promise<string | null> {
+  const fromRun = runDetail.run?.architectureId?.trim() ?? "";
+
+  if (fromRun.length > 0) {
+    return fromRun;
+  }
+
+  const identities = await listArchitectureIdentities(request, tenantScope, explicitBearerToken);
+  const normalizedRunId = normalizeRunIdForCompare(runId);
+  const match = identities.find((row) => {
+    const latestReviewId = row.latestReviewId?.trim() ?? "";
+
+    if (latestReviewId.length === 0) {
+      return false;
+    }
+
+    return normalizeRunIdForCompare(latestReviewId) === normalizedRunId;
+  });
+  const architectureId = match?.architectureId?.trim() ?? "";
+
+  return architectureId.length > 0 ? architectureId : null;
+}
 
 /** POST `/v1/governance/approval-requests` — submit promotion approval request. */
 export async function createApprovalRequest(

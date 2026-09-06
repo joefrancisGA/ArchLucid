@@ -36,6 +36,22 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
 }));
 
 const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
+const workspaceModeMock = vi.hoisted(() => ({ mode: "guided" as const }));
+
+const useArchitectureIdentitiesListQueryMock = vi.hoisted(() => vi.fn());
+const useArchitectureDraftRegistryEntriesMock = vi.hoisted(() => vi.fn(() => [] as readonly never[]));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => workspaceModeMock,
+}));
+
+vi.mock("@/hooks/use-architecture-identities-list-query", () => ({
+  useArchitectureIdentitiesListQuery: (...args: unknown[]) => useArchitectureIdentitiesListQueryMock(...args),
+}));
+
+vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
+  useArchitectureDraftRegistryEntries: () => useArchitectureDraftRegistryEntriesMock(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -57,6 +73,9 @@ describe("GlobalSearchBar", () => {
     navigationTestState.push.mockReset();
     navigationTestState.replace.mockReset();
     architectWorkspaceChromeMock.value = false;
+    workspaceModeMock.mode = "guided";
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({ data: { items: [] } });
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([]);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -255,7 +274,7 @@ describe("GlobalSearchBar", () => {
     const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
     fireEvent.change(input, { target: { value: "zzxynomatch999" } });
 
-    expect(await screen.findByText(/No pages, reviews, or findings matched/)).toBeInTheDocument();
+    expect(await screen.findByText(/No pages, architectures, drafts, reviews, or findings matched/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "browse help topics" })).toHaveAttribute("href", "/help");
   });
 
@@ -288,5 +307,55 @@ describe("GlobalSearchBar", () => {
     expect(screen.getByRole("combobox", { name: "Search workspace" })).toBeInTheDocument();
     expect(screen.getByTestId("global-search-scope-workspace")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("global-search-scope-package")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("shows architecture identity and draft hits separately on Working search", async () => {
+    workspaceModeMock.mode = "working";
+    useArchitectureIdentitiesListQueryMock.mockReturnValue({
+      data: {
+        items: [
+          {
+            architectureId: "architecture-identity-001",
+            displayName: "Payments platform",
+            updatedUtc: "2026-01-01T00:00:00Z",
+            currentDraftId: "draft-payments-1",
+            draftCount: 1,
+            reviewCount: 0,
+          },
+        ],
+      },
+    });
+    useArchitectureDraftRegistryEntriesMock.mockReturnValue([
+      {
+        draftId: "draft-payments-1",
+        displayName: "Payments platform",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00Z",
+      },
+    ]);
+
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "payments" } });
+
+    expect(await screen.findByRole("heading", { name: "Architectures" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Drafts" })).toBeInTheDocument();
+
+    const paymentLinks = screen.getAllByRole("link", { name: /Payments platform/i });
+
+    expect(paymentLinks).toHaveLength(2);
+    expect(paymentLinks[0]).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001",
+    );
+    expect(paymentLinks[1]).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001?draft=draft-payments-1",
+    );
+    expect(screen.getByText("Draft")).toBeInTheDocument();
   });
 });

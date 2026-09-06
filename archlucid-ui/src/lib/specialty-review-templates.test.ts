@@ -6,6 +6,7 @@ import {
   resolveSpecialtyReviewPolicyPackHref,
   SPECIALTY_REVIEW_TEMPLATES,
   specialtyReviewTemplatesCompareHref,
+  specialtyReviewTemplatesBuyerProvenanceLine,
 } from "@/lib/specialty-review-templates";
 
 describe("specialty-review-templates", () => {
@@ -40,6 +41,10 @@ describe("specialty-review-templates", () => {
 
   it("links compare templates to the comparison anchor", () => {
     expect(specialtyReviewTemplatesCompareHref()).toContain("#specialty-template-comparison");
+  });
+
+  it("formats buyer-safe template catalog provenance from the latest template review stamp", () => {
+    expect(specialtyReviewTemplatesBuyerProvenanceLine()).toBe("Template catalog last reviewed 2026-05-01");
   });
 
   it("builds guided-intake href without cloud context", () => {

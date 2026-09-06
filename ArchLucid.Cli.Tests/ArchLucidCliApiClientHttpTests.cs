@@ -250,6 +250,71 @@ public sealed class ArchLucidApiClientHttpTests
         result.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ListArchitecturesAsync_On200_ReturnsPagedIdentities()
+    {
+        Guid architectureId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid draftId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                items = new[]
+                {
+                    new
+                    {
+                        architectureId,
+                        displayName = "Payments platform",
+                        updatedUtc = "2026-01-01T00:00:00Z",
+                        currentDraftId = draftId,
+                        draftCount = 1,
+                        reviewCount = 2,
+                    },
+                },
+                totalCount = 1,
+                page = 1,
+                pageSize = 50,
+            },
+            SJsonCamelCase);
+        HttpResponseMessage response = new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json),
+        };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucid.Core.Pagination.PagedResponse<ArchLucid.Contracts.Architecture.ArchitectureIdentityListItem>? result =
+            await client.ListArchitecturesAsync(1, 50);
+
+        result.Should().NotBeNull();
+        result!.Items.Should().HaveCount(1);
+        result.Items[0].ArchitectureId.Should().Be(architectureId);
+        result.Items[0].CurrentDraftId.Should().Be(draftId);
+    }
+
+    [Fact]
+    public async Task GetArchitectureAsync_On404_ReturnsNull()
+    {
+        HttpResponseMessage response = new(HttpStatusCode.NotFound);
+
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucid.Contracts.Architecture.ArchitectureIdentityDetail? result =
+            await client.GetArchitectureAsync(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ListArchitecturesAsync_On401_ReturnsNull()
+    {
+        HttpResponseMessage response = new(HttpStatusCode.Unauthorized);
+
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucid.Core.Pagination.PagedResponse<ArchLucid.Contracts.Architecture.ArchitectureIdentityListItem>? result =
+            await client.ListArchitecturesAsync(1, 50);
+
+        result.Should().BeNull();
+    }
+
     private sealed class MockHttpMessageHandler(HttpResponseMessage response) : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,

@@ -28,6 +28,8 @@
 | First Playwright execution post-lockfile | #1715 / `34002442429` | Job passed install, build, API warm; Playwright step reached (45m per-test CI budget) |
 | OpenAPI push corset unblocked | #1727 / `a63198e` | Snapshot regen after IE-UX + CA prompt API drift |
 | First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
+| Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
+| Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
 
 ## Common failure modes
 
@@ -43,7 +45,7 @@
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
-| create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts (see `live-api-client.ts`) |
+| create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
 | Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
@@ -58,6 +60,8 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 4. `ui-e2e-live-beta-access-on-push-blob-report` — blob report for Playwright merge
 
 **Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
+
+For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root. On CI failure, the push workflow uploads artifact `ui-e2e-live-beta-access-on-push-failure-triage`.
 
 ## Local reproduction (heavy)
 

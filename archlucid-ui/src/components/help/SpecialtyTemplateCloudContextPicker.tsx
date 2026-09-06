@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SPECIALTY_REVIEW_CLOUD_CONTEXT_OPTIONS,
+  SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_INTRO,
+  SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_LEGEND,
+  SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SELECTION_NOTE,
   type SpecialtyReviewCloudContext,
 } from "@/lib/specialty-review-templates";
 
@@ -13,25 +16,41 @@ export type SpecialtyTemplateCloudContextPickerProps = {
   readonly cloudContext: SpecialtyReviewCloudContext;
   readonly onCloudChange: (cloud: SpecialtyReviewCloudContext) => void;
   readonly fieldsetId: string;
+  readonly showSelectionNote?: boolean;
 };
 
 /** Cloud context selector for the SaaS readiness specialty template (keyboard-visible focus). */
 export function SpecialtyTemplateCloudContextPicker(
   props: SpecialtyTemplateCloudContextPickerProps,
 ): React.ReactElement {
+  const introId = `${props.fieldsetId}-intro`;
+  const selectionNoteId = `${props.fieldsetId}-selection-note`;
+  const describedBy =
+    props.showSelectionNote === true ? `${introId} ${selectionNoteId}` : introId;
+
   return (
     <fieldset
       id={props.fieldsetId}
       className="m-0 space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
       data-testid="specialty-template-cloud-context-picker"
+      aria-describedby={describedBy}
     >
       <legend className={cn("text-xs font-semibold uppercase tracking-wide text-al-text-secondary")}>
-        Cloud context for SaaS readiness
+        {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_LEGEND}
       </legend>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        Optional — choose a hyperscaler when you want cloud-specific evidence guidance prefilled in review setup.
+      <p id={introId} className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_INTRO}
       </p>
-      <div className="flex flex-wrap gap-2">
+      {props.showSelectionNote === true ? (
+        <p
+          id={selectionNoteId}
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.micro, "text-al-text-secondary")}
+          data-testid="specialty-template-cloud-context-selection-note"
+        >
+          {SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_SELECTION_NOTE}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={SPECIALTY_REVIEW_TEMPLATES_CLOUD_CONTEXT_LEGEND}>
         {SPECIALTY_REVIEW_CLOUD_CONTEXT_OPTIONS.map((option) => {
           const inputId = `${props.fieldsetId}-${option.id}`;
           const selected = props.cloudContext === option.id;

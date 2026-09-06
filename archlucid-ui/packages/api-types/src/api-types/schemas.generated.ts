@@ -1229,6 +1229,7 @@ export interface components {
             reviews?: components["schemas"]["ArchitectureIdentityChildReviewSummary"][];
             /** Format: date-time */
             updatedUtc?: string;
+            versions?: components["schemas"]["ArchitectureIdentityVersionSummary"][];
         };
         ArchitectureIdentityListItem: {
             /** Format: uuid */
@@ -1246,6 +1247,16 @@ export interface components {
             reviewCount?: number;
             /** Format: date-time */
             updatedUtc?: string;
+        };
+        ArchitectureIdentityVersionSummary: {
+            /** Format: uuid */
+            architectureVersionId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            linkedReviewId?: null | string;
+            /** Format: int32 */
+            versionNumber?: number;
         };
         ArchitectureIntelligencePublishResult: {
             /** Format: uuid */
@@ -2318,9 +2329,30 @@ export interface components {
         /** @enum {string} */
         CloudProvider: "None" | "Azure" | "Aws" | "Gcp";
         CloudResourceAuditLineageLink: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: null | string;
             available?: boolean;
+            /** Format: uuid */
+            controlId?: null | string;
+            controlNumber?: null | string;
+            controlTitle?: null | string;
             degradedReason?: null | string;
+            matches?: components["schemas"]["CloudResourceAuditLineageMatch"][];
             relativePath?: null | string;
+        };
+        CloudResourceAuditLineageMatch: {
+            /** Format: uuid */
+            assessmentId?: string;
+            /** Format: uuid */
+            auditEvidenceSnapshotId?: string;
+            /** Format: uuid */
+            controlId?: string;
+            controlNumber?: string;
+            controlTitle?: string;
+            /** Format: date-time */
+            snapshotCreatedUtc?: string;
         };
         CloudResourceCurrentConfigurationSection: {
             azureResourceId?: string;
@@ -7934,13 +7966,19 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             /** Format: uuid */
+            executionSnapshotId?: null | string;
+            /** Format: uuid */
             findingId?: string;
             /** Format: uuid */
             instanceId?: string;
             patternKey?: string;
+            /** Format: uuid */
+            preflightSnapshotId?: null | string;
             status?: components["schemas"]["RemediationInstanceStatus"];
             /** Format: date-time */
             updatedUtc?: string;
+            /** Format: uuid */
+            verificationSnapshotId?: null | string;
             /** Format: uuid */
             waveId?: null | string;
         };
