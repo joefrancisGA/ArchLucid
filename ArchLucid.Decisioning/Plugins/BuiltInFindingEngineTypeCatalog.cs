@@ -33,6 +33,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["ExternalExposureFindingEngine"] = "external-exposure",
             ["TrustBoundaryFindingEngine"] = "trust-boundary",
             ["PrivilegedAccessFindingEngine"] = "privileged-access",
+            ["IdentityBlastRadiusFindingEngine"] = "identity-blast-radius",
             ["PolicyApplicabilityFindingEngine"] = "policy-applicability",
             ["PolicyCoverageFindingEngine"] = "policy-coverage",
             ["RequirementCoverageFindingEngine"] = "requirement-coverage",

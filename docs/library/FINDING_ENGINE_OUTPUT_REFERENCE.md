@@ -40,6 +40,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
 | `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
 | `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
+| `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
 
 ## Cost (graph-pure)
 
