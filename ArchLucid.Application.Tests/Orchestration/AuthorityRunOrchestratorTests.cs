@@ -13,6 +13,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Persistence.IntegrationOutbox;
@@ -1215,6 +1216,8 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts,
             publicSiteOpts,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             audit,
             NullLogger<AuthorityCommittedPipelineFinalizer>.Instance);
 

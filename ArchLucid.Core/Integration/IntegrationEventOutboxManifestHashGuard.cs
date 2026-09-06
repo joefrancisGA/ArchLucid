@@ -23,6 +23,7 @@ public static class IntegrationEventOutboxManifestHashGuard
         IntegrationEventTypes.AuthorityRunFailedV1,
         IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
         IntegrationEventTypes.ComplianceDriftEscalatedV1,
+        IntegrationEventTypes.GovernancePolicyPackPublishedV1,
     };
 
     public static void EnsureRunScopedPayloadIncludesManifestHashOrThrow(string eventType, ReadOnlyMemory<byte> payloadUtf8)
@@ -64,6 +65,12 @@ public static class IntegrationEventOutboxManifestHashGuard
 
             if (string.Equals(canonicalEventType, IntegrationEventTypes.ComplianceDriftEscalatedV1, StringComparison.Ordinal)
                 && !TryReadRunId(root, out Guid driftRunId))
+            {
+                return;
+            }
+
+            if (string.Equals(canonicalEventType, IntegrationEventTypes.GovernancePolicyPackPublishedV1, StringComparison.Ordinal)
+                && !TryReadRunId(root, out Guid policyPackRunId))
             {
                 return;
             }

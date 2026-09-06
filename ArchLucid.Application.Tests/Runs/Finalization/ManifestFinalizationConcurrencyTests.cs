@@ -18,6 +18,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -182,12 +183,31 @@ public sealed class ManifestFinalizationConcurrencyTests
         IDecisionTraceRepository? traces = null,
         IGoldenManifestRepository? golden = null,
         IAuditService? audit = null,
-        IIntegrationEventOutboxRepository? outbox = null)
+        IIntegrationEventOutboxRepository? outbox = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
+        const string verifiedManifestHash =
+            "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
         Mock<IManifestHashService> hasher = new();
         hasher
             .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+            .Returns(verifiedManifestHash);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken __) => new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = verifiedManifestHash,
+                },
+            });
 
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -197,6 +217,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             traces ?? Mock.Of<IDecisionTraceRepository>(),
             golden ?? Mock.Of<IGoldenManifestRepository>(),
             hasher.Object,
+            authorityQueryService ?? authorityQuery.Object,
             audit ?? Mock.Of<IAuditService>(),
             outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),

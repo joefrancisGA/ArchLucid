@@ -8,6 +8,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -316,7 +317,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             operationalRepository,
             remediationRepository.Object,
             authorityQueryService ?? authorityQuery.Object,
-            auditLineageResolver.Object);
+            auditLineageResolver.Object,
+            Mock.Of<IManifestHashService>());
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory

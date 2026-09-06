@@ -1,8 +1,10 @@
 using System.Diagnostics;
 
+using ArchLucid.Application.Coordination;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
@@ -101,6 +103,16 @@ public sealed class RetrievalIndexingOutboxProcessor(
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        IManifestHashService manifestHashService =
+            scope.ServiceProvider.GetRequiredService<IManifestHashService>();
+
+        await RetrievalIndexingOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            entry.RunId,
+            scopeContext,
+            query,
+            manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, cancellationToken)
             .ConfigureAwait(false);

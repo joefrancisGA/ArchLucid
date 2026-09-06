@@ -33,6 +33,7 @@ type RunDetailExplanationDeferredProps = {
     readonly ownerLabel: string | null;
   } | null;
   readonly packageCommitted?: boolean;
+  readonly manifestIdForExportGuard?: string | null;
   readonly analysisStagesComplete?: boolean;
   readonly triageVisibleCount?: number;
   readonly requestAssumptionTexts?: readonly string[];
@@ -60,6 +61,7 @@ export async function RunDetailExplanationDeferred(
     providerNeutralWorkItems,
     architectureWorkItemContext,
     packageCommitted,
+    manifestIdForExportGuard,
     analysisStagesComplete,
     triageVisibleCount,
     requestAssumptionTexts,
@@ -125,6 +127,7 @@ export async function RunDetailExplanationDeferred(
       providerNeutralWorkItems={providerNeutralWorkItems}
       architectureWorkItemContext={architectureWorkItemContext}
       packageCommitted={packageCommitted}
+      manifestIdForExportGuard={manifestIdForExportGuard}
       analysisStagesComplete={analysisStagesComplete}
       triageVisibleCount={triageVisibleCount}
       graphSnapshot={resolvedDetail.graphSnapshot}

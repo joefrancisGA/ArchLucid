@@ -14,4 +14,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave32Arc
 
 **Configuration:** `ComplianceDriftEscalation:Enabled`, `ScanIntervalHours`, optional `OpenFindingsCountThreshold`, optional `PolicyPackStaleHoursThreshold` (default 72).
 
-**Deferred:** wave 29 outbox metadata stretch (339–344) and infra-evidence cross-plane batch (345–350) remain for a follow-up wave when those rows are scheduled.
+**Deferred:** wave 29 infra-evidence cross-plane batch (345–350) remains for a follow-up wave when those rows are scheduled. Wave 33 partial outbox metadata stretch (339–344 subset) ships in [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE33.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE33.md).

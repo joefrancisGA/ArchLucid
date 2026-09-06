@@ -6,6 +6,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
@@ -20,7 +21,8 @@ public sealed class CloudResourceEvidenceHubService(
     IOperationalSecurityFindingRepository operationalFindingRepository,
     IRemediationInstanceRepository remediationInstanceRepository,
     IAuthorityQueryService authorityQueryService,
-    ICloudResourceAuditLineageResolver auditLineageResolver) : ICloudResourceEvidenceHubService
+    ICloudResourceAuditLineageResolver auditLineageResolver,
+    IManifestHashService manifestHashService) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 
@@ -52,6 +54,16 @@ public sealed class CloudResourceEvidenceHubService(
                 Succeeded = false,
                 ErrorMessage = "Cloud resource was not found in the current tenant scope.",
             };
+        }
+
+        if (query.RunId is Guid runId && runId != Guid.Empty)
+        {
+            await CloudResourceEvidenceHubSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
+                runId,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
         }
 
         (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);

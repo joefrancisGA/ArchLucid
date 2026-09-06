@@ -17,6 +17,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport;
 
 using System.Data;
@@ -33,6 +34,9 @@ namespace ArchLucid.Application.Tests.Runs.Finalization;
 [Trait("Category", "Unit")]
 public sealed class ManifestFinalizationServiceTests
 {
+    private const string VerifiedManifestHash =
+        "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
     [SkippableFact]
     public async Task FinalizeAsync_throws_when_request_is_null()
     {
@@ -632,7 +636,7 @@ public sealed class ManifestFinalizationServiceTests
             FindingsSnapshotId = findingsId,
             DecisionTraceId = decisionTraceId,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            ManifestHash = "hash",
+            ManifestHash = VerifiedManifestHash,
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
@@ -647,7 +651,8 @@ public sealed class ManifestFinalizationServiceTests
         IManifestHashService? manifestHashService = null,
         IAuditService? auditService = null,
         IIntegrationEventOutboxRepository? integrationEventOutbox = null,
-        IFindingsSnapshotRepository? findingsSnapshotRepository = null)
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(
@@ -656,7 +661,22 @@ public sealed class ManifestFinalizationServiceTests
         Mock<IManifestHashService> defaultHasher = new();
         defaultHasher
             .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+            .Returns(VerifiedManifestHash);
+
+        Mock<IAuthorityQueryService> defaultAuthorityQuery = new();
+        defaultAuthorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken __) => new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = VerifiedManifestHash,
+                },
+            });
 
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -666,6 +686,7 @@ public sealed class ManifestFinalizationServiceTests
             decisionTraceRepository ?? Mock.Of<IDecisionTraceRepository>(),
             goldenManifestRepository ?? Mock.Of<IGoldenManifestRepository>(),
             manifestHashService ?? defaultHasher.Object,
+            authorityQueryService ?? defaultAuthorityQuery.Object,
             auditService ?? Mock.Of<IAuditService>(),
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),

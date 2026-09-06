@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Integration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
@@ -183,7 +184,12 @@ public sealed partial class AdvisoryScanRunner
             comparedToRunId,
             digest.DigestId,
             true,
-            latestDetail.GoldenManifest.ManifestHash,
+            await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
+                latest.RunId,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                ct),
             ct);
         await AdvanceScheduleAsync(schedule, ct);
     }

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Runs.Finalization;
@@ -23,6 +24,7 @@ public sealed partial class ManifestFinalizationService(
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
     IManifestHashService manifestHashService,
+    IAuthorityQueryService authorityQueryService,
     IAuditService auditService,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IManifestFinalizationSqlRepository manifestFinalizationSqlRepository,
@@ -37,6 +39,10 @@ public sealed partial class ManifestFinalizationService(
         integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
 
     private readonly IManifestHashService _manifestHashService = manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IGoldenManifestRepository _goldenManifestRepository =
