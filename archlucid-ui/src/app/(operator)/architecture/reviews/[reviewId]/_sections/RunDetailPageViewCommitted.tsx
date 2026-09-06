@@ -195,7 +195,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         <div className={cn("flex flex-wrap items-center", OPERATOR_LAYOUT.inlineGap)}>
           <RunDetailGenerateAdrFromRunModal
             input={m.adrGeneratorInput}
-            totalFindingCount={m.adrGeneratorInput.findings.length}
+            totalFindingCount={m.careerExportEligibleFindingCount}
             buyerPolished={false}
           />
         </div>
