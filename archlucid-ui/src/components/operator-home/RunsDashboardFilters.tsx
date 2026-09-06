@@ -22,7 +22,7 @@ export type RunsDashboardFiltersProps = {
 const FILTER_CHIP_LAYOUT_CLASS = "w-fit shrink-0 whitespace-nowrap";
 
 const WARNINGS_FILTER_DISABLED_HINT =
-  "No reviews with governance approval warnings in this workspace yet.";
+  "No reviews with approval warnings in this workspace yet.";
 
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {

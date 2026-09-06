@@ -19,7 +19,7 @@ function jsonResponse(data: unknown): Response {
   });
 }
 
-describe("API governance workflow (v1/governance)", () => {
+describe("API approval workflow (v1/governance)", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([]))));
   });

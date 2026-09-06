@@ -4,7 +4,7 @@ import type { FindingProvenance } from "@/lib/api/finding-provenance";
 import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
-/** Public slug for the born-governed created package showcase. */
+/** Public slug for the approval-ready created package showcase. */
 export const SHOWCASE_CREATED_STATIC_DEMO_RUN_ID = "northwind-copilot-rag-platform";
 
 export const SHOWCASE_BUYER_CREATED_PACKAGE_TITLE = "Enterprise Copilot RAG Platform";
@@ -151,7 +151,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
         summary: "Demonstration narrative for a finalized created copilot platform.",
         keyDrivers: [
           "Private connectivity for inference and retrieval",
-          "Content safety and prompt governance",
+          "Content safety and prompt policy",
           "Grounding vs speculation boundaries",
         ],
         riskImplications: [
@@ -163,7 +163,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
           "This demonstration shows a finalized package produced from guided intake — findings, manifest, and export " +
           "without requiring a separate review workflow.",
       },
-      themeSummaries: ["Private AI plane", "Content safety", "Prompt governance", "RAG grounding"],
+      themeSummaries: ["Private AI plane", "Content safety", "Prompt policy", "RAG grounding"],
       overallAssessment:
         "Proceed with internal pilot after private-link cutover and APIM content-safety attachment — no blocking unknowns remain undocumented.",
       riskPosture: "Approved with remediation items",

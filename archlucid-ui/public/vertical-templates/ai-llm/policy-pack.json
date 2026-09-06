@@ -17,12 +17,12 @@
   },
   "metadata": {
     "vertical": "ai-llm",
-    "regulatoryAnchor": "Responsible AI and model governance (NIST AI RMF style vocabulary for review sessions only \u2014 not a certification)"
+    "regulatoryAnchor": "Responsible AI and model policy (NIST AI RMF style vocabulary for review sessions only \u2014 not a certification)"
   },
   "packManifest": {
     "id": "ai-llm",
-    "title": "AI / LLM \u2014 responsible AI and model governance",
-    "targetBuyer": "AI governance or ML platform lead",
+    "title": "AI / LLM \u2014 responsible AI and model policy",
+    "targetBuyer": "AI policy or ML platform lead",
     "buyerJob": "Responsible AI, RAG grounding, and model-risk review for Azure LLM workloads",
     "owner": "ArchLucid Policy SME",
     "lastReviewedUtc": "2026-06-01",

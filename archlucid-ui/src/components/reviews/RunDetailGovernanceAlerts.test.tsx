@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 
 describe("RunDetailGovernanceAlerts", () => {
-  it("renders governance warning and last failure reason when present", () => {
+  it("renders approval warning and last failure reason when present", () => {
     render(
       <RunDetailGovernanceAlerts
         run={{
@@ -23,7 +23,7 @@ describe("RunDetailGovernanceAlerts", () => {
     );
   });
 
-  it("returns null when no governance signals are present", () => {
+  it("returns null when no approval signals are present", () => {
     const { container } = render(
       <RunDetailGovernanceAlerts
         run={{

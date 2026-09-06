@@ -41,7 +41,7 @@ describe("operatorQueryKeys billing subscription (TB-2144)", () => {
   });
 });
 
-describe("operatorQueryKeys governance reviews awaiting action (TB-2144)", () => {
+describe("operatorQueryKeys approval reviews awaiting action (TB-2144)", () => {
   const scope = { tenantId: "t1", workspaceId: "w1", projectId: "default" };
 
   it("scopes awaiting-action queries by operator scope", () => {

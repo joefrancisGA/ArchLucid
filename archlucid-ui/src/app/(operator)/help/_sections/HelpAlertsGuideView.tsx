@@ -179,7 +179,7 @@ function HelpAlertsGuideBody(props: { readonly readingBodyClass: string }): Reac
   );
 }
 
-/** Buyer-safe governance alerts orientation for `/help/alerts`. */
+/** Buyer-safe approval alerts orientation for `/help/alerts`. */
 export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();

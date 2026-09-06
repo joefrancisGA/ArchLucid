@@ -119,7 +119,7 @@ function StatusTable(): React.ReactElement {
     <div className="space-y-4">
       <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="help-governance-approval-status-table">
         <table className={HELP_PAGE_LAYOUT.table}>
-          <caption className="sr-only">Governance approval statuses</caption>
+          <caption className="sr-only">Approval statuses</caption>
           <thead>
             <tr>
               <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
@@ -239,7 +239,7 @@ function GovernanceApprovalActionPanel(): React.ReactElement {
   );
 }
 
-/** Buyer-safe governance approval orientation for `/help/governance-approval`. */
+/** Buyer-safe approval orientation for `/help/governance-approval`. */
 export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGuideViewProps): React.ReactElement {
   void props.entry;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -321,7 +321,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               aria-labelledby="governance-workflow"
               className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
-              <HelpSectionHeading id="governance-workflow">Governance approval workflow</HelpSectionHeading>
+              <HelpSectionHeading id="governance-workflow">Approval workflow</HelpSectionHeading>
               <GovernanceWorkflowStepper />
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
               <div
@@ -333,7 +333,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               >
                 <MermaidDiagram
                   source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE}
-                  accessibleName="Governance approval state diagram"
+                  accessibleName="Approval state diagram"
                 />
               </div>
             </section>

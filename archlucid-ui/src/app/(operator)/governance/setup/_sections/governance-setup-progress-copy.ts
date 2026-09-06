@@ -1,4 +1,4 @@
-/** User-visible progress summary strings for the governance setup guide. */
+/** User-visible progress summary strings for the approval setup guide. */
 
 export function formatGovernanceSetupTrackedProgressLabel(
   completedCount: number,

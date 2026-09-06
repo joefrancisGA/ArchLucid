@@ -18,7 +18,7 @@ export const CAIQ_SIG_RESPONSE_LITE_SCOPE =
 export const CAIQ_SIG_RESPONSE_SIG_SCOPE =
   "SIG Core control families summarized for RFP appendix drafts — not a complete SIG row checklist." as const;
 
-const CAIQ_SECTION_PREFIXES = ["Governance", "Human resources", "Information management", "Operations", "Application security"] as const;
+const CAIQ_SECTION_PREFIXES = ["Approval", "Human resources", "Information management", "Operations", "Application security"] as const;
 
 const SIG_FAMILY_HEADING_PREFIX = "Control family ";
 

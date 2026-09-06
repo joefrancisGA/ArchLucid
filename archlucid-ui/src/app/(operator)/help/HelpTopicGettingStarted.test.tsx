@@ -173,7 +173,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
     expect(mermaid).toHaveTextContent("gov{Governance gate}");
     expect(mermaid).toHaveTextContent("SR[Sealed review record]");
-    expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
+    expect(mermaid.getAttribute("data-description")).toMatch(/approval gate/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });

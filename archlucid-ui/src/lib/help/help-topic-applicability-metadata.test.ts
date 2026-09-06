@@ -168,13 +168,13 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
     );
   });
 
-  it("formats model governance help review provenance", () => {
+  it("formats model policy help review provenance", () => {
     expect(
       formatHelpTopicApplicabilityMetadata(
         sampleEntry({
           slug: "model-governance",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "administration model governance orientation",
+          releaseApplicability: "administration model approval orientation",
         }),
       ),
     ).toBe("Guide last reviewed 2026-08-13");

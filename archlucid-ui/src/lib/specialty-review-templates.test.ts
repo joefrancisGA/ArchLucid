@@ -31,7 +31,7 @@ describe("specialty-review-templates", () => {
     }
   });
 
-  it("routes specialty pack citations to resolvable governance surfaces", () => {
+  it("routes specialty pack citations to resolvable approval surfaces", () => {
     expect(resolveSpecialtyReviewPolicyPackHref("demo-enterprise-privacy-pack")).toBe(
       "/governance/policy-packs/demo-enterprise-privacy-pack",
     );

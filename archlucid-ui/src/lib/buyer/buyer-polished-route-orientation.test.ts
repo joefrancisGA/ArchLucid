@@ -119,7 +119,7 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/recurrence-schedules/")).toBeNull();
   });
 
-  it("returns null for governance setup — not pending-approvals overview blurb (TB-1136)", () => {
+  it("returns null for approval setup — not pending-approvals overview blurb (TB-1136)", () => {
     expect(buyerPolishedRouteOrientation("/governance/setup")).toBeNull();
     expect(buyerPolishedRouteOrientation("/governance/setup/")).toBeNull();
     expect(buyerPolishedRouteOrientation("/governance/first-30-days")).toBeNull();
