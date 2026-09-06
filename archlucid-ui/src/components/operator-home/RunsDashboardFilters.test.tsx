@@ -49,8 +49,8 @@ describe("RunsDashboardFilters", () => {
       "Has approval warnings",
     );
     expect(screen.getByTestId("runs-dashboard-governance-warnings-only")).toBeDisabled();
-    expect(screen.getByText(/No reviews with governance approval warnings in this workspace yet/i)).toBeVisible();
-    expect(screen.getByText(/No reviews with governance approval warnings in this workspace yet/i)).not.toHaveClass(
+    expect(screen.getByText(/No reviews with approval warnings in this workspace yet/i)).toBeVisible();
+    expect(screen.getByText(/No reviews with approval warnings in this workspace yet/i)).not.toHaveClass(
       "sr-only",
     );
   });

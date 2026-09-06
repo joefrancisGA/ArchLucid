@@ -3,6 +3,7 @@ import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 
 export const OPERATOR_HOME_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.home;
@@ -34,9 +35,7 @@ function formatOperatorHomePressureSubtitle(metrics: OperatorHomeWorkspaceMetric
   }
 
   if (metrics.governanceWarnings > 0) {
-    parts.push(
-      `${metrics.governanceWarnings} governance approval warning${metrics.governanceWarnings === 1 ? "" : "s"}`,
-    );
+    parts.push(formatOperatorHomeGovernanceApprovalWarningCount(metrics.governanceWarnings));
   }
 
   if (parts.length === 0) {
