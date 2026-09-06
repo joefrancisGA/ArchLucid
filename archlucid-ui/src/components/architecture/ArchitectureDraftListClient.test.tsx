@@ -171,7 +171,7 @@ describe("ArchitectureDraftListClient", () => {
     const row = screen.getByTestId("architecture-draft-row-a1");
     const status = within(row).getByText("Ready for review");
 
-    expect(status.className).toMatch(/sky/i);
+    expect(status.className).toMatch(/al-accent-interactive/i);
 
     const updated = row.querySelector("time");
 
