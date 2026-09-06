@@ -46,6 +46,7 @@ import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/D
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestsBrowseBuyerChrome } from "./DigestsBrowseBuyerChrome";
+import { DigestsSubscriptionsBuyerChrome } from "./DigestsSubscriptionsBuyerChrome";
 import { DigestsRelatedSurfacesRail } from "./DigestsRelatedSurfacesRail";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
@@ -292,7 +293,9 @@ export function DigestsHubClient(): ReactElement {
         {activeTab === "schedule" ? (
           buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
         ) : activeTab === "subscriptions" ? (
-          <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
+          buyerPolishedShell ? null : (
+            <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
+          )
         ) : buyerPolishedShell ? null : (
           <DigestsRelatedSurfacesRail />
         )}
@@ -304,12 +307,19 @@ export function DigestsHubClient(): ReactElement {
             variant="schedule"
             loadOnly
           />
+        ) : activeTab === "subscriptions" ? (
+          <WeeklyDigestHealthBanner
+            refreshToken={healthRefreshToken}
+            onHealthLoaded={onHealthLoaded}
+            variant="subscriptions"
+            loadOnly
+          />
         ) : (
           <WeeklyDigestHealthBanner
             refreshToken={healthRefreshToken}
             onHealthLoaded={onHealthLoaded}
             variant={healthBannerVariant}
-            suppressCompactFacts={browseSetupGuidesChecklist || activeTab === "subscriptions"}
+            suppressCompactFacts={browseSetupGuidesChecklist}
           />
         )}
 
@@ -336,13 +346,14 @@ export function DigestsHubClient(): ReactElement {
           />
           {buyerPolishedShell ? <DigestsBrowseBuyerChrome /> : null}
         </TabsContent>
-        <TabsContent value="subscriptions" className="mt-4">
+        <TabsContent value="subscriptions" className="mt-4" data-testid="digests-hub-panel-subscriptions">
           <DigestSubscriptionsContent
             healthSnap={healthSnap}
             refreshToken={healthRefreshToken}
             scopedRunId={scopedRunId}
             onPickReview={onPickReview}
           />
+          {buyerPolishedShell ? <DigestsSubscriptionsBuyerChrome /> : null}
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
           <ExecDigestScheduleContent

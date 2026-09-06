@@ -76,6 +76,11 @@ import {
   DIGESTS_SCHEDULE_SOURCES_INTRO,
 } from "@/lib/digests-schedule-evidence-copy";
 import {
+  DIGESTS_SUBSCRIPTIONS_FOLLOW_UPS_TITLE,
+  DIGESTS_SUBSCRIPTIONS_SOURCES,
+  DIGESTS_SUBSCRIPTIONS_SOURCES_INTRO,
+} from "@/lib/digests-subscriptions-evidence-copy";
+import {
   DEVELOPER_SETTINGS_FOLLOW_UPS_TITLE,
   DEVELOPER_SETTINGS_SOURCES,
   DEVELOPER_SETTINGS_SOURCES_INTRO,
@@ -194,6 +199,25 @@ export function DigestsBrowseEvidenceOrientationStrip(
       sourcesTestId="digests-browse-settings-sources"
       sourcesTitle={DIGESTS_BROWSE_FOLLOW_UPS_TITLE}
       sourcesIntro={DIGESTS_BROWSE_SOURCES_INTRO}
+      sources={sources}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
+    />
+  );
+}
+
+export function DigestsSubscriptionsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? DIGESTS_SUBSCRIPTIONS_SOURCES;
+
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="digests-subscriptions"
+      sourcesTestId="digests-subscriptions-settings-sources"
+      sourcesTitle={DIGESTS_SUBSCRIPTIONS_FOLLOW_UPS_TITLE}
+      sourcesIntro={DIGESTS_SUBSCRIPTIONS_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}

@@ -15,10 +15,6 @@ type ComparisonRow = {
 
 const COMPARISON_ROWS: readonly ComparisonRow[] = [
   {
-    label: "Best for",
-    renderCell: (template) => template.bestFor,
-  },
-  {
     label: "Focus areas",
     renderCell: (template) => template.focusAreas.join(", "),
   },
@@ -36,10 +32,6 @@ const COMPARISON_ROWS: readonly ComparisonRow[] = [
       </ul>
     ),
   },
-  {
-    label: "Expected outcome",
-    renderCell: (template) => template.expectedOutput,
-  },
 ];
 
 /** Side-by-side comparison of specialty review templates. */
@@ -47,7 +39,13 @@ export function SpecialtyTemplateComparisonTable(
   props: SpecialtyTemplateComparisonTableProps,
 ): React.ReactElement {
   return (
-    <div className="overflow-x-auto" data-testid="specialty-template-comparison-table">
+    <div
+      className="overflow-x-auto"
+      data-testid="specialty-template-comparison-table"
+      role="region"
+      aria-label="Specialty template comparison table"
+      tabIndex={0}
+    >
       <table className="w-full min-w-[40rem] border-collapse text-left">
         <caption className="sr-only">Specialty review template comparison</caption>
         <thead>
