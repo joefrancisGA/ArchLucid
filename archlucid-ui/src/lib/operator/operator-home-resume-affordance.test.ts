@@ -38,6 +38,7 @@ describe("resolveOperatorHomeResumeAffordancePlan", () => {
 
     expect(plan.showContinueLast).toBe(false);
     expect(plan.continueLastVariant).toBe("outline");
+    expect(plan.continueLastKind).toBeNull();
   });
 
   it("demotes continue-last to outline when unfinished work rail has items (LS-08)", () => {
@@ -80,6 +81,7 @@ describe("resolveOperatorHomeResumeAffordancePlan", () => {
 
     expect(plan.showContinueLast).toBe(true);
     expect(plan.continueLastVariant).toBe("outline");
+    expect(plan.continueLastKind).toBe("review");
   });
 
   it("keeps continue-last as the sole primary when no competing unfinished work exists (LS-08)", () => {
@@ -116,5 +118,48 @@ describe("resolveOperatorHomeResumeAffordancePlan", () => {
 
     expect(plan.showContinueLast).toBe(true);
     expect(plan.continueLastVariant).toBe("primary");
+    expect(plan.continueLastKind).toBe("review");
+  });
+
+  it("CA-37: prefers architecture identity continue-last in Working mode", () => {
+    window.localStorage.setItem("archlucid.lastOpenArchitectureId.v1", "architecture-identity-001");
+    window.localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        entries: [
+          {
+            kind: "architecture",
+            href: "/architecture/architectures/architecture-identity-001",
+            label: "Payments platform",
+            architectureId: "architecture-identity-001",
+            visitedAtUtc: "2026-01-15T12:00:00.000Z",
+          },
+          {
+            kind: "review",
+            href: "/architecture/reviews/review-42",
+            label: "Payments review",
+            visitedAtUtc: "2026-01-14T12:00:00.000Z",
+          },
+        ],
+      }),
+    );
+
+    const plan = resolveOperatorHomeResumeAffordancePlan({
+      runs: [
+        {
+          runId: "review-42",
+          projectId: "default",
+          description: "Payments review",
+          hasFindingsSnapshot: true,
+        },
+      ],
+      drafts: [],
+      incompleteWizards: [],
+      workingMode: true,
+    });
+
+    expect(plan.showContinueLast).toBe(true);
+    expect(plan.continueLastKind).toBe("architecture");
   });
 });
