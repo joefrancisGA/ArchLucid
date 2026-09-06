@@ -90,13 +90,19 @@ describe("RunDetailPageView progressive disclosure", () => {
     );
   });
 
-  it("keeps advanced analysis behind dedicated section", () => {
+  it("keeps advanced analysis behind dedicated section and refine with AI behind pipeline completion", () => {
     const belowFoldSource = readRegisteredSource("run-detail-below-fold");
 
     expectSourceContains(belowFoldSource, "RunDetailAdvancedAnalysisSection", "run-detail-below-fold");
     expectSourceContains(
       belowFoldSource,
       "RunDetailOperatorPipelineToolsCollapsible",
+      "run-detail-below-fold",
+    );
+    expectSourceContains(belowFoldSource, "reviewPipelineComplete", "run-detail-below-fold");
+    expectSourceMatches(
+      belowFoldSource,
+      /\{!m\.buyerPolishedArtifactTable && reviewPipelineComplete \? \(/,
       "run-detail-below-fold",
     );
   });
