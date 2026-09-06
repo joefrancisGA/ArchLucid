@@ -3,22 +3,14 @@ import { cn } from "@/lib/utils";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
-import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { CopyIdButton } from "@/components/CopyIdButton";
-import { FindingExplainPanel } from "@/components/FindingExplainPanel";
+import { FindingDetailInspectDisclosures } from "./FindingDetailInspectDisclosures";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
-import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
-import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
-import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
-import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   resolveFindingDetailWorkflowEmphasizedStepId,
@@ -26,8 +18,6 @@ import {
   resolveFindingDetailWorkflowTraceReadyFromPayload,
 } from "@/lib/finding-detail-workflow-checklist";
 
-import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
-import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
 import { FindingInspectRecommendedActionSection } from "../FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSection";
@@ -210,152 +200,19 @@ export function FindingDetailInspectBody({ presentation }: Props) {
           />
 
           {inspectPayload !== null ? (
-            <CollapsibleSection
-              title="Evidence"
-              defaultOpen={false}
-              sectionTestId="finding-evidence-collapsible"
-              summaryLine={evidenceBasisSummary}
-            >
-              <FindingInspectEvidenceSection
-                demoFillGaps={demoFillGaps}
-                reviewContextHref={reviewPackageHref}
-                reviewContextLabel="Open review summary"
-                evidence={inspectPayload.evidence}
-                citationModel={policyProvenanceModel}
-              />
-            </CollapsibleSection>
-          ) : null}
-
-          <CollapsibleSection
-            title="Audit"
-            defaultOpen={false}
-            summaryLine={validationRequirement(inspectPayload, decodedFindingId)}
-          >
-            <p className={cn("m-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {validationRequirement(inspectPayload, decodedFindingId)}
-            </p>
-            {inspectPayload !== null ? (
-              <div className="mt-4">
-                <FindingInspectAuditSection
-                  auditRowId={inspectPayload.auditRowId}
-                  demoFillGaps={demoFillGaps}
-                />
-              </div>
-            ) : null}
-          </CollapsibleSection>
-
-          {inspectPayload !== null ? (
-            <FindingExplainabilityTracePanel
+            <FindingDetailInspectDisclosures
               runId={runId}
-              findingId={decodedFindingId}
-              buyerPolishedShell
-              defaultCollapsed
+              findingIdRouteParam={findingIdRouteParam}
+              decodedFindingId={decodedFindingId}
+              inspectPayload={inspectPayload}
+              demoFillGaps={demoFillGaps}
+              evidenceBasisSummary={evidenceBasisSummary}
+              validationRequirementText={validationRequirement(inspectPayload, decodedFindingId)}
+              reviewPackageHref={reviewPackageHref}
               graphEvidenceHref={graphEvidenceHref}
               linkedManifestHref={linkedManifestHref}
+              citationModel={policyProvenanceModel}
             />
-          ) : null}
-
-          <CollapsibleSection
-            title="Related audit record"
-            defaultOpen={false}
-            summaryLine="Redacted LLM audit and feedback when generated for this finding."
-          >
-            <FindingExplainPanel
-              runId={runId}
-              findingId={findingIdRouteParam}
-              confidenceLevel={inspectPayload?.confidenceLevel ?? null}
-              buyerPolishedShell
-              graphEvidenceHref={graphEvidenceHref}
-              linkedManifestHref={linkedManifestHref}
-            />
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Technical metadata"
-            defaultOpen={false}
-            summaryLine={evidenceBasisSummary}
-          >
-            <dl className={cn("m-0 grid gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              <div>
-                <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Finding id</dt>
-                <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
-                  <code
-                    className={cn(
-                      "max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 font-mono dark:bg-neutral-800",
-                      OPERATOR_TYPOGRAPHY.micro,
-                    )}
-                  >
-                    {decodedFindingId}
-                  </code>
-                  <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
-                </dd>
-              </div>
-              {inspectPayload?.decisionRuleId ? (
-                <div>
-                  <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Technical rule identifier</dt>
-                  <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
-                    <code
-                      className={cn(
-                        "max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 font-mono dark:bg-neutral-800",
-                        OPERATOR_TYPOGRAPHY.micro,
-                      )}
-                    >
-                      {inspectPayload.decisionRuleId}
-                    </code>
-                    <CopyIdButton value={inspectPayload.decisionRuleId} aria-label="Copy rule identifier" />
-                  </dd>
-                </div>
-              ) : null}
-              {inspectPayload?.manifestVersion ? (
-                <div>
-                  <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Review record version</dt>
-                  <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>{inspectPayload.manifestVersion}</dd>
-                </div>
-              ) : null}
-            </dl>
-            <div className="mt-4">
-              <CollapsibleSection title="Evidence basis" defaultOpen={false} summaryLine={evidenceBasisSummary}>
-                <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{evidenceBasisSummary}</p>
-              </CollapsibleSection>
-            </div>
-            <div className="mt-4">
-              <CollapsibleSection title="Full evidence trace" defaultOpen={false}>
-                <FindingProvenancePanel runId={runId} findingId={decodedFindingId} />
-              </CollapsibleSection>
-            </div>
-          </CollapsibleSection>
-
-          {inspectPayload !== null ? (
-            <CollapsibleSection title="Export finding" defaultOpen={false} summaryLine="Copy for Jira, Azure Boards, or ServiceNow">
-              <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
-            </CollapsibleSection>
-          ) : null}
-
-          {inspectPayload !== null ? (
-            <CollapsibleSection
-              title="Work with this finding"
-              defaultOpen={false}
-              summaryLine="Ask, ITSM workflow, and feedback"
-            >
-              <div className="space-y-4">
-                <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
-                <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
-                {isOperatorExperienceFullShellEnv() ? (
-                  <ProductLearningFeedbackControls
-                    runId={runId}
-                    manifestVersion={inspectPayload.manifestVersion}
-                    subjectType="Finding"
-                    artifactHint={`finding:${decodedFindingId}`}
-                    patternKey={inspectPayload.decisionRuleId ? `finding-rule:${inspectPayload.decisionRuleId}` : "finding"}
-                    detail={{
-                      findingId: decodedFindingId,
-                      decisionRuleId: inspectPayload.decisionRuleId,
-                    }}
-                    title="Was this finding useful?"
-                  />
-                ) : null}
-              </div>
-            </CollapsibleSection>
           ) : null}
         </div>
       ) : null}
