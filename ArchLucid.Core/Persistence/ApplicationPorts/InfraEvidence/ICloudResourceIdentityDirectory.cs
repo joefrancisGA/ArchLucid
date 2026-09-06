@@ -34,4 +34,13 @@ public interface ICloudResourceIdentityDirectory
         Guid resourceRowId,
         Guid cloudResourceId,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<CloudResourceIdentityRecord> Items, int TotalCount)> ListForExplorerAsync(
+        ScopeContext scope,
+        string? namePrefix,
+        string? resourceType,
+        string? resourceGroup,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

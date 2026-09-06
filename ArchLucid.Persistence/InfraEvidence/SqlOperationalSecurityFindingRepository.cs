@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -109,6 +110,57 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                 cancellationToken: cancellationToken));
 
         return rows.Select(MapFinding).ToList();
+    }
+
+    public async Task<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.OperationalSecurityFindings
+                                WHERE TenantId = @TenantId
+                                  AND CloudResourceId = @CloudResourceId;
+                                """;
+
+        const string listSql = """
+                               SELECT FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                                      CloudResourceId, ExternalResourceId, ResourceType, SubscriptionOrAccountId,
+                                      ControlId, ControlFramework, Title, Description, Severity, RiskScore,
+                                      Exploitability, Exposure, BusinessCriticality, BlastRadius,
+                                      FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
+                                      AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                                      PayloadHashSha256, CreatedUtc, UpdatedUtc
+                               FROM dbo.OperationalSecurityFindings
+                               WHERE TenantId = @TenantId
+                                 AND CloudResourceId = @CloudResourceId
+                               ORDER BY LastObservedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
+                               """;
+
+        object parameters = new
+        {
+            TenantId = tenantId,
+            CloudResourceId = cloudResourceId,
+            Skip = skip,
+            PageSize = safePageSize,
+        };
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int totalCount = await conn.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+
+        IEnumerable<FindingRow> rows = await conn.QueryAsync<FindingRow>(
+            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+
+        return (rows.Select(MapFinding).ToList(), totalCount);
     }
 
     public async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(

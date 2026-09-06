@@ -2419,6 +2419,17 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        CloudResourceSummary: {
+            /** Format: uuid */
+            cloudResourceId?: string;
+            displayName?: null | string;
+            externalResourceId?: string;
+            /** Format: date-time */
+            lastSeenUtc?: string;
+            region?: null | string;
+            resourceGroup?: null | string;
+            resourceType?: null | string;
+        };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -6282,6 +6293,16 @@ export interface components {
         PagedResponseOfAzureInventorySnapshotRecord: {
             hasMore?: boolean;
             items?: components["schemas"]["AzureInventorySnapshotRecord"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        PagedResponseOfCloudResourceSummary: {
+            hasMore?: boolean;
+            items?: components["schemas"]["CloudResourceSummary"][];
             /** Format: int32 */
             page?: number;
             /** Format: int32 */

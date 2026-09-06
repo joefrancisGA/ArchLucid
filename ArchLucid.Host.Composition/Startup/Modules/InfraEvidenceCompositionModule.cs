@@ -76,6 +76,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();
         services.AddScoped<ICloudResourceEvidenceHubService, CloudResourceEvidenceHubService>();
+        services.AddScoped<ICloudResourceExplorerQueryService, CloudResourceExplorerQueryService>();
         services.AddScoped<IInfraEvidenceAskEvidenceCollector, InfraEvidenceAskEvidenceCollector>();
         services.AddScoped<IInfraEvidenceAskGroundingService, InfraEvidenceAskGroundingService>();
         services.AddScoped<IBrandAssetService, BrandAssetService>();

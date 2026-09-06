@@ -11,6 +11,10 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH =
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH = "/governance/infrastructure/resources";
 
+export function governanceInfrastructureResourceHubPath(cloudResourceId: string): string {
+  return `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/${cloudResourceId.trim()}`;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PATH = "/governance/infrastructure/ask";
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastructure/remediation";

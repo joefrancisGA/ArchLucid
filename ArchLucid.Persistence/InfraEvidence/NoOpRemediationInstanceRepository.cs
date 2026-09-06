@@ -29,4 +29,12 @@ public sealed class NoOpRemediationInstanceRepository : IRemediationInstanceRepo
         Guid tenantId,
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<RemediationInstanceRecord>>([]);
+
+    public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
+        Guid tenantId,
+        Guid cloudResourceId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)>(([], 0));
 }
