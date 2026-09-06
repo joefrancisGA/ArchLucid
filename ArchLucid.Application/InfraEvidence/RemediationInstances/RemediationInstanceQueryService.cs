@@ -169,6 +169,13 @@ public sealed class RemediationInstanceQueryService(
                 scope.TenantId,
                 scopedFindingId,
                 cancellationToken);
+
+            if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+            {
+                instances = instances
+                    .Where(item => item.CloudResourceId == resourceId)
+                    .ToList();
+            }
         }
         else if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
         {

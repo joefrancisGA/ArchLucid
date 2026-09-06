@@ -94,6 +94,27 @@ public sealed class RemediationInstancesControllerTests
     }
 
     [Fact]
+    public async Task List_passes_combined_cloudResourceId_and_findingId_filters_to_query_service()
+    {
+        Guid cloudResourceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid findingId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IRemediationInstanceQueryService> queryService = new();
+        queryService
+            .Setup(service => service.ListInstancesAsync(Scope, cloudResourceId, findingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationInstancesController controller = CreateController(queryService: queryService.Object);
+
+        IActionResult result = await controller.List(cloudResourceId, findingId, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        queryService.Verify(
+            service => service.ListInstancesAsync(Scope, cloudResourceId, findingId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Preflight_returns_blockers_without_404_when_preflight_blocked()
     {
         Guid instanceId = Guid.Parse("33333333-3333-3333-3333-333333333333");
