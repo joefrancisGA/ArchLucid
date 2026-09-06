@@ -352,6 +352,11 @@ public static partial class GenericArchitectureAdvicePatterns
             || after.StartsWith("need not apply", StringComparison.Ordinal)
             || after.StartsWith("need not mandate", StringComparison.Ordinal)
             || after.StartsWith("need not provision", StringComparison.Ordinal)
+            || after.StartsWith("need not configure", StringComparison.Ordinal)
+            || after.StartsWith("need not require", StringComparison.Ordinal)
+            || after.StartsWith("need not implement", StringComparison.Ordinal)
+            || after.StartsWith("need not enable", StringComparison.Ordinal)
+            || after.StartsWith("need not use", StringComparison.Ordinal)
             || after.StartsWith("cannot require", StringComparison.Ordinal)
             || after.StartsWith("cannot need", StringComparison.Ordinal);
     }
