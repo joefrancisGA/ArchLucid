@@ -9,6 +9,7 @@ export type ArchitectureIdentityListItem = {
   readonly latestSealedManifestId?: string | null;
   readonly draftCount: number;
   readonly reviewCount: number;
+  readonly archivedUtc?: string | null;
 };
 
 export type ArchitectureIdentityChildDraftSummary = {
@@ -43,6 +44,7 @@ export type ArchitectureIdentityDetail = {
   readonly reviewCount: number;
   readonly createdUtc: string;
   readonly updatedUtc: string;
+  readonly archivedUtc?: string | null;
   readonly drafts: readonly ArchitectureIdentityChildDraftSummary[];
   readonly reviews: readonly ArchitectureIdentityChildReviewSummary[];
   readonly versions: readonly ArchitectureIdentityVersionSummary[];
@@ -54,4 +56,5 @@ export type ArchitectureIdentityListPage = {
   readonly page: number;
   readonly pageSize: number;
   readonly hasMore: boolean;
+  readonly archivedHiddenCount?: number;
 };

@@ -15,9 +15,17 @@ public sealed class PatchArchitectureIdentityRequest
         set;
     }
 
+    public bool? Archived
+    {
+        get;
+        set;
+    }
+
     public bool HasDisplayName => DisplayName is not null;
 
     public bool HasDescription => Description is not null;
 
-    public bool HasAnyPatch => HasDisplayName || HasDescription;
+    public bool HasArchived => Archived.HasValue;
+
+    public bool HasAnyPatch => HasDisplayName || HasDescription || HasArchived;
 }

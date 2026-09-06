@@ -65,4 +65,10 @@ public sealed class ArchitectureIdentityRecord
         get;
         set;
     }
+
+    public DateTime? ArchivedUtc
+    {
+        get;
+        set;
+    }
 }

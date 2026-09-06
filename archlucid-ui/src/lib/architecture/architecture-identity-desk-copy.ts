@@ -68,6 +68,34 @@ export const ARCHITECTURE_IDENTITY_TABLE_REVIEWS_COLUMN = "Reviews" as const;
 
 export const ARCHITECTURE_IDENTITY_TABLE_DRAFTS_COLUMN = "Drafts" as const;
 
+export const ARCHITECTURE_IDENTITY_LIST_SHOW_ARCHIVED_LABEL = "Show archived" as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_ACTION_LABEL = "Archive architecture" as const;
+
+export const ARCHITECTURE_IDENTITY_RESTORE_ACTION_LABEL = "Restore architecture" as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_CONFIRM_TITLE = "Archive this architecture?" as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_CONFIRM_ACTION_LABEL = "Archive" as const;
+
+export const ARCHITECTURE_IDENTITY_RESTORE_CONFIRM_TITLE = "Restore this architecture?" as const;
+
+export const ARCHITECTURE_IDENTITY_RESTORE_CONFIRM_ACTION_LABEL = "Restore" as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_CONFIRM_CANCEL_LABEL = "Cancel" as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_SUCCESS_TOAST = "Architecture archived." as const;
+
+export const ARCHITECTURE_IDENTITY_RESTORE_SUCCESS_TOAST = "Architecture restored." as const;
+
+export const ARCHITECTURE_IDENTITY_ARCHIVE_FAILURE_MESSAGE = "Could not update archive state." as const;
+
+export const architectureIdentityArchiveConfirmDescription = (displayName: string): string =>
+  `${displayName.trim().length > 0 ? displayName.trim() : "This architecture"} will leave your default portfolio. Drafts and sealed review records stay attached — open them from this desk or turn on Show archived on the hub.`;
+
+export const architectureIdentityRestoreConfirmDescription = (displayName: string): string =>
+  `${displayName.trim().length > 0 ? displayName.trim() : "This architecture"} will reappear in your default Working portfolio.`;
+
 export const architectureIdentityDeskPageTitle = (displayName: string): string =>
   displayName.trim().length > 0 ? displayName.trim() : ARCHITECTURE_IDENTITY_DESK_PAGE_TITLE;
 
