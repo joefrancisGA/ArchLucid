@@ -62,6 +62,7 @@ public sealed class FindingJsonConverterTests
             Title = "Missing control",
             Rationale = "Control not applied.",
             EvidencePackageId = packageId,
+            EnforcementTier = FindingEnforcementTier.Advisory,
         };
 
         JsonSerializerOptions options = CreateOptions();
@@ -87,6 +88,7 @@ public sealed class FindingJsonConverterTests
             Title = "Missing control",
             Rationale = "Control not applied.",
             EvidencePackageId = packageId,
+            EnforcementTier = FindingEnforcementTier.Advisory,
         };
 
         JsonSerializerOptions options = CreateOptions();
@@ -120,6 +122,7 @@ public sealed class FindingJsonConverterTests
                           "payloadType": null,
                           "payload": null,
                           "trace": {},
+                          "enforcementTier": "Advisory",
                           "humanReviewStatus": "Pending"
                         }
                         """;
@@ -149,7 +152,8 @@ public sealed class FindingJsonConverterTests
             Classification = FindingClassification.DecisionGradeFinding,
             WhyThisIsNotGeneric = "References the uploaded storage account resource id.",
             PrincipalArchitectValue = "Prevents accidental public data exposure.",
-            DecisionConsequence = "Leaving anonymous access enabled violates the data-classification policy."
+            DecisionConsequence = "Leaving anonymous access enabled violates the data-classification policy.",
+            EnforcementTier = FindingEnforcementTier.Advisory,
         };
 
         JsonSerializerOptions options = CreateOptions();
@@ -182,6 +186,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -215,6 +220,7 @@ public sealed class FindingJsonConverterTests
                           "payloadType": null,
                           "payload": null,
                           "trace": {},
+                          "enforcementTier": "Advisory",
                           "humanReviewStatus": {{ordinal}}
                         }
                         """;
@@ -309,6 +315,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "99"
                             }
                             """;
@@ -340,7 +347,8 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
-                              "treatment": 1
+                              "treatment": 1,
+                              "enforcementTier": "Advisory"
                             }
                             """;
 
@@ -371,7 +379,8 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
-                              "classification": 1
+                              "classification": 1,
+                              "enforcementTier": "Advisory"
                             }
                             """;
 
@@ -402,6 +411,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": 99
                             }
                             """;
@@ -474,7 +484,7 @@ public sealed class FindingJsonConverterTests
 
         finding.Should().NotBeNull();
         finding!.Properties["note"].Should().Be("keep");
-        finding.Properties["enforcementTier"].Should().Be("1");
+        finding.Properties["enforcementTier"].Should().Be("Advisory");
         finding.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
     }
 
@@ -497,6 +507,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -529,6 +540,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -561,6 +573,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -593,6 +606,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -624,6 +638,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -655,6 +670,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "evaluationConfidenceLevel": "99"
                             }
@@ -687,6 +703,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -718,6 +735,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -749,6 +767,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -780,6 +799,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "Treatment": "DemoteToChecklist"
                             }
@@ -816,6 +836,7 @@ public sealed class FindingJsonConverterTests
                                 "impact": "Isolation gap"
                               },
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -855,6 +876,7 @@ public sealed class FindingJsonConverterTests
                               "Trace": {
                                 "sourceAgentExecutionTraceId": "{{traceId}}"
                               },
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -887,6 +909,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -922,6 +945,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -984,7 +1008,8 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
-                              "HumanReviewStatus": "Approved"
+                              "HumanReviewStatus": "Approved",
+                              "EnforcementTier": "Advisory"
                             }
                             """;
 
@@ -1015,6 +1040,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "EvaluationConfidenceLevel": "High"
                             }
@@ -1047,6 +1073,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1078,6 +1105,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1109,6 +1137,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1140,6 +1169,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1171,6 +1201,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1203,6 +1234,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1234,6 +1266,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1265,6 +1298,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": 1.0
                             }
                             """;
@@ -1296,6 +1330,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "1.0"
                             }
                             """;
@@ -1327,6 +1362,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": true
                             }
                             """;
@@ -1358,6 +1394,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "true"
                             }
                             """;
@@ -1389,6 +1426,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "runIdRef": true
                             }
@@ -1421,6 +1459,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "runIdRef": 42.0
                             }
@@ -1453,6 +1492,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "runIdRef": "42.0"
                             }
@@ -1485,6 +1525,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "runIdRef": "True"
                             }
@@ -1517,6 +1558,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1548,6 +1590,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1579,6 +1622,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "ConfidenceScore": 0.91,
                               "InsightDensityScore": 42
@@ -1613,6 +1657,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1644,6 +1689,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1675,6 +1721,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1706,6 +1753,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "runIdRef": 42
                             }
@@ -1738,6 +1786,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "agentExecutionTraceId": 9001
                             }
@@ -1770,6 +1819,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1801,6 +1851,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1832,6 +1883,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": 7,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;
@@ -1863,6 +1915,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Approved",
                               "reviewedAtUtc": "1735689600000"
                             }
@@ -1895,6 +1948,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Approved",
                               "reviewedAtUtc": 1735689600000
                             }
@@ -1927,6 +1981,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "confidenceScore": "0.91"
                             }
@@ -1959,6 +2014,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "confidenceScore": true
                             }
@@ -1991,6 +2047,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "evaluationConfidenceScore": true
                             }
@@ -2023,6 +2080,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending",
                               "confidenceScore": "true"
                             }
@@ -2062,6 +2120,36 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_withoutEnforcementTier_throwsJsonException()
+    {
+        const string json = """
+                            {
+                              "findingSchemaVersion": 2,
+                              "findingId": "abc123",
+                              "findingType": "TopologyGap",
+                              "category": "Topology",
+                              "engineType": "TopologyCoverage",
+                              "severity": "Warning",
+                              "title": "Missing worker subnet",
+                              "rationale": "No subnet is defined for worker pool isolation.",
+                              "relatedNodeIds": [],
+                              "recommendedActions": [],
+                              "properties": {},
+                              "payloadType": null,
+                              "payload": null,
+                              "trace": {},
+                              "humanReviewStatus": "Pending"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
+
+        act.Should().Throw<JsonException>().WithMessage("*enforcementTier is required*");
+    }
+
+    [Fact]
     public void Deserialize_withoutFindingId_throwsJsonException()
     {
         const string json = """
@@ -2079,6 +2167,7 @@ public sealed class FindingJsonConverterTests
                               "payloadType": null,
                               "payload": null,
                               "trace": {},
+                              "enforcementTier": "Advisory",
                               "humanReviewStatus": "Pending"
                             }
                             """;

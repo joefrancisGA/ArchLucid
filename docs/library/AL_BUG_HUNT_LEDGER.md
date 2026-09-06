@@ -17,7 +17,7 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
 4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
 
-For proven-row validity sampling see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`).
+For proven-row validity see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`). It classifies every proven row, not a sample: **57.2% (2321 of 4061)** are treadmill rows that re-prove one guard against a new surface form, and **82.7%** of the retired `archlucid-core` mega-zone is treadmill. Read `bugs-found` accordingly — picker preview and scoring use **effective-bugs** (`min(bugs-found, hunts)` when `hunts > 0`); run `python3 scripts/agent/al-bug-lint-ledger-counters.py` to list zones where raw `bugs-found` exceeds `hunts` (retired mega-zones are footnoted, not rewritten).
 
 ### Zone status
 
