@@ -81,6 +81,20 @@
           "declarationSourceNodeId": "obj-role-public"
         },
         "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-trust-boundary-00000035000040008000000000000035-2",
+        "nodeType": "TrustBoundary",
+        "label": "Trust boundary for public_role",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-role-1",
+        "properties": {
+          "trustOrigin": "PublicAnonymous",
+          "actorNodeId": "declaration-actor-00000035000040008000000000000035-2",
+          "actorLabel": "public_role"
+        },
+        "reasoningTrace": null
       }
     ],
     "edges": [],

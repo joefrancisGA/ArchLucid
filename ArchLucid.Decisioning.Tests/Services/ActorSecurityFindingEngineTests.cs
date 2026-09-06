@@ -11,6 +11,91 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class ActorSecurityFindingEngineTests
 {
     [Fact]
+    public async Task ExternalExposureFindingEngine_skips_declaration_ingress_actor_with_trust_boundary()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-111111111111");
+        GraphNode ingress = new()
+        {
+            NodeId = "obj-ingress-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "payments/public",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-ingress",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["k8s.kind"] = "ingress",
+                ["k8s.name"] = "public",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            ArchLucid.KnowledgeGraph.Materialization.DeclarationIdentityActorMaterializer.MaterializeFromNodes(
+                [ingress],
+                snapshotId);
+
+        GraphSnapshot snapshot = new()
+        {
+            Nodes = [ingress, .. materialized],
+        };
+
+        ExternalExposureFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task TrustBoundaryFindingEngine_fires_for_mixed_declaration_and_internal_actors()
+    {
+        Guid snapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        GraphNode functionApp = new()
+        {
+            NodeId = "obj-func-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "payments-func",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-func",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_linux_function_app",
+                ["tf.identity_type"] = "SystemAssigned",
+            },
+        };
+
+        GraphNode ingress = new()
+        {
+            NodeId = "obj-ingress-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "public-ingress",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-ingress",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["k8s.kind"] = "ingress",
+                ["k8s.name"] = "public-ingress",
+            },
+        };
+
+        IReadOnlyList<GraphNode> materialized =
+            ArchLucid.KnowledgeGraph.Materialization.DeclarationIdentityActorMaterializer.MaterializeFromNodes(
+                [functionApp, ingress],
+                snapshotId);
+
+        GraphSnapshot snapshot = new()
+        {
+            Nodes = [functionApp, ingress, .. materialized],
+        };
+
+        TrustBoundaryFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ExternalExposureFindingEngine_fires_when_external_actor_lacks_trust_boundary()
     {
         GraphSnapshot snapshot = new()
