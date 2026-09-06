@@ -734,6 +734,32 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   Open diagram reconciliation
                 </Link>
               </Button>
+              {openFindingsCount > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-findings-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "findings",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View findings in hub
+                  </Link>
+                </Button>
+              ) : null}
+              {hub.recentChanges.length > 0 ? (
+                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-drift-tab">
+                  <Link
+                    href={buildResourceHubWorkbenchHref({
+                      cloudResourceId,
+                      tab: "drift",
+                      snapshotId: resolvedSnapshotId,
+                    })}
+                  >
+                    View drift in hub
+                  </Link>
+                </Button>
+              ) : null}
               {hub.remediationInstances.totalCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-remediation-tab">
                   <Link
