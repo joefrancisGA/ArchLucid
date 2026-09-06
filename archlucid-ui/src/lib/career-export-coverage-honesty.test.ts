@@ -52,6 +52,21 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(honesty.measurementFloorBlockedReason).toContain("catalog engine failed");
   });
 
+  it("blocks Working career export when pre-finalize governance gate is disabled", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      preCommitGateEnabled: false,
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toContain("Pre-finalize governance gate is off");
+  });
+
   it("allows Guided sample exports without Working floor enforcement", () => {
     const honesty = resolveCareerExportCoverageHonesty({
       runId: "run-1",

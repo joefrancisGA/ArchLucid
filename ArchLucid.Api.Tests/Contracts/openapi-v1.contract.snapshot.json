@@ -24781,6 +24781,9 @@
           "readyToFinalize": {
             "type": "boolean"
           },
+          "preCommitGateEnabled": {
+            "type": "boolean"
+          },
           "runId": {
             "type": "string"
           }

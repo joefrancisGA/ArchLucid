@@ -203,12 +203,37 @@ public sealed class PreFinalizeChecklistServiceTests
             && item.Count == 1);
     }
 
+    [Fact]
+    public async Task BuildAsync_marks_not_ready_when_pre_commit_gate_is_disabled()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runKey });
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            gateOptions: Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = false }));
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.PreCommitGateEnabled.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+    }
+
     private static PreFinalizeChecklistService CreateSut(
         IRunRepository? runRepository = null,
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
         ITechnologyLedgerRepository? ledger = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
         IPreCommitGovernanceGate? gate = null,
+        IOptions<PreCommitGovernanceGateOptions>? gateOptions = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -244,6 +269,7 @@ public sealed class PreFinalizeChecklistServiceTests
             linkageEngine ?? linkageMock.Object,
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,
+            gateOptions ?? Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             new PreFinalizeExecuteBaselineDriftEvaluator(
                 Mock.Of<IEffectiveGovernanceResolver>(),
                 new EffectiveGovernanceSnapshotBuilder(),

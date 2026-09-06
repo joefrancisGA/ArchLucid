@@ -180,6 +180,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             Mock.Of<IManifestHashService>(),
             scope.Object,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             site.Object);
         byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
 

@@ -240,6 +240,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Mock.Of<IManifestHashService>(),
             scope,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             site);
     }
 

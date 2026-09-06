@@ -7,6 +7,8 @@ export type HealthReadyResponse = {
   status: string;
   /** Host `AgentExecution:Mode` when the readiness writer includes it (`DetailedHealthCheckResponseWriter`). */
   agentExecutionMode?: string;
+  /** Host `ArchLucid:Governance:PreCommitGateEnabled` when the readiness writer includes it (DR-04). */
+  preCommitGateEnabled?: boolean;
   entries: ReadonlyArray<{
     name: string;
     status: string;

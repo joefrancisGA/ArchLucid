@@ -13,6 +13,8 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Application.Exports;
 
 /// <summary>
@@ -28,6 +30,7 @@ public sealed partial class ArchitectureReviewExportService(
     ITenantRepository tenantRepository,
     IRunExplanationSummaryService runExplanationSummaryService,
     ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore,
+    IConfiguration configuration,
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
@@ -39,6 +42,9 @@ public sealed partial class ArchitectureReviewExportService(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -99,6 +105,7 @@ public sealed partial class ArchitectureReviewExportService(
             _graphSnapshotRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
 
         ArchitectureReviewBoardExportDocumentModel documentModel =

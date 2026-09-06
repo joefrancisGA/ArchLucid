@@ -181,6 +181,7 @@ public sealed class FirstValueReportBuilder(
             _graphSnapshotRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);

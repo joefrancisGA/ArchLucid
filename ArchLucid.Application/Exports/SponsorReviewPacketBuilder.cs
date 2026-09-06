@@ -16,6 +16,8 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Application.Exports;
 
 /// <summary>One-click sponsor packet: manifest summary, findings, ROI basis labels, decisions, portfolio signals.</summary>
@@ -27,7 +29,8 @@ public sealed class SponsorReviewPacketBuilder(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IGraphSnapshotRepository graphSnapshotRepository) : ISponsorReviewPacketBuilder
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IConfiguration configuration) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -52,6 +55,9 @@ public sealed class SponsorReviewPacketBuilder(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -104,6 +110,7 @@ public sealed class SponsorReviewPacketBuilder(
             _graphSnapshotRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
 
         return SponsorReviewPacketComposer.ComposeMarkdown(

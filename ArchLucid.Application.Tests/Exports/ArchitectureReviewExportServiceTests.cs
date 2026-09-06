@@ -85,6 +85,7 @@ public sealed class ArchitectureReviewExportServiceTests
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
                 explanation,
                 tenantReviewBoardCoverLogoStore: null,
+                Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
                 new ArchitectureReviewDocxBuilder(),
                 new ArchitectureReviewPdfBuilder());
         Mock<IScopeContextProvider> scopeMock = new();
@@ -101,6 +102,7 @@ public sealed class ArchitectureReviewExportServiceTests
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             explanation,
             tenantReviewBoardCoverLogoStore: null,
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());
     }

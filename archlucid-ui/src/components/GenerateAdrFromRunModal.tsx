@@ -8,6 +8,7 @@ import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   CAREER_EXPORT_EVAL_SAMPLE_LABEL,
@@ -55,6 +56,8 @@ export function GenerateAdrFromRunModal({
   buyerPolished = false,
 }: GenerateAdrFromRunModalProps) {
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
   const searchParams = useSearchParams();
@@ -83,6 +86,7 @@ export function GenerateAdrFromRunModal({
     graphSnapshot: null,
     enginesSucceeded,
     workingDesk,
+    preCommitGateEnabled,
   });
   const exportBlocked =
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
@@ -98,12 +102,13 @@ export function GenerateAdrFromRunModal({
             graphSnapshot: null,
             enginesSucceeded,
             workingDesk: true,
+            preCommitGateEnabled,
           })
         : null;
 
       return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
     },
-    [enginesSucceeded, input.runId, workingDesk],
+    [enginesSucceeded, input.runId, preCommitGateEnabled, workingDesk],
   );
 
   const seedFromInput = useCallback(() => {

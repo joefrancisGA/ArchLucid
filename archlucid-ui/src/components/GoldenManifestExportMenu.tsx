@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -74,6 +75,8 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -104,6 +107,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       enginesSucceeded: props.enginesSucceeded ?? null,
       workingDesk,
       classificationCounts: props.classificationCounts ?? null,
+      preCommitGateEnabled,
     });
 
     if (careerExportBlockedReason !== null) {
@@ -124,6 +128,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         enginesSucceeded: props.enginesSucceeded ?? null,
         workingDesk,
         classificationCounts: props.classificationCounts ?? null,
+        preCommitGateEnabled,
       },
     });
 

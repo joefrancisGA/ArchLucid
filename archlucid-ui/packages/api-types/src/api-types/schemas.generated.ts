@@ -7259,6 +7259,7 @@ export interface components {
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
             readyToFinalize?: boolean;
+            preCommitGateEnabled?: boolean;
             runId?: string;
         };
         PreviewRecurrenceScheduleRunsRequest: {

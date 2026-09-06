@@ -47,6 +47,20 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void Resolve_blocks_working_career_export_when_pre_commit_gate_is_disabled()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            preCommitGateEnabled: false);
+
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("Pre-finalize governance gate is off");
+    }
+
+    [Fact]
     public void Resolve_allows_guided_exports_without_working_floor_enforcement()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 4, workingDesk: false);
@@ -117,7 +131,8 @@ public sealed class CareerExportCoverageHonestyComposerTests
         int? enginesSucceeded,
         bool workingDesk,
         CareerExportClassificationCounts? classificationCounts = null,
-        int catalogAdvisoryEngineFailureCount = 0)
+        int catalogAdvisoryEngineFailureCount = 0,
+        bool preCommitGateEnabled = true)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -130,6 +145,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
             enginesSucceeded,
             workingDesk,
             classificationCounts,
-            catalogAdvisoryEngineFailureCount);
+            catalogAdvisoryEngineFailureCount,
+            preCommitGateEnabled);
     }
 }

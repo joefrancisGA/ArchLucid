@@ -115,6 +115,7 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             Mock.Of<ITenantRepository>(),
             Mock.Of<IRunExplanationSummaryService>(),
             tenantReviewBoardCoverLogoStore: null,
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());
 

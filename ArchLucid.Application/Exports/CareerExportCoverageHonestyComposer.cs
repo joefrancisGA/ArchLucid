@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Decisioning.Findings;
 
@@ -22,18 +23,41 @@ public static class CareerExportCoverageHonestyComposer
             InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
                 input.EnginesSucceeded,
                 input.CatalogAdvisoryEngineFailureCount);
+        string? workingCareerExportBlockedReason = ResolveWorkingCareerExportBlockedReason(
+            input,
+            measurementFloorBlockedReason);
 
         StringBuilder sponsorMarkdownBuilder = new();
         SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sponsorMarkdownBuilder, input.CoverageContext);
         string sponsorHonestyMarkdown = sponsorMarkdownBuilder.ToString().Trim();
 
-        bool blockedForWorkingCareerExport = input.WorkingDesk && measurementFloorBlockedReason is not null;
+        bool blockedForWorkingCareerExport = input.WorkingDesk && workingCareerExportBlockedReason is not null;
 
         return new CareerExportCoverageHonesty(
             measurementFloor,
-            measurementFloorBlockedReason,
+            workingCareerExportBlockedReason ?? measurementFloorBlockedReason,
             sponsorHonestyMarkdown,
             blockedForWorkingCareerExport);
+    }
+
+    private static string? ResolveWorkingCareerExportBlockedReason(
+        CareerExportCoverageHonestyInput input,
+        string? measurementFloorBlockedReason)
+    {
+        if (!input.WorkingDesk)
+        {
+            return null;
+        }
+
+        string? gateBlockedReason =
+            PreCommitGovernanceGateCareerHonestyPresenter.FormatCareerExportBlockedReason(input.PreCommitGateEnabled);
+
+        if (gateBlockedReason is not null)
+        {
+            return gateBlockedReason;
+        }
+
+        return measurementFloorBlockedReason;
     }
 
     public static string FormatMarkdown(CareerExportCoverageHonestyInput input)

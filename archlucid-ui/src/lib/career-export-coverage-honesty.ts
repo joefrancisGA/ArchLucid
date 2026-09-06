@@ -3,6 +3,7 @@ import {
   formatInsightDensityMeasurementFloorPresentation,
   type InsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
+import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 
@@ -16,6 +17,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly workingDesk?: boolean;
   readonly classificationCounts?: CareerExportClassificationCounts | null;
   readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly preCommitGateEnabled?: boolean | null;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -34,13 +36,18 @@ export function resolveCareerExportCoverageHonesty(
     input.enginesSucceeded ?? null,
     input.catalogAdvisoryEngineFailureCount ?? 0,
   );
+  const preCommitGateBlockedReason = formatPreCommitGateDisabledCareerBlockedReason(
+    input.preCommitGateEnabled,
+  );
+  const workingCareerExportBlockedReason =
+    preCommitGateBlockedReason ?? measurementFloorBlockedReason;
   const sponsorHonestyMarkdown = formatSponsorReviewCoverageHonestyMarkdown(input);
   const blockedForWorkingCareerExport =
-    input.workingDesk === true && measurementFloorBlockedReason !== null;
+    input.workingDesk === true && workingCareerExportBlockedReason !== null;
 
   return {
     measurementFloor,
-    measurementFloorBlockedReason,
+    measurementFloorBlockedReason: workingCareerExportBlockedReason ?? measurementFloorBlockedReason,
     sponsorHonestyMarkdown,
     blockedForWorkingCareerExport,
   };

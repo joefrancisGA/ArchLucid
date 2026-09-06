@@ -7,6 +7,8 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -20,7 +22,8 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     ITenantReportBrandingApplyHelper reportBrandingApplyHelper,
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
-    IGraphSnapshotRepository graphSnapshotRepository) : IArchitectureAnalysisConsultingDocxExportService
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IConfiguration configuration) : IArchitectureAnalysisConsultingDocxExportService
 {
     private readonly IConsultingDocxTemplateOptionsProvider _optionsProvider = optionsProvider ?? throw new ArgumentNullException(nameof(optionsProvider));
     private readonly IDocumentLogoProvider _logoProvider = logoProvider ?? throw new ArgumentNullException(nameof(logoProvider));
@@ -33,6 +36,8 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
@@ -62,6 +67,7 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
             _graphSnapshotRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
 
         return await ConsultingDocxOpenXmlComposer.GenerateAsync(

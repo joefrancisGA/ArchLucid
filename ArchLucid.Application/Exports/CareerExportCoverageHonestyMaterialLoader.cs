@@ -1,11 +1,14 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Application.Exports;
 
@@ -18,8 +21,15 @@ public static class CareerExportCoverageHonestyMaterialLoader
         IGraphSnapshotRepository graphSnapshotRepository,
         ScopeContext scope,
         bool workingDesk,
+        IConfiguration configuration,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        bool preCommitGateEnabled = configuration
+            .GetSection(PreCommitGovernanceGateOptions.SectionPath)
+            .GetValue<bool>(nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled));
+
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(authorityQueryService);
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
@@ -53,7 +63,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             enginesSucceeded,
             workingDesk,
             classificationCounts,
-            catalogAdvisoryEngineFailureCount);
+            catalogAdvisoryEngineFailureCount,
+            preCommitGateEnabled);
     }
 
     internal static CareerExportClassificationCounts? CountClassificationBands(FindingsSnapshot? findingsSnapshot)

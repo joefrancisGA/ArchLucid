@@ -16,6 +16,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Exports;
@@ -28,7 +29,8 @@ public sealed class RunSummaryOnePagerExportService(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IGraphSnapshotRepository graphSnapshotRepository) : IRunSummaryOnePagerExportService
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IConfiguration configuration) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -58,6 +60,9 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -110,6 +115,7 @@ public sealed class RunSummaryOnePagerExportService(
             _graphSnapshotRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
 
         RunSummaryOnePagerDocumentModel model =

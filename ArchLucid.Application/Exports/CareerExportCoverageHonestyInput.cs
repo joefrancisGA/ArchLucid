@@ -8,4 +8,5 @@ public sealed record CareerExportCoverageHonestyInput(
     int? EnginesSucceeded,
     bool WorkingDesk,
     CareerExportClassificationCounts? ClassificationCounts,
-    int CatalogAdvisoryEngineFailureCount = 0);
+    int CatalogAdvisoryEngineFailureCount = 0,
+    bool PreCommitGateEnabled = false);
