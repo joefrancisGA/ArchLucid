@@ -1,0 +1,156 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+import type { NextRequest } from "next/server";
+
+/** HttpOnly BFF session cookie (ADR 0059 P1 / LK-05). */
+export const BFF_SESSION_COOKIE_NAME = "archlucid-bff-session" as const;
+
+const BFF_SESSION_COOKIE_VERSION = 1;
+
+type BffSessionPayload = {
+  readonly v: number;
+  readonly at: string;
+  readonly exp: number;
+};
+
+export type BffSessionCookieIssueInput = {
+  readonly accessToken: string;
+  readonly expiresAtMs: number;
+};
+
+function readBffSessionSigningSecret(): string {
+  const fromArchlucid = process.env.ARCHLUCID_BFF_SESSION_SIGNING_SECRET?.trim() ?? "";
+  const fromLegacy = process.env.BFF_SESSION_SIGNING_SECRET?.trim() ?? "";
+
+  return fromArchlucid.length > 0 ? fromArchlucid : fromLegacy;
+}
+
+function encodePayload(payload: BffSessionPayload): string {
+  return Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+}
+
+function signPayload(encodedPayload: string, secret: string): string {
+  return createHmac("sha256", secret).update(encodedPayload).digest("base64url");
+}
+
+function parseSignedCookieValue(cookieValue: string, secret: string): BffSessionPayload | null {
+  const parts = cookieValue.split(".");
+
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const [encodedPayload, signature] = parts;
+
+  if (encodedPayload === undefined || signature === undefined) {
+    return null;
+  }
+
+  const expectedSignature = signPayload(encodedPayload, secret);
+  const actualBuffer = Buffer.from(signature, "utf8");
+  const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+
+  if (actualBuffer.length !== expectedBuffer.length) {
+    return null;
+  }
+
+  if (!timingSafeEqual(actualBuffer, expectedBuffer)) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")) as BffSessionPayload;
+
+    if (parsed.v !== BFF_SESSION_COOKIE_VERSION) {
+      return null;
+    }
+
+    if (typeof parsed.at !== "string" || parsed.at.trim().length === 0) {
+      return null;
+    }
+
+    if (typeof parsed.exp !== "number" || !Number.isFinite(parsed.exp)) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/** Returns false when signing secret is not configured (dual-mode falls back to Bearer / API key). */
+export function isBffSessionCookieEnabled(): boolean {
+  return readBffSessionSigningSecret().length > 0;
+}
+
+export function createBffSessionCookieValue(input: BffSessionCookieIssueInput): string | null {
+  const secret = readBffSessionSigningSecret();
+
+  if (secret.length === 0) {
+    return null;
+  }
+
+  const accessToken = input.accessToken.trim();
+
+  if (accessToken.length === 0) {
+    return null;
+  }
+
+  const encodedPayload = encodePayload({
+    v: BFF_SESSION_COOKIE_VERSION,
+    at: accessToken,
+    exp: input.expiresAtMs,
+  });
+
+  return `${encodedPayload}.${signPayload(encodedPayload, secret)}`;
+}
+
+export function parseBffSessionCookieValue(cookieValue: string): BffSessionPayload | null {
+  const secret = readBffSessionSigningSecret();
+
+  if (secret.length === 0) {
+    return null;
+  }
+
+  return parseSignedCookieValue(cookieValue.trim(), secret);
+}
+
+export function resolveBffSessionBearerFromCookieValue(cookieValue: string | null | undefined): string {
+  const trimmed = cookieValue?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  const payload = parseBffSessionCookieValue(trimmed);
+
+  if (payload === null) {
+    return "";
+  }
+
+  if (Date.now() >= payload.exp) {
+    return "";
+  }
+
+  return `Bearer ${payload.at}`;
+}
+
+export function resolveBffSessionBearerFromRequest(request: NextRequest): string {
+  const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
+
+  return resolveBffSessionBearerFromCookieValue(cookieValue);
+}
+
+export function buildBffSessionSetCookieHeader(cookieValue: string, maxAgeSeconds: number): string {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const maxAge = Math.max(0, Math.trunc(maxAgeSeconds));
+
+  return `${BFF_SESSION_COOKIE_NAME}=${cookieValue}; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=${maxAge}`;
+}
+
+export function buildBffSessionClearCookieHeader(): string {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+
+  return `${BFF_SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=0`;
+}
