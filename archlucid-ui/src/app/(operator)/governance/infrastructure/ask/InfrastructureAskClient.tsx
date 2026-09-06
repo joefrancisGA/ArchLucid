@@ -22,6 +22,7 @@ import {
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   resolveResourceHubTabFromAskScope,
+  resolveResourceHubWorkbenchTabFromAskScope,
   formatResourceHubTabViewLabelFromAskScope,
   RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM,
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
@@ -35,6 +36,8 @@ import {
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
+  RESOURCE_HUB_TAB_PARAM,
+  parseAskHubTabOriginFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   formatCloudResourceExplorerWorkQueueLabel,
@@ -77,6 +80,7 @@ export function InfrastructureAskClient() {
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
   const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
+  const hubTabOrigin = parseAskHubTabOriginFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
@@ -159,6 +163,7 @@ export function InfrastructureAskClient() {
 
   const hubBackLinkTab = useMemo(() => {
     const scopeTab = resolveResourceHubTabFromAskScope({
+      hubTab: hubTabOrigin,
       findingId,
       instanceId,
       diffId,
@@ -173,21 +178,55 @@ export function InfrastructureAskClient() {
     }
 
     return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, hubTabOrigin, instanceId, workQueue]);
 
   const askScopeHubTab = useMemo(
     () =>
-      resolveResourceHubTabFromAskScope({
+      resolveResourceHubWorkbenchTabFromAskScope({
+        hubTab: hubTabOrigin,
         findingId,
         instanceId,
         diffId,
-        assessmentId,
-        auditEvidenceSnapshotId,
-        controlId,
         correspondenceId,
       }),
-    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
+    [correspondenceId, diffId, findingId, hubTabOrigin, instanceId],
   );
+
+  const hasAuditLineageScope = useMemo(
+    () =>
+      assessmentId.length > 0
+      && auditEvidenceSnapshotId.length > 0
+      && controlId.length > 0,
+    [assessmentId, auditEvidenceSnapshotId, controlId],
+  );
+
+  const auditHubTabBackLinkHref = useMemo(() => {
+    if (cloudResourceId.length === 0 || !hasAuditLineageScope) {
+      return null;
+    }
+
+    if (askScopeHubTab == null || askScopeHubTab === "audit") {
+      return null;
+    }
+
+    return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+      tab: "audit",
+      snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+    });
+  }, [
+    askScopeHubTab,
+    assessmentId,
+    auditEvidenceSnapshotId,
+    cloudResourceId,
+    controlId,
+    hasAuditLineageScope,
+    runId,
+    snapshotId,
+  ]);
 
   const workQueueScopedHubTabLabel = useMemo(() => {
     if (workQueue === "all" || askScopeHubTab != null) {
@@ -398,6 +437,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-open-overview-hub"
             >
               View overview in hub
+            </Link>
+          ) : null}
+          {auditHubTabBackLinkHref != null ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={auditHubTabBackLinkHref}
+              data-testid="infra-ask-open-audit-hub-tab"
+            >
+              View audit lineage in hub
             </Link>
           ) : null}
           {workQueue !== "all" ? (

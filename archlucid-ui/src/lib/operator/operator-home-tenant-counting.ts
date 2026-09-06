@@ -1,4 +1,4 @@
-import type { RunsDashboardTabCounts } from "@/components/operator-home/runs-dashboard-helpers";
+import type { RunsDashboardTabCounts } from "@/lib/operator/run-home-status";
 import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,

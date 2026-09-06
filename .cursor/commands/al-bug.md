@@ -103,7 +103,7 @@ Add `-Hint '<user hint>'` when the message named an area. Add `-Refresh` when th
 
 The picker is **deterministic** (`docs/library/AL_BUG_HUNT_LEDGER.md` + `scripts/agent/al-bug-pick-zone.ps1`). Do **not** LLM-rank zones or fall back to a static “always topology first” walk.
 
-Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision.
+Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hunts-per-bug once data exists; sample untried zones so the catalog can learn. **Hunt-ready** hypothesis count is a small tie-break only — **candidate** (template) rows must not lock the picker. Hypothesis **precision** (`proven / (proven + invalid)`) is a small bonus once at least two classified attempts exist. `valid-no-repro` is healthy exhaustion and does **not** lower precision. **Speed is capped at 1**; `bugs-found` cannot exceed `hunts` for scoring. High recent hit-rate zones **cool** per ledger § Scoring.
 
 Rules:
 
@@ -162,7 +162,7 @@ Do not add new zones. Do not refill a zone with three untagged harm-class rows.
 
 ### 1.1b Hunt-ready quality bar
 
-A row stays **open** as hunt-ready only when all four are filled from the zone files (not from a bug-class template):
+A row stays **open** as hunt-ready only when all five are filled from the zone files (not from a bug-class template):
 
 | Field | Required |
 | --- | --- |
@@ -170,10 +170,15 @@ A row stays **open** as hunt-ready only when all four are filled from the zone f
 | **Input** | Concrete value that takes that branch |
 | **Wrong outcome** | Observable failure (wrong row, 200, empty success) |
 | **Why this code** | Mechanism — omitted predicate, disagreeing module, untested type family |
+| **Reachability** | Where the input originates: a real ARM/Terraform property, a config path in this repo, an OpenAPI payload, a UI action, or an attacker-controlled trust-boundary string. Constructed literals without that citation stay `(candidate)` or `(invalid)`. |
 
 Ban as hunt-ready (keep as `(candidate)` or retire as `(invalid)`) any row that only restates a harm class: “cross-tenant leak”, “stale cache after scope switch”, “returns 200 on failure”. Those are lenses. Apply them only after the files show the prerequisite (a join, a cache, a catch that returns success).
 
+Also ban hunt-ready rows whose **input** is a constructed string with no reachability citation (for example `beefAccessKey` with no ARM, config, OpenAPI, or UI path that could emit it). A concrete value that merely exercises a branch is not enough.
+
 Prefer mechanisms that have paid off in this catalog: dual-path disagreement (gate vs merge, parent SQL vs child join, watchdog vs visibility), alias/identity mismatch, parameterized-test holes, recent churn with no new test.
+
+**Guard failure direction:** for redaction, validation, authz, and schema readers, the conservative failure mode (over-redact, reject malformed, deny) is usually `(valid-no-repro)` unless reachability shows a real caller or attacker-controlled input. Fail-open / leak / accept malformed as success is hunt-eligible. Severity must name user-visible harm (secret in summary, cross-tenant 200, committed bad manifest). “Test disagreed with an allowlist” is not medium/high.
 
 ### 1.1c Cheap disproof (before a repro)
 
@@ -183,6 +188,7 @@ For each hunt-ready row, spend about a minute on:
 2. **Already tested?** An existing test name already states the claim → `(valid-no-repro)` and cite the test.
 3. **Prerequisite present?** No `useQuery` / session / child join → `(invalid)` for cache/join claims.
 4. **Churn?** If the claim is the already-fixed TB/PD and `codeChangedSince` is 0, expect `(valid-no-repro)`.
+5. **Reachable?** No citation for where the input originates (ARM/config/OpenAPI/UI/trust boundary) → `(invalid)` or leave `(candidate)`.
 
 Only **plausible-untested** hunt-ready rows consume a failing-repro attempt.
 
@@ -238,9 +244,11 @@ If `--find-only`, **stop here**.
 Exit code **2** → stop; tell the user which paths are blocked.
 
 2. Implement the **smallest** fix that makes the repro pass.
-3. Keep the regression test in the permanent test file (delete temporary repro-only files).
-4. Run scoped tests again — all relevant tests must pass.
-5. Optional **one** scoped compile check when .NET production code changed:
+3. The fix must close a **class** of inputs, not one instance. Forbidden as the entire fix: appending one string to a keyword/phrase/allowlist so a single new theory case passes. If the mechanism is substring or phrase matching, change the mechanism (see ABQ tokenizer/redaction patterns) or close the row `(valid-no-repro)` — do not ship an instance-list diff.
+4. If picker JSON lists `escalatedFiles` containing the implicated production file, **do not ship** another allowlist/phrase-list patch to that file. Record the hunt as `dry`/`invalid` and cite ABQ-01–04 or a design fix instead.
+5. Keep the regression test in the permanent test file (delete temporary repro-only files).
+6. Run scoped tests again — all relevant tests must pass.
+7. Optional **one** scoped compile check when .NET production code changed:
 
 ```powershell
 .\scripts\ci\agent-compile-check.ps1 -ProjectPath 'ArchLucid.Application/ArchLucid.Application.csproj'
@@ -251,6 +259,8 @@ Exit code **2** → stop; tell the user which paths are blocked.
 ## Phase 3 — Ship to `bugsmash`
 
 Target branch is **`bugsmash`** unless the user named another branch in the same message.
+
+**Sequential / low-severity hold:** when using `al-bug-sequential-run.ps1 -CompleteHunt`, a `hit` with `-Severity low` is recorded as `held-for-triage` and must **not** be pushed automatically. High/medium hits still require ABQ-05 reachability in the commit body before push.
 
 ### 3.1 Prefer the push helper (dirty main tree)
 
@@ -311,7 +321,9 @@ Then **record the outcome** and print rolling **24-hour** yield (do **not** reco
 
 Include `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` in the same commit as the ledger update (always, for every completed hunt).
 
-Replacement hypotheses after a miss must cite a **different mechanism**, not the same template with new nouns. Do not template-seed an `unseeded` zone with three harm-class rows.
+Replacement hypotheses after a miss must cite a **different mechanism** plus **reachability**, not the same template with new nouns. Do not template-seed an `unseeded` zone with three harm-class rows.
+
+If the only fix is an instance-list append and severity is low, **stop and report** instead of pushing — do not treat sequential low-severity hits as success.
 
 ```markdown
 ## /al-bug result

@@ -388,6 +388,7 @@ export function DriftWorkbenchClient() {
                 cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
                 snapshotId: selectedSnapshotId,
                 diffId: selectedDiffId,
+                hubTab: "drift",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >

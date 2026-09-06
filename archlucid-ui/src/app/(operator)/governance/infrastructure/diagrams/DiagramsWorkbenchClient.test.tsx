@@ -129,7 +129,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-export-png")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
     );
   });
 
@@ -169,7 +169,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
     );
   });
 
@@ -184,7 +184,7 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("dependencyNeighborhood");
     expect(screen.getByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
-      `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}`,
+      `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
     );
   });
 });

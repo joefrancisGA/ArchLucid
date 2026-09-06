@@ -52,11 +52,25 @@ param(
 
     [switch] $SkipGit,
 
+    [switch] $Nominate,
+
+    [string[]] $NominatePaths,
+
+    [string] $Since,
+
+    [string] $RunLogPath,
+
     [string] $RepoRoot
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+$escalationScript = Join-Path $PSScriptRoot 'al-bug-escalation.ps1'
+
+if (Test-Path -LiteralPath $escalationScript) {
+    . $escalationScript
+}
 
 function Get-RepoRoot {
     param([string] $ExplicitRoot)
@@ -181,12 +195,156 @@ function Get-MeanHuntsPerBug {
     param([int] $Hunts, [int] $BugsFound)
 
     # Time unit is hunts, not wall-clock. Lower mean = faster to find a bug.
-    if ($BugsFound -gt 0) {
-        return [double]$Hunts / [double]$BugsFound
+    if ($Hunts -gt 0) {
+        $effectiveBugs = [Math]::Min([Math]::Max(0, $BugsFound), $Hunts)
+
+        if ($effectiveBugs -lt 1) {
+            $effectiveBugs = 1
+        }
+
+        $mean = [double]$Hunts / [double]$effectiveBugs
+
+        if ($mean -lt 1.0) {
+            $mean = 1.0
+        }
+
+        return $mean
     }
 
     # Untried / dry prior: 2 hunts to first bug; each extra hunt makes first-bug slower.
     return [double]$Hunts + 2.0
+}
+
+function Get-ImpactMultiplier {
+    param([string] $Impact)
+
+    if ([string]::IsNullOrWhiteSpace($Impact)) {
+        return 1.0
+    }
+
+    switch ($Impact.Trim().ToLowerInvariant()) {
+        'high' { return 1.40 }
+        'low' { return 0.65 }
+        default { return 1.00 }
+    }
+}
+
+function Get-DefaultHuntRunLogPath {
+    param([string] $Root)
+
+    return Join-Path $Root 'docs\library\AL_BUG_HUNT_RUN_LOG.jsonl'
+}
+
+function Read-AlBugHuntRunLog {
+    param([string] $Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
+        return @()
+    }
+
+    $entries = @()
+    $lines = Get-Content -LiteralPath $Path -Encoding UTF8
+
+    foreach ($line in $lines) {
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+
+        try {
+            $entries += ,($line | ConvertFrom-Json)
+        }
+        catch {
+            throw "Invalid JSONL line in '$Path': $line"
+        }
+    }
+
+    return $entries
+}
+
+function ConvertTo-RunLogUtcDateTime {
+    param([string] $IsoTimestamp)
+
+    return [datetime]::SpecifyKind(
+        [datetime]::Parse(
+            $IsoTimestamp,
+            $null,
+            [System.Globalization.DateTimeStyles]::AdjustToUniversal -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
+        ),
+        [System.DateTimeKind]::Utc
+    )
+}
+
+function Get-ZoneRunLogHitStats {
+    param(
+        [string] $ZoneId,
+        [object[]] $RunLogEntries,
+        [datetime] $NowUtc
+    )
+
+    $sevenDayCutoff = $NowUtc.AddDays(-7)
+    $twentyFourHourCutoff = $NowUtc.AddHours(-24)
+    $hits7d = 0
+    $hits24h = 0
+    $hunts24h = 0
+
+    foreach ($entry in @($RunLogEntries)) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp ([string]$entry.at)
+        $outcome = [string]$entry.outcome
+
+        if ($at -ge $twentyFourHourCutoff -and $outcome -ne 'seed-only') {
+            $hunts24h++
+
+            if ($outcome -eq 'hit') {
+                $hits24h++
+            }
+        }
+
+        if ($at -ge $sevenDayCutoff -and $outcome -eq 'hit') {
+            $hits7d++
+        }
+    }
+
+    $hitRate24h = 0.0
+
+    if ($hunts24h -gt 0) {
+        $hitRate24h = [double]$hits24h / [double]$hunts24h
+    }
+
+    return [pscustomobject]@{
+        hits7d       = $hits7d
+        hits24h      = $hits24h
+        hunts24h     = $hunts24h
+        hitRate24h   = $hitRate24h
+        cooledByRate = ($hits7d -ge 8) -or ($hunts24h -ge 5 -and $hitRate24h -ge 0.7)
+    }
+}
+
+function Test-ZoneIsRetiredMegaZone {
+    param($Zone)
+
+    if ($null -eq $Zone) {
+        return $false
+    }
+
+    if ($Zone.Status -ne 'exhausted') {
+        return $false
+    }
+
+    foreach ($path in @($Zone.Paths)) {
+        if ($path -match '(?i)AL_BUG_HUNT_LEDGER\.md$') {
+            return $true
+        }
+    }
+
+    return $false
 }
 
 function Get-ExploreBonus {
@@ -425,6 +583,8 @@ function Read-AlBugHuntLedger {
             FileIndex              = $fileIndex
             Id                     = $fields['id']
             Status                 = $status
+            Impact                 = $(if ($fields.ContainsKey('impact')) { $fields['impact'] } else { 'medium' })
+            SplitFrom              = $(if ($fields.ContainsKey('split-from')) { $fields['split-from'] } else { '' })
             Aliases                = $aliases
             Paths                  = $paths
             TestFilter             = $(if ($fields.ContainsKey('test-filter')) { $fields['test-filter'] } else { '' })
@@ -449,6 +609,10 @@ function Read-AlBugHuntLedger {
             ExploreBonus           = 0.0
             Why                    = @()
             Reopened               = $false
+            CooledByHitRate        = $false
+            Hits7d                 = 0
+            HitRate24h             = 0.0
+            EscalatedFiles         = @()
         }
 
         [void]$zones.Add($zone)
@@ -508,7 +672,7 @@ function Get-ZoneScoreBreakdown {
     param($Zone)
 
     $mean = Get-MeanHuntsPerBug -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
-    $speed = 1.0 / $mean
+    $speed = [Math]::Min(1.0, 1.0 / $mean)
     $explore = Get-ExploreBonus -Hunts $Zone.Hunts
     $churn = [Math]::Min(3, [Math]::Max(0, [int]$Zone.CommitCount))
     $openCount = @($Zone.OpenHypotheses).Count
@@ -524,7 +688,9 @@ function Get-ZoneScoreBreakdown {
         $precisionBonus = 0.5 * [double]$Zone.HypothesisPrecision
     }
 
-    $score = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp + $precisionBonus - (2.0 * $dry)
+    $baseScore = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp + $precisionBonus - (2.0 * $dry)
+    $impactMultiplier = Get-ImpactMultiplier -Impact $Zone.Impact
+    $score = $baseScore * $impactMultiplier
     $why = New-Object System.Collections.ArrayList
 
     if ($Zone.Status -eq 'unseeded' -or ($Zone.Hunts -le 0 -and $huntReadyCount -eq 0 -and $candidateCount -gt 0)) {
@@ -568,15 +734,24 @@ function Get-ZoneScoreBreakdown {
         [void]$why.Add("$dry consecutive dry hunts")
     }
 
+    if ($Zone.CooledByHitRate) {
+        [void]$why.Add('hit-rate cooldown')
+    }
+
+    if ($impactMultiplier -ne 1.0) {
+        [void]$why.Add(('impact x{0:N2}' -f $impactMultiplier))
+    }
+
     if ($Zone.Reopened) {
         [void]$why.Add('reopened after git churn')
     }
 
     return [pscustomobject]@{
-        Score           = [Math]::Round($score, 2)
-        MeanHuntsPerBug = [Math]::Round($mean, 2)
-        ExploreBonus    = [Math]::Round($explore, 2)
-        Why             = ConvertTo-ObjectArray -Value $why
+        Score            = [Math]::Round($score, 2)
+        MeanHuntsPerBug  = [Math]::Round($mean, 2)
+        ExploreBonus     = [Math]::Round($explore, 2)
+        ImpactMultiplier = $impactMultiplier
+        Why              = ConvertTo-ObjectArray -Value $why
     }
 }
 
@@ -584,7 +759,10 @@ function Set-ZoneComputedFields {
     param(
         $Zones,
         [string] $GitRepoRoot,
-        [switch] $SkipGitCalls
+        [switch] $SkipGitCalls,
+        [object[]] $RunLogEntries,
+        [datetime] $NowUtc,
+        [string[]] $EscalatedFiles
     )
 
     foreach ($zone in $Zones) {
@@ -600,10 +778,28 @@ function Set-ZoneComputedFields {
             $zone.Reopened = $true
         }
 
+        $runStats = Get-ZoneRunLogHitStats -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
+        $zone.Hits7d = $runStats.hits7d
+        $zone.HitRate24h = $runStats.hitRate24h
+        $zone.CooledByHitRate = [bool]$runStats.cooledByRate
+
+        $zoneEscalated = @()
+
+        foreach ($path in @($zone.Paths)) {
+            foreach ($escalated in @($EscalatedFiles)) {
+                if ($path -eq $escalated -or $path.StartsWith($escalated, [StringComparison]::OrdinalIgnoreCase) -or $escalated.StartsWith($path, [StringComparison]::OrdinalIgnoreCase)) {
+                    $zoneEscalated += $escalated
+                }
+            }
+        }
+
+        $zone.EscalatedFiles = @($zoneEscalated | Select-Object -Unique)
+
         $breakdown = Get-ZoneScoreBreakdown -Zone $zone
         $zone.Score = $breakdown.Score
         $zone.MeanHuntsPerBug = $breakdown.MeanHuntsPerBug
         $zone.ExploreBonus = $breakdown.ExploreBonus
+        $zone.ImpactMultiplier = $breakdown.ImpactMultiplier
         $zone.Why = $breakdown.Why
     }
 }
@@ -615,7 +811,17 @@ function Get-EligibleZones {
     $eligible = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
-        switch ($zone.Status) {
+        $effectiveStatus = $zone.Status
+
+        if ($zone.CooledByHitRate -and $zone.Status -ne 'exhausted') {
+            $effectiveStatus = 'cooling'
+        }
+
+        if (@($zone.EscalatedFiles).Count -gt 0 -and $zone.Status -ne 'exhausted') {
+            $effectiveStatus = 'cooling'
+        }
+
+        switch ($effectiveStatus) {
             'open' {
                 [void]$eligible.Add($zone)
             }
@@ -637,6 +843,237 @@ function Get-EligibleZones {
     }
 
     return ConvertTo-ObjectArray -Value $eligible
+}
+
+function Resolve-HintZone {
+    param(
+        $Zones,
+        $MatchedZone
+    )
+
+    if (-not (Test-ZoneIsRetiredMegaZone -Zone $MatchedZone)) {
+        return $MatchedZone
+    }
+
+    $children = @(
+        $Zones |
+            Where-Object {
+                -not [string]::IsNullOrWhiteSpace($_.SplitFrom) -and
+                $_.SplitFrom -eq $MatchedZone.Id -and
+                -not (Test-ZoneIsRetiredMegaZone -Zone $_)
+            }
+    )
+
+    if ($children.Count -eq 0) {
+        return $MatchedZone
+    }
+
+    $eligibleChildren = @(Get-EligibleZones -Zones $children)
+
+    if ($eligibleChildren.Count -eq 0) {
+        return $MatchedZone
+    }
+
+    return @(
+        $eligibleChildren | Sort-Object @{ Expression = { $_.Score }; Descending = $true }, @{ Expression = { $_.FileIndex }; Descending = $false }
+    )[0]
+}
+
+function Test-NominateExcludedPath {
+    param([string] $Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $true
+    }
+
+    $normalized = $Path.Replace('\', '/')
+
+    if ($normalized -match '(?i)Tests|__tests__|\.md$|\.generated\.ts$|package-lock\.json$|Directory\.Packages\.props$') {
+        return $true
+    }
+
+    return $false
+}
+
+function Test-PathCoveredByZone {
+    param(
+        [string] $Path,
+        $Zones
+    )
+
+    $normalized = $Path.Replace('\', '/')
+
+    foreach ($zone in $Zones) {
+        if (Test-ZoneIsRetiredMegaZone -Zone $zone) {
+            continue
+        }
+
+        foreach ($zonePath in @($zone.Paths)) {
+            if ([string]::IsNullOrWhiteSpace($zonePath)) {
+                continue
+            }
+
+            $prefix = $zonePath.Replace('\', '/')
+
+            if ($normalized -eq $prefix -or $normalized.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+                return $true
+            }
+        }
+    }
+
+    return $false
+}
+
+function Get-NominateGitPaths {
+    param(
+        [string] $GitRepoRoot,
+        [string] $Since,
+        [switch] $SkipGitCalls,
+        [string[]] $InjectedPaths
+    )
+
+    if ($InjectedPaths -and $InjectedPaths.Count -gt 0) {
+        return @($InjectedPaths | ForEach-Object { $_.Replace('\', '/') })
+    }
+
+    if ($SkipGitCalls) {
+        return @()
+    }
+
+    $sinceArg = $Since
+
+    if ([string]::IsNullOrWhiteSpace($sinceArg)) {
+        $sinceArg = (Get-Date).AddDays(-30).ToString('yyyy-MM-dd')
+    }
+
+    $gitArgs = @('-C', $GitRepoRoot, 'log', "--since=$sinceArg", '--name-only', '--pretty=format:')
+
+    $output = & git @gitArgs 2>$null
+
+    if ($LASTEXITCODE -ne 0) {
+        return @()
+    }
+
+    $paths = New-Object System.Collections.Generic.HashSet[string]
+
+    foreach ($line in @($output)) {
+        $trimmed = $line.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($trimmed)) {
+            continue
+        }
+
+        if (Test-NominateExcludedPath -Path $trimmed) {
+            continue
+        }
+
+        [void]$paths.Add($trimmed.Replace('\', '/'))
+    }
+
+    return @($paths)
+}
+
+function Get-NominateGapReport {
+    param(
+        $Zones,
+        [string] $GitRepoRoot,
+        [string] $Since,
+        [switch] $SkipGitCalls,
+        [string[]] $InjectedPaths
+    )
+
+    $paths = Get-NominateGitPaths -GitRepoRoot $GitRepoRoot -Since $Since -SkipGitCalls:$SkipGitCalls -InjectedPaths $InjectedPaths
+    $gapCounts = @{}
+
+    foreach ($path in $paths) {
+        if (Test-PathCoveredByZone -Path $path -Zones $Zones) {
+            continue
+        }
+
+        $directory = $path
+
+        if ($path -match '/') {
+            $directory = ($path -split '/')[0..($path.Split('/').Count - 2)] -join '/'
+        }
+
+        if ([string]::IsNullOrWhiteSpace($directory)) {
+            $directory = $path
+        }
+
+        if (-not $gapCounts.ContainsKey($directory)) {
+            $gapCounts[$directory] = 0
+        }
+
+        $gapCounts[$directory]++
+    }
+
+    $gaps = @(
+        $gapCounts.GetEnumerator() |
+            Sort-Object -Property Value -Descending |
+            Select-Object -First 15 |
+            ForEach-Object {
+                [pscustomobject]@{
+                    path        = $_.Key
+                    commitCount = $_.Value
+                }
+            }
+    )
+
+    $proposedZones = @(
+        $gaps | ForEach-Object {
+            $slug = ($_.path -replace '[^A-Za-z0-9]+', '-').Trim('-').ToLowerInvariant()
+
+            if ($slug.Length -gt 48) {
+                $slug = $slug.Substring(0, 48).Trim('-')
+            }
+
+            [pscustomobject]@{
+                id              = $slug
+                paths           = @($_.path)
+                impact          = 'medium'
+                testFilterGuess = ('FullyQualifiedName~{0}' -f (($_.path -split '/')[-1] -replace '\.[^.]+$', ''))
+            }
+        }
+    )
+
+    return [pscustomobject]@{
+        nominate      = $true
+        gaps          = $gaps
+        proposedZones = $proposedZones
+    }
+}
+
+function Write-NominatePreview {
+    param($Report)
+
+    Write-Host ''
+    Write-Host '## /al-bug nominate'
+    Write-Host ''
+    Write-Host '| Field | Value |'
+    Write-Host '| --- | --- |'
+    Write-Host ("| Gaps found | {0} |" -f @($Report.gaps).Count)
+    Write-Host ''
+
+    foreach ($gap in @($Report.gaps)) {
+        Write-Host ("- `{0}` ({1} commits)" -f $gap.path, $gap.commitCount)
+    }
+
+    Write-Host ''
+    Write-Host 'Proposed zone stanzas (paste into ledger):'
+    Write-Host ''
+
+    foreach ($zone in @($Report.proposedZones)) {
+        Write-Host ("## Zone: {0}" -f $zone.id)
+        Write-Host ''
+        Write-Host ("- **id:** {0}" -f $zone.id)
+        Write-Host '- **status:** unseeded'
+        Write-Host ("- **impact:** {0}" -f $zone.impact)
+        Write-Host ("- **paths:** {0}" -f ($zone.paths -join '; '))
+        Write-Host ("- **test-filter:** {0}" -f $zone.testFilterGuess)
+        Write-Host '- **hunts:** 0'
+        Write-Host '- **bugs-found:** 0'
+        Write-Host ''
+    }
 }
 
 function Test-ZoneNeedsSeedHunt {
@@ -705,6 +1142,10 @@ function ConvertTo-PickResult {
             hintOverride           = $false
             codeChangedSince       = 0
             refreshRequested       = $RefreshRequested
+            impact                 = $null
+            impactMultiplier       = 0.0
+            cooledByHitRate        = $false
+            escalatedFiles         = @()
         }
     }
 
@@ -742,6 +1183,10 @@ function ConvertTo-PickResult {
         hintOverride           = $HintOverride
         codeChangedSince       = $Zone.CommitCount
         refreshRequested       = $RefreshRequested
+        impact                 = $Zone.Impact
+        impactMultiplier       = $Zone.ImpactMultiplier
+        cooledByHitRate        = [bool]$Zone.CooledByHitRate
+        escalatedFiles         = ConvertTo-ObjectArray -Value $Zone.EscalatedFiles
     }
 }
 
@@ -772,6 +1217,8 @@ function Write-ZonePreview {
     Write-Host ("| Status | {0} |" -f $Result.status)
     Write-Host ("| Seed hunt | {0} |" -f $Result.seedHunt)
     Write-Host ("| Score | {0} |" -f $Result.score)
+    Write-Host ("| Impact | {0} |" -f $(if ($null -eq $Result.impact) { 'n/a' } else { $Result.impact }))
+    Write-Host ("| Cooled | {0} |" -f $Result.cooledByHitRate)
     Write-Host ("| Mean hunts/bug | {0} |" -f $Result.meanHuntsPerBug)
     Write-Host ("| Explore bonus | {0} |" -f $Result.exploreBonus)
     Write-Host ("| Why | {0} |" -f ($Result.why -join '; '))
@@ -811,7 +1258,52 @@ elseif (-not [IO.Path]::IsPathRooted($resolvedLedger)) {
 }
 
 $zones = Read-AlBugHuntLedger -Path $resolvedLedger
-Set-ZoneComputedFields -Zones $zones -GitRepoRoot $resolvedRoot -SkipGitCalls:$SkipGit
+
+$resolvedRunLog = $RunLogPath
+
+if ([string]::IsNullOrWhiteSpace($resolvedRunLog)) {
+    $resolvedRunLog = Get-DefaultHuntRunLogPath -Root $resolvedRoot
+}
+elseif (-not [IO.Path]::IsPathRooted($resolvedRunLog)) {
+    $resolvedRunLog = Join-Path $resolvedRoot ($resolvedRunLog -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
+
+$nowUtc = [datetime]::UtcNow
+$runLogEntries = Read-AlBugHuntRunLog -Path $resolvedRunLog
+$escalatedFiles = @()
+$gitLogText = ''
+
+if (-not $SkipGit -and (Get-Command Get-GitBugsmashProductionPaths -ErrorAction SilentlyContinue)) {
+    $gitLogText = (Get-GitBugsmashProductionPaths -GitRepoRoot $resolvedRoot) -join "`n"
+}
+
+if (Get-Command Get-EscalatedProductionFiles -ErrorAction SilentlyContinue) {
+    $escalatedFiles = Get-EscalatedProductionFiles -RunLogEntries $runLogEntries -GitLogText $gitLogText -NowUtc $nowUtc
+}
+
+Set-ZoneComputedFields `
+    -Zones $zones `
+    -GitRepoRoot $resolvedRoot `
+    -SkipGitCalls:$SkipGit `
+    -RunLogEntries $runLogEntries `
+    -NowUtc $nowUtc `
+    -EscalatedFiles $escalatedFiles
+
+if ($Nominate) {
+    $nominateReport = Get-NominateGapReport `
+        -Zones $zones `
+        -GitRepoRoot $resolvedRoot `
+        -Since $Since `
+        -SkipGitCalls:$SkipGit `
+        -InjectedPaths $NominatePaths
+
+    if ($Status -or $Preview) {
+        Write-NominatePreview -Report $nominateReport
+    }
+
+    $nominateReport | ConvertTo-Json -Depth 6
+    exit 0
+}
 
 $eligible = Get-EligibleZones -Zones $zones
 $picked = $null
@@ -826,6 +1318,7 @@ if (-not [string]::IsNullOrWhiteSpace($Hint)) {
     }
 
     $picked = @($matched | Sort-Object @{ Expression = { $_.Score }; Descending = $true }, @{ Expression = { $_.FileIndex }; Descending = $false })[0]
+    $picked = Resolve-HintZone -Zones $zones -MatchedZone $picked
     $hintOverride = $true
 }
 elseif ($eligible.Count -gt 0) {

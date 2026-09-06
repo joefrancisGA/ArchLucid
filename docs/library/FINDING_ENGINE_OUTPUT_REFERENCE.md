@@ -37,6 +37,9 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `policy-applicability` | `PolicyApplicabilityFindingEngine` | Policy | Which policies apply to the snapshot. |
 | `policy-coverage` | `PolicyCoverageFindingEngine` | Policy | Policy rule coverage results. |
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
+| `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
+| `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
+| `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
 
 ## Cost (graph-pure)
 
@@ -65,7 +68,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
 | `aws-cost-recommendation` | `AwsCostRecommendationFindingEngine` | AWS cost recommendations from scoped inventory. |
 | `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
-| `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. |
+| `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. Joins source-finding text to current-graph topology nodes (`TopologyMatch`, `MatchedTopologyNodeId`); when a deferred public-network or HTTPS theme is still unsafe on the matched node, sets `StillOpenOnCurrentGraph` with `evidence:graph-node:` trace notes. |
 | `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio. **Default off** — opt-in cross-run I/O per review. |
 
 `TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.
@@ -83,7 +86,7 @@ Emit **`Finding`** records (`ArchLucid.Contracts/Findings/Finding.cs`) with:
 
 **Orchestrator merge:** parallel invoke of `IFindingEngine` and `IEffectfulFindingEngine`; results are sorted by `EngineType` (ordinal) before join; total failure → `AggregateException`; partial failure → snapshot + `FindingEngineFailure` rows.
 
-**Insight-density gate (production, ADR 0070):** `DeterministicInsightDensityGate` scores agent and typed-engine findings. Rows remain on the package; classification follows the demotion predicate (Decision-grade vs checklist coverage) when score is below `DemotionThreshold` and architecture anchor and concrete evidence are absent. Penalty reason `typed-engine-scored` marks engine origin — telemetry only, not a Promote short-circuit; the superseded `typed-engine-protected` bypass no longer forces Promote. Per-engine distribution in `docs/quality/insight-density-engine-distribution.md` is golden-corpus **advisory** measurement only.
+**Insight-density gate (production, ADR 0070, DX-01):** `DeterministicInsightDensityGate` scores agent and typed-engine findings. Rows remain on the package; classification follows the demotion predicate when score is below `DemotionThreshold` or the message is generic advice **and** resolvable package evidence is absent (`doc:`, ARM subscription paths, `aws:arn:`, GCP `projects/`, `policy-rule:`, product-shaped `graph-node:` — not bare `RelatedNodeIds` or `request`). Architecture-specific anchors affect score penalties but do not alone prevent demotion. All categories including Security may demote without resolvable evidence. Penalty reason `typed-engine-scored` marks engine origin — telemetry only, not a Promote short-circuit. Per-engine distribution in `docs/quality/insight-density-engine-distribution.md` is golden-corpus **advisory** measurement only.
 
 **Join key (ADR 0063, `FindingSnapshotMergeKey`):** SHA-256 hex (lower) of `NormalizeToken(category)|NormalizeToken(title)` (`Finding.Title` plays the role of `ArchitectureFinding.Message`). When `PolicyRuleId` is present: `{trimmedPolicyRuleId}:{fingerprint}`; otherwise the fuzzy `category|title` token key. Payload-equal partitions (FindingType, Title, Severity, Rationale, Category — ordinal) keep the lowest `EngineType`. Payload-unequal partitions keep that primary **and** append a `FindingEngineFailure` listing EngineType ids and FindingIds — they are not silently dropped.
 

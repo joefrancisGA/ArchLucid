@@ -62,6 +62,7 @@ Describe 'al-bug-rolling-stats.ps1' {
 
         $stats.bugsFound24h | Should Be 1
         $stats.dryRuns24h | Should Be 0
+        $stats.hitRate24h | Should Be 1
     }
 
     It 'counts dry runs inside the 24h window and excludes older events' {
@@ -79,6 +80,24 @@ Describe 'al-bug-rolling-stats.ps1' {
         $stats.bugsFound24h | Should Be 1
         $stats.dryRuns24h | Should Be 1
         $stats.seedOnly24h | Should Be 1
+    }
+
+    It 'warns on implausible 24h hit rate' {
+        $log = Join-Path $TestDrive 'high-hit-rate.jsonl'
+        $now = '2026-08-19T18:00:00Z'
+
+        for ($i = 0; $i -lt 6; $i++) {
+            Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId ('zone-{0}' -f $i) -HuntOutcome hit -AtUtc ('2026-08-19T1{0}:00:00Z' -f $i) | Out-Null
+        }
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-dry' -HuntOutcome dry -AtUtc '2026-08-19T11:00:00Z' | Out-Null
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-dry2' -HuntOutcome dry -AtUtc '2026-08-19T12:00:00Z' | Out-Null
+
+        $output = Invoke-RollingStats -LogPath $log -Rolling24h -AtUtc $now
+        $stats = Get-StatsJsonFromOutput -Output $output
+
+        ($stats.hitRate24h -gt 0.6) | Should Be $true
+        $stats.warning24h | Should Not BeNullOrEmpty
     }
 
     It 'requires HuntZoneId and HuntOutcome when recording' {

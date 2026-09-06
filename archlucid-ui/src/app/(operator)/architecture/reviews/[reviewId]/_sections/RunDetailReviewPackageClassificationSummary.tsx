@@ -3,6 +3,7 @@ import {
   formatStampCatalogEngineFailureHonestyLine,
   formatStampWithheldHonestyLine,
 } from "@/lib/findings/findings-withheld-band";
+import { countFindingsByClassificationBand } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
