@@ -1,6 +1,6 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-export type ArchitectureObjectMapFocus = "draft" | "review" | "sealed";
+export type ArchitectureObjectMapFocus = "architecture" | "draft" | "review" | "sealed";
 
 /** Nav noun for `/architecture/architectures` — not the sidebar tooltip. */
 export const ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL = OPERATOR_NAV_LINK_LABELS.architectures;
@@ -15,6 +15,7 @@ export const ARCHITECTURE_OBJECT_MAP_SEALED_LABEL = OPERATOR_NAV_LINK_LABELS.sea
  * description, imported documents, or an optional saved draft.
  */
 const OBJECT_MAP_SENTENCES: Record<ArchitectureObjectMapFocus, string> = {
+  architecture: `You are viewing named ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()} — durable systems you own. Open one to see its drafts and reviews.`,
   draft: `You are viewing ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}. Start a review to assess one.`,
   review: `${ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL} start from architecture you already have — a description, imported documents, or optional ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}. Finalize to generate ${ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase()}.`,
   sealed: `You are viewing ${ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase()}. They come from finalized ${ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL.toLowerCase()}; new work can start as a review or as ${ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase()}.`,
