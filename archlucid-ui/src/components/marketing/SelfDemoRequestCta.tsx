@@ -10,7 +10,7 @@ import { recordMarketingCtaSelfDemoClick } from "@/lib/marketing/marketing-clari
 
 /** Owner / legal-approved disclosure (hero self-demo; does not claim paid-tenant parity). */
 export const SELF_DEMO_HERO_DISCLOSURE_COPY =
-  "Inspect a governed sample review — no sign-up required. Uses fabricated data only.";
+  "Inspect a formal sample review — no sign-up required. Uses fabricated data only.";
 
 const SELF_DEMO_DISCLOSURE_ID = "welcome-self-demo-disclosure";
 
@@ -48,7 +48,7 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
         data-testid="welcome-self-demo-cta"
         onPressAnalytics={onPressAnalytics}
       >
-        Inspect a governed sample review
+        Inspect a formal sample review
       </CtaButton>
       <p
         id={SELF_DEMO_DISCLOSURE_ID}

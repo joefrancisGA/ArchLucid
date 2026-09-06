@@ -65,7 +65,7 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/standards-and-rules")).toBeNull();
-    // Risk exceptions own layer guidance plus the governance approval banner, so no shell banner.
+    // Risk exceptions own layer guidance plus the approval banner, so no shell banner.
     expect(routeViewExplanationForPathname("/governance/exceptions")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });

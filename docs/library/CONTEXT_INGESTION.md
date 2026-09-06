@@ -138,6 +138,8 @@ So policy objects that only set **`reference`** still dedupe correctly when the 
 
 After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a typed **`GraphSnapshot`** (nodes, inferred edges, validation). Canonical **`ObjectType`** values (e.g. `Requirement`, `TopologyResource`, `PolicyControl`, `SecurityBaseline`) become **`GraphNode.NodeType`**; enrichment such as **`category`** on topology objects feeds node **`Category`** and edge inference.
 
+**Declaration identity materialization (WK-08, DX-03):** When guided-intake actor JSON is absent, **`DeclarationIdentityActorMaterializer`** seeds **`Actor`** and optional **`TrustBoundary`** nodes from IaC declaration properties (K8s **`ServiceAccount`**, **`Ingress`**, LoadBalancer **`Service`**, Terraform/ARM identities, Function App managed identity, Front Door/APIM/LB edge resources). **`DeclarationIdentityEdgeMaterializer`** links each declaration actor to its source topology node. Actor security engines (**`external-exposure`**, **`trust-boundary`**, **`privileged-access`**) now fire on these declaration-seeded actors beyond the original WK-08 four-type allow-list.
+
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 
 ### Declaration security signals

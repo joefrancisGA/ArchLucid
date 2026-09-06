@@ -42,6 +42,10 @@ internal static class FindingsOrchestratorComposer
             effectfulEngines,
             portfolioRecurrenceCurrentReviewIdentitySource);
 
+        IFindingsInsightGeneratorStage insightGeneratorStage = new FindingsInsightGeneratorStage(
+            NoOpInsightFindingGenerator.Instance,
+            NullLogger<FindingsInsightGeneratorStage>.Instance);
+
         IFindingsMergeAndGateStage mergeAndGateStage = new FindingsMergeAndGateStage(
             humanReviewOptions,
             insightDensityGate,
@@ -53,6 +57,7 @@ internal static class FindingsOrchestratorComposer
         return new FindingsOrchestrator(
             policyStampStage,
             engineInvokeStage,
+            insightGeneratorStage,
             mergeAndGateStage,
             snapshotEmitStage);
     }

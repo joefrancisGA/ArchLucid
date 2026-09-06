@@ -12,6 +12,7 @@ public static class FindingPayloadRegistry
         [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload),
         [nameof(CostBreachFindingPayload)] = typeof(CostBreachFindingPayload),
         [nameof(InventoryReconciliationFindingPayload)] = typeof(InventoryReconciliationFindingPayload),
+        [nameof(DeclarationInventoryContradictionFindingPayload)] = typeof(DeclarationInventoryContradictionFindingPayload),
         [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload),
         [nameof(TopologyCoverageFindingPayload)] = typeof(TopologyCoverageFindingPayload),
         [nameof(SecurityCoverageFindingPayload)] = typeof(SecurityCoverageFindingPayload),

@@ -18,6 +18,6 @@ export const AI_USAGE_HELP_SOURCES_INTRO =
 export const AI_USAGE_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Billing and plans", href: "/administration/billing" },
   { label: "Billing and plans help", href: inAppHelpHref("billing-and-plans") },
-  { label: "Model governance", href: "/administration/model-governance" },
+  { label: "Model policy", href: "/administration/model-governance" },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
 ] as const;

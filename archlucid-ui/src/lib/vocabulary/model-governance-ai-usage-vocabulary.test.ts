@@ -13,7 +13,7 @@ import {
 } from "@/lib/vocabulary/model-governance-ai-usage-vocabulary";
 
 describe("model-governance-ai-usage-vocabulary (TB-2286)", () => {
-  it("explains why model governance and AI usage stay separate and deep-links both", () => {
+  it("explains why model policy and AI usage stay separate and deep-links both", () => {
     const model = buildModelGovernanceAiUsageVocabulary();
 
     expect(model.heading).toBe(MODEL_GOVERNANCE_AI_USAGE_HEADING);

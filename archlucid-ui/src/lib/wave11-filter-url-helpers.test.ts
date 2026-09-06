@@ -244,7 +244,7 @@ describe("wave14 filter url helpers", () => {
     );
   });
 
-  it("governance findings group-by and audit date range params", async () => {
+  it("policy findings group-by and audit date range params", async () => {
     const { parseGovernanceFindingsGroupByResourceFromSearch, governanceFindingsGroupByHrefFromSearch } =
       await import("@/lib/governance/governance-findings-group-by-url");
     const { parseAuditTrailDateRangePresetFromSearch, auditTrailDateRangePresetHrefFromSearch } = await import(
@@ -1124,7 +1124,7 @@ describe("wave24 filter url helpers", () => {
 });
 
 describe("wave25 filter url helpers", () => {
-  it("governance approval review, alert simulate rule, and settings users invite", async () => {
+  it("approval review, alert simulate rule, and settings users invite", async () => {
     const {
       governanceApprovalReviewHrefFromSearch,
       parseGovernanceApprovalIdFromSearch,
@@ -2103,7 +2103,7 @@ describe("wave32 filter url helpers", () => {
 });
 
 describe("wave33 filter url helpers", () => {
-  it("governance findings preset remove, advisory disposition, run governance disposition, and policy pack toggle", async () => {
+  it("policy findings preset remove, advisory disposition, run approval disposition, and policy pack toggle", async () => {
     const {
       governanceAssignedToMePresetRemoveConfirmHrefFromSearch,
       governanceFindingsPresetRemoveConfirmHrefFromSearch,
@@ -3106,7 +3106,7 @@ describe("wave42 filter url helpers", () => {
 });
 
 describe("wave43 filter url helpers", () => {
-  it("related surfaces, governance findings queues, more filters, and last failure tech params", async () => {
+  it("related surfaces, policy findings queues, more filters, and last failure tech params", async () => {
     const {
       parseRelatedSurfacesOpenFromSearch,
       relatedSurfacesDisclosureHrefFromSearch,
@@ -4272,7 +4272,7 @@ describe("wave55 filter url helpers", () => {
 });
 
 describe("wave56 filter url helpers", () => {
-  it("cloud security preflight technical details, audit buyer verification appendix, audit operator table event json, audit timeline data json, provenance review identifier, governance overview blocking breakdown, model governance profile mapping, draft intake reason follow up, quick decision supporting detail, try cli demo params", async () => {
+  it("cloud security preflight technical details, audit buyer verification appendix, audit operator table event json, audit timeline data json, provenance review identifier, governance overview blocking breakdown, model policy profile mapping, draft intake reason follow up, quick decision supporting detail, try cli demo params", async () => {
     const {
       cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch,
       parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch,
@@ -4751,7 +4751,7 @@ describe("wave16 filter url helpers", () => {
     expect(auditTrailSearchHrefFromSearch("runId=r1", "phi")).toBe("/governance/audit?runId=r1&q=phi");
   });
 
-  it("governance findings nl severity/status and assigned-to-me sort params", async () => {
+  it("policy findings nl severity/status and assigned-to-me sort params", async () => {
     const {
       parseGovernanceFindingsNlSeverityFromSearch,
       governanceFindingsNlSeverityHrefFromSearch,

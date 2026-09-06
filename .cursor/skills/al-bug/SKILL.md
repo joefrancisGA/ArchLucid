@@ -44,7 +44,9 @@ Do **not** LLM-rank zones or default to topology-first. The picker scores `docs/
 
 Use the JSON `paths`, `openHypotheses`, `huntReadyHypotheses`, `candidateHypotheses`, `seedHunt`, and `testFilter`.
 
-**Hunt-ready bar:** locus + input + wrong outcome + mechanism in *these* files. Harm-class one-liners (“cross-tenant leak”, “stale cache”) stay `(candidate)` until the files show the prerequisite. Cheap-disproof a row (locus exists, not already tested, prerequisite present) before writing a repro.
+**Hunt-ready bar:** locus + input + wrong outcome + mechanism + **reachability** in *these* files. Harm-class one-liners (“cross-tenant leak”, “stale cache”) stay `(candidate)` until the files show the prerequisite. Constructed literals without an ARM/config/OpenAPI/UI/trust-boundary citation are not hunt-ready. Cheap-disproof a row (locus exists, not already tested, prerequisite present, reachable input) before writing a repro.
+
+**Fix bar:** close a class of inputs; do not ship a one-string allowlist/phrase-list append as the whole fix. Guard code (redaction, validation, authz, schema readers): conservative failure is usually `(valid-no-repro)` unless reachability cites a real caller or attacker input.
 
 Ledger tags: `(candidate)`, `(hunt-ready)`, `(proven)`, `(invalid)`, `(valid-no-repro)`. Bare `[x]` counts as proven — do not tick misses that way.
 

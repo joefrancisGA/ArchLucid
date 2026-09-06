@@ -114,7 +114,7 @@ export function isApprovedDecisionFinding(finding: QuickDecisionFinding): boolea
   return disposition === "Accepted";
 }
 
-/** True when human review or disposition closes the finding for governance approval gating. */
+/** True when human review or disposition closes the finding for approval gating. */
 export function isReviewFindingDispositionClosed(finding: QuickDecisionFinding): boolean {
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
 

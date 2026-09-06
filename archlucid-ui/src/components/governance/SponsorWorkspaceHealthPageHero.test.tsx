@@ -11,7 +11,7 @@ import {
 import { SponsorWorkspaceHealthPageHero } from "@/components/governance/SponsorWorkspaceHealthPageHero";
 
 describe("SponsorWorkspaceHealthPageHero", () => {
-  it("renders the section heading and governance workflow handoff", () => {
+  it("renders the section heading and approval workflow handoff", () => {
     render(<SponsorWorkspaceHealthPageHero buyerPolishedShell />);
 
     expect(screen.getByTestId("sponsor-workspace-health-page-hero")).toBeInTheDocument();

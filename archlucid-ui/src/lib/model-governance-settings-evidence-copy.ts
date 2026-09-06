@@ -16,7 +16,7 @@ export const AI_MODELS_SETTINGS_CANONICAL_PATH = MODEL_GOVERNANCE_SETTINGS_CANON
 
 export const AI_MODELS_SETTINGS_OPEN_CTA_LABEL = "Open AI models" as const;
 
-export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model governance works";
+export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model policy works";
 
 export const MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE_HEADING = "What AI models is not";
 

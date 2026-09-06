@@ -1,4 +1,4 @@
-import { resolveRunHomeStatusTag } from "@/components/operator-home/runs-dashboard-helpers";
+import { resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";

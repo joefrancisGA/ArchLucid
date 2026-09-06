@@ -51,8 +51,9 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -187,6 +188,10 @@ export function DiagramsWorkbenchClient() {
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
     [auditScope, scopedSnapshotId],
+  );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    scopedSnapshotId,
   );
 
   const mermaidSource = renderResult?.mermaid ?? "";
@@ -417,10 +422,13 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {auditScope != null ? (
-            <div className="mt-2">
-              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-diagrams-audit-provenance" />
-            </div>
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false) ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              provenanceTestId="infra-diagrams-audit-provenance"
+              unavailableTestId="infra-diagrams-audit-unavailable"
+            />
           ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
@@ -565,6 +573,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                hubTab: "diagram",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >

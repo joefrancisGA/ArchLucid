@@ -42,7 +42,7 @@ export const CUSTOMER_GLOSSARY_CATEGORY_LABELS: Readonly<Record<CustomerGlossary
   evidence: "Evidence",
   "decisions-and-findings": "Decisions and findings",
   "risk-and-controls": "Risk and controls",
-  governance: "Governance",
+  governance: "Approval",
   "organization-and-access": "Organization and access",
   deliverables: "Deliverables",
 };
@@ -83,7 +83,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review-package",
     label: "Architecture review",
     definition:
-      "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, governance records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, approval records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
@@ -95,7 +95,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "sealed-review-record",
     label: "Sealed review record",
     definition:
-      "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
+      "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for approvals and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
     category: "review-process",
     aliases: ["Sealed review record"],
     deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record"],
@@ -145,7 +145,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for governance and audit. Not the same as the sealed review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for approval and audit. Not the same as the sealed review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
     relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:
@@ -172,9 +172,9 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   },
   {
     id: "governance-approval",
-    label: "Governance approval",
+    label: "Approval",
     definition:
-      "A committed governance decision that affects rollout, waiver, exception, or escalation for a review or related record.",
+      "A committed approval decision that affects rollout, waiver, exception, or escalation for a review or related record.",
     category: "governance",
     relatedTermIds: ["decision", "audit-trail"],
     visibility: "customer",
@@ -192,7 +192,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "policy-pack",
     label: "Policy pack",
     definition:
-      "A versioned bundle of rules, thresholds, and governance mappings applied to reviews in your workspace.",
+      "A versioned bundle of rules, thresholds, and policy mappings applied to reviews in your workspace.",
     category: "governance",
     relatedTermIds: ["finding", "control"],
     visibility: "customer",

@@ -2,7 +2,7 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 import {
   deriveRunsDashboardTabCounts,
   type RunsDashboardTabCounts,
-} from "@/components/operator-home/runs-dashboard-helpers";
+} from "@/lib/operator/run-home-status";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
@@ -18,7 +18,7 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly visibleCount?: number;
   /** Total tenant rows in the recent preview pool (before featured cap). */
   readonly recentTotalCount?: number;
-  /** Governance approval queue pressure from attention summary. */
+  /** Approval queue pressure from attention summary. */
   readonly awaitingApprovalCount?: number;
   /** Omit awaiting-approval segment when the lead card already surfaces that count (P1-6). */
   readonly suppressAwaitingApprovalCount?: boolean;

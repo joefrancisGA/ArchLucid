@@ -61,7 +61,7 @@ function emptyWorkflowState(phase: "no_review" | "loading"): GovernanceApprovalW
   };
 }
 
-/** Single derivation for governance approval banners, story cards, and request history. */
+/** Single derivation for approval banners, story cards, and request history. */
 export function deriveGovernanceApprovalWorkflowState(
   input: DeriveGovernanceApprovalWorkflowStateInput,
 ): GovernanceApprovalWorkflowState {

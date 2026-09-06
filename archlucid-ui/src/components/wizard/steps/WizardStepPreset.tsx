@@ -205,7 +205,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               Claims Intake Modernization (sample)
             </CardTitle>
             <CardDescription className="text-al-text-primary dark:text-neutral-100">
-              Open the governed sample review we provisioned for your workspace, or continue below to author a brand-new
+              Open the formal sample review we provisioned for your workspace, or continue below to author a brand-new
               architecture request.
             </CardDescription>
           </CardHeader>

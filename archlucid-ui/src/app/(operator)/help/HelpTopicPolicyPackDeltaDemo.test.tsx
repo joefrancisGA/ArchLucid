@@ -78,7 +78,7 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
     expect(screen.queryByTestId("help-policy-pack-delta-demo-sources")).toBeNull(); // TB-2092
 
     expect(screen.getByTestId("help-policy-pack-delta-demo-overview").textContent).toContain(
-      "Governance approval",
+      "Approval",
     );
     expect(document.body.textContent ?? "").not.toContain("PRE_COMMIT_GOVERNANCE_GATE");
   });

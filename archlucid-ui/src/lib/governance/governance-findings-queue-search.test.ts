@@ -24,7 +24,7 @@ function sampleRow(overrides: Partial<GovernanceFindingQueueRow> = {}): Governan
   };
 }
 
-describe("governance findings queue search", () => {
+describe("policy findings queue search", () => {
   it("parses and writes ?q= on the findings queue URL", () => {
     expect(parseGovernanceFindingsSearchQuery("payments")).toBe("payments");
     expect(parseGovernanceFindingsSearchQuery(null)).toBe("");

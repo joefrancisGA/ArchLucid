@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 
 describe("governanceModeVocabulary", () => {
-  it("uses pilot-friendly labels when governance view is off", () => {
+  it("uses pilot-friendly labels when approval view is off", () => {
     const vocabulary = governanceModeVocabulary(false);
 
     expect(vocabulary.reviewPlural).toBe("Reviews");
@@ -11,7 +11,7 @@ describe("governanceModeVocabulary", () => {
     expect(vocabulary.authorityChainLabel).toBe("Review steps");
   });
 
-  it("uses enterprise governance labels when governance view is on", () => {
+  it("uses enterprise governance labels when approval view is on", () => {
     const vocabulary = governanceModeVocabulary(true);
 
     expect(vocabulary.reviewPlural).toBe("Reviews");

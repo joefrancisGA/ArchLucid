@@ -13,7 +13,7 @@ ArchLucid does not send source code repositories, secrets, or credentials as par
 
 ## What stays in your tenant
 
-All findings, finalized review records, decisions, governance approval, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on architecture review content.
+All findings, finalized review records, decisions, approval, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on architecture review content.
 
 ## What ArchLucid does not collect
 

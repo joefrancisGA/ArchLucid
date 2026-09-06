@@ -43,10 +43,11 @@ import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
-import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,12 @@ function formatResourceLabel(row: CloudResourceSummary): string {
   const segments = row.externalResourceId.split("/");
 
   return segments[segments.length - 1] ?? row.externalResourceId;
+}
+
+function resolveExplorerAskHubTab(
+  workQueue: CloudResourceExplorerWorkQueue,
+): ResourceHubTab | undefined {
+  return resolveResourceHubTabFromExplorerWorkQueue(workQueue) ?? undefined;
 }
 
 export function ResourcesExplorerClient() {
@@ -96,8 +103,8 @@ export function ResourcesExplorerClient() {
       return;
     }
 
-    router.replace(governanceInfrastructureResourceHubPath(urlCloudResourceId));
-  }, [router, urlCloudResourceId]);
+    router.replace(buildResourceHubExplorerHref(urlCloudResourceId, urlWorkQueue, urlSnapshotId));
+  }, [router, urlCloudResourceId, urlSnapshotId, urlWorkQueue]);
 
   useEffect(() => {
     setNamePrefix(urlNamePrefix);
@@ -240,7 +247,10 @@ export function ResourcesExplorerClient() {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="font-medium">Snapshot id</span>
+            <span className="font-medium">Snapshot context (links only)</span>
+            <span className="text-xs text-muted-foreground">
+              Preserves snapshot scope on hub and workbench links. The resource list is not filtered by snapshot.
+            </span>
             <input
               className="rounded border border-input bg-background px-3 py-2 font-mono text-xs"
               data-testid="infra-resource-explorer-snapshot-id"
@@ -352,6 +362,7 @@ export function ResourcesExplorerClient() {
                         cloudResourceId: row.cloudResourceId,
                         workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
                         snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,
+                        hubTab: resolveExplorerAskHubTab(urlWorkQueue),
                       })}
                       data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
                     >
