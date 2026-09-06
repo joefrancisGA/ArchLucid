@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
@@ -10,10 +10,13 @@ import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/ope
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
+
 import {
-  isOperatorExperienceFullShellEnv,
-  isBuyerPolishedOperatorShellEnv,
-} from "@/lib/demo-ui-env";
+  devTestingQuickSwitchDisclosureHrefFromSearch,
+  parseDevTestingQuickSwitchOpenFromSearch,
+} from "@/lib/dev-testing/dev-testing-quick-switch-disclosure-url";
 import {
   DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT,
   useDevQuickSwitchPanelVisibility,
@@ -32,7 +35,10 @@ import {
   type DevRoleOverride,
   type DevShellExperienceOverride,
 } from "@/lib/dev-testing-overrides";
-import { cn } from "@/lib/utils";
+import {
+  isOperatorExperienceFullShellEnv,
+  isBuyerPolishedOperatorShellEnv,
+} from "@/lib/demo-ui-env";
 
 type ShellOption = {
   value: DevShellExperienceOverride | "build-default";
@@ -144,6 +150,34 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
     () => resolveEffectiveDevAgentExecutionMode(agentExecutionOverride),
     [agentExecutionOverride],
   );
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const devTestingQuickSwitchOpenParam = searchParams.get("devTestingQuickSwitchOpen");
+  const [quickSwitchOpen, setQuickSwitchOpenState] = useState(() =>
+    parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam),
+  );
+
+  const syncQuickSwitchOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(devTestingQuickSwitchDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setQuickSwitchOpen = useCallback(
+    (open: boolean) => {
+      setQuickSwitchOpenState(open);
+      syncQuickSwitchOpenToUrl(open);
+    },
+    [syncQuickSwitchOpenToUrl],
+  );
+
+  useEffect(() => {
+    setQuickSwitchOpenState(parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam));
+  }, [devTestingQuickSwitchOpenParam]);
 
   if (!isDevTestingOverridesEnabled() || !mounted) {
     return null;
@@ -158,7 +192,8 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   return (
     <CollapsibleSection
       title="Dev testing quick switch"
-      defaultOpen={false}
+      open={quickSwitchOpen}
+      onToggle={setQuickSwitchOpen}
       sectionTestId="dev-testing-quick-switch"
       className="mb-0 border-dashed border-neutral-300 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/40"
       summaryLine="Shell density, role override, quick-jump links, and database reset"
