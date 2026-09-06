@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const useSearchParams = vi.fn();
 const replace = vi.fn();
+const mockIsAuthorityLoading = vi.hoisted(() => vi.fn(() => false));
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -14,6 +15,12 @@ vi.mock("next/navigation", async (importOriginal) => {
     useRouter: () => ({ replace }),
   };
 });
+
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({
+    isAuthorityLoading: mockIsAuthorityLoading(),
+  }),
+}));
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -40,6 +47,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE,
+  SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_USE_STANDARD_REVIEW_LABEL,
   specialtyReviewTemplatesCompareHref,
 } from "@/lib/specialty-review-templates";
@@ -73,6 +81,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
       searchParams = new URLSearchParams(url.search);
     });
+    mockIsAuthorityLoading.mockReturnValue(false);
     vi.mocked(useOperateCapability).mockReturnValue(true);
   });
 
@@ -179,6 +188,24 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
       "/governance/policy-packs/demo-enterprise-privacy-pack",
     );
     expect(dialog.textContent?.toLowerCase() ?? "").not.toContain("healthcare-claims-v3");
+  });
+
+  it("shows authority loading instead of read-only hint while permissions resolve", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    mockIsAuthorityLoading.mockReturnValue(true);
+    vi.mocked(useOperateCapability).mockReturnValue(false);
+
+    render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    expect(screen.getByTestId("specialty-template-authority-loading")).toHaveTextContent(
+      SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
+    );
+    expect(screen.queryByTestId("specialty-template-permission-hint")).not.toBeInTheDocument();
+    expect(screen.getByTestId("specialty-template-use-saas-readiness")).toHaveTextContent("Checking permission…");
+    expect(screen.getAllByTestId("specialty-template-policy-pack-provenance-loading")).toHaveLength(3);
   });
 
   it("disables use-template actions for read-only users with an explanation", () => {

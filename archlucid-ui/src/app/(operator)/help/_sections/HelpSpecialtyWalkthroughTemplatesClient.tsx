@@ -15,6 +15,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { SpecialtyTemplateCloudContextPicker } from "@/components/help/SpecialtyTemplateCloudContextPicker";
 import { SpecialtyTemplateComparisonTable } from "@/components/help/SpecialtyTemplateComparisonTable";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
@@ -62,6 +63,7 @@ import {
   SPECIALTY_REVIEW_TEMPLATES_INTEGRATIONS_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_OPTIONAL_NOTE,
   SPECIALTY_REVIEW_TEMPLATES_BUYER_DEMO_USE_HINT,
+  SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT,
   SPECIALTY_REVIEW_TEMPLATES_RELATED_LINKS,
@@ -97,8 +99,10 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 ): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { isAuthorityLoading } = useOperatorNavAuthority();
   const capabilityCanExecute = useOperateCapability();
   const canExecute = buyerPolishedShell ? true : capabilityCanExecute;
+  const permissionLoading = !buyerPolishedShell && isAuthorityLoading;
   const router = useRouter();
   const pathname = usePathname() ?? SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH;
   const searchParams = useSearchParams();
@@ -353,7 +357,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          {!canExecute && !buyerPolishedShell ? (
+          {!canExecute && !buyerPolishedShell && !permissionLoading ? (
             <div
               id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
               className={cn(HELP_PAGE_LAYOUT.contentPanel, "max-w-3xl")}
@@ -364,6 +368,16 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
               </div>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}</p>
             </div>
+          ) : null}
+
+          {permissionLoading ? (
+            <p
+              className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="specialty-template-authority-loading"
+              aria-live="polite"
+            >
+              {SPECIALTY_REVIEW_TEMPLATES_AUTHORITY_LOADING_LABEL}
+            </p>
           ) : null}
 
           {navigation.showStagedPanel && navigation.activeStageId !== null ? (
@@ -404,6 +418,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
                     template={template}
                     selected={selectedTemplateId === template.id}
                     canExecute={canExecute}
+                    permissionLoading={permissionLoading}
                     onSelect={handleSelect}
                     onPreview={(row) => setPreview({ template: row })}
                     onRemoveSelection={handleRemoveSelection}

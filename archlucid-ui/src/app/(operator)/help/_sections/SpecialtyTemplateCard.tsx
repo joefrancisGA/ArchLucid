@@ -76,6 +76,7 @@ export type SpecialtyTemplateCardProps = {
   readonly template: SpecialtyReviewTemplateDefinition;
   readonly selected: boolean;
   readonly canExecute: boolean;
+  readonly permissionLoading?: boolean;
   readonly onSelect: (templateId: SpecialtyReviewTemplateId) => void;
   readonly onPreview: (template: SpecialtyReviewTemplateDefinition) => void;
   readonly onRemoveSelection: () => void;
@@ -85,7 +86,8 @@ export type SpecialtyTemplateCardProps = {
 };
 
 export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.ReactElement {
-  const { template, selected, canExecute } = props;
+  const { template, selected, canExecute, permissionLoading = false } = props;
+  const useTemplateLabel = permissionLoading ? "Checking permission…" : "Use template";
 
   return (
     <Card
@@ -119,6 +121,7 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
           <SpecialtyTemplatePolicyPackProvenance
             policyPacks={template.policyPacks}
             lastReviewedUtc={template.lastReviewedUtc}
+            isLoading={permissionLoading}
             testId={`specialty-template-policy-packs-${template.id}`}
           />
         </div>
@@ -145,24 +148,25 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
           >
             Preview
           </Button>
-          {canExecute ? (
+          {canExecute && !permissionLoading ? (
             <Button
               type="button"
               size="sm"
               onClick={() => props.onSelect(template.id)}
               data-testid={`specialty-template-use-${template.id}`}
             >
-              Use template
+              {useTemplateLabel}
             </Button>
           ) : (
             <Button
               type="button"
               size="sm"
               disabled
-              aria-describedby={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
+              aria-busy={permissionLoading}
+              aria-describedby={permissionLoading ? undefined : SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
               data-testid={`specialty-template-use-${template.id}`}
             >
-              Use template
+              {useTemplateLabel}
             </Button>
           )}
           <Button asChild size="sm" variant="outline" data-testid={`specialty-template-sample-review-${template.id}`}>
@@ -171,7 +175,7 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
         </div>
         {selected ? (
           <SpecialtyTemplateCardSelectionFooter
-            canExecute={canExecute}
+            canExecute={canExecute && !permissionLoading}
             isContinuing={props.isContinuing}
             loadingLabel={props.loadingLabel}
             onContinue={props.onContinue}

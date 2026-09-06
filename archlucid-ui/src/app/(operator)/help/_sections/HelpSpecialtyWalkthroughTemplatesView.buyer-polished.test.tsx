@@ -26,6 +26,12 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: vi.fn(() => true),
 }));
 
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({
+    isAuthorityLoading: false,
+  }),
+}));
+
 vi.mock("@/hooks/use-review-intake-navigation", () => ({
   useReviewIntakeNavigation: () => ({
     navigate: vi.fn(),
