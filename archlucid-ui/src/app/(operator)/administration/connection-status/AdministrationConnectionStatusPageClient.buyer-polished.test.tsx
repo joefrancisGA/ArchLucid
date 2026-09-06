@@ -27,6 +27,9 @@ import {
   ADMINISTRATION_CONNECTION_STATUS_PRIMARY_CONTENT_ID,
   ADMINISTRATION_CONNECTION_STATUS_SKIP_LINK_LABEL,
   ADMINISTRATION_CONNECTION_STATUS_SKIP_TARGET_ID,
+  ADMINISTRATION_CONNECTION_STATUS_BUYER_START_HERE_HELPER,
+  ADMINISTRATION_CONNECTION_STATUS_PAGE_LEAD,
+  ADMINISTRATION_CONNECTION_STATUS_START_HERE_CARD_TITLE,
 } from "@/lib/administration-connection-status-page-copy";
 import {
   CONNECTION_STATUS_CLAIM_DISCIPLINE,
@@ -47,6 +50,15 @@ describe("AdministrationConnectionStatusPageClient buyer-polished shell (ADC)", 
     );
     expect(screen.getByText(ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR)).not.toBeInTheDocument();
+    expect(screen.getByTestId("connection-status-settings-intro")).toHaveTextContent(
+      ADMINISTRATION_CONNECTION_STATUS_PAGE_LEAD,
+    );
+    expect(screen.getByTestId("connection-status-buyer-start-here-helper")).toHaveTextContent(
+      ADMINISTRATION_CONNECTION_STATUS_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: ADMINISTRATION_CONNECTION_STATUS_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId(ADMINISTRATION_CONNECTION_STATUS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       CONNECTION_STATUS_CLAIM_DISCIPLINE.slice(0, 40),
     );

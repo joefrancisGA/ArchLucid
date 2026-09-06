@@ -26,6 +26,12 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/integration-readiness",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpIntegrationReadinessGuideView } from "@/app/(operator)/help/_sections/HelpIntegrationReadinessGuideView";
 import {
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,

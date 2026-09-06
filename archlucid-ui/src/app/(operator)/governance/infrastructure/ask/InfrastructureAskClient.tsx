@@ -36,7 +36,10 @@ import {
   formatCloudResourceExplorerWorkQueueLabel,
   parseResourceExplorerWorkQueueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
-import { buildDriftWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import {
+  buildDriftWorkbenchHref,
+  buildRemediationWorkbenchHref,
+} from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
@@ -171,6 +174,18 @@ export function InfrastructureAskClient() {
     });
   }, [correspondenceId, runId, snapshotId]);
 
+  const remediationFactoryBackLinkHref = useMemo(() => {
+    if (findingId.length === 0 && instanceId.length === 0) {
+      return null;
+    }
+
+    return buildRemediationWorkbenchHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      instanceId: instanceId.length > 0 ? instanceId : null,
+    });
+  }, [cloudResourceId, findingId, instanceId]);
+
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
 
@@ -270,6 +285,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-diagram-reconcile-back-link"
             >
               Open diagram reconciliation workbench
+            </Link>
+          ) : null}
+          {remediationFactoryBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={remediationFactoryBackLinkHref}
+              data-testid="infra-ask-remediation-back-link"
+            >
+              Open remediation factory
             </Link>
           ) : null}
         </section>
