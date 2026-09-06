@@ -15,6 +15,9 @@ export type InfraEvidenceAskCitationContext = {
   readonly cloudResourceId?: string | null;
   readonly snapshotId?: string | null;
   readonly diffId?: string | null;
+  readonly findingId?: string | null;
+  readonly correspondenceId?: string | null;
+  readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -39,6 +42,9 @@ export function resolveInfraEvidenceAskCitationLink(
   const cloudResourceId = context.cloudResourceId?.trim() ?? "";
   const snapshotId = context.snapshotId?.trim() ?? "";
   const diffId = context.diffId?.trim() ?? "";
+  const findingId = context.findingId?.trim() ?? "";
+  const correspondenceId = context.correspondenceId?.trim() ?? "";
+  const runId = context.runId?.trim() ?? "";
   const assessmentId = context.assessmentId?.trim() ?? "";
   const auditEvidenceSnapshotId = context.auditEvidenceSnapshotId?.trim() ?? "";
 
@@ -82,6 +88,9 @@ export function resolveInfraEvidenceAskCitationLink(
         href: buildRemediationWorkbenchHref({
           findingId: id,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+          runId: runId.length > 0 ? runId : null,
+          snapshotId: snapshotId.length > 0 ? snapshotId : null,
         }),
         label,
       };
@@ -90,6 +99,9 @@ export function resolveInfraEvidenceAskCitationLink(
         href: buildDiagramReconcileWorkbenchHref({
           correspondenceId: id,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
+          runId: runId.length > 0 ? runId : null,
+          cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          reconcileFilter: "Conflict",
         }),
         label,
       };
@@ -98,6 +110,9 @@ export function resolveInfraEvidenceAskCitationLink(
         href: buildRemediationWorkbenchHref({
           instanceId: id,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+          runId: runId.length > 0 ? runId : null,
+          snapshotId: snapshotId.length > 0 ? snapshotId : null,
         }),
         label,
       };

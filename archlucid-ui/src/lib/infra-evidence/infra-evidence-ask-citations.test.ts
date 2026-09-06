@@ -59,13 +59,27 @@ describe("infra-evidence-ask-citations", () => {
 
   it("links diagram correspondence citations into the reconcile workbench", () => {
     const correspondenceId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const runId = "run-1";
     const link = resolveInfraEvidenceAskCitationLink(
       { kind: "DiagramCorrespondenceId", id: correspondenceId, label: "Gateway node" },
-      { snapshotId },
+      { snapshotId, cloudResourceId: resourceId, runId },
     );
 
     expect(link?.href).toBe(
-      `/governance/infrastructure/diagram-reconcile?snapshotId=${snapshotId}&correspondenceId=${correspondenceId}`,
+      `/governance/infrastructure/diagram-reconcile?runId=${runId}&snapshotId=${snapshotId}&cloudResourceId=${resourceId}&reconcileFilter=Conflict&correspondenceId=${correspondenceId}`,
+    );
+  });
+
+  it("links FindingId citations with diagram reconcile handoff context", () => {
+    const correspondenceId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const runId = "run-1";
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "FindingId", id: findingId, label: "Conflict finding" },
+      { cloudResourceId: resourceId, snapshotId, correspondenceId, runId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/remediation?cloudResourceId=${resourceId}&findingId=${findingId}&correspondenceId=${correspondenceId}&runId=${runId}&snapshotId=${snapshotId}`,
     );
   });
 
