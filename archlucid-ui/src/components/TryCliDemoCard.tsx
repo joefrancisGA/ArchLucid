@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,39 @@ import { MARKETING_CANONICAL_DEMO_PATH } from "@/lib/marketing/marketing-entry-s
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import {
+  parseTryCliDemoOpenFromSearch,
+  tryCliDemoDisclosureHrefFromSearch,
+} from "@/lib/administration/try-cli-demo-disclosure-url";
 
 /** Optional local CLI workflow — collapsed by default on internal developer settings (TB-1898). */
 export function TryCliDemoCard(props: { readonly hideCliHelpLink?: boolean }): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const tryCliDemoOpenParam = searchParams.get("tryCliDemoOpen");
   const commandLine = useMemo(() => buildTryCliDemoCommand(), []);
   const [copied, setCopied] = useState(false);
+  const [disclosureOpen, setDisclosureOpenState] = useState(() => parseTryCliDemoOpenFromSearch(tryCliDemoOpenParam));
+
+  const syncDisclosureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(tryCliDemoDisclosureHrefFromSearch(searchParams.toString(), open, pathname), { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDisclosureOpen = useCallback(
+    (open: boolean) => {
+      setDisclosureOpenState(open);
+      syncDisclosureOpenToUrl(open);
+    },
+    [syncDisclosureOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDisclosureOpenState(parseTryCliDemoOpenFromSearch(tryCliDemoOpenParam));
+  }, [tryCliDemoOpenParam]);
 
   async function copyCommand(): Promise<void> {
     try {
@@ -62,7 +91,14 @@ export function TryCliDemoCard(props: { readonly hideCliHelpLink?: boolean }): R
           )}
         </div>
 
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-testid="try-cli-demo-disclosure">
+        <details
+          className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+          data-testid="try-cli-demo-disclosure"
+          open={disclosureOpen}
+          onToggle={(event) => {
+            setDisclosureOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {TRY_CLI_DEMO_DISCLOSURE_SUMMARY}
           </summary>

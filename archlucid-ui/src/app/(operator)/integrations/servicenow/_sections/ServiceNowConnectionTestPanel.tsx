@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +15,10 @@ import {
 } from "@/lib/servicenow-integration-page-copy";
 import type { resolveServiceNowConnectionTestGate, resolveServiceNowPageComposition } from "@/lib/servicenow-integration-present";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
+import {
+  parseServiceNowConnectionTestCollapsedOpenFromSearch,
+  serviceNowConnectionTestCollapsedDisclosureHrefFromSearch,
+} from "@/lib/integrations/servicenow-connection-test-collapsed-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +37,38 @@ export function ServiceNowConnectionTestPanel({
   isTesting,
   onRunConnectionTest,
 }: ServiceNowConnectionTestPanelProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const serviceNowConnectionTestCollapsedOpenParam = searchParams.get("serviceNowConnectionTestCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseServiceNowConnectionTestCollapsedOpenFromSearch(serviceNowConnectionTestCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        serviceNowConnectionTestCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(
+      parseServiceNowConnectionTestCollapsedOpenFromSearch(serviceNowConnectionTestCollapsedOpenParam),
+    );
+  }, [serviceNowConnectionTestCollapsedOpenParam]);
+
   const connectionTestBody = (
     <>
       {testError ? (
@@ -88,6 +126,10 @@ export function ServiceNowConnectionTestPanel({
       <details
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="servicenow-connection-test-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

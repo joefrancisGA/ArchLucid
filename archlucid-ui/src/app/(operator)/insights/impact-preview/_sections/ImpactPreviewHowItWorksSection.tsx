@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -17,42 +17,42 @@ import {
 
 export function ImpactPreviewHowItWorksSection(): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? "/insights/impact-preview";
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const impactPreviewHowItWorksOpenParam = searchParams.get("impactPreviewHowItWorksOpen");
-  const [open, setOpenState] = useState(() =>
+  const [howItWorksOpen, setHowItWorksOpenState] = useState(() =>
     parseImpactPreviewHowItWorksOpenFromSearch(impactPreviewHowItWorksOpenParam),
   );
 
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
+  const syncHowItWorksOpenToUrl = useCallback(
+    (open: boolean) => {
       router.replace(
-        impactPreviewHowItWorksDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        impactPreviewHowItWorksDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
     [pathname, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (detailsOpen: boolean) => {
-      setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
+  const setHowItWorksOpen = useCallback(
+    (open: boolean) => {
+      setHowItWorksOpenState(open);
+      syncHowItWorksOpenToUrl(open);
     },
-    [syncOpenToUrl],
+    [syncHowItWorksOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(parseImpactPreviewHowItWorksOpenFromSearch(impactPreviewHowItWorksOpenParam));
+    setHowItWorksOpenState(parseImpactPreviewHowItWorksOpenFromSearch(impactPreviewHowItWorksOpenParam));
   }, [impactPreviewHowItWorksOpenParam]);
 
   return (
     <details
       className="max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
       data-testid="impact-preview-how-it-works"
-      open={open}
+      open={howItWorksOpen}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        setHowItWorksOpen((event.currentTarget as HTMLDetailsElement).open);
       }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

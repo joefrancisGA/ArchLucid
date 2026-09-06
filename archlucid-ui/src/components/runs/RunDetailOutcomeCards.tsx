@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
@@ -30,6 +32,14 @@ import {
   RunDetailPackageStatusStrip,
   useStreamlinedPilotOutcomeLabels,
 } from "./RunDetailPackageStatusStrip";
+import {
+  parseRunDetailOutcomeDecisionKeyOpenFromSearch,
+  runDetailOutcomeDecisionKeyDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-outcome-decision-key-disclosure-url";
+import {
+  parseRunDetailOutcomeMonitoredRiskOpenFromSearch,
+  runDetailOutcomeMonitoredRiskDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-outcome-monitored-risk-disclosure-url";
 
 export type ShowcasePolicyPackStripLink = {
   readonly href: string;
@@ -87,6 +97,62 @@ export function RunDetailOutcomeCards({
   hidePromotedStatus = false,
   pagePrimaryOwnedElsewhere = false,
 }: RunDetailOutcomeCardsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailOutcomeMonitoredRiskOpenParam = searchParams.get("runDetailOutcomeMonitoredRiskOpen");
+  const runDetailOutcomeDecisionKeyOpenParam = searchParams.get("runDetailOutcomeDecisionKeyOpen");
+  const [monitoredRiskOpen, setMonitoredRiskOpenState] = useState(() =>
+    parseRunDetailOutcomeMonitoredRiskOpenFromSearch(runDetailOutcomeMonitoredRiskOpenParam),
+  );
+  const [decisionKeyOpen, setDecisionKeyOpenState] = useState(() =>
+    parseRunDetailOutcomeDecisionKeyOpenFromSearch(runDetailOutcomeDecisionKeyOpenParam),
+  );
+
+  const syncMonitoredRiskOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailOutcomeMonitoredRiskDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMonitoredRiskOpen = useCallback(
+    (open: boolean) => {
+      setMonitoredRiskOpenState(open);
+      syncMonitoredRiskOpenToUrl(open);
+    },
+    [syncMonitoredRiskOpenToUrl],
+  );
+
+  const syncDecisionKeyOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailOutcomeDecisionKeyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDecisionKeyOpen = useCallback(
+    (open: boolean) => {
+      setDecisionKeyOpenState(open);
+      syncDecisionKeyOpenToUrl(open);
+    },
+    [syncDecisionKeyOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMonitoredRiskOpenState(parseRunDetailOutcomeMonitoredRiskOpenFromSearch(runDetailOutcomeMonitoredRiskOpenParam));
+  }, [runDetailOutcomeMonitoredRiskOpenParam]);
+
+  useEffect(() => {
+    setDecisionKeyOpenState(parseRunDetailOutcomeDecisionKeyOpenFromSearch(runDetailOutcomeDecisionKeyOpenParam));
+  }, [runDetailOutcomeDecisionKeyOpenParam]);
+
   const supplementaryNavLinkClass =
     pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.nav;
   const { approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
@@ -182,7 +248,13 @@ export function RunDetailOutcomeCards({
       </p>
       ) : null}
       {typeof warningCountDisplay === "number" && warningCountDisplay > 0 ? (
-        <details className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <details
+          className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          open={monitoredRiskOpen}
+          onToggle={(event) => {
+            setMonitoredRiskOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             How monitored risks are counted
           </summary>
@@ -203,7 +275,13 @@ export function RunDetailOutcomeCards({
         authorityLifecyclePhase={authorityLifecyclePhase ?? null}
         pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
       />
-      <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
+      <details
+        className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30"
+        open={decisionKeyOpen}
+        onToggle={(event) => {
+          setDecisionKeyOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
         <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_CARD.nested, OPERATOR_TYPOGRAPHY.body)}>
           {BUYER_DECISION_KEY_SUMMARY}
         </summary>

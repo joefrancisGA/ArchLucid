@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { NotificationPreferenceCenterEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -33,11 +33,11 @@ import {
   resolveNotificationPreferenceSaveChannelEmphasizedStepId,
   resolveNotificationPreferenceSaveChannelSteps,
 } from "@/lib/notification-preference-save-channel-checklist";
-import { cn } from "@/lib/utils";
 import {
-  notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
-  parseNotificationPreferenceCenterRelationsOpenFromSearch,
-} from "@/lib/administration/notification-preference-center-relations-disclosure-url";
+  notificationPreferenceRelationsDisclosureHrefFromSearch,
+  parseNotificationPreferenceRelationsOpenFromSearch,
+} from "@/lib/administration/notification-preference-relations-disclosure-url";
+import { cn } from "@/lib/utils";
 
 import { NotificationPreferenceCenterBreadcrumb } from "./NotificationPreferenceCenterBreadcrumb";
 import { NotificationPreferenceCenterBuyerChrome } from "./NotificationPreferenceCenterBuyerChrome";
@@ -51,13 +51,13 @@ import {
 
 export function NotificationPreferenceCenterPageView() {
   const router = useRouter();
-  const pathname = usePathname() ?? "/administration/notifications";
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const notificationPreferenceCenterRelationsOpenParam = searchParams.get("notificationPreferenceCenterRelationsOpen");
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const notificationPreferenceRelationsOpenParam = searchParams.get("notificationPreferenceRelationsOpen");
   const [relationsOpen, setRelationsOpenState] = useState(() =>
-    parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
+    parseNotificationPreferenceRelationsOpenFromSearch(notificationPreferenceRelationsOpenParam),
   );
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { statusByChannelId, loading, loadFailed, refresh } = useNotificationChannelDeliveryStatus();
   const channelReady = (channelId: string): boolean => statusByChannelId[channelId]?.kind === "ready";
   const saveChannelChecklistInput = {
@@ -72,7 +72,7 @@ export function NotificationPreferenceCenterPageView() {
   const syncRelationsOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
-        notificationPreferenceCenterRelationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        notificationPreferenceRelationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
@@ -89,9 +89,9 @@ export function NotificationPreferenceCenterPageView() {
 
   useEffect(() => {
     setRelationsOpenState(
-      parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
+      parseNotificationPreferenceRelationsOpenFromSearch(notificationPreferenceRelationsOpenParam),
     );
-  }, [notificationPreferenceCenterRelationsOpenParam]);
+  }, [notificationPreferenceRelationsOpenParam]);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">

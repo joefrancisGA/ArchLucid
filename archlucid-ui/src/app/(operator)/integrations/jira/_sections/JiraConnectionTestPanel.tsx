@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +17,10 @@ import type { resolveJiraConnectionTestGate, resolveJiraPageComposition } from "
 import { ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED } from "@/lib/itsm/itsm-product-integration-page-copy";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  jiraConnectionTestCollapsedDisclosureHrefFromSearch,
+  parseJiraConnectionTestCollapsedOpenFromSearch,
+} from "@/lib/integrations/jira-connection-test-collapsed-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type JiraConnectionTestPanelProps = {
@@ -32,6 +38,36 @@ export function JiraConnectionTestPanel({
   isTesting,
   onRunConnectionTest,
 }: JiraConnectionTestPanelProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/jira";
+  const searchParams = useSearchParams();
+  const jiraConnectionTestCollapsedOpenParam = searchParams.get("jiraConnectionTestCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseJiraConnectionTestCollapsedOpenFromSearch(jiraConnectionTestCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        jiraConnectionTestCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(parseJiraConnectionTestCollapsedOpenFromSearch(jiraConnectionTestCollapsedOpenParam));
+  }, [jiraConnectionTestCollapsedOpenParam]);
+
   const connectionTestBody = (
     <>
       {testError ? (
@@ -89,6 +125,10 @@ export function JiraConnectionTestPanel({
       <details
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="jira-connection-test-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

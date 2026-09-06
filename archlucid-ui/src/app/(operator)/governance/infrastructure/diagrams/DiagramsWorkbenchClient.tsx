@@ -45,6 +45,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -410,6 +411,18 @@ export function DiagramsWorkbenchClient() {
             })}
           >
             Open resource evidence hub
+          </Link>
+          <Link
+            className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+            href={buildResourceHubDiagramReconcileWorkbenchHref(
+              selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId,
+              undefined,
+              undefined,
+              urlCloudResourceId,
+            )}
+            data-testid="infra-diagrams-open-diagram-reconcile"
+          >
+            Open diagram reconciliation
           </Link>
         </section>
       ) : null}

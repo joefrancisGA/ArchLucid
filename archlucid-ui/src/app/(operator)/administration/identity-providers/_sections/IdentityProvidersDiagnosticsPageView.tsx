@@ -50,9 +50,9 @@ import {
   parseIdentityProvidersDiagnosticsProtocolOpenFromSearch,
 } from "@/lib/administration/identity-providers-diagnostics-protocol-disclosure-url";
 import {
-  identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
-  parseIdentityProvidersTechnicalDetailsOpenFromSearch,
-} from "@/lib/administration/identity-providers-technical-details-disclosure-url";
+  identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch,
+  parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch,
+} from "@/lib/administration/identity-providers-diagnostics-technical-disclosure-url";
 
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
@@ -88,7 +88,7 @@ export function IdentityProvidersDiagnosticsPageView(
   const pathname = usePathname() ?? "/administration/identity-providers/diagnostics";
   const searchParams = useSearchParams();
   const identityProvidersDiagnosticsProtocolOpenParam = searchParams.get("identityProvidersDiagnosticsProtocolOpen");
-  const identityProvidersTechnicalDetailsOpenParam = searchParams.get("identityProvidersTechnicalDetailsOpen");
+  const identityProvidersDiagnosticsTechnicalOpenParam = searchParams.get("identityProvidersDiagnosticsTechnicalOpen");
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
   const showProtocolDetails =
@@ -98,7 +98,7 @@ export function IdentityProvidersDiagnosticsPageView(
     parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
   );
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
+    parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
   );
   const oidcDeepLinkHandledRef = useRef<boolean>(false);
 
@@ -120,10 +120,16 @@ export function IdentityProvidersDiagnosticsPageView(
     [syncProtocolDetailsOpenToUrl],
   );
 
+  useEffect(() => {
+    setProtocolDetailsOpenState(
+      parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
+    );
+  }, [identityProvidersDiagnosticsProtocolOpenParam]);
+
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
-        identityProvidersTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
@@ -139,16 +145,10 @@ export function IdentityProvidersDiagnosticsPageView(
   );
 
   useEffect(() => {
-    setProtocolDetailsOpenState(
-      parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
-    );
-  }, [identityProvidersDiagnosticsProtocolOpenParam]);
-
-  useEffect(() => {
     setTechnicalDetailsOpenState(
-      parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
+      parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
     );
-  }, [identityProvidersTechnicalDetailsOpenParam]);
+  }, [identityProvidersDiagnosticsTechnicalOpenParam]);
 
   // The disclosure this deep link targets only mounts once the protocol payloads settle, so the
   // effect has to wait for that render rather than firing once on mount.

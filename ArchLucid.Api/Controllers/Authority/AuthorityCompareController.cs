@@ -34,6 +34,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AuthorityCompareController(
     IAuthorityCompareService compareService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IGoldenManifestRepository manifestRepository,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQueryService,
@@ -118,13 +119,25 @@ public sealed class AuthorityCompareController(
     [HttpGet("runs")]
     [ProducesResponseType(typeof(RunComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareRuns(
         [FromQuery] Guid leftRunId,
         [FromQuery] Guid rightRunId,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        ScopedRunPairLoadResult loadResult = await compareRunsFacade.LoadScopedRunPairAsync(
+            leftRunId.ToString("N"),
+            rightRunId.ToString("N"),
+            ct);
+
+        IActionResult? loadError = MapScopedRunPairLoadOutcome(loadResult);
+
+        if (loadError is not null)
+            return loadError;
+
         RunComparisonResult? result = await compareService.CompareRunsAsync(scope, leftRunId, rightRunId, ct);
+
         if (result is null)
             return this.NotFoundProblem(
                 $"One or both runs ('{leftRunId}', '{rightRunId}') were not found in the current scope.",
@@ -142,6 +155,40 @@ public sealed class AuthorityCompareController(
             HasManifestComparison = result.ManifestComparison is not null
         });
     }
+
+    private IActionResult? MapScopedRunPairLoadOutcome(ScopedRunPairLoadResult loadResult) =>
+        loadResult.Outcome switch
+        {
+            ScopedRunPairLoadOutcome.Success => null,
+            ScopedRunPairLoadOutcome.LeftRunNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.MissingRunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ScopedRunPairLoadOutcome.RightRunNotFound => this.NotFoundProblem(
+                $"Run '{loadResult.MissingRunId}' was not found.",
+                ProblemTypes.RunNotFound),
+            ScopedRunPairLoadOutcome.LeftManifestNotFound => this.NotFoundProblem(
+                $"Manifest for run '{loadResult.MissingRunId}' was not found.",
+                ProblemTypes.ManifestNotFound),
+            ScopedRunPairLoadOutcome.RightManifestNotFound => this.NotFoundProblem(
+                $"Manifest for run '{loadResult.MissingRunId}' was not found.",
+                ProblemTypes.ManifestNotFound),
+            ScopedRunPairLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
+                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                ProblemTypes.Conflict),
+            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                ProblemTypes.CommittedArtifactInventoryMismatch),
+            ScopedRunPairLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
+                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+                ProblemTypes.Conflict),
+            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => this.ConflictProblem(
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                ProblemTypes.Conflict),
+            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
+        };
 
     private static ManifestComparisonResponse MapManifest(ManifestComparisonResult result)
     {

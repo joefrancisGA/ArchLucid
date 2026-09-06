@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
@@ -97,6 +98,7 @@ public sealed class AuthorityCompareControllerTests
 
         AuthorityCompareController controller = new(
             compare.Object,
+            Mock.Of<ICompareRunsApplicationFacade>(),
             manifests.Object,
             runs.Object,
             Mock.Of<IAuthorityQueryService>(),

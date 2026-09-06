@@ -24,6 +24,12 @@
 - **RP logout:** `GET /api/auth/bff-session/rp-logout-url` supplies `id_token_hint` from the cookie before local session clear.
 - **Residual closed for Working GA:** XSS cannot `sessionStorage.getItem` an access token; CSRF hardening on mutating proxy routes remains **LK-07**.
 
+## Implementation (2026-09-06 — LK-07)
+
+- **Server idle:** BFF session payload tracks `la` (last activity) and `wm` (Working vs Guided). Proxy + `/api/auth/bff-session/activity` slide activity; 4h Working / 1h Guided idle enforced server-side.
+- **CSRF:** Readable `archlucid-bff-csrf` companion cookie + required `X-Archlucid-Bff-Csrf` header on mutating `/api/proxy` and BFF refresh/activity routes.
+- **Meeting keepalive:** `useOidcSessionKeepalive` and `OidcTokenExpiryWarningGuard` pulse BFF activity + token refresh on print/presenter surfaces (reuses PT-19 / LI-14 loops).
+
 ## Context
 
 The architect workspace stores ArchLucid-issued access tokens in `sessionStorage` and sends them as `Authorization: Bearer` via the Next.js API proxy. This is acceptable for **controlled enterprise beta** and **invite-only trial**, but for **public self-service / GA** any XSS becomes full session theft. Idle timeout is also client-enforced only.

@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import {
   buildConnectionStatusCloudConnectionsVocabulary,
@@ -14,47 +13,47 @@ import {
   resolveExtractUploadCloudConnectionsPeerLink,
 } from "@/lib/vocabulary/extract-upload-cloud-connections-vocabulary";
 import { CLOUD_CONNECTIONS_HUB_VOCABULARY_DISCLOSURE_TITLE } from "@/lib/cloud-connections-copy";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   cloudConnectionsHubVocabularyDisclosureHrefFromSearch,
   parseCloudConnectionsHubVocabularyOpenFromSearch,
 } from "@/lib/integrations/cloud-connections-hub-vocabulary-disclosure-url";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Collapsed orientation for Connection status and Extract & Upload naming. */
 export function CloudConnectionsHubVocabularyDisclosure(): ReactElement {
   const router = useRouter();
-  const pathname = usePathname() ?? "/integrations/cloud-connections";
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const cloudConnectionsHubVocabularyOpenParam = searchParams.get("cloudConnectionsHubVocabularyOpen");
+  const [vocabularyOpen, setVocabularyOpenState] = useState(() =>
+    parseCloudConnectionsHubVocabularyOpenFromSearch(cloudConnectionsHubVocabularyOpenParam),
+  );
   const connectionStatusModel = buildConnectionStatusCloudConnectionsVocabulary();
   const extractUploadModel = buildExtractUploadCloudConnectionsVocabulary();
   const connectionStatusPeer = resolveConnectionStatusCloudConnectionsPeerLink("cloud-connections");
   const extractUploadPeer = resolveExtractUploadCloudConnectionsPeerLink("cloud-connections");
-  const [open, setOpenState] = useState(() =>
-    parseCloudConnectionsHubVocabularyOpenFromSearch(cloudConnectionsHubVocabularyOpenParam),
-  );
 
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
+  const syncVocabularyOpenToUrl = useCallback(
+    (open: boolean) => {
       router.replace(
-        cloudConnectionsHubVocabularyDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        cloudConnectionsHubVocabularyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
     [pathname, router, searchParams],
   );
 
-  const setOpen = useCallback(
-    (detailsOpen: boolean) => {
-      setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
+  const setVocabularyOpen = useCallback(
+    (open: boolean) => {
+      setVocabularyOpenState(open);
+      syncVocabularyOpenToUrl(open);
     },
-    [syncOpenToUrl],
+    [syncVocabularyOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(parseCloudConnectionsHubVocabularyOpenFromSearch(cloudConnectionsHubVocabularyOpenParam));
+    setVocabularyOpenState(parseCloudConnectionsHubVocabularyOpenFromSearch(cloudConnectionsHubVocabularyOpenParam));
   }, [cloudConnectionsHubVocabularyOpenParam]);
 
   return (
@@ -64,9 +63,9 @@ export function CloudConnectionsHubVocabularyDisclosure(): ReactElement {
         OPERATOR_TYPOGRAPHY.helper,
       )}
       data-testid="cloud-connections-hub-vocabulary-disclosure"
-      open={open}
+      open={vocabularyOpen}
       onToggle={(event) => {
-        setOpen((event.currentTarget as HTMLDetailsElement).open);
+        setVocabularyOpen((event.currentTarget as HTMLDetailsElement).open);
       }}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

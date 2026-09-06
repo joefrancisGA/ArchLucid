@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
@@ -11,7 +15,12 @@ import {
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
+import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import {
+  compareStaleInputsTechnicalIdsDisclosureHrefFromSearch,
+  parseCompareStaleInputsTechnicalIdsOpenFromSearch,
+} from "@/lib/compare/compare-stale-inputs-technical-ids-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
@@ -24,6 +33,38 @@ export function CompareResultsPanelVerdictChrome({
 }: {
   readonly viewModel: CompareResultsPanelViewModel;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareStaleInputsTechnicalIdsOpenParam = searchParams.get("compareStaleInputsTechnicalIdsOpen");
+  const [staleInputsTechnicalIdsOpen, setStaleInputsTechnicalIdsOpenState] = useState(() =>
+    parseCompareStaleInputsTechnicalIdsOpenFromSearch(compareStaleInputsTechnicalIdsOpenParam),
+  );
+
+  const syncStaleInputsTechnicalIdsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareStaleInputsTechnicalIdsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStaleInputsTechnicalIdsOpen = useCallback(
+    (open: boolean) => {
+      setStaleInputsTechnicalIdsOpenState(open);
+      syncStaleInputsTechnicalIdsOpenToUrl(open);
+    },
+    [syncStaleInputsTechnicalIdsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setStaleInputsTechnicalIdsOpenState(
+      parseCompareStaleInputsTechnicalIdsOpenFromSearch(compareStaleInputsTechnicalIdsOpenParam),
+    );
+  }, [compareStaleInputsTechnicalIdsOpenParam]);
+
   const {
     showStaleInputsWarning,
     lastComparedPair,
@@ -53,6 +94,8 @@ export function CompareResultsPanelVerdictChrome({
     newFindingTrustLanes,
     result,
   } = viewModel;
+  const legacyCompareBlockedReason = compareRunPairBlockedReason(legacyFailure);
+  const goldenCompareBlockedReason = compareRunPairBlockedReason(goldenFailure);
 
   return (
     <>
@@ -117,7 +160,13 @@ export function CompareResultsPanelVerdictChrome({
             . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
-          <details className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <details
+            className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            open={staleInputsTechnicalIdsOpen}
+            onToggle={(event) => {
+              setStaleInputsTechnicalIdsOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("flex cursor-pointer items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
               Technical review IDs
@@ -148,16 +197,31 @@ export function CompareResultsPanelVerdictChrome({
       {legacyFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Detailed comparison unavailable.
+            {legacyCompareBlockedReason ?? "Detailed comparison unavailable."}
           </p>
-          <OperatorApiProblem failure={legacyFailure} />
+          {legacyCompareBlockedReason === null ? (
+            <OperatorApiProblem failure={legacyFailure} />
+          ) : (
+            <OperatorWarningCallout>{legacyCompareBlockedReason}</OperatorWarningCallout>
+          )}
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            The structured summary below may still be available while this detailed diff is retried.
+            {legacyCompareBlockedReason === null
+              ? "The structured summary below may still be available while this detailed diff is retried."
+              : "Commit both reviews and verify sealed manifest integrity before comparing again."}
           </p>
           <OperatorTryNext>
-            Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
-            <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
-            again. Use the correlation ID in API logs if you escalate.
+            {legacyCompareBlockedReason === null ? (
+              <>
+                Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
+                <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
+                again. Use the correlation ID in API logs if you escalate.
+              </>
+            ) : (
+              <>
+                Open each review detail page and confirm authority lifecycle is <strong>Complete</strong> with a verified sealed manifest.
+                Re-run compare after both sides pass export gates.
+              </>
+            )}
           </OperatorTryNext>
         </>
       )}
@@ -178,15 +242,29 @@ export function CompareResultsPanelVerdictChrome({
       {goldenFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Review comparison request failed.
+            {goldenCompareBlockedReason ?? "Review comparison request failed."}
           </p>
-          <OperatorApiProblem failure={goldenFailure} variant="warning" />
+          {goldenCompareBlockedReason === null ? (
+            <OperatorApiProblem failure={goldenFailure} variant="warning" />
+          ) : (
+            <OperatorWarningCallout>{goldenCompareBlockedReason}</OperatorWarningCallout>
+          )}
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            The detailed comparison may still have succeeded; check the sections below.
+            {goldenCompareBlockedReason === null
+              ? "The detailed comparison may still have succeeded; check the sections below."
+              : "Structured compare is blocked until both reviews pass lifecycle and sealed-manifest gates."}
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized sealed review records in scope. If only the detailed diff is needed for
-            now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
+            {goldenCompareBlockedReason === null ? (
+              <>
+                Verify both reviews have finalized sealed review records in scope. If only the detailed diff is needed for
+                now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
+              </>
+            ) : (
+              <>
+                Resolve lifecycle or sealed-manifest gaps on the blocked review(s), then click <strong>Compare</strong> again.
+              </>
+            )}
           </OperatorTryNext>
         </>
       )}
