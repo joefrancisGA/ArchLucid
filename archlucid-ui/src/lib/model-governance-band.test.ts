@@ -20,7 +20,7 @@ const MODEL_GOVERNANCE_BAND_TEST_FILES = [
   "src/lib/model-governance-labels.test.ts",
 ] as const;
 
-describe("model governance band regression (TB-1930)", () => {
+describe("model policy band regression (TB-1930)", () => {
   it("keeps sibling Vitest guards for TB-1926 through TB-1929 on disk", () => {
     for (const relativePath of MODEL_GOVERNANCE_BAND_TEST_FILES) {
       expect(existsSync(join(UI_ROOT, relativePath)), relativePath).toBe(true);

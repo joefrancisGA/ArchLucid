@@ -830,7 +830,7 @@ type _BuyerCtoDemoReadinessWave17BarrelAliases = [
   >,
 ];
 
-/** Wave 17 — governance workflow API slices. */
+/** Wave 17 — approval workflow API slices. */
 type _GovernanceWorkflowApiWave17ModuleAliases = [
   AssertExtends<
     typeof import("@/lib/api/governance-workflow-api-dashboard").getGovernanceDashboard,

@@ -18,13 +18,13 @@ export const OPERATOR_GOVERNANCE_SPONSOR_PAGE_HELP_TB1668_SURFACES: readonly Ope
       id: "governance-workflow",
       pathname: "/governance/approval-queue",
       modulePath: "app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx",
-      notes: "Governance approval queue — governance-approval help topic.",
+      notes: "Approval queue — governance-approval help topic.",
     },
     {
       id: "governance-setup",
       pathname: "/governance/setup",
       modulePath: "app/(operator)/governance/setup/_sections/GovernanceSetupGuidePageView.tsx",
-      notes: "Governance setup guide — governance-approval help topic.",
+      notes: "Approval setup guide — governance-approval help topic.",
     },
     {
       id: "governance-exceptions",

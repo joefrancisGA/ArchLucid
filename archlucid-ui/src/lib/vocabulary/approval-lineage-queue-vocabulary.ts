@@ -1,12 +1,12 @@
 /**
  * TB-2271 — Approval lineage ≠ Approval queue vocabulary rail.
  *
- * Why two governance surfaces exist:
+ * Why two approval surfaces exist:
  * - Approval lineage (`/governance/approval-requests/[id]/lineage`) is the
  *   *linkage view* for one approval request — review, findings, and signed
  *   review record version context.
  * - Approval queue (`/governance/approval-queue`) is the *decision workflow*
- *   hub to submit, approve, or reject governance approval requests.
+ *   hub to submit, approve, or reject approval requests.
  *
  * They stay separate because inspecting one request’s lineage is not the same
  * task as working the approval queue. Distinct from findings triage and audit.
@@ -54,7 +54,7 @@ export const APPROVAL_LINEAGE_QUEUE_QUEUE_LINK: ApprovalLineageQueueLink = {
   id: "approval-queue",
   label: "Approval queue",
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-  whenToUse: "Submit, approve, or reject governance approval requests.",
+  whenToUse: "Submit, approve, or reject approval requests.",
 };
 
 /** Pairwise model for Approval lineage ↔ Approval queue (fixed governance routes). */

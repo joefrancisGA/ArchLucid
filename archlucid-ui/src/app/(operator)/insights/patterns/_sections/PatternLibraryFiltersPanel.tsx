@@ -73,8 +73,8 @@ const ADOPTION_CHIP_OPTIONS: readonly (PatternAdoptionSignal | "All adoption")[]
   "Declining",
 ];
 
-const GOVERNANCE_CHIP_OPTIONS: readonly (PatternGovernanceSignal | "All governance")[] = [
-  "All governance",
+const GOVERNANCE_CHIP_OPTIONS: readonly (PatternGovernanceSignal | "All policy areas")[] = [
+  "All policy areas",
   "Usually approved",
   "Often requires exception",
   "Needs evidence",

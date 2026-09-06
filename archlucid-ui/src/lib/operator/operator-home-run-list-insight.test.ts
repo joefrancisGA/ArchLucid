@@ -37,7 +37,7 @@ describe("operator-home-run-list-insight", () => {
     );
   });
 
-  it("mentions monitoring on finalized packages with governance warnings", () => {
+  it("mentions monitoring on finalized packages with approval warnings", () => {
     const run = stubRun({
       hasGoldenManifest: true,
       hasGovernanceWarnings: true,

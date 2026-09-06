@@ -162,7 +162,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  // Governance setup carries its own OperatorPageHeader (TB-1136) — not overview vocabulary.
+  // Approval setup carries its own OperatorPageHeader (TB-1136) — not overview vocabulary.
   if (
     path === "/governance/setup" ||
     path.startsWith("/governance/setup/") ||

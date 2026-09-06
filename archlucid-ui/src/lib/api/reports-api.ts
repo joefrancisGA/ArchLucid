@@ -13,7 +13,7 @@ export type SponsorReportResult = {
   pendingGovernanceDecisionCount: number;
 };
 
-/** Live rollup from sponsor ROI and governance decisions-needed summary (TB-062). */
+/** Live rollup from sponsor ROI and approval decisions-needed summary (TB-062). */
 export async function getSponsorReport(): Promise<SponsorReportResult> {
   return apiGet<SponsorReportResult>('/v1/reports/sponsor-report');
 }

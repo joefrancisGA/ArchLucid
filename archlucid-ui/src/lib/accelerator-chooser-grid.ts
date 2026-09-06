@@ -64,7 +64,7 @@ export function resolveAcceleratorCostGovernancePackEntry(
   const entry = entries.find((candidate) => candidate.id === packId);
 
   if (entry === undefined) {
-    throw new Error(`Missing accelerator cost governance pack: ${packId}`);
+    throw new Error(`Missing accelerator cost policy pack: ${packId}`);
   }
 
   return entry;

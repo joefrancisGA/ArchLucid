@@ -15,7 +15,7 @@ export const GUIDED_COMMITTED_OPERATE_UNLOCK_NOTE =
 
 /** Working seats already show Insights / Governance / Reports — no sidebar lock copy (CD-01). */
 export const WORKING_OPERATE_AVAILABLE_IN_SIDEBAR_NOTE =
-  "Insights, Compare, and Governance are already in the sidebar when you need them.";
+  "Insights, Compare, and Approval are already in the sidebar when you need them.";
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY = "Recommended first session path";
 
