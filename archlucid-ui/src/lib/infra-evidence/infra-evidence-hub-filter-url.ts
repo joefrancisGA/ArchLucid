@@ -200,6 +200,29 @@ export function resolveResourceHubTabFromAskScope(context: {
   return undefined;
 }
 
+export function formatResourceHubTabViewLabelFromAskScope(
+  tab: ResourceHubTab | undefined,
+): string | null {
+  if (tab == null || tab === "overview" || tab === "terraform") {
+    return null;
+  }
+
+  switch (tab) {
+    case "findings":
+      return "View findings in hub";
+    case "remediation":
+      return "View remediation in hub";
+    case "drift":
+      return "View drift in hub";
+    case "diagram":
+      return "View diagram correspondence in hub";
+    case "audit":
+      return "View audit lineage in hub";
+    default:
+      return null;
+  }
+}
+
 export function resourceExplorerFilterHrefFromSearch(
   currentSearch: string,
   patch: {
