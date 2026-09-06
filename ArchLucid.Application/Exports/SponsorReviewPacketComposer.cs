@@ -23,7 +23,7 @@ public static partial class SponsorReviewPacketComposer
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions = null,
         SponsorReviewPacketPortfolioSignals? portfolioSignals = null,
         string? activeTrialExportNotice = null,
-        SponsorReviewCoverageHonestyContext? coverageHonesty = null)
+        CareerExportCoverageHonestyInput? careerExportHonesty = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -40,9 +40,9 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
 
-        if (coverageHonesty is not null)
+        if (careerExportHonesty is not null)
         {
-            SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sb, coverageHonesty);
+            CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         }
 
         if (detail.Run is not null)

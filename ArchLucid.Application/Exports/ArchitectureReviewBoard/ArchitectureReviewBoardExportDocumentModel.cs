@@ -138,4 +138,11 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>Shared PC-01 / PC-13 career export honesty block rendered at the top of consulting DOCX/PDF bodies.</summary>
+    public string? CareerExportHonestyPlainText
+    {
+        get;
+        init;
+    }
 }

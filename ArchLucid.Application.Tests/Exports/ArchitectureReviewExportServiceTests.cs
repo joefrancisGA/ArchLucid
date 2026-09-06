@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Queries;
@@ -78,6 +79,7 @@ public sealed class ArchitectureReviewExportServiceTests
                 runDetailQuery,
                 authorityQuery,
                 manifestHashService,
+                Mock.Of<IGraphSnapshotRepository>(),
                 analysis,
                 scopeContextProvider,
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
@@ -93,6 +95,7 @@ public sealed class ArchitectureReviewExportServiceTests
             runDetailQuery,
             authorityQuery,
             manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),

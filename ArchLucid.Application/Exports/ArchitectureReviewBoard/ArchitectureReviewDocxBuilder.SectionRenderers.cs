@@ -6,6 +6,21 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 public sealed partial class ArchitectureReviewDocxBuilder
 {
+    internal void AddCareerExportHonestySection(Body body, ArchitectureReviewBoardExportDocumentModel model)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (string.IsNullOrWhiteSpace(model.CareerExportHonestyPlainText))
+        {
+            return;
+        }
+
+        ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Career export honesty");
+        ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.CareerExportHonestyPlainText.Trim());
+        ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body);
+    }
+
     internal void AddSponsorReportSection(Body body, ArchitectureReviewBoardExportDocumentModel model)
     {
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Sponsor report");

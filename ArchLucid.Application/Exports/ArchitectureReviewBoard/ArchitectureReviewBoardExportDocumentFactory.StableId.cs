@@ -51,7 +51,8 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? extractorTimestampUtcLabel,
         bool? isDemoTenant = null,
         string? tenantDisplayName = null,
-        string? explanationConfidenceCallout = null)
+        string? explanationConfidenceCallout = null,
+        string? careerExportHonestyPlainText = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(report);
@@ -87,6 +88,9 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 : explanationConfidenceCallout.Trim(),
             SimulatorRehearsalTitle = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeTitle : null,
             SimulatorRehearsalBody = isSimulatorMode ? SimulatorModeExportRehearsalMarkdown.NoticeBody : null,
+            CareerExportHonestyPlainText = string.IsNullOrWhiteSpace(careerExportHonestyPlainText)
+                ? null
+                : careerExportHonestyPlainText.Trim(),
         };
     }
 }

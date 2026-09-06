@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -21,6 +22,7 @@ public sealed partial class ArchitectureReviewExportService(
     IRunDetailQueryService runDetailQueryService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository,
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
@@ -34,6 +36,9 @@ public sealed partial class ArchitectureReviewExportService(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -87,6 +92,14 @@ public sealed partial class ArchitectureReviewExportService(
 
         string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
         string? explanationCallout = await TryBuildExplanationConfidenceCalloutAsync(detail, cancellationToken).ConfigureAwait(false);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            scope,
+            workingDesk: true,
+            cancellationToken);
 
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(
@@ -95,7 +108,8 @@ public sealed partial class ArchitectureReviewExportService(
                 httpCorrelationId,
                 extractorTimestampUtcLabel: null,
                 tenantDisplayName: tenantDisplayName,
-                explanationConfidenceCallout: explanationCallout);
+                explanationConfidenceCallout: explanationCallout,
+                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty));
 
         string? activeTrialExportNotice = await ResolveActiveTrialExportNoticeAsync(cancellationToken).ConfigureAwait(false);
 
