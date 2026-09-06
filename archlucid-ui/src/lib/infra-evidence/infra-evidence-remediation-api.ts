@@ -42,12 +42,19 @@ function mapOperationResult(raw: Record<string, unknown>): RemediationInstanceOp
 }
 
 export async function fetchRemediationInstances(
-  options: { readonly cloudResourceId?: string | null } = {},
+  options: {
+    readonly cloudResourceId?: string | null;
+    readonly findingId?: string | null;
+  } = {},
 ): Promise<RemediationInstanceSummary[]> {
   const params = new URLSearchParams();
 
   if (options.cloudResourceId != null && options.cloudResourceId.trim().length > 0) {
     params.set("cloudResourceId", options.cloudResourceId.trim());
+  }
+
+  if (options.findingId != null && options.findingId.trim().length > 0) {
+    params.set("findingId", options.findingId.trim());
   }
 
   const query = params.toString();

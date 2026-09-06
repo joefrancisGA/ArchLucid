@@ -13,9 +13,7 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
-import {
-  governanceInfrastructureResourceHubPath,
-} from "@/lib/governance/governance-infrastructure-route-paths";
+import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
@@ -23,6 +21,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_DIFF_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -45,6 +44,7 @@ export function InfrastructureAskClient() {
   );
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
   const snapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
+  const diffId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_DIFF_ID_PARAM));
   const assessmentId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM));
   const auditEvidenceSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
@@ -57,6 +57,18 @@ export function InfrastructureAskClient() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
 
+  const citationContext = useMemo(
+    () => ({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      diffId: diffId.length > 0 ? diffId : null,
+      assessmentId: assessmentId.length > 0 ? assessmentId : null,
+      auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
+      controlId: controlId.length > 0 ? controlId : null,
+    }),
+    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, diffId, snapshotId],
+  );
+
   const contextSummary = useMemo(() => {
     const parts: string[] = [];
 
@@ -68,12 +80,16 @@ export function InfrastructureAskClient() {
       parts.push(`snapshot ${snapshotId}`);
     }
 
+    if (diffId.length > 0) {
+      parts.push(`diff ${diffId}`);
+    }
+
     if (parts.length === 0) {
       return null;
     }
 
     return parts.join(" · ");
-  }, [cloudResourceId, snapshotId]);
+  }, [cloudResourceId, diffId, snapshotId]);
 
   const ask = useCallback(async (nextQuestion: string) => {
     const trimmed = nextQuestion.trim();
@@ -91,6 +107,7 @@ export function InfrastructureAskClient() {
         cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
         runId: runId.length > 0 ? runId : null,
         snapshotId: snapshotId.length > 0 ? snapshotId : null,
+        diffId: diffId.length > 0 ? diffId : null,
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
@@ -108,6 +125,7 @@ export function InfrastructureAskClient() {
     auditEvidenceSnapshotId,
     cloudResourceId,
     controlId,
+    diffId,
     runId,
     snapshotId,
     useSimulator,
@@ -117,7 +135,7 @@ export function InfrastructureAskClient() {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
+  }, [cloudResourceId, diffId, runId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
@@ -135,7 +153,9 @@ export function InfrastructureAskClient() {
           {cloudResourceId.length > 0 ? (
             <Link
               className="mt-2 inline-block text-sm text-al-link hover:underline"
-              href={governanceInfrastructureResourceHubPath(cloudResourceId)}
+              href={resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+                snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+              })}
             >
               Open resource evidence hub
             </Link>
@@ -242,7 +262,7 @@ export function InfrastructureAskClient() {
               <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h2>
               <ul className="m-0 grid gap-2 pl-5">
                 {turn.response.citations.map((citation) => {
-                  const link = resolveInfraEvidenceAskCitationLink(citation);
+                  const link = resolveInfraEvidenceAskCitationLink(citation, citationContext);
                   const key = `${citation.kind}:${citation.id}`;
 
                   return (

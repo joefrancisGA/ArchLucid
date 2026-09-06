@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RemediationWorkbenchClient } from "@/app/(operator)/governance/infrastructure/remediation/RemediationWorkbenchClient";
@@ -134,6 +134,7 @@ describe("RemediationWorkbenchClient", () => {
     );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
+      findingId: null,
     });
   });
 
@@ -144,11 +145,18 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-finding-scope-banner")).toHaveTextContent(
       "22222222-2222-2222-2222-222222222222",
     );
+    await waitFor(() => {
+      expect(fetchRemediationInstances).toHaveBeenCalledWith({
+        cloudResourceId: null,
+        findingId: "22222222-2222-2222-2222-222222222222",
+      });
+    });
     expect(await screen.findByTestId("infra-remediation-detail")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-finding-id")).toHaveValue("22222222-2222-2222-2222-222222222222");
   });
 
   it("shows create guidance when findingId has no remediation instance yet", async () => {
+    vi.mocked(fetchRemediationInstances).mockResolvedValueOnce([]);
     searchParams = new URLSearchParams("findingId=99999999-9999-9999-9999-999999999999");
     render(<RemediationWorkbenchClient />);
 
