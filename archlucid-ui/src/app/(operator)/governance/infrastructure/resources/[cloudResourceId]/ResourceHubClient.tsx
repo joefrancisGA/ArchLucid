@@ -700,6 +700,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {findingActionMessage != null ? (
               <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} role="status">{findingActionMessage}</p>
             ) : null}
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-remediation-tab">
+                <Link
+                  href={buildResourceHubWorkbenchHref({
+                    cloudResourceId,
+                    tab: "remediation",
+                    snapshotId: resolvedSnapshotId,
+                  })}
+                >
+                  View remediation in hub
+                </Link>
+              </Button>
+            </div>
             {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
               <section key={stream.streamKind} className="rounded border border-border bg-card p-4">
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{stream.streamLabel}</h2>
@@ -776,11 +789,24 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="remediation" className="mt-4 space-y-3">
-            <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
-              <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
-                Open remediation factory
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
+                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId })}>
+                  Open remediation factory
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-findings-tab">
+                <Link
+                  href={buildResourceHubWorkbenchHref({
+                    cloudResourceId,
+                    tab: "findings",
+                    snapshotId: resolvedSnapshotId,
+                  })}
+                >
+                  View findings in hub
+                </Link>
+              </Button>
+            </div>
             {hub.remediationInstances.items.length === 0 ? (
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation instances are linked to this resource.</p>
             ) : (
