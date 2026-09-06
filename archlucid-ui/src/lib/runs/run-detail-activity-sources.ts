@@ -22,4 +22,10 @@ export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO =
   "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or export readiness.";
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a finalized review record export trail";
+  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a finalized review record export trail.";
+
+export const RUN_DETAIL_CREATE_HOME_ACTIVITY_PAGE_LEAD =
+  "Assessment progress and baseline context for your architecture review before finalize.";
+
+export const RUN_DETAIL_CREATE_HOME_ACTIVITY_BUYER_START_HERE_HELPER =
+  "Track what ArchLucid has evaluated so far — use sibling workspace tabs for overview, clarifications, and findings when you need more detail.";

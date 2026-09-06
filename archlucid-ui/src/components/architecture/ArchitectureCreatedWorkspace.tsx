@@ -10,6 +10,7 @@ import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
+import { RunDetailCreateHomeActivityBuyerChrome } from "@/components/architecture/RunDetailCreateHomeActivityBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
@@ -55,6 +56,11 @@ import {
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHITECTURE_CREATED_ACTIVITY_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_CREATED_ACTIVITY_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-activity-page-copy";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
@@ -251,7 +257,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && activeTab === "overview")
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "activity"))
       ? "context-bar"
       : "full";
 
@@ -263,6 +269,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
           {ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      {buyerPolishedShell && activeTab === "activity" ? (
+        <a
+          href={`#${ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_CREATED_ACTIVITY_SKIP_LINK_LABEL}
         </a>
       ) : null}
 
@@ -442,13 +456,20 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           </div>
       </div>
 
-      <div hidden={activeTab !== "activity"} data-testid="architecture-workspace-panel-activity">
+      <div
+        hidden={activeTab !== "activity"}
+        data-testid="architecture-workspace-panel-activity"
+        id={buyerPolishedShell ? ARCHITECTURE_CREATED_ACTIVITY_PRIMARY_CONTENT_ID : undefined}
+      >
           <div className="space-y-4">
-            <PackageActivityAuditTrailVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="package-activity"
-            />
+            {buyerPolishedShell ? null : (
+              <PackageActivityAuditTrailVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="package-activity"
+              />
+            )}
             {props.panels.activity}
+            {buyerPolishedShell ? <RunDetailCreateHomeActivityBuyerChrome /> : null}
           </div>
       </div>
     </div>

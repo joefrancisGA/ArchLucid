@@ -4,6 +4,10 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
 import {
+  ARCHITECTURE_CREATED_ACTIVITY_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-activity-page-copy";
+import {
   ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-created-overview-page-copy";
@@ -325,6 +329,57 @@ describe("ArchitectureCreatedWorkspace", () => {
     );
 
     expect(screen.getByTestId("architecture-findings-triage-primary-action").className).toContain("border-neutral-300");
+
+    searchParamsState.value = new URLSearchParams("fromGeneration=1&intent=create-architecture");
+  });
+
+  it("hides activity vocabulary rail and mounts buyer Sources in buyer-polished shell", () => {
+    demoEnvMock.buyerPolished = true;
+    searchParamsState.value = new URLSearchParams(
+      "fromGeneration=1&intent=create-architecture&reviewTab=activity",
+    );
+
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          runId: "run-1",
+          architectureName: "Claims platform",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
+          businessOutcome: "Reduce manual triage time.",
+          peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
+          ownerLabel: "owner@example.com",
+          lastUpdatedLabel: "Jul 11, 2026",
+          workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+          assessmentInProgress: false,
+          hasArtifacts: false,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
+        }}
+        architectureSourceText="Generated architecture body"
+        canEditDiagram
+        findings={[]}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
+        panels={{
+          findings: <div data-testid="findings-panel-slot">Findings</div>,
+          evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
+          governance: <div data-testid="governance-panel-slot">Governance</div>,
+          activity: <div data-testid="activity-panel-slot">Activity</div>,
+          submittedArchitecture: <div data-testid="submitted-panel-slot">Submitted</div>,
+        }}
+      />,
+    );
+
+    const activityPanel = screen.getByTestId("architecture-workspace-panel-activity");
+
+    expect(screen.getByRole("link", { name: ARCHITECTURE_CREATED_ACTIVITY_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID}`,
+    );
+    expect(within(activityPanel).queryByTestId("package-activity-audit-trail-vocabulary")).not.toBeInTheDocument();
+    expect(within(activityPanel).getByTestId("activity-panel-slot")).toBeInTheDocument();
+    expect(within(activityPanel).getByTestId("architecture-activity-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-created-compact-context-bar")).toBeInTheDocument();
 
     searchParamsState.value = new URLSearchParams("fromGeneration=1&intent=create-architecture");
   });

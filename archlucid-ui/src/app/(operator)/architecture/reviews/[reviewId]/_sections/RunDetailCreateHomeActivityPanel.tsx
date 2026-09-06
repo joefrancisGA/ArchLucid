@@ -3,12 +3,18 @@ import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
   RUN_DETAIL_CREATE_HOME_ACTIVITY_TECHNICAL_DETAIL_SUMMARY,
 } from "@/lib/runs/run-detail-create-home-activity-copy";
+import {
+  RUN_DETAIL_CREATE_HOME_ACTIVITY_BUYER_START_HERE_HELPER,
+  RUN_DETAIL_CREATE_HOME_ACTIVITY_PAGE_LEAD,
+} from "@/lib/runs/run-detail-activity-sources";
+import { ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID } from "@/lib/architecture/architecture-created-activity-page-copy";
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
@@ -72,11 +78,33 @@ function RunDetailCreateHomeActivityOrientation(props: {
 
 /** Create-home Activity archTab — timeline hero with deferred forensics under disclosure (TB-1832, TB-1834). */
 export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActivityPanelProps): ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showTracker = props.showProgressTracker;
   const hasManifest = props.manifestId !== null;
 
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-activity">
+      {buyerPolishedShell ? (
+        <div
+          id={ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID}
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800 scroll-mt-24"
+          data-testid={ARCHITECTURE_CREATED_ACTIVITY_SKIP_TARGET_ID}
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-activity-intro"
+          >
+            {RUN_DETAIL_CREATE_HOME_ACTIVITY_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-activity-buyer-start-here-helper"
+          >
+            {RUN_DETAIL_CREATE_HOME_ACTIVITY_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       <div className="space-y-4" data-testid="architecture-activity-primary-region">
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Assessment progress
@@ -105,7 +133,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           </div>
         ) : null}
 
-        {!showTracker ? (
+        {!showTracker && !buyerPolishedShell ? (
           <RunDetailCreateHomeActivityOrientation
             runId={props.runId}
             pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
@@ -120,6 +148,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           />
         ) : null}
 
+        {buyerPolishedShell ? null : (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             className={OPERATOR_LINK.nav}
@@ -132,6 +161,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
             <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
           ) : null}
         </p>
+        )}
         <div id="review-failure-details" className="scroll-mt-24">
           {!props.pipelineDiagnosticContext ||
           !isReviewPipelineTerminalFailure(props.pipelineDiagnosticContext) ? (
@@ -145,6 +175,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         </div>
       </div>
 
+      {buyerPolishedShell ? null : (
       <details
         className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
         open={false}
@@ -162,6 +193,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           {props.sourcesPanel}
         </div>
       </details>
+      )}
     </div>
   );
 }
