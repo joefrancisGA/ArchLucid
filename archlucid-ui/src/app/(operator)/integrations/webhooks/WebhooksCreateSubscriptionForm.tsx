@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import type { Dispatch, SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -44,6 +45,10 @@ import {
 } from "@/lib/webhooks-page-copy";
 import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { webhookOutboundEventCatalog, type WebhookSettingsFormValues } from "@/lib/webhook-settings-form-schema";
+import {
+  parseWebhooksDeliveryContractOpenFromSearch,
+  webhooksDeliveryContractDisclosureHrefFromSearch,
+} from "@/lib/integrations/webhooks-delivery-contract-disclosure-url";
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -64,6 +69,36 @@ export type WebhooksCreateSubscriptionFormProps = {
 };
 
 export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscriptionFormProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
+  const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
+    parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam),
+  );
+
+  const syncDeliveryContractOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        webhooksDeliveryContractDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDeliveryContractOpen = useCallback(
+    (open: boolean) => {
+      setDeliveryContractOpenState(open);
+      syncDeliveryContractOpenToUrl(open);
+    },
+    [syncDeliveryContractOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
+  }, [webhooksDeliveryContractOpenParam]);
+
   const {
     register,
     control,
@@ -215,6 +250,10 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
             OPERATOR_TYPOGRAPHY.body,
           )}
           data-testid="webhooks-delivery-contract-disclosure"
+          open={deliveryContractOpen}
+          onToggle={(event) => {
+            setDeliveryContractOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary
             className={cn(
