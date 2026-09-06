@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 249
-- **bugs-found:** 1266
+- **hunts:** 250
+- **bugs-found:** 1278
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — PremiumAccessKey/PreparedAccessKey/PreviewAccessKey redaction, daren't enable/implement constraint negation, advice workloads needn't use/have/implement and ain't use/have/enable/implement prefix
+- **last-bug:** 2026-09-06 — PrivateAccessKey/ProcessAccessKey/ProfileAccessKey redaction, mayn't constraint negation, advice workloads daren't use/have/deploy and ain't deploy/adopt prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3344,6 +3344,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `ain't have` prefix gap — **hit 2026-09-06 (#977):** no advice-side `ain't` negation; missed mid-sentence `ain't have` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_aint_have_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `ain't enable` prefix gap — **hit 2026-09-06 (#977):** use/have-only advice `ain't` guard; missed mid-sentence `ain't enable` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_aint_enable_encryption_at_rest_phrasing`).
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `ain't implement` prefix gap — **hit 2026-09-06 (#977):** use/have-only advice `ain't` guard; missed mid-sentence `ain't implement` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_aint_implement_encryption_at_rest_phrasing`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `PrivateAccessKey` not redacted — **hit 2026-09-06 (#978):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_private_access_key_config_path`, `IsSensitiveKey_detects_private_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ProcessAccessKey` not redacted — **hit 2026-09-06 (#978):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_process_access_key_config_path`, `IsSensitiveKey_detects_process_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ProfileAccessKey` not redacted — **hit 2026-09-06 (#978):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_profile_access_key_config_path`, `IsSensitiveKey_detects_profile_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `mayn't have` prefix gap — **hit 2026-09-06 (#978):** no `mayn't` negation; missed contraction `mayn't have {token}`; fixed with mayn't sentence-start and mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_maynt_have_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — `mayn't use` prefix gap — **hit 2026-09-06 (#978):** no `mayn't` negation; missed contraction `mayn't use {token}`; fixed with mayn't sentence-start and mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_maynt_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mayn't enable` gap — **hit 2026-09-06 (#978):** sentence-start `mayn't` guard only; missed mid-sentence `mayn't enable {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_enable_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mayn't implement` gap — **hit 2026-09-06 (#978):** sentence-start `mayn't` guard only; missed mid-sentence `mayn't implement {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_maynt_implement_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `daren't use` prefix gap — **hit 2026-09-06 (#978):** no advice-side `daren't` negation; missed mid-sentence `daren't use` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_darent_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `daren't have` prefix gap — **hit 2026-09-06 (#978):** no advice-side `daren't` negation; missed mid-sentence `daren't have` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_darent_have_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `ain't deploy` prefix gap — **hit 2026-09-06 (#978):** enable/implement-only advice `ain't` guard; missed mid-sentence `ain't deploy` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_aint_deploy_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `ain't adopt` prefix gap — **hit 2026-09-06 (#978):** enable/implement-only advice `ain't` guard; missed mid-sentence `ain't adopt` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_aint_adopt_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsNegatedAdviceFragment` — `daren't deploy` prefix gap — **hit 2026-09-06 (#978):** use/have-only advice `daren't` guard; missed mid-sentence `daren't deploy` before `encryption at rest` fragment; fixed with prefix negation guard (`IsObviousGenericAdvice_does_not_flag_workloads_darent_deploy_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #978 (hit): reseeded after #977 closure; proved twelve hunt-ready rows — PrivateAccessKey/ProcessAccessKey/ProfileAccessKey redaction parity, mayn't constraint negation, and advice workloads daren't use/have/deploy and ain't deploy/adopt prefix.
 
 2026-09-06 seed hunt #977 (hit): reseeded after #976 closure; proved twelve hunt-ready rows — PremiumAccessKey/PreparedAccessKey/PreviewAccessKey redaction parity, daren't enable/implement constraint negation, and advice workloads needn't use/have/implement and ain't use/have/enable/implement prefix.
 
