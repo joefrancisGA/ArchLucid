@@ -115,15 +115,9 @@ export function createBffSessionCookieValue(input: BffSessionCookieIssueInput): 
     v: BFF_SESSION_COOKIE_VERSION,
     at: accessToken,
     exp: input.expiresAtMs,
+    ...(refreshToken.length > 0 ? { rt: refreshToken } : {}),
+    ...(idToken.length > 0 ? { it: idToken } : {}),
   };
-
-  if (refreshToken.length > 0) {
-    payload.rt = refreshToken;
-  }
-
-  if (idToken.length > 0) {
-    payload.it = idToken;
-  }
 
   const encodedPayload = encodePayload(payload);
 
