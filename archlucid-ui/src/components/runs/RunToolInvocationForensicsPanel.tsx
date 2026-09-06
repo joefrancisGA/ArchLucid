@@ -1,5 +1,8 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   EnterpriseTable,
@@ -12,6 +15,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { RunToolInvocationForensicsRawCell } from "@/components/runs/RunToolInvocationForensicsRawCell";
 import type { AgentTraceRawSnapshot, RunToolInvocationForensicRow } from "@/types/agent-forensics";
+import {
+  parseRunToolInvocationForensicsOpenFromSearch,
+  runToolInvocationForensicsDisclosureHrefFromSearch,
+} from "@/lib/runs/run-tool-invocation-forensics-disclosure-url";
 
 export type RunToolInvocationForensicsPanelProps = {
   readonly hasTraceBlobPersistenceFailure: boolean;
@@ -43,13 +50,47 @@ function formatDuration(durationMs: number | null | undefined): string {
 
 /** TB-110: structured ledger or trace-derived invocation table with execute-gated raw preview. */
 export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensicsPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runToolInvocationForensicsOpenParam = searchParams.get("runToolInvocationForensicsOpen");
+  const [open, setOpenState] = useState(() =>
+    parseRunToolInvocationForensicsOpenFromSearch(runToolInvocationForensicsOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        runToolInvocationForensicsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseRunToolInvocationForensicsOpenFromSearch(runToolInvocationForensicsOpenParam));
+  }, [runToolInvocationForensicsOpenParam]);
+
   if (props.rows.length === 0) {
     return null;
   }
 
   return (
     <div id="tool-invocation-forensics" className="scroll-mt-24">
-      <CollapsibleSection title="Tool and external invocation forensics (diagnostics)" defaultOpen={false}>
+      <CollapsibleSection
+        title="Tool and external invocation forensics (diagnostics)"
+        open={open}
+        onToggle={setOpen}
+      >
         <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {props.completenessDisclaimer}
         </p>
