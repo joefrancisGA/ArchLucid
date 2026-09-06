@@ -448,11 +448,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 Jump to scoped workbenches for this resource without re-filtering manually.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-findings-work">
-                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "findings", resolvedSnapshotId)}>
-                    Open findings
-                  </Link>
-                </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-work">
                   <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId)}>
                     Open remediation factory
@@ -486,6 +481,45 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     Open diagram reconciliation
                   </Link>
                 </Button>
+                {openFindingsCount > 0 ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-findings-tab">
+                    <Link
+                      href={buildResourceHubWorkbenchHref({
+                        cloudResourceId,
+                        tab: "findings",
+                        snapshotId: resolvedSnapshotId,
+                      })}
+                    >
+                      View findings in hub
+                    </Link>
+                  </Button>
+                ) : null}
+                {hub.recentChanges.length > 0 ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift-tab">
+                    <Link
+                      href={buildResourceHubWorkbenchHref({
+                        cloudResourceId,
+                        tab: "drift",
+                        snapshotId: resolvedSnapshotId,
+                      })}
+                    >
+                      View drift in hub
+                    </Link>
+                  </Button>
+                ) : null}
+                {hub.remediationInstances.totalCount > 0 ? (
+                  <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-tab">
+                    <Link
+                      href={buildResourceHubWorkbenchHref({
+                        cloudResourceId,
+                        tab: "remediation",
+                        snapshotId: resolvedSnapshotId,
+                      })}
+                    >
+                      View remediation in hub
+                    </Link>
+                  </Button>
+                ) : null}
                 {hub.diagramCorrespondence != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-tab">
                     <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
