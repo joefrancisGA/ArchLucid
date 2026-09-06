@@ -32,4 +32,14 @@ public sealed class RunExecuteOwnershipLeaseOptions
         get;
         set;
     } = 25;
+
+    /// <summary>
+    ///     Cadence for heartbeat renewal during long execute. When zero, defaults to one third of
+    ///     <see cref="LeaseDurationSeconds" />.
+    /// </summary>
+    public int HeartbeatRenewIntervalSeconds
+    {
+        get;
+        set;
+    }
 }

@@ -68,6 +68,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "AdminDiagnosticsService",
         "DataConsistencyRemediationExecutor",
         "BaselineMutationAuditArchitectureDurableWriter",
+        "BaselineMutationAuditGovernedRunCompletedEchoWriter",
         "SyntheticOperatorDemoPackWriter",
         "FindingReviewTrailAppendService",
         "GovernanceWorkflowService",
