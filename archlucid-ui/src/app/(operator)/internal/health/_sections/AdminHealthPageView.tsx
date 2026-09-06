@@ -296,7 +296,7 @@ export function AdminHealthPageView(props: Props) {
                       </div>
                       <AdminHealthCircuitGateTechnicalDisclosure
                         gateName={gate.name}
-                        breakDurationSeconds={gate.breakDurationSeconds}
+                        breakDurationSeconds={gate.breakDurationSeconds ?? null}
                       />
                     </div>
                   ))}

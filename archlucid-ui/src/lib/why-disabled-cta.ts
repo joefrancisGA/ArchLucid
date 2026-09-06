@@ -110,6 +110,14 @@ export function whyDisabledEnterpriseMutationControl(): WhyDisabledCtaReason {
   };
 }
 
+/** Policy or export guard message surfaced beside a disabled CTA (TB-2190). */
+export function whyDisabledPolicy(message: string): WhyDisabledCtaReason {
+  return {
+    kind: "policy",
+    message,
+  };
+}
+
 /** Curated sample / static demo reviews have no backend-persisted export target. */
 export function whyDisabledSampleReviewExport(): WhyDisabledCtaReason {
   return {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getFirstValueReportMarkdown } from "@/lib/api";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
-import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
+import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
 import { showError, showSuccess } from "@/lib/toast";
 
 export type ShareReviewPackageButtonProps = {
@@ -26,8 +26,9 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
     runId,
     manifestVersion,
   });
-  const shareDisabledReason = sealedManifestBlockedReason
-    ?? (committed ? null : whyDisabledNeedsPrerequisite("a finalized review"));
+  const shareDisabledReason = sealedManifestBlockedReason !== null
+    ? whyDisabledPolicy(sealedManifestBlockedReason)
+    : (committed ? null : whyDisabledNeedsPrerequisite("a finalized review"));
   const shareDisabledHintId = "share-review-package-disabled-hint";
 
   const onShare = useCallback(async () => {
