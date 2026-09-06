@@ -19,6 +19,20 @@ export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; rea
 
 const ALLOWED_MODES = new Set(INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => option.value));
 
+function resolveInfraDiagramsMermaidMode(raw: string): string {
+  const trimmed = raw.trim();
+
+  if (ALLOWED_MODES.has(trimmed)) {
+    return trimmed;
+  }
+
+  const canonical = INFRA_DIAGRAMS_MODE_OPTIONS.find(
+    (option) => option.value.toLowerCase() === trimmed.toLowerCase(),
+  );
+
+  return canonical?.value ?? INFRA_DIAGRAMS_DEFAULT_MODE;
+}
+
 export function parseInfraDiagramsSnapshotIdFromSearch(raw: string | null | undefined): string {
   if (raw === null || raw === undefined) {
     return "";
@@ -40,13 +54,9 @@ export function parseInfraDiagramsMermaidModeFromSearch(raw: string | null | und
     return INFRA_DIAGRAMS_DEFAULT_MODE;
   }
 
-  const trimmed = raw.trim().toLowerCase();
+  const trimmed = raw.trim();
 
-  if (ALLOWED_MODES.has(trimmed)) {
-    return trimmed;
-  }
-
-  return INFRA_DIAGRAMS_DEFAULT_MODE;
+  return resolveInfraDiagramsMermaidMode(trimmed);
 }
 
 export function parseInfraDiagramsMermaidViewFromSearch(raw: string | null | undefined): string {
@@ -117,8 +127,7 @@ export function infraDiagramsFilterHrefFromSearch(
   }
 
   if (patch.mermaidMode !== undefined) {
-    const trimmed = patch.mermaidMode.trim().toLowerCase();
-    const resolved = ALLOWED_MODES.has(trimmed) ? trimmed : INFRA_DIAGRAMS_DEFAULT_MODE;
+    const resolved = resolveInfraDiagramsMermaidMode(patch.mermaidMode);
 
     if (resolved === INFRA_DIAGRAMS_DEFAULT_MODE) {
       params.delete(INFRA_DIAGRAMS_MERMAID_MODE_PARAM);
