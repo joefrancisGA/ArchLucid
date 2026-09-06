@@ -5596,6 +5596,60 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_setup_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:SetupAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:SetupAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_share_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ShareAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ShareAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_shelf_access_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Azure:Storage:ShelfAccessKey"] = "super-secret"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Azure:Storage:ShelfAccessKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_certificate_thumbprint_config_path_matching_azure_redactor()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

@@ -4563,6 +4563,42 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
             .BeFalse();
     }
 
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_enforce_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't enforce encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_maintain_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't maintain encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_ensure_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't ensure encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_workloads_neednt_provision_encryption_at_rest_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "workloads needn't provision encryption at rest")
+            .Should()
+            .BeFalse();
+    }
+
     [Theory]
     [InlineData(
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
