@@ -1,10 +1,11 @@
 > **Scope:** Copy-paste Composer prompts that close **professional-core wave-15 kernel gaps** after CA-01–50 and LK-01–15 ADRs. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13
 > **Paste-ready files:** [`.cursor/prompts/professional-core-00-index.md`](../../.cursor/prompts/professional-core-00-index.md) (**PC-01–PC-13**)
+> **Successor (wave 16):** [`DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md`](DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md) (**DR-01–DR-16**) — do **not** add PC-14; paste DR files instead.
 
 # Professional-core Composer prompts (PC-01–PC-13)
 
-**Created:** 2026-09-06 · **Status:** ready to run · **Do not re-run** overlay waves (LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR) except as named owners.
+**Created:** 2026-09-06 · **Status:** **Shipped** (PC-01–PC-13, #1776–#1893) · Acceptance: [`PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md`](PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md) · **Do not re-run** overlay waves (LI, LD, RS, WA, CD, AD, FD, IS, LS, SD, CR) except as named owners.
 
 ## The problem these prompts solve
 

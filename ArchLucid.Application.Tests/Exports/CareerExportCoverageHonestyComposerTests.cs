@@ -13,6 +13,16 @@ namespace ArchLucid.Application.Tests.Exports;
 public sealed class CareerExportCoverageHonestyComposerTests
 {
     [Fact]
+    public void Resolve_blocks_working_career_export_when_measurement_count_is_unknown()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: null, workingDesk: true);
+        CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
+
+        honesty.BlockedForWorkingCareerExport.Should().BeTrue();
+        honesty.MeasurementFloorBlockedReason.Should().Contain("not been measured");
+    }
+
+    [Fact]
     public void Resolve_blocks_working_career_export_when_measurement_floor_is_unmet()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 8, workingDesk: true);
@@ -90,7 +100,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     private static CareerExportCoverageHonestyInput CreateInput(
-        int enginesSucceeded,
+        int? enginesSucceeded,
         bool workingDesk,
         CareerExportClassificationCounts? classificationCounts = null)
     {
