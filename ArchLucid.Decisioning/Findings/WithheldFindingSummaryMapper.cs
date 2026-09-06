@@ -67,6 +67,28 @@ public static class WithheldFindingSummaryMapper
         };
     }
 
+    public static WithheldFindingSummary FromQuarantinedComplianceTagProse(
+        ArchitectureFinding finding,
+        AgentResult result)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+        ArgumentNullException.ThrowIfNull(result);
+
+        string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
+            ? Guid.NewGuid().ToString("N")
+            : finding.FindingId.Trim();
+
+        return new WithheldFindingSummary
+        {
+            WithheldFindingId = $"compliance-tag-prose-{result.ResultId}-{findingId}",
+            Reason = WithheldFindingReasons.ComplianceTagFromProse,
+            OriginAgentType = result.AgentType.ToString(),
+            OriginEngineType = $"AgentArchitectureFinding-{result.AgentType}",
+            Title = TruncateTitle(finding.Message),
+            TraceTargetId = result.ResultId,
+        };
+    }
+
     private static string TruncateTitle(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))

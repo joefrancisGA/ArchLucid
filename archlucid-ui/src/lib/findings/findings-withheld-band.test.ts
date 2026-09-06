@@ -74,6 +74,28 @@ describe("findings-withheld-band (DR-02)", () => {
     expect(buildWithheldFindingDeepLink("run-1", rows[0]!)).toContain("reviewTab=findings");
   });
 
+  it("parses compliance tag prose quarantine rows", () => {
+    const rows = resolveFindingsWithheldRows({
+      run: { runId: "run-1" },
+      findingsSnapshot: {
+        withheldFindings: [
+          {
+            withheldFindingId: "compliance-tag-prose-r1-f1",
+            reason: "compliance-tag-from-prose",
+            originEngineType: "AgentArchitectureFinding-Compliance",
+            originAgentType: "Compliance",
+            title: "SOC 2",
+            traceTargetId: "result-1",
+            conflictFindingId: null,
+          },
+        ],
+      },
+    } as never);
+
+    expect(rows).toHaveLength(1);
+    expect(formatWithheldFindingReasonLabel(rows[0]!.reason)).toContain("Compliance tag from prose");
+  });
+
   it("formats catalog engine failure stamp honesty line", () => {
     expect(formatStampCatalogEngineFailureHonestyLine(1)).toContain("1 catalog engine failed");
     expect(formatStampCatalogEngineFailureHonestyLine(0)).toBeNull();

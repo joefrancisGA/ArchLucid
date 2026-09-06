@@ -3,7 +3,8 @@ import type { RunDetail } from "@/types/authority";
 export type WithheldFindingReason =
   | "prose-only-emission"
   | "merge-conflict-dropped"
-  | "engine-failure-advisory";
+  | "engine-failure-advisory"
+  | "compliance-tag-from-prose";
 
 export type WithheldFindingRow = {
   readonly withheldFindingId: string;
@@ -39,7 +40,8 @@ function parseWithheldReason(value: unknown): WithheldFindingReason | null {
   if (
     raw === "prose-only-emission" ||
     raw === "merge-conflict-dropped" ||
-    raw === "engine-failure-advisory"
+    raw === "engine-failure-advisory" ||
+    raw === "compliance-tag-from-prose"
   ) {
     return raw;
   }
@@ -107,6 +109,10 @@ export function formatWithheldFindingReasonLabel(reason: WithheldFindingReason):
 
   if (reason === "engine-failure-advisory") {
     return "Engine did not run (advisory failure)";
+  }
+
+  if (reason === "compliance-tag-from-prose") {
+    return "Compliance tag from prose (quarantined)";
   }
 
   return "Merge conflict (alternate payload withheld)";
