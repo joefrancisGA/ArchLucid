@@ -9,6 +9,7 @@ import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -146,7 +147,7 @@ export function RunDetailOutcomeCards({
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
                     ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
-                    : "Evidence trail ready"}
+                    : `${BUYER_SURFACE_VOCABULARY.evidenceGraph} ready`}
                 </dd>
               </div>
               <div>
