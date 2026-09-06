@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
@@ -27,11 +27,25 @@ vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
   }),
 }));
 
+vi.mock("@/lib/workspace-mode/use-teaching-chrome-visible", () => ({
+  useTeachingChromeVisible: () => true,
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/architecture/reviews",
+  });
+});
+
 describe("PersistentWorkspaceNextActionStrip", () => {
-  it("labels workspace progress and exposes all seven steps in a disclosure", () => {
+  it("labels workspace progress and exposes all seven steps in a disclosure", async () => {
     renderWithOperatorQuery(<PersistentWorkspaceNextActionStrip />);
 
-    expect(screen.getByText(PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(PERSISTENT_WORKSPACE_FIRST_REVIEW_HEADLINE)).toBeInTheDocument();
+    });
     expect(screen.getByText(`0 of ${CORE_PILOT_STEPS.length} steps complete`)).toBeInTheDocument();
     expect(screen.getByTestId("persistent-workspace-next-step-label")).toBeInTheDocument();
     expect(screen.getByTestId("persistent-workspace-first-review-step-0")).toHaveTextContent(
@@ -44,12 +58,14 @@ describe("PersistentWorkspaceNextActionStrip", () => {
     );
   });
 
-  it("renders the step count and a progress meter so completion is readable at a glance", () => {
+  it("renders the step count and a progress meter so completion is readable at a glance", async () => {
     renderWithOperatorQuery(<PersistentWorkspaceNextActionStrip />);
 
     const countLabel = `0 of ${CORE_PILOT_STEPS.length} steps complete`;
 
-    expect(screen.getByTestId("persistent-workspace-progress-count")).toHaveTextContent(countLabel);
+    await waitFor(() => {
+      expect(screen.getByTestId("persistent-workspace-progress-count")).toHaveTextContent(countLabel);
+    });
 
     const meter = screen.getByTestId("persistent-workspace-progress-meter");
 
