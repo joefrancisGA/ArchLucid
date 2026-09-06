@@ -38,3 +38,9 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY_BUYER = "Subm
 
 export const ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND =
   "Asserted — taken directly from your brief. Inferred — derived by ArchLucid and may need correction in guided questions." as const;
+
+export const ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD =
+  "Structured summary of your submitted architecture brief before finalize.";
+
+export const ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER =
+  "Review how ArchLucid structured your brief — guided clarifications and corrections remain available on sibling workspace tabs below.";

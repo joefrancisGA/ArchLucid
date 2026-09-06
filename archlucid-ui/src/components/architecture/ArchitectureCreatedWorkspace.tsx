@@ -55,6 +55,12 @@ import {
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHITECTURE_CREATED_OVERVIEW_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-overview-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { resolveReviewWorkspaceVisibleTabs } from "@/lib/resolve-review-workspace-visible-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -251,6 +257,15 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
   return (
     <div className="space-y-5" data-testid="architecture-created-workspace">
+      {buyerPolishedShell && activeTab === "overview" ? (
+        <a
+          href={`#${ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       <ArchitectureCreatedWorkspaceHeader model={model} activeTab={activeTab} onNavigateTab={navigateTab} />
 
       <ArchitectureCreatedCompactFirstViewport
@@ -278,7 +293,11 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         onTabChange={navigateReviewTab}
       />
 
-      <div hidden={activeTab !== "overview"} data-testid="architecture-workspace-panel-overview">
+      <div
+        hidden={activeTab !== "overview"}
+        data-testid="architecture-workspace-panel-overview"
+        id={buyerPolishedShell ? ARCHITECTURE_CREATED_OVERVIEW_PRIMARY_CONTENT_ID : undefined}
+      >
           <div className="space-y-4">
             {buyerPolishedShell ? null : (
               <OverviewDiagramVocabularyRail

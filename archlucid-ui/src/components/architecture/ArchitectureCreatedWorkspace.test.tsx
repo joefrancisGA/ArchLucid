@@ -3,6 +3,10 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
+import {
+  ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-overview-page-copy";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 const pushMock = vi.fn();
@@ -135,10 +139,29 @@ describe("ArchitectureCreatedWorkspace", () => {
       />,
     );
 
+    const workspace = screen.getByTestId("architecture-created-workspace");
     const overviewPanel = screen.getByTestId("architecture-workspace-panel-overview");
 
+    expect(screen.getByRole("link", { name: ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID}`,
+    );
+    expect(
+      screen
+        .getByRole("link", { name: ARCHITECTURE_CREATED_OVERVIEW_SKIP_LINK_LABEL })
+        .compareDocumentPosition(within(workspace).getByTestId("architecture-created-workspace-header")),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(within(overviewPanel).queryByTestId("overview-diagram-vocabulary")).not.toBeInTheDocument();
-    expect(within(overviewPanel).getByTestId("architecture-overview-orientation-bottom")).toBeInTheDocument();
+    expect(
+      within(overviewPanel)
+        .getByTestId(ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID)
+        .compareDocumentPosition(within(overviewPanel).getByTestId("architecture-overview-submitted-brief")),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(
+      within(overviewPanel)
+        .getByTestId("architecture-workspace-overview-panel")
+        .compareDocumentPosition(within(overviewPanel).getByTestId("architecture-overview-orientation-bottom")),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(within(overviewPanel).queryByTestId("architecture-overview-provenance-legend")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-compact-context-bar")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();

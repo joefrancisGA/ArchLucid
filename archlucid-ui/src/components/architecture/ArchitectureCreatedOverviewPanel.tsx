@@ -14,12 +14,17 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_BUYER_EMPTY_CAUSE,
+  ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE,
   ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING,
+  ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD,
   ARCHITECTURE_CREATED_OVERVIEW_PROVENANCE_LEGEND,
   ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY,
   ARCHITECTURE_CREATED_OVERVIEW_SUBMITTED_BRIEF_SUMMARY_BUYER,
 } from "@/lib/architecture/architecture-created-overview-sources";
+import {
+  ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-created-overview-page-copy";
 import type {
   ArchitectureCreationUserAssertions,
   ArchitectureStructuredSectionKey,
@@ -129,6 +134,27 @@ export function ArchitectureCreatedOverviewPanel(
         Architecture overview
       </h2>
 
+      {buyerPolishedShell ? (
+        <div
+          id={ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID}
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800 scroll-mt-24"
+          data-testid={ARCHITECTURE_CREATED_OVERVIEW_SKIP_TARGET_ID}
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="architecture-overview-intro"
+          >
+            {ARCHITECTURE_CREATED_OVERVIEW_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-overview-buyer-start-here-helper"
+          >
+            {ARCHITECTURE_CREATED_OVERVIEW_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       {buyerPolishedShell ? null : (
         <p
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -171,6 +197,7 @@ export function ArchitectureCreatedOverviewPanel(
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {emptyCauseCopy}
           </p>
+          {buyerPolishedShell ? null : (
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -193,10 +220,11 @@ export function ArchitectureCreatedOverviewPanel(
               Open the submitted brief
             </Button>
           </div>
+          )}
         </div>
       ) : null}
 
-      {clarificationGapCount > 0 ? (
+      {clarificationGapCount > 0 && !buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {clarificationGapCount === 1
             ? "1 item still needs your answer before assessment confidence improves."
