@@ -6,6 +6,7 @@ import {
   resolveRunHomeStatusTag,
   runListPrimaryTitle,
 } from "@/components/operator-home/runs-dashboard-helpers";
+import { ReviewListDisplayTitle } from "@/components/operator-home/ReviewListDisplayTitle";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -64,15 +65,15 @@ export function OperatorHomeRecentReviewsTable(
     <EnterpriseTable ariaLabel="Recent reviews" data-testid="operator-home-recent-reviews-table">
       <colgroup>
         <col className="w-[52%]" />
-        <col className="w-[16%]" />
         <col className="w-[18%]" />
         <col className="w-[14%]" />
+        <col className="w-[16%]" />
       </colgroup>
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>
           <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_NAME}</EnterpriseTableHeaderCell>
-          <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED}</EnterpriseTableHeaderCell>
+          <EnterpriseTableHeaderCell>{OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS}</EnterpriseTableHeaderCell>
           <EnterpriseTableHeaderCell className="text-right">Action</EnterpriseTableHeaderCell>
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
@@ -82,7 +83,7 @@ export function OperatorHomeRecentReviewsTable(
           const href = `/architecture/reviews/${encodeURIComponent(runId)}`;
           const title = runListPrimaryTitle(run);
           const statusTag = resolveRunHomeStatusTag(run);
-          const updatedPresentation = formatRunHomeListUpdatedLabel(run);
+          const updatedPresentation = formatRunHomeListUpdatedLabel(run, "home-recent-reviews");
           const isExampleReview = isExampleReviewRow(run);
           const actionLabel = resolveRecentReviewRowActionLabel(run);
           const suppressContinueAction =
@@ -94,23 +95,15 @@ export function OperatorHomeRecentReviewsTable(
             <EnterpriseTableRow key={runId} data-testid={`operator-home-recent-review-row-${runId}`}>
               <EnterpriseTableCell className="max-w-0">
                 <div className="flex min-w-0 items-start gap-2">
-                  <Link
-                    href={href}
-                    className={cn("min-w-0 break-words font-medium leading-snug", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}
-                    aria-label={title}
-                  >
-                    {title}
-                  </Link>
+                  <ReviewListDisplayTitle href={href} title={title} />
                   {isExampleReview ? <DemoDataBadge className="shrink-0" /> : null}
                 </div>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>
-                <StatusTag kind={statusTag.kind} label={statusTag.label} />
               </EnterpriseTableCell>
               <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {updatedPresentation !== null ? (
                   <span className="flex min-w-0 flex-col gap-0.5 sm:block">
-                    <time dateTime={updatedPresentation.isoUtc} className="text-al-text-primary">
+                    <span className="text-al-text-secondary">{updatedPresentation.zoneLabel}</span>
+                    <time dateTime={updatedPresentation.isoUtc} className="text-al-text-primary sm:before:content-['_·_']">
                       {updatedPresentation.absoluteLabel}
                     </time>
                     <span className="text-al-text-secondary sm:before:content-['_·_']">
@@ -121,13 +114,16 @@ export function OperatorHomeRecentReviewsTable(
                   "—"
                 )}
               </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <StatusTag kind={statusTag.kind} label={statusTag.label} />
+              </EnterpriseTableCell>
               <EnterpriseTableCell className="text-right">
                 {suppressContinueAction ? (
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
                     —
                   </span>
                 ) : (
-                  <Button asChild variant="outline" size="sm" className="h-7">
+                  <Button asChild variant="outline" size="sm">
                     <Link href={href}>{actionLabel}</Link>
                   </Button>
                 )}

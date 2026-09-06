@@ -24,6 +24,7 @@ export type RunsDashboardPanelTableProps = {
   readonly filteredItems: readonly RunSummary[];
   readonly displayItems: readonly RunSummary[];
   readonly approvedTabItems: readonly RunSummary[];
+  readonly awaitingApprovalTabItems: readonly RunSummary[];
   readonly attentionTabItems: readonly RunSummary[];
   readonly monitoringTabItems: readonly RunSummary[];
   readonly homeAttentionPreviewItems: readonly RunSummary[];
@@ -55,6 +56,7 @@ export function RunsDashboardPanelTable({
   filteredItems,
   displayItems,
   approvedTabItems,
+  awaitingApprovalTabItems,
   attentionTabItems,
   monitoringTabItems,
   homeAttentionPreviewItems,
@@ -92,7 +94,7 @@ export function RunsDashboardPanelTable({
           showInitialLoadingSkeleton={showInitialLoadingSkeleton}
           failure={failure}
           runListError={runListError}
-          filteredItems={filteredItems}
+          filteredItems={hideHeading ? homeAttentionPreviewItems : filteredItems}
           effectiveItems={displayItems}
           buyerPolishedShell={buyerPolishedShell}
           showcaseDemoRun={allTabShowcase}
@@ -126,6 +128,28 @@ export function RunsDashboardPanelTable({
           restoreBusyRequestId={restoreBusyRequestId}
           contentTestId="runs-dashboard-tab-approved"
           statusFilterEmptyMessage={BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES}
+          onRestoreArchivedRequest={onRestoreArchivedRequest}
+          pagePrimaryOwnedElsewhere={hideHeading}
+        />
+      </TabsContent>
+
+      <TabsContent value="awaiting-approval" className="pt-0" data-testid="runs-dashboard-panel-awaiting-approval">
+        <RunsDashboardRecentTab
+          phase={phase}
+          showInitialLoadingSkeleton={showInitialLoadingSkeleton}
+          failure={failure}
+          runListError={runListError}
+          filteredItems={awaitingApprovalTabItems}
+          effectiveItems={displayItems}
+          buyerPolishedShell={buyerPolishedShell}
+          showcaseDemoRun={undefined}
+          showcasePrimaryCta={null}
+          buyerSafeHighlight={false}
+          showArchived={showArchived}
+          archivedFieldSupported={archivedFieldSupported}
+          restoreBusyRequestId={restoreBusyRequestId}
+          contentTestId="runs-dashboard-tab-awaiting-approval"
+          statusFilterEmptyMessage={RUNS_DASHBOARD_LABELS.tabAwaitingApprovalEmpty}
           onRestoreArchivedRequest={onRestoreArchivedRequest}
           pagePrimaryOwnedElsewhere={hideHeading}
         />
