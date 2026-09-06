@@ -23,13 +23,11 @@ vi.mock("@/components/AiUsageBillingVocabularyRail", () => ({
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
-    useSearchParams: () => new URLSearchParams(),
-    usePathname: () => "/",
-  };
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/billing",
+  });
 });
 
 vi.mock("@/hooks/use-billing-subscription-status-query", () => ({

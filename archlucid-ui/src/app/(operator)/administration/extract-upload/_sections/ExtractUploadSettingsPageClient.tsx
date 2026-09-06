@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
@@ -57,11 +58,22 @@ import {
 import { useExtractUploadUpload } from "./use-extract-upload-upload";
 import { useExtractUploadFolderZip } from "./use-extract-upload-folder-zip";
 import { useExtractUploadDemo } from "./use-extract-upload-demo";
+import {
+  extractUploadValidateDisclosureHrefFromSearch,
+  parseExtractUploadValidateDisclosureOpenFromSearch,
+} from "@/lib/administration/extract-upload-validate-disclosure-url";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/extract-upload";
+  const searchParams = useSearchParams();
+  const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
+  const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
+    parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineQuery = useExtractUploadBaselineQuery();
   const upload = useExtractUploadUpload();
@@ -101,6 +113,30 @@ export function ExtractUploadSettingsPageClient() {
       }),
     [demo.selectedDemoScenarioId, folderZip.selectedFileLabel, hasBaselineArtifacts, upload.packageId],
   );
+
+  const syncValidateDisclosureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        extractUploadValidateDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setValidateDisclosureOpen = useCallback(
+    (open: boolean) => {
+      setValidateDisclosureOpenState(open);
+      syncValidateDisclosureOpenToUrl(open);
+    },
+    [syncValidateDisclosureOpenToUrl],
+  );
+
+  useEffect(() => {
+    setValidateDisclosureOpenState(
+      parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
+    );
+  }, [extractUploadValidateDisclosureOpenParam]);
 
   return (
     <div
@@ -253,6 +289,10 @@ export function ExtractUploadSettingsPageClient() {
           <details
             className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid="extract-upload-validate-disclosure"
+            open={validateDisclosureOpen}
+            onToggle={(event) => {
+              setValidateDisclosureOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               {EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY}

@@ -6,6 +6,7 @@ import {
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resolveResourceHubTabFromExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import type { CloudResourceExplorerWorkCountKind } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 
 export const RESOURCE_EXPLORER_NAME_PREFIX_PARAM = "namePrefix";
 export const RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM = "resourceType";
@@ -350,4 +351,11 @@ export function buildResourceHubExplorerHref(
   const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
 
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", tab != null ? { tab } : {});
+}
+
+export function buildResourceHubWorkCountHref(
+  cloudResourceId: string,
+  kind: CloudResourceExplorerWorkCountKind,
+): string {
+  return resourceHubFilterHrefFromSearch(cloudResourceId, "", { tab: kind });
 }

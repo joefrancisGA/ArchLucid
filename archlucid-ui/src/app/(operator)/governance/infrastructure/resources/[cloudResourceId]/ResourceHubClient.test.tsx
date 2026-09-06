@@ -168,6 +168,10 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
     );
+    expect(screen.getByTestId("infra-resource-hub-open-terraform-work")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222",
+    );
   });
 
   it("renders audit lineage link when audit tab is active", async () => {
@@ -308,5 +312,16 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=arch-finding-1",
     );
+  });
+
+  it("links terraform tab export to scoped drift workbench", async () => {
+    searchParams = new URLSearchParams("tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222");
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-terraform-drift-export")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
   });
 });

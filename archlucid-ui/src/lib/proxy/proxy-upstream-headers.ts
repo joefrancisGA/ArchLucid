@@ -8,6 +8,7 @@ import {
   isValidTraceParent,
 } from "@/lib/correlation";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { resolveBffSessionBearerFromRequest } from "@/lib/proxy/bff-session-cookie";
 import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
 import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
 import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
@@ -28,6 +29,7 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
   const browserBearer = authHeader?.trim() ?? "";
+  const cookieBearer = browserBearer.length === 0 ? resolveBffSessionBearerFromRequest(request) : "";
   const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
   const skipPrivilegedUpstreamAuth =
     proxyPath !== undefined &&
@@ -36,9 +38,11 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   const bearerToUse =
     browserBearer.length > 0
       ? browserBearer
-      : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
-        ? `Bearer ${serverBearerToken}`
-        : "";
+      : cookieBearer.length > 0
+        ? cookieBearer
+        : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
+          ? `Bearer ${serverBearerToken}`
+          : "";
   const hasBearer = bearerToUse.length > 0;
 
   if (key && !hasBearer && !skipPrivilegedUpstreamAuth) {

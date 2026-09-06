@@ -4,6 +4,7 @@ import {
   parseResourceHubTabFromSearch,
   buildInfrastructureAskHref,
   buildResourceHubExplorerHref,
+  buildResourceHubWorkCountHref,
   resolveResourceHubTabFromAskScope,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -139,6 +140,18 @@ describe("infra-evidence-hub-filter-url", () => {
     );
     expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111")).toBe(
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+    );
+  });
+
+  it("builds resource hub href for explorer work count badges", () => {
+    expect(buildResourceHubWorkCountHref("11111111-1111-1111-1111-111111111111", "findings")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+    );
+    expect(buildResourceHubWorkCountHref("11111111-1111-1111-1111-111111111111", "remediation")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
+    );
+    expect(buildResourceHubWorkCountHref("11111111-1111-1111-1111-111111111111", "drift")).toBe(
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
     );
   });
 });

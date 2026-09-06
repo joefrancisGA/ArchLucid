@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { DeveloperSettingsBuyerChrome } from "@/app/(operator)/administration/developer/DeveloperSettingsBuyerChrome";
 import { DeveloperApiContractsApiKeysVocabularyRail } from "@/components/DeveloperApiContractsApiKeysVocabularyRail";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -29,6 +32,10 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
+import {
+  developerSettingsAccessDisclosureHrefFromSearch,
+  parseDeveloperSettingsAccessOpenFromSearch,
+} from "@/lib/administration/developer-settings-access-disclosure-url";
 
 import { DeveloperSettingsBuildIdentityCard } from "./DeveloperSettingsBuildIdentityCard";
 import {
@@ -41,7 +48,35 @@ import {
 
 /** Internal operator developer tools — not linked from customer settings navigation. */
 export function DeveloperSettingsPageClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/developer";
+  const searchParams = useSearchParams();
+  const developerSettingsAccessOpenParam = searchParams.get("developerSettingsAccessOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [accessDetailsOpen, setAccessDetailsOpenState] = useState(() =>
+    parseDeveloperSettingsAccessOpenFromSearch(developerSettingsAccessOpenParam),
+  );
+
+  const syncAccessDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(developerSettingsAccessDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAccessDetailsOpen = useCallback(
+    (open: boolean) => {
+      setAccessDetailsOpenState(open);
+      syncAccessDetailsOpenToUrl(open);
+    },
+    [syncAccessDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAccessDetailsOpenState(parseDeveloperSettingsAccessOpenFromSearch(developerSettingsAccessOpenParam));
+  }, [developerSettingsAccessOpenParam]);
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="developer-settings-page">
@@ -143,7 +178,13 @@ export function DeveloperSettingsPageClient() {
 
               <TryCliDemoCard hideCliHelpLink={buyerPolishedShell} />
 
-              <details className="rounded-md border border-neutral-200 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/30">
+              <details
+                className="rounded-md border border-neutral-200 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+                open={accessDetailsOpen}
+                onToggle={(event) => {
+                  setAccessDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
+              >
                 <summary
                   className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
                 >

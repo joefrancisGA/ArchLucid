@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import type { OperatorAttentionKindId } from "@/lib/operator/operator-attention-taxonomy";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
@@ -43,7 +44,7 @@ const REVIEWS_HUB_ANALYTICS_STACK_CLASS = cn(
 );
 
 type ReviewsHubDisclosuresClientProps = {
-  readonly attentionSuppressKinds: readonly string[];
+  readonly attentionSuppressKinds: readonly OperatorAttentionKindId[];
   readonly firstCommittedRunId: string | null;
 };
 

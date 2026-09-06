@@ -24,9 +24,15 @@ type Props = {
   readonly tenantDisplayName: string;
   readonly scope: Readonly<Record<string, string>>;
   readonly model: TenantSettingsPageContentModel;
+  readonly buyerPolishedShell?: boolean;
 };
 
-export function TenantSettingsOrganizationCards({ tenantDisplayName, scope, model }: Props) {
+export function TenantSettingsOrganizationCards({
+  tenantDisplayName,
+  scope,
+  model,
+  buyerPolishedShell = false,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? "/administration/workspace-settings";
   const searchParams = useSearchParams();
@@ -129,7 +135,7 @@ export function TenantSettingsOrganizationCards({ tenantDisplayName, scope, mode
         </CardContent>
       </Card>
 
-      <TenantWorkspaceProjectsCard />
+      {buyerPolishedShell ? null : <TenantWorkspaceProjectsCard />}
 
       {/* Only render when an active pilot/trial exists; hide the "None" / null state to reduce noise */}
       {model.trial != null && model.trial.status != null && model.trial.status !== "None" ? (

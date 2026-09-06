@@ -174,7 +174,7 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
                         {item.key}
                       </p>
                       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                        {architectureSealDeltaDiffKindLabel(item.diffKind)}
+                        {architectureSealDeltaDiffKindLabel(item.diffKind ?? "")}
                       </p>
                       {item.beforeValue ? (
                         <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>

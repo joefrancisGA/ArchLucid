@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { FileJson, FileSpreadsheet } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
@@ -14,6 +15,10 @@ import {
 } from "@/lib/runs/run-findings-itsm-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  findingsItsmPreFinalizeExportDisclosureHrefFromSearch,
+  parseFindingsItsmPreFinalizeExportOpenFromSearch,
+} from "@/lib/findings/findings-itsm-pre-finalize-export-disclosure-url";
 
 export type FindingsItsmExportToolbarProps = {
   runId: string;
@@ -55,6 +60,13 @@ export function FindingsItsmExportToolbar({
   compact = false,
   packageCommitted,
 }: FindingsItsmExportToolbarProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingsItsmPreFinalizeExportOpenParam = searchParams.get("findingsItsmPreFinalizeExportOpen");
+  const [preFinalizeExportOpen, setPreFinalizeExportOpenState] = useState(() =>
+    parseFindingsItsmPreFinalizeExportOpenFromSearch(findingsItsmPreFinalizeExportOpenParam),
+  );
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const sealedManifestBlockedReason =
@@ -114,6 +126,30 @@ export function FindingsItsmExportToolbar({
     }
   }, [exportOptions, findings, runId, sealedManifestBlockedReason]);
 
+  const syncPreFinalizeExportOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingsItsmPreFinalizeExportDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPreFinalizeExportOpen = useCallback(
+    (open: boolean) => {
+      setPreFinalizeExportOpenState(open);
+      syncPreFinalizeExportOpenToUrl(open);
+    },
+    [syncPreFinalizeExportOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPreFinalizeExportOpenState(
+      parseFindingsItsmPreFinalizeExportOpenFromSearch(findingsItsmPreFinalizeExportOpenParam),
+    );
+  }, [findingsItsmPreFinalizeExportOpenParam]);
+
   if (findings.length === 0) {
     return null;
   }
@@ -167,6 +203,10 @@ export function FindingsItsmExportToolbar({
         className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
         data-testid="findings-itsm-export-toolbar"
         data-workspace-disclosure
+        open={preFinalizeExportOpen}
+        onToggle={(event) => {
+          setPreFinalizeExportOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Export findings before finalize

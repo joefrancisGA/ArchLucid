@@ -7,6 +7,7 @@ const SRC_ROOT = join(process.cwd(), "src");
 
 const REACTFLOW_RUNTIME_IMPORTERS = [
   join(SRC_ROOT, "components", "GraphViewer.tsx"),
+  join(SRC_ROOT, "components", "GraphViewerReactFlowTriggers.tsx"),
   join(SRC_ROOT, "components", "findings", "FindingEvidenceGraph.tsx"),
 ] as const;
 

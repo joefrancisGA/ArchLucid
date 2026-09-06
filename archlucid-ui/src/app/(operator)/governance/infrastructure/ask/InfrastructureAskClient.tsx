@@ -87,11 +87,24 @@ export function InfrastructureAskClient() {
       cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
       diffId: diffId.length > 0 ? diffId : null,
+      findingId: findingId.length > 0 ? findingId : null,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+      runId: runId.length > 0 ? runId : null,
       assessmentId: assessmentId.length > 0 ? assessmentId : null,
       auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
       controlId: controlId.length > 0 ? controlId : null,
     }),
-    [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, diffId, snapshotId],
+    [
+      assessmentId,
+      auditEvidenceSnapshotId,
+      cloudResourceId,
+      controlId,
+      correspondenceId,
+      diffId,
+      findingId,
+      runId,
+      snapshotId,
+    ],
   );
 
   const contextSummary = useMemo(() => {
@@ -196,7 +209,7 @@ export function InfrastructureAskClient() {
   }, [cloudResourceId, seedNodeId, snapshotId]);
 
   const remediationFactoryBackLinkHref = useMemo(() => {
-    if (findingId.length === 0 && instanceId.length === 0) {
+    if (findingId.length === 0 && instanceId.length === 0 && correspondenceId.length === 0) {
       return null;
     }
 
@@ -204,8 +217,11 @@ export function InfrastructureAskClient() {
       cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
       findingId: findingId.length > 0 ? findingId : null,
       instanceId: instanceId.length > 0 ? instanceId : null,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
+      runId: runId.length > 0 ? runId : null,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
     });
-  }, [cloudResourceId, findingId, instanceId]);
+  }, [cloudResourceId, correspondenceId, findingId, instanceId, runId, snapshotId]);
 
   const auditLineageBackLinkHref = useMemo(() => {
     if (
