@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 332
-- **bugs-found:** 2262
+- **hunts:** 333
+- **bugs-found:** 2274
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — WineAccessKey/WingAccessKey/WireAccessKey redaction, mustn't configure/mandate/apply/enforce to constraint negation, advice is not required to configure/mandate/apply/enforce/provision to prefix
+- **last-bug:** 2026-09-06 — WipeAccessKey/WishAccessKey/WithAccessKey redaction, mustn't provision/maintain/ensure/require/need to constraint negation, advice is not needed to maintain/ensure/require/need to prefix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4430,6 +4430,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `is not required to provision to` gap — **hit 2026-09-06 (#1060):** prefix-only `is not required to` guard; missed mid-sentence `is not required to provision to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_is_not_required_to_provision_to_use_encryption_at_rest_phrasing`).
 
 2026-09-06 seed hunt #1060 (hit): reseeded after #1059 closure; proved twelve hunt-ready rows — WineAccessKey/WingAccessKey/WireAccessKey redaction parity, mustn't configure/mandate/apply/enforce to constraint negation, and advice is not required to configure/mandate/apply/enforce/provision to prefix.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `WipeAccessKey` not redacted — **hit 2026-09-06 (#1061):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_wipe_access_key_config_path`, `IsSensitiveKey_detects_wipe_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `WishAccessKey` not redacted — **hit 2026-09-06 (#1061):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_wish_access_key_config_path`, `IsSensitiveKey_detects_wish_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `WithAccessKey` not redacted — **hit 2026-09-06 (#1061):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_with_access_key_config_path`, `IsSensitiveKey_detects_with_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mustn't provision to` gap — **hit 2026-09-06 (#1061):** mid-sentence `mustn't provision` only; missed `teams mustn't provision to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_provision_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mustn't maintain to` gap — **hit 2026-09-06 (#1061):** mid-sentence `mustn't maintain` only; missed `teams mustn't maintain to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_maintain_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mustn't ensure to` gap — **hit 2026-09-06 (#1061):** mid-sentence `mustn't ensure` only; missed `teams mustn't ensure to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_ensure_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mustn't require to` gap — **hit 2026-09-06 (#1061):** mid-sentence `mustn't require` only; missed `teams mustn't require to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_require_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `RequestConstraintTokenMatcher.IsAdviceStyleNegation` — mid-sentence `mustn't need to` gap — **hit 2026-09-06 (#1061):** mid-sentence `mustn't need` only; missed `teams mustn't need to use {token}`; fixed with mid-sentence guards (`HasEncryptionConstraint_does_not_false_positive_on_teams_mustnt_need_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `is not needed to maintain to` gap — **hit 2026-09-06 (#1061):** prefix-only `is not needed to` guard; missed mid-sentence `is not needed to maintain to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_is_not_needed_to_maintain_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `is not needed to ensure to` gap — **hit 2026-09-06 (#1061):** prefix-only `is not needed to` guard; missed mid-sentence `is not needed to ensure to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_is_not_needed_to_ensure_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `is not needed to require to` gap — **hit 2026-09-06 (#1061):** prefix-only `is not needed to` guard; missed mid-sentence `is not needed to require to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_is_not_needed_to_require_to_use_encryption_at_rest_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsAdviceStyleNegation` — mid-sentence `is not needed to need to` gap — **hit 2026-09-06 (#1061):** prefix-only `is not needed to` guard; missed mid-sentence `is not needed to need to {token}`; fixed with mid-sentence guards (`IsObviousGenericAdvice_does_not_flag_workloads_is_not_needed_to_need_to_use_encryption_at_rest_phrasing`).
+
+2026-09-06 seed hunt #1061 (hit): reseeded after #1060 closure; proved twelve hunt-ready rows — WipeAccessKey/WishAccessKey/WithAccessKey redaction parity, mustn't provision/maintain/ensure/require/need to constraint negation, and advice is not needed to maintain/ensure/require/need to prefix.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
