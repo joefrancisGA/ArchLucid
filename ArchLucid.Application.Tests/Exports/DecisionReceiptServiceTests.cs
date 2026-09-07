@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
@@ -254,6 +255,27 @@ public sealed class DecisionReceiptServiceTests
         _authority.Verify(
             static s => s.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task BuildForRunAsync_SkippedMustOnTrail_ReturnsCareerArtifactBlocked()
+    {
+        SetupCommittedRunDetail();
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        verdict.TransparencyTrail.Skipped.Add(new SkippedQuestionTrailEntry
+        {
+            Tier = ElicitationQuestionTier.Must,
+            QuestionKey = "security.dataClassification",
+        });
+        SetupVerifiedCommittedManifest(verdict, out _);
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.CareerArtifactBlocked);
+        buildResult.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SkippedMustCode);
+        buildResult.Receipt.Should().BeNull();
     }
 
     [Fact]

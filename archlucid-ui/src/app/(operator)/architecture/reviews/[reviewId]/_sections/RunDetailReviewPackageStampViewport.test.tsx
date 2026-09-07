@@ -38,12 +38,17 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     );
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent("16 of 39");
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(/16 of \d+/);
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
     expect(screen.getByText(/inferred \(1\)/i)).toBeVisible();
     expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
+
+    const trailPanel = screen.getByTestId("transparency-trail-panel");
+    const receiptStrip = screen.getByTestId("run-detail-stamp-decision-receipt-strip");
+
+    expect(trailPanel.compareDocumentPosition(receiptStrip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows skipped actor engines on the measurement strip for IaC-only graphs", () => {

@@ -4,13 +4,8 @@
  */
 export const CAREER_ARTIFACT_HONESTY_GRANDFATHER_WAIVER_MARKER = "FC-0078-WAIVER" as const;
 
-/** FC-0078-WAIVER: export formatters still compose coverage-honesty header helpers directly; migrate to evaluateCareerArtifactHonesty in FC-09+. */
-export const CAREER_EXPORT_FORMATTER_GRANDFATHERED_PATHS = [
-  "components/GoldenManifestExportMenu.tsx",
-  "components/GenerateAdrFromRunModal.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx",
-  "lib/export-markdown.ts",
-] as const;
+/** FC-0078-WAIVER: none — FC-18 migrated export formatters to evaluateCareerArtifactHonesty. */
+export const CAREER_EXPORT_FORMATTER_GRANDFATHERED_PATHS = [] as const;
 
 export const CAREER_ARTIFACT_HONESTY_GRANDFATHERED_PATHS = [
   ...CAREER_EXPORT_FORMATTER_GRANDFATHERED_PATHS,

@@ -1,11 +1,13 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -98,6 +100,31 @@ public sealed class DecisionReceiptService(
 
         FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
         string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
+
+        CareerArtifactCompletenessResult careerArtifactResult = new CareerArtifactCompletenessValidator().Evaluate(
+            CareerArtifactCompletenessInputMapper.MapForExport(
+                new CareerExportCoverageHonestyInput(
+                    new SponsorReviewCoverageHonestyContext(
+                        RunId: runId.ToString("N"),
+                        Verdict: verdict,
+                        AnalysisStagesComplete: true,
+                        ActorNodeCount: 0),
+                    EnginesSucceeded: null,
+                    WorkingDesk: true,
+                    ClassificationCounts: null),
+                verdict?.TransparencyTrail));
+
+        if (!careerArtifactResult.CanRender)
+        {
+            CareerArtifactBlockReason primaryBlock = careerArtifactResult.BlockReasons[0];
+
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.CareerArtifactBlocked,
+                BlockReasonCode = primaryBlock.Code,
+                BlockReason = primaryBlock.Message,
+            };
+        }
 
         DecisionReceiptRunBuildOutcome? readinessOutcome =
             ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(

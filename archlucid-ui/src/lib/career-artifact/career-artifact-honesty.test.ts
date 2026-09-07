@@ -81,13 +81,36 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.warnings.join(" ")).toMatch(/sealed record/i);
   });
 
-  it("includes measurement floor line in headerLines when render is allowed", () => {
+  it("includes skipped must keys in headerLines for export", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
-      transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+      manifestSummary: {
+        manifestId: "m-1",
+        status: "Committed",
+        ruleSetId: "pack",
+        ruleSetVersion: "1",
+        manifestHash: "hash",
+        decisionCount: 1,
+        warningCount: 0,
+        unresolvedIssueCount: 0,
+        feasibilityVerdict: {
+          kind: "Feasible",
+          summary: "ok",
+          transparencyTrail: {
+            asserted: [],
+            inferred: [],
+            skipped: [{ questionKey: "drRpo", tier: "Must" }],
+          },
+        },
+      } as never,
+      transparencyTrail: {
+        asserted: [],
+        inferred: [],
+        skipped: [{ questionKey: "drRpo", tier: "Must" }],
+      },
     });
 
-    expect(verdict.canRender).toBe(true);
-    expect(verdict.headerLines.join(" ")).toMatch(/catalog engines/i);
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.headerLines.join(" ")).toMatch(/Skipped required questions: drRpo/i);
   });
 });
