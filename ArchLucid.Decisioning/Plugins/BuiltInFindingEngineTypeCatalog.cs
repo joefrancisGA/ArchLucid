@@ -63,6 +63,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
             ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
             ["InsightGeneratorFindingEngine"] = "insight-generator",
+            ["ChecklistClusterSynthesisFindingEngine"] = "checklist-cluster-synthesis",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>
