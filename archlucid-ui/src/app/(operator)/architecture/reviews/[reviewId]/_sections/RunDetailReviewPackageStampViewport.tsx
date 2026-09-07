@@ -1,6 +1,7 @@
 "use client";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { RunDetailCareerArtifactHonestyStrip } from "@/components/reviews/RunDetailCareerArtifactHonestyStrip";
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 
@@ -29,6 +30,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly judgeSkippedByCap?: number | null;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
+  readonly preCommitGateEnabled?: boolean | null;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -52,6 +54,21 @@ export function RunDetailReviewPackageStampViewport(
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         <RunDetailPreFinalizeGateHonestyStrip />
+        <RunDetailCareerArtifactHonestyStrip
+          artifactKind="finalize"
+          runId={props.runId}
+          progressSummary={null}
+          manifestSummary={null}
+          graphSnapshot={props.graphSnapshot}
+          transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
+          enginesSucceeded={props.enginesSucceeded}
+          workingDesk={isWorkingMode}
+          judgeSkippedByCap={props.judgeSkippedByCap}
+          catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+          preCommitGateEnabled={props.preCommitGateEnabled}
+          structuralExecutionMode={props.structuralExecutionMode}
+          isSample={props.isSample}
+        />
         <RunDetailQualityGateModeStrip
           runId={props.runId}
           structuralExecutionMode={props.structuralExecutionMode}
@@ -86,6 +103,21 @@ export function RunDetailReviewPackageStampViewport(
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
       <RunDetailPreFinalizeGateHonestyStrip />
+      <RunDetailCareerArtifactHonestyStrip
+        artifactKind="finalize"
+        runId={props.runId}
+        progressSummary={null}
+        manifestSummary={null}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
+        enginesSucceeded={props.enginesSucceeded}
+        workingDesk={isWorkingMode}
+        judgeSkippedByCap={props.judgeSkippedByCap}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        preCommitGateEnabled={props.preCommitGateEnabled}
+        structuralExecutionMode={props.structuralExecutionMode}
+        isSample={props.isSample}
+      />
       <RunDetailQualityGateModeStrip
         runId={props.runId}
         structuralExecutionMode={props.structuralExecutionMode}
