@@ -58,6 +58,7 @@ import {
 import { AlertRoutingSubscriptionDisableDialog } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 
 import { formatCustomerApiFailure, useWebhooksSettings } from "./use-webhooks-settings";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { WebhooksContinueLastViewedRow } from "./WebhooksContinueLastViewedRow";
 import { WebhooksCreateSubscriptionForm } from "./WebhooksCreateSubscriptionForm";
 import { WebhooksSubscriptionsTable } from "./WebhooksSubscriptionsTable";
@@ -65,6 +66,8 @@ import { WebhooksSubscriptionsTable } from "./WebhooksSubscriptionsTable";
 /** Integration hub for outbound HTTPS webhook subscriptions. */
 export function WebhooksSettingsClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { localize, productLine } = useLocalizedProductCopy();
+  const webhooksPageDescription = localize(WEBHOOKS_PAGE_DESCRIPTION);
   const {
     form,
     register,
@@ -158,13 +161,13 @@ export function WebhooksSettingsClient() {
   const pageDescription = buyerPolishedShell ? (
     <>
       <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>
-        {webhooksIntegrationPageDescription(buyerPolishedShell, WEBHOOKS_PAGE_DESCRIPTION)}
+        {webhooksIntegrationPageDescription(buyerPolishedShell, webhooksPageDescription)}
       </p>
       {configurationStatusBlock}
     </>
   ) : (
     <>
-      <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>{WEBHOOKS_PAGE_DESCRIPTION}</p>
+      <p className={cn("m-0 leading-snug", OPERATOR_TYPOGRAPHY.body)}>{webhooksPageDescription}</p>
       {configurationStatusBlock}
     </>
   );
@@ -354,7 +357,7 @@ export function WebhooksSettingsClient() {
           }
         }}
         title={WEBHOOKS_ENABLE_CONFIRM_TITLE}
-        description={webhooksEnableConfirmDescription(pendingEnable?.subscriptionName ?? "")}
+        description={webhooksEnableConfirmDescription(pendingEnable?.subscriptionName ?? "", productLine)}
         confirmLabel={WEBHOOKS_ENABLE_CONFIRM_LABEL}
         variant="default"
         busy={enableBusy}
