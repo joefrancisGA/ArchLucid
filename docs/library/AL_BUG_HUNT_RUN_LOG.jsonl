@@ -1328,3 +1328,4 @@
 {"at":"2026-09-07T04:47:24.1836225Z","zoneId":"core-authority-runs","outcome":"hit"}
 {"at":"2026-09-07T04:55:50.7461084Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
 {"at":"2026-09-07T05:06:31.8363741Z","zoneId":"api-policy-packs","outcome":"hit"}
+{"at":"2026-09-07T05:15:06.2214805Z","zoneId":"api-governance-stickiness","outcome":"hit"}
