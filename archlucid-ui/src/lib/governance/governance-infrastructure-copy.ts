@@ -10,10 +10,30 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureOverview;
 
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID =
+  "governance-infrastructure-overview-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL = "Skip to infrastructure workbenches" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD =
+  "Open Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation instances." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE = "Start here" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY =
+  "Open the resource explorer first when you need a single cloud resource hub, linked audit evidence, or IDs to paste into audit lineage lookup." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_ACTION = "Open resource explorer" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING = "Evidence workbenches" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE = "Recommended first step" as const;
+
 export type InfrastructureWorkbenchRow = {
   readonly href: string;
   readonly label: string;
   readonly summary: string;
+  readonly recommendedFirst?: boolean;
 };
 
 /** Hub table rows — overview route is not listed here. */
@@ -37,6 +57,7 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
+    recommendedFirst: true,
   },
   {
     href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,

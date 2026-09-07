@@ -149,4 +149,22 @@ describe("RealModeAiReadinessShellBanner", () => {
 
     pathnameState.value = "/governance/alerts";
   });
+
+  it("hides on infrastructure workbench routes except Ask", () => {
+    pathnameState.value = "/governance/infrastructure";
+
+    render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+
+    pathnameState.value = "/governance/infrastructure/drift";
+    render(<RealModeAiReadinessShellBanner />);
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+
+    pathnameState.value = "/governance/infrastructure/ask";
+    render(<RealModeAiReadinessShellBanner />);
+    expect(screen.getByTestId("real-mode-ai-readiness-shell-banner")).toBeInTheDocument();
+
+    pathnameState.value = "/governance/alerts";
+  });
 });

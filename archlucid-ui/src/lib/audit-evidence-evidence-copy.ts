@@ -5,7 +5,6 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 export const AUDIT_EVIDENCE_SOURCES_INTRO =
   "Use audit trail activity and infrastructure inventory when you need context before opening a control lineage.";
 
-
 export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SOURCES_INTRO =
   "Use these surfaces when procurement asks for context beyond this control chain, or when IDs need verification.";
 
