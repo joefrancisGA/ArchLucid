@@ -216,6 +216,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
+        pipelineTerminalFailure={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}

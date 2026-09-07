@@ -229,8 +229,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     unrecordedFieldCount,
     metadataContext,
   );
-  const shareActionsDisabledHintId = "review-header-share-disabled-hint";
-  const askActionsDisabledHintId = "review-header-ask-disabled-hint";
+  const headerActionsDisabledHintId = "review-header-actions-disabled-hint";
 
   return (
     <div data-testid="run-detail-workspace-header">
@@ -260,18 +259,10 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 disabledReason={headerActionDisabledReason}
                 disabledDescribedById={
                   reviewPipelineIncomplete && headerActionDisabledReason !== null
-                    ? shareActionsDisabledHintId
+                    ? headerActionsDisabledHintId
                     : undefined
                 }
               />
-              {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-                <WhyDisabledCtaHint
-                  id={shareActionsDisabledHintId}
-                  reason={headerActionDisabledReason}
-                  testId="review-header-share-disabled-hint"
-                  className="max-w-[14rem] text-right"
-                />
-              ) : null}
             </div>
             <div
               className={cn(
@@ -286,19 +277,19 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 disabledReason={headerActionDisabledReason}
                 disabledDescribedById={
                   reviewPipelineIncomplete && headerActionDisabledReason !== null
-                    ? askActionsDisabledHintId
+                    ? headerActionsDisabledHintId
                     : undefined
                 }
               />
-              {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-                <WhyDisabledCtaHint
-                  id={askActionsDisabledHintId}
-                  reason={headerActionDisabledReason}
-                  testId="review-header-ask-disabled-hint"
-                  className="max-w-[14rem] text-right"
-                />
-              ) : null}
             </div>
+            {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+              <WhyDisabledCtaHint
+                id={headerActionsDisabledHintId}
+                reason={headerActionDisabledReason}
+                testId="review-header-actions-disabled-hint"
+                className="max-w-[14rem] text-right"
+              />
+            ) : null}
             <ReviewRoomHeaderButton
               runId={props.runId}
               reviewCompleted={!reviewPipelineIncomplete}
