@@ -28,4 +28,13 @@ public sealed class RunListWarningFlagSqlTests
         joins.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
         joins.Should().Contain(") govWarn ON govWarn.RunId = r.RunId");
     }
+
+    [Fact]
+    public void LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join()
+    {
+        const string joins = RunListWarningFlagSql.LeftJoinAggregates;
+
+        joins.Should().Contain("UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))");
+        joins.Should().Contain("UPPER(LTRIM(RTRIM(ar.RequestId)))");
+    }
 }

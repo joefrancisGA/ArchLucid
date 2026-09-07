@@ -102,6 +102,6 @@ internal static class RunListWarningFlagSql
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
                                              LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
-                                                 ON ar.RequestId = r.ArchitectureRequestId
+                                                 ON UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))
                                              """;
 }
