@@ -1256,11 +1256,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — deep-linked source-context query reused prior workspace cache after operator scope switch
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — deep-linked review switch left prior declared priorities in intake form
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1273,8 +1273,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `loadGoldenFixture` left `productContextStatus` at `idle` on deep-linked reviews — **hit 2026-08-25:** inbound context fell back to "Scoped to run" and Analyze stayed hidden after fixture hydration (`shows loaded intake context after golden fixture on deep-linked review`)
 - [x] (proven) Deep-linked product source-context query key omitted operator scope — **hit 2026-09-02:** React Query reused prior workspace intake after scope switch; fixed scoped query key plus intake reset on scope change (`reloads hydrated intake when operator scope switches on a deep-linked review`)
 - [x] (invalid) Successful product-context retry leaves stale inline error alert — `productContextReloadNonce` bump clears `error` before refetch; regression in `clears stale error alert after successful product context retry`
+- [x] (proven) Deep-linked `runId` switch leaves stale `prioritiesRaw` when next review has no `declaredPriorities` — **hit 2026-09-07 seed hunt #1292 (seed→hit):** hydration effect only updated priorities when the new payload was non-empty; fixed by always assigning `hydratedPrioritiesFromQuery`; regression in `clears declared priorities when deep-linked review switches to one without priorities`
 
 2026-09-02 seed hunt #420 (hit): scoped architecture-intelligence source-context query to operator scope; cleared deep-linked intake on workspace switch; cheap-disproved stale retry error row.
+
+2026-09-07 seed hunt #1292 (seed→hit): reseeded deep-link intake hydration; proved stale declared priorities on run switch; 12 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 ---
 

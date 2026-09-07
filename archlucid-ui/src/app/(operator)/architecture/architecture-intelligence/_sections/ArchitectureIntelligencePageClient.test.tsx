@@ -343,6 +343,88 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
   });
 
+  it("clears declared priorities when deep-linked review switches to one without priorities", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          if (currentRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") {
+            return {
+              ok: true,
+              json: async () => ({
+                runId: currentRunId,
+                sourceTexts: [
+                  {
+                    fileName: "architecture-description.txt",
+                    contentType: "text/plain",
+                    content: "Architecture for review A.",
+                  },
+                ],
+                declaredPriorities: ["security", "reliability"],
+              }),
+              text: async () => "",
+            };
+          }
+
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review B.",
+                },
+              ],
+              declaredPriorities: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, reliability");
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
+  });
+
   it("clears reasoning results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
