@@ -812,6 +812,9 @@ public static class AzureExtractorSensitivePropertyRedactor
             || normalized.Equals("discaccesskey", StringComparison.Ordinal)
             || normalized.Equals("dispatchaccesskey", StringComparison.Ordinal)
             || normalized.Equals("districtaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("divideaccesskey", StringComparison.Ordinal)
+            || normalized.Equals("diveraccesskey", StringComparison.Ordinal)
+            || normalized.Equals("dockaccesskey", StringComparison.Ordinal)
             || normalized.Equals("signingkey", StringComparison.Ordinal)
             || normalized.Equals("signingcertificate", StringComparison.Ordinal)
             || normalized.Equals("signingcertificatepath", StringComparison.Ordinal);
