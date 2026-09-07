@@ -1,4 +1,5 @@
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineWordmarkAriaLabel } from "@/lib/product-line/product-line-display-name";
 
 export const PRODUCT_LINE_ENV_NAME = "NEXT_PUBLIC_ARCHLUCID_PRODUCT";
 
@@ -8,8 +9,8 @@ export const PRODUCT_LINE_LABELS: Record<ProductLineId, string> = {
 };
 
 export const PRODUCT_LINE_WORDMARK_ARIA_LABEL: Record<ProductLineId, string> = {
-  architecture: "ArchLucid — go to workspace overview",
-  security: "ArchLucid Security — go to workspace overview",
+  architecture: productLineWordmarkAriaLabel("architecture"),
+  security: productLineWordmarkAriaLabel("security"),
 };
 
 export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure evidence";

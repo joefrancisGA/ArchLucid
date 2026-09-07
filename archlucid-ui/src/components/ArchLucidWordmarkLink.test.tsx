@@ -3,7 +3,20 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
+
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: productLineMock.value,
+    assignmentOverrides: {},
+    setProductLine: vi.fn(),
+    setHrefAssignment: vi.fn(),
+    resetHrefAssignment: vi.fn(),
+    resetAllAssignments: vi.fn(),
+  }),
+}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -23,18 +36,36 @@ vi.mock("next/link", () => ({
 describe("ArchLucidWordmarkLink", () => {
   it("renders compact ArchLucidLogo geometry for operator chrome by default", () => {
     const { container } = render(
-      <ArchLucidWordmarkLink href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />,
+      <ArchLucidWordmarkLink
+        href="/"
+        aria-label={PRODUCT_LINE_WORDMARK_ARIA_LABEL.architecture}
+        variant="operator"
+      />,
     );
 
     const link = screen.getByTestId("archlucid-wordmark-link");
     expect(link).toHaveAttribute("href", "/");
-    expect(link).toHaveAttribute("aria-label", PERSONA_SHELL_WORDMARK_ARIA_LABEL);
+    expect(link).toHaveAttribute("aria-label", PRODUCT_LINE_WORDMARK_ARIA_LABEL.architecture);
     expect(link).toHaveClass("h-8");
 
     const svgs = container.querySelectorAll("svg");
     expect(svgs.length).toBeGreaterThanOrEqual(2);
     expect(container.querySelector("path")).toHaveAttribute("fill", ARCHLUCID_BRAND.navy);
     expect(screen.getAllByText("ArchLucid").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders SecureNow in the Security operator shell", () => {
+    productLineMock.value = "security";
+
+    render(
+      <ArchLucidWordmarkLink
+        href="/"
+        aria-label={PRODUCT_LINE_WORDMARK_ARIA_LABEL.security}
+        variant="operator"
+      />,
+    );
+
+    expect(screen.getAllByText("SecureNow").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders full ArchLucidLogo for marketing chrome by default", () => {
