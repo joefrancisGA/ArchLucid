@@ -150,4 +150,12 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
 
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace()
+    {
+        const string json = "\uFEFF{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
 }

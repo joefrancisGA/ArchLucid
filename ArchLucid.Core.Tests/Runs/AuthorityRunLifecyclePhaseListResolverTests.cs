@@ -89,4 +89,60 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
 
         phase.Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_committed_with_golden_manifest_returns_complete()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Complete);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.FailedPartial),
+            ContextSnapshotId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_numeric_ordinal_failed_partial_legacy_status_returns_failed()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+            LegacyRunStatus = ((int)ArchitectureRunStatus.FailedPartial).ToString(),
+            ContextSnapshotId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            GoldenManifestId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
 }

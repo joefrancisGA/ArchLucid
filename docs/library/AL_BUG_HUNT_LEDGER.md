@@ -6949,7 +6949,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
@@ -6964,10 +6964,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` treated any non-empty `ContextSnapshotId` / `GoldenManifestId` as `InProgress` before checking terminal `LegacyRunStatus` — **hit 2026-09-07 (#1168):** `Failed`, `FailedPartial`, and `ExecutionCompletedQualityRejected` rows with progress markers surfaced as in-progress; fixed via `TryResolveTerminalFailurePhase` before progress-marker checks (`ResolveFromRunHeader_failed_with_context_snapshot_returns_failed_not_in_progress`, `ResolveFromRunHeader_failed_without_progress_markers_returns_failed_not_not_started`, `ResolveFromRunHeader_quality_rejected_with_context_snapshot_returns_failed_not_in_progress`)
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection` rejected `schemaVersion` > 1 and missed pipeline dead-letter classification on forward-compatible `LastFailureReason` JSON — **hit 2026-09-07 (#1202):** `TryReadSupportedSchemaVersion` required exact v1; v2+ payloads with `failureClass: PipelineDeadLetter` returned not dead-lettered; fixed via minimum schema version gate (`IsDeadLettered_returns_true_for_forward_compatible_schema_version_2_pipeline_dead_letter`, `ResolveFromRunHeader_dead_lettered_with_forward_compatible_schema_version_returns_failed`)
 - [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable` agent-results derivation asymmetry — **disproved 2026-09-07 (#1202):** export/replay/compare surfaces use `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` (same as list); detail-only `AuthorityRunLifecyclePhaseResolver` is Application-layer stage-outcome logic outside zone paths; no divergence reproduced on export surfaces within `ArchLucid.Core/Runs/`
+- [x] (invalid) `IsCommittedWithGoldenManifest` bypasses `TryParseStatus` coercions — **disproved 2026-09-07 (#1203):** numeric-string `LegacyRunStatus` ordinals are blocked by SQL `CK_Runs_LegacyRunStatus` enum-name allowlist; no persisted reachability
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver` treats non-empty `GoldenManifestId` as InProgress when `RunRepositoryCore.IsCommittedRun` would be true — **disproved 2026-09-07 (#1203):** list Complete requires `Committed`+manifest by design; finalize writes both atomically (`ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete`)
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection` rejects UTF-8 BOM-prefixed `LastFailureReason` JSON — **disproved 2026-09-07 (#1203):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter marker emit BOM-free JSON; no reachable writer (`IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace`)
+- [x] (valid-no-repro) `FailedPartial` / numeric-ordinal terminal statuses masked as InProgress when progress markers precede terminal resolution — **disproved 2026-09-07 (#1203):** #1168 ordering already resolves terminal failures before progress markers (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, `TryParseStatus_parses_numeric_ordinal_for_failed_partial`)
 
 2026-09-07 seed hunt #1168 (hit): proved terminal failure runs masked as in-progress on authority list/summary lifecycle phase resolution.
 
 2026-09-07 thorough hunt #1202 (hit): proved forward-compatible dead-letter schema rejection; disproved export/list lifecycle asymmetry within zone paths.
+
+2026-09-07 seed hunt #1203 (seed-only): reseeded four post-#1202 lifecycle/dead-letter candidates; cheap-disproved numeric Committed Complete miss (SQL `CK_Runs_LegacyRunStatus` enum names only), GoldenManifestId-vs-`IsCommittedRun` divergence (intentional Committed+manifest Complete gate; finalize writes atomically), BOM dead-letter miss (no writer emits BOM; conservative `(invalid)`), and FailedPartial progress-marker masking (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, numeric ordinal `10` parity).
 
 ---
 ## Zone: core-tenancy-commercial
