@@ -9550,22 +9550,29 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: architecture-intelligence-orchestrator
 
 - **id:** architecture-intelligence-orchestrator
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — review cache manifest omitted client RunId from content hash
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
 ### Hypotheses
+
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
+- [ ] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cap can skip invalidation while entry remains pinned under improve-loop pressure
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — continue-path second identical call cache-hit coverage untested; manifest pre/post-save asymmetry may miss on boundary run
+
+2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
 
 ---
 
