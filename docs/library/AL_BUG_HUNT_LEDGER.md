@@ -232,7 +232,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
@@ -256,10 +256,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Concurrent upserts on the same `(tenantId, settingKey)` drop `WriteInFlightKeys` when the first wrapper still awaits inner completion — `TryAdd`/`TryRemove` is not ref-counted, but generation bumps plus inner persistence still expose the latest value; regression `TenantSettings_TryGetAsync_reflects_second_upsert_while_first_upsert_wrapper_still_in_flight`
 - [x] (valid-no-repro) Upsert-path cached hit at the post-first-bump generation survives after inner upsert commits but before the caching wrapper finishes — symmetric to #1239 delete hit; write-in-flight bypass reads inner during the whole `UpsertAsync`; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_hit_before_generation_bump`
 - [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` throws on duplicate `(TenantId, SettingKey)` rows — migration `173_TenantSettings.sql` defines `PK_TenantSettings` on the pair; repository always normalizes keys before MERGE/read
+- [x] (valid-no-repro) Concurrent upsert clears `WriteInFlightKeys` while the first upsert wrapper still awaits release — `TryAdd`/`TryRemove` is not ref-counted; second upsert removes the slot before the first wrapper finishes, but generation bumps plus inner persistence still expose the latest value; regressions `TenantSettings_TryGetAsync_reflects_second_upsert_while_first_upsert_wrapper_still_in_flight` and `TenantSettings_TryGetAsync_reflects_second_upsert_after_first_upsert_loses_write_in_flight_flag`
+- [x] (valid-no-repro) Concurrent upsert during in-flight delete clears `WriteInFlightKeys` before the delete wrapper finishes — same non-refcounted slot; upsert after inner delete repopulates SQL while delete wrapper still holds post-delete bump; `TryGetAsync` still reads `replacement`; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`
+- [x] (invalid) `HotPathCacheEviction.RemoveTenantSettingAsync` misses generation-stamped hybrid-cache keys — no call sites in repo; `CachingTenantSettingsRepository` invalidates `{HotPathCacheKeys.TenantSetting}:g{generation}` via `InvalidateCurrentGenerationCacheAsync`
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` accepts setting keys longer than `NVARCHAR(128)` — migration `173_TenantSettings.sql` caps `SettingKey`; repository does not pre-validate length before MERGE; watch callers outside fixed `TenantSettingKeys` constants
+- [ ] (candidate) Static `CacheGenerations` entries are never removed when a tenant is deleted — orphaned generation counters and hybrid-cache slots may linger for deleted tenants until process restart; correctness unaffected for new reads at bumped generations
 
-2026-09-07 thorough hunt #1178 (hit): proved cached-miss race between upsert commit and generation bump; cheap-disproof on SQL concurrent-default hypothesis.
-
-2026-09-07 seed hunt #1239 (hit): reseeded tenant-settings cache/SQL zone; proved delete-path cached-hit stale generation gap symmetric to #1178 miss race; cheap-disproof on whitespace-only row and double-normalization candidates.
+2026-09-07 seed hunt #1254 (seed-only): reseeded after #1240 fixes; cheap-disproof on concurrent write-in-flight slot clearing and dead `RemoveTenantSettingAsync` key shape; added delete/upsert and dual-upsert parity regressions; no hunt-ready row reproduces.
 
 2026-09-07 seed hunt #1240 (seed-only): reseeded after #1239 fixes; cheap-disproof on concurrent upsert write-in-flight drop, upsert cached-hit symmetric gap, and duplicate-key SQL read; added upsert/delete parity regressions; no new hunt-ready row reproduces.
 

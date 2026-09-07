@@ -356,6 +356,65 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_second_upsert_after_first_upsert_loses_write_in_flight_flag()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedUpsertTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "initial", CancellationToken.None);
+
+        inner.ArmSingleUpsertReleaseBlock();
+        Task firstUpsertTask = repo.UpsertAsync(tenantId, "feature.x", "first", CancellationToken.None);
+
+        await inner.WaitUntilUpsertPersistedAsync();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "second", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("second");
+
+        inner.ReleaseUpsert();
+
+        await firstUpsertTask;
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("second");
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedDeleteTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        inner.ArmDeleteDelayUntilReleased();
+        Task deleteTask = repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        inner.ReleaseBeforeDelete();
+
+        await inner.WaitUntilDeletePersistedAsync();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "replacement", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("replacement");
+
+        inner.ReleaseAfterDelete();
+
+        await deleteTask;
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("replacement");
+    }
+
+    [Fact]
     public async Task TenantSettings_TryGetAsync_reflects_delete_after_cached_hit_before_generation_bump()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
