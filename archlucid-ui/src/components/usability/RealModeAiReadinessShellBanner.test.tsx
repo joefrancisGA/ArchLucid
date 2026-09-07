@@ -17,8 +17,16 @@ const readinessState = vi.hoisted(() => ({
   blocksExecute: true,
 }));
 
+const pathnameState = vi.hoisted(() => ({ value: "/governance/alerts" }));
+
 vi.mock("@/hooks/session-ai-readiness-context", () => ({
   useSessionAiReadiness: () => readinessState,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathnameState.value,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/demo-ui-env", () => ({
@@ -130,5 +138,15 @@ describe("RealModeAiReadinessShellBanner", () => {
     render(<RealModeAiReadinessShellBanner />);
 
     expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+  });
+
+  it("hides on deterministic audit evidence routes", () => {
+    pathnameState.value = "/governance/audit-evidence";
+
+    render(<RealModeAiReadinessShellBanner />);
+
+    expect(screen.queryByTestId("real-mode-ai-readiness-shell-banner")).not.toBeInTheDocument();
+
+    pathnameState.value = "/governance/alerts";
   });
 });

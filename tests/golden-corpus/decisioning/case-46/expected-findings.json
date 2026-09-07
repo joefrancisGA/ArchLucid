@@ -1,0 +1,94 @@
+[
+  {
+    "findingId": "4caa3334-8b89-931a-6a9f-7cbeda2b2043",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "25a4551b-ef6f-170f-7b9b-56af78f5a201",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "fb57223f-6153-2cc2-e178-174c2249be5e",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "docs-1",
+      "docs-2",
+      "docs-3",
+      "docs-4",
+      "docs-5",
+      "docs-6"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "eb5a2c00-debf-ce1f-979c-b1a17f882ae0",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-storage-1",
+      "obj-storage-2",
+      "obj-storage-3",
+      "obj-storage-4",
+      "obj-storage-5",
+      "obj-storage-6"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

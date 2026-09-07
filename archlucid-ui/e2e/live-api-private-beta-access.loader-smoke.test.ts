@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 /**
  * Catches Node ESM / JSON import loader failures before Playwright reports "No tests found"
@@ -26,6 +26,39 @@ describe("live-api-private-beta-access loader smoke", () => {
     expect(spec).toContain("liveE2ePrivateBetaAccessPlaywrightTimeoutMs");
     expect(spec).toContain("live-api-private-beta-access");
     expect(spec).toContain("fetchAuthMeWithBearer");
+    expect(spec).toContain("warmPrivateBetaCreateRunPipeline");
     expect(spec).toContain("test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs())");
+  });
+
+  it("private-beta create-run HTTP timeout exceeds inline pipeline budget", async () => {
+    const previousPrivateBeta = process.env.LIVE_E2E_PRIVATE_BETA_ACCESS;
+    const previousCi = process.env.CI;
+
+    process.env.LIVE_E2E_PRIVATE_BETA_ACCESS = "1";
+    process.env.CI = "true";
+    vi.resetModules();
+
+    try {
+      const client = await import("./helpers/live-api-client");
+
+      expect(client.LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS).toBeGreaterThanOrEqual(420_000);
+      expect(client.liveE2eArchitectureRequestAttemptHttpTimeoutMs()).toBe(
+        client.LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS,
+      );
+    } finally {
+      if (previousPrivateBeta === undefined) {
+        delete process.env.LIVE_E2E_PRIVATE_BETA_ACCESS;
+      } else {
+        process.env.LIVE_E2E_PRIVATE_BETA_ACCESS = previousPrivateBeta;
+      }
+
+      if (previousCi === undefined) {
+        delete process.env.CI;
+      } else {
+        process.env.CI = previousCi;
+      }
+
+      vi.resetModules();
+    }
   });
 });

@@ -36,7 +36,6 @@ import {
   architectureDraftPath,
   ARCHITECTURES_NEW_PATH,
   resolveArchitectureReviewHref,
-  reviewDetailPath,
   startReviewFromDraftContextHref,
 } from "@/lib/architecture/architecture-routes";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
@@ -297,9 +296,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
               const parentArchitectureId = entry.parentArchitectureId?.trim() ?? "";
               const linkedReviewHref =
                 entry.linkedReviewId !== null
-                  ? workingMode && parentArchitectureId.length > 0
-                    ? resolveArchitectureReviewHref(entry.linkedReviewId, parentArchitectureId)
-                    : reviewDetailPath(entry.linkedReviewId)
+                  ? resolveArchitectureReviewHref(entry.linkedReviewId, parentArchitectureId)
                   : null;
               const startReviewHref = startReviewFromDraftContextHref({
                 parentArchitectureId,
@@ -341,7 +338,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                   <EnterpriseTableCell>
                     {entry.linkedReviewId !== null ? (
                       <Link
-                        href={linkedReviewHref ?? reviewDetailPath(entry.linkedReviewId)}
+                        href={linkedReviewHref ?? "#"}
                         className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       >
                         Review linked
@@ -354,7 +351,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                     <div className="flex flex-wrap gap-2">
                       {entry.linkedReviewId !== null ? (
                         <Button type="button" variant="primary" size="sm" asChild>
-                          <Link href={linkedReviewHref ?? reviewDetailPath(entry.linkedReviewId)}>
+                          <Link href={linkedReviewHref ?? "#"}>
                             Continue in review
                           </Link>
                         </Button>

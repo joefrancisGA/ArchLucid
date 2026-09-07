@@ -113,7 +113,7 @@ warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
   # Invite-wave CI: Playwright stubs draft inventory in-browser and JIT-warms create-run with a
-  # 300s per-attempt HTTP budget. Shell warm for those paths ties up the API for minutes and can
+  # 420s per-attempt HTTP budget. Shell warm for those paths ties up the API for minutes and can
   # leave /health/ready at 503 before Playwright starts (see run 34003221895).
   echo "Skipping draft inventory and create-run shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright handles both."
 else

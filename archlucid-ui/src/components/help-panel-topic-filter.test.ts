@@ -15,7 +15,7 @@ const TOPIC: HelpTopic = {
 describe("topicMatchesQuery", () => {
   it("matches keywords case-insensitively", () => {
     expect(topicMatchesQuery(TOPIC, "rbac")).toBe(true);
-    expect(topicMatchesQuery(TOPIC, "govern")).toBe(true);
+    expect(topicMatchesQuery(TOPIC, "approv")).toBe(true);
     expect(topicMatchesQuery(TOPIC, "manifest")).toBe(true);
   });
 });

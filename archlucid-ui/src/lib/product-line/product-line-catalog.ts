@@ -68,7 +68,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
 
   // Shared operator diagnostics (Internal). Architecture-only GTM rows stay unlisted.
   "/internal/health": "both",
-  "/internal/deployment-status": "both",
+  "/internal/deployment-status": "architecture",
   "/internal/configuration": "both",
   "/internal/failed-integration-messages": "both",
   "/internal/operational-errors": "both",

@@ -144,6 +144,11 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     marker: "AO-47",
   },
   {
+    id: "AO-08",
+    relativeTestPath: "lib/architecture/resolve-working-run-review-locator.test.ts",
+    marker: "AO-08",
+  },
+  {
     id: "AO-42",
     relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
     marker: "AO-42",
