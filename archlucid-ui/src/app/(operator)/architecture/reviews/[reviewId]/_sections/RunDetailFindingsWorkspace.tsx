@@ -403,7 +403,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
       <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
-      {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
+      {createHomeSurface && props.buyerPolishedShell !== true ? (
+        <ArchitectureCreatedFindingsEvidenceOrientationStrip />
+      ) : null}
       {findingsSecondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip
           presentation={findingsSecondaryViewPresentation}
