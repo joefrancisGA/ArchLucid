@@ -101,14 +101,6 @@ public sealed partial class GovernanceStickinessController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
-        catch (InvalidOperationException ex)
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
-        }
-        catch (ArgumentException ex)
-        {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
         catch (FindingDispositionConflictException ex)
         {
             return this.ConflictProblem(
@@ -118,6 +110,14 @@ public sealed partial class GovernanceStickinessController
                 {
                     ["currentDisposition"] = ex.CurrentDisposition,
                 });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 
