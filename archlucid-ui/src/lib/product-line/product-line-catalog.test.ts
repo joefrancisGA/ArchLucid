@@ -122,6 +122,15 @@ describe("product-line catalog", () => {
     ).toBe(true);
   });
 
+  it("keeps recycle bin architecture-only even though workspace-settings is both", () => {
+    expect(resolveProductLineAssignmentForPath("/administration/workspace-settings")).toBe("both");
+    expect(resolveProductLineAssignmentForPath("/administration/workspace-settings/recycle-bin")).toBe("architecture");
+    expect(
+      isPathAllowedForProductLine("/administration/workspace-settings/recycle-bin", "security"),
+    ).toBe(false);
+    expect(isPathAllowedForProductLine("/administration/workspace-settings", "security")).toBe(true);
+  });
+
   it("assigns every catalog key that is a live nav href", () => {
     const navHrefs = new Set([
       ...flattenNavLinks().map((link) => link.href),

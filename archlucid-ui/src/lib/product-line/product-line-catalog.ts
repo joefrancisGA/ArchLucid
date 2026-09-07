@@ -3,9 +3,19 @@ import type { ProductLineAssignment } from "@/lib/product-line/product-line-assi
 /**
  * Canonical product-line assignments for operator nav hrefs.
  *
- * Unlisted nav hrefs default to **Architecture** (`DEFAULT_PRODUCT_LINE_ASSIGNMENT`).
- * Change a value here (or in the `/internal/product-line` playground) to move a feature
- * between shells without duplicating pages.
+ * ## How assignments resolve
+ *
+ * 1. **Exact href** in this map or {@link PRODUCT_LINE_EXTRA_ASSIGNMENTS} wins.
+ * 2. Else longest {@link PRODUCT_LINE_NESTED_PREFIXES} match inherits the parent assignment.
+ * 3. Else **architecture** ({@link DEFAULT_PRODUCT_LINE_ASSIGNMENT}).
+ *
+ * Use `both` for Infrastructure + shared Administration/Internal. Use explicit `architecture` when a
+ * path must stay off Security even under a shared prefix (recycle bin under workspace-settings).
+ *
+ * ## Shuffle workflow
+ *
+ * Edit this file for committed defaults, or `/internal/product-line` for a browser-only overlay
+ * (localStorage). Dual local start: Architecture :3000 + Security :3001 via `start-local-api-and-ui.ps1`.
  *
  * Security product spine: the `operate-infrastructure` group (`/governance/infrastructure/*`)
  * plus inventory intake (cloud connections / extract-upload) and OpSec factory pages that
