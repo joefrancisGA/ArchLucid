@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { workingShareHref, WORKING_SHARE_UNLINKED_JOB_TOAST } from "@/lib/architecture/working-share-href";
 
 describe("workingShareHref (AO-09)", () => {
-  it("prefers nested review path when architecture id is known", () => {
+  it("SY-20: prefers nested review path when architecture id is known", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",
@@ -36,7 +36,7 @@ describe("workingShareHref (AO-09)", () => {
     expect(result.isUnlinkedJob).toBe(false);
   });
 
-  it("AO-38: room elicitation share keeps nested architecture locator", () => {
+  it("SY-21: AO-38 room elicitation share keeps nested architecture locator", () => {
     const result = workingShareHref({
       architectureId: "architecture-identity-001",
       reviewId: "run-001",

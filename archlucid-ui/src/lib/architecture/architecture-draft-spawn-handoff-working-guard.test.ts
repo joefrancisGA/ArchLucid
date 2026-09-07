@@ -15,6 +15,16 @@ describe("architecture draft spawn handoff Working guard (AO-07)", () => {
     );
   });
 
+  it("SY-25: intake blocked redirect uses nested review href on Working", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src", "lib/architecture/architecture-draft-intake-mode.ts"),
+      "utf8",
+    );
+
+    expect(source).toContain("resolveArchitectureReviewHref");
+    expect(source).toContain("workingMode");
+  });
+
   it("AO-07: spawn handoff modules do not import reviewDetailPath as the Working canonical locator", () => {
     const nestedHrefModules = [
       "components/architecture/ArchitectureDraftHandoffPanel.tsx",
