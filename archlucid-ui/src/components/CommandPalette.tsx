@@ -65,9 +65,8 @@ import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewAc
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
-import { filterWorkingPaletteVisibleHrefs } from "@/lib/working-route-roles";
+import { filterWorkingPaletteNavHrefs } from "@/lib/filter-working-palette-nav-hrefs";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   commandPaletteOverlayHrefFromSearch,
   parseCommandPaletteOpenFromSearch,
@@ -173,7 +172,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ? filterNavGroupsForWorkingProfessionalMode(densityFilteredRows)
       : densityFilteredRows;
 
-    return applyPatternLibraryHrefSetGate(
+    const hrefSet = applyPatternLibraryHrefSetGate(
       mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
         scopeOperatorShellHrefSet(
           visibleOperatorShellHrefSetFromNavRows(workingFilteredRows),
@@ -183,6 +182,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ),
       patternLibraryNavVisible,
     );
+
+    return workingMode ? filterWorkingPaletteNavHrefs(hrefSet) : hrefSet;
   }, [
     assignmentOverrides,
     auditRunId,
@@ -196,14 +197,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     showVendorInternalNav,
     workingMode,
   ]);
-
-  const paletteVisibleHrefs = useMemo(() => {
-    if (!workingMode) {
-      return visibleHrefs;
-    }
-
-    return filterWorkingPaletteVisibleHrefs(visibleHrefs, readCachedLastOpenArchitectureId());
-  }, [visibleHrefs, workingMode]);
 
   const syncCommandPaletteToUrl = useCallback(
     (nextOpen: boolean, nextQuery: string) => {
@@ -384,11 +377,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteFindPageSearch visibleHrefs={paletteVisibleHrefs} onNavigate={navigate} />
+          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
-            visibleHrefs={paletteVisibleHrefs}
+            visibleHrefs={visibleHrefs}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}
             onNavigate={navigate}
@@ -416,6 +409,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             showVendorInternalNav={showVendorInternalNav}
             productLine={productLine}
             productLineAssignmentOverrides={assignmentOverrides}
+            workingMode={workingMode}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (
