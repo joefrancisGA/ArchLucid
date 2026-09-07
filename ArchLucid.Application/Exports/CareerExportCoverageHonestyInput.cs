@@ -1,6 +1,7 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 
 namespace ArchLucid.Application.Exports;
@@ -19,4 +20,5 @@ public sealed record CareerExportCoverageHonestyInput(
     AgentOutputQualityGateMode HostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
     AgentOutputQualityGateMode? RecordedQualityGateMode = null,
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
-    int? JudgeSkippedByCap = null);
+    int? JudgeSkippedByCap = null,
+    FindingsSnapshot? FindingsSnapshot = null);

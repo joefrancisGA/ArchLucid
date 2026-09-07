@@ -125,6 +125,36 @@ public sealed class CareerArtifactCompletenessValidatorTests
     }
 
     [Fact]
+    public void Evaluate_blocks_export_when_decision_grade_provenance_is_missing()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "finding-1",
+                    FindingType = "PolicyViolation",
+                    Classification = FindingClassification.DecisionGradeFinding,
+                },
+            ],
+        };
+
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            FindingsSnapshot: snapshot);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.DecisionGradeProvenanceCode);
+    }
+
+    [Fact]
     public void Evaluate_blocks_external_export_for_sample_runs_when_configured()
     {
         CareerArtifactCompletenessInput input = new(

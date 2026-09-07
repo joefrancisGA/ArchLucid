@@ -10,6 +10,7 @@ import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-st
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/findings/finding-display-from-inspect";
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
+import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -56,6 +57,7 @@ export function FindingInspectFindingBody({
       ? "Open risk review"
       : "Open review summary";
   const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
+  const citationExportBlockedReason = resolveFindingInspectCitationExportBlockedReason(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
   let insightDensityScore: number | null = null;
@@ -88,6 +90,15 @@ export function FindingInspectFindingBody({
   const modelProvenanceBlock = (
     <div className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800" data-testid="finding-model-provenance-row">
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Model provenance</p>
+      {citationExportBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 mt-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-inspect-citation-required-defect"
+        >
+          {citationExportBlockedReason}
+        </p>
+      ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {modelProvenance.origin}
         {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}

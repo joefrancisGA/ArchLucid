@@ -62,6 +62,8 @@ export async function loadFindingDetailPageModel(
       : null;
   const parentArchitectureId =
     criticalBundle?.data.buyerSummary?.run?.architectureId?.trim() ?? "";
+  const transparencyTrail =
+    criticalBundle?.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
 
   const model: FindingDetailPageModel = {
     runId,
@@ -77,6 +79,7 @@ export async function loadFindingDetailPageModel(
     statedConstraintContext,
     nextFindingInReview,
     parentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
+    transparencyTrail,
   };
 
   return { kind: "success", model };

@@ -56,6 +56,7 @@ public static class CareerExportCoverageHonestyMaterialLoader
         bool isSampleRun = false;
         AgentOutputQualityGateMode? recordedQualityGateMode = null;
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null;
+        FindingsSnapshot? findingsSnapshot = null;
 
         if (Guid.TryParse(detail.Run.RunId.Trim(), out Guid runGuid))
         {
@@ -63,12 +64,13 @@ public static class CareerExportCoverageHonestyMaterialLoader
                 .GetRunDetailForExportAsync(scope, runGuid, cancellationToken)
                 .ConfigureAwait(false);
 
+            findingsSnapshot = exportDetail?.FindingsSnapshot;
             enginesSucceeded = exportDetail?.FindingCoverageSummary?.EnginesSucceeded;
-            classificationCounts = CountClassificationBands(exportDetail?.FindingsSnapshot);
+            classificationCounts = CountClassificationBands(findingsSnapshot);
             catalogAdvisoryEngineFailureCount = FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator
-                .CountCatalogAdvisoryFailures(exportDetail?.FindingsSnapshot?.EngineFailures ?? []);
+                .CountCatalogAdvisoryFailures(findingsSnapshot?.EngineFailures ?? []);
             judgeSkippedByCap = ResolveJudgeSkippedByCap(
-                exportDetail?.FindingsSnapshot?.InsightDensityCuration?.JudgeSkippedByCap);
+                findingsSnapshot?.InsightDensityCuration?.JudgeSkippedByCap);
             isSampleRun = exportDetail?.Run.IsSample ?? false;
 
             IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository
@@ -91,7 +93,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             hostQualityGateMode,
             recordedQualityGateMode,
             aggregateQualityGateOutcome,
-            judgeSkippedByCap);
+            judgeSkippedByCap,
+            findingsSnapshot);
     }
 
     private static int? ResolveJudgeSkippedByCap(int? judgeSkippedByCap)

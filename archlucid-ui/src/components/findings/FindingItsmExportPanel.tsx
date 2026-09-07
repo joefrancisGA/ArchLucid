@@ -10,15 +10,22 @@ import { isChecklistCoverageInspectPayload } from "@/lib/findings/finding-inspec
 import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm/itsm-native-create-readiness-alignment";
 import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type FindingItsmExportPanelProps = {
   runId: string;
   findingId: string;
   payload: FindingInspectPayload;
+  readonly transparencyTrail?: TransparencyTrail | null;
 };
 
 /** Finding handoff: native Jira/ServiceNow create when probes validate; copy-as-work-item fallback otherwise (Tier 2 #6). */
-export function FindingItsmExportPanel({ runId, findingId, payload }: FindingItsmExportPanelProps) {
+export function FindingItsmExportPanel({
+  runId,
+  findingId,
+  payload,
+  transparencyTrail = null,
+}: FindingItsmExportPanelProps) {
   const { defaultPathReady, deploymentEnabled } = useItsmNativeCreateReadiness();
   const checklistCoverageFinding = isChecklistCoverageInspectPayload(payload);
 
@@ -57,7 +64,12 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
             Prefer clipboard export?
           </p>
           <div className="pt-2">
-            <CopyFindingAsWorkItemButton findingId={findingId} payload={payload} runId={runId} />
+            <CopyFindingAsWorkItemButton
+              findingId={findingId}
+              payload={payload}
+              runId={runId}
+              transparencyTrail={transparencyTrail}
+            />
           </div>
         </div>
       </section>
@@ -93,7 +105,13 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
         </p>
       ) : null}
       <div className="pt-3">
-        <CopyFindingAsWorkItemButton findingId={findingId} payload={payload} runId={runId} prominent />
+        <CopyFindingAsWorkItemButton
+          findingId={findingId}
+          payload={payload}
+          runId={runId}
+          transparencyTrail={transparencyTrail}
+          prominent
+        />
       </div>
     </section>
   );
