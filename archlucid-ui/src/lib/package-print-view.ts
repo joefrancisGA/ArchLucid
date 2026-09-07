@@ -5,6 +5,7 @@
 
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveWorkingPrintBackHref } from "@/lib/architecture/working-back-href";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
@@ -54,15 +55,18 @@ export function buildPackagePrintPath(runId: string): string {
   return `/architecture/reviews/${encodeURIComponent(trimmed)}/print`;
 }
 
-/** Builds the review workspace href with the package tab focused. */
-export function buildPackagePrintBackHref(runId: string): string {
+/** Builds the review workspace href with the package tab focused (AO-44 nested when architecture id known). */
+export function buildPackagePrintBackHref(
+  runId: string,
+  architectureId?: string | null,
+): string {
   const trimmed = runId.trim();
 
   if (trimmed.length === 0) {
     return "/architecture/reviews";
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}?tab=review-package`;
+  return resolveWorkingPrintBackHref(trimmed, architectureId);
 }
 
 /** Invokes the browser print dialog (screen stylesheet already hides shell chrome). */

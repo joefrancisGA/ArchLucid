@@ -3476,6 +3476,7 @@ export interface components {
             snapshotId?: string;
         };
         DeskContinuityDto: {
+            lastOpenArchitectureId?: null | string;
             lastOpenDraftId?: null | string;
             lastOpenReviewId?: null | string;
             lastVisitWatermarkUtc?: null | string;

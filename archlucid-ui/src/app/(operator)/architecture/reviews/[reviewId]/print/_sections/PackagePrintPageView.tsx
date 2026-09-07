@@ -43,12 +43,13 @@ import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFoot
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
-  const { presentation, listScopedRunId = null } = props;
-  const backHref = buildPackagePrintBackHref(presentation.runId);
+  const { presentation, listScopedRunId = null, parentArchitectureId = null } = props;
+  const backHref = buildPackagePrintBackHref(presentation.runId, parentArchitectureId);
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
