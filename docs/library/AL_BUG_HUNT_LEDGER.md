@@ -894,11 +894,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — dry-run/simulate webhook probes omitted HTTPS/private-network SSRF guard before outbound POST
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — dry-run audit misreported whitespace secret; oversized probe response read
 - **related-pd-tb:** none
 - **code-changed-since:** 3
 
@@ -908,9 +908,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Dry-run payload includes secrets from another tenant's webhook config — retired: controller uses request `SharedSecret` only; no tenant webhook lookup in zone paths
 - [x] (invalid) Controller returns success when the dry-run service throws — retired: `ProbeWithBodyAsync` catches transport errors and returns `TransportSucceeded=false`; controller intentionally returns 200 with probe outcome in body
 - [x] (proven) Operator webhook dry-run POSTs to loopback/private targets without SSRF guard — **hit 2026-08-24:** `AllowedOutboundWebhookProbeUrlPolicy` blocks unsafe `TargetUrl` before probe in dry-run and simulate controllers
-- [ ] (hunt-ready) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0`, so API clients treating HTTP success as delivery success mark dead URLs as healthy unless they inspect `TransportSucceeded`.
-- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }`, logging that a secret was provided when the probe was unsigned.
-- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation, so a probe to a URL returning a multi-megabyte body allocates the entire payload server-side even though only 8192 chars are returned.
+- [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0` — **invalid 2026-09-07 hunt #1266:** same contract as retired transport-throws row; probe outcome is intentionally returned in body (`TransportSucceeded`, `Error`); regression `DryRunAsync_returns_200_with_transport_failed_outcome_in_body`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }` — **hit 2026-09-07 hunt #1266:** audit now uses `!string.IsNullOrEmpty(body.SharedSecret?.Trim())`; regression `DryRunAsync_audit_records_hasSharedSecret_false_when_shared_secret_is_whitespace_only`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation — **hit 2026-09-07 hunt #1266:** capped stream read stops after preview window; regression `ProbeWithBodyAsync_does_not_read_entire_oversized_subscriber_response`.
+
+2026-09-07 thorough hunt #1266 (hit): closed transport-failed HTTP contract as intentional; fixed audit whitespace secret mismatch and uncapped subscriber response reads; 9 scoped unit tests passed.
 
 ---
 
