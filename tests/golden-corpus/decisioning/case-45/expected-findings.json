@@ -79,6 +79,26 @@
     ]
   },
   {
+    "findingId": "e71cc968-b784-3793-534a-0d71481435c4",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "req-dr-2",
+      "sql-ledger-prod",
+      "svc-ledger"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
     "findingId": "45917d3d-009f-fc5d-ff7d-ddf941a3c58b",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",

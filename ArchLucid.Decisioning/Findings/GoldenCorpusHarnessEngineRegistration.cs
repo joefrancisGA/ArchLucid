@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class GoldenCorpusHarnessEngineRegistration
 {
-    public const int LatestGoldenCorpusCaseNumber = 57;
+    public const int LatestGoldenCorpusCaseNumber = 63;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
@@ -13,10 +13,12 @@ public static class GoldenCorpusHarnessEngineRegistration
         "requirement-expectation",
         "requirement-coverage",
         "requirement-sku-tier",
+        "required-capability-coverage",
         "topology-coverage",
         "topology-structure",
         "security-baseline",
         "security-baseline-completeness",
+        "security-baseline-expectation",
         "security-gap",
         "security-coverage",
         "external-exposure",
