@@ -46,6 +46,12 @@ function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
   return currentPath.startsWith(`${linkPath}/`);
 }
 
+function isAdministrationRoute(pathname: string): boolean {
+  const currentPath = navHrefPathPart(pathname);
+
+  return currentPath === SETTINGS_ROOT_PATH || currentPath.startsWith(`${SETTINGS_ROOT_PATH}/`);
+}
+
 /**
  * Daily destinations shown first in dense sidebar groups; the rest sit behind “N more”.
  * Keep lists short (≈5) so the first viewport stays scannable.
@@ -132,6 +138,10 @@ export function splitSidebarLinksDailyVsMore(
   pathname: string,
   workingMode = false,
 ): SidebarDailyLinkSplit {
+  if (groupId === "operator-admin" && isAdministrationRoute(pathname)) {
+    return { daily: [...links], more: [] };
+  }
+
   const dailyHrefs = resolveSidebarDailyHrefs(groupId, workingMode);
 
   if (dailyHrefs === undefined) {

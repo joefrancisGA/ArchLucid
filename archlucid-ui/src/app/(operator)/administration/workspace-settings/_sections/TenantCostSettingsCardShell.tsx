@@ -19,15 +19,23 @@ import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer/buyer-polis
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
 import {
+  readActiveTenantContext,
+  resolveTenantOrganizationDisplayName,
+  TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+} from "@/lib/active-tenant-context-display";
+import {
   TENANT_COST_SETTINGS_AUDIT_HREF,
   TENANT_COST_SETTINGS_AUDIT_TRAIL_LINK_LABEL,
   TENANT_COST_SETTINGS_DEFAULTS_STATUS_LABEL,
   TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER,
   TENANT_COST_SETTINGS_LAST_CHANGED_PREFIX,
   TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE,
+  formatTenantCostSettingsEaDerivedRateHelper,
 } from "@/lib/tenant-settings-page-copy";
 
 import type { TenantCostSettingsFormState } from "./use-tenant-cost-settings-form";
+
+const COST_FIELD_WIDTH_CLASS = "max-w-[12rem]";
 
 type CurrencyUsdFieldProps = {
   readonly id: string;
@@ -51,7 +59,7 @@ function CurrencyUsdField(props: CurrencyUsdFieldProps) {
         : undefined;
 
   return (
-    <div>
+    <div className={COST_FIELD_WIDTH_CLASS}>
       <Label htmlFor={props.id}>{props.label}</Label>
       <div className="relative mt-1">
         <span
@@ -65,6 +73,7 @@ function CurrencyUsdField(props: CurrencyUsdFieldProps) {
         </span>
         <Input
           id={props.id}
+          type="text"
           inputMode="decimal"
           value={props.value}
           onChange={(ev) => props.onChange(ev.target.value)}
@@ -72,7 +81,7 @@ function CurrencyUsdField(props: CurrencyUsdFieldProps) {
           data-testid={props.testId}
           aria-invalid={props.error !== null}
           aria-describedby={describedBy}
-          className={cn("pl-7 font-mono", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("pl-9 font-mono", OPERATOR_TYPOGRAPHY.body)}
         />
       </div>
       <BaselineFieldMessage error={props.error} id={errorId} />
@@ -129,7 +138,6 @@ function CostSettingsCardHeader(props: CostSettingsCardHeaderProps) {
         <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
           Cost settings
         </CardTitle>
-        <MutatingInTenantChip />
         {!props.isTenantConfigured ? (
           <StatusTag
             kind="neutral"
@@ -189,6 +197,15 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
     saveEmphasizedStepId,
   } = state;
 
+  const eaDiscountNumeric = Number(eaDiscountPercentage.trim());
+  const eaDerivedRateHelper = formatTenantCostSettingsEaDerivedRateHelper(eaDiscountNumeric);
+  const tenantContext = readActiveTenantContext();
+  const tenantScopeLabel = resolveTenantOrganizationDisplayName(
+    tenantContext.tenantId,
+    tenantContext.displayName,
+  );
+  const showTenantScopeLabel = tenantScopeLabel !== TENANT_ORGANIZATION_NAME_UNAVAILABLE;
+
   return (
     <Card data-testid="tenant-cost-settings-card">
       <CostSettingsCardHeader
@@ -213,6 +230,7 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
             {canEdit ? (
               <IntegrationConnectChecklist
                 title="Save checklist"
+                titleHeadingLevel="helper"
                 steps={saveSteps}
                 emphasizedStepId={saveEmphasizedStepId}
                 testIdPrefix="tenant-cost-settings"
@@ -238,7 +256,7 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
             <div className="grid gap-3 sm:grid-cols-2">
               <CurrencyUsdField
                 id="architect-hourly-rate"
-                label="Average architect hourly rate (USD)"
+                label="Average architect hourly rate"
                 value={hourlyRate}
                 onChange={setHourlyRate}
                 readOnly={!canEdit}
@@ -247,7 +265,7 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
               />
               <CurrencyUsdField
                 id="average-incident-cost"
-                label="Average incident cost (USD)"
+                label="Average incident cost"
                 value={incidentCost}
                 onChange={setIncidentCost}
                 readOnly={!canEdit}
@@ -256,15 +274,12 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
               />
             </div>
 
-            <div>
-              <Label htmlFor="ea-discount-percentage">Enterprise Agreement discount (% off Azure Retail)</Label>
-              <div className="relative mt-1 max-w-[12rem]">
+            <div className={COST_FIELD_WIDTH_CLASS}>
+              <Label htmlFor="ea-discount-percentage">Enterprise Agreement discount (% off Azure retail)</Label>
+              <div className="relative mt-1">
                 <Input
                   id="ea-discount-percentage"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
+                  type="text"
                   inputMode="decimal"
                   value={eaDiscountPercentage}
                   onChange={(ev) => setEaDiscountPercentage(ev.target.value)}
@@ -293,15 +308,25 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
               >
                 {TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER}
               </p>
+              {eaDerivedRateHelper !== null ? (
+                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {eaDerivedRateHelper}
+                </p>
+              ) : null}
             </div>
 
             {!canEdit ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Editing requires operator rank (Execute) on the API; your session is read-only for these controls.
+                Editing requires workspace administrator (Admin) authority; your session is read-only for these
+                controls.
               </p>
             ) : null}
 
             <div className="flex flex-wrap items-center gap-3">
+              <MutatingInTenantChip
+                tenantScopeLabel={tenantScopeLabel}
+                showTenantId={showTenantScopeLabel}
+              />
               <Button
                 type="submit"
                 variant="primary"
