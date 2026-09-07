@@ -14,6 +14,8 @@ import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-m
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
+import { formatCareerExportFindingTrustMarkdownSection } from "@/lib/findings/format-career-export-finding-trust-markdown-section";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export type CareerExportClassificationCounts = {
@@ -34,6 +36,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly aggregateQualityGateOutcome?: number | null;
   readonly judgeSkippedByCap?: number | null;
   readonly findingsSnapshot?: unknown;
+  readonly exportFindings?: readonly QuickDecisionFinding[];
 };
 
 export type CareerExportCoverageHonesty = {
@@ -184,6 +187,12 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
 
   if (feasibilityVerdictMarkdown.trim().length > 0) {
     sections.push(feasibilityVerdictMarkdown.trim());
+  }
+
+  const findingTrustMarkdown = formatCareerExportFindingTrustMarkdownSection(input.exportFindings ?? []);
+
+  if (findingTrustMarkdown.trim().length > 0) {
+    sections.push(findingTrustMarkdown.trim());
   }
 
   if (honesty.blockedForWorkingCareerExport && honesty.measurementFloorBlockedReason !== null) {

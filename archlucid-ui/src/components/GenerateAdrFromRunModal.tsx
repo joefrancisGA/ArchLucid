@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   parseReviewGenerateAdrOpenFromSearch,
@@ -145,6 +146,12 @@ export function GenerateAdrFromRunModal({
             hostAgentExecutionMode,
             hostQualityGateMode,
             aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+            exportFindings: exportInput.findings.map((finding) => ({
+              findingId: finding.findingId,
+              title: finding.title,
+              trustLabel: finding.trustLabel ?? null,
+              trustLabelReason: finding.trustLabelReason ?? null,
+            })) as QuickDecisionFinding[],
           })
         : null;
 

@@ -261,6 +261,7 @@ public sealed class FirstValueReportBuilder(
             PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
