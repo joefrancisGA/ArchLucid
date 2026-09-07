@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -16,6 +17,7 @@ using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -138,10 +140,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         Guid contextSnapshotId,
         GoldenCorpusInventoryFixtureDocument? inventoryFixture)
     {
-        (IAzureExtractorPackageRepository azureRepository, FindingAnalysisContext? analysisContext) =
-            ResolveAzureInventory(runId, contextSnapshotId, inventoryFixture);
-
-        ICloudInventoryExtractorPackageRepository cloudRepository = new NoOpCloudInventoryExtractorPackageRepository();
+        (IAzureExtractorPackageRepository azureRepository, ICloudInventoryExtractorPackageRepository cloudRepository, FindingAnalysisContext? analysisContext) =
+            ResolveInventoryFixture(runId, contextSnapshotId, inventoryFixture);
 
         IFindingEngine[] engines = CreateEngines();
         FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
@@ -165,31 +165,105 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         return (orchestrator, analysisContext);
     }
 
-    private (IAzureExtractorPackageRepository Repository, FindingAnalysisContext? AnalysisContext) ResolveAzureInventory(
+    private (
+        IAzureExtractorPackageRepository AzureRepository,
+        ICloudInventoryExtractorPackageRepository CloudRepository,
+        FindingAnalysisContext? AnalysisContext) ResolveInventoryFixture(
         Guid runId,
         Guid contextSnapshotId,
         GoldenCorpusInventoryFixtureDocument? inventoryFixture)
     {
         if (inventoryFixture is null)
-            return (new NoOpAzureExtractorPackageRepository(), null);
+            return (new NoOpAzureExtractorPackageRepository(), new NoOpCloudInventoryExtractorPackageRepository(), null);
 
         DateTime collectionUtc = _timeProvider.GetUtcNow().UtcDateTime;
-        AzureExtractorPackageDownloadRecord download = GoldenCorpusEffectfulInventorySupport.CreateAzurePackage(
-            inventoryFixture.AzurePackageId,
-            inventoryFixture.ResourcesJson);
+        ScopeContext scope = GoldenCorpusFixedScopeContextProvider.Scope;
+        List<EvidencePackagePin> evidencePins = [];
+        IAzureExtractorPackageRepository azureRepository = new NoOpAzureExtractorPackageRepository();
+        ICloudInventoryExtractorPackageRepository cloudRepository = new NoOpCloudInventoryExtractorPackageRepository();
 
-        Mock<IAzureExtractorPackageRepository> repository = GoldenCorpusEffectfulInventorySupport.CreateSeededAzureRepository(
-            GoldenCorpusFixedScopeContextProvider.Scope,
-            download,
-            collectionUtc);
+        if (inventoryFixture.AzurePackageId != Guid.Empty)
+        {
+            AzureExtractorPackageDownloadRecord azureDownload = GoldenCorpusEffectfulInventorySupport.CreateAzurePackage(
+                inventoryFixture.AzurePackageId,
+                inventoryFixture.ResourcesJson);
 
-        FindingAnalysisContext analysisContext = GoldenCorpusEffectfulInventorySupport.CreateAzurePinnedContext(
+            azureRepository = GoldenCorpusEffectfulInventorySupport.CreateSeededAzureRepository(
+                scope,
+                azureDownload,
+                collectionUtc).Object;
+
+            evidencePins.Add(
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = inventoryFixture.AzurePackageId,
+                    CollectionUtc = collectionUtc,
+                });
+        }
+
+        if (!string.IsNullOrWhiteSpace(inventoryFixture.CloudProvider))
+        {
+            if (inventoryFixture.CloudPackageId == Guid.Empty)
+            {
+                throw new InvalidOperationException(
+                    "Golden corpus cloud inventory fixture requires cloudPackageId when cloudProvider is set.");
+            }
+
+            CloudProvider cloudProvider = GoldenCorpusEffectfulCloudInventorySupport.ParseCloudProvider(
+                inventoryFixture.CloudProvider);
+
+            string cloudResourcesJson = string.IsNullOrWhiteSpace(inventoryFixture.CloudResourcesJson)
+                ? inventoryFixture.ResourcesJson
+                : inventoryFixture.CloudResourcesJson;
+
+            if (string.IsNullOrWhiteSpace(cloudResourcesJson))
+            {
+                throw new InvalidOperationException(
+                    "Golden corpus cloud inventory fixture requires cloudResourcesJson or resourcesJson.");
+            }
+
+            CloudInventoryExtractorPackageDownloadRecord cloudDownload =
+                GoldenCorpusEffectfulCloudInventorySupport.CreateCloudPackage(
+                    inventoryFixture.CloudPackageId,
+                    cloudResourcesJson);
+
+            cloudRepository = GoldenCorpusEffectfulCloudInventorySupport.CreateSeededCloudRepository(
+                scope,
+                cloudProvider,
+                cloudDownload,
+                collectionUtc).Object;
+
+            evidencePins.Add(
+                GoldenCorpusEffectfulCloudInventorySupport.CreateCloudEvidencePin(
+                    cloudProvider,
+                    inventoryFixture.CloudPackageId,
+                    collectionUtc));
+        }
+
+        if (evidencePins.Count == 0)
+            return (azureRepository, cloudRepository, null);
+
+        // DeclarationInventoryContradictionFindingEngine always probes Azure freshness; stub a pin when only cloud inventory is pinned.
+        if (evidencePins.All(static pin =>
+                !string.Equals(pin.Provider, RunEvidencePackagePinService.AzureProvider, StringComparison.OrdinalIgnoreCase)))
+        {
+            evidencePins.Insert(
+                0,
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = Guid.Empty,
+                    CollectionUtc = collectionUtc,
+                });
+        }
+
+        FindingAnalysisContext analysisContext = GoldenCorpusEffectfulInventorySupport.CreateMultiProviderPinnedContext(
             runId,
             contextSnapshotId,
-            inventoryFixture.AzurePackageId,
-            collectionUtc);
+            evidencePins);
 
-        return (repository.Object, analysisContext);
+        return (azureRepository, cloudRepository, analysisContext);
     }
 
     private IFindingEngine[] CreateEngines()

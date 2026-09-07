@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **50** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-50`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **54** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-54`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-50`)
+## Coverage map (`case-01` … `case-54`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -58,6 +58,10 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-48`** (hand-authored) | **DX-40** — pinned Azure inventory with unattached managed disk and empty graph. Exercises **`orphaned-azure-resource`** (also **`azure-inventory-reconciliation`**). See `tests/golden-corpus/decisioning/case-48/README.md`. |
 | **`case-49`** (hand-authored) | **DX-40** — pinned Azure inventory with `allowBlobPublicAccess: true`. Exercises **`azure-inventory-security-baseline`**. See `tests/golden-corpus/decisioning/case-49/README.md`. |
 | **`case-50`** (hand-authored) | **DX-40** — graph references Key Vault secret; pinned inventory row stale 90+ days before harness clock. Exercises **`secrets-lifecycle`**. See `tests/golden-corpus/decisioning/case-50/README.md`. |
+| **`case-51`** (hand-authored) | **DX-44** — pinned AWS inventory with unattached EBS volume and empty graph. Exercises **`orphaned-aws-resource`** (also **`aws-inventory-reconciliation`**). See `tests/golden-corpus/decisioning/case-51/README.md`. |
+| **`case-52`** (hand-authored) | **DX-44** — pinned GCP inventory with unattached persistent disk and empty graph. Exercises **`orphaned-gcp-resource`** (also **`gcp-inventory-reconciliation`**). See `tests/golden-corpus/decisioning/case-52/README.md`. |
+| **`case-53`** (hand-authored) | **DX-44** — pinned AWS inventory with security group administrative ingress from 0.0.0.0/0. Exercises **`aws-inventory-security-baseline`**. See `tests/golden-corpus/decisioning/case-53/README.md`. |
+| **`case-54`** (hand-authored) | **DX-44** — pinned GCP inventory with firewall SSH ingress from 0.0.0.0/0. Exercises **`gcp-inventory-security-baseline`**. See `tests/golden-corpus/decisioning/case-54/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -91,7 +95,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-50` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-54` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
 
 ---
 

@@ -36,7 +36,7 @@ public sealed class GoldenCorpusInputDocument
     }
 }
 
-/// <summary>Pinned Azure extractor package for golden corpus inventory-backed engines.</summary>
+/// <summary>Pinned Azure and/or AWS/GCP cloud inventory packages for golden corpus inventory-backed engines.</summary>
 public sealed class GoldenCorpusInventoryFixtureDocument
 {
     public Guid AzurePackageId
@@ -45,6 +45,22 @@ public sealed class GoldenCorpusInventoryFixtureDocument
     }
 
     public string ResourcesJson
+    {
+        get; set;
+    } = "[]";
+
+    /// <summary>When set (<c>Aws</c> or <c>Gcp</c>), pins a scoped cloud inventory ZIP for effectful engines.</summary>
+    public string? CloudProvider
+    {
+        get; set;
+    }
+
+    public Guid CloudPackageId
+    {
+        get; set;
+    }
+
+    public string CloudResourcesJson
     {
         get; set;
     } = "[]";
