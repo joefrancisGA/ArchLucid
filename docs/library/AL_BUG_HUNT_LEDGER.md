@@ -9080,22 +9080,30 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — pre-finalize checklist provisional-synthesis false clear before blocked-check projection
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` — `provisional-synthesis` item built before `BlockedReviewCheckProjector` mutates knowledge model — **hit 2026-09-07 (#1171):** blocked pre-commit gate projected `UnresolvedQuestion` elements and set `IsProvisionalSynthesis=true` after checklist item materialized as Clear; fixed by evaluating gate + projecting blocked checks before `BuildProvisionalSynthesisItemAsync` (`BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection`)
+- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — null `ArchitectureRequest` for non-empty `ArchitectureRequestId` fail-open skips execute-baseline drift blocking items
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only checklist GET persists knowledge model via blocked-check projection (non-idempotent first vs second GET)
+- [ ] (candidate) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity (ledger invalid elsewhere)
+- [ ] (candidate) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern (ledger invalid elsewhere)
+
+2026-09-07 seed hunt #1171 (hit): reseeded governance stickiness/posture/checklist paths; proved provisional-synthesis checklist false clear from blocked-check projection ordering.
 
 ---
 ## Zone: api-tenancy-workspaces
