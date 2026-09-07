@@ -12,7 +12,7 @@ export const POLICY_PACK_DELTA_DEMO_HELP_PAGE_SUBTITLE =
   "SE/Admin runbook: same finalized review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.";
 
 export const POLICY_PACK_DELTA_DEMO_HELP_OVERVIEW =
-  "Use this script when a prospect asks why policy packs matter. Show the same architecture package under a looser then stricter enforcement posture, prove the delta with dry-run/simulation, then open the audit trail. Buyers evaluating day-to-day approval should use Governance approval and Alerts help instead.";
+  "Use this script when a prospect asks why policy packs matter. Show the same architecture package under a looser then stricter enforcement posture, prove the delta with dry-run/simulation, then open the audit trail. Buyers evaluating day-to-day approval should use Approval and Alerts help instead.";
 
 export const POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE =
   "Dry-run and simulation output is architecture-review approval evidence, not certification.";
@@ -51,7 +51,7 @@ export const POLICY_PACK_DELTA_DEMO_HELP_SOURCES: readonly PolicyPackDeltaDemoHe
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
-  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
+  { label: "Approval", href: inAppHelpHref("governance-approval") },
   { label: "Understanding alerts", href: inAppHelpHref("alerts") },
 ] as const;
 

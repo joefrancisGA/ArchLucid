@@ -474,6 +474,75 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_DeploymentTemplateResources_MapsNestedStorageAccount()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-deployment-template",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "nested",
+                            "properties": {
+                              "template": {
+                                "resources": [
+                                  {
+                                    "type": "Microsoft.Storage/storageAccounts",
+                                    "name": "docs",
+                                    "properties": {
+                                      "allowBlobPublicAccess": true
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "docs");
+        result.Should().NotContain(o => o.Name == "nested");
+        result[0].Properties["tf.allowblobpublicaccess"].Should().Be("true");
+    }
+
+    [Fact]
+    public async Task ParseAsync_DeploymentTemplateLinkOnly_SkipsSilently()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "linked",
+                            "properties": {
+                              "templateLink": {
+                                "uri": "https://example.com/template.json"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ParseAsync_VnetNestedSubnets_MapsChildResources()
     {
         InfrastructureDeclarationReference declaration = new()

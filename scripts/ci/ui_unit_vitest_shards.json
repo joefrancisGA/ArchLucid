@@ -65,8 +65,17 @@
       "label": "app-operator-d (6/9)",
       "paths": [
         "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
-        "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
-        "src/app/(operator)/operator-client-pages-render-gate.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping-alerts-inbox.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping-alerts-rules.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping-governance.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping-hub.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping-policy-packs.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-inbox.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-routing.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-rules.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-alerts-simulation.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-hub.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate-pages.test.tsx",
         "src/app/(operator)/_sections"
       ]
     },

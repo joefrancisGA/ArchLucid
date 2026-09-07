@@ -247,7 +247,7 @@ describe("GovernanceFindingsQueueClient", () => {
       "href",
       "/architecture/reviews",
     );
-    expect(screen.getByRole("link", { name: "Open governance approval" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Open approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "View policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",
@@ -408,6 +408,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "needs-my-decision",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
   });
 
@@ -527,6 +528,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "ready-for-sponsor-packet",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
@@ -535,7 +537,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(await screen.findByTestId("governance-findings-job-view-filter-chip")).toBeInTheDocument();
   });
 
-  it("suppresses the governance approval banner when the assigned-to-me load fails in buyer shell", async () => {
+  it("suppresses the approval banner when the assigned-to-me load fails in buyer shell", async () => {
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
 

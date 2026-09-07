@@ -21,6 +21,8 @@ public static class BuiltInFindingEngineTypeCatalog
             ["RequirementExpectationFindingEngine"] = "requirement-expectation",
             ["RequirementGapFindingEngine"] = "requirement-gap",
             ["RequirementCrossRunDiffFindingEngine"] = "requirement-cross-run-diff",
+            ["DrRpoTopologyFindingEngine"] = "dr-rpo-topology",
+            ["RequirementSkuTierFindingEngine"] = "requirement-sku-tier",
             ["TopologyCoverageFindingEngine"] = "topology-coverage",
             ["TopologyStructureFindingEngine"] = "topology-structure",
             ["TopologyCrossRunDiffFindingEngine"] = "topology-cross-run-diff",
@@ -31,8 +33,10 @@ public static class BuiltInFindingEngineTypeCatalog
             ["SecurityGapFindingEngine"] = "security-gap",
             ["SecurityCoverageFindingEngine"] = "security-coverage",
             ["ExternalExposureFindingEngine"] = "external-exposure",
+            ["SegmentationSemanticsFindingEngine"] = "segmentation-semantics",
             ["TrustBoundaryFindingEngine"] = "trust-boundary",
             ["PrivilegedAccessFindingEngine"] = "privileged-access",
+            ["IdentityBlastRadiusFindingEngine"] = "identity-blast-radius",
             ["PolicyApplicabilityFindingEngine"] = "policy-applicability",
             ["PolicyCoverageFindingEngine"] = "policy-coverage",
             ["RequirementCoverageFindingEngine"] = "requirement-coverage",
@@ -45,6 +49,8 @@ public static class BuiltInFindingEngineTypeCatalog
             ["GraphAzureInventoryReconciliationFindingEngine"] = "azure-inventory-reconciliation",
             ["GraphAwsInventoryReconciliationFindingEngine"] = "aws-inventory-reconciliation",
             ["GraphGcpInventoryReconciliationFindingEngine"] = "gcp-inventory-reconciliation",
+            ["DeclarationInventoryContradictionFindingEngine"] = "declaration-inventory-contradiction",
+            ["DanglingDeclarationReferenceFindingEngine"] = "dangling-declaration-reference",
             ["OrphanedAwsResourceFindingEngine"] = "orphaned-aws-resource",
             ["OrphanedGcpResourceFindingEngine"] = "orphaned-gcp-resource",
             ["AwsCostRecommendationFindingEngine"] = "aws-cost-recommendation",
@@ -56,6 +62,9 @@ public static class BuiltInFindingEngineTypeCatalog
             ["DeclarationPremiseConflictFindingEngine"] = "declaration-premise-conflict",
             ["OpenCommitmentFindingEngine"] = "open-commitment",
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
+            ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
+            ["InsightGeneratorFindingEngine"] = "insight-generator",
+            ["ChecklistClusterSynthesisFindingEngine"] = "checklist-cluster-synthesis",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>

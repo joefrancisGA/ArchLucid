@@ -29,49 +29,94 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 
         foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
         {
-            string terraformType = block.TerraformType.Trim();
-            string name = block.Name.Trim();
+            if (SimpleTerraformResourceBlockParser.TryExtractLiteralForEachKeys(block.Body, out IReadOnlyList<string> forEachKeys)
+                && forEachKeys.Count > 0)
+            {
+                foreach (string forEachKey in forEachKeys)
+                {
+                    AddResourceObject(
+                        declaration,
+                        block,
+                        instanceName: BuildForEachInstanceName(block.Name, forEachKey),
+                        forEachKey,
+                        labelTotals,
+                        labelSeen,
+                        results);
+                }
 
-            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
                 continue;
+            }
 
-            string objectType = ResolveObjectType(terraformType);
-            string canonicalTerraformType = terraformType.ToLowerInvariant();
-
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["terraformType"] = canonicalTerraformType
-            };
-
-            SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
-
-            string canonicalName = name.ToLowerInvariant();
-            string labelKey = $"{canonicalTerraformType}|{canonicalName}";
-            int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
-            labelSeen[labelKey] = occurrence;
-
-            string stableIdentity = labelTotals[labelKey] > 1
-                ? $"{labelKey}|occurrence:{occurrence}"
-                : labelKey;
-
-            if (labelTotals[labelKey] > 1)
-                properties["terraformOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
-
-            results.Add(new CanonicalObject
-            {
-                ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
-                    declaration.DeclarationId,
-                    objectType,
-                    stableIdentity),
-                ObjectType = objectType,
-                Name = canonicalName,
-                SourceType = "InfrastructureDeclaration",
-                SourceId = declaration.DeclarationId,
-                Properties = properties
-            });
+            AddResourceObject(
+                declaration,
+                block,
+                instanceName: block.Name,
+                forEachKey: null,
+                labelTotals,
+                labelSeen,
+                results);
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static void AddResourceObject(
+        InfrastructureDeclarationReference declaration,
+        SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block,
+        string instanceName,
+        string? forEachKey,
+        IReadOnlyDictionary<string, int> labelTotals,
+        Dictionary<string, int> labelSeen,
+        List<CanonicalObject> results)
+    {
+        string terraformType = block.TerraformType.Trim();
+        string name = instanceName.Trim();
+
+        if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+            return;
+
+        string objectType = ResolveObjectType(terraformType);
+        string canonicalTerraformType = terraformType.ToLowerInvariant();
+
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["terraformType"] = canonicalTerraformType
+        };
+
+        if (!string.IsNullOrWhiteSpace(forEachKey))
+            properties["forEachKey"] = forEachKey;
+
+        SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
+
+        string canonicalName = name.ToLowerInvariant();
+        string labelKey = $"{canonicalTerraformType}|{canonicalName}";
+        int occurrence = labelSeen.GetValueOrDefault(labelKey) + 1;
+        labelSeen[labelKey] = occurrence;
+
+        string stableIdentity = labelTotals[labelKey] > 1
+            ? $"{labelKey}|occurrence:{occurrence}"
+            : labelKey;
+
+        if (labelTotals[labelKey] > 1)
+            properties["terraformOccurrence"] = occurrence.ToString(CultureInfo.InvariantCulture);
+
+        results.Add(new CanonicalObject
+        {
+            ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
+                declaration.DeclarationId,
+                objectType,
+                stableIdentity),
+            ObjectType = objectType,
+            Name = canonicalName,
+            SourceType = "InfrastructureDeclaration",
+            SourceId = declaration.DeclarationId,
+            Properties = properties
+        });
+    }
+
+    private static string BuildForEachInstanceName(string resourceName, string forEachKey)
+    {
+        return $"{resourceName.Trim()}[\"{forEachKey.Trim().ToLowerInvariant()}\"]";
     }
 
     private static Dictionary<string, int> CountResourceLabelOccurrences(
@@ -82,13 +127,25 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
         {
             string terraformType = block.TerraformType.Trim().ToLowerInvariant();
-            string name = block.Name.Trim().ToLowerInvariant();
+            string baseName = block.Name.Trim().ToLowerInvariant();
 
-            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(baseName))
                 continue;
 
-            string labelKey = $"{terraformType}|{name}";
-            counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+            if (SimpleTerraformResourceBlockParser.TryExtractLiteralForEachKeys(block.Body, out IReadOnlyList<string> forEachKeys)
+                && forEachKeys.Count > 0)
+            {
+                foreach (string forEachKey in forEachKeys)
+                {
+                    string labelKey = $"{terraformType}|{BuildForEachInstanceName(baseName, forEachKey).ToLowerInvariant()}";
+                    counts[labelKey] = counts.GetValueOrDefault(labelKey) + 1;
+                }
+
+                continue;
+            }
+
+            string singleLabelKey = $"{terraformType}|{baseName}";
+            counts[singleLabelKey] = counts.GetValueOrDefault(singleLabelKey) + 1;
         }
 
         return counts;

@@ -52,14 +52,22 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -101,7 +109,8 @@ function buildDiagramReconcileCorrespondenceAskHref(
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId: row.correspondenceId,
-    ...mergeInfrastructureAskAuditScope(auditScope),
+    hubTab: "diagram",
+    ...mergeInfrastructureAskAuditScope(auditScope ?? null),
   });
 }
 
@@ -205,11 +214,29 @@ export function DiagramReconcileWorkbenchClient() {
   }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCloudResourceId, urlCorrespondenceId]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope, runId),
     [auditScope, runId, scopedSnapshotId],
   );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    scopedSnapshotId,
+  );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(
+      diagramReconcileFilterHrefFromSearch(searchParams.toString(), buildInfraEvidenceAuditControlScopePatch(match), pathname),
+      { scroll: false },
+    );
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     if (urlCorrespondenceId.length === 0 || selectedCorrespondenceId !== urlCorrespondenceId) {
@@ -438,6 +465,10 @@ export function DiagramReconcileWorkbenchClient() {
           }));
         }
 
+        if (row.cloudResourceId != null && row.cloudResourceId.trim().length > 0) {
+          invalidateInfraEvidenceResourceHubCacheForResource(row.cloudResourceId);
+        }
+
         showSuccess(
           findingId.length > 0
             ? `Operational finding submitted — outcome: ${outcome}. Open remediation factory to match and create an instance.`
@@ -465,14 +496,35 @@ export function DiagramReconcileWorkbenchClient() {
     }
   }, []);
 
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedCorrespondenceId == null || selectedCorrespondenceId.length === 0) {
+      return null;
+    }
+
+    const selectedRow = filteredRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (selectedRow == null) {
+      return `Showing diagram correspondence ${selectedCorrespondenceId}.`;
+    }
+
+    return `Showing diagram correspondence ${selectedRow.diagramNodeLabel ?? selectedCorrespondenceId}.`;
+  }, [filteredRows, selectedCorrespondenceId]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagram-reconcile-workbench">
       <LayerHeader pageKey="infrastructure-diagram-reconcile" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
-        deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
-        evidence to confirmed.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
+          deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
+          evidence to confirmed.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer
+        message={selectionAnnouncement}
+        testId="infra-diagram-reconcile-selection-announcer"
+      />
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -487,6 +539,22 @@ export function DiagramReconcileWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={scopedSnapshotId}
+              runId={runId}
+              activeTab="diagram"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
+              provenanceTestId="infra-diagram-reconcile-audit-provenance"
+              unavailableTestId="infra-diagram-reconcile-audit-unavailable"
+            />
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="diagram"
@@ -502,7 +570,12 @@ export function DiagramReconcileWorkbenchClient() {
             extraLinks={[
               {
                 testId: "infra-diagram-reconcile-open-diagrams",
-                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope),
+                href: buildResourceHubDiagramsWorkbenchHref(
+                  scopedSnapshotId,
+                  urlCloudResourceId,
+                  undefined,
+                  mergeInfrastructureAskAuditScope(auditScope),
+                ),
                 label: "Open inventory diagrams",
               },
             ]}
@@ -669,6 +742,9 @@ export function DiagramReconcileWorkbenchClient() {
                     tab: "diagram",
                     snapshotId: selectedSnapshotId,
                     runId: runId.length > 0 ? runId : undefined,
+                    assessmentId: auditScope?.assessmentId,
+                    auditEvidenceSnapshotId: auditScope?.auditEvidenceSnapshotId,
+                    controlId: auditScope?.controlId,
                   })
                   : null;
                 const explanation = formatDiagramReconcileExplanation(row);
@@ -679,13 +755,33 @@ export function DiagramReconcileWorkbenchClient() {
                   snapshotId: selectedSnapshotId,
                   scopedCloudResourceId: urlCloudResourceId,
                   findingId: ingestedFindingId,
+                  assessmentId: auditScope?.assessmentId ?? null,
+                  auditEvidenceSnapshotId: auditScope?.auditEvidenceSnapshotId ?? null,
+                  controlId: auditScope?.controlId ?? null,
                 });
 
                 return (
                   <EnterpriseTableRow
                     key={row.correspondenceId}
                     data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
-                    className={selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined}
+                    className={cn(
+                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                      selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined,
+                    )}
+                    role="button"
+                    tabIndex={0}
+                    aria-selected={selectedCorrespondenceId === row.correspondenceId}
+                    onClick={() => {
+                      setSelectedCorrespondenceId(row.correspondenceId);
+                      syncUrl({ correspondenceId: row.correspondenceId });
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedCorrespondenceId(row.correspondenceId);
+                        syncUrl({ correspondenceId: row.correspondenceId });
+                      }
+                    }}
                   >
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>

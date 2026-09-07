@@ -2,7 +2,7 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 import {
   deriveRunsDashboardTabCounts,
   type RunsDashboardTabCounts,
-} from "@/components/operator-home/runs-dashboard-helpers";
+} from "@/lib/operator/run-home-status";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
@@ -18,7 +18,7 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly visibleCount?: number;
   /** Total tenant rows in the recent preview pool (before featured cap). */
   readonly recentTotalCount?: number;
-  /** Governance approval queue pressure from attention summary. */
+  /** Approval queue pressure from attention summary. */
   readonly awaitingApprovalCount?: number;
   /** Omit awaiting-approval segment when the lead card already surfaces that count (P1-6). */
   readonly suppressAwaitingApprovalCount?: boolean;
@@ -220,6 +220,8 @@ export type DeriveHomePreviewTabCountsInput = {
   /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
   readonly excludeShowcaseRunId?: string | undefined;
   readonly awaitingApprovalRunIds?: readonly string[];
+  /** Workspace-wide awaiting-approval count when preview rows have not loaded queue membership yet. */
+  readonly awaitingApprovalCount?: number;
 };
 
 function countAwaitingApprovalPreviewRuns(
@@ -249,7 +251,20 @@ export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInpu
       ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
       : input.previewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
-  const awaitingApproval = countAwaitingApprovalPreviewRuns(listItems, input.awaitingApprovalRunIds);
+  const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
+  const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);
+  const workspaceAwaitingApproval = input.awaitingApprovalCount ?? 0;
+
+  let awaitingApproval = previewAwaitingApproval;
+
+  if (
+    previewAwaitingApproval === 0
+    && awaitingApprovalRunIds !== undefined
+    && awaitingApprovalRunIds.length > 0
+  ) {
+    // Queue membership loaded but preview rows omit queue members — align tab label with workspace summary.
+    awaitingApproval = workspaceAwaitingApproval;
+  }
   const recentTotalCount = listItems.length;
   const recentVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
 

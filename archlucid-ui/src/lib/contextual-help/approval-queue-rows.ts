@@ -1,4 +1,4 @@
-/** Governance approval queue surface. */
+/** Approval queue surface. */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {

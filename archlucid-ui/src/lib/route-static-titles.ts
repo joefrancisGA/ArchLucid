@@ -19,6 +19,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -43,6 +44,7 @@ import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
 
 /**
  * Static pathname → announcement title mappings for canonical architect workspace routes only.
@@ -85,6 +87,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
   [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
   [GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+  [GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
   "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
@@ -134,4 +137,5 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/platform-bundled-policy-packs": "Platform policy packs",
   "/internal/recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "/internal/product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
+  "/internal/product-line": PRODUCT_LINE_PLAYGROUND_TITLE,
 };

@@ -262,6 +262,10 @@ export function useRunsDashboardTabs({
       awaitingApprovalCount,
       awaitingApprovalRunIds,
     });
+    const awaitingApprovalInMetricsStrip =
+      hideHeading &&
+      awaitingApprovalCount > 0 &&
+      tenantSnapshot.metrics.reviewPackagesCommitted > 0;
 
     const previewCounts = hideHeading ? (statusTabCounts as HomePreviewTabCounts) : undefined;
     const visibleCount = previewCounts?.recentVisibleCount;
@@ -271,7 +275,8 @@ export function useRunsDashboardTabs({
       visibleCount,
       recentTotalCount: previewCounts?.recentTotalCount,
       awaitingApprovalCount,
-      suppressAwaitingApprovalCount: promotedAttentionKind === "awaiting-approval",
+      suppressAwaitingApprovalCount:
+        promotedAttentionKind === "awaiting-approval" || awaitingApprovalInMetricsStrip,
     });
   }, [
     awaitingApprovalCount,
@@ -306,16 +311,28 @@ export function useRunsDashboardTabs({
       ? false
       : isExampleOnlyOverviewRunList(displayItems);
     const previewCounts = hideHeading ? (statusTabCounts as HomePreviewTabCounts) : undefined;
+    const tenantSnapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems: displayItems,
+      awaitingApprovalCount,
+      awaitingApprovalRunIds,
+    });
+    const awaitingApprovalInMetricsStrip =
+      hideHeading &&
+      awaitingApprovalCount > 0 &&
+      tenantSnapshot.metrics.reviewPackagesCommitted > 0;
 
     return {
       exampleReviewOnly,
       visibleCount: previewCounts?.recentVisibleCount,
       recentTotalCount: previewCounts?.recentTotalCount,
       awaitingApprovalCount,
-      suppressAwaitingApprovalCount: promotedAttentionKind === "awaiting-approval",
+      suppressAwaitingApprovalCount:
+        promotedAttentionKind === "awaiting-approval" || awaitingApprovalInMetricsStrip,
     };
   }, [
     awaitingApprovalCount,
+    awaitingApprovalRunIds,
     displayItems,
     hideHeading,
     phase,

@@ -1,8 +1,12 @@
 #requires -Version 5.1
 # Run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotCommandCenter.Tests.ps1'
 
-$repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-. (Join-Path $repoRoot 'scripts/FirstPilotCommandCenter.ps1')
+
+
+BeforeAll {
+    $repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+    . (Join-Path $repoRoot 'scripts/FirstPilotCommandCenter.ps1')
+}
 
 Describe 'First-pilot command center' {
     It 'Marks review lifecycle WARN when RunId is missing' {
@@ -16,8 +20,8 @@ Describe 'First-pilot command center' {
             -BlockCount 0
 
         $review = @($center.phases | Where-Object { $_.id -eq 'review-lifecycle' })[0]
-        $review.status | Should Be 'WARN'
-        $center.readinessOnly | Should Be $true
+        $review.status | Should -Be 'WARN'
+        $center.readinessOnly | Should -Be $true
     }
 
     It 'Rolls BLOCK findings into HOLD phase labels' {
@@ -31,8 +35,8 @@ Describe 'First-pilot command center' {
             -BlockCount 1
 
         $procurement = @($center.phases | Where-Object { $_.id -eq 'procurement-posture' })[0]
-        $procurement.status | Should Be 'HOLD'
-        $procurement.remediationDocLink | Should Be 'docs/runbooks/PROCUREMENT_DEAL_READY.md'
+        $procurement.status | Should -Be 'HOLD'
+        $procurement.remediationDocLink | Should -Be 'docs/runbooks/PROCUREMENT_DEAL_READY.md'
     }
 
     It 'Surfaces deferred buyer requirements without HOLD on phases' {
@@ -43,10 +47,10 @@ Describe 'First-pilot command center' {
             -BlockCount 0 `
             -DeferredScopeReasons @('SOC 2 CPA report')
 
-        $center.deferredBuyerRequirements.Count | Should Be 1
-        $center.deferredBuyerRequirements[0].status | Should Be 'DEFERRED'
+        $center.deferredBuyerRequirements.Count | Should -Be 1
+        $center.deferredBuyerRequirements[0].status | Should -Be 'DEFERRED'
         $procurement = @($center.phases | Where-Object { $_.id -eq 'procurement-posture' })[0]
-        $procurement.status | Should Be 'READY'
+        $procurement.status | Should -Be 'READY'
     }
 
     It 'Prioritizes platform HOLD in NEXT ACTION' {
@@ -60,8 +64,8 @@ Describe 'First-pilot command center' {
             -SponsorPacketDisposition 'HOLD' `
             -BlockCount 2
 
-        $center.nextAction.label | Should Be 'NEXT ACTION'
-        $center.nextAction.remediationDocLink | Should Be 'docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md#phase-a--platform-ready'
+        $center.nextAction.label | Should -Be 'NEXT ACTION'
+        $center.nextAction.remediationDocLink | Should -Be 'docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md#phase-a--platform-ready'
     }
 
     It 'Writes JSON and Markdown artifacts' {
@@ -74,15 +78,15 @@ Describe 'First-pilot command center' {
             -BlockCount 0
 
         $paths = Write-FirstPilotCommandCenterArtifacts -ProofDirectory $proofDir -CommandCenter $center
-        Test-Path -LiteralPath (Join-Path $proofDir $paths.jsonPath) | Should Be $true
-        Test-Path -LiteralPath (Join-Path $proofDir $paths.mdPath) | Should Be $true
+        Test-Path -LiteralPath (Join-Path $proofDir $paths.jsonPath) | Should -Be $true
+        Test-Path -LiteralPath (Join-Path $proofDir $paths.mdPath) | Should -Be $true
 
         $markdown = Get-Content -LiteralPath (Join-Path $proofDir $paths.mdPath) -Raw
-        $markdown | Should Match 'Buyer-safe summary'
-        $markdown | Should Match 'Internal diagnostics appendix'
+        $markdown | Should -Match 'Buyer-safe summary'
+        $markdown | Should -Match 'Internal diagnostics appendix'
 
         $json = Get-Content -LiteralPath (Join-Path $proofDir $paths.jsonPath) -Raw | ConvertFrom-Json
-        $json.nextAction.label | Should Be 'NEXT ACTION'
-        $json.phases.Count | Should Be 5
+        $json.nextAction.label | Should -Be 'NEXT ACTION'
+        $json.phases.Count | Should -Be 5
     }
 }

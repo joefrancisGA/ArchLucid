@@ -11,6 +11,7 @@ import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedReco
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
+import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
 import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
@@ -120,7 +121,11 @@ export function resolveRunDetailPageViewChrome(
   );
 
   const sectionNavEl = (
-    <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
+    <RunDetailSectionNavDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      sections={m.runDetailNavSections}
+    />
   );
 
   const governanceCtaEl = showGovernanceCta ? (
@@ -270,6 +275,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                   <>
                     <RunDetailWorkspaceHeaderDeferred
                       runId={m.resolvedDetail.run.runId}
+                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
                       h1Title={reviewHeaderPresentation.h1Title}
                       eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
                       reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
@@ -280,6 +286,10 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                       templateLabel={templateLabel}
                       finalizedAtLabel={finalizedAtLabel}
                       packageVersionLabel={packageVersionLabel}
+                    />
+
+                    <WorkingNestedArchitectureIdentityChromeMount
+                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
                     />
 
                     {chrome.tabbedWorkspaceEl}

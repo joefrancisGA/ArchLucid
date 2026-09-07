@@ -44,13 +44,13 @@ describe("EnterpriseControls read-tier hints (rank < Execute)", () => {
     expect(screen.getByRole("note")).toHaveTextContent(enterpriseExecutePageHintReaderRank);
   });
 
-  it("Governance resolution cue uses the reader evidence line", () => {
+  it("Policy resolution cue uses the reader evidence line", () => {
     render(<GovernanceResolutionRankCue />);
 
     expect(screen.getByRole("note")).toHaveTextContent(governanceResolutionRankReaderLine);
   });
 
-  it("Governance dashboard reader cue is visible (rank-gated approvals copy)", () => {
+  it("Approval dashboard reader cue is visible (rank-gated approvals copy)", () => {
     render(<GovernanceDashboardReaderActionCue />);
 
     expect(screen.getByRole("note")).toHaveTextContent(governanceDashboardReaderActionLine);

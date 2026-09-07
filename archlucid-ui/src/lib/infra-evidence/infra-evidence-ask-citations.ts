@@ -2,6 +2,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveInfraEvidenceCitationHubTab } from "@/lib/infra-evidence/infra-evidence-citation-hub-tab";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -16,8 +17,10 @@ export type InfraEvidenceAskCitationContext = {
   readonly snapshotId?: string | null;
   readonly diffId?: string | null;
   readonly findingId?: string | null;
+  readonly instanceId?: string | null;
   readonly correspondenceId?: string | null;
   readonly runId?: string | null;
+  readonly hubTab?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -27,6 +30,32 @@ export type InfraEvidenceAskCitationLink = {
   href: string;
   label: string;
 };
+
+function mergeAskCitationAuditScope(
+  context: InfraEvidenceAskCitationContext,
+): {
+  readonly assessmentId?: string;
+  readonly auditEvidenceSnapshotId?: string;
+  readonly controlId?: string;
+} {
+  const assessmentId = context.assessmentId?.trim() ?? "";
+  const auditEvidenceSnapshotId = context.auditEvidenceSnapshotId?.trim() ?? "";
+  const controlId = context.controlId?.trim() ?? "";
+
+  if (
+    assessmentId.length === 0
+    || auditEvidenceSnapshotId.length === 0
+    || controlId.length === 0
+  ) {
+    return {};
+  }
+
+  return {
+    assessmentId,
+    auditEvidenceSnapshotId,
+    controlId,
+  };
+}
 
 export function resolveInfraEvidenceAskCitationLink(
   citation: InfraEvidenceAskCitation,
@@ -45,14 +74,17 @@ export function resolveInfraEvidenceAskCitationLink(
   const findingId = context.findingId?.trim() ?? "";
   const correspondenceId = context.correspondenceId?.trim() ?? "";
   const runId = context.runId?.trim() ?? "";
-  const assessmentId = context.assessmentId?.trim() ?? "";
-  const auditEvidenceSnapshotId = context.auditEvidenceSnapshotId?.trim() ?? "";
+  const auditScope = mergeAskCitationAuditScope(context);
+  const citationHubTab = resolveInfraEvidenceCitationHubTab(citation, context);
 
   switch (citation.kind) {
     case "CloudResourceId":
       return {
         href: resourceHubFilterHrefFromSearch(id, "", {
+          tab: citationHubTab === "overview" ? undefined : citationHubTab,
           snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+          runId: runId.length > 0 ? runId : undefined,
+          ...auditScope,
         }),
         label,
       };
@@ -63,6 +95,7 @@ export function resolveInfraEvidenceAskCitationLink(
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
           diffId: diffId.length > 0 ? diffId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -71,6 +104,7 @@ export function resolveInfraEvidenceAskCitationLink(
         href: buildDriftWorkbenchHref({
           snapshotId: id,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -80,6 +114,7 @@ export function resolveInfraEvidenceAskCitationLink(
           diffId: id,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -91,6 +126,7 @@ export function resolveInfraEvidenceAskCitationLink(
           correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
           runId: runId.length > 0 ? runId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
+          ...auditScope,
         }),
         label,
       };
@@ -102,6 +138,7 @@ export function resolveInfraEvidenceAskCitationLink(
           runId: runId.length > 0 ? runId : null,
           cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
           reconcileFilter: "Conflict",
+          ...auditScope,
         }),
         label,
       };
@@ -113,20 +150,31 @@ export function resolveInfraEvidenceAskCitationLink(
           correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
           runId: runId.length > 0 ? runId : null,
           snapshotId: snapshotId.length > 0 ? snapshotId : null,
+          ...auditScope,
         }),
         label,
       };
     case "PatternKey":
       return { href: `${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}?patternKey=${encodeURIComponent(id)}`, label };
-    case "AuditLineageControlId":
-      if (assessmentId.length > 0 && auditEvidenceSnapshotId.length > 0) {
+    case "AuditLineageControlId": {
+      const lineageAuditScope = mergeAskCitationAuditScope({
+        ...context,
+        controlId: context.controlId ?? id,
+      });
+
+      if (lineageAuditScope.assessmentId != null && lineageAuditScope.auditEvidenceSnapshotId != null) {
         return {
-          href: buildAuditEvidenceLineageUiPath(assessmentId, auditEvidenceSnapshotId, id),
+          href: buildAuditEvidenceLineageUiPath(
+            lineageAuditScope.assessmentId,
+            lineageAuditScope.auditEvidenceSnapshotId,
+            lineageAuditScope.controlId ?? id,
+          ),
           label,
         };
       }
 
       return null;
+    }
     default:
       return null;
   }
@@ -135,8 +183,19 @@ export function resolveInfraEvidenceAskCitationLink(
 export function buildResourceHubDriftWorkbenchHref(
   snapshotId: string | null | undefined,
   cloudResourceId?: string | null,
+  auditContext?: {
+    readonly assessmentId?: string | null;
+    readonly auditEvidenceSnapshotId?: string | null;
+    readonly controlId?: string | null;
+  },
 ): string {
-  return buildDriftWorkbenchHref({ snapshotId, cloudResourceId });
+  return buildDriftWorkbenchHref({
+    snapshotId,
+    cloudResourceId,
+    assessmentId: auditContext?.assessmentId,
+    auditEvidenceSnapshotId: auditContext?.auditEvidenceSnapshotId,
+    controlId: auditContext?.controlId,
+  });
 }
 
 export function buildResourceHubDiagramsWorkbenchHref(

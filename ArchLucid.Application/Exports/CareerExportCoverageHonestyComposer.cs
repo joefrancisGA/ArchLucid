@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Decisioning.Findings;
 
@@ -16,22 +17,60 @@ public static class CareerExportCoverageHonestyComposer
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(input.CoverageContext);
 
+        InsightDensityMeasurementFloorContext measurementFloorContext = BuildMeasurementFloorContext(input);
         InsightDensityMeasurementFloorPresentation measurementFloor =
-            InsightDensityMeasurementFloorPresenter.Present(input.EnginesSucceeded);
+            InsightDensityMeasurementFloorPresenter.Present(input.EnginesSucceeded, measurementFloorContext);
         string? measurementFloorBlockedReason =
-            InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(input.EnginesSucceeded);
+            InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
+                input.EnginesSucceeded,
+                input.CatalogAdvisoryEngineFailureCount);
+        string? workingCareerExportBlockedReason = ResolveWorkingCareerExportBlockedReason(
+            input,
+            measurementFloorBlockedReason);
 
         StringBuilder sponsorMarkdownBuilder = new();
         SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sponsorMarkdownBuilder, input.CoverageContext);
         string sponsorHonestyMarkdown = sponsorMarkdownBuilder.ToString().Trim();
 
-        bool blockedForWorkingCareerExport = input.WorkingDesk && measurementFloorBlockedReason is not null;
+        bool blockedForWorkingCareerExport = input.WorkingDesk && workingCareerExportBlockedReason is not null;
 
         return new CareerExportCoverageHonesty(
             measurementFloor,
-            measurementFloorBlockedReason,
+            workingCareerExportBlockedReason ?? measurementFloorBlockedReason,
             sponsorHonestyMarkdown,
             blockedForWorkingCareerExport);
+    }
+
+    private static string? ResolveWorkingCareerExportBlockedReason(
+        CareerExportCoverageHonestyInput input,
+        string? measurementFloorBlockedReason)
+    {
+        if (!input.WorkingDesk)
+        {
+            return null;
+        }
+
+        string? gateBlockedReason =
+            PreCommitGovernanceGateCareerHonestyPresenter.FormatCareerExportBlockedReason(input.PreCommitGateEnabled);
+
+        if (gateBlockedReason is not null)
+        {
+            return gateBlockedReason;
+        }
+
+        string? qualityGateBlockedReason = AgentOutputQualityGateCareerHonestyPresenter.FormatCareerExportBlockedReason(
+            input.StructuralExecutionMode,
+            input.IsSampleRun,
+            input.HostAgentExecutionMode,
+            input.HostQualityGateMode,
+            input.AggregateQualityGateOutcome);
+
+        if (qualityGateBlockedReason is not null)
+        {
+            return qualityGateBlockedReason;
+        }
+
+        return measurementFloorBlockedReason;
     }
 
     public static string FormatMarkdown(CareerExportCoverageHonestyInput input)
@@ -39,7 +78,7 @@ public static class CareerExportCoverageHonestyComposer
         ArgumentNullException.ThrowIfNull(input);
 
         CareerExportCoverageHonesty honesty = Resolve(input);
-        List<string> sections = [FormatMeasurementFloorMarkdown(input.EnginesSucceeded).Trim()];
+        List<string> sections = [FormatMeasurementFloorMarkdown(input).Trim()];
 
         string classificationMarkdown = FormatClassificationBandMarkdown(input.ClassificationCounts).Trim();
 
@@ -143,6 +182,32 @@ public static class CareerExportCoverageHonestyComposer
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
+    }
+
+    public static string FormatMeasurementFloorMarkdown(CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(
+                input.EnginesSucceeded,
+                BuildMeasurementFloorContext(input));
+
+        return $"## Measurement floor\n\n{presentation.Sentence}\n";
+    }
+
+    private static InsightDensityMeasurementFloorContext BuildMeasurementFloorContext(
+        CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(input.CoverageContext);
+
+        return new InsightDensityMeasurementFloorContext
+        {
+            ActorNodeCount = input.CoverageContext.ActorNodeCount,
+            AnalysisStagesComplete = input.CoverageContext.AnalysisStagesComplete,
+            JudgeSkippedByCap = input.JudgeSkippedByCap,
+        };
     }
 
     public static string FormatMeasurementFloorMarkdown(int? enginesSucceeded)

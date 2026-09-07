@@ -2,25 +2,32 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { formatInfraEvidenceAskScopeStack } from "@/lib/infra-evidence/infra-evidence-ask-scope-summary";
 import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
+  buildInfrastructureAskHref,
   buildResourceHubOverviewHref,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   resolveResourceHubTabFromAskScope,
+  resolveResourceHubWorkbenchTabFromAskScope,
   formatResourceHubTabViewLabelFromAskScope,
   RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM,
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
@@ -34,6 +41,8 @@ import {
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
+  RESOURCE_HUB_TAB_PARAM,
+  parseAskHubTabOriginFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   formatCloudResourceExplorerWorkQueueLabel,
@@ -41,6 +50,16 @@ import {
   parseResourceExplorerWorkQueueFromSearch,
   resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
+import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
+import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
+import {
+  hasStaleInfraEvidenceAuditUrlParams,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   buildDriftWorkbenchHref,
   buildRemediationWorkbenchHref,
@@ -58,6 +77,8 @@ type InfrastructureAskTurn = {
 };
 
 export function InfrastructureAskClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const cloudResourceId = parseResourceExplorerCloudResourceIdFromSearch(
     searchParams.get(RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM),
@@ -76,8 +97,19 @@ export function InfrastructureAskClient() {
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
   const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
+  const hubTabOrigin = parseAskHubTabOriginFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(cloudResourceId, snapshotId);
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
 
   const [question, setQuestion] = useState("");
   const [useSimulator, setUseSimulator] = useState(true);
@@ -110,54 +142,37 @@ export function InfrastructureAskClient() {
     ],
   );
 
-  const contextSummary = useMemo(() => {
-    const parts: string[] = [];
-
-    if (cloudResourceId.length > 0) {
-      parts.push(`resource ${cloudResourceId}`);
-    }
-
-    if (snapshotId.length > 0) {
-      parts.push(`snapshot ${snapshotId}`);
-    }
-
-    if (diffId.length > 0) {
-      parts.push(`diff ${diffId}`);
-    }
-
-    if (findingId.length > 0) {
-      parts.push(`finding ${findingId}`);
-    }
-
-    if (instanceId.length > 0) {
-      parts.push(`instance ${instanceId}`);
-    }
-
-    if (
-      assessmentId.length > 0
-      && auditEvidenceSnapshotId.length > 0
-      && controlId.length > 0
-    ) {
-      parts.push(`control ${controlId}`);
-    }
-
-    if (correspondenceId.length > 0) {
-      parts.push(`correspondence ${correspondenceId}`);
-    }
-
-    if (workQueueLabel != null) {
-      parts.push(`work queue ${workQueueLabel}`);
-    }
-
-    if (parts.length === 0) {
-      return null;
-    }
-
-    return parts.join(" · ");
-  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
+  const contextSummary = useMemo(
+    () =>
+      formatInfraEvidenceAskScopeStack({
+        cloudResourceId,
+        snapshotId,
+        diffId,
+        findingId,
+        instanceId,
+        correspondenceId,
+        assessmentId,
+        auditEvidenceSnapshotId,
+        controlId,
+        workQueue,
+      }),
+    [
+      assessmentId,
+      auditEvidenceSnapshotId,
+      cloudResourceId,
+      controlId,
+      correspondenceId,
+      diffId,
+      findingId,
+      instanceId,
+      snapshotId,
+      workQueue,
+    ],
+  );
 
   const hubBackLinkTab = useMemo(() => {
     const scopeTab = resolveResourceHubTabFromAskScope({
+      hubTab: hubTabOrigin,
       findingId,
       instanceId,
       diffId,
@@ -172,21 +187,55 @@ export function InfrastructureAskClient() {
     }
 
     return resolveResourceHubTabFromExplorerWorkQueue(workQueue);
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId, workQueue]);
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, hubTabOrigin, instanceId, workQueue]);
 
   const askScopeHubTab = useMemo(
     () =>
-      resolveResourceHubTabFromAskScope({
+      resolveResourceHubWorkbenchTabFromAskScope({
+        hubTab: hubTabOrigin,
         findingId,
         instanceId,
         diffId,
-        assessmentId,
-        auditEvidenceSnapshotId,
-        controlId,
         correspondenceId,
       }),
-    [assessmentId, auditEvidenceSnapshotId, controlId, correspondenceId, diffId, findingId, instanceId],
+    [correspondenceId, diffId, findingId, hubTabOrigin, instanceId],
   );
+
+  const hasAuditLineageScope = useMemo(
+    () =>
+      assessmentId.length > 0
+      && auditEvidenceSnapshotId.length > 0
+      && controlId.length > 0,
+    [assessmentId, auditEvidenceSnapshotId, controlId],
+  );
+
+  const auditHubTabBackLinkHref = useMemo(() => {
+    if (cloudResourceId.length === 0 || !hasAuditLineageScope) {
+      return null;
+    }
+
+    if (askScopeHubTab == null || askScopeHubTab === "audit") {
+      return null;
+    }
+
+    return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
+      tab: "audit",
+      snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+    });
+  }, [
+    askScopeHubTab,
+    assessmentId,
+    auditEvidenceSnapshotId,
+    cloudResourceId,
+    controlId,
+    hasAuditLineageScope,
+    runId,
+    snapshotId,
+  ]);
 
   const workQueueScopedHubTabLabel = useMemo(() => {
     if (workQueue === "all" || askScopeHubTab != null) {
@@ -201,7 +250,31 @@ export function InfrastructureAskClient() {
     [askScopeHubTab],
   );
 
-  const resourceHubBackLinkLabel = askScopeHubTabLabel ?? workQueueScopedHubTabLabel ?? "Open resource evidence hub";
+  const resourceHubBackLinkLabel = askScopeHubTabLabel
+    ?? workQueueScopedHubTabLabel
+    ?? (
+      assessmentId.length > 0
+      && auditEvidenceSnapshotId.length > 0
+      && controlId.length > 0
+        ? formatResourceHubTabViewLabel("audit")
+        : "Open resource evidence hub"
+    );
+
+  const workbenchAuditContext = useMemo(() => {
+    if (
+      assessmentId.length === 0
+      || auditEvidenceSnapshotId.length === 0
+      || controlId.length === 0
+    ) {
+      return undefined;
+    }
+
+    return {
+      assessmentId,
+      auditEvidenceSnapshotId,
+      controlId,
+    };
+  }, [assessmentId, auditEvidenceSnapshotId, controlId]);
 
   const driftWorkbenchBackLinkHref = useMemo(() => {
     if (diffId.length === 0) {
@@ -212,8 +285,25 @@ export function InfrastructureAskClient() {
       diffId,
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
       cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      assessmentId: workbenchAuditContext?.assessmentId ?? null,
+      auditEvidenceSnapshotId: workbenchAuditContext?.auditEvidenceSnapshotId ?? null,
+      controlId: workbenchAuditContext?.controlId ?? null,
     });
-  }, [cloudResourceId, diffId, snapshotId]);
+  }, [cloudResourceId, diffId, snapshotId, workbenchAuditContext]);
+
+  const terraformWorkbenchBackLinkHref = useMemo(() => {
+    if (hubTabOrigin !== "terraform" || cloudResourceId.length === 0) {
+      return null;
+    }
+
+    return buildTerraformWorkbenchHref({
+      cloudResourceId,
+      snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      assessmentId: workbenchAuditContext?.assessmentId ?? null,
+      auditEvidenceSnapshotId: workbenchAuditContext?.auditEvidenceSnapshotId ?? null,
+      controlId: workbenchAuditContext?.controlId ?? null,
+    });
+  }, [cloudResourceId, hubTabOrigin, snapshotId, workbenchAuditContext]);
 
   const diagramReconcileBackLinkHref = useMemo(() => {
     if (correspondenceId.length === 0) {
@@ -225,8 +315,11 @@ export function InfrastructureAskClient() {
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
       correspondenceId,
       cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
+      assessmentId: workbenchAuditContext?.assessmentId ?? null,
+      auditEvidenceSnapshotId: workbenchAuditContext?.auditEvidenceSnapshotId ?? null,
+      controlId: workbenchAuditContext?.controlId ?? null,
     });
-  }, [cloudResourceId, correspondenceId, runId, snapshotId]);
+  }, [cloudResourceId, correspondenceId, runId, snapshotId, workbenchAuditContext]);
 
   const inventoryDiagramsBackLinkHref = useMemo(() => {
     if (snapshotId.length === 0) {
@@ -237,8 +330,9 @@ export function InfrastructureAskClient() {
       snapshotId,
       cloudResourceId.length > 0 ? cloudResourceId : null,
       seedNodeId.length > 0 ? seedNodeId : null,
+      workbenchAuditContext,
     );
-  }, [cloudResourceId, seedNodeId, snapshotId]);
+  }, [cloudResourceId, seedNodeId, snapshotId, workbenchAuditContext]);
 
   const remediationFactoryBackLinkHref = useMemo(() => {
     if (findingId.length === 0 && instanceId.length === 0 && correspondenceId.length === 0) {
@@ -252,8 +346,11 @@ export function InfrastructureAskClient() {
       correspondenceId: correspondenceId.length > 0 ? correspondenceId : null,
       runId: runId.length > 0 ? runId : null,
       snapshotId: snapshotId.length > 0 ? snapshotId : null,
+      assessmentId: workbenchAuditContext?.assessmentId ?? null,
+      auditEvidenceSnapshotId: workbenchAuditContext?.auditEvidenceSnapshotId ?? null,
+      controlId: workbenchAuditContext?.controlId ?? null,
     });
-  }, [cloudResourceId, correspondenceId, findingId, instanceId, runId, snapshotId]);
+  }, [cloudResourceId, correspondenceId, findingId, instanceId, runId, snapshotId, workbenchAuditContext]);
 
   const auditLineageBackLinkHref = useMemo(() => {
     if (
@@ -307,15 +404,121 @@ export function InfrastructureAskClient() {
     useSimulator,
   ]);
 
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    const nextHref = buildInfrastructureAskHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : undefined,
+      snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      diffId: diffId.length > 0 ? diffId : undefined,
+      findingId: findingId.length > 0 ? findingId : undefined,
+      instanceId: instanceId.length > 0 ? instanceId : undefined,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : undefined,
+      hubTab: hubTabOrigin != null && hubTabOrigin.length > 0 ? hubTabOrigin : undefined,
+      workQueue: workQueue !== "all" ? workQueue : undefined,
+      assessmentId: match.assessmentId,
+      auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
+      controlId: match.controlId,
+    });
+    router.replace(nextHref);
+  }, [
+    cloudResourceId,
+    correspondenceId,
+    diffId,
+    findingId,
+    hubTabOrigin,
+    instanceId,
+    router,
+    runId,
+    snapshotId,
+    workQueue,
+  ]);
+
+  useEffect(() => {
+    if (contextSummary == null) {
+      return;
+    }
+
+    const href = searchParams.toString().length > 0
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
+      surface: "ask",
+      cloudResourceId,
+      resourceDisplayName: resourceHub?.externalResourceId?.split("/").pop(),
+      externalResourceId: resourceHub?.externalResourceId,
+      snapshotId,
+      controlNumber: resourceHub?.auditLineageLink.controlNumber,
+      controlTitle: resourceHub?.auditLineageLink.controlTitle,
+      controlId: controlId.length > 0 ? controlId : resourceHub?.auditLineageLink.controlId,
+      workQueueLabel: workQueue !== "all" ? workQueueLabel : null,
+      diffId,
+      findingId,
+      instanceId,
+      correspondenceId,
+    });
+
+    if (recentScopeLabel == null) {
+      return;
+    }
+
+    recordInfraEvidenceRecentScope({
+      label: recentScopeLabel,
+      href,
+    });
+  }, [
+    cloudResourceId,
+    contextSummary,
+    controlId,
+    correspondenceId,
+    diffId,
+    findingId,
+    instanceId,
+    pathname,
+    resourceHub,
+    searchParams,
+    snapshotId,
+    workQueue,
+    workQueueLabel,
+  ]);
+
   useEffect(() => {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-ask" />
+
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {auditScope == null ? (
+          <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
+        ) : null}
+      </div>
+
+      {cloudResourceId.length > 0 && (
+        auditScope != null
+        || resourceHub?.auditLineageLink.available === false
+        || hasStaleAuditUrlParams
+      ) ? (
+        <WorkbenchAuditLineageStatus
+          auditScope={auditScope}
+          hub={resourceHub}
+          cloudResourceId={cloudResourceId}
+          currentSearch={searchParams.toString()}
+          snapshotId={snapshotId}
+          runId={runId}
+          hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+          auditControlOptions={auditControlOptions}
+          onAuditControlChange={onAuditControlChange}
+          provenanceTestId="infra-ask-audit-provenance"
+          unavailableTestId="infra-ask-audit-unavailable"
+          showCopyLink
+        />
+      ) : null}
+
+      <InfraEvidenceRecentScopeStrip testId="infra-ask-recent-scope-strip" />
 
       {contextSummary != null ? (
         <section
@@ -324,7 +527,7 @@ export function InfrastructureAskClient() {
           aria-label="Ask grounding context"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Grounding context: {contextSummary}.
+            Scope stack: {contextSummary}.
           </p>
           {cloudResourceId.length > 0 ? (
             <Link
@@ -333,12 +536,18 @@ export function InfrastructureAskClient() {
                 tab: hubBackLinkTab,
                 snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
                 runId: runId.length > 0 ? runId : undefined,
+                workQueue: workQueue !== "all" ? workQueue : undefined,
                 assessmentId: assessmentId.length > 0 ? assessmentId : undefined,
                 auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : undefined,
                 controlId: controlId.length > 0 ? controlId : undefined,
               })}
               data-testid={
                 askScopeHubTabLabel != null
+                  || (
+                    assessmentId.length > 0
+                    && auditEvidenceSnapshotId.length > 0
+                    && controlId.length > 0
+                  )
                   ? "infra-ask-open-scope-hub-tab"
                   : workQueueScopedHubTabLabel != null
                     ? "infra-ask-open-work-queue-hub-tab"
@@ -354,10 +563,23 @@ export function InfrastructureAskClient() {
               href={buildResourceHubOverviewHref(cloudResourceId, {
                 snapshotId: snapshotId.length > 0 ? snapshotId : null,
                 runId: runId.length > 0 ? runId : null,
+                workQueue,
+                assessmentId: assessmentId.length > 0 ? assessmentId : null,
+                auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
+                controlId: controlId.length > 0 ? controlId : null,
               })}
               data-testid="infra-ask-open-overview-hub"
             >
               View overview in hub
+            </Link>
+          ) : null}
+          {auditHubTabBackLinkHref != null ? (
+            <Link
+              className="mt-2 ml-4 inline-block text-sm text-al-link hover:underline"
+              href={auditHubTabBackLinkHref}
+              data-testid="infra-ask-open-audit-hub-tab"
+            >
+              View audit lineage in hub
             </Link>
           ) : null}
           {workQueue !== "all" ? (
@@ -376,6 +598,15 @@ export function InfrastructureAskClient() {
               data-testid="infra-ask-drift-back-link"
             >
               Open drift workbench
+            </Link>
+          ) : null}
+          {terraformWorkbenchBackLinkHref != null ? (
+            <Link
+              className="mt-2 inline-block text-sm text-al-link hover:underline"
+              href={terraformWorkbenchBackLinkHref}
+              data-testid="infra-ask-terraform-back-link"
+            >
+              Open terraform workbench
             </Link>
           ) : null}
           {inventoryDiagramsBackLinkHref != null ? (

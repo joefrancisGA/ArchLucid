@@ -1,10 +1,31 @@
 /** `/architecture/reviews` hub — page header and section copy. */
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 
 export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 
 export const REVIEWS_HUB_PAGE_SUBTITLE =
   "Create, refine, evaluate, and approve architecture reviews.";
+
+/** Working inbox title — cross-architecture triage, not Monday morning (AO-26 / AO-14). */
+export const WORKING_REVIEWS_HUB_PAGE_TITLE = WORKING_REVIEWS_INBOX_NAV_LABEL;
+
+export const WORKING_REVIEWS_HUB_PAGE_SUBTITLE =
+  "Cross-architecture review jobs in this workspace — open an architecture desk to continue work.";
+
+export const WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY =
+  "Reviews appear here after you start a job from an architecture desk. Open Architectures to pick a system and start or resume work.";
+
+export const WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
+  "Continue the draft from the header, or open Architectures to pick a system and start a review.";
+
+export const WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
+  "Pick an architecture ready for review below, or open Architectures to browse named systems.";
+
+/** Working empty/header primary — routes to architecture portfolio, not orphan review intake (AO-26). */
+export const WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL = "Open architectures";
+
+export const WORKING_REVIEWS_HUB_HEADER_OPEN_ARCHITECTURES_LABEL = WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL;
 
 /**
  * Extra orientation for empty inventory — kept out of the page subtitle for density.
@@ -111,7 +132,7 @@ export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Findings",
   "Evidence graph",
   "Finalized review record",
-  "Governance approval",
+  "Approval",
   "Exports",
 ] as const;
 

@@ -10,6 +10,7 @@ using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
@@ -88,6 +89,7 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddScoped<AskContextPreparer>();
         services.AddScoped<AskComparisonNarrativeBuilder>();
         services.AddScoped<AskResponseComposer>();
+        services.AddScoped<FindingInstrumentationAuditSupport>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IDraftIntakeReasoningService, DraftIntakeReasoningService>();
         services.AddScoped<IDraftSemanticAdmissionEvaluator, HostDraftSemanticAdmissionEvaluator>();

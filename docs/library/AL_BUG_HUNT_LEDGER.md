@@ -15,7 +15,11 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
    - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
-4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only [-DefectClass boolean-coercion] -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+
+Proven-row revert honesty (optional batch): `python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5` samples recent `(proven)` rows — the cited test must fail if only the production hunk is reverted.
+
+For proven-row validity see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`). It classifies every proven row, not a sample: **57.2% (2321 of 4061)** are treadmill rows that re-prove one guard against a new surface form, and **82.7%** of the retired `archlucid-core` mega-zone is treadmill. Read `bugs-found` accordingly — picker preview and scoring use **effective-bugs** (`min(bugs-found, hunts)` when `hunts > 0`); run `python3 scripts/agent/al-bug-lint-ledger-counters.py` to list zones where raw `bugs-found` exceeds `hunts` (retired mega-zones are footnoted, not rewritten).
 
 ### Zone status
 
@@ -33,7 +37,7 @@ New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed t
 Open rows:
 
 - `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) â€¦` â€” locus + input + wrong outcome + mechanism filled from **these** files.
+- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input). Optional defect-class tag: `[class:boolean-coercion]` (closed enum — see Scoring).
 
 Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
@@ -43,38 +47,62 @@ Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
 Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
 
-A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, and a mechanism. Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). After a miss, replacement rows must cite a **different mechanism**.
+A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, a mechanism, and **reachability** (where the input originates). Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). Constructed literals without reachability (e.g. fictional property names) stay `(candidate)` or `(invalid)`. After a miss, replacement rows must cite a **different mechanism** and reachability.
 
 ## Scoring (picker)
 
-Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn.
+Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn. Ledger `bugs-found` must not inflate speed when it exceeds `hunts`; scoring uses at most one hit per hunt.
 
 ```text
-mean_hunts_per_bug = hunts / bugs when bugs > 0, else hunts + 2 (prior)
-speed              = 1 / mean_hunts_per_bug
-explore            = 1 / sqrt(hunts + 1)
+effective_bugs     = min(bugs-found, hunts) when hunts > 0
+mean_hunts_per_bug = hunts / max(1, effective_bugs) when hunts > 0, else hunts + 2 (prior)
+speed              = min(1, 1 / mean_hunts_per_bug)
+explore            = 1 / sqrt(thoroughHunts + 1)   # thorough = run-log hit|dry only (not seed-only)
 precision          = proven / (proven + invalid) when that sum >= 2, else omitted
                      (valid-no-repro is not in the denominator)
 
 base_score =
-  6 Ã— speed
-+ 3 Ã— explore
-+ 2 Ã— recent_churn              (min(3, commitCount since last-hunt))
-+ 1 Ã— related_PD_or_TB          (min(2, id count))
-+ 0.25 Ã— min(3, hunt-ready open hypotheses)
-+ 0.5 Ã— precision               (0 when omitted)
-âˆ’ 2 Ã— consecutive_dry_hunts
+  6 × speed
++ 3 × explore
++ 2 × recent_churn              (min(3, commitCount since last-hunt))
++ 1 × related_PD_or_TB          (min(2, id count))
++ 0.25 × min(3, hunt-ready open hypotheses)
++ 0.5 × precision               (0 when omitted)
+− 2 × consecutive_dry_hunts
+− 1 when escapeCount90d ≥ 1 (escaped defects in last 90d; see escape log)
 
-score = base_score Ã— impact_multiplier   (high Ã—1.40, medium Ã—1.00, low Ã—0.65)
+score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65; missing → medium)
 ```
 
-Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+
+**Seed-only:** Stanza `hunts` still increments on seed-only runs (audit trail). Seed-only does **not** count toward `thoroughHunts` for explore and does not satisfy a queued thorough hunt.
+
+**Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
+
+**Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
+
+**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`. Default-branch CI can **propose** `source: ci` lines via `python3 scripts/agent/al-bug-ingest-ci-escape.py --dry-run` (artifact `ci-escape-candidate.jsonl`); humans still own `PD-###`. Unknown production paths are skipped (not written as `unzoned`). Empty escape log is valid.
+
+**Flake log:** `docs/library/AL_BUG_FLAKE_LOG.jsonl` is separate (retry-then-pass tests). `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` emits `(candidate)` rows for tests that flaked ≥ 3 times in 30 days. Flakes are not proven hits.
+
+**Window math is UTC.** Picker/escape/class-saturation windows (24h / 7d / 14d / 90d) parse JSONL `at` as UTC (`ConvertTo-RunLogUtcDateTime` accepts ISO strings and `[datetime]`, including Kind Local from `ConvertFrom-Json`).
+
+**Retired-class CI bans:** once a class has a canonical helper, new copies fail CI (`scripts/ci/al-bug-ban-retired-classes.py` + `scripts/ci/al-bug-retired-class-allowlist.txt`). The closed enum does not grow.
+
+**Revert-verifier ratchet (sample window):** new unguarded `(proven)` keys fail vs `scripts/ci/al-bug-unguarded-proven-baseline.json`. Historical unguarded rows stay baselined; do not mass-retick checkboxes.
+
+**Seeded-defect drills** (`scripts/agent/al-bug-seeded-defect-drill.py`) measure picker/seed hit offline. They do not count as hunts and must not push `bugsmash`.
+
+**Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
+
+Rolling 24h preview warns when hit rate ≥ 0.6 with ≥ 8 hunts in the window — a catalog health signal, not a yield celebration.
 
 Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `unseeded` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
 
 ## Nominate mode
 
-`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` returns the same ranked pick with `nominate: true` in JSON â€” use it to preview which catalog row the picker would surface next when widening coverage.
+`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` (optional `-Since`, `-SkipGit` in tests, optional `-CoverageCobertura` from a prior local `dotnet test --collect:"XPlat Code Coverage"`) diffs recent production file churn against every zone `paths` prefix. Files with no covering zone are **gaps**. Rank uses `commitCount × (1 − coverageRatio) × log(1 + lineCount)` when coverage is supplied; otherwise churn-only (preview notes `coverage: omitted`). JSON includes `nominate: true`, `gaps: [{ path, commitCount, coverageRatio?, lineCount, rank }]`, and up to ~15 `proposedZones` entries (`id`, `paths`, `impact`, `testFilterGuess`). Preview prints paste-ready markdown stanzas for agent-led ledger updates — use when implicated files fall outside every current zone. Excludes tests, docs, generated OpenAPI, and lockfiles. Retired mega-zones pointing at this ledger do not cover production paths.
 
 ## Exhaustion (all must hold)
 
@@ -91,8 +119,8 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **status:** open
 - **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
-- **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
-- **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
+- **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
+- **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
 - **hunts:** 15
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
@@ -2035,10 +2063,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
-- **status:** open
+- **status:** exhausted
 - **impact:** high
-- **aliases:** core domain; security policies; tenancy models
-- **paths:** ArchLucid.Core/
+- **aliases:** core domain; security policies; tenancy models; retired mega-zone
+- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
 - **hunts:** 435
 - **bugs-found:** 3498
@@ -6761,6 +6789,204 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+## Zone: core-azure-extractor
+
+- **id:** core-azure-extractor
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** high
+- **aliases:** azure extractor; manifest schema; split from archlucid-core
+- **paths:** ArchLucid.Core/AzureExtractor/
+- **test-filter:** FullyQualifiedName~AzureExtractor
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-configuration-summary
+
+- **id:** core-configuration-summary
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** high
+- **aliases:** configuration summary; config paths; split from archlucid-core
+- **paths:** ArchLucid.Core/Configuration/
+- **test-filter:** FullyQualifiedName~Configuration
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-findings-advice
+
+- **id:** core-findings-advice
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** findings advice; generic architecture advice; split from archlucid-core
+- **paths:** ArchLucid.Core/Findings/
+- **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-requests-constraints
+
+- **id:** core-requests-constraints
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** request constraints; split from archlucid-core
+- **paths:** ArchLucid.Core/Requests/
+- **test-filter:** FullyQualifiedName~RequestConstraint
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-authority-runs
+
+- **id:** core-authority-runs
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** high
+- **aliases:** authority runs; run lifecycle; split from archlucid-core
+- **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
+- **test-filter:** FullyQualifiedName~RunAuthority
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-tenancy-commercial
+
+- **id:** core-tenancy-commercial
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** high
+- **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
+- **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
+- **test-filter:** FullyQualifiedName~CommercialTenant
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-safety-network
+
+- **id:** core-safety-network
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** high
+- **aliases:** private network guard; SSRF; split from archlucid-core
+- **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
+- **test-filter:** FullyQualifiedName~PrivateNetwork
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-costing
+
+- **id:** core-costing
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** costing; retail prices; split from archlucid-core
+- **paths:** ArchLucid.Core/Costing/
+- **test-filter:** FullyQualifiedName~Costing
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: core-explanation-json
+
+- **id:** core-explanation-json
+- **split-from:** archlucid-core
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** run explanation; explanation json; split from archlucid-core
+- **paths:** ArchLucid.Core/Explanation/
+- **test-filter:** FullyQualifiedName~RunExplanation
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+---
 ## Zone: archlucid-contracts
 
 - **id:** archlucid-contracts
@@ -7452,10 +7678,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: api-governance-tenancy-controllers
 
 - **id:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** exhausted
 - **impact:** high
-- **aliases:** governance controllers; tenancy controllers
-- **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
+- **aliases:** governance controllers; tenancy controllers; retired mega-zone
+- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
 - **hunts:** 265
 - **bugs-found:** 504
@@ -8790,6 +9016,72 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-01 thorough hunt #415 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates.
 
 2026-09-01 thorough hunt #416 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates; ledger pushed to master to clear picker backlog.
+## Zone: api-policy-packs
+
+- **id:** api-policy-packs
+- **split-from:** api-governance-tenancy-controllers
+- **status:** unseeded
+- **impact:** high
+- **aliases:** policy packs controller; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
+- **test-filter:** FullyQualifiedName~PolicyPacksController
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: api-governance-stickiness
+
+- **id:** api-governance-stickiness
+- **split-from:** api-governance-tenancy-controllers
+- **status:** unseeded
+- **impact:** high
+- **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs
+- **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+---
+## Zone: api-tenancy-workspaces
+
+- **id:** api-tenancy-workspaces
+- **split-from:** api-governance-tenancy-controllers
+- **status:** unseeded
+- **impact:** high
+- **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Tenancy/
+- **test-filter:** FullyQualifiedName~TenantWorkspaces
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+---
 ## Zone: application-agents
 
 - **id:** application-agents
@@ -9196,3 +9488,157 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (hunt-ready) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message.
 - [ ] (hunt-ready) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target depending on handler acknowledgement semantics.
+
+## Zone: architecture-intelligence-orchestrator
+
+- **id:** architecture-intelligence-orchestrator
+- **status:** unseeded
+- **impact:** high
+- **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
+- **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
+- **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+### Hypotheses
+
+---
+
+## Zone: ui-review-detail-workspace
+
+- **id:** ui-review-detail-workspace
+- **status:** unseeded
+- **impact:** high
+- **aliases:** review detail workspace; run detail page
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
+- **test-filter:** FullyQualifiedName~RunDetail|reviewId
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot; review detail route tree.
+
+### Hypotheses
+
+---
+
+## Zone: ui-review-intake-wizards
+
+- **id:** ui-review-intake-wizards
+- **status:** unseeded
+- **impact:** high
+- **aliases:** review intake; new review wizard
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
+- **test-filter:** FullyQualifiedName~reviews/new
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot; intake wizard route tree.
+
+### Hypotheses
+
+---
+
+## Zone: ui-governance-findings-queue
+
+- **id:** ui-governance-findings-queue
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** governance findings queue
+- **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
+- **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+---
+
+## Zone: ui-infra-resource-hub
+
+- **id:** ui-infra-resource-hub
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+---
+
+## Zone: host-infra-evidence-composition
+
+- **id:** host-infra-evidence-composition
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** infra evidence composition; host composition module
+- **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
+- **test-filter:** FullyQualifiedName~InfraEvidenceComposition
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+---
+
+## Zone: ui-claim-discipline-policy
+
+- **id:** ui-claim-discipline-policy
+- **status:** unseeded
+- **impact:** medium
+- **aliases:** claim discipline policy; evidence orientation strip
+- **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
+- **test-filter:** claim-discipline-policy
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+---

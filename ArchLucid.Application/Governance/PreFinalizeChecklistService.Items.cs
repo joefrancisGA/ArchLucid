@@ -139,8 +139,22 @@ public sealed partial class PreFinalizeChecklistService
         };
     }
 
-    private static PreFinalizeChecklistItem BuildPreCommitGateItem(PreCommitGateResult gateResult)
+    private static PreFinalizeChecklistItem BuildPreCommitGateItem(
+        PreCommitGateResult gateResult,
+        bool preCommitGateEnabled)
     {
+        if (!preCommitGateEnabled)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle,
+                Detail = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage,
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            };
+        }
+
         if (gateResult.Blocked)
         {
             return new PreFinalizeChecklistItem

@@ -11,7 +11,7 @@ import {
   GOVERNANCE_APPROVAL_HELP_OVERVIEW,
 } from "@/lib/governance/governance-approval-help-guide-content";
 
-describe("governance approval help drift guard", () => {
+describe("approval help drift guard", () => {
   it("keeps claim discipline free of Sources package jargon", () => {
     for (const phrase of GOVERNANCE_APPROVAL_HELP_NEGATION_DRIFT_MARKERS.claimMustNotContain) {
       expect(GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE.toLowerCase(), `claim must not contain "${phrase}"`).not.toContain(
@@ -33,7 +33,7 @@ describe("governance approval help drift guard", () => {
     expect(GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS.some((heading) => heading.id === "where-to-go-next")).toBe(true);
   });
 
-  it("lists governance approval help sources with unique hrefs and no self-href", () => {
+  it("lists approval help sources with unique hrefs and no self-href", () => {
     const sourceHrefs = GOVERNANCE_APPROVAL_HELP_SOURCES.map((source) => source.href);
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);

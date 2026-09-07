@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { InfrastructureResourcesSavedViewsBar } from "@/components/governance/infrastructure/InfrastructureResourcesSavedViewsBar";
 import { Button } from "@/components/ui/button";
@@ -35,16 +36,22 @@ import {
   RESOURCE_EXPLORER_NAME_PREFIX_PARAM,
   RESOURCE_EXPLORER_RESOURCE_GROUP_PARAM,
   RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM,
+  RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM,
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
+  parseResourceHubQueryValueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
+import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
+  formatCloudResourceExplorerWorkQueueLabel,
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
-import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -58,8 +65,15 @@ function formatResourceLabel(row: CloudResourceSummary): string {
   return segments[segments.length - 1] ?? row.externalResourceId;
 }
 
+function resolveExplorerAskHubTab(
+  workQueue: CloudResourceExplorerWorkQueue,
+): ResourceHubTab | undefined {
+  return resolveResourceHubTabFromExplorerWorkQueue(workQueue) ?? undefined;
+}
+
 export function ResourcesExplorerClient() {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlNamePrefix = parseResourceExplorerNamePrefixFromSearch(
     searchParams.get(RESOURCE_EXPLORER_NAME_PREFIX_PARAM),
@@ -76,10 +90,14 @@ export function ResourcesExplorerClient() {
   const urlWorkQueue = parseResourceExplorerWorkQueueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM),
   );
+  const urlSnapshotId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM),
+  );
 
   const [namePrefix, setNamePrefix] = useState(urlNamePrefix);
   const [resourceType, setResourceType] = useState(urlResourceType);
   const [resourceGroup, setResourceGroup] = useState(urlResourceGroup);
+  const [snapshotId, setSnapshotId] = useState(urlSnapshotId);
   const [workQueue, setWorkQueue] = useState<CloudResourceExplorerWorkQueue>(urlWorkQueue);
   const [rows, setRows] = useState<CloudResourceSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,15 +108,16 @@ export function ResourcesExplorerClient() {
       return;
     }
 
-    router.replace(governanceInfrastructureResourceHubPath(urlCloudResourceId));
-  }, [router, urlCloudResourceId]);
+    router.replace(buildResourceHubExplorerHref(urlCloudResourceId, urlWorkQueue, urlSnapshotId));
+  }, [router, urlCloudResourceId, urlSnapshotId, urlWorkQueue]);
 
   useEffect(() => {
     setNamePrefix(urlNamePrefix);
     setResourceType(urlResourceType);
     setResourceGroup(urlResourceGroup);
+    setSnapshotId(urlSnapshotId);
     setWorkQueue(urlWorkQueue);
-  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlWorkQueue]);
+  }, [urlNamePrefix, urlResourceGroup, urlResourceType, urlSnapshotId, urlWorkQueue]);
 
   const loadResources = useCallback(async () => {
     setLoading(true);
@@ -128,12 +147,49 @@ export function ResourcesExplorerClient() {
     void loadResources();
   }, [loadResources, urlCloudResourceId]);
 
+  useEffect(() => {
+    if (urlCloudResourceId.length > 0) {
+      return;
+    }
+
+    const href = searchParams.toString().length > 0
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
+      surface: "explorer",
+      workQueueLabel: formatCloudResourceExplorerWorkQueueLabel(urlWorkQueue),
+      namePrefix: urlNamePrefix,
+      resourceType: urlResourceType,
+      resourceGroup: urlResourceGroup,
+      snapshotId: urlSnapshotId,
+    });
+
+    if (recentScopeLabel == null) {
+      return;
+    }
+
+    recordInfraEvidenceRecentScope({
+      label: recentScopeLabel,
+      href,
+    });
+  }, [
+    pathname,
+    searchParams,
+    urlCloudResourceId,
+    urlNamePrefix,
+    urlResourceGroup,
+    urlResourceType,
+    urlSnapshotId,
+    urlWorkQueue,
+  ]);
+
   const applyFilters = () => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
       namePrefix,
       resourceType,
       resourceGroup,
       workQueue,
+      snapshotId,
     });
     router.replace(nextHref);
   };
@@ -150,6 +206,7 @@ export function ResourcesExplorerClient() {
     readonly resourceType: string;
     readonly resourceGroup: string;
     readonly workQueue: CloudResourceExplorerWorkQueue;
+    readonly snapshotId?: string;
   }) => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), filters);
     router.replace(nextHref);
@@ -172,6 +229,8 @@ export function ResourcesExplorerClient() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-resources" />
+
+      <InfraEvidenceRecentScopeStrip testId="infra-resource-explorer-recent-scope-strip" />
 
       <InfrastructureResourcesSavedViewsBar
         namePrefix={urlNamePrefix}
@@ -199,7 +258,7 @@ export function ResourcesExplorerClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS.find((option) => option.id === urlWorkQueue)?.summary}
         </p>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-4">
           <label className="grid gap-1 text-sm">
             <span className="font-medium">Name prefix</span>
             <input
@@ -228,6 +287,19 @@ export function ResourcesExplorerClient() {
               value={resourceGroup}
               onChange={(event) => setResourceGroup(event.target.value)}
               placeholder="rg-network"
+            />
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="font-medium">Snapshot context (links only)</span>
+            <span className="text-xs text-muted-foreground">
+              Preserves snapshot scope on hub and workbench links. The resource list is not filtered by snapshot.
+            </span>
+            <input
+              className="rounded border border-input bg-background px-3 py-2 font-mono text-xs"
+              data-testid="infra-resource-explorer-snapshot-id"
+              value={snapshotId}
+              onChange={(event) => setSnapshotId(event.target.value)}
+              placeholder="22222222-2222-2222-2222-222222222222"
             />
           </label>
         </div>
@@ -273,7 +345,7 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell>
                 <Link
                   className="font-medium text-al-link hover:underline"
-                  href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue)}
+                  href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
                   data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
                 >
                   {formatResourceLabel(row)}
@@ -290,7 +362,7 @@ export function ResourcesExplorerClient() {
                         key={badge.kind}
                         className="rounded bg-muted px-2 py-0.5 text-xs text-foreground hover:bg-muted/80"
                         title={badge.label}
-                        href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue)}
+                        href={buildResourceExplorerWorkCountHref(row.cloudResourceId, badge.kind, urlWorkQueue, urlSnapshotId)}
                         data-testid={`infra-resource-work-count-${row.cloudResourceId}-${badge.kind}`}
                       >
                         {badge.kind === "findings" ? "F" : badge.kind === "remediation" ? "R" : "D"}:{badge.count}
@@ -310,7 +382,10 @@ export function ResourcesExplorerClient() {
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
                       <Link
-                        href={buildResourceHubOverviewHref(row.cloudResourceId)}
+                        href={buildResourceHubOverviewHref(row.cloudResourceId, {
+                          snapshotId: urlSnapshotId,
+                          workQueue: urlWorkQueue,
+                        })}
                         data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
                       >
                         Overview
@@ -320,7 +395,7 @@ export function ResourcesExplorerClient() {
                   {scopedHubTabLabel != null ? (
                     <Button asChild size="sm" variant="outline">
                       <Link
-                        href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue)}
+                        href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
                         data-testid={`infra-resource-explorer-hub-tab-${row.cloudResourceId}`}
                       >
                         {scopedHubTabLabel}
@@ -332,6 +407,8 @@ export function ResourcesExplorerClient() {
                       href={buildInfrastructureAskHref({
                         cloudResourceId: row.cloudResourceId,
                         workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
+                        snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,
+                        hubTab: resolveExplorerAskHubTab(urlWorkQueue),
                       })}
                       data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
                     >

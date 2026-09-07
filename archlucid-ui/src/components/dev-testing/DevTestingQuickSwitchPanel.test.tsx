@@ -89,6 +89,7 @@ describe("DevTestingQuickSwitchPanel", () => {
     expect(screen.getByTestId("dev-agent-execution-option-real")).toBeInTheDocument();
     expect(screen.getByTestId("dev-agent-execution-option-simulator")).toBeInTheDocument();
     expect(screen.getByTestId("dev-reset-database-button")).toBeInTheDocument();
+    expect(screen.getByTestId("product-line-switch-bar")).toBeInTheDocument();
   });
 
   it("persists a shell override and reloads", async () => {

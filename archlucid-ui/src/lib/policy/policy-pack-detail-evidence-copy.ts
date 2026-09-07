@@ -14,7 +14,7 @@ export const POLICY_PACK_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy pack library", href: GOVERNANCE_POLICY_PACKS_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 

@@ -12,13 +12,13 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Governance approval";
+export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Approval";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";
 
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
-  "Governance approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, approval leads record decisions, and supporting evidence stays linked for diligence and audit.";
+  "Approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, approval leads record decisions, and supporting evidence stays linked for diligence and audit.";
 
 export const GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE = "Record or track an approval";
 
@@ -376,7 +376,7 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
 
 export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "overview", title: "Overview" },
-  { level: 2, id: "governance-workflow", title: "Governance approval workflow" },
+  { level: 2, id: "governance-workflow", title: "Approval workflow" },
   { level: 2, id: "role-guides", title: "Role guides" },
   { level: 3, id: "solution-architect", title: "Solution architect" },
   { level: 3, id: "governance-approver", title: "Approval lead" },

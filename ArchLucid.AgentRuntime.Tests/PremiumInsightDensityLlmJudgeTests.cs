@@ -169,10 +169,46 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     }
 
     [Fact]
+    public async Task ApplyToFindingsAsync_prefers_preferred_engine_type_under_cap()
+    {
+        List<Finding> findings = Enumerable.Range(0, 12)
+            .Select(index => CreatePromotedEngineFinding(
+                $"coverage-{index:D2}",
+                engineType: "topology-coverage",
+                severity: FindingSeverity.Warning,
+                insightDensityScore: 50))
+            .ToList();
+
+        Finding blastRadiusFinding = CreatePromotedEngineFinding(
+            "blast-1",
+            engineType: "identity-blast-radius",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        findings.Add(blastRadiusFinding);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 12,
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        judgingClient.CallCount.Should().Be(12);
+        judgingClient.JudgedFindingIds.Should().Contain("blast-1");
+        judgingClient.JudgedFindingIds.Should().NotContain("coverage-11");
+    }
+
+    [Fact]
     public async Task ApplyToFindingsAsync_respects_per_snapshot_cap()
     {
         List<Finding> findings = Enumerable.Range(0, 30)
-            .Select(index => CreatePromotedEngineFinding($"engine-f{index}", FindingSeverity.Warning, 40 + index))
+            .Select(index => CreatePromotedEngineFinding(
+                $"engine-f{index}",
+                severity: FindingSeverity.Warning,
+                insightDensityScore: 40 + index))
             .ToList();
 
         CountingCompletionClient countingClient = new();
@@ -219,8 +255,14 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     [Fact]
     public async Task ApplyToFindingsAsync_one_failure_does_not_fail_batch()
     {
-        Finding successFinding = CreatePromotedEngineFinding("engine-ok", FindingSeverity.Error, 30);
-        Finding throwFinding = CreatePromotedEngineFinding("engine-bad", FindingSeverity.Error, 20);
+        Finding successFinding = CreatePromotedEngineFinding(
+            "engine-ok",
+            severity: FindingSeverity.Error,
+            insightDensityScore: 30);
+        Finding throwFinding = CreatePromotedEngineFinding(
+            "engine-bad",
+            severity: FindingSeverity.Error,
+            insightDensityScore: 20);
 
         PremiumInsightDensityLlmJudge judge = CreateJudge(
             new ThrowingThenSuccessCompletionClient(throwFinding.FindingId),
@@ -236,13 +278,14 @@ public sealed class PremiumInsightDensityLlmJudgeTests
 
     private static Finding CreatePromotedEngineFinding(
         string findingId = "engine-f1",
+        string engineType = "topology",
         FindingSeverity severity = FindingSeverity.Warning,
         int insightDensityScore = 55)
     {
         return new Finding
         {
             FindingId = findingId,
-            EngineType = "topology",
+            EngineType = engineType,
             Category = "Security",
             Title = "Overdue deferral on payments-api",
             Rationale = "Revisit date passed for payments-api deferral.",
@@ -352,6 +395,45 @@ public sealed class PremiumInsightDensityLlmJudgeTests
                                      "evidenceRefs": ["payments-api-node"]
                                    }
                                    """);
+        }
+    }
+
+    private sealed class JudgedFindingIdsCompletionClient : IAgentCompletionClient
+    {
+        public int CallCount
+        {
+            get;
+            private set;
+        }
+
+        public HashSet<string> JudgedFindingIds { get; } = new(StringComparer.Ordinal);
+
+        public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("judged-ids", "judged-ids");
+
+        public Task<string> CompleteJsonAsync(
+            string systemPrompt,
+            string userPrompt,
+            int? maxTokens = null,
+            float? temperature = null,
+            CancellationToken cancellationToken = default)
+        {
+            CallCount++;
+
+            const string marker = "\"findingId\": \"";
+            int start = userPrompt.IndexOf(marker, StringComparison.Ordinal);
+
+            if (start >= 0)
+            {
+                start += marker.Length;
+                int end = userPrompt.IndexOf('"', start);
+
+                if (end > start)
+                {
+                    JudgedFindingIds.Add(userPrompt[start..end]);
+                }
+            }
+
+            return Task.FromResult("{}");
         }
     }
 

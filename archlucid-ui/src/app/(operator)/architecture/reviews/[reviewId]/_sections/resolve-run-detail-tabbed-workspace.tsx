@@ -258,6 +258,10 @@ export function resolveRunDetailTabbedWorkspace(
               usedStaticDemoRun={m.usedStaticDemoRun}
               showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
               lowExtractionConfidenceCount={lowExtractionConfidenceCount}
+              enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+              progressSummary={m.resolvedDetail.run}
+              graphSnapshot={m.resolvedDetail.graphSnapshot}
+              findingsSnapshot={m.resolvedDetail.findingsSnapshot}
             />
           ) : null}
           <RunDetailReviewPackageSectionDeferred
@@ -293,6 +297,9 @@ export function resolveRunDetailTabbedWorkspace(
                 input={m.adrGeneratorInput}
                 totalFindingCount={m.careerExportEligibleFindingCount}
                 enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+                graphSnapshot={m.resolvedDetail.graphSnapshot}
+                progressSummary={m.progressForPipelineUi}
+                findingsSnapshot={m.resolvedDetail.findingsSnapshot}
                 buyerPolished={false}
               />
             </div>

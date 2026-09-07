@@ -47,10 +47,10 @@ Premium-tier judge calls are metered and capped. Each judged finding is one Reas
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent and typed-engine** findings that lack architecture anchor and concrete evidence (ADR 0070). Rows stay on the package as checklist coverage; `typed-engine-scored` is origin telemetry only. The legacy `typed-engine-protected` Promote bypass is superseded — demotion is **advisory** scoring, not a removal gate.
-| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Enables Premium judge for **agent architecture** findings (Critic path). |
-| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | When `true` with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). |
-| `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `12` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. |
+| `ArchLucid:Findings:InsightDensityGate:DemotionThreshold` | `50` | Scores below this demote **agent and typed-engine** findings that lack **resolvable** package evidence (ADR 0070, DX-01). Generic advice demotes even in Security/Topology/Compliance when evidence is absent; `policy-rule:` refs from `PolicyRuleId` count as resolvable. Rows stay on the package as checklist coverage (`ChecklistCoverage` classification only — not deleted). `typed-engine-scored` is origin telemetry only. The legacy `typed-engine-protected` Promote bypass is superseded — demotion is **advisory** scoring, not a removal gate.
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudge` | `false` | Host JSON default remains off for Simulator/local dev. **Effective on in Real execution mode** when the tenant has not overridden the flag off (`InsightDensityGateOptionsResolver`). Enables Premium judge for **agent architecture** findings (Critic path). |
+| `ArchLucid:Findings:InsightDensityGate:EnableLlmJudgeForEngineFindings` | `false` | Host JSON default off; **effective on in Real mode** without tenant override. When effective with `EnableLlmJudge`, also judges deterministic engine findings after snapshot build (authority pipeline). Simulator cannot enable via host JSON alone. |
+| `ArchLucid:Findings:InsightDensityGate:MaxJudgedFindingsPerSnapshot` | `40` | Hard per-snapshot ceiling on judge completions — cost guard for large finding sets. Lowest `InsightDensityScore` candidates are judged first; skip-by-cap telemetry unchanged. |
 
 Tenant administrators may override `EnableLlmJudge`, `EnableLlmJudgeForEngineFindings`, and portfolio recurrence `Enabled` per workspace via **Workspace settings → Advanced → Finding engines** (`PUT /v1/admin/settings/finding-engine-controls`). Stored in `dbo.TenantSettings` (`Findings.InsightDensityLlmJudge.Enabled`, `Findings.InsightDensityLlmJudge.EngineFindingsEnabled`, `Findings.PortfolioRecurrence.Enabled`).
 
@@ -67,11 +67,11 @@ Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from
 
 ## Portfolio recurrence finding engine (ID-06)
 
-Cross-run portfolio scan on every review when enabled. **Default off** so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost.
+Cross-run portfolio scan on every review when enabled. **Default on** — disable per tenant when cross-review reads are undesirable. Claim boundary: scans other systems in the **same tenant catalog only** (ADR 0037).
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `false` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
+| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `true` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
 | `ArchLucid:Findings:PortfolioRecurrence:MinSystemCountToReport` | `3` | Minimum distinct systems sharing a finding identity before emitting a portfolio recurrence finding. |
 | `ArchLucid:Findings:PortfolioRecurrence:MaxSystemsScanned` | `50` | Cap on distinct systems whose latest committed runs are scanned per review. |
 | `ArchLucid:Findings:PortfolioRecurrence:MaxFindings` | `10` | Maximum recurrence findings emitted per review (ordered by descending system count). |

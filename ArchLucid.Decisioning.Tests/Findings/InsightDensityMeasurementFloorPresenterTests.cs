@@ -12,13 +12,13 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(39);
-        presentation.HarnessEngineCount.Should().Be(16);
+        presentation.CatalogEngineCount.Should().Be(48);
+        presentation.HarnessEngineCount.Should().Be(35);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
 
     [Fact]
-    public void Present_null_run_uses_honest_absence_copy()
+    public void Present_null_run_uses_honest_absence_copy_and_blocks_career_floor()
     {
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: null);
@@ -26,7 +26,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         presentation.MeasuredThisRunEngineCount.Should().BeNull();
         presentation.Sentence.Should().Contain("no measured engine coverage");
         presentation.Sentence.Should().NotContain("all clear");
-        presentation.MeetsCareerExportFloor.Should().BeTrue();
+        presentation.MeetsCareerExportFloor.Should().BeFalse();
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
 
         presentation.MeasuredThisRunEngineCount.Should().Be(0);
         presentation.MeetsCareerExportFloor.Should().BeFalse();
-        presentation.Sentence.Should().Contain("0 of 39");
+        presentation.Sentence.Should().Contain("0 of 48");
     }
 
     [Fact]
@@ -55,16 +55,83 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     public void Present_harness_floor_meets_career_export_gate()
     {
         InsightDensityMeasurementFloorPresentation presentation =
-            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16);
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 35);
 
         presentation.MeetsCareerExportFloor.Should().BeTrue();
         presentation.Sentence.Should().NotContain("analytically incomplete");
     }
 
     [Fact]
+    public void Present_zero_actor_graph_names_skipped_actor_engines_when_analysis_complete()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            ActorNodeCount = 0,
+            AnalysisStagesComplete = true,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 12, context);
+
+        presentation.SkippedActorEngineTypes.Should().BeEquivalentTo(ActorDependentFindingEngineTypes.All);
+        presentation.Sentence.Should().Contain("external-exposure");
+        presentation.Sentence.Should().Contain("no Actor nodes");
+    }
+
+    [Fact]
+    public void Present_actor_graph_does_not_name_skipped_actor_engines()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            ActorNodeCount = 2,
+            AnalysisStagesComplete = true,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 12, context);
+
+        presentation.SkippedActorEngineTypes.Should().BeEmpty();
+        presentation.Sentence.Should().NotContain("external-exposure");
+    }
+
+    [Fact]
+    public void Present_includes_judge_cap_honesty_when_available()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            JudgeSkippedByCap = 2,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16, context);
+
+        presentation.JudgeSkippedByCap.Should().Be(2);
+        presentation.Sentence.Should().Contain("skipped 2 findings by per-snapshot cap");
+    }
+
+    [Fact]
     public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
     {
-        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(16).Should().BeNull();
+        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(35).Should().BeNull();
+    }
+
+    [Fact]
+    public void FormatCareerExportBlockedReason_returns_not_measured_copy_when_count_is_null()
+    {
+        string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(null);
+
+        reason.Should().Contain("not been measured");
+        reason.Should().Contain("35");
+    }
+
+    [Fact]
+    public void FormatCareerExportBlockedReason_returns_advisory_catalog_failure_copy()
+    {
+        string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
+            measuredEnginesSucceeded: 16,
+            catalogAdvisoryEngineFailureCount: 2);
+
+        reason.Should().Contain("2 catalog engines failed");
     }
 
     [Fact]

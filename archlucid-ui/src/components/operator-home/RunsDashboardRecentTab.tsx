@@ -264,6 +264,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
             <OperatorHomeRecentReviewsTable
               runs={featuredItems}
               suppressContinueForRunId={heroResumeTarget?.runId}
+              remainingReviewCount={hiddenFeaturedCount}
             />
           ) : (
             <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">

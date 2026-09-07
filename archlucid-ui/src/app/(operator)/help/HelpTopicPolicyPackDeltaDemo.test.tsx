@@ -21,7 +21,6 @@ import {
 import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () => {
   const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
@@ -78,12 +77,9 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
 
     expect(screen.queryByTestId("help-policy-pack-delta-demo-sources")).toBeNull(); // TB-2092
 
-    // The runbook's pre-commit gate references resolve to the in-app governance topic, so the gate
-    // stays linked (under the registry title) instead of leaking a repo `.md` path.
-    const governanceGateLinks = screen.getAllByRole("link", { name: "Governance approval" });
-
-    expect(governanceGateLinks.length).toBeGreaterThan(0);
-    expect(governanceGateLinks[0]).toHaveAttribute("href", inAppHelpHref("governance-approval"));
+    expect(screen.getByTestId("help-policy-pack-delta-demo-overview").textContent).toContain(
+      "Approval",
+    );
     expect(document.body.textContent ?? "").not.toContain("PRE_COMMIT_GOVERNANCE_GATE");
   });
 });

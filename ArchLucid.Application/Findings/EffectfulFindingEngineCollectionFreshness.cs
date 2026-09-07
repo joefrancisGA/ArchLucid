@@ -35,6 +35,25 @@ public static class EffectfulFindingEngineCollectionFreshness
         CloudProvider cloudProvider) =>
         ResolvePinnedCollectionUtcOrThrow(analysisContext, MapCloudProviderToPinProvider(cloudProvider));
 
+    public static bool TryGetPinnedCollectionUtc(
+        FindingAnalysisContext? analysisContext,
+        CloudProvider cloudProvider,
+        out DateTime collectionUtc)
+    {
+        DateTime? resolved = ResolvePinnedCollectionUtc(
+            analysisContext,
+            MapCloudProviderToPinProvider(cloudProvider));
+
+        if (resolved is null)
+        {
+            collectionUtc = default;
+            return false;
+        }
+
+        collectionUtc = resolved.Value;
+        return true;
+    }
+
     private static bool ShouldSuppressInventoryFindingsForProvider(
         FindingAnalysisContext? analysisContext,
         string provider,

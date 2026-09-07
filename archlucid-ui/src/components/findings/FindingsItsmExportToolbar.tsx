@@ -13,6 +13,10 @@ import {
   downloadRunFindingsItsmJsonExport,
   PRE_FINALIZE_FINDINGS_EXPORT_MARKER,
 } from "@/lib/runs/run-findings-itsm-export";
+import {
+  formatItsmExportScopeLabel,
+  partitionFindingsForItsmExport,
+} from "@/lib/findings/decision-grade-finding-export-filter";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
@@ -77,20 +81,28 @@ export function FindingsItsmExportToolbar({
         })
       : null;
   const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
-  const scopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
+  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const checklistScopeLabel = formatItsmExportScopeLabel(exportableFindings.length, omittedChecklistCount);
+  const advisoryScopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
+  const scopeLabel = checklistScopeLabel ?? advisoryScopeLabel;
   const exportOptions = packageCommitted === false ? { packageCommitted: false as const } : undefined;
+  const exportDisabled = exportableFindings.length === 0 || sealedManifestBlockedReason !== null;
   const csvLabel =
-    hiddenAdvisoryCount > 0
-      ? `Export ${findings.length} rendered CSV`
-      : totalFindingCount !== undefined && totalFindingCount > findings.length
-        ? `Export ${findings.length} shown CSV`
-        : `Export ${findings.length} CSV`;
+    exportableFindings.length === 0
+      ? "No decision-grade findings to export"
+      : hiddenAdvisoryCount > 0
+        ? `Export ${exportableFindings.length} rendered CSV`
+        : totalFindingCount !== undefined && totalFindingCount > findings.length
+          ? `Export ${exportableFindings.length} shown CSV`
+          : `Export ${exportableFindings.length} CSV`;
   const jsonLabel =
-    hiddenAdvisoryCount > 0
-      ? `Export ${findings.length} rendered JSON`
-      : totalFindingCount !== undefined && totalFindingCount > findings.length
-        ? `Export ${findings.length} shown JSON`
-        : `Export ${findings.length} JSON`;
+    exportableFindings.length === 0
+      ? "No decision-grade findings to export"
+      : hiddenAdvisoryCount > 0
+        ? `Export ${exportableFindings.length} rendered JSON`
+        : totalFindingCount !== undefined && totalFindingCount > findings.length
+          ? `Export ${exportableFindings.length} shown JSON`
+          : `Export ${exportableFindings.length} JSON`;
 
   const onExportCsv = useCallback(() => {
     if (sealedManifestBlockedReason !== null) {
@@ -170,7 +182,7 @@ export function FindingsItsmExportToolbar({
         variant="outline"
         size="sm"
         className="h-8 gap-1.5"
-        disabled={exportingCsv || sealedManifestBlockedReason !== null}
+        disabled={exportingCsv || exportDisabled}
         data-testid="findings-export-csv-button"
         onClick={onExportCsv}
       >
@@ -182,7 +194,7 @@ export function FindingsItsmExportToolbar({
         variant="outline"
         size="sm"
         className="h-8 gap-1.5"
-        disabled={sealedManifestBlockedReason !== null}
+        disabled={exportDisabled}
         data-testid="findings-export-json-button"
         onClick={onExportJson}
       >
@@ -240,7 +252,7 @@ export function FindingsItsmExportToolbar({
         Export for Jira / ServiceNow
       </p>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        {scopeLabel ?? `Download ${findings.length} finding${findings.length === 1 ? "" : "s"}, or use `}
+        {scopeLabel ?? `Download ${exportableFindings.length} decision-grade finding${exportableFindings.length === 1 ? "" : "s"}, or use `}
         {scopeLabel === null ? (
           <>
             <strong>Copy for Jira</strong> on each row for one-click paste into a ticket.
@@ -255,7 +267,7 @@ export function FindingsItsmExportToolbar({
           variant="default"
           size="sm"
           className="h-8 gap-1.5"
-          disabled={exportingCsv || sealedManifestBlockedReason !== null}
+          disabled={exportingCsv || exportDisabled}
           data-testid="findings-export-csv-button"
           onClick={onExportCsv}
         >
@@ -267,7 +279,7 @@ export function FindingsItsmExportToolbar({
           variant="outline"
           size="sm"
           className="h-8 gap-1.5"
-          disabled={sealedManifestBlockedReason !== null}
+          disabled={exportDisabled}
           data-testid="findings-export-json-button"
           onClick={onExportJson}
         >

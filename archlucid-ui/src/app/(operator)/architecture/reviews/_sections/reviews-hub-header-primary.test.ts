@@ -6,9 +6,16 @@ import {
   resolveReviewsHubHeaderPrimary,
   shouldShowReviewsHubResumeDrafts,
 } from "./reviews-hub-header-primary";
-import { REVIEWS_HUB_HEADER_START_LABEL } from "./reviews-hub-copy";
+import {
+  REVIEWS_HUB_HEADER_START_LABEL,
+  WORKING_REVIEWS_HUB_HEADER_OPEN_ARCHITECTURES_LABEL,
+} from "./reviews-hub-copy";
 
-function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
+function draft(
+  id: string,
+  name: string,
+  overrides: Partial<ArchitectureDraftRegistryEntry> = {},
+): ArchitectureDraftRegistryEntry {
   return {
     draftId: id,
     displayName: name,
@@ -17,6 +24,7 @@ function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
     lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
     linkedReviewId: null,
     serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+    ...overrides,
   };
 }
 
@@ -50,5 +58,23 @@ describe("resolveReviewsHubHeaderPrimary", () => {
       continuesSingleDraft: false,
     });
     expect(shouldShowReviewsHubResumeDrafts(2)).toBe(true);
+  });
+
+  it("AO-26: Working empty header opens Architectures instead of orphan review intake", () => {
+    const primary = resolveReviewsHubHeaderPrimary([], { isWorkingMode: true });
+
+    expect(primary.href).toBe("/architecture/architectures");
+    expect(primary.label).toBe(WORKING_REVIEWS_HUB_HEADER_OPEN_ARCHITECTURES_LABEL);
+    expect(primary.href).not.toBe("/architecture/reviews/new");
+  });
+
+  it("AO-26: Working sole draft continues nested draft path when parent architecture id is known", () => {
+    const primary = resolveReviewsHubHeaderPrimary(
+      [draft("draft-001", "Payments", { parentArchitectureId: "architecture-identity-001" })],
+      { isWorkingMode: true },
+    );
+
+    expect(primary.href).toBe("/architecture/architectures/architecture-identity-001/drafts/draft-001");
+    expect(primary.continuesSingleDraft).toBe(true);
   });
 });

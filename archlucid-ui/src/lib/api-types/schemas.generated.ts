@@ -3867,6 +3867,22 @@ export interface components {
             format?: string;
             summary?: string;
         };
+        EngineInsightNoveltyRateRow: {
+            /** Format: int32 */
+            decisionGradeCount?: number;
+            /** Format: int32 */
+            didNotThinkOfThatCount?: number;
+            engineType?: string;
+            /** Format: double */
+            rate?: null | number | string;
+        };
+        EngineInsightNoveltyRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineInsightNoveltyRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
         EntityTagHeaderValue: {
             isWeak?: boolean;
             tag?: components["schemas"]["StringSegment"];
@@ -4278,6 +4294,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
             eventId?: string;
@@ -4374,6 +4391,11 @@ export interface components {
         };
         /** @enum {string} */
         FindingHumanReviewStatus: "NotRequired" | "Pending" | "Approved" | "Rejected" | "Overridden";
+        /** @enum {string} */
+        FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
+        FindingInsightSignalStatusResponse: {
+            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+        };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
             excerpt?: null | string;
@@ -4400,8 +4422,12 @@ export interface components {
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            latestDispositionEventId?: null | string;
             /** Format: date-time */
             latestDispositionOccurredAtUtc?: null | string;
+            latestDispositionReviewerUserId?: null | string;
+            latestDispositionRowVersionBase64?: null | string;
             manifestVersion?: null | string;
             modelAlias?: null | string;
             modelDeploymentName?: null | string;
@@ -4518,6 +4544,7 @@ export interface components {
             schemaVersion?: number;
             /** Format: double */
             totalEstimatedSavings?: number | string;
+            withheldFindings?: components["schemas"]["WithheldFindingSummary"][];
         };
         /** @enum {string} */
         FindingsSnapshotGenerationStatus: "Generating" | "Complete" | "PartiallyComplete" | "Failed";
@@ -5258,6 +5285,8 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            /** Format: int32 */
+            judgeSkippedByCap?: number;
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -7258,6 +7287,7 @@ export interface components {
             /** Format: int32 */
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
+            preCommitGateEnabled?: boolean;
             readyToFinalize?: boolean;
             runId?: string;
         };
@@ -7874,6 +7904,7 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
             /** Format: date-time */
@@ -7881,6 +7912,9 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordFindingInsightSignalRequest: {
+            kind?: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;
@@ -9288,6 +9322,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            legacyRunStatus?: null | string;
             packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;
@@ -11056,6 +11091,15 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WithheldFindingSummary: {
+            conflictFindingId?: null | string;
+            originAgentType?: null | string;
+            originEngineType?: string;
+            reason?: string;
+            title?: string;
+            traceTargetId?: null | string;
+            withheldFindingId?: string;
         };
         WizardIntakeDraftResponse: {
             stateJson?: string;

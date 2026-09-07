@@ -10,14 +10,14 @@ function entry(
   overrides: Partial<ArchitectureDraftRegistryEntry> = {},
 ): ArchitectureDraftRegistryEntry {
   return {
-    draftId: overrides.draftId ?? "draft-001",
-    displayName: overrides.displayName ?? "Vertex",
-    customerStatus: overrides.customerStatus ?? "draft",
-    ownerLabel: overrides.ownerLabel ?? "You",
-    lastUpdatedUtc: overrides.lastUpdatedUtc ?? "2026-01-01T00:00:00.000Z",
-    linkedReviewId: overrides.linkedReviewId ?? null,
-    serverUpdatedUtc: overrides.serverUpdatedUtc ?? "2026-01-01T00:00:00.000Z",
-    serverDraftStatus: overrides.serverDraftStatus,
+    draftId: "draft-001",
+    displayName: "Vertex",
+    customerStatus: "draft",
+    ownerLabel: "You",
+    lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+    linkedReviewId: null,
+    serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+    ...overrides,
   };
 }
 
@@ -54,6 +54,18 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
     });
   });
 
+  it("AO-08: nested draft workspace when parent architecture id is known", () => {
+    const action = resolveOperatorHomeLatestDraftPrimaryAction(
+      entry({ parentArchitectureId: "architecture-identity-001" }),
+    );
+
+    expect(action).toEqual({
+      href: "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+      ctaLabel: "Resume latest draft",
+      kind: "resume-draft",
+    });
+  });
+
   it("routes submitted drafts without a spawned run back to the architecture draft workspace", () => {
     const action = resolveOperatorHomeLatestDraftPrimaryAction(
       entry({ serverDraftStatus: "Submitted" }),
@@ -66,15 +78,11 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
     });
   });
 
-  it("routes linked reviews to review detail", () => {
+  it("returns null when a linked review exists — Working Home defers to architecture desk (AO-13)", () => {
     const action = resolveOperatorHomeLatestDraftPrimaryAction(
       entry({ linkedReviewId: "run-001", serverDraftStatus: "RunSpawned" }),
     );
 
-    expect(action).toEqual({
-      href: "/architecture/reviews/run-001",
-      ctaLabel: "Continue in review",
-      kind: "continue-review",
-    });
+    expect(action).toBeNull();
   });
 });

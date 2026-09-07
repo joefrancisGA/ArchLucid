@@ -53,6 +53,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
   const {
     buyerFinalizedPackage,
     deferredContext,
+    findingCoverageSummary,
     reviewPolicyPackCallout,
     showDemoMarketingChrome,
     showGovernanceCtaCard,
@@ -196,6 +197,10 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
           <RunDetailGenerateAdrFromRunModal
             input={m.adrGeneratorInput}
             totalFindingCount={m.careerExportEligibleFindingCount}
+            enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+            graphSnapshot={m.resolvedDetail.graphSnapshot}
+            progressSummary={m.progressForPipelineUi}
+            findingsSnapshot={m.resolvedDetail.findingsSnapshot}
             buyerPolished={false}
           />
         </div>

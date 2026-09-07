@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev": "next dev --webpack -p 3000",
+    "dev:security": "NEXT_PUBLIC_ARCHLUCID_PRODUCT=security NEXT_DIST_DIR=.next-security next dev --webpack -p 3001",
     "demo": "pwsh -File ./scripts/start-demo.ps1",
     "generate:brand-raster": "node ./scripts/generate-brand-raster.mjs",
     "generate:deferred-chunk-loaders": "node ./scripts/generate-deferred-chunk-import-loaders.mjs",

@@ -1,10 +1,16 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
+import {
+  formatStampCatalogEngineFailureHonestyLine,
+  formatStampWithheldHonestyLine,
+} from "@/lib/findings/findings-withheld-band";
 import { countFindingsByClassificationBand } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type RunDetailReviewPackageClassificationSummaryProps = {
   readonly findings: readonly QuickDecisionFinding[];
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
   readonly className?: string;
 };
 
@@ -14,8 +20,12 @@ export function RunDetailReviewPackageClassificationSummary(
 ): React.JSX.Element | null {
   const counts = countFindingsByClassificationBand(props.findings);
   const total = counts.decisionGrade + counts.checklist;
+  const withheldLine = formatStampWithheldHonestyLine(props.withheldFindingCount ?? 0);
+  const catalogEngineFailureLine = formatStampCatalogEngineFailureHonestyLine(
+    props.catalogAdvisoryEngineFailureCount ?? 0,
+  );
 
-  if (total === 0) {
+  if (total === 0 && withheldLine === null && catalogEngineFailureLine === null) {
     return null;
   }
 
@@ -34,6 +44,22 @@ export function RunDetailReviewPackageClassificationSummary(
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Decision-grade: {counts.decisionGrade} · Checklist: {counts.checklist}
       </p>
+      {withheldLine !== null ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-stamp-withheld-honesty"
+        >
+          {withheldLine}
+        </p>
+      ) : null}
+      {catalogEngineFailureLine !== null ? (
+        <p
+          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-stamp-catalog-engine-failure-honesty"
+        >
+          {catalogEngineFailureLine}
+        </p>
+      ) : null}
     </div>
   );
 }

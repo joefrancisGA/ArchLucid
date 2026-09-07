@@ -10,6 +10,13 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-abc" }));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams("reviewTab=overview"),
+  usePathname: () => pathnameMock.value,
+}));
+
 import { RunDetailSectionNav } from "@/components/runs/RunDetailSectionNav";
 
 describe("RunDetailSectionNav", () => {
@@ -111,6 +118,28 @@ describe("RunDetailSectionNav", () => {
 
     expect(nav.className).toContain("top-40");
     expect(nav.className).toContain("lg:top-44");
+  });
+
+  it("AO-33: uses nested review tab hrefs on architecture nested routes", () => {
+    pathnameMock.value = "/architecture/architectures/architecture-identity-001/reviews/run-abc";
+
+    render(
+      <RunDetailSectionNav
+        runId="run-abc"
+        sections={[
+          { id: "overview", label: "Overview", available: true },
+          { id: "findings", label: "Findings", available: true },
+          { id: "evidence", label: "Evidence", available: true },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=findings",
+    );
+
+    pathnameMock.value = "/architecture/reviews/run-abc";
   });
 
   it("scrolls to in-page section anchors on click", () => {

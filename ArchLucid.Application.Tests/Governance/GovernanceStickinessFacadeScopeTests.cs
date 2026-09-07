@@ -14,6 +14,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -524,8 +525,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
 
         FindingDispositionService dispositionService = new(
-            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
-            CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId));
+            Mock.Of<IFindingDispositionConcurrencyRepository>(),
+            CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId),
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,
@@ -570,8 +572,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
             ]);
 
         FindingDispositionService dispositionService = new(
-            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
-            trail.Object);
+            Mock.Of<IFindingDispositionConcurrencyRepository>(),
+            trail.Object,
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,

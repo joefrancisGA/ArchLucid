@@ -37,6 +37,14 @@ public static class OperatorConfigurationLintEvaluator
         blocking.AddRange(
             AzureAiSearchProductionLikeConfigurationLint.DescribeBlockingFindings(configuration, trimmedEnv));
 
+        HostingMisconfigurationWarning? preCommitGateDisabled =
+            PreCommitGovernanceGateProductionLikeConfigurationLint.TryDescribeBlockingFinding(
+                configuration,
+                trimmedEnv);
+
+        if (preCommitGateDisabled is not null)
+            blocking.Add(preCommitGateDisabled.Value);
+
         List<HostingMisconfigurationWarning> advisory =
             ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(configuration, trimmedEnv).ToList();
 

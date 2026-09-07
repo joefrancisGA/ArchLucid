@@ -12,7 +12,7 @@ import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
+import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -88,7 +88,12 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
-  const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
+  const { daily, more } = splitSidebarLinksDailyVsMore(
+    group.id,
+    linksForRender,
+    props.pathname ?? "/",
+    workingMode,
+  );
   const urlMoreGroupOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
   const moreOpen = more.length > 0 && urlMoreGroupOpen;
 
@@ -160,6 +165,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           href: presented.href,
           pathname,
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+          lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
         })
       : presented.href;
     const presentedWithHref =

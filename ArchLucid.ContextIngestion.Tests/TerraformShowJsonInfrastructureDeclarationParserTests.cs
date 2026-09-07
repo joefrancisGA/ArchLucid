@@ -139,6 +139,55 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_for_each_instances_use_expanded_address()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-for-each",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "address": "azurerm_storage_account.docs[\"k1\"]",
+                                "mode": "managed",
+                                "type": "azurerm_storage_account",
+                                "name": "docs",
+                                "index_key": "k1",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "eastus", "name": "stk1" }
+                              },
+                              {
+                                "address": "azurerm_storage_account.docs[\"k2\"]",
+                                "mode": "managed",
+                                "type": "azurerm_storage_account",
+                                "name": "docs",
+                                "index_key": "k2",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "westus", "name": "stk2" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(o => o.Name).Should().BeEquivalentTo(
+        [
+            "azurerm_storage_account.docs[\"k1\"]",
+            "azurerm_storage_account.docs[\"k2\"]",
+        ]);
+        objects.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task ParseAsync_resolves_type_after_provider_slash()
     {
         InfrastructureDeclarationReference decl = new()

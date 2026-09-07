@@ -16,7 +16,6 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   resolveRunSummaryPackageOrigin,
   type ArchitecturePackageOriginToken,
@@ -92,17 +91,15 @@ export function resolveAwaitingApprovalTabItems(
   return [...snapshotMatches, ...supplemental];
 }
 
-export function isRunNeedingAttention(run: RunSummary): boolean {
-  return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
-}
-
-export function isRunApprovedPackage(run: RunSummary): boolean {
-  return run.hasGoldenManifest === true && run.hasGovernanceWarnings !== true;
-}
-
-export function isRunApprovedWithMonitoringPackage(run: RunSummary): boolean {
-  return run.hasGoldenManifest === true && run.hasGovernanceWarnings === true;
-}
+export {
+  deriveRunsDashboardTabCounts,
+  isRunApprovedPackage,
+  isRunApprovedWithMonitoringPackage,
+  isRunNeedingAttention,
+  resolveRunHomeStatusTag,
+  type RunHomeStatusTag,
+  type RunsDashboardTabCounts,
+} from "@/lib/operator/run-home-status";
 
 /** Featured showcase card only when that run is in the active status filter. */
 export function resolveShowcaseDemoRunForItems(
@@ -120,46 +117,6 @@ export function resolveShowcaseDemoRunForItems(
   }
 
   return undefined;
-}
-
-export type RunsDashboardTabCounts = Readonly<Record<RunsDashboardTabId, number>>;
-
-export type RunHomeStatusTag = {
-  readonly kind: EnterpriseStatusKind;
-  readonly label?: string;
-};
-
-export function resolveRunHomeStatusTag(run: RunSummary): RunHomeStatusTag {
-  if (isRunNeedingAttention(run)) {
-    return { kind: "needs-attention" };
-  }
-
-  if (isRunApprovedWithMonitoringPackage(run)) {
-    return { kind: "approved-with-monitoring" };
-  }
-
-  if (isRunApprovedPackage(run)) {
-    return { kind: "approved" };
-  }
-
-  if (run.hasFindingsSnapshot === true) {
-    return { kind: "in-progress" };
-  }
-
-  return { kind: "draft", label: "Draft" };
-}
-
-export function deriveRunsDashboardTabCounts(
-  items: readonly RunSummary[],
-  awaitingApprovalCount = 0,
-): RunsDashboardTabCounts {
-  return {
-    all: items.length,
-    approved: items.filter(isRunApprovedPackage).length,
-    "awaiting-approval": awaitingApprovalCount,
-    attention: items.filter(isRunNeedingAttention).length,
-    outcomes: items.filter(isRunApprovedWithMonitoringPackage).length,
-  };
 }
 
 export function formatRunsDashboardTabLabelWithCount(label: string, count: number): string {
@@ -291,7 +248,7 @@ export type ArchitecturePackageOriginProps = {
   readonly className?: string;
 };
 
-/** Compact origin pill for dense list rows, where no governance status tag sits directly above it. */
+/** Compact origin pill for dense list rows, where no approval status tag sits directly above it. */
 export function ArchitecturePackageOriginBadge(props: ArchitecturePackageOriginProps) {
   const resolved = resolveBuyerPackageOrigin(props.run, props.buyerPolishedShell);
 
@@ -310,7 +267,7 @@ export function ArchitecturePackageOriginBadge(props: ArchitecturePackageOriginP
 }
 
 /**
- * Labeled origin line for cards that also show a governance status tag. Provenance rendered as a
+ * Labeled origin line for cards that also show a approval status tag. Provenance rendered as a
  * bare pill next to a verdict pill reads as a competing outcome, so the axis has to be named.
  */
 export function ArchitecturePackageOriginMetadataLine(props: ArchitecturePackageOriginProps) {

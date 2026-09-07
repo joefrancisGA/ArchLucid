@@ -83,18 +83,69 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\ArchLucid'"
     }
 
-    It 'builds the UI window command with Internal nav env for local engineer shells' {
+    It 'builds the Architecture UI window command with product env, Internal nav, and a Windows-safe next port' {
         [string]$command = Get-LocalUiWindowCommand -UiRoot 'C:\ArchLucid\archlucid-ui'
 
         $command | Should -Match "Set-Location -LiteralPath 'C:\\ArchLucid\\archlucid-ui'"
+        $command | Should -Match '\$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''architecture'''
         $command | Should -Match '\$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true'''
         $command | Should -Match '\$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator'''
-        $command | Should -Match 'npm run dev'
+        $command | Should -Match 'npx --no-install next dev --webpack -p 3000'
+        $command | Should -Not -Match 'npm run dev'
+        $command | Should -Not -Match 'NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture next'
+    }
+
+    It 'builds the Security UI window command on a separate port without a Unix env prefix' {
+        [string]$command = Get-LocalUiWindowCommand `
+            -UiRoot 'C:\ArchLucid\archlucid-ui' `
+            -ProductLine 'security' `
+            -Port 3001
+
+        $command | Should -Match '\$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''security'''
+        $command | Should -Match '\$env:NEXT_DIST_DIR = ''.next-security'''
+        $command | Should -Match 'npx --no-install next dev --webpack -p 3001'
+        $command | Should -Not -Match 'npm run dev:security'
+        $command | Should -Not -Match 'NEXT_PUBLIC_ARCHLUCID_PRODUCT=security next'
     }
 
     It 'doubles apostrophes in the UI root for the spawned window command' {
         [string]$command = Get-LocalUiWindowCommand -UiRoot "C:\O'Brien\archlucid-ui"
 
         $command | Should -Match "Set-Location -LiteralPath 'C:\\O''Brien\\archlucid-ui'"
+    }
+
+    It 'lists Architecture :3000 and Security :3001 by default' {
+        $sites = @(Get-LocalUiSiteSpecs)
+
+        $sites.Count | Should -Be 2
+        $sites[0].Name | Should -Be 'Architecture'
+        $sites[0].ProductLine | Should -Be 'architecture'
+        $sites[0].Port | Should -Be 3000
+        $sites[0].RootUrl | Should -Be 'http://127.0.0.1:3000/'
+        $sites[0].ProxyHealthUrl | Should -Be 'http://127.0.0.1:3000/api/proxy/health/live'
+        $sites[1].Name | Should -Be 'Security'
+        $sites[1].ProductLine | Should -Be 'security'
+        $sites[1].Port | Should -Be 3001
+        $sites[1].RootUrl | Should -Be 'http://127.0.0.1:3001/'
+        $sites[1].ProxyHealthUrl | Should -Be 'http://127.0.0.1:3001/api/proxy/health/live'
+    }
+
+    It 'omits Security when IncludeSecurity is false' {
+        $sites = @(Get-LocalUiSiteSpecs -IncludeSecurity $false)
+
+        $sites.Count | Should -Be 1
+        $sites[0].ProductLine | Should -Be 'architecture'
+    }
+
+    It 'throws when Architecture and Security ports are the same' {
+        { Get-LocalUiSiteSpecs -ArchitecturePort 3000 -SecurityPort 3000 -IncludeSecurity $true } |
+            Should -Throw '*ports must differ*'
+    }
+
+    It 'allows matching ports when Security is omitted' {
+        $sites = @(Get-LocalUiSiteSpecs -ArchitecturePort 3000 -SecurityPort 3000 -IncludeSecurity $false)
+
+        $sites.Count | Should -Be 1
+        $sites[0].Port | Should -Be 3000
     }
 }

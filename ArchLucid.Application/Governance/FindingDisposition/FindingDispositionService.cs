@@ -9,14 +9,18 @@ using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 namespace ArchLucid.Application.Governance.FindingDisposition;
 
 public sealed class FindingDispositionService(
-    IFindingReviewTrailAppendService trailAppendService,
-    IFindingReviewTrailRepository trailRepository) : IFindingDispositionService
+    IFindingDispositionConcurrencyRepository concurrencyRepository,
+    IFindingReviewTrailRepository trailRepository,
+    IFindingReviewTrailAppendService trailAppendService) : IFindingDispositionService
 {
-    private readonly IFindingReviewTrailAppendService _trailAppendService =
-        trailAppendService ?? throw new ArgumentNullException(nameof(trailAppendService));
+    private readonly IFindingDispositionConcurrencyRepository _concurrencyRepository =
+        concurrencyRepository ?? throw new ArgumentNullException(nameof(concurrencyRepository));
 
     private readonly IFindingReviewTrailRepository _trailRepository =
         trailRepository ?? throw new ArgumentNullException(nameof(trailRepository));
+
+    private readonly IFindingReviewTrailAppendService _trailAppendService =
+        trailAppendService ?? throw new ArgumentNullException(nameof(trailAppendService));
 
     public async Task<FindingDispositionEventDto> RecordAsync(
         RecordFindingDispositionRequest request,
@@ -52,9 +56,58 @@ public sealed class FindingDispositionService(
                 : null,
         };
 
-        await _trailAppendService.AppendAsync(record, cancellationToken);
+        byte[]? expectedRowVersion = TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64);
 
-        return ToDto(record);
+        FindingDispositionRecordResult recordResult = await _concurrencyRepository.RecordAsync(
+            record,
+            expectedRowVersion,
+            cancellationToken);
+
+        if (recordResult.Status == FindingDispositionRecordStatus.Conflict)
+        {
+            FindingDispositionConflictDetail conflict = recordResult.Conflict
+                ?? throw new InvalidOperationException("Disposition conflict result missing detail.");
+
+            throw new FindingDispositionConflictException(record.FindingId, conflict);
+        }
+
+        await _trailAppendService.LogAuditAsync(record, cancellationToken);
+
+        FindingDispositionEventDto dto = ToDto(record);
+
+        if (recordResult.NewCurrentRowVersion is not null)
+        {
+            dto = new FindingDispositionEventDto
+            {
+                EventId = dto.EventId,
+                FindingId = dto.FindingId,
+                Disposition = dto.Disposition,
+                ReviewerUserId = dto.ReviewerUserId,
+                Rationale = dto.Rationale,
+                RevisitDueUtc = dto.RevisitDueUtc,
+                EvidenceRequestText = dto.EvidenceRequestText,
+                OccurredAtUtc = dto.OccurredAtUtc,
+                RunId = dto.RunId,
+                CurrentDispositionRowVersionBase64 = Convert.ToBase64String(recordResult.NewCurrentRowVersion),
+            };
+        }
+
+        return dto;
+    }
+
+    private static byte[]? TryDecodeRowVersion(string? rowVersionBase64)
+    {
+        if (string.IsNullOrWhiteSpace(rowVersionBase64))
+            return null;
+
+        try
+        {
+            return Convert.FromBase64String(rowVersionBase64.Trim());
+        }
+        catch (FormatException)
+        {
+            throw new ArgumentException("Expected current disposition row version is not valid base64.", nameof(rowVersionBase64));
+        }
     }
 
     public async Task<IReadOnlyList<FindingDispositionEventDto>> ListHistoryAsync(

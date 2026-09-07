@@ -3,6 +3,11 @@ import {
   type DeskContinuityDto,
 } from "@/lib/api/user-preferences-types";
 import { readCachedUserPreferencesForMutators, setUserDeskContinuity } from "@/lib/api/user-preferences";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import {
+  ARCHITECTURE_DRAFT_QUERY_PARAM,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 
 export type DeskContinuityPatch = {
   readonly lastOpenReviewId?: string | null;
@@ -55,7 +60,13 @@ export async function persistDeskContinuityPatch(patch: DeskContinuityPatch): Pr
 
 export function extractReviewIdFromPathname(pathname: string): string | null {
   const path = pathname.split("?")[0] ?? "";
-  const match = /^\/architecture\/reviews\/([^/]+)$/u.exec(path);
+  const nestedRoute = parseArchitectureNestedRoute(path);
+
+  if (nestedRoute?.childKind === "reviews" && nestedRoute.childId !== undefined) {
+    return nestedRoute.childId;
+  }
+
+  const match = new RegExp(`^${REVIEWS_LIST_PATH}/([^/]+)$`, "u").exec(path);
 
   if (match === null) {
     return null;
@@ -68,19 +79,17 @@ export function extractReviewIdFromPathname(pathname: string): string | null {
 
 export function extractArchitectureDraftIdFromPathname(pathname: string): string | null {
   const path = pathname.split("?")[0] ?? "";
-  const prefix = "/architecture/architectures/";
+  const nestedRoute = parseArchitectureNestedRoute(path);
 
-  if (!path.startsWith(prefix)) {
-    return null;
+  if (nestedRoute?.childKind === "drafts" && nestedRoute.childId !== undefined) {
+    return nestedRoute.childId;
   }
 
-  const remainder = path.slice(prefix.length).trim();
-
-  if (remainder.length === 0 || remainder === "new") {
-    return null;
+  if (nestedRoute?.childKind === undefined && nestedRoute !== null) {
+    return nestedRoute.architectureId;
   }
 
-  return remainder;
+  return null;
 }
 
 const LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY = "archlucid.lastOpenArchitectureId.v1";
@@ -118,22 +127,29 @@ export function writeCachedLastOpenArchitectureId(architectureId: string | null)
   }
 }
 
-/** Identity desk segment when pathname is `/architecture/architectures/{architectureId}` without `?draft=`. */
+/** Identity desk segment and nested architecture jobs (ADR 0077 / AO-16). */
 export function extractArchitectureIdentityIdFromPathname(
   pathname: string,
   search: string,
 ): string | null {
-  const segment = extractArchitectureDraftIdFromPathname(pathname);
+  const path = pathname.split("?")[0] ?? "";
+  const nestedRoute = parseArchitectureNestedRoute(path);
 
-  if (segment === null) {
-    return null;
+  if (nestedRoute !== null) {
+    if (nestedRoute.childKind !== undefined) {
+      return nestedRoute.architectureId;
+    }
+
+    const draftFromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get(
+      ARCHITECTURE_DRAFT_QUERY_PARAM,
+    )?.trim() ?? "";
+
+    if (draftFromQuery.length > 0) {
+      return null;
+    }
+
+    return nestedRoute.architectureId;
   }
 
-  const draftFromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("draft")?.trim() ?? "";
-
-  if (draftFromQuery.length > 0) {
-    return null;
-  }
-
-  return segment;
+  return null;
 }

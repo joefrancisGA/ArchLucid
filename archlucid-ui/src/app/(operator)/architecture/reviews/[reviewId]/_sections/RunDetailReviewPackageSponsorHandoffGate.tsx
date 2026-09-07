@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 import { GoldenSponsorPackageWalkthroughDestinationDeferred } from "./run-detail-page-view-deferred-chunks";
 import { ReviewPackageSponsorHandoffStrip } from "./ReviewPackageSponsorHandoffStrip";
@@ -17,6 +17,10 @@ export type RunDetailReviewPackageSponsorHandoffGateProps = ResolveReviewPackage
   readonly usedStaticDemoRun: boolean;
   readonly showExtendedSponsorBriefing: boolean;
   readonly lowExtractionConfidenceCount?: number;
+  readonly enginesSucceeded?: number | null;
+  readonly progressSummary?: RunSummary | null;
+  readonly graphSnapshot?: unknown;
+  readonly findingsSnapshot?: unknown;
 };
 
 /** Renders sponsor handoff only when the deferred primary-action resolver picks send-to-sponsor. */
@@ -85,6 +89,10 @@ export function RunDetailReviewPackageSponsorHandoffGate(
         usedStaticDemoRun={props.usedStaticDemoRun}
         showExtendedSponsorBriefing={props.showExtendedSponsorBriefing}
         lowExtractionConfidenceCount={props.lowExtractionConfidenceCount ?? 0}
+        enginesSucceeded={props.enginesSucceeded ?? null}
+        progressSummary={props.progressSummary ?? null}
+        graphSnapshot={props.graphSnapshot ?? null}
+        findingsSnapshot={props.findingsSnapshot ?? null}
       />
     </>
   );

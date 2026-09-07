@@ -5,6 +5,7 @@ import type { RunSummary } from "@/types/authority";
 
 import {
   lookupArchitectureDraftOwnerLabel,
+  lookupArchitectureDraftParentArchitectureId,
   reviewPackageOwnerLabel,
   REVIEW_PACKAGE_OWNER_UNAVAILABLE,
 } from "./review-package-validation-picker";
@@ -134,5 +135,24 @@ describe("lookupArchitectureDraftOwnerLabel", () => {
     ]);
 
     expect(owner).toBe("You");
+  });
+});
+
+describe("lookupArchitectureDraftParentArchitectureId (AO-26)", () => {
+  it("returns parent architecture id for a linked review", () => {
+    const architectureId = lookupArchitectureDraftParentArchitectureId("run-001", [
+      {
+        draftId: "draft-001",
+        displayName: "Payments",
+        customerStatus: "in-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-14T12:00:00.000Z",
+        linkedReviewId: "run-001",
+        serverUpdatedUtc: "2026-01-14T12:00:00.000Z",
+        parentArchitectureId: "architecture-identity-001",
+      },
+    ]);
+
+    expect(architectureId).toBe("architecture-identity-001");
   });
 });

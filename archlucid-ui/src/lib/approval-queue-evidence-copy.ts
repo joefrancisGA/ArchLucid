@@ -13,7 +13,7 @@ export const APPROVAL_QUEUE_CLAIM_DISCIPLINE =
 export const APPROVAL_QUEUE_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const APPROVAL_QUEUE_SOURCES_INTRO =
-  "Use these follow-ups when a decision needs findings triage, audit trail, workspace health, or governance orientation.";
+  "Use these follow-ups when a decision needs findings triage, audit trail, workspace health, or approval orientation.";
 
 
 /** Operator Sources — no self-href to the approval queue. */
@@ -21,7 +21,7 @@ export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
 ] as const;
 

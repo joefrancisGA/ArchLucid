@@ -64,8 +64,16 @@ describe("SessionExpiredView — copy per reason", () => {
     );
 
     expect(screen.getByTestId("session-expired-return-destination-hint")).toHaveTextContent(
-      "Sign in to return to Review detail.",
+      "Continue where you left off — sign in to return to Review detail.",
     );
+  });
+
+  it("uses Continue where you left off as the primary CTA when a return destination exists", () => {
+    render(
+      <SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} returnUrl="/architecture/reviews/run-1" />,
+    );
+
+    expect(screen.getByTestId("session-expired-sign-in")).toHaveTextContent("Continue where you left off");
   });
 
   it("does not name a return destination when returnUrl is absent", () => {

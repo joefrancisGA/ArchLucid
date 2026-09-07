@@ -29,7 +29,7 @@ export const DOMAIN_TERMS = {
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
   preCommitGate: "Approval check",
-  governanceApproval: "Governance approval",
+  governanceApproval: "Approval",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {
@@ -143,6 +143,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   remediationFactory: "Remediation factory",
   infrastructureOverview: "Infrastructure overview",
   infrastructureDrift: "Drift & snapshots",
+  infrastructureTerraform: "Terraform mapping",
   infrastructureDiagrams: "Inventory diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",

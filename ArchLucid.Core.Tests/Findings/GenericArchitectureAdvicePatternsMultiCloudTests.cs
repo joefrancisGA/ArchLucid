@@ -14486,9 +14486,6 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
         "Enable GuardDuty monitoring for `payments-api` ingress paths.",
         "subscriptions/000/resourceGroups/rg/providers/Microsoft.Web/sites/payments-api")]
     [InlineData(
-        "Use CloudTrail on PaymentsApi to audit admin changes.",
-        "PaymentsApi")]
-    [InlineData(
         "Apply network policies to `checkout-worker` pods in namespace checkout.",
         "`checkout-worker`")]
     public void HasArchitectureSpecificAnchor_prevents_generic_flag_when_element_named(
@@ -14500,7 +14497,20 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Fact]
-    public void Deterministic_gate_does_not_demote_when_architecture_anchor_present()
+    public void HasArchitectureSpecificAnchor_rejects_pascal_case_service_in_generic_imperative()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice("Use CloudTrail on PaymentsApi to audit admin changes.")
+            .Should()
+            .BeTrue();
+        GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(
+                "Use CloudTrail on PaymentsApi to audit admin changes.",
+                ["PaymentsApi"])
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void Deterministic_gate_demotes_generic_advice_without_resolvable_evidence_even_with_backtick_anchor()
     {
         IInsightDensityGate gate = DeterministicInsightDensityGate.CreateDefault();
         InsightDensityGateCandidate candidate = new(
@@ -14513,7 +14523,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
 
         InsightDensityGateResult result = gate.Score(candidate, [candidate]);
 
-        result.Treatment.Should().Be(Contracts.Findings.FindingTreatment.Promote);
-        result.Classification.Should().Be(Contracts.Findings.FindingClassification.DecisionGradeFinding);
+        result.Treatment.Should().Be(Contracts.Findings.FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(Contracts.Findings.FindingClassification.ChecklistCoverage);
     }
 }

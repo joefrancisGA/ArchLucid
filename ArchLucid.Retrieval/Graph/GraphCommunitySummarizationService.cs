@@ -28,11 +28,8 @@ public sealed class GraphCommunitySummarizationService(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<RetrievalDocument>> BuildCommunityDocumentsAsync(
+    public async Task<IReadOnlyList<GraphCommunitySummary>> BuildBoundedSummariesAsync(
         GraphSnapshot snapshot,
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -54,7 +51,7 @@ public sealed class GraphCommunitySummarizationService(
 
         List<GraphCommunitySummary> summaries = [];
 
-        foreach (GraphCommunity community in communities)
+        foreach (GraphCommunity community in communities.Take(InsightGeneratorCommunitySummaryLimits.MaxCommunities))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -70,6 +67,22 @@ public sealed class GraphCommunitySummarizationService(
                 Summary = summary,
             });
         }
+
+        return summaries;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<RetrievalDocument>> BuildCommunityDocumentsAsync(
+        GraphSnapshot snapshot,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        IReadOnlyList<GraphCommunitySummary> summaries =
+            await BuildBoundedSummariesAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
         return KnowledgeGraphCommunityRetrievalDocumentBuilder.BuildFromCommunities(
             snapshot,

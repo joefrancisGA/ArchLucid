@@ -10,7 +10,7 @@ import {
 } from "@/lib/mutation-reversibility-registry";
 
 describe("mutation-reversibility-registry (TB-2148)", () => {
-  it("classifies every governed governance mutation", () => {
+  it("classifies every formal approval mutation", () => {
     expect(Object.keys(MUTATION_REVERSIBILITY_REGISTRY).sort()).toEqual([
       "governance_architecture_review_finalize",
       "governance_bulk_disposition",

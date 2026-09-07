@@ -12,6 +12,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Value;
 
@@ -570,6 +571,8 @@ public sealed class FirstValueReportBuilderTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

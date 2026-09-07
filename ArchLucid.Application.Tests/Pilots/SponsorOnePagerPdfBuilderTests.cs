@@ -240,6 +240,9 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Mock.Of<IManifestHashService>(),
             scope,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             site);
     }
 
@@ -318,6 +321,8 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

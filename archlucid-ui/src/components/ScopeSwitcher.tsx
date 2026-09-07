@@ -75,6 +75,8 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const scopeOpenParam = searchParams.get("scopeOpen");
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [open, setOpenState] = useState(() => parseScopeSwitcherOpenFromSearch(scopeOpenParam));
+  const openRef = useRef(open);
+  openRef.current = open;
   const [tick, setTick] = useState(0);
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
@@ -94,15 +96,17 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncScopeOpenToUrl(next);
+      const next = typeof value === "function" ? value(openRef.current) : value;
 
-        return next;
-      });
+      setOpenState(next);
+      syncScopeOpenToUrl(next);
     },
     [syncScopeOpenToUrl],
   );
+
+  useEffect(() => {
+    setOpenState(parseScopeSwitcherOpenFromSearch(scopeOpenParam));
+  }, [scopeOpenParam]);
 
   const effective = useMemo(() => {
     void tick;
