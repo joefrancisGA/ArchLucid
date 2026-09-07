@@ -27,6 +27,7 @@ export type GovernanceFindingsQueueFacetsV1 = {
   registerFilter: RiskRegisterFilter;
   jobView?: FindingJobView;
   nlFacets?: FindingsNaturalLanguageFacets;
+  searchQuery?: string;
 };
 
 /** Normalized read result with defaults filled for optional fields. */
@@ -34,12 +35,14 @@ export type GovernanceFindingsQueueFacetsResolved = {
   registerFilter: RiskRegisterFilter;
   jobView: FindingJobView;
   nlFacets: FindingsNaturalLanguageFacets;
+  searchQuery: string;
 };
 
 export const DEFAULT_GOVERNANCE_FINDINGS_QUEUE_FACETS: GovernanceFindingsQueueFacetsResolved = {
   registerFilter: "open",
   jobView: DEFAULT_FINDING_JOB_VIEW,
   nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  searchQuery: "",
 };
 
 const RISK_REGISTER_FILTER_ALLOWLIST: ReadonlySet<string> = new Set(
@@ -162,10 +165,14 @@ function parseStoredFacets(raw: string): GovernanceFindingsQueueFacetsResolved |
     nlFacets = parsedNl;
   }
 
+  const searchQueryRaw = record.searchQuery;
+  const searchQuery = typeof searchQueryRaw === "string" ? searchQueryRaw : "";
+
   return {
     registerFilter: record.registerFilter,
     jobView,
     nlFacets,
+    searchQuery,
   };
 }
 
@@ -223,6 +230,10 @@ export function writeGovernanceFindingsQueueFacets(
     payload.nlFacets = facets.nlFacets;
   }
 
+  if (facets.searchQuery !== undefined) {
+    payload.searchQuery = facets.searchQuery;
+  }
+
   try {
     window.localStorage.setItem(storageKeyForMode(mode), JSON.stringify(payload));
   } catch {
@@ -242,6 +253,7 @@ export function patchGovernanceFindingsQueueFacets(
       registerFilter: partial.registerFilter ?? current.registerFilter,
       jobView: partial.jobView ?? current.jobView,
       nlFacets: partial.nlFacets ?? current.nlFacets,
+      searchQuery: partial.searchQuery ?? current.searchQuery,
     },
     mode,
   );
