@@ -12,6 +12,7 @@ import {
   START_REVIEW_LABEL,
   WORKING_NEW_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -27,12 +28,12 @@ const ARCHITECTURE_HOME_WORKING_ENTRY: PageContextualHelpEntry = {
     href: ARCHITECTURES_NEW_PATH,
   },
   whereToConfigureAction: {
-    label: "Open packages",
+    label: WORKING_REVIEWS_INBOX_NAV_LABEL,
     href: REVIEWS_LIST_PATH,
   },
   taskSteps: [
     "Open an architecture identity from Architectures to resume child drafts or linked reviews.",
-    "Open an in-progress or finalized architecture package from Reviews.",
+    "Open an in-progress or finalized architecture package from Inbox when you need cross-architecture triage.",
     "Inspect sealed records and exports when you need audit-ready outputs.",
   ],
 };
@@ -52,8 +53,8 @@ const ARCHITECTURE_IDENTITIES_WORKING_ENTRY: PageContextualHelpEntry = {
 
 const ARCHITECTURE_REVIEWS_WORKING_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Architecture packages hub — resume, inspect, and manage active and finalized architecture reviews.",
-  whatToDoNext: "Open a package, open an architecture identity, or start a new review.",
+    "Inbox — cross-architecture review jobs in this workspace. Open an architecture desk to continue work on a named system.",
+  whatToDoNext: "Open Architectures to pick a system, or open a package here when you need cross-architecture triage.",
   whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
   whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
   taskSteps: [

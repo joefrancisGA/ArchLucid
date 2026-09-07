@@ -5,11 +5,13 @@ import { cn } from "@/lib/utils";
 import {
   ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE,
 } from "@/lib/architecture/architecture-scorecard-page-copy";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  REVIEW_SCORECARD_FINALIZED_HREF,
   REVIEW_SCORECARD_GOVERNANCE_HREF,
   REVIEW_SCORECARD_ROI_ASSUMPTIONS_HREF,
+  resolveReviewScorecardFinalizedHref,
 } from "@/lib/pilot-scorecard-present";
 import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import type {
@@ -44,6 +46,11 @@ export function PilotScorecardPrimaryOutcomes({
   showPreviewBadge,
   quarterlySavingsLabel,
 }: PilotScorecardPrimaryOutcomesProps) {
+  const { isWorkingMode } = useWorkspaceMode();
+  const finalizedHref = resolveReviewScorecardFinalizedHref({
+    workingMode: isWorkingMode,
+    lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+  });
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const savingsClaimDiscipline =
     buyerPolishedShell ? null : (
@@ -68,7 +75,7 @@ export function PilotScorecardPrimaryOutcomes({
                 metricState={finalizedDisplay.state}
                 useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
                 emphasis="primary"
-                href={REVIEW_SCORECARD_FINALIZED_HREF}
+                href={finalizedHref}
                 drillDownLabel="View architecture reviews"
               />
               <ScorecardSummaryTile
@@ -155,7 +162,7 @@ export function PilotScorecardPrimaryOutcomes({
                 metricState={finalizedDisplay.state}
                 useKpiEmphasis={finalizedDisplay.useKpiEmphasis}
                 emphasis="primary"
-                href={REVIEW_SCORECARD_FINALIZED_HREF}
+                href={finalizedHref}
                 drillDownLabel="View architecture reviews"
               />
               <ScorecardSummaryTile

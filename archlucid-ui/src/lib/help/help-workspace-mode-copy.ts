@@ -1,4 +1,5 @@
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -26,7 +27,7 @@ export function resolveHelpWorkingDeskPrimaryActions(): readonly HelpDeskPrimary
   return [
     { href: ARCHITECTURES_NEW_PATH, label: WORKING_NEW_REVIEW_LABEL },
     { href: ARCHITECTURES_LIST_PATH, label: "Open architectures" },
-    { href: REVIEWS_LIST_PATH, label: "Open packages" },
+    { href: REVIEWS_LIST_PATH, label: WORKING_REVIEWS_INBOX_NAV_LABEL },
     { href: inAppHelpHref("troubleshoot"), label: "Report a problem" },
   ];
 }

@@ -138,4 +138,29 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     relativeTestPath: "lib/reviews-hub-unfinished-work-href.test.ts",
     marker: "SY-54",
   },
+  {
+    id: "SY-55",
+    relativeTestPath: "lib/reviews-hub-evidence-copy.test.ts",
+    marker: "SY-55",
+  },
+  {
+    id: "SY-64",
+    relativeTestPath: "lib/resolve-continue-last-review-package.test.ts",
+    marker: "SY-64",
+  },
+  {
+    id: "SY-70",
+    relativeTestPath: "lib/pilot-scorecard-present.test.ts",
+    marker: "SY-70",
+  },
+  {
+    id: "SY-71",
+    relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
+    marker: "SY-71",
+  },
+  {
+    id: "SY-77",
+    relativeTestPath: "lib/working-review-detail-path-import-guard.test.ts",
+    marker: "SY-77",
+  },
 ];

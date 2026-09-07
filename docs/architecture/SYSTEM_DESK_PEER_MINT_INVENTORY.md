@@ -31,16 +31,17 @@
 
 | File | Audience | SY owner | Notes |
 |------|----------|----------|-------|
-| `lib/architectures-hub-copy.ts` | Working | SY-32 | Breadcrumb parent still reviews hub |
-| `lib/help/help-workspace-mode-copy.ts` | Working | SY-71 | Help links “Open packages” |
+| `lib/architectures-hub-copy.ts` | Working | SY-32 | **Done** — Overview parent, not reviews inbox |
+| `lib/help/help-workspace-mode-copy.ts` | Working | SY-71 | **Done** — Inbox label on desk help actions |
 | `lib/decision-register-empty-teaching.ts` | Working | SY-34 | **Done** — architectures portfolio CTA |
 | `lib/first-review-guide-status.ts` | Working | SY-18 | — |
 | `lib/governance/*-evidence-copy.ts` | Shared | SY-31 | **Done** — Working portfolio parent on Ask/graph/findings |
+| `lib/reviews-hub-evidence-copy.ts` | Working | SY-55 | **Done** — portfolio parent on Working hub |
 | `lib/contextual-help/*.ts` | Working | SY-87 | Help topic hrefs |
 | `lib/sidebar-nav-daily-links.ts` | Working | SY-56 | Inbox row (keep; label Inbox) |
 | `lib/reviews-hub-unfinished-work-href.ts` | Working | SY-54 | **Done** — desk or nested job |
-| `lib/pilot-scorecard-present.ts` | Working | SY-70 | Sponsor scorecard link |
-| `components/reviews/ReviewDetailSiblingInFlightQueue.tsx` | Working | SY-64 | Sibling queue link |
+| `lib/pilot-scorecard-present.ts` | Working | SY-70 | **Done** — architecture desk primary drill-down |
+| `components/reviews/ReviewDetailSiblingInFlightQueue.tsx` | Working | SY-64 | **Done** — architectures empty-state link |
 | `components/reviews/ReviewArchiveControl.tsx` | Working | SY-92 | Archive return |
 | `shortcut-registry.ts` (`alt+r` registry default) | Guided | SY-07 | Working resolver overrides in listener |
 
