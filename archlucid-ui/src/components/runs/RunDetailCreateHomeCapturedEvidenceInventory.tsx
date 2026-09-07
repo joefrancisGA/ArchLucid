@@ -1,7 +1,14 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import {
+  RunStoredEvidencePreviewDialog,
+  StoredEvidenceFileCells,
+  useStoredEvidenceFileActions,
+} from "@/components/runs/StoredEvidenceFileCells";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -21,7 +28,9 @@ import {
 import type { RunDetailCreateHomeCapturedEvidenceItem } from "@/lib/runs/run-detail-create-home-captured-evidence";
 
 export type RunDetailCreateHomeCapturedEvidenceInventoryProps = {
+  readonly runId: string;
   readonly items: readonly RunDetailCreateHomeCapturedEvidenceItem[];
+  readonly catalogAvailable?: boolean;
 };
 
 function formatIngestedLabel(iso: string): string {
@@ -33,6 +42,8 @@ function formatIngestedLabel(iso: string): string {
 export function RunDetailCreateHomeCapturedEvidenceInventory(
   props: RunDetailCreateHomeCapturedEvidenceInventoryProps,
 ): ReactElement {
+  const { preview, closePreview, handlers } = useStoredEvidenceFileActions(props.runId);
+
   return (
     <section
       id="create-home-captured-evidence-inventory"
@@ -50,7 +61,11 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
         <div className="mt-3">
           <EnterpriseCompactEmptyState
             title={RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE}
-            description={RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION}
+            description={
+              props.catalogAvailable === false
+                ? "Uploaded files from an earlier browser session may not appear until the catalog is available."
+                : RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION
+            }
           />
         </div>
       ) : (
@@ -65,7 +80,19 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
             <EnterpriseTableBody>
               {props.items.map((item) => (
                 <EnterpriseTableRow key={item.key}>
-                  <EnterpriseTableCell>{item.fileName}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {(item.evidenceItemId ?? "").length > 0 ? (
+                      <StoredEvidenceFileCells
+                        runId={props.runId}
+                        evidenceItemId={item.evidenceItemId!}
+                        fileName={item.fileName}
+                        contentType={item.contentType}
+                        handlers={handlers}
+                      />
+                    ) : (
+                      item.fileName
+                    )}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell>{formatIngestedLabel(item.ingestedUtc)}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
@@ -73,6 +100,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
           </EnterpriseTable>
         </div>
       )}
+      <RunStoredEvidencePreviewDialog runId={props.runId} preview={preview} onClose={closePreview} />
     </section>
   );
 }

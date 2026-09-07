@@ -7,6 +7,7 @@ export type RunDetailEvidenceInventoryKind = "stored-file" | "architecture-brief
 export type RunStoredEvidenceCatalogEntry = {
   readonly evidenceItemId: string;
   readonly originalFileName: string;
+  readonly contentType?: string;
 };
 
 export type RunDetailEvidenceInventoryItem = {
