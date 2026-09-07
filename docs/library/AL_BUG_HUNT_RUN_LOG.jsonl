@@ -1342,3 +1342,4 @@
 {"at":"2026-09-07T06:45:29.6562142Z","zoneId":"finding-disposition","outcome":"dry"}
 {"at":"2026-09-07T06:52:00.1282257Z","zoneId":"sql-run-repository","outcome":"hit"}
 {"at":"2026-09-07T06:57:30.3021632Z","zoneId":"core-findings-advice","outcome":"hit"}
+{"at":"2026-09-07T07:02:57.0565175Z","zoneId":"core-requests-constraints","outcome":"hit"}

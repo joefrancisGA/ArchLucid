@@ -6903,22 +6903,27 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 
 - **id:** core-requests-constraints
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — keyword-leading modal negation missed by suffix guard
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
-Split from retired `archlucid-core` (ABQ-08).
+Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Requests/` hunts.
 
 ### Hypotheses
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — keyword-leading modal negation gap — **hit 2026-09-07 hunt #1185 (seed→hit):** prefix negation via `IsAdviceStyleNegation` only inspects text before the matched phrase; constraints like `encryption should not require customer-managed keys` and `encryption must not be required for legacy blobs` false-positive because trailing `should not` / `must not be required` sat outside the hard-coded suffix list; fixed by delegating trailing text to `EnglishNegationTokenizer.ContainsNegation`; removed dead `ContainsMidSentenceNegation`; regressions in `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing`
+- [ ] (candidate) `RequestConstraintTokenMatcher` — trailing-clause negation on unrelated requirement heads may over-suppress leading affirmative constraint mentions (e.g. `encryption for tenants that do not require isolation`)
+
+2026-09-07 seed hunt #1185 (hit): seeded zone from split catalog; proved keyword-leading modal negation missed when constraint token precedes prohibitive suffix text.
 
 ---
 ## Zone: core-authority-runs
