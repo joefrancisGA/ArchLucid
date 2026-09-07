@@ -109,6 +109,8 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             && resourceProperties.ValueKind is JsonValueKind.Object)
             CopyBoundedProperties(resourceProperties, properties);
 
+        InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, resourceType, name);
+
         string canonicalName = name.ToLowerInvariant();
         string canonicalResourceType = resourceType.ToLowerInvariant();
         string resourceIdentity = InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(

@@ -1,6 +1,8 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 using FluentAssertions;
 
@@ -817,5 +819,94 @@ public sealed class SimpleTerraformDeclarationParserTests
 
         result.Should().ContainSingle(o => o.Name == "docs");
         result[0].Properties.Should().NotContainKey("forEachKey");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InBatchLocalModule_IncludesChildKeyVault()
+    {
+        SimpleTerraformDeclarationParser parser = new();
+        InfrastructureDeclarationsPayloadNormalizer normalizer = new([parser]);
+
+        InfrastructureDeclarationsPayload payload = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    Name = "main.tf",
+                    Format = "simple-terraform",
+                    DeclarationId = "decl-tf-main",
+                    Content = """
+                              module "kv" {
+                                source = "./modules/kv"
+                              }
+                              """,
+                },
+                new InfrastructureDeclarationReference
+                {
+                    Name = "modules/kv/main.tf",
+                    Format = "simple-terraform",
+                    DeclarationId = "decl-tf-kv-module",
+                    Content = """
+                              resource "azurerm_key_vault" "shared" {
+                                location = "eastus"
+                              }
+                              """,
+                },
+            ],
+        };
+
+        NormalizedContextBatch batch = await normalizer.NormalizeAsync(payload, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle(o => o.Name == "shared" && o.ObjectType == "SecurityBaseline");
+        batch.CanonicalObjects[0].SourceId.Should().Be("decl-tf-kv-module");
+    }
+
+    [Fact]
+    public async Task ParseAsync_RegistryModuleSource_IsNoOp()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "main.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-registry-module",
+            Content = """
+                      module "kv" {
+                        source = "hashicorp/azurerm/azurerm_key_vault/azurerm"
+                      }
+                      resource "azurerm_resource_group" "rg" {
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "rg");
+    }
+
+    [Fact]
+    public async Task ParseAsync_FederatedIdentityCredential_PromotesIssuerAndSubject()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "oidc.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-oidc",
+            Content = """
+                      resource "azurerm_federated_identity_credential" "github" {
+                        issuer = "https://token.actions.githubusercontent.com"
+                        subject = "repo:org/repo:ref:refs/heads/main"
+                        audience = "api://AzureADTokenExchange"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["issuer"].Should().Be("https://token.actions.githubusercontent.com");
+        result[0].Properties["subject"].Should().Be("repo:org/repo:ref:refs/heads/main");
+        result[0].Properties["audience"].Should().Be("api://azureadtokenexchange");
+        result[0].Properties["federatedCredentialName"].Should().Be("github");
     }
 }
