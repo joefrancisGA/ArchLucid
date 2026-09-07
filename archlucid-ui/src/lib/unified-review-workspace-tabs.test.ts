@@ -44,6 +44,16 @@ describe("buildReviewWorkspaceTabHref (TB-2363)", () => {
     expect(href).toBe("/architecture/reviews/run-1?reviewTab=review-package#sponsor-handoff");
   });
 
+  it("AO-33: keeps nested review paths when architecture id is provided", () => {
+    const href = buildReviewWorkspaceTabHref("run-1", "findings", {
+      architectureId: "architecture-identity-001",
+    });
+
+    expect(href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-1?reviewTab=findings",
+    );
+  });
+
   it("maps create-home archTab ids through buildCreateHomeReviewTabHref", () => {
     const href = buildCreateHomeReviewTabHref("run-1", "diagram");
 

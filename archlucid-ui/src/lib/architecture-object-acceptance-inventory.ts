@@ -48,4 +48,14 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/governance/governance-return-locator.test.ts",
     marker: "AO-27",
   },
+  {
+    id: "AO-33",
+    relativeTestPath: "lib/architecture/working-architecture-review-routes.test.ts",
+    marker: "AO-33",
+  },
+  {
+    id: "AO-35",
+    relativeTestPath: "lib/architecture/finalize-success-desk-href.test.ts",
+    marker: "AO-35",
+  },
 ];

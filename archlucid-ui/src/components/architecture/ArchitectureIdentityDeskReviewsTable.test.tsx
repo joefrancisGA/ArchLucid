@@ -25,6 +25,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+const searchParamsMock = vi.hoisted(() => ({ value: new URLSearchParams() }));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => searchParamsMock.value,
+}));
+
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 
 const architectureId = "architecture-identity-001";
@@ -44,6 +50,7 @@ const reviews: readonly ArchitectureIdentityChildReviewSummary[] = [
 describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
   beforeEach(() => {
     workspaceModeMock.isWorkingMode = true;
+    searchParamsMock.value = new URLSearchParams();
   });
 
   it("links review rows to nested job paths", () => {
@@ -77,5 +84,26 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
       "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
     );
     expect(screen.queryByRole("link", { name: /reviews hub/i })).toBeNull();
+  });
+
+  it("AO-35: highlights the sealed child row from finalize success query param", () => {
+    searchParamsMock.value = new URLSearchParams({ highlightReviewId: "review-1" });
+
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={reviews}
+        reviewCount={reviews.length}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-identity-review-row-review-1")).toHaveAttribute(
+      "data-highlighted",
+      "true",
+    );
+    expect(screen.getByTestId("architecture-identity-review-row-review-2")).not.toHaveAttribute(
+      "data-highlighted",
+    );
   });
 });

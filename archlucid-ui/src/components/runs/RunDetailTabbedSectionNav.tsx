@@ -13,6 +13,7 @@ import {
 
 type RunDetailTabbedSectionNavProps = {
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly sections: RunDetailSection[];
 };
 
@@ -29,7 +30,14 @@ export function RunDetailTabbedSectionNav(props: RunDetailTabbedSectionNavProps)
     [props.sections, activeTab],
   );
 
-  return <RunDetailSectionNav key={activeTab} runId={props.runId} sections={sectionsForTab} />;
+  return (
+    <RunDetailSectionNav
+      key={activeTab}
+      runId={props.runId}
+      parentArchitectureId={props.parentArchitectureId}
+      sections={sectionsForTab}
+    />
+  );
 }
 
 export function runDetailTabbedSectionNavVisible(
