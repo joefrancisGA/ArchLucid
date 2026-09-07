@@ -133,4 +133,9 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/apply-working-bind-tool-nav-gate.test.ts",
     marker: "AO-40",
   },
+  {
+    id: "AO-41",
+    relativeTestPath: "lib/filter-working-palette-nav-hrefs.test.ts",
+    marker: "AO-41",
+  },
 ];
