@@ -60,6 +60,12 @@ param(
 
     [string] $RunLogPath,
 
+    [string] $EscapeLogPath,
+
+    [string] $CoverageCobertura,
+
+    [string] $StrykerBaselinesPath,
+
     [string] $AtUtc,
 
     [string] $RepoRoot
@@ -273,11 +279,25 @@ function Read-AlBugHuntRunLog {
 }
 
 function ConvertTo-RunLogUtcDateTime {
-    param([string] $IsoTimestamp)
+    param($IsoTimestamp)
+
+    if ($IsoTimestamp -is [datetime]) {
+        $parsed = [datetime]$IsoTimestamp
+
+        if ($parsed.Kind -eq [System.DateTimeKind]::Unspecified) {
+            return [datetime]::SpecifyKind($parsed, [System.DateTimeKind]::Utc)
+        }
+
+        return $parsed.ToUniversalTime()
+    }
+
+    if ($null -eq $IsoTimestamp) {
+        throw 'Timestamp is required.'
+    }
 
     return [datetime]::SpecifyKind(
         [datetime]::Parse(
-            $IsoTimestamp,
+            [string]$IsoTimestamp,
             $null,
             [System.Globalization.DateTimeStyles]::AdjustToUniversal -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
         ),
@@ -307,7 +327,7 @@ function Get-ZoneRunLogHitStats {
             continue
         }
 
-        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp ([string]$entry.at)
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
         $outcome = [string]$entry.outcome
 
         if ($at -ge $twentyFourHourCutoff -and $outcome -ne 'seed-only') {
@@ -336,6 +356,430 @@ function Get-ZoneRunLogHitStats {
         hitRate24h   = $hitRate24h
         cooledByRate = ($hits7d -ge 8) -or ($hunts24h -ge 5 -and $hitRate24h -ge 0.7)
     }
+}
+
+function Get-DefaultEscapeLogPath {
+    param([string] $Root)
+
+    return Join-Path $Root 'docs\library\AL_BUG_ESCAPE_LOG.jsonl'
+}
+
+function Get-DefectClassFromHypothesis {
+    param([string] $Text)
+
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return $null
+    }
+
+    if ($Text -match '\[class:([a-z0-9-]+)\]') {
+        $raw = $Matches[1].ToLowerInvariant()
+        $allowed = @(
+            'fail-open-validation',
+            'boolean-coercion',
+            'strictmode-script',
+            'state-machine-gap',
+            'null-deref',
+            'off-by-one',
+            'authz-scope',
+            'other'
+        )
+
+        if ($allowed -contains $raw) {
+            return $raw
+        }
+
+        return 'other'
+    }
+
+    return $null
+}
+
+function Get-SaturatedDefectClasses {
+    param(
+        [object[]] $RunLogEntries,
+        [datetime] $NowUtc
+    )
+
+    $cutoff = $NowUtc.AddDays(-14)
+    $byClass = @{}
+
+    foreach ($entry in @($RunLogEntries)) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        if ([string]$entry.outcome -ne 'hit') {
+            continue
+        }
+
+        if (-not $entry.PSObject.Properties.Name.Contains('defectClass')) {
+            continue
+        }
+
+        $classId = [string]$entry.defectClass
+
+        if ([string]::IsNullOrWhiteSpace($classId)) {
+            continue
+        }
+
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+
+        if ($at -lt $cutoff) {
+            continue
+        }
+
+        if (-not $byClass.ContainsKey($classId)) {
+            $byClass[$classId] = @{
+                hits  = 0
+                zones = New-Object 'System.Collections.Generic.HashSet[string]'
+                files = New-Object 'System.Collections.Generic.HashSet[string]'
+            }
+        }
+
+        $byClass[$classId].hits++
+
+        if ($entry.PSObject.Properties.Name.Contains('zoneId')) {
+            [void]$byClass[$classId].zones.Add([string]$entry.zoneId)
+        }
+
+        if ($entry.PSObject.Properties.Name.Contains('paths')) {
+            foreach ($path in @($entry.paths)) {
+                if (-not [string]::IsNullOrWhiteSpace($path)) {
+                    [void]$byClass[$classId].files.Add($path.Replace('\', '/'))
+                }
+            }
+        }
+    }
+
+    $saturated = New-Object System.Collections.ArrayList
+
+    foreach ($classId in $byClass.Keys) {
+        $stats = $byClass[$classId]
+
+        if ($stats.hits -lt 4) {
+            continue
+        }
+
+        $zoneCount = @($stats.zones).Count
+        $fileCount = @($stats.files).Count
+
+        if ($zoneCount -ge 2 -or $fileCount -ge 3) {
+            [void]$saturated.Add($classId)
+        }
+    }
+
+    return ,([string[]]@($saturated | Sort-Object))
+}
+
+function Test-ZoneCooledByClassSaturation {
+    param(
+        $Zone,
+        [string[]] $SaturatedClasses
+    )
+
+    if ($null -eq $Zone -or @($SaturatedClasses).Count -eq 0) {
+        return $false
+    }
+
+    $huntReady = @($Zone.HuntReadyHypotheses)
+
+    if ($huntReady.Count -eq 0) {
+        return $false
+    }
+
+    $classes = New-Object System.Collections.ArrayList
+
+    foreach ($line in $huntReady) {
+        $classId = Get-DefectClassFromHypothesis -Text ([string]$line)
+
+        if ([string]::IsNullOrWhiteSpace($classId)) {
+            return $false
+        }
+
+        [void]$classes.Add($classId)
+    }
+
+    $unique = @($classes | Select-Object -Unique)
+
+    if ($unique.Count -ne 1) {
+        return $false
+    }
+
+    return $SaturatedClasses -contains $unique[0]
+}
+
+function Read-EscapeLogEntries {
+    param([string] $Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
+        return @()
+    }
+
+    $entries = @()
+    $lines = Get-Content -LiteralPath $Path -Encoding UTF8
+
+    foreach ($line in $lines) {
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+
+        try {
+            $entries += ,($line | ConvertFrom-Json)
+        }
+        catch {
+            throw "Invalid JSONL line in escape log '$Path': $line"
+        }
+    }
+
+    if ($entries.Count -eq 0) {
+        return @()
+    }
+
+    return ,([object[]]@($entries))
+}
+
+function Test-JsonEntryHasProperty {
+    param(
+        $InputObject,
+        [string] $PropertyName
+    )
+
+    if ($null -eq $InputObject) {
+        return $false
+    }
+
+    foreach ($property in @($InputObject.PSObject.Properties)) {
+        if ($property.Name -eq $PropertyName) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+function Get-ZoneEscapeStats {
+    param(
+        [string] $ZoneId,
+        [object[]] $EscapeEntries,
+        [object[]] $RunLogEntries,
+        [datetime] $NowUtc
+    )
+
+    $cutoff = $NowUtc.AddDays(-90)
+    $escapeCount = 0
+
+    if ($EscapeEntries -is [System.Management.Automation.PSCustomObject]) {
+        $normalizedEscapes = @($EscapeEntries)
+    }
+    else {
+        $normalizedEscapes = ConvertTo-ObjectArray -Value $EscapeEntries
+    }
+
+    foreach ($entry in $normalizedEscapes) {
+        if (-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        if (-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'at')) {
+            continue
+        }
+
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+
+        if ($at -lt $cutoff) {
+            continue
+        }
+
+        $escapeCount++
+    }
+
+    $huntCount = 0
+
+    foreach ($entry in @($RunLogEntries)) {
+        if (-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'zoneId')) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        if (-not (Test-JsonEntryHasProperty -InputObject $entry -PropertyName 'at')) {
+            continue
+        }
+
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+
+        if ($at -lt $cutoff) {
+            continue
+        }
+
+        $outcome = [string]$entry.outcome
+
+        if ($outcome -eq 'hit' -or $outcome -eq 'dry') {
+            $huntCount++
+        }
+    }
+
+    $denominator = [Math]::Max(1, $huntCount)
+    $escapeRate = [double]$escapeCount / [double]$denominator
+
+    return [pscustomobject]@{
+        escapeCount90d = $escapeCount
+        escapeRate90d  = [Math]::Round($escapeRate, 4)
+    }
+}
+
+function Read-StrykerZoneMap {
+    param([string] $MapPath)
+
+    if ([string]::IsNullOrWhiteSpace($MapPath) -or -not (Test-Path -LiteralPath $MapPath)) {
+        return @()
+    }
+
+    $raw = Get-Content -LiteralPath $MapPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    return @($raw.labels)
+}
+
+function Read-StrykerBaselines {
+    param([string] $BaselinesPath)
+
+    if ([string]::IsNullOrWhiteSpace($BaselinesPath) -or -not (Test-Path -LiteralPath $BaselinesPath)) {
+        return @{}
+    }
+
+    $raw = Get-Content -LiteralPath $BaselinesPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $map = @{}
+
+    foreach ($prop in $raw.PSObject.Properties) {
+        $score = $null
+
+        if ($null -ne $prop.Value.mutationScore) {
+            $score = [double]$prop.Value.mutationScore
+        }
+
+        $map[$prop.Name] = $score
+    }
+
+    return $map
+}
+
+function Get-ZoneStrykerMutationScore {
+    param(
+        [string[]] $ZonePaths,
+        [object[]] $StrykerLabels,
+        [hashtable] $Baselines
+    )
+
+    if ($null -eq $ZonePaths -or $ZonePaths.Count -eq 0) {
+        return [pscustomobject]@{
+            strykerLabel          = $null
+            mutationScore         = $null
+            mutationScoreMissing  = $true
+        }
+    }
+
+    $bestLabel = $null
+    $bestPrefixLength = -1
+
+    foreach ($labelEntry in @($StrykerLabels)) {
+        $labelName = [string]$labelEntry.label
+
+        foreach ($prefix in @($labelEntry.pathPrefixes)) {
+            $prefixNorm = ([string]$prefix).Replace('\', '/')
+
+            foreach ($zonePath in $ZonePaths) {
+                $zoneNorm = $zonePath.Replace('\', '/')
+
+                if ($zoneNorm -eq $prefixNorm -or $zoneNorm.StartsWith($prefixNorm, [StringComparison]::OrdinalIgnoreCase)) {
+                    if ($prefixNorm.Length -gt $bestPrefixLength) {
+                        $bestPrefixLength = $prefixNorm.Length
+                        $bestLabel = $labelName
+                    }
+                }
+            }
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($bestLabel)) {
+        return [pscustomobject]@{
+            strykerLabel          = $null
+            mutationScore         = $null
+            mutationScoreMissing  = $true
+        }
+    }
+
+    $score = $null
+
+    if ($Baselines.ContainsKey($bestLabel)) {
+        $score = $Baselines[$bestLabel]
+    }
+
+    return [pscustomobject]@{
+        strykerLabel          = $bestLabel
+        mutationScore         = $score
+        mutationScoreMissing  = $false
+    }
+}
+
+function Read-CoverageRatios {
+    param([string] $CoveragePath)
+
+    if ([string]::IsNullOrWhiteSpace($CoveragePath) -or -not (Test-Path -LiteralPath $CoveragePath)) {
+        return $null
+    }
+
+    $ratios = @{}
+    $raw = Get-Content -LiteralPath $CoveragePath -Raw -Encoding UTF8
+
+    if ($CoveragePath -match '\.json$') {
+        $doc = $raw | ConvertFrom-Json
+
+        foreach ($assembly in @($doc.assemblies)) {
+            foreach ($class in @($assembly.classes)) {
+                $file = [string]$class.filename
+
+                if ([string]::IsNullOrWhiteSpace($file)) {
+                    continue
+                }
+
+                $lineRate = 0.0
+
+                if ($null -ne $class.summary -and $null -ne $class.summary.linecoverage) {
+                    $lineRate = [double]$class.summary.linecoverage
+                }
+                elseif ($null -ne $class['line-rate']) {
+                    $lineRate = [double]$class['line-rate'] * 100.0
+                }
+
+                $norm = $file.Replace('\', '/')
+                $ratios[$norm] = [Math]::Max(0.0, [Math]::Min(1.0, $lineRate / 100.0))
+            }
+        }
+
+        return $ratios
+    }
+
+    return $ratios
+}
+
+function Get-FileLineCount {
+    param(
+        [string] $GitRepoRoot,
+        [string] $RelativePath
+    )
+
+    $full = Join-Path $GitRepoRoot ($RelativePath -replace '/', [IO.Path]::DirectorySeparatorChar)
+
+    if (-not (Test-Path -LiteralPath $full)) {
+        return 0
+    }
+
+    return @(Get-Content -LiteralPath $full -ErrorAction SilentlyContinue).Count
 }
 
 function Test-ZoneIsRetiredMegaZone {
@@ -622,6 +1066,12 @@ function Read-AlBugHuntLedger {
             Why                    = @()
             Reopened               = $false
             CooledByHitRate        = $false
+            CooledByClass          = $false
+            EscapeCount90d         = 0
+            EscapeRate90d          = 0.0
+            StrykerLabel           = $null
+            MutationScore          = $null
+            MutationScoreMissing   = $true
             Hits7d                 = 0
             HitRate24h             = 0.0
             EscalatedFiles         = @()
@@ -701,6 +1151,11 @@ function Get-ZoneScoreBreakdown {
     }
 
     $baseScore = (6.0 * $speed) + (3.0 * $explore) + (2.0 * $churn) + (1.0 * $relatedCount) + $hyp + $precisionBonus - (2.0 * $dry)
+
+    if ($Zone.EscapeCount90d -ge 1) {
+        $baseScore -= 1.0
+    }
+
     $impactMultiplier = Get-ImpactMultiplier -Impact $Zone.Impact
     $score = $baseScore * $impactMultiplier
     $why = New-Object System.Collections.ArrayList
@@ -750,6 +1205,18 @@ function Get-ZoneScoreBreakdown {
         [void]$why.Add('hit-rate cooldown')
     }
 
+    if ($Zone.CooledByClass) {
+        [void]$why.Add('defect-class saturation cooldown')
+    }
+
+    if ($Zone.EscapeCount90d -ge 1) {
+        [void]$why.Add(("escape penalty ({0} escapes / 90d)" -f $Zone.EscapeCount90d))
+    }
+
+    if (-not $Zone.MutationScoreMissing -and $null -ne $Zone.MutationScore) {
+        [void]$why.Add(("mutation score {0:N1} ({1})" -f $Zone.MutationScore, $Zone.StrykerLabel))
+    }
+
     if ($impactMultiplier -ne 1.0) {
         [void]$why.Add(('impact x{0:N2}' -f $impactMultiplier))
     }
@@ -773,6 +1240,10 @@ function Set-ZoneComputedFields {
         [string] $GitRepoRoot,
         [switch] $SkipGitCalls,
         [object[]] $RunLogEntries,
+        [object[]] $EscapeLogEntries,
+        [string[]] $SaturatedClasses,
+        [object[]] $StrykerLabels,
+        [hashtable] $StrykerBaselineScores,
         [datetime] $NowUtc,
         [string[]] $EscalatedFiles
     )
@@ -794,6 +1265,23 @@ function Set-ZoneComputedFields {
         $zone.Hits7d = $runStats.hits7d
         $zone.HitRate24h = $runStats.hitRate24h
         $zone.CooledByHitRate = [bool]$runStats.cooledByRate
+        $zone.CooledByClass = Test-ZoneCooledByClassSaturation -Zone $zone -SaturatedClasses $SaturatedClasses
+
+        $escapeStats = Get-ZoneEscapeStats `
+            -ZoneId $zone.Id `
+            -EscapeEntries $EscapeLogEntries `
+            -RunLogEntries $RunLogEntries `
+            -NowUtc $NowUtc
+        $zone.EscapeCount90d = $escapeStats.escapeCount90d
+        $zone.EscapeRate90d = $escapeStats.escapeRate90d
+
+        $stryker = Get-ZoneStrykerMutationScore `
+            -ZonePaths @($zone.Paths) `
+            -StrykerLabels $StrykerLabels `
+            -Baselines $StrykerBaselineScores
+        $zone.StrykerLabel = $stryker.strykerLabel
+        $zone.MutationScore = $stryker.mutationScore
+        $zone.MutationScoreMissing = [bool]$stryker.mutationScoreMissing
 
         $zoneEscalated = @()
 
@@ -826,6 +1314,10 @@ function Get-EligibleZones {
         $effectiveStatus = $zone.Status
 
         if ($zone.CooledByHitRate -and $zone.Status -ne 'exhausted') {
+            $effectiveStatus = 'cooling'
+        }
+
+        if ($zone.CooledByClass -and $zone.Status -ne 'exhausted') {
             $effectiveStatus = 'cooling'
         }
 
@@ -991,7 +1483,8 @@ function Get-NominateGapReport {
         [string] $GitRepoRoot,
         [string] $Since,
         [switch] $SkipGitCalls,
-        [string[]] $InjectedPaths
+        [string[]] $InjectedPaths,
+        [hashtable] $CoverageRatios
     )
 
     $paths = Get-NominateGitPaths -GitRepoRoot $GitRepoRoot -Since $Since -SkipGitCalls:$SkipGitCalls -InjectedPaths $InjectedPaths
@@ -1021,14 +1514,64 @@ function Get-NominateGapReport {
 
     $gaps = @(
         $gapCounts.GetEnumerator() |
-            Sort-Object -Property Value -Descending |
-            Select-Object -First 15 |
             ForEach-Object {
-                [pscustomobject]@{
-                    path        = $_.Key
-                    commitCount = $_.Value
+                $path = $_.Key
+                $commitCount = $_.Value
+                $coverageRatio = $null
+                $lineCount = Get-FileLineCount -GitRepoRoot $GitRepoRoot -RelativePath $path
+
+                if ($lineCount -le 0) {
+                    $lineCount = 1
                 }
-            }
+
+                if ($null -ne $CoverageRatios) {
+                    $norm = $path.Replace('\', '/')
+
+                    if ($CoverageRatios.ContainsKey($norm)) {
+                        $coverageRatio = [double]$CoverageRatios[$norm]
+                    }
+                    else {
+                        $matchingKeys = @(
+                            $CoverageRatios.Keys |
+                                Where-Object {
+                                    $_ -eq $norm -or
+                                    $_.StartsWith($norm + '/', [StringComparison]::OrdinalIgnoreCase)
+                                }
+                        )
+
+                        if ($matchingKeys.Count -gt 0) {
+                            $coverageSum = 0.0
+
+                            foreach ($key in $matchingKeys) {
+                                $coverageSum += [double]$CoverageRatios[$key]
+                            }
+
+                            $coverageRatio = $coverageSum / [double]$matchingKeys.Count
+                        }
+                        else {
+                            $coverageRatio = 0.0
+                        }
+                    }
+                }
+
+                $coverageMultiplier = 1.0
+
+                if ($null -ne $coverageRatio) {
+                    $coverageMultiplier = 1.0 - $coverageRatio
+                }
+
+                $rank = [double]$commitCount * $coverageMultiplier * [Math]::Log(1.0 + [Math]::Max(0, $lineCount))
+
+                [pscustomobject]@{
+                    path           = $path
+                    commitCount    = $commitCount
+                    coverageRatio  = $coverageRatio
+                    lineCount      = $lineCount
+                    rank           = [Math]::Round($rank, 4)
+                }
+            } |
+            Sort-Object -Property rank -Descending |
+            Select-Object -First 15
     )
 
     $proposedZones = @(
@@ -1049,9 +1592,10 @@ function Get-NominateGapReport {
     )
 
     return [pscustomobject]@{
-        nominate      = $true
-        gaps          = $gaps
-        proposedZones = $proposedZones
+        nominate         = $true
+        coverageOmitted  = ($null -eq $CoverageRatios)
+        gaps             = $gaps
+        proposedZones    = $proposedZones
     }
 }
 
@@ -1064,10 +1608,21 @@ function Write-NominatePreview {
     Write-Host '| Field | Value |'
     Write-Host '| --- | --- |'
     Write-Host ("| Gaps found | {0} |" -f @($Report.gaps).Count)
+
+    if ($Report.PSObject.Properties.Name.Contains('coverageOmitted') -and $Report.coverageOmitted) {
+        Write-Host '| Coverage | omitted |'
+    }
+
     Write-Host ''
 
     foreach ($gap in @($Report.gaps)) {
-        Write-Host ("- `{0}` ({1} commits)" -f $gap.path, $gap.commitCount)
+        $coverageText = 'n/a'
+
+        if ($null -ne $gap.coverageRatio) {
+            $coverageText = ('{0:P0}' -f $gap.coverageRatio)
+        }
+
+        Write-Host ("- `{0}` commits={1} rank={2} coverage={3}" -f $gap.path, $gap.commitCount, $gap.rank, $coverageText)
     }
 
     Write-Host ''
@@ -1159,6 +1714,13 @@ function ConvertTo-PickResult {
             impact                 = $null
             impactMultiplier       = 0.0
             cooledByHitRate        = $false
+            cooledByClass          = $false
+            saturatedClasses       = @()
+            escapeCount90d         = 0
+            escapeRate90d          = 0.0
+            strykerLabel           = $null
+            mutationScore          = $null
+            mutationScoreMissing   = $true
             escalatedFiles         = @()
         }
     }
@@ -1202,6 +1764,12 @@ function ConvertTo-PickResult {
         impact                 = $Zone.Impact
         impactMultiplier       = $Zone.ImpactMultiplier
         cooledByHitRate        = [bool]$Zone.CooledByHitRate
+        cooledByClass          = [bool]$Zone.CooledByClass
+        escapeCount90d         = [int]$Zone.EscapeCount90d
+        escapeRate90d          = [double]$Zone.EscapeRate90d
+        strykerLabel           = $Zone.StrykerLabel
+        mutationScore          = $Zone.MutationScore
+        mutationScoreMissing   = [bool]$Zone.MutationScoreMissing
         escalatedFiles         = ConvertTo-ObjectArray -Value $Zone.EscalatedFiles
     }
 }
@@ -1291,6 +1859,33 @@ elseif (-not [IO.Path]::IsPathRooted($resolvedRunLog)) {
 # -AtUtc pins the clock so hit-rate cooldown and escalation windows are deterministic in tests.
 $nowUtc = $(if ([string]::IsNullOrWhiteSpace($AtUtc)) { [datetime]::UtcNow } else { ConvertTo-RunLogUtcDateTime -IsoTimestamp $AtUtc })
 $runLogEntries = Read-AlBugHuntRunLog -Path $resolvedRunLog
+$saturatedClasses = Get-SaturatedDefectClasses -RunLogEntries $runLogEntries -NowUtc $nowUtc
+
+$resolvedEscapeLog = $EscapeLogPath
+
+if ([string]::IsNullOrWhiteSpace($resolvedEscapeLog)) {
+    $resolvedEscapeLog = Get-DefaultEscapeLogPath -Root $resolvedRoot
+}
+elseif (-not [IO.Path]::IsPathRooted($resolvedEscapeLog)) {
+    $resolvedEscapeLog = Join-Path $resolvedRoot ($resolvedEscapeLog -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
+
+$escapeLogEntries = Read-EscapeLogEntries -Path $resolvedEscapeLog
+
+$strykerMapPath = Join-Path $PSScriptRoot 'al-bug-stryker-zone-map.json'
+$resolvedStrykerBaselinesPath = $StrykerBaselinesPath
+
+if ([string]::IsNullOrWhiteSpace($resolvedStrykerBaselinesPath)) {
+    $resolvedStrykerBaselinesPath = Join-Path $resolvedRoot 'scripts\ci\stryker-baselines.json'
+}
+elseif (-not [IO.Path]::IsPathRooted($resolvedStrykerBaselinesPath)) {
+    $resolvedStrykerBaselinesPath = Join-Path $resolvedRoot ($resolvedStrykerBaselinesPath -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
+
+$strykerLabels = Read-StrykerZoneMap -MapPath $strykerMapPath
+$strykerBaselineScores = Read-StrykerBaselines -BaselinesPath $resolvedStrykerBaselinesPath
+$coverageRatios = Read-CoverageRatios -CoveragePath $CoverageCobertura
+
 $escalatedFiles = @()
 $gitLogText = ''
 
@@ -1307,6 +1902,10 @@ Set-ZoneComputedFields `
     -GitRepoRoot $resolvedRoot `
     -SkipGitCalls:$SkipGit `
     -RunLogEntries $runLogEntries `
+    -EscapeLogEntries $escapeLogEntries `
+    -SaturatedClasses $saturatedClasses `
+    -StrykerLabels $strykerLabels `
+    -StrykerBaselineScores $strykerBaselineScores `
     -NowUtc $nowUtc `
     -EscalatedFiles $escalatedFiles
 
@@ -1316,7 +1915,8 @@ if ($Nominate) {
         -GitRepoRoot $resolvedRoot `
         -Since $Since `
         -SkipGitCalls:$SkipGit `
-        -InjectedPaths $NominatePaths
+        -InjectedPaths $NominatePaths `
+        -CoverageRatios $coverageRatios
 
     if ($Status -or $Preview) {
         Write-NominatePreview -Report $nominateReport
@@ -1356,8 +1956,16 @@ $result = ConvertTo-PickResult `
     -HintOverride $hintOverride `
     -RefreshRequested ([bool]$Refresh)
 
+$result | Add-Member -NotePropertyName saturatedClasses -NotePropertyValue (ConvertTo-ObjectArray -Value $saturatedClasses) -Force
+
 if ($Status -or $Preview) {
     Write-ZonePreview -Result $result
+
+    if (@($saturatedClasses).Count -gt 0) {
+        Write-Host ''
+        Write-Host ('**Saturated defect classes (14d):** {0}' -f (($saturatedClasses | ForEach-Object { "`[$_`]" }) -join ', '))
+        Write-Host 'Do not ship sibling synonym copies for these classes — consolidate to a shared helper or close invalid/dry.'
+    }
 }
 
 ConvertTo-Json -InputObject $result -Depth 6

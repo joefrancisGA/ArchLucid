@@ -43,7 +43,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task ApplyToFindingsAsync(
+    public async Task<int> ApplyToFindingsAsync(
         IReadOnlyList<Finding> findings,
         CancellationToken cancellationToken = default)
     {
@@ -53,7 +53,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (!IsLlmJudgeOperational() || !options.EnableLlmJudgeForEngineFindings)
         {
-            return;
+            return 0;
         }
 
         List<Finding> candidates = findings
@@ -62,7 +62,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (candidates.Count == 0)
         {
-            return;
+            return 0;
         }
 
         (IReadOnlyList<Finding> judgedFindings, int skippedByCap) = SelectJudgedCandidates(
@@ -76,7 +76,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (judgedFindings.Count == 0)
         {
-            return;
+            return skippedByCap;
         }
 
         (IAgentCompletionClient completionClient, _) = _tierCompletionRouter.ResolveForAgentTypeName(
@@ -97,10 +97,12 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
             RecordJudgeCompletion(JudgePathEngine);
         }
+
+        return skippedByCap;
     }
 
     /// <inheritdoc />
-    public async Task ApplyToArchitectureFindingsAsync(
+    public async Task<int> ApplyToArchitectureFindingsAsync(
         IReadOnlyList<ArchitectureFinding> findings,
         AgentEvidencePackage evidence,
         ArchitectureRequest request,
@@ -112,7 +114,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (!IsLlmJudgeOperational())
         {
-            return;
+            return 0;
         }
 
         InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
@@ -123,7 +125,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (candidates.Count == 0)
         {
-            return;
+            return 0;
         }
 
         (IReadOnlyList<ArchitectureFinding> judgedFindings, int skippedByCap) = SelectJudgedArchitectureCandidates(
@@ -137,7 +139,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
         if (judgedFindings.Count == 0)
         {
-            return;
+            return skippedByCap;
         }
 
         (IAgentCompletionClient completionClient, _) = _tierCompletionRouter.ResolveForAgentTypeName(
@@ -160,6 +162,8 @@ public sealed partial class PremiumInsightDensityLlmJudge(
 
             RecordJudgeCompletion(JudgePathArchitecture);
         }
+
+        return skippedByCap;
     }
 
     private static void RecordJudgeCompletion(string path)

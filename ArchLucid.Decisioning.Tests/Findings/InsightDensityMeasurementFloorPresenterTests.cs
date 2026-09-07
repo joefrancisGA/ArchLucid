@@ -62,6 +62,54 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     }
 
     [Fact]
+    public void Present_zero_actor_graph_names_skipped_actor_engines_when_analysis_complete()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            ActorNodeCount = 0,
+            AnalysisStagesComplete = true,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 12, context);
+
+        presentation.SkippedActorEngineTypes.Should().BeEquivalentTo(ActorDependentFindingEngineTypes.All);
+        presentation.Sentence.Should().Contain("external-exposure");
+        presentation.Sentence.Should().Contain("no Actor nodes");
+    }
+
+    [Fact]
+    public void Present_actor_graph_does_not_name_skipped_actor_engines()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            ActorNodeCount = 2,
+            AnalysisStagesComplete = true,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 12, context);
+
+        presentation.SkippedActorEngineTypes.Should().BeEmpty();
+        presentation.Sentence.Should().NotContain("external-exposure");
+    }
+
+    [Fact]
+    public void Present_includes_judge_cap_honesty_when_available()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            JudgeSkippedByCap = 2,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16, context);
+
+        presentation.JudgeSkippedByCap.Should().Be(2);
+        presentation.Sentence.Should().Contain("skipped 2 findings by per-snapshot cap");
+    }
+
+    [Fact]
     public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
     {
         InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(16).Should().BeNull();

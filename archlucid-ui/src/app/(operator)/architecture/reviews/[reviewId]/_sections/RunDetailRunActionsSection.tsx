@@ -2,20 +2,22 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useState } from "react";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWhatIfControl";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
+import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
+import { downloadTraceabilityBundleWithWorkingGate } from "@/lib/exports/traceability-bundle-download";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -30,11 +32,35 @@ type RunDetailRunActionsSectionProps = {
   readonly operatorGovernanceDecision?: string | null;
   readonly isArchived?: boolean;
   readonly pipelineInFlight?: boolean;
+  /** Guided/sample reviews may skip export verify (DR-10). */
+  readonly isSample?: boolean;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, manifestVersion, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const evalChromeShell = useProductionEvalChrome();
+  const workingDesk = useProductionDeskChrome();
+  const [traceabilityBusy, setTraceabilityBusy] = useState(false);
+  const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
+
+  const onDownloadTraceabilityBundle = useCallback(async () => {
+    setTraceabilityBusy(true);
+    setTraceabilityRecovery(null);
+
+    try {
+      const result = await downloadTraceabilityBundleWithWorkingGate({
+        runId,
+        workingDesk,
+        skipVerify: props.isSample === true,
+      });
+
+      if (!result.ok) {
+        setTraceabilityRecovery(result.recovery);
+      }
+    } finally {
+      setTraceabilityBusy(false);
+    }
+  }, [props.isSample, runId, workingDesk]);
   const packageCommitted =
     manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
   const sealedManifestVersion = manifestVersion ?? (packageCommitted ? manifestId?.trim() ?? null : null);
@@ -91,11 +117,26 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 </p>
               </div>
             ) : (
-              <Button variant="secondary" size="sm" asChild>
-                <ExportTrackedAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
-                  Download evidence bundle (ZIP)
-                </ExportTrackedAnchor>
-              </Button>
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={traceabilityBusy}
+                  onClick={() => {
+                    void onDownloadTraceabilityBundle();
+                  }}
+                  data-testid="run-actions-traceability-bundle-download"
+                >
+                  {traceabilityBusy ? "Preparing evidence bundle…" : "Download evidence bundle (ZIP)"}
+                </Button>
+                {traceabilityRecovery !== null ? (
+                  <OperatorErrorRecoveryContract
+                    presentation={traceabilityRecovery}
+                    testId="run-actions-traceability-bundle-recovery"
+                  />
+                ) : null}
+              </div>
             )}
             {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>

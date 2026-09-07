@@ -408,6 +408,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "needs-my-decision",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
   });
 

@@ -126,6 +126,50 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     ).toContain("measurement floor");
   });
 
+  it("derives judge cap skips from findings snapshot when explicit count is omitted", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      findingsSnapshot: {
+        insightDensityCuration: {
+          judgeSkippedByCap: 2,
+        },
+      },
+    });
+
+    expect(honesty.measurementFloor.judgeSkippedByCap).toBe(2);
+    expect(honesty.measurementFloor.line).toContain("skipped 2 findings by per-snapshot cap");
+  });
+
+  it("names skipped actor engines when graph has no actors and analysis is complete", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: {
+        runId: "run-1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        hasFindingsSnapshot: true,
+        hasGraphSnapshot: true,
+        hasContextSnapshot: true,
+      },
+      manifestSummary: null,
+      graphSnapshot: { nodes: [] },
+      enginesSucceeded: 12,
+      workingDesk: true,
+    });
+
+    expect(honesty.measurementFloor.skippedActorEngineTypes).toEqual([
+      "external-exposure",
+      "trust-boundary",
+      "privileged-access",
+    ]);
+    expect(honesty.measurementFloor.line).toContain("no Actor nodes");
+  });
+
   it("strips markdown for print surfaces", () => {
     const plain = formatCareerExportHonestyPlainText({
       runId: "run-1",

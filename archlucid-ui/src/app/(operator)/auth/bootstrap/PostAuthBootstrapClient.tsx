@@ -13,6 +13,7 @@ import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
 import { resolveBootstrapCompletePath } from "@/lib/auth/email-otp-post-auth";
+import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import {
   acceptPostAuthInvitation,
   createPostAuthWorkspace,
@@ -43,6 +44,7 @@ function applyBootstrapSession(session: {
     token_type: session.tokenType,
     expires_in: session.expiresInSeconds,
   });
+  restoreIdleDeskScopeAfterSignIn();
 
   const destination = isSafeReturnPath(session.redirectPath) ? session.redirectPath : "/";
   window.location.replace(destination);
@@ -71,6 +73,7 @@ export function PostAuthBootstrapClient() {
       setStatus(nextStatus);
 
       if (nextStatus.destination === "Complete") {
+        restoreIdleDeskScopeAfterSignIn();
         window.location.replace(resolveBootstrapCompletePath(safeReturnUrl));
       }
 

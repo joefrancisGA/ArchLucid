@@ -5,6 +5,7 @@ import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
@@ -12,6 +13,7 @@ import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
+import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
@@ -35,6 +37,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const { runId, listScopedRunId = null } = props;
   const workingDesk = useProductionDeskChrome();
   const summaryQuery = useRunSummaryQuery(runId);
+  const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, {
+    enabled: workingDesk && summaryQuery.isSuccess,
+  });
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
   });
@@ -45,6 +50,28 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     () => (summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null),
     [summaryQuery.error, summaryQuery.isError],
   );
+
+  const coverageHonestyLine = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined) {
+      return null;
+    }
+
+    const bundle = coverageHonestyQuery.data;
+
+    if (bundle === undefined) {
+      return null;
+    }
+
+    return formatCareerExportHonestyPlainText({
+      runId: summaryQuery.data.runId,
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      manifestSummary: bundle.manifestSummary ?? null,
+      graphSnapshot: bundle.buyerSummary.graphSnapshot ?? null,
+      findingsSnapshot: bundle.buyerSummary.findingsSnapshot ?? null,
+      enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
+      workingDesk: true,
+    });
+  }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
   if (summaryQuery.isPending) {
     return (
@@ -74,16 +101,10 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
-    coverageHonestyLine: workingDesk
-      ? formatCareerExportHonestyPlainText({
-          runId: summaryQuery.data.runId,
-          progressSummary: summaryQuery.data,
-          manifestSummary: null,
-          graphSnapshot: null,
-          enginesSucceeded: null,
-          workingDesk: true,
-        })
-      : null,
+    coverageHonestyLine:
+      workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
+        ? coverageHonestyLine
+        : null,
     meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
