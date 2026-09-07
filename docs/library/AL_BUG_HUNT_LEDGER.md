@@ -80,7 +80,17 @@ Hunt-ready count is a small tie-break only. Candidate/template rows must not inf
 
 **Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
 
-**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`.
+**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`. Default-branch CI can **propose** `source: ci` lines via `python3 scripts/agent/al-bug-ingest-ci-escape.py --dry-run` (artifact `ci-escape-candidate.jsonl`); humans still own `PD-###`. Unknown production paths are skipped (not written as `unzoned`). Empty escape log is valid.
+
+**Flake log:** `docs/library/AL_BUG_FLAKE_LOG.jsonl` is separate (retry-then-pass tests). `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` emits `(candidate)` rows for tests that flaked ≥ 3 times in 30 days. Flakes are not proven hits.
+
+**Window math is UTC.** Picker/escape/class-saturation windows (24h / 7d / 14d / 90d) parse JSONL `at` as UTC (`ConvertTo-RunLogUtcDateTime` accepts ISO strings and `[datetime]`, including Kind Local from `ConvertFrom-Json`).
+
+**Retired-class CI bans:** once a class has a canonical helper, new copies fail CI (`scripts/ci/al-bug-ban-retired-classes.py` + `scripts/ci/al-bug-retired-class-allowlist.txt`). The closed enum does not grow.
+
+**Revert-verifier ratchet (sample window):** new unguarded `(proven)` keys fail vs `scripts/ci/al-bug-unguarded-proven-baseline.json`. Historical unguarded rows stay baselined; do not mass-retick checkboxes.
+
+**Seeded-defect drills** (`scripts/agent/al-bug-seeded-defect-drill.py`) measure picker/seed hit offline. They do not count as hunts and must not push `bugsmash`.
 
 **Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
 

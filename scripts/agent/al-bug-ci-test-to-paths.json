@@ -1,0 +1,5 @@
+{
+  "_comment": "CI job / check name → production paths for ABQ-30 escape ingest. Missing or empty jobs are skipped (not unzoned). Do not map azure-extractor-pester (recursion).",
+  "dotnet-fast-core": ["ArchLucid.Core/"],
+  "Application.Tests": ["ArchLucid.Application/"]
+}
