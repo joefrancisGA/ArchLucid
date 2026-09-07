@@ -8,17 +8,54 @@ type HubCacheEntry = {
   readonly fetchedAtMs: number;
 };
 
+type HubQueryCacheIdentity = Partial<ResourceHubQueryContext>;
+
 const hubCache = new Map<string, HubCacheEntry>();
 const inflightHubFetches = new Map<string, Promise<CloudResourceEvidenceHubResponse>>();
+const cacheGenerations = new Map<string, number>();
+
+function normalizeCacheSegment(value?: string | null): string {
+  return value?.trim() ?? "";
+}
 
 export function buildInfraEvidenceResourceHubCacheKey(
   cloudResourceId: string,
-  snapshotId?: string | null,
+  context: HubQueryCacheIdentity = {},
 ): string {
   const trimmedResourceId = cloudResourceId.trim();
-  const trimmedSnapshotId = snapshotId?.trim() ?? "";
 
-  return `${trimmedResourceId}:${trimmedSnapshotId}`;
+  return [
+    trimmedResourceId,
+    normalizeCacheSegment(context.snapshotId),
+    normalizeCacheSegment(context.runId),
+    normalizeCacheSegment(context.assessmentId),
+    normalizeCacheSegment(context.auditEvidenceSnapshotId),
+    normalizeCacheSegment(context.controlId),
+  ].join(":");
+}
+
+function getCacheGeneration(cacheKey: string): number {
+  return cacheGenerations.get(cacheKey) ?? 0;
+}
+
+function bumpCacheGeneration(cacheKey: string): void {
+  cacheGenerations.set(cacheKey, getCacheGeneration(cacheKey) + 1);
+}
+
+function bumpCacheGenerationsMatching(matcher: (cacheKey: string) => boolean): void {
+  const keys = new Set<string>([
+    ...hubCache.keys(),
+    ...inflightHubFetches.keys(),
+    ...cacheGenerations.keys(),
+  ]);
+
+  for (const cacheKey of keys) {
+    if (matcher(cacheKey)) {
+      bumpCacheGeneration(cacheKey);
+      hubCache.delete(cacheKey);
+      inflightHubFetches.delete(cacheKey);
+    }
+  }
 }
 
 export function readCachedInfraEvidenceResourceHub(
@@ -51,12 +88,12 @@ export function writeCachedInfraEvidenceResourceHub(
 
 export function invalidateInfraEvidenceResourceHubCache(cacheKey?: string): void {
   if (cacheKey == null) {
-    hubCache.clear();
-    inflightHubFetches.clear();
+    bumpCacheGenerationsMatching(() => true);
 
     return;
   }
 
+  bumpCacheGeneration(cacheKey);
   hubCache.delete(cacheKey);
   inflightHubFetches.delete(cacheKey);
 }
@@ -70,24 +107,14 @@ export function invalidateInfraEvidenceResourceHubCacheForResource(cloudResource
 
   const prefix = `${trimmedResourceId}:`;
 
-  for (const key of hubCache.keys()) {
-    if (key === trimmedResourceId || key.startsWith(prefix)) {
-      hubCache.delete(key);
-    }
-  }
-
-  for (const key of inflightHubFetches.keys()) {
-    if (key === trimmedResourceId || key.startsWith(prefix)) {
-      inflightHubFetches.delete(key);
-    }
-  }
+  bumpCacheGenerationsMatching((cacheKey) => cacheKey === trimmedResourceId || cacheKey.startsWith(prefix));
 }
 
 export async function fetchCachedInfraEvidenceResourceHub(
   cloudResourceId: string,
-  options: Partial<ResourceHubQueryContext> = {},
+  options: HubQueryCacheIdentity = {},
 ): Promise<CloudResourceEvidenceHubResponse> {
-  const cacheKey = buildInfraEvidenceResourceHubCacheKey(cloudResourceId, options.snapshotId);
+  const cacheKey = buildInfraEvidenceResourceHubCacheKey(cloudResourceId, options);
   const cachedHub = readCachedInfraEvidenceResourceHub(cacheKey);
 
   if (cachedHub != null) {
@@ -100,9 +127,13 @@ export async function fetchCachedInfraEvidenceResourceHub(
     return inflight;
   }
 
+  const fetchGeneration = getCacheGeneration(cacheKey);
   const fetchPromise = fetchCloudResourceEvidenceHub(cloudResourceId, options)
     .then((hub) => {
-      writeCachedInfraEvidenceResourceHub(cacheKey, hub);
+      if (getCacheGeneration(cacheKey) === fetchGeneration) {
+        writeCachedInfraEvidenceResourceHub(cacheKey, hub);
+      }
+
       inflightHubFetches.delete(cacheKey);
 
       return hub;

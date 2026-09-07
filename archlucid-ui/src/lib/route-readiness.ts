@@ -61,6 +61,7 @@ export const OPERATOR_ROUTE_READINESS_LIVE_PATHS: Readonly<Record<string, RouteR
   "/demo/explain": "hidden",
 
   "/internal/product-learning": "advanced-only",
+  "/internal/product-line": "admin-only",
   "/internal/recommendation-learning": "advanced-only",
   "/internal/health": "admin-only",
   "/internal/deployment-status": "admin-only",

@@ -2257,9 +2257,9 @@ jobs:
         continue-on-error: true
         run: python3 scripts/agent/al-bug-lint-escape-log.py
 
-      - name: al-bug verify proven revert (warn-only sample)
+      - name: al-bug verify proven revert (warn-only sample + new-unguarded ratchet)
         continue-on-error: true
-        run: python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5 --since 2026-08-01
+        run: python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5 --since 2026-08-01 --fail-on-new-unguarded --baseline scripts/ci/al-bug-unguarded-proven-baseline.json
 
       - name: AlBugSeedFromAnalyzers.Tests.ps1
         shell: pwsh
@@ -2270,6 +2270,32 @@ jobs:
 
       - name: test_al_bug_escape_log.py
         run: python3 scripts/tests/test_al_bug_escape_log.py
+
+      - name: AlBugSeedFromSurvivingMutants.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugSeedFromSurvivingMutants.Tests.ps1'
+
+      - name: test_al_bug_ingest_ci_escape.py
+        run: python3 scripts/tests/test_al_bug_ingest_ci_escape.py
+
+      - name: al-bug-ban-retired-classes.py
+        run: python3 scripts/ci/al-bug-ban-retired-classes.py
+
+      - name: test_al_bug_ban_retired_classes.py
+        run: python3 scripts/ci/tests/test_al_bug_ban_retired_classes.py
+
+      - name: al-bug-lint-flake-log.py
+        continue-on-error: true
+        run: python3 scripts/agent/al-bug-lint-flake-log.py
+
+      - name: test_al_bug_flake_log.py
+        run: python3 scripts/tests/test_al_bug_flake_log.py
+
+      - name: test_al_bug_seeded_defect_drill.py
+        run: python3 scripts/tests/test_al_bug_seeded_defect_drill.py
+
+      - name: test_al_bug_audit_severity_calibration.py
+        run: python3 scripts/tests/test_al_bug_audit_severity_calibration.py
 
   first-pilot-pester:
     name: "First pilot: proof and drill Pester suites"

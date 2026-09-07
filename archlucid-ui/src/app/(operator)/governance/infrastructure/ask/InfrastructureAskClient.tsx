@@ -52,6 +52,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
@@ -440,18 +441,51 @@ export function InfrastructureAskClient() {
     const href = searchParams.toString().length > 0
       ? `${pathname}?${searchParams.toString()}`
       : pathname;
+    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
+      surface: "ask",
+      cloudResourceId,
+      resourceDisplayName: resourceHub?.externalResourceId?.split("/").pop(),
+      externalResourceId: resourceHub?.externalResourceId,
+      snapshotId,
+      controlNumber: resourceHub?.auditLineageLink.controlNumber,
+      controlTitle: resourceHub?.auditLineageLink.controlTitle,
+      controlId: controlId.length > 0 ? controlId : resourceHub?.auditLineageLink.controlId,
+      workQueueLabel: workQueue !== "all" ? workQueueLabel : null,
+      diffId,
+      findingId,
+      instanceId,
+      correspondenceId,
+    });
+
+    if (recentScopeLabel == null) {
+      return;
+    }
 
     recordInfraEvidenceRecentScope({
-      label: contextSummary,
+      label: recentScopeLabel,
       href,
     });
-  }, [contextSummary, pathname, searchParams]);
+  }, [
+    cloudResourceId,
+    contextSummary,
+    controlId,
+    correspondenceId,
+    diffId,
+    findingId,
+    instanceId,
+    pathname,
+    resourceHub,
+    searchParams,
+    snapshotId,
+    workQueue,
+    workQueueLabel,
+  ]);
 
   useEffect(() => {
     setQuestion("");
     setHistory([]);
     setSubmitError(null);
-  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId, workQueue]);
+  }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">

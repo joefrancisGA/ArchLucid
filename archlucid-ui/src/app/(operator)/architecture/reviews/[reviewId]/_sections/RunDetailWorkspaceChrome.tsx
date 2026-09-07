@@ -13,6 +13,8 @@ import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureOb
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
 import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
+import { ReviewRoomHeaderButton } from "@/components/reviews/ReviewRoomHeaderButton";
+import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
@@ -288,11 +290,17 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 />
               ) : null}
             </div>
+            <ReviewRoomHeaderButton
+              runId={props.runId}
+              reviewCompleted={!reviewPipelineIncomplete}
+              manifestVersion={props.signedReviewRecordId}
+            />
             <ReviewPresenterHeaderButton
               runId={props.runId}
               reviewCompleted={!reviewPipelineIncomplete}
               manifestVersion={props.signedReviewRecordId}
             />
+            <ReviewRoomElicitationShortcutHost />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </div>
         }

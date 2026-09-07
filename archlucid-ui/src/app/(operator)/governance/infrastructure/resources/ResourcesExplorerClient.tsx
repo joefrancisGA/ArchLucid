@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { InfrastructureResourcesSavedViewsBar } from "@/components/governance/infrastructure/InfrastructureResourcesSavedViewsBar";
 import { Button } from "@/components/ui/button";
@@ -39,8 +40,11 @@ import {
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   parseResourceHubQueryValueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
+import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
+  formatCloudResourceExplorerWorkQueueLabel,
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
   resolveResourceHubTabFromExplorerWorkQueue,
@@ -69,6 +73,7 @@ function resolveExplorerAskHubTab(
 
 export function ResourcesExplorerClient() {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const urlNamePrefix = parseResourceExplorerNamePrefixFromSearch(
     searchParams.get(RESOURCE_EXPLORER_NAME_PREFIX_PARAM),
@@ -142,6 +147,42 @@ export function ResourcesExplorerClient() {
     void loadResources();
   }, [loadResources, urlCloudResourceId]);
 
+  useEffect(() => {
+    if (urlCloudResourceId.length > 0) {
+      return;
+    }
+
+    const href = searchParams.toString().length > 0
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
+      surface: "explorer",
+      workQueueLabel: formatCloudResourceExplorerWorkQueueLabel(urlWorkQueue),
+      namePrefix: urlNamePrefix,
+      resourceType: urlResourceType,
+      resourceGroup: urlResourceGroup,
+      snapshotId: urlSnapshotId,
+    });
+
+    if (recentScopeLabel == null) {
+      return;
+    }
+
+    recordInfraEvidenceRecentScope({
+      label: recentScopeLabel,
+      href,
+    });
+  }, [
+    pathname,
+    searchParams,
+    urlCloudResourceId,
+    urlNamePrefix,
+    urlResourceGroup,
+    urlResourceType,
+    urlSnapshotId,
+    urlWorkQueue,
+  ]);
+
   const applyFilters = () => {
     const nextHref = resourceExplorerFilterHrefFromSearch(searchParams.toString(), {
       namePrefix,
@@ -188,6 +229,8 @@ export function ResourcesExplorerClient() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-resources" />
+
+      <InfraEvidenceRecentScopeStrip testId="infra-resource-explorer-recent-scope-strip" />
 
       <InfrastructureResourcesSavedViewsBar
         namePrefix={urlNamePrefix}

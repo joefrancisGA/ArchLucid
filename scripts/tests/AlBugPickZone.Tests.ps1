@@ -1184,4 +1184,84 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.strykerLabel | Should -Be 'Persistence'
         $result.mutationScore | Should -Be 70.0
     }
+
+    It 'counts an escape 1s inside the 90d window and excludes 1s outside' {
+        $content = Get-TwoZoneLedger -ZoneAChurn '0' -ZoneBChurn '0' -ZoneAHunts 5 -ZoneABugs 5 -ZoneBHunts 5 -ZoneBBugs 5
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'hunts-90d.jsonl'
+        Set-Content -LiteralPath $runLog -Value '' -Encoding UTF8
+        $now = '2026-09-07T12:00:00Z'
+        [string]$insideLog = Join-Path $TestDrive 'escape-inside.jsonl'
+        [string]$outsideLog = Join-Path $TestDrive 'escape-outside.jsonl'
+        $inside = @{ at = '2026-06-09T12:00:01Z'; source = 'ci'; zoneId = 'zone-a'; paths = @('ArchLucid.Application/Foo.cs'); ref = 'in'; huntedInPriorDays = -1 } | ConvertTo-Json -Compress
+        $outside = @{ at = '2026-06-09T11:59:59Z'; source = 'ci'; zoneId = 'zone-a'; paths = @('ArchLucid.Application/Foo.cs'); ref = 'out'; huntedInPriorDays = -1 } | ConvertTo-Json -Compress
+        Set-Content -LiteralPath $insideLog -Value $inside -Encoding UTF8
+        Set-Content -LiteralPath $outsideLog -Value $outside -Encoding UTF8
+
+        $inResult = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath $insideLog -AtUtc $now -Hint 'zone-a'
+        $outResult = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath $outsideLog -AtUtc $now -Hint 'zone-a'
+
+        $inResult.escapeCount90d | Should -Be 1
+        $outResult.escapeCount90d | Should -Be 0
+    }
+
+    It 'does not saturate a class when the fourth hit is outside the 14d window' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/AreaA/
+- **hunts:** 4
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) only boolean [class:boolean-coercion]
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/AreaB/
+- **hunts:** 4
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) other [class:null-deref]
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'class-14d.jsonl'
+        $now = '2026-09-07T12:00:00Z'
+        $lines = @(
+            (@{ at = '2026-08-24T11:59:59Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/A.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-05T10:00:00Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/B.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T10:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/C.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T11:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/D.cs') } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now
+        @($result.saturatedClasses) | Should -Not -Contain 'boolean-coercion'
+    }
+
+    It 'treats leap-day run-log timestamps as UTC without throwing' {
+        $content = Get-TwoZoneLedger
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'leap.jsonl'
+        $line = @{ at = '2024-02-29T00:00:00Z'; zoneId = 'zone-a'; outcome = 'hit' } | ConvertTo-Json -Compress
+        Set-Content -LiteralPath $runLog -Value $line -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2025-02-28T00:00:00Z' -Hint 'zone-a'
+        $result.zoneId | Should -Be 'zone-a'
+    }
 }

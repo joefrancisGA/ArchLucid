@@ -12,6 +12,8 @@ import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/c
 import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 
 import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardShortcuts";
 
@@ -33,6 +35,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
   const workingStartHref = useWorkingStartHref();
+  const { productLine, assignmentOverrides } = useProductLine();
 
   const map: KeyboardShortcutsMap = useMemo(() => {
     const next: KeyboardShortcutsMap = {};
@@ -45,6 +48,10 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
+        if (!isPathAllowedForProductLine(entry.route, productLine, { assignmentOverrides })) {
+          continue;
+        }
+
         let route =
           workingMode && entry.key === "alt+n" ? workingStartHref : entry.route;
 
@@ -77,7 +84,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
     }
 
     return next;
-  }, [onHelpRequested, pathname, router, workingMode, workingStartHref]);
+  }, [assignmentOverrides, onHelpRequested, pathname, productLine, router, workingMode, workingStartHref]);
 
   useKeyboardShortcuts(map);
 

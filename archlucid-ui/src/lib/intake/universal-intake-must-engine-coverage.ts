@@ -1,7 +1,7 @@
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 
 /** Engines registered in GoldenCorpusHarness.CreateEngines() (WK-06 / PC-02). */
-export const GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 16;
+export const GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 32;
 
 export type UniversalIntakeMustEngineCoverageRow = {
   readonly questionKey: string;
