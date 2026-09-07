@@ -73,6 +73,32 @@ def test_select_rows_since_filter() -> None:
     assert "2026-09-05" in selected[0].text
 
 
+def test_new_unguarded_minus_baseline() -> None:
+    baseline = {"zone-b|BarTests.Baz|def5678"}
+    results = [
+        verifier.RowVerification("zone-a", "row", "unguarded", test_name="FooTests.Bar", commit_sha="abc1234"),
+        verifier.RowVerification("zone-b", "row2", "unguarded", test_name="BarTests.Baz", commit_sha="def5678"),
+        verifier.RowVerification("zone-c", "row3", "could-not-run", test_name="SkipTests.X", commit_sha="aaa1111"),
+    ]
+    fresh = verifier.new_unguarded_keys(results, baseline)
+    assert fresh == ["zone-a|FooTests.Bar|abc1234"]
+    assert verifier.unguarded_key(results[1]) in baseline
+
+
+def test_could_not_run_is_not_new_unguarded() -> None:
+    results = [
+        verifier.RowVerification("z", "t", "could-not-run", test_name="FooTests.Bar", commit_sha="abc1234"),
+        verifier.RowVerification("z", "t", "no-test-cited"),
+        verifier.RowVerification("z", "t", "no-commit-cited"),
+    ]
+    assert verifier.new_unguarded_keys(results, set()) == []
+
+
+def test_fail_on_unguarded_still_detects_any() -> None:
+    unguarded = verifier.RowVerification("z", "t", "unguarded", test_name="T", commit_sha="abc1234")
+    assert any(item.classification == "unguarded" for item in [unguarded])
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):

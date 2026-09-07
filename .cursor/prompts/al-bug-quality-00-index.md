@@ -5,12 +5,12 @@
      Wave 3 (ABQ-14–18): leftover work after ABQ-01–13 shipped in code.
      Wave 4 (ABQ-19–25): seed quality, fix honesty, and ungameable metrics (shipped).
      Wave 5 (ABQ-26–35): surviving-mutant seeds, CI/flake ingest, class bans,
-     concurrency/authz/clock probes, drills, ratchets. Prompts only until implemented.
+     concurrency/authz/clock probes, drills, ratchets (shipped in code).
      Do not implement from this index. -->
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-35)
 
-**Status:** **ABQ-01–25 shipped in code** (wave 4 merged as #1957). **ABQ-26–35 are ready to run** (one prompt file per session). Do **not** re-implement 01–25 from their files.
+**Status:** **ABQ-01–35 shipped in code** (wave 5 on `cursor/al-bug-quality-prompts-wave5-3c5e`). Prompt files remain for reference; do **not** re-implement from them unless starting a new wave.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -45,20 +45,20 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Blind seed hunts** | Hypotheses only from file reading; analyzer diagnostics unused | ABQ-23 *(shipped)* |
 | **Churn-only nominate** | `-Nominate` cannot tell an untested orchestrator from a constants file | ABQ-24 *(shipped)* |
 | **Ignored mutation scores** | Scheduled Stryker exists; picker does not show kill rate | ABQ-25 *(shipped)* |
-| **Score without loci** | Mutation % shown; surviving mutants not seeded | ABQ-26 |
-| **Single-thread seeds** | Commit/persist races never constructed | ABQ-27 |
-| **Hand-picked authz routes** | New OpenAPI paths skip cross-tenant cases | ABQ-28 |
-| **Local DateTime windows** | JSONL ISO parsed as local; DST/Kind skew | ABQ-29 |
-| **Manual escape log** | CI red on production paths never recorded | ABQ-30 |
-| **Forgotten flakes** | Retry-then-green hides races | ABQ-31 |
-| **Class cooldown only** | Sibling copies of retired helpers still compile | ABQ-32 |
-| **Self-reported sensitivity** | Loop never measured against a known injected defect | ABQ-33 |
-| **Warn-only revert verifier** | New unguarded `(proven)` rows still merge | ABQ-34 |
-| **Unearned high impact** | Multiplier accepts “scary file” as user-visible harm | ABQ-35 |
+| **Score without loci** | Mutation % shown; surviving mutants not seeded | ABQ-26 *(shipped)* |
+| **Single-thread seeds** | Commit/persist races never constructed | ABQ-27 *(shipped)* |
+| **Hand-picked authz routes** | New OpenAPI paths skip cross-tenant cases | ABQ-28 *(shipped)* |
+| **Local DateTime windows** | JSONL ISO parsed as local; DST/Kind skew | ABQ-29 *(shipped)* |
+| **Manual escape log** | CI red on production paths never recorded | ABQ-30 *(shipped)* |
+| **Forgotten flakes** | Retry-then-green hides races | ABQ-31 *(shipped)* |
+| **Class cooldown only** | Sibling copies of retired helpers still compile | ABQ-32 *(shipped)* |
+| **Self-reported sensitivity** | Loop never measured against a known injected defect | ABQ-33 *(shipped)* |
+| **Warn-only revert verifier** | New unguarded `(proven)` rows still merge | ABQ-34 *(shipped)* |
+| **Unearned high impact** | Multiplier accepts “scary file” as user-visible harm | ABQ-35 *(shipped)* |
 
 ## Run order
 
-**01–25 are done** (do not paste those files to re-do the work).
+**01–35 are done** (do not paste those files to re-do the work).
 
 **26–35 recommended order:** cheap compounding first (**26, 30, 32**), then **31**, **29**, **28**, **27**, **33**, then ratchets (**34** last, after an unguarded baseline exists). **35** can run anytime as a docs/audit script (no product-code dependency).
 
@@ -127,6 +127,16 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Analyzer seeds (23) | `scripts/agent/al-bug-seed-from-analyzers.ps1` `(candidate)` only |
 | Coverage×churn nominate (24) | `-Nominate -CoverageCobertura` |
 | Stryker zone map (25) | `al-bug-stryker-zone-map.json`; unmapped `mutationScore` is `null`, not `0` |
+| Surviving-mutant seeds (26) | `al-bug-seed-from-surviving-mutants.ps1` `(candidate)` only |
+| Commit idempotency probes (27) | `CommitRunIdempotencyProbeTests` |
+| Schema authz catalog (28) | `SchemaAuthzFuzzCatalog` — GET/DELETE path-id matrix |
+| UTC window properties (29) | Picker 90d/14d boundary Pester |
+| CI escape ingest (30) | `al-bug-ingest-ci-escape.py` dry-run + artifact workflow |
+| Flake ledger (31) | `AL_BUG_FLAKE_LOG.jsonl` + seeder |
+| Retired-class bans (32) | `al-bug-ban-retired-classes.py` blocking in `azure-extractor-pester` |
+| Seeded-defect drills (33) | `al-bug-seeded-defect-drill.py` (no `/al-bug`, no push) |
+| Revert-verifier ratchet (34) | `--fail-on-new-unguarded` vs `al-bug-unguarded-proven-baseline.json` (CI still `continue-on-error`) |
+| Severity calibration (35) | `al-bug-audit-severity-calibration.py` + report |
 
 ### Footnotes for stale 01–10 prompt text
 

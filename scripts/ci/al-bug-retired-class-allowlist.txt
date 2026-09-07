@@ -1,0 +1,10 @@
+# ABQ-32 retired-class allowlist. Adding a path requires a PR comment.
+# Canonical boolean reader:
+ArchLucid.Core/Json/JsonBooleanStringReader.cs
+# Known delegates (TODO retire wrappers that only forward):
+ArchLucid.Core/Explanation/RunExplanationAggregateJsonReader.TextTokens.cs
+ArchLucid.Core/Findings/Serialization/FindingJsonConverter.Primitives.cs
+ArchLucid.Core/Persistence/RunHeaderAnchorJsonComparer.cs
+# Canonical redactors (IsEmbeddedSensitiveFragment copies, if any):
+ArchLucid.Core/AzureExtractor/AzureExtractorSensitivePropertyRedactor.cs
+ArchLucid.Core/Configuration/Summary/ConfigurationSensitiveConfigPathMatcher.cs
