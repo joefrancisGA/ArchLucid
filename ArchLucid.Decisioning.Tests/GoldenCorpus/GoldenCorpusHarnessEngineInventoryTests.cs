@@ -18,8 +18,8 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     {
         GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(32);
         GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(32);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(15);
-        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(47);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(16);
+        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(48);
     }
 
     [Fact]
