@@ -5229,6 +5229,7 @@ jobs:
           ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
           ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
           AuthorityPipeline__PipelineTimeout: "00:05:00"
+          FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |

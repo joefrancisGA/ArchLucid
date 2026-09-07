@@ -45,6 +45,7 @@ import {
   liveJsonHeaders,
   waitForArchitectureRunListIncludesRun,
   waitForLiveApiReady,
+  warmPrivateBetaCreateRunPipeline,
 } from "./helpers/live-api-client";
 
 const expectedScope = {
@@ -95,6 +96,10 @@ test.describe(
 
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
+
+    test.beforeAll(async ({ request }) => {
+      await warmPrivateBetaCreateRunPipeline(request);
+    });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
