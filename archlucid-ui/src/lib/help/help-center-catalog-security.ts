@@ -2,6 +2,7 @@ import { CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY, CAIQ_SIG_RESPONSE_HELP_PAGE_TITL
 import { ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE } from "@/lib/enterprise-onboarding-help-copy";
 
 import type { HelpCenterDisplay } from "@/lib/help/help-center-catalog";
+import { secureNowCloudConnectionsSummary } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /**
  * SecureNow help hub landing grid — security, cloud, assurance, and admin topics.
@@ -32,8 +33,7 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
   },
   "cloud-connections": {
     title: "Cloud connections",
-    summary:
-      "Connect Azure, AWS, or GCP for read-only evidence collection and connector health checks in SecureNow.",
+    summary: secureNowCloudConnectionsSummary(),
   },
   "security-trust": {
     title: "Security and trust",

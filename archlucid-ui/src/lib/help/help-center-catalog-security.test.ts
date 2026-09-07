@@ -21,8 +21,18 @@ describe("help-center-catalog-security", () => {
     const cloudConnections = topics.find((entry) => entry.slug === "cloud-connections");
 
     expect(cloudConnections).not.toBeUndefined();
-    expect(getHelpCenterDisplay(cloudConnections!, "security").summary).toContain("SecureNow");
+    expect(getHelpCenterDisplay(cloudConnections!, "security").summary).toContain("Azure");
+    expect(getHelpCenterDisplay(cloudConnections!, "security").summary).not.toMatch(/\bAWS\b|\bGCP\b/i);
     expect(listHelpCenterFeaturedSlugs("security")).toEqual(HELP_CENTER_SECURITY_FEATURED_SLUGS);
+  });
+
+  it("hides AWS and GCP help topics from the SecureNow help hub", () => {
+    const topics = listHelpCenterTopics({ showAdvanced: true, isAdmin: true, productLineId: "security" });
+    const slugs = topics.map((entry) => entry.slug);
+
+    expect(slugs).not.toContain("cloud-connections-aws");
+    expect(slugs).not.toContain("cloud-connections-gcp");
+    expect(slugs).toContain("cloud-connections-azure");
   });
 
   it("keeps ArchLucid company wording in subprocessors security summary", () => {

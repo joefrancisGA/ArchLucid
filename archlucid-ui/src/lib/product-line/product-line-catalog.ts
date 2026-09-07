@@ -91,6 +91,8 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
+  "/integrations/cloud-connections/aws": "architecture",
+  "/integrations/cloud-connections/gcp": "architecture",
 };
 
 /** Nested URL trees that inherit the parent catalog assignment. */

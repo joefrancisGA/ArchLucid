@@ -9,6 +9,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import type { HelpCenterDisplay } from "@/lib/help/help-center-catalog";
 import type { HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
+import { isHelpSearchTopicExcludedForProductLine, cloudConnectionsSummaryForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** Stable anchor — visible label is product-line-aware via {@link howProductWorksTitle}. */
 export const HOW_PRODUCT_WORKS_HELP_ANCHOR = "how-archlucid-works" as const;
@@ -62,10 +63,15 @@ export function localizeHelpSearchPanelTopic(
   const localizedTitle =
     topic.id === "how-archlucid-works" ? howProductWorksTitle(productLineId) : localizeHelpCopy(productLineId, topic.title);
 
+  const localizedDescription =
+    topic.id === "cloud-connections" && productLineId === "security"
+      ? cloudConnectionsSummaryForProductLine(productLineId)
+      : localizeHelpCopy(productLineId, topic.description);
+
   return {
     ...topic,
     title: localizedTitle,
-    description: localizeHelpCopy(productLineId, topic.description),
+    description: localizedDescription,
   };
 }
 
@@ -77,5 +83,7 @@ export function localizeHelpSearchPanelTopics(
     return [...topics];
   }
 
-  return topics.map((topic) => localizeHelpSearchPanelTopic(topic, productLineId));
+  return topics
+    .filter((topic) => !isHelpSearchTopicExcludedForProductLine(topic.id, productLineId))
+    .map((topic) => localizeHelpSearchPanelTopic(topic, productLineId));
 }

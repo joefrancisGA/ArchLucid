@@ -11,6 +11,7 @@ import {
   pathIsArchitectureDraftDetail,
 } from "@/lib/architectures-draft-evidence-copy";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
 import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
@@ -60,11 +61,13 @@ import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-hel
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
 import { MARKETING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/marketing-rows";
+import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+import { HELP_TOPIC_MIRROR_TASK_STEPS } from "@/lib/contextual-help/types";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
-  HELP_TOPIC_MIRROR_TASK_STEPS,
-  type PageContextualHelpEntry,
-  type PageContextualHelpRow,
-} from "@/lib/contextual-help/types";
+  cloudConnectionsHubContextualLeadForProductLine,
+  isCloudConnectionPathExcludedForProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   EVIDENCE_TRACE_CONTEXTUAL_HELP,
   pathIsFindingEvidenceTrace,
@@ -184,10 +187,16 @@ function normalizePathname(pathname: string): string {
 /** Resolve short-form contextual help for an architect pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(
   pathname: string,
-  options?: { readonly workingMode?: boolean },
+  options?: { readonly workingMode?: boolean; readonly productLineId?: ProductLineId },
 ): PageContextualHelpEntry | null {
   const path = normalizePathname(pathname);
   const workingMode = options?.workingMode === true;
+  const productLineId = options?.productLineId ?? "architecture";
+
+  if (isCloudConnectionPathExcludedForProductLine(path, productLineId)) {
+    return null;
+  }
+
   const parameterized = PARAMETERIZED_ROUTE_MATCHERS.find((matcher) => matcher.matches(path));
 
   if (parameterized !== undefined) {
@@ -206,6 +215,15 @@ export function contextualHelpForPathname(
 
   if (architectureOverride !== null) {
     return architectureOverride;
+  }
+
+  if (path === CLOUD_CONNECTIONS_CANONICAL_PATH || path.startsWith(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/`)) {
+    if (path === CLOUD_CONNECTIONS_CANONICAL_PATH) {
+      return {
+        ...row.entry,
+        whatIsThisPage: cloudConnectionsHubContextualLeadForProductLine(productLineId),
+      };
+    }
   }
 
   return row.entry;
