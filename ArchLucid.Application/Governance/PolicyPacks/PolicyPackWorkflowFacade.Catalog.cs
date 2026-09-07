@@ -113,8 +113,18 @@ public sealed partial class PolicyPackWorkflowFacade
     /// <inheritdoc />
     public async Task<bool> TryDemoteCatalogEntryAsync(Guid policyPackCatalogEntryId, CancellationToken ct)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
         PolicyPackCatalogEntryDetail? promoted =
             await _policyPackCatalogRepository.GetPromotedDetailByIdAsync(policyPackCatalogEntryId, ct);
+
+        if (promoted is not null)
+        {
+            PolicyPack? sourcePack = await _packRepository.GetByIdAsync(promoted.SourcePolicyPackId, ct);
+
+            if (!IsPackVisibleInScope(sourcePack, scope))
+                return false;
+        }
 
         bool ok = await _policyPackCatalogAdminService.TryDemoteAsync(policyPackCatalogEntryId, ct);
 

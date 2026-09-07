@@ -129,4 +129,29 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
 
         result.Should().BeOfType<OkObjectResult>();
     }
+
+    [Fact]
+    public async Task DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope()
+    {
+        Guid foreignCatalogEntryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.DemoteCatalogEntryAsync(
+                It.Is<PolicyPackDemoteCatalogBody>(body => body.PolicyPackCatalogEntryId == foreignCatalogEntryId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                Message = $"Policy pack catalog entry '{foreignCatalogEntryId}' was not found.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult result = await sut.DemoteCatalogEntry(
+            new DemotePolicyPackCatalogEntryRequest { PolicyPackCatalogEntryId = foreignCatalogEntryId },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
 }

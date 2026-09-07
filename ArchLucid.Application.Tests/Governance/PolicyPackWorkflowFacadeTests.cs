@@ -453,6 +453,50 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope()
+    {
+        Guid foreignSourcePackId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogEntryDetail promoted = await catalog.UpsertPromotedFromSnapshotAsync(
+            foreignSourcePackId,
+            "Foreign",
+            "desc",
+            PolicyPackType.ProjectCustom,
+            "1.0.0",
+            """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""",
+            CancellationToken.None);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(foreignSourcePackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPack
+            {
+                PolicyPackId = foreignSourcePackId,
+                TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                WorkspaceId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                ProjectId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                Name = "foreign-pack",
+                CurrentVersion = "1.0.0",
+                IsDeleted = false,
+            });
+
+        PolicyPackCatalogAdminService catalogAdmin = new(
+            packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>(),
+            catalog);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, Mock.Of<IAuditService>(), packs.Object);
+
+        bool demoted = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
+
+        demoted.Should().BeFalse();
+        (await catalog.GetPromotedDetailByIdAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None))
+            .Should()
+            .NotBeNull();
+    }
+
+    [Fact]
     public async Task TryDemoteCatalogEntryAsync_skips_duplicate_audit_when_already_demoted_retry()
     {
         InMemoryPolicyPackCatalogRepository catalog = new();
@@ -475,7 +519,7 @@ public sealed class PolicyPackWorkflowFacadeTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, audit.Object);
+        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, audit.Object, packs: null);
 
         bool first = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
         bool second = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
@@ -743,14 +787,17 @@ public sealed class PolicyPackWorkflowFacadeTests
     private static PolicyPackWorkflowFacade CreateCatalogDemoteSut(
         IPolicyPackCatalogRepository catalogRepository,
         IPolicyPackCatalogAdminService catalogAdminService,
-        IAuditService auditService)
+        IAuditService auditService,
+        IPolicyPackRepository? packs = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
 
+        IPolicyPackRepository packRepository = packs ?? CreateInScopePackRepository();
+
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
-            Mock.Of<IPolicyPackRepository>(),
+            packRepository,
             Mock.Of<IPolicyPackAssignmentRepository>(),
             Mock.Of<IPolicyPackVersionRepository>(),
             catalogRepository,
@@ -769,6 +816,16 @@ public sealed class PolicyPackWorkflowFacadeTests
                 Mock.Of<IPolicyPackResolverCacheInvalidator>()),
             Mock.Of<IPlatformBundledPolicyPackAvailability>(),
             auditService);
+    }
+
+    private static IPolicyPackRepository CreateInScopePackRepository()
+    {
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid packId, CancellationToken _) => CreateInScopePack(packId));
+
+        return packs.Object;
     }
 
     private static PolicyPackWorkflowFacade CreateAssignmentToggleSut(
