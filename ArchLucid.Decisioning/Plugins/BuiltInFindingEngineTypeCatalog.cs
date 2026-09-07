@@ -22,6 +22,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["RequirementGapFindingEngine"] = "requirement-gap",
             ["RequirementCrossRunDiffFindingEngine"] = "requirement-cross-run-diff",
             ["DrRpoTopologyFindingEngine"] = "dr-rpo-topology",
+            ["RequirementSkuTierFindingEngine"] = "requirement-sku-tier",
             ["TopologyCoverageFindingEngine"] = "topology-coverage",
             ["TopologyStructureFindingEngine"] = "topology-structure",
             ["TopologyCrossRunDiffFindingEngine"] = "topology-cross-run-diff",
@@ -49,6 +50,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["GraphAwsInventoryReconciliationFindingEngine"] = "aws-inventory-reconciliation",
             ["GraphGcpInventoryReconciliationFindingEngine"] = "gcp-inventory-reconciliation",
             ["DeclarationInventoryContradictionFindingEngine"] = "declaration-inventory-contradiction",
+            ["DanglingDeclarationReferenceFindingEngine"] = "dangling-declaration-reference",
             ["OrphanedAwsResourceFindingEngine"] = "orphaned-aws-resource",
             ["OrphanedGcpResourceFindingEngine"] = "orphaned-gcp-resource",
             ["AwsCostRecommendationFindingEngine"] = "aws-cost-recommendation",
@@ -62,6 +64,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
             ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
             ["InsightGeneratorFindingEngine"] = "insight-generator",
+            ["ChecklistClusterSynthesisFindingEngine"] = "checklist-cluster-synthesis",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>

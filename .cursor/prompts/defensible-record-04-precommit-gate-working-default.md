@@ -4,7 +4,7 @@
 
 ## Goal
 
-`ArchLucid:Governance:PreCommitGateEnabled` defaults **false**, so commits skip policy-pack / severity blocking unless an operator opts in (`PRE_COMMIT_GOVERNANCE_GATE.md`). For Working **production-like** hosts, enable the gate (Staging/Production appsettings + Terraform/config lint). For local/dev where the gate stays off, Working career export and finalize **cannot** present Ready: a persistent banner “Pre-finalize governance gate is off — this seal is not career-complete” and DR-01-style export block.
+`ArchLucid:Governance:PreCommitGateEnabled` defaults **false**, so commits skip policy-pack / severity blocking unless an operator opts in (`PRE_COMMIT_GOVERNANCE_GATE.md`). For Working **production-like** hosts, enable the gate (Staging/Production appsettings + Terraform/config lint). For local/dev where the gate stays off, Working career export and finalize **cannot** present Ready: a persistent banner “Finalize will not be blocked by policy” / “Serious findings can still be sealed here. This is not a fully governed review record.” and DR-01-style export block.
 
 Do not enable the gate on Guided sample-mode if that would break teaching fixtures — label those seals sample.
 

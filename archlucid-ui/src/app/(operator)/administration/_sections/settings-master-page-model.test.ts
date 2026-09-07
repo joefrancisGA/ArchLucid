@@ -143,4 +143,30 @@ describe("settings-master-page-model", () => {
     expect(hidden.some((section) => section.id === "advanced")).toBe(false);
     expect(shown.some((section) => section.id === "advanced")).toBe(true);
   });
+
+  it("hides architecture-review destinations from the Security product settings hub", () => {
+    const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: true,
+      searchQuery: "",
+      showAdvanced: true,
+      productLine: "security",
+    });
+    const hrefs = sections.flatMap((section) => section.destinations).map((destination) => destination.href);
+    const sectionIds = sections.map((section) => section.id);
+
+    expect(hrefs).toContain("/integrations/cloud-connections");
+    expect(hrefs).toContain("/administration/users");
+    expect(hrefs).toContain("/administration/auth-domains");
+    expect(hrefs).toContain("/administration/extract-upload");
+    expect(hrefs).not.toContain("/governance/approval-queue");
+    expect(hrefs).not.toContain("/governance/policy-packs");
+    expect(hrefs).not.toContain("/administration/ai-usage");
+    expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
+    expect(sectionIds).not.toContain("governance");
+    expect(sectionIds).not.toContain("policy-packs");
+    expect(sectionIds).not.toContain("ai-usage");
+    expect(sectionIds).toContain("integrations");
+  });
 });

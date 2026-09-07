@@ -1,0 +1,136 @@
+[
+  {
+    "findingId": "6250ec85-4c0b-65f7-8bb0-bb0004583af2",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "nsg-web",
+      "sql-pay",
+      "subnet-app"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "04671abf-d7a7-bdfc-9249-c0bf48ac5d8c",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "nsg-web",
+      "sql-pay",
+      "subnet-app"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "9848c0ac-5e08-c105-010c-b3399138b438",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: web-nsg",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "nsg-web"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "a7d16676-5279-c925-0b29-ef9176c6233d",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "app-subnet",
+      "sql-pay-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "03438bc4-ef17-123b-1614-7bfe8d339b99",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027web-nsg\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "nsg-web"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027web-nsg\u0027 is isolated from topology resources."
+    ]
+  },
+  {
+    "findingId": "6d5303d0-710d-fcbc-7df6-6f9543b80e1e",
+    "findingType": "SegmentationSemanticsFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Segmentation control \u0027web-nsg\u0027 allows inbound port 22 from the internet",
+    "rationale": "Declared rule material on \u0027web-nsg\u0027 exposes administrative port 22 to the internet within 2 hop(s) of a sensitive target.",
+    "relatedNodeIds": [
+      "nsg-web",
+      "sql-pay"
+    ],
+    "payloadType": "SegmentationSemanticsFindingPayload",
+    "rulesApplied": [
+      "segmentation-semantics",
+      "tf.security_rule"
+    ],
+    "decisionsTaken": [
+      "Internet-exposed admin inbound port on segmentation control with sensitive target path."
+    ]
+  },
+  {
+    "findingId": "3bbaa410-6546-d267-c4cd-38a84a1b04bc",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "sql-pay",
+      "subnet-app"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

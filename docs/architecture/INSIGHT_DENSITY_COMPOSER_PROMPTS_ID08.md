@@ -3,7 +3,7 @@
 
 # Insight density — Composer prompt set ID-08 through ID-11
 
-**Created:** 2026-08-26 · **Status:** ID-08, ID-09, and ID-10 **SHIPPED on `master`.** Do **not** re-run them. PP-01 **map** is in `DeclarationSignalPolicyKeyMap`; remaining catalog truncation is **DX-16**. Next runnable density set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) (**DX-01–DX-16**). ID-11 honesty is superseded by ADR 0070 + DX-01 (do not restore `typed-engine-protected`).
+**Created:** 2026-08-26 · **Status:** ID-08, ID-09, and ID-10 **SHIPPED on `master`.** Do **not** re-run them. PP-01 **map** is in `DeclarationSignalPolicyKeyMap`; remaining catalog truncation is **DX-16** (also shipped). Next runnable density set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-21–DX-28**). **DX-01–DX-16** are shipped — do not re-run [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md). ID-11 honesty is superseded by ADR 0070 + DX-01 (do not restore `typed-engine-protected`).
 
 **Do not re-run ID-01 through ID-07.** They shipped on `master` (frontier-delta harness, per-engine distribution, multi-cloud generic patterns, judge coverage + cap, open-commitment / portfolio-recurrence / premise-conflict engines, tenant admin card). Treat [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) as an archive.
 

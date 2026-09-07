@@ -48,3 +48,16 @@ export function isCommandPaletteReviewSaveAvailable(): boolean {
 export function isCommandPaletteFinalizeReviewAvailable(): boolean {
   return queryVisibleFinalizeReviewControl() !== null;
 }
+
+/** Room elicitation command-bar control when review pipeline is complete (DR-16). */
+export function queryVisibleReviewRoomEnterControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>('[data-testid="review-room-enter"]:not([disabled])');
+}
+
+export function isCommandPaletteRoomElicitationAvailable(): boolean {
+  return queryVisibleReviewRoomEnterControl() !== null;
+}

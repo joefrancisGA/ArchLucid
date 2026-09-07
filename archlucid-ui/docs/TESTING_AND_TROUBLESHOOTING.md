@@ -489,6 +489,21 @@ resolve: {
 **Cause:** E2E tests use **fixtures and loopback mocks**, not your C# API or data.  
 **Fix:** Validate integration manually or add separate tests; see [section 8 — E2E tests (Playwright)](#8-e2e-tests-playwright).
 
+### "Another next dev server is already running" when starting Security on :3001
+
+**Cause:** Next.js 16+ writes a dev lock under `.next/dev/lock` (or `{distDir}/dev/lock`). A second `next dev` in the same project directory fails even on a different port.
+
+**Fix (recommended):** Use separate output directories. Repo root `.\scripts\start-local-api-and-ui.ps1` sets `$env:NEXT_DIST_DIR = '.next-security'` for the Security window. On Unix shells, `npm run dev:security` does the same. Manual Security start while Architecture is on :3000:
+
+```powershell
+cd archlucid-ui
+$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = 'security'
+$env:NEXT_DIST_DIR = '.next-security'
+npx next dev --webpack -p 3001
+```
+
+**Alternatives:** Stop the existing dev server (`taskkill /PID <pid> /F` on Windows) if you only need one shell, or use the running Architecture server at http://localhost:3000 and switch product line via cookie/settings instead of a second process.
+
 ### "The dev server shows a blank page or 'Internal Server Error'"
 
 **Cause:** Usually a server component threw an error (API unreachable, missing env var, bad import).  

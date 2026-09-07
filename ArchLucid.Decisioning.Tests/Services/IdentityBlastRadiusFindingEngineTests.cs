@@ -35,6 +35,9 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         payload.DatastoreNodeId.Should().Be("kv-pay-prod");
         payload.RoleName.Should().Be("Contributor");
         payload.HopCount.Should().Be(2);
+        finding.Trace!.Notes.Should().Contain(note =>
+            note.StartsWith("counterfactual:", StringComparison.OrdinalIgnoreCase)
+            && note.Contains("write/admin path (2 hops)", StringComparison.Ordinal));
     }
 
     [Fact]

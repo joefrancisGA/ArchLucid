@@ -148,7 +148,7 @@ public sealed partial class PreFinalizeChecklistService
             return new PreFinalizeChecklistItem
             {
                 ItemId = "pre-commit-gate",
-                Title = "Pre-finalize governance gate",
+                Title = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle,
                 Detail = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage,
                 Status = PreFinalizeChecklistItemStatus.Blocking,
                 Count = 1,

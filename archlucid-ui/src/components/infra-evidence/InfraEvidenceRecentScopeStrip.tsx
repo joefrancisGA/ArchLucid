@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import {
+  INFRA_EVIDENCE_RECENT_SCOPE_CHANGED_EVENT,
   readInfraEvidenceRecentScopes,
   type InfraEvidenceRecentScopeEntry,
 } from "@/lib/infra-evidence/infra-evidence-recent-scope";
@@ -27,7 +28,16 @@ export function InfraEvidenceRecentScopeStrip(
   const [entries, setEntries] = useState<readonly InfraEvidenceRecentScopeEntry[]>([]);
 
   useEffect(() => {
-    setEntries(readInfraEvidenceRecentScopes(currentHref));
+    const refreshEntries = () => {
+      setEntries(readInfraEvidenceRecentScopes(currentHref));
+    };
+
+    refreshEntries();
+    window.addEventListener(INFRA_EVIDENCE_RECENT_SCOPE_CHANGED_EVENT, refreshEntries);
+
+    return () => {
+      window.removeEventListener(INFRA_EVIDENCE_RECENT_SCOPE_CHANGED_EVENT, refreshEntries);
+    };
   }, [currentHref]);
 
   if (entries.length === 0) {
