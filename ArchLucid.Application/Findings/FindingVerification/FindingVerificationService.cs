@@ -41,7 +41,7 @@ public sealed class FindingVerificationService(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    public async Task<FindingVerificationReportResponse> CreateReportAsync(
+    public async Task<FindingVerificationCreateReportResult> CreateReportAsync(
         ScopeContext scope,
         Guid runId,
         CreateFindingVerificationReportRequest request,
@@ -67,6 +67,24 @@ public sealed class FindingVerificationService(
         }
 
         FindingsSnapshot sourceSnapshot = detail.FindingsSnapshot;
+
+        FindingVerificationReportRecord? existingReport =
+            await _verificationReportRepository.TryGetLatestByPackagePairAsync(
+                scope,
+                runId,
+                sourceSnapshot.FindingsSnapshotId,
+                request.VerificationFindingsSnapshotId,
+                cancellationToken);
+
+        if (existingReport is not null)
+        {
+            return new FindingVerificationCreateReportResult
+            {
+                Response = MapResponse(existingReport),
+                CreatedNewReport = false,
+            };
+        }
+
         FindingsSnapshot? verificationSnapshot = null;
 
         if (request.VerificationFindingsSnapshotId is Guid verificationSnapshotId)
@@ -153,7 +171,11 @@ public sealed class FindingVerificationService(
             },
             cancellationToken);
 
-        return MapResponse(record);
+        return new FindingVerificationCreateReportResult
+        {
+            Response = MapResponse(record),
+            CreatedNewReport = true,
+        };
     }
 
     private CrossReviewFindingCorrelationResult BuildCorrelation(

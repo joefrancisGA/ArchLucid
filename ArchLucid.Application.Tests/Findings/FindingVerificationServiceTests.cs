@@ -69,20 +69,21 @@ public sealed class FindingVerificationServiceTests
 
         FindingVerificationService sut = CreateService(authorityQuery.Object, repository, auditService.Object);
 
-        FindingVerificationReportResponse response = await sut.CreateReportAsync(
+        FindingVerificationCreateReportResult result = await sut.CreateReportAsync(
             TestScope,
             RunId,
             new CreateFindingVerificationReportRequest(),
             "operator@test",
             CancellationToken.None);
 
-        response.ReportId.Should().NotBe(Guid.Empty);
-        response.SourceManifestHash.Should().Be(SealedManifestHash);
-        response.Results.Should().ContainSingle();
-        response.Results[0].Status.Should().Be(FindingVerificationStatus.NotVerifiable);
+        result.CreatedNewReport.Should().BeTrue();
+        result.Response.ReportId.Should().NotBe(Guid.Empty);
+        result.Response.SourceManifestHash.Should().Be(SealedManifestHash);
+        result.Response.Results.Should().ContainSingle();
+        result.Response.Results[0].Status.Should().Be(FindingVerificationStatus.NotVerifiable);
 
         FindingVerificationReportRecord? stored =
-            await repository.GetByIdAsync(TestScope, response.ReportId, CancellationToken.None);
+            await repository.GetByIdAsync(TestScope, result.Response.ReportId, CancellationToken.None);
 
         stored.Should().NotBeNull();
         stored!.SourceManifestHash.Should().Be(SealedManifestHash);
@@ -152,16 +153,58 @@ public sealed class FindingVerificationServiceTests
             findingsSnapshotRepository.Object,
             reviewTrailRepository.Object);
 
-        FindingVerificationReportResponse response = await sut.CreateReportAsync(
+        FindingVerificationCreateReportResult result = await sut.CreateReportAsync(
             TestScope,
             RunId,
             new CreateFindingVerificationReportRequest { VerificationFindingsSnapshotId = verificationSnapshotId },
             "operator@test",
             CancellationToken.None);
 
-        response.Results.Should().ContainSingle();
-        response.Results[0].Status.Should().Be(FindingVerificationStatus.Materialized);
-        response.Results[0].TraceText.Should().Contain("RV-003");
+        result.Response.Results.Should().ContainSingle();
+        result.Response.Results[0].Status.Should().Be(FindingVerificationStatus.Materialized);
+        result.Response.Results[0].TraceText.Should().Contain("RV-003");
+    }
+
+    [Fact]
+    public async Task CreateReportAsync_same_package_pair_is_idempotent()
+    {
+        Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Finding finding = new()
+        {
+            FindingId = "finding-verification-1",
+            Title = "Public storage exposure",
+            Severity = FindingSeverity.Critical,
+        };
+
+        RunDetailDto detail = BuildSealedRunDetail(findingsSnapshotId, finding);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingVerificationReportRepository repository = new();
+        FindingVerificationService sut = CreateService(authorityQuery.Object, repository);
+
+        CreateFindingVerificationReportRequest request = new();
+        FindingVerificationCreateReportResult first = await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            request,
+            "operator@test",
+            CancellationToken.None);
+
+        FindingVerificationCreateReportResult second = await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            request,
+            "operator@test",
+            CancellationToken.None);
+
+        first.CreatedNewReport.Should().BeTrue();
+        second.CreatedNewReport.Should().BeFalse();
+        second.Response.ReportId.Should().Be(first.Response.ReportId);
+        second.Response.ReportHash.Should().Be(first.Response.ReportHash);
     }
 
     [Fact]
@@ -231,7 +274,7 @@ public sealed class FindingVerificationServiceTests
         InMemoryFindingVerificationReportRepository repository = new();
         FindingVerificationService sut = CreateService(authorityQuery.Object, repository);
 
-        FindingVerificationReportResponse response = await sut.CreateReportAsync(
+        FindingVerificationCreateReportResult result = await sut.CreateReportAsync(
             TestScope,
             RunId,
             new CreateFindingVerificationReportRequest(),
@@ -239,7 +282,7 @@ public sealed class FindingVerificationServiceTests
             CancellationToken.None);
 
         FindingVerificationReportRecord? foreignLookup =
-            await repository.GetByIdAsync(ForeignScope, response.ReportId, CancellationToken.None);
+            await repository.GetByIdAsync(ForeignScope, result.Response.ReportId, CancellationToken.None);
 
         foreignLookup.Should().BeNull();
     }
