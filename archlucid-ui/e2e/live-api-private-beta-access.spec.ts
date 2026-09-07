@@ -15,6 +15,7 @@ import {
   clearJwtBrowserSession,
   createAdminUserInvite,
   fetchAuthMeViaProxy,
+  fetchAuthMeWithBearer,
   listPendingInvitations,
   provisionE2ePlatformUserPreAuth,
   readRoleClaims,
@@ -93,6 +94,8 @@ test.describe(
   });
 
   test.describe("browser journeys", () => {
+    test.describe.configure({ mode: "serial" });
+
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
     });
@@ -260,6 +263,11 @@ test.describe(
     await primeJwtBrowserSession(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+
+    const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
+    const directRoles = readRoleClaims(meDirect.claims);
+
+    expect(directRoles.map((role) => role.toLowerCase())).toContain("operator");
 
     const me = await fetchAuthMeViaProxy(page, inviteeSession.accessToken);
     const scope = resolveScopeFromAuthMe(me, expectedScope);

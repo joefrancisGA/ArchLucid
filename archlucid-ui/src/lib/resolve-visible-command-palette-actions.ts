@@ -29,6 +29,8 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingStartHref?: string;
   /** Sidebar-visible href set — Working palette nav rows must agree (SD-11). */
   readonly visibleNavHrefs?: ReadonlySet<string>;
+  /** Last-open architecture identity for bind-tool palette gates (AO-41). */
+  readonly lastOpenArchitectureId?: string | null;
 };
 
 const GUIDED_FIRST_SESSION_HIDDEN_HREFS = new Set<string>([

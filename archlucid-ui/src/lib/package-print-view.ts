@@ -3,6 +3,10 @@
  * Dedicated print route keeps shell chrome out of the PDF without export-format roulette.
  */
 
+import {
+  resolveWorkingReviewPackageBackHref,
+  type ResolveWorkingBackLocatorInput,
+} from "@/lib/architecture/working-back-href";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -54,15 +58,18 @@ export function buildPackagePrintPath(runId: string): string {
   return `/architecture/reviews/${encodeURIComponent(trimmed)}/print`;
 }
 
-/** Builds the review workspace href with the package tab focused. */
-export function buildPackagePrintBackHref(runId: string): string {
+/** Builds the review workspace href with the package tab focused (AO-44 nested when architecture is known). */
+export function buildPackagePrintBackHref(
+  runId: string,
+  options?: Omit<ResolveWorkingBackLocatorInput, "reviewId" | "reviewTab">,
+): string {
   const trimmed = runId.trim();
 
   if (trimmed.length === 0) {
     return "/architecture/reviews";
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}?tab=review-package`;
+  return resolveWorkingReviewPackageBackHref({ reviewId: trimmed, ...options });
 }
 
 /** Invokes the browser print dialog (screen stylesheet already hides shell chrome). */

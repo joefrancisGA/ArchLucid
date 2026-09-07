@@ -139,6 +139,11 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     marker: "AO-41",
   },
   {
+    id: "AO-47",
+    relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
+    marker: "AO-47",
+  },
+  {
     id: "AO-42",
     relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
     marker: "AO-42",
@@ -149,8 +154,28 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     marker: "AO-43",
   },
   {
-    id: "AO-47",
-    relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
-    marker: "AO-47",
+    id: "AO-44",
+    relativeTestPath: "lib/architecture/working-back-href.test.ts",
+    marker: "AO-44",
+  },
+  {
+    id: "AO-45",
+    relativeTestPath: "lib/guided-two-door-working-mode-guard.test.tsx",
+    marker: "AO-45",
+  },
+  {
+    id: "AO-46",
+    relativeTestPath: "lib/ux-audit-working-home-guard.test.ts",
+    marker: "AO-46",
+  },
+  {
+    id: "AO-48",
+    relativeTestPath: "lib/desk-continuity-architecture-locator.test.ts",
+    marker: "AO-48",
+  },
+  {
+    id: "AO-49",
+    relativeTestPath: "lib/architecture/working-unlinked-review-honesty.test.ts",
+    marker: "AO-49",
   },
 ];
