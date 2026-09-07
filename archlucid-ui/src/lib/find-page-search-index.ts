@@ -60,9 +60,13 @@ function dedupeFindPageEntriesByHref(entries: readonly FindPageSearchEntry[]): F
       continue;
     }
 
-    // Curated rows carry richer search tokens than bare nav labels.
+    // Curated rows carry richer search tokens than bare nav labels, and keep nav tokens so
+    // product-line labels and href segments remain searchable after dedupe.
     if (entry.source === "curated" && existing.source === "nav") {
-      byHref.set(entry.href, entry);
+      byHref.set(entry.href, {
+        ...entry,
+        searchValue: `${existing.searchValue} ${entry.searchValue}`,
+      });
     }
   }
 
