@@ -44,6 +44,7 @@ import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
 
 /**
  * Static pathname → announcement title mappings for canonical architect workspace routes only.
@@ -136,4 +137,5 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/platform-bundled-policy-packs": "Platform policy packs",
   "/internal/recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "/internal/product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
+  "/internal/product-line": PRODUCT_LINE_PLAYGROUND_TITLE,
 };
