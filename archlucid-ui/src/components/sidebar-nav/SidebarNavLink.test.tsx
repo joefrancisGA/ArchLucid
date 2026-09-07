@@ -65,6 +65,31 @@ describe("SidebarNavLink", () => {
     expect(link.className).not.toContain("text-neutral-600");
   });
 
+  it("AO-40: shows visible disabled reason without native title", () => {
+    render(
+      <SidebarNavLink
+        presented={{
+          ...newReviewLink,
+          href: "/insights/evidence-graph",
+          label: "Evidence graph",
+          navLinkDisabled: true,
+          navLinkDisabledReason: "Open an architecture identity desk first.",
+          navLinkDisabledTitle: "Open an architecture identity desk first.",
+        }}
+        active={false}
+        advancedDemo={false}
+        buyerPolishedShell
+      />,
+    );
+
+    const visibleReason = document.getElementById("sidebar-nav-link-disabled-reason--insights-evidence-graph");
+
+    expect(visibleReason).not.toBeNull();
+    expect(visibleReason).toHaveTextContent("Open an architecture identity desk first.");
+    expect(visibleReason).not.toHaveClass("sr-only");
+    expect(screen.queryByTitle("Open an architecture identity desk first.")).toBeNull();
+  });
+
   it("exposes supplemental nav hint via aria-describedby instead of title", () => {
     render(
       <SidebarNavLink

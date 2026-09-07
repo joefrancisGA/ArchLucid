@@ -1,5 +1,7 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
+import { securityTrustHeroSupporting } from "@/lib/security-trust-product-copy";
+
 /**
  * Engagement-metadata content for the public `/assurance-status` marketing page.
  *
@@ -123,8 +125,8 @@ export const SECURITY_TRUST_NDA_NOTICE =
 
 export const SECURITY_TRUST_SOC2_READINESS_FOOTNOTE = "Not a SOC 2 attestation report.";
 
-export const SECURITY_TRUST_HERO_SUPPORTING =
-  "Review ArchLucid’s current assurance posture, public security materials, and due-diligence process.";
+/** @deprecated Prefer {@link securityTrustHeroSupporting} with the active product line. */
+export const SECURITY_TRUST_HERO_SUPPORTING = securityTrustHeroSupporting("architecture");
 
 export type SecurityTrustEvidenceGroup = {
   readonly id: string;

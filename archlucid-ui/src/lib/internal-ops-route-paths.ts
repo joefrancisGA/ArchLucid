@@ -30,6 +30,7 @@ export function replayScopedHref(runId: string | null): string {
 }
 export const INTERNAL_RECOMMENDATION_LEARNING_PATH = "/internal/recommendation-learning" as const;
 export const INTERNAL_DEMO_READINESS_PATH = "/internal/demo-readiness" as const;
+export const INTERNAL_PRODUCT_LINE_PATH = "/internal/product-line" as const;
 export const INTERNAL_ITSM_CONNECTORS_PATH = "/internal/integrations/itsm" as const;
 
 export function isInternalOpsPath(pathname: string): boolean {

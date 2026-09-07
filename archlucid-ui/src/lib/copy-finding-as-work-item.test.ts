@@ -26,7 +26,7 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("## Finding: Compliance — Exposed egress");
     expect(text).toContain("`f1`");
     expect(text).toContain("`r1`");
-    expect(text).toContain("- ArchLucid run: https://demo.example.org/architecture/reviews/r1");
+    expect(text).toContain("- ArchLucid review: https://demo.example.org/architecture/reviews/r1");
     expect(text).toContain("- Finding (explain page): https://demo.example.org/architecture/reviews/r1/findings/f1");
     expect(text).toContain("**Trust label:** DeterministicRule — Policy rule matched.");
   });
@@ -106,6 +106,15 @@ describe("buildInspectFindingWorkItemBody", () => {
 
     expect(text).not.toContain("Coverage honesty");
   });
+
+  it("uses SecureNow labels when productLineId is security", () => {
+    const securityInput = { ...inspectInput, productLineId: "security" as const };
+    const text = buildInspectFindingWorkItemBody("jiraWiki", securityInput);
+
+    expect(text).toContain("h2. SecureNow Finding");
+    expect(text).toContain("|SecureNow finding — explain page)");
+    expect(text).not.toContain("ArchLucid Finding");
+  });
 });
 
 describe("buildTraceRowWorkItemBody", () => {
@@ -175,5 +184,14 @@ describe("buildTraceRowWorkItemBody", () => {
     };
     expect(json.trustLabel).toBe("EvidenceBacked");
     expect(json.trustLabelReason).toBe("Agent cited evidence.");
+  });
+
+  it("uses SecureNow labels when productLineId is security", () => {
+    const securityInput = { ...traceInput, productLineId: "security" as const };
+    const text = buildTraceRowWorkItemBody("jiraWiki", securityInput);
+
+    expect(text).toContain("h2. SecureNow Finding — Title z");
+    expect(text).toContain("|SecureNow review)");
+    expect(text).not.toContain("ArchLucid");
   });
 });

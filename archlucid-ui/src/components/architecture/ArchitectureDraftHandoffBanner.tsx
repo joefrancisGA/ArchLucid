@@ -40,7 +40,7 @@ export function ArchitectureDraftHandoffBanner(
         </Button>
         <ArchitectureDraftCloneSnapshotControl
           draftId={props.draftId}
-          parentArchitectureId={props.parentArchitectureId}
+          parentArchitectureId={props.parentArchitectureId ?? undefined}
         />
       </div>
     </div>
