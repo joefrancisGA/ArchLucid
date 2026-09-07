@@ -9176,11 +9176,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — pre-finalize checklist counted remediated critical findings as blocking open-critical-findings
+- **last-bug:** 2026-09-07 — bulk stickiness disposition partial persist on mid-batch failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9194,9 +9194,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity — **cheap-disproof 2026-09-07 (#1207):** ledger rows #133/#559/#752; static cron preview with no tenant-scoped persistence
 - [x] (invalid) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern — **cheap-disproof 2026-09-07 (#1207):** ledger row #7865; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents scope-filtered empty response
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreFinalizeActiveFindingCounter` — severity checklist counts ignored stickiness dispositions (`Remediated`, `RejectedAsNotApplicable`) — **hit 2026-09-07 (#1220):** remediated critical snapshot finding still blocked `open-critical-findings`; fixed by loading latest disposition trail via `IFindingReviewTrailRepository.ListForFindingIdsSinceUtcAsync` and excluding risk-register closed dispositions (`BuildAsync_marks_critical_findings_clear_after_remediated_disposition`)
-- [ ] (hunt-ready) `GovernanceStickinessFacade.RecordBulkDispositionAsync` — sequential `_findingDispositionService.RecordAsync` without transaction can persist partial bulk when mid-batch write fails — **seed 2026-09-07 (#1220):** scope/manifest preflight is all-or-nothing but write loop lacks batch CAS/transaction; fix needs `IFindingDispositionConcurrencyRepository.RecordBulkAsync` single-transaction parity with #281 preflight pattern
-- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — `IArchitectureRequestRepository.GetByIdAsync` has no tenant filter; reachability unproven for scoped runs referencing foreign request ids
+- [x] (proven) `GovernanceStickinessFacade.RecordBulkDispositionAsync` / `FindingDispositionService.RecordBulkAsync` — sequential `_findingDispositionService.RecordAsync` persisted partial bulk when a later item conflicted — **hit 2026-09-07 (#1221):** bulk write now uses `IFindingDispositionConcurrencyRepository.RecordBulkAsync` single-transaction CAS + facade/service batch path (`RecordBulkAsync_does_not_persist_prior_rows_when_later_item_conflicts`)
+- [x] (valid-no-repro) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — global `ArchitectureRequestRepository.GetByIdAsync` without tenant predicate — **cheap-disproof 2026-09-07 (#1221):** scoped runs only carry request ids from their own execute path; orphan/missing request already blocks via `architecture-request-missing` (#1207); no reachable path loads a foreign-tenant request for an in-scope run without operator data corruption outside zone guards
 
+2026-09-07 thorough hunt #1221 (hit): proved bulk stickiness disposition partial persist; cheap-disproved global architecture-request lookup cross-tenant reachability.
 2026-09-07 seed hunt #1220 (hit): reseeded stickiness/checklist zone after hypothesis exhaustion; proved disposition-blind pre-finalize severity counts; seeded bulk-disposition atomicity hunt-ready row.
 2026-09-07 thorough hunt #1207 (hit): proved orphan ArchitectureRequest fail-open on pre-finalize execute-baseline drift; cheap-disproved checklist GET idempotency and two cross-zone parity candidates.
 2026-09-07 seed hunt #1171 (hit): reseeded governance stickiness/posture/checklist paths; proved provisional-synthesis checklist false clear from blocked-check projection ordering.
