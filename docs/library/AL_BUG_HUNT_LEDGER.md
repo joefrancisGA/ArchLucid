@@ -232,9 +232,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — cached hit at post-delete generation served after row deleted but before delete wrapper finished
 - **related-pd-tb:** PD-003
@@ -259,8 +259,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Concurrent upsert clears `WriteInFlightKeys` while the first upsert wrapper still awaits release — `TryAdd`/`TryRemove` is not ref-counted; second upsert removes the slot before the first wrapper finishes, but generation bumps plus inner persistence still expose the latest value; regressions `TenantSettings_TryGetAsync_reflects_second_upsert_while_first_upsert_wrapper_still_in_flight` and `TenantSettings_TryGetAsync_reflects_second_upsert_after_first_upsert_loses_write_in_flight_flag`
 - [x] (valid-no-repro) Concurrent upsert during in-flight delete clears `WriteInFlightKeys` before the delete wrapper finishes — same non-refcounted slot; upsert after inner delete repopulates SQL while delete wrapper still holds post-delete bump; `TryGetAsync` still reads `replacement`; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`
 - [x] (invalid) `HotPathCacheEviction.RemoveTenantSettingAsync` misses generation-stamped hybrid-cache keys — no call sites in repo; `CachingTenantSettingsRepository` invalidates `{HotPathCacheKeys.TenantSetting}:g{generation}` via `InvalidateCurrentGenerationCacheAsync`
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` accepts setting keys longer than `NVARCHAR(128)` — migration `173_TenantSettings.sql` caps `SettingKey`; repository does not pre-validate length before MERGE; watch callers outside fixed `TenantSettingKeys` constants
-- [ ] (candidate) Static `CacheGenerations` entries are never removed when a tenant is deleted — orphaned generation counters and hybrid-cache slots may linger for deleted tenants until process restart; correctness unaffected for new reads at bumped generations
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` accepts setting keys longer than `NVARCHAR(128)` — migration `173_TenantSettings.sql` caps `SettingKey`; repository does not pre-validate length before MERGE; watch callers outside fixed `TenantSettingKeys` constants — **cheap-disproof 2026-09-07 hunt #1262:** all production keys are `TenantSettingKeys` constants or `{constant}.{workspaceId:D}` suffixes; longest dynamic key is 72 chars; no caller accepts arbitrary user-supplied setting keys; regression `Longest_known_production_setting_key_fits_migration_nvarchar_128_limit`.
+- [x] (invalid) Static `CacheGenerations` entries are never removed when a tenant is deleted — orphaned generation counters and hybrid-cache slots may linger for deleted tenants until process restart; correctness unaffected for new reads at bumped generations — **cheap-disproof 2026-09-07 hunt #1262:** process-lifetime metadata retention by design; delete + re-upsert on the same tenant/key still reads the latest value via generation bumps; regression `TenantSettings_TryGetAsync_reflects_reupsert_after_delete_without_cache_generation_reset`; tenant deletion does not hook `CachingTenantSettingsRepository` and does not affect read correctness for live tenants.
+
+2026-09-07 thorough hunt #1262 (dry): cheap-disproof closed both open candidates; three scoped unit tests passed.
 
 2026-09-07 seed hunt #1254 (seed-only): reseeded after #1240 fixes; cheap-disproof on concurrent write-in-flight slot clearing and dead `RemoveTenantSettingAsync` key shape; added delete/upsert and dual-upsert parity regressions; no hunt-ready row reproduces.
 
