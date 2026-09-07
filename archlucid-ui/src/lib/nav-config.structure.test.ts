@@ -377,4 +377,12 @@ describe("nav-config structure", () => {
       }
     }
   });
+
+  it("keeps Internal nav gated to vendor staff via staffInternalOnly", () => {
+    const internalGroup = NAV_GROUPS.find((group) => group.id === "operator-system-admin");
+
+    expect(internalGroup).toBeDefined();
+    expect(internalGroup!.label).toBe("Internal");
+    expect(internalGroup!.staffInternalOnly).toBe(true);
+  });
 });

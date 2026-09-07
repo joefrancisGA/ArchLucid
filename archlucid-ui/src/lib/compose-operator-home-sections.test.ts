@@ -163,6 +163,29 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sectionIds).not.toContain("recommended-next");
   });
 
+  it("omits attention taxonomy when every non-zero kind is surfaced in the metrics strip", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
+        draftCount: 0,
+        hasCommittedManifest: true,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
+      attentionCountsByKind: {
+        "awaiting-approval": 2,
+        "unfinished-work": 0,
+        "assigned-to-me": 0,
+        "alerts": 0,
+      },
+    });
+
+    expect(sections.map((section) => section.id)).not.toContain("attention-taxonomy");
+  });
+
   it("suppresses the promoted attention kind on the taxonomy strip", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
