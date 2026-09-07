@@ -639,11 +639,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `ResolveRuleFields` threw `NullReferenceException` when `AppliedRuleIdsJson` deserialized a null first element instead of falling back to trace rule text
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — ResolveRuleFields ignored later AppliedRuleIdsJson entries after null/blank prefix
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -658,6 +658,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseFindingSeverity` unknown `Severity` column defaults to `Info` — documented contract in `FindingInspectReadModelMapperTests`; invalid DB values cannot be recovered without a separate mapping table
 - [x] (valid-no-repro) `BuildMetadataTypedPayload` duplicates `rationale` into `whyThisMatters` for metadata-only inspect — intentional slim first-paint payload; UI `findingWhyThisMattersText` already falls back to rationale
 - [x] (proven) `ResolveRuleFields` with `AppliedRuleIdsJson` containing a null first element — **hit 2026-09-03:** `ids[0].Trim()` threw `NullReferenceException` on `[null]` instead of falling back to `firstRuleText`; fixed with null/whitespace guard; consolidated regressions in `FindingInspectReadRepositoryCoreTests` (removed stale reflection tests on moved helper)
+- [x] (proven) `ResolveRuleFields` with null/blank prefix in `AppliedRuleIdsJson` drops later rule ids — **hit 2026-09-07 (#1179 seed→hit):** `[null, "cost-guardrail"]` returned `(null, null)` after the #603 null guard because only `ids[0]` was considered; fixed by selecting the first non-blank id in the array; regression in `ResolveRuleFields_when_first_applied_rule_id_is_null_uses_next_non_blank_id`
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — inspect response fields `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId` stay null despite ADR 0076 pointer table (migration 370)
+
+2026-09-07 seed hunt #1179 (hit): reseeded inspect read path; proved AppliedRuleIdsJson null-prefix dropped later rule ids; seeded FindingCurrentDispositions inspect join candidate.
 
 ---
 

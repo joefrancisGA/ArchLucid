@@ -53,6 +53,17 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveRuleFields_when_first_applied_rule_id_is_null_uses_next_non_blank_id()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """[null, "cost-guardrail"]""",
+            firstRuleText: null);
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();
