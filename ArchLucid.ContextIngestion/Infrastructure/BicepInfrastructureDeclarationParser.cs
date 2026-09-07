@@ -11,9 +11,17 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 /// </summary>
 public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclarationParser
 {
+    internal const int MaxModuleRecursionDepth = 3;
+
     private static readonly Regex ResourceRegex = new(
         """
         resource\s+(?<name>[\w-]+)\s+['"](?<type>[^'"]+)['"]
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleRegex = new(
+        """
+        module\s+(?<name>[\w-]+)\s+['"](?<path>[^'"]+)['"]
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -26,13 +34,98 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         InfrastructureDeclarationReference declaration,
         CancellationToken ct)
     {
+        return ParseAsync(declaration, batchByPath: null, ct);
+    }
+
+    internal Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        CancellationToken ct)
+    {
         _ = ct;
 
         if (string.IsNullOrWhiteSpace(declaration.Content))
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
-        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
+        HashSet<string> visitedModuleKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        ParseResourcesRecursive(
+            declaration,
+            declaration.Content,
+            batchByPath,
+            moduleDepth: 0,
+            visitedModuleKeys,
+            results);
+
+        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    internal static IEnumerable<string> ExtractModulePaths(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            yield break;
+
+        foreach (Match match in ModuleRegex.Matches(content))
+        {
+            string modulePath = match.Groups["path"].Value.Trim();
+
+            if (!string.IsNullOrWhiteSpace(modulePath))
+                yield return modulePath;
+        }
+    }
+
+    private static void ParseResourcesRecursive(
+        InfrastructureDeclarationReference declaration,
+        string content,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        int moduleDepth,
+        HashSet<string> visitedModuleKeys,
+        List<CanonicalObject> results)
+    {
+        ParseResourcesFromContent(declaration, content, results);
+
+        if (batchByPath is null || moduleDepth >= MaxModuleRecursionDepth)
+            return;
+
+        foreach (Match match in ModuleRegex.Matches(content))
+        {
+            string modulePath = match.Groups["path"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(modulePath))
+                continue;
+
+            if (!BicepDeclarationBatchIndex.TryResolve(
+                    modulePath,
+                    declaration.Name,
+                    batchByPath,
+                    out InfrastructureDeclarationReference moduleDeclaration))
+                continue;
+
+            string moduleKey = BicepDeclarationBatchIndex.NormalizeLookupKey(moduleDeclaration.Name);
+
+            if (!visitedModuleKeys.Add(moduleKey))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(moduleDeclaration.Content))
+                continue;
+
+            ParseResourcesRecursive(
+                moduleDeclaration,
+                moduleDeclaration.Content,
+                batchByPath,
+                moduleDepth + 1,
+                visitedModuleKeys,
+                results);
+        }
+    }
+
+    private static void ParseResourcesFromContent(
+        InfrastructureDeclarationReference declaration,
+        string content,
+        List<CanonicalObject> results)
+    {
+        MatchCollection matches = ResourceRegex.Matches(content);
         Dictionary<string, int> labelTotals = CountSymbolicNameOccurrences(matches);
         Dictionary<string, int> labelSeen = new(StringComparer.OrdinalIgnoreCase);
 
@@ -65,7 +158,7 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             if (!string.IsNullOrWhiteSpace(apiVersion))
                 properties["apiVersion"] = apiVersion.ToLowerInvariant();
 
-            string fromMatch = declaration.Content[match.Index..];
+            string fromMatch = content[match.Index..];
             int braceIndex = fromMatch.IndexOf('{', StringComparison.Ordinal);
 
             if (braceIndex >= 0)
@@ -102,8 +195,6 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 Properties = properties
             });
         }
-
-        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }
 
     private static Dictionary<string, int> CountSymbolicNameOccurrences(MatchCollection matches)
