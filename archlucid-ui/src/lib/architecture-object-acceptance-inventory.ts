@@ -130,7 +130,7 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
   },
   {
     id: "AO-40",
-    relativeTestPath: "lib/working-bind-tool-nav.test.ts",
+    relativeTestPath: "lib/apply-working-bind-tool-nav-gate.test.ts",
     marker: "AO-40",
   },
   {

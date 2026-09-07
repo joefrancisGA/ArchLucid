@@ -45,6 +45,10 @@ function sidebarNavLinkHintId(href: string): string {
   return `sidebar-nav-link-hint-${href.replace(/[^a-zA-Z0-9]+/g, "-")}`;
 }
 
+function sidebarNavLinkDisabledReasonId(href: string): string {
+  return `sidebar-nav-link-disabled-reason-${href.replace(/[^a-zA-Z0-9]+/g, "-")}`;
+}
+
 function sidebarNavLinkSupplementalHint(presented: NavLinkItem, advancedDemo: boolean): string | null {
   if (presented.navLinkDisabled === true) {
     return presented.navLinkDisabledTitle ?? presented.title;
@@ -87,22 +91,38 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
   );
 
   if (presented.navLinkDisabled === true) {
+    const visibleDisabledReason = presented.navLinkDisabledReason?.trim() ?? "";
+    const disabledReasonId =
+      visibleDisabledReason.length > 0 ? sidebarNavLinkDisabledReasonId(presented.href) : undefined;
+    const describedBy = [disabledReasonId, hintId].filter((id): id is string => id !== undefined).join(" ");
+
     return (
-      <>
+      <div className="flex flex-col gap-0.5">
         <span
           {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
           className={cn(sharedClassName, "cursor-not-allowed text-neutral-500 dark:text-neutral-400")}
           aria-disabled="true"
-          aria-describedby={hintId}
+          {...(describedBy.length > 0 ? { "aria-describedby": describedBy } : {})}
         >
           {labelContent}
         </span>
+        {visibleDisabledReason.length > 0 ? (
+          <span
+            id={disabledReasonId}
+            className={cn(
+              OPERATOR_TYPOGRAPHY.helper,
+              "pl-3.5 text-neutral-500 dark:text-neutral-400",
+            )}
+          >
+            {visibleDisabledReason}
+          </span>
+        ) : null}
         {supplementalHint ? (
           <span id={hintId} className="sr-only">
             {supplementalHint}
           </span>
         ) : null}
-      </>
+      </div>
     );
   }
 
