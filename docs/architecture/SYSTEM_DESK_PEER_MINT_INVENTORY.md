@@ -14,8 +14,8 @@
 | `lib/first-review-guide-status.ts` | Working | SY-18 | **Done** — nested when architecture id known |
 | `lib/reviews/review-room-elicitation-url.ts` | Working | SY-21 | **Done** — nested when architecture id known |
 | `lib/reviews/review-pin-run-url.ts` | Working | SY-22 | **Done** — nested when architecture id known |
-| `components/architecture/ArchitectureFindingsDualPane.tsx` | Working | SY-27 | Pathname fallback |
-| `components/provenance/use-provenance-page-workspace.ts` | Working | SY-44 | Pathname fallback |
+| `components/architecture/ArchitectureFindingsDualPane.tsx` | Working | SY-27 | **Done** — nested pathname fallback |
+| `components/provenance/use-provenance-page-workspace.ts` | Working | SY-44 | **Done** — nested pathname fallback (SY-26) |
 | `app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout.tsx` | Guided | SY-25 | **Done** — Working nested; Guided peer |
 | `app/(operator)/administration/users/_sections/SettingsRolesInvitePanel.tsx` | Shared | SY-24 | **Done** — nested success link on Working |
 | `app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx` | Shared | SY-23 | **Done** — nested back/share on Working |
@@ -33,12 +33,12 @@
 |------|----------|----------|-------|
 | `lib/architectures-hub-copy.ts` | Working | SY-32 | Breadcrumb parent still reviews hub |
 | `lib/help/help-workspace-mode-copy.ts` | Working | SY-71 | Help links “Open packages” |
-| `lib/decision-register-empty-teaching.ts` | Working | SY-34 | Empty-state CTA |
+| `lib/decision-register-empty-teaching.ts` | Working | SY-34 | **Done** — architectures portfolio CTA |
 | `lib/first-review-guide-status.ts` | Working | SY-18 | — |
-| `lib/governance/*-evidence-copy.ts` | Shared | SY-33 | Copy parent breadcrumbs |
+| `lib/governance/*-evidence-copy.ts` | Shared | SY-31 | **Done** — Working portfolio parent on Ask/graph/findings |
 | `lib/contextual-help/*.ts` | Working | SY-87 | Help topic hrefs |
 | `lib/sidebar-nav-daily-links.ts` | Working | SY-56 | Inbox row (keep; label Inbox) |
-| `lib/reviews-hub-unfinished-work-href.ts` | Working | SY-54 | Unfinished work filter |
+| `lib/reviews-hub-unfinished-work-href.ts` | Working | SY-54 | **Done** — desk or nested job |
 | `lib/pilot-scorecard-present.ts` | Working | SY-70 | Sponsor scorecard link |
 | `components/reviews/ReviewDetailSiblingInFlightQueue.tsx` | Working | SY-64 | Sibling queue link |
 | `components/reviews/ReviewArchiveControl.tsx` | Working | SY-92 | Archive return |
