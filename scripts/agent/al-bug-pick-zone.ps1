@@ -809,6 +809,66 @@ function Get-ExploreBonus {
     return 1.0 / [Math]::Sqrt([double]$Hunts + 1.0)
 }
 
+function Get-ThoroughHuntCount {
+    param(
+        [string] $ZoneId,
+        [object[]] $RunLogEntries
+    )
+
+    $count = 0
+
+    foreach ($entry in @($RunLogEntries)) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        $outcome = [string]$entry.outcome
+
+        if ($outcome -eq 'hit' -or $outcome -eq 'dry') {
+            $count++
+        }
+    }
+
+    return $count
+}
+
+function Get-SeedOnlyHuntCount24h {
+    param(
+        [string] $ZoneId,
+        [object[]] $RunLogEntries,
+        [datetime] $NowUtc
+    )
+
+    $cutoff = $NowUtc.AddHours(-24)
+    $count = 0
+
+    foreach ($entry in @($RunLogEntries)) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        if ([string]$entry.zoneId -ne $ZoneId) {
+            continue
+        }
+
+        if ([string]$entry.outcome -ne 'seed-only') {
+            continue
+        }
+
+        $at = ConvertTo-RunLogUtcDateTime -IsoTimestamp $entry.at
+
+        if ($at -ge $cutoff) {
+            $count++
+        }
+    }
+
+    return $count
+}
+
 function Get-GitChurnCount {
     param(
         [string] $GitRepoRoot,
@@ -1074,6 +1134,8 @@ function Read-AlBugHuntLedger {
             MutationScoreMissing   = $true
             Hits7d                 = 0
             HitRate24h             = 0.0
+            ThoroughHunts          = 0
+            SeedOnly24h            = 0
             EscalatedFiles         = @()
         }
 
@@ -1135,7 +1197,13 @@ function Get-ZoneScoreBreakdown {
 
     $mean = Get-MeanHuntsPerBug -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
     $speed = [Math]::Min(1.0, 1.0 / $mean)
-    $explore = Get-ExploreBonus -Hunts $Zone.Hunts
+    $thoroughHunts = 0
+
+    if ($Zone.PSObject.Properties.Name -contains 'ThoroughHunts') {
+        $thoroughHunts = [Math]::Max(0, [int]$Zone.ThoroughHunts)
+    }
+
+    $explore = Get-ExploreBonus -Hunts $thoroughHunts
     $churn = [Math]::Min(3, [Math]::Max(0, [int]$Zone.CommitCount))
     $openCount = @($Zone.OpenHypotheses).Count
     $huntReadyCount = @($Zone.HuntReadyHypotheses).Count
@@ -1262,6 +1330,8 @@ function Set-ZoneComputedFields {
         }
 
         $runStats = Get-ZoneRunLogHitStats -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
+        $zone.ThoroughHunts = Get-ThoroughHuntCount -ZoneId $zone.Id -RunLogEntries $RunLogEntries
+        $zone.SeedOnly24h = Get-SeedOnlyHuntCount24h -ZoneId $zone.Id -RunLogEntries $RunLogEntries -NowUtc $NowUtc
         $zone.Hits7d = $runStats.hits7d
         $zone.HitRate24h = $runStats.hitRate24h
         $zone.CooledByHitRate = [bool]$runStats.cooledByRate
@@ -1702,7 +1772,11 @@ function ConvertTo-PickResult {
             bugsFoundInvariantViolating = $false
             meanHuntsPerBug        = 0.0
             exploreBonus           = 0.0
-            consecutiveDryHunts    = 0
+            thoroughHunts          = 0
+        seedOnly24h            = 0
+        openCandidateCount     = 0
+        candidateSpam          = $false
+        consecutiveDryHunts    = 0
             lastHunt               = 'never'
             exhausted              = $true
             reopened               = $false
@@ -1731,6 +1805,10 @@ function ConvertTo-PickResult {
         $why = @('hint override') + @($why)
     }
 
+    $huntReadyCount = @($Zone.HuntReadyHypotheses).Count
+    $openCandidateCount = @($Zone.CandidateHypotheses).Count
+    $candidateSpam = ($openCandidateCount -gt 30 -and $huntReadyCount -eq 0)
+
     return [pscustomobject]@{
         zoneId                 = $Zone.Id
         status                 = $Zone.Status
@@ -1752,6 +1830,10 @@ function ConvertTo-PickResult {
         bugsFoundInvariantViolating = Test-BugsFoundInvariantViolating -Hunts $Zone.Hunts -BugsFound $Zone.BugsFound
         meanHuntsPerBug        = $Zone.MeanHuntsPerBug
         exploreBonus           = $Zone.ExploreBonus
+        thoroughHunts          = if ($Zone.PSObject.Properties.Name -contains 'ThoroughHunts') { [int]$Zone.ThoroughHunts } else { 0 }
+        seedOnly24h            = if ($Zone.PSObject.Properties.Name -contains 'SeedOnly24h') { [int]$Zone.SeedOnly24h } else { 0 }
+        openCandidateCount     = $openCandidateCount
+        candidateSpam          = [bool]$candidateSpam
         consecutiveDryHunts    = $Zone.ConsecutiveDryHunts
         lastHunt               = $Zone.LastHunt
         exhausted              = ($Zone.Status -eq 'exhausted' -and -not $Zone.Reopened)

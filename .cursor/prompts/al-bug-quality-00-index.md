@@ -12,7 +12,7 @@
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-45)
 
-**Status:** **ABQ-01–35 shipped in code** (wave 5 merged as #1969). **ABQ-36–45 are ready to run** (one prompt file per session). Do **not** re-implement 01–35 from their files.
+**Status:** **ABQ-01–45 shipped in code** (wave 5 #1969, wave 6 implementation). Do **not** re-implement 01–45 from their files.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -57,22 +57,20 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Self-reported sensitivity** | Loop never measured against a known injected defect | ABQ-33 *(shipped)* |
 | **Warn-only revert verifier** | New unguarded `(proven)` rows still merge | ABQ-34 *(shipped)* |
 | **Unearned high impact** | Multiplier accepts “scary file” as user-visible harm | ABQ-35 *(shipped)* |
-| **Ratchet still warn-only** | Empty unguarded baseline + `continue-on-error` | ABQ-36 |
-| **Dead CI-escape artifact** | Two-entry job map; humans never paste candidates | ABQ-37 |
-| **Empty flake log** | Schema exists; no TRX/retry parser | ABQ-38 |
-| **Catalog without host** | OpenAPI matrix classified; one known route never sent as tenant B | ABQ-39 |
-| **Unused severity sample** | 0% harm-named; new high `(proven)` still unlinted | ABQ-40 |
-| **Seed-only explore decay** | Reseed hunts shrink `explore` without a thorough hunt | ABQ-41 |
-| **Replay re-enters persist** | ABQ-27 probes allow second `commitAsync` | ABQ-42 |
-| **Seeder paste flood** | Three 15-caps concatenate; no cross-dedup | ABQ-43 |
-| **Ghost zone paths** | Ledger prefixes survive file rename | ABQ-44 |
-| **Uncheckable proven** | `no-test-cited` / `could-not-run` bypass the unguarded ratchet | ABQ-45 |
+| **Ratchet still warn-only** | Empty unguarded baseline + `continue-on-error` | ABQ-36 *(shipped)* |
+| **Dead CI-escape artifact** | Two-entry job map; humans never paste candidates | ABQ-37 *(shipped)* |
+| **Empty flake log** | Schema exists; no TRX/retry parser | ABQ-38 *(shipped)* |
+| **Catalog without host** | OpenAPI matrix classified; one known route never sent as tenant B | ABQ-39 *(shipped)* |
+| **Unused severity sample** | 0% harm-named; new high `(proven)` still unlinted | ABQ-40 *(shipped)* |
+| **Seed-only explore decay** | Reseed hunts shrink `explore` without a thorough hunt | ABQ-41 *(shipped)* |
+| **Replay re-enters persist** | ABQ-27 probes allow second `commitAsync` | ABQ-42 *(shipped)* |
+| **Seeder paste flood** | Three 15-caps concatenate; no cross-dedup | ABQ-43 *(shipped)* |
+| **Ghost zone paths** | Ledger prefixes survive file rename | ABQ-44 *(shipped)* |
+| **Uncheckable proven** | `no-test-cited` / `could-not-run` bypass the unguarded ratchet | ABQ-45 *(shipped)* |
 
 ## Run order
 
-**01–35 are done** (do not paste those files to re-do the work).
-
-**36–45 recommended order:** cheap compounding first (**36, 37, 44**), then **38, 43, 41, 40**, then **45** (after 36), then product leftover (**42**), then **39 last** (SQL skip host probe). **40** can run anytime as a lint/audit script.
+**01–45 are done** (do not paste those files to re-do the work).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
