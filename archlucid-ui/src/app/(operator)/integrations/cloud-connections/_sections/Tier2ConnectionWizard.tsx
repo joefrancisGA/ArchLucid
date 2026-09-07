@@ -34,7 +34,7 @@ export function Tier2ConnectionWizard({
       {!wizard.skipSecurityStep && wizard.step === 0 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-security-heading">
           <CloudSecurityPreflightPanel
-            topics={cloudSecurityPreflightTopics("azure")}
+            topics={cloudSecurityPreflightTopics("azure", wizard.productLine)}
             providerLabel="Azure"
             collapsedByDefault={false}
             verifiedTopics={wizard.verifiedTopics}
@@ -79,6 +79,7 @@ export function Tier2ConnectionWizard({
           validationSucceeded={wizard.validationSucceeded}
           verifiedTopics={wizard.verifiedTopics}
           canMutate={wizard.canMutate}
+          productLine={wizard.productLine}
         />
       ) : null}
 
