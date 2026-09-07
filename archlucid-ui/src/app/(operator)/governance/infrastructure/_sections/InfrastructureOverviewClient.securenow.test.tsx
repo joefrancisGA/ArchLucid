@@ -28,21 +28,33 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import {
-  SECURENOW_COMPLIANCE_HOME_SECTION_HEADING,
-} from "@/lib/product-line/securenow-compliance-home-copy";
+import { SECURENOW_COMPLIANCE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-compliance-home-copy";
+import { SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { SECURENOW_SECURITY_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-security-home-copy";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
-describe("InfrastructureOverviewClient SecureNow compliance section", () => {
-  it("renders ARC-AMPE compliance posture destinations on the Security home", () => {
+describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
+  it("renders Compliance, Infrastructure, and Security sections on the Security home", () => {
     render(<InfrastructureOverviewClient />);
 
     expect(screen.getByTestId("securenow-compliance-home-section")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-infrastructure-home-section")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-security-home-section")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_COMPLIANCE_HOME_SECTION_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SECURENOW_SECURITY_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getAllByText(/ARC-AMPE architecture themes/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByTestId(`securenow-compliance-home-link-${GOVERNANCE_POLICY_PACKS_PATH}`)).toHaveAttribute(
       "href",
       GOVERNANCE_POLICY_PACKS_PATH,
+    );
+    expect(screen.getByTestId("securenow-infrastructure-home-link-/governance/infrastructure/resources")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources",
+    );
+    expect(screen.getByTestId("securenow-security-home-link-/integrations/cloud-connections")).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
     );
   });
 });
