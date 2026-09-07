@@ -3,6 +3,7 @@ import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 
@@ -40,3 +41,31 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SOURCES: readonly EvidenceSource
     when: "Read published assurance posture — not a substitute for inventory evidence",
   },
 ] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES_INTRO =
+  "Use these surfaces when buyers ask for inventory context, connector readiness, or assurance posture beyond Ask answers.";
+
+/** Operator Sources for infrastructure Ask (GOS). */
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open Ask from a resource hub when you need scoped citations",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift, diagrams, or remediation",
+  },
+  {
+    label: "Audit trail",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Follow workspace activity when procurement asks for governance context",
+  },
+  {
+    label: "Cloud connections help",
+    href: inAppHelpHref("cloud-connections"),
+    when: "Confirm inventory connectors before trusting Ask citations",
+  },
+] as const;
+

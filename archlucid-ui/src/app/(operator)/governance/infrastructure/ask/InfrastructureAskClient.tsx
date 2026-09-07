@@ -6,11 +6,20 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { Textarea } from "@/components/ui/textarea";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInfraEvidenceAskScopeStack } from "@/lib/infra-evidence/infra-evidence-ask-scope-summary";
 import {
   formatInfraEvidenceAskApiError,
@@ -68,15 +77,40 @@ import {
   INFRA_EVIDENCE_ASK_CANNED_QUESTIONS,
   type InfraEvidenceAskResponse,
 } from "@/lib/infra-evidence/infra-evidence-ask-types";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
+  GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE,
+} from "@/lib/governance/governance-infrastructure-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
+
+import { InfrastructureAskBreadcrumb } from "./InfrastructureAskBreadcrumb";
+import { InfrastructureAskClaimOrientationStrip } from "./InfrastructureAskClaimOrientationStrip";
 
 type InfrastructureAskTurn = {
   readonly question: string;
   readonly response: InfraEvidenceAskResponse;
 };
 
+const cnCard =
+  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+
 export function InfrastructureAskClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -488,14 +522,50 @@ export function InfrastructureAskClient() {
   }, [cloudResourceId, correspondenceId, diffId, findingId, instanceId, runId, seedNodeId, snapshotId, assessmentId, auditEvidenceSnapshotId, controlId]);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
-      <LayerHeader pageKey="infrastructure-ask" />
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-ask-page"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {auditScope == null ? (
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
+        title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
+        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="infra-ask-claim-discipline"
+        titleTestId="infra-ask-page-title"
+        breadcrumb={buyerPolishedShell ? <InfrastructureAskBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {!buyerPolishedShell && auditScope == null ? (
+              <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
+            ) : null}
+          </div>
+        }
+      />
+
+      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-ask" /> : null}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID : undefined}
+        className={cn("mx-auto flex w-full max-w-3xl flex-col gap-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        data-testid="infra-ask-primary-content"
+      >
+      {buyerPolishedShell && auditScope == null ? (
+        <div className="flex justify-end">
           <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       {cloudResourceId.length > 0 && (
         auditScope != null
@@ -522,12 +592,12 @@ export function InfrastructureAskClient() {
 
       {contextSummary != null ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-ask-context-banner"
           aria-label="Ask grounding context"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Scope stack: {contextSummary}.
+            {buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL : "Scope stack"}: {contextSummary}.
           </p>
           {cloudResourceId.length > 0 ? (
             <Link
@@ -646,23 +716,37 @@ export function InfrastructureAskClient() {
             </Link>
           ) : null}
         </section>
+      ) : buyerPolishedShell ? (
+        <EnterpriseCompactEmptyState
+          title={GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE}
+          description={GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_BODY}
+          testId="infra-ask-unscoped-panel"
+          actions={[
+            {
+              label: GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_ACTION,
+              href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+              variant: "primary",
+            },
+          ]}
+        />
       ) : (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Open a resource hub and choose Ask, or pass `cloudResourceId` in the URL to scope questions to one resource.
         </p>
       )}
 
-      <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Infrastructure Ask prompt">
-        <label className="grid gap-1 text-sm">
-          <span className="font-medium">Question</span>
-          <textarea
-            className="min-h-28 rounded border border-input bg-background px-3 py-2"
+      <section className={cn("grid gap-3", cnCard)} aria-label="Infrastructure Ask prompt">
+        <div className="grid gap-2">
+          <Label htmlFor="infra-ask-question">{GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL}</Label>
+          <Textarea
+            id="infra-ask-question"
+            className="min-h-28"
             data-testid="infra-ask-question"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             placeholder="Ask a grounded question about inventory evidence…"
           />
-        </label>
+        </div>
 
         <div className="flex flex-wrap gap-2">
           {INFRA_EVIDENCE_ASK_CANNED_QUESTIONS.map((cannedQuestion) => (
@@ -682,18 +766,37 @@ export function InfrastructureAskClient() {
           ))}
         </div>
 
-        <label className="inline-flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            data-testid="infra-ask-use-simulator"
-            checked={useSimulator}
-            onChange={(event) => setUseSimulator(event.target.checked)}
-          />
-          <span>Use simulator (deterministic, citation-grounded template)</span>
-        </label>
+        {buyerPolishedShell ? (
+          <CollapsibleSection
+            title={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE}
+            sectionTestId="infra-ask-simulator-disclosure"
+            summaryLine="Deterministic demo answers grounded on cited structured rows"
+          >
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                data-testid="infra-ask-use-simulator"
+                checked={useSimulator}
+                onChange={(event) => setUseSimulator(event.target.checked)}
+              />
+              <span>{GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL}</span>
+            </label>
+          </CollapsibleSection>
+        ) : (
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              data-testid="infra-ask-use-simulator"
+              checked={useSimulator}
+              onChange={(event) => setUseSimulator(event.target.checked)}
+            />
+            <span>Use simulator (deterministic, citation-grounded template)</span>
+          </label>
+        )}
 
         <Button
           type="button"
+          variant="primary"
           data-testid="infra-ask-submit"
           disabled={submitting || question.trim().length === 0}
           onClick={() => void ask(question)}
@@ -710,22 +813,30 @@ export function InfrastructureAskClient() {
       </section>
 
       {submitError != null ? (
-        <p className="m-0 text-sm text-destructive" role="alert">{submitError}</p>
+        <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+          {submitError}
+        </p>
       ) : null}
 
       {history.map((turn, index) => (
         <section
           key={`${turn.question}-${index}`}
-          className="grid gap-3 rounded border border-border bg-card p-4"
+          className={cn("grid gap-3", cnCard)}
           aria-label="Infrastructure Ask response"
           data-testid={index === history.length - 1 ? "infra-ask-response" : undefined}
         >
-          <p className={cn("m-0 text-sm font-medium text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
+          <p className={cn("m-0 text-sm font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Question: {turn.question}
           </p>
 
           {turn.response.simulatorLabel != null ? (
-            <p className="m-0 rounded bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:bg-amber-950/40 dark:text-amber-100" data-testid="infra-ask-simulator-banner">
+            <p
+              className={cn(
+                "m-0 rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+              data-testid="infra-ask-simulator-banner"
+            >
               {turn.response.simulatorLabel}
             </p>
           ) : null}
@@ -765,6 +876,9 @@ export function InfrastructureAskClient() {
           ) : null}
         </section>
       ))}
-    </div>
+
+        {buyerPolishedShell ? <InfrastructureAskClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
   );
 }
