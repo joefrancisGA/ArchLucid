@@ -1,0 +1,93 @@
+[
+  {
+    "findingId": "34a4b209-f7b3-b9dc-df20-a16cd5060619",
+    "findingType": "DeclarationInventoryContradictionFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "\u0027pay-logs-cfn-demo\u0027 declares tf.publicnetworkaccess \u0027disabled\u0027 but live inventory reports \u0027true\u0027",
+    "rationale": "A security-relevant declaration property on the topology graph disagrees with the scoped live inventory snapshot for the same resource.",
+    "relatedNodeIds": [
+      "obj-4025d687cca52f630c571b2eb2403d31"
+    ],
+    "payloadType": "DeclarationInventoryContradictionFindingPayload",
+    "rulesApplied": [
+      "data-protection",
+      "declaration-inventory-contradiction"
+    ],
+    "decisionsTaken": [
+      "Compared declaration property bag to inventory row properties for the same resource identifier."
+    ]
+  },
+  {
+    "findingId": "2ad889ba-b5ca-f674-62dd-79edd2c6be87",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-4025d687cca52f630c571b2eb2403d31"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "cea94803-3eff-e423-09ed-3c87a5f11ee2",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-4025d687cca52f630c571b2eb2403d31"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "20c1d1ff-e55f-4b18-41df-e9e2c119a913",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "pay-logs-cfn-demo"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "eb1b9c31-8a8a-7f2c-ff7a-ee8e5b89ecc2",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-4025d687cca52f630c571b2eb2403d31"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]
