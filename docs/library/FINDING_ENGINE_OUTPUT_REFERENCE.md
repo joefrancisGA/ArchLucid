@@ -118,3 +118,5 @@ External **`IFindingEngine`** implementations can be dropped into **`ArchLucid:F
 | Signal | API | Notes |
 |--------|-----|-------|
 | Insight desk signal (`DidNotThinkOfThat`, `Expected`, `DismissAsChecklist`) | `POST /v1/runs/{runId}/findings/{findingId}/insight-signal` | Append-only `dbo.FindingInsightSignals`; does **not** change finding classification or replace mute. Internal insight-density numerator — **not** buyer proof or cohort evidence. |
+
+**Insight-density advisory boundary:** `typed-engine-protected` rows demoted by `DeterministicInsightDensityGate` remain **advisory** checklist coverage — not G-REAL-06 procurement proof or buyer attestations.
