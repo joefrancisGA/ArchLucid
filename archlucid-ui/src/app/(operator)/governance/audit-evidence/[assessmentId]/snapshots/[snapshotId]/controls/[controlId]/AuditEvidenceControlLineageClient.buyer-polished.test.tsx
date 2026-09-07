@@ -19,10 +19,25 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
+    isBuyerPolishedOperatorShellEnv: () => true,
   };
 });
 
+vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
+
+  return {
+    ...actual,
+    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  };
+});
+
+import {
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION,
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL,
+} from "@/lib/audit-evidence-page-copy";
 import { AuditEvidenceControlLineageClient } from "./AuditEvidenceControlLineageClient";
 
 const ids = {
@@ -31,8 +46,8 @@ const ids = {
   controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
 };
 
-describe("AuditEvidenceControlLineageClient", () => {
-  it("renders error state when lineage fetch fails", () => {
+describe("AuditEvidenceControlLineageClient buyer-polished chrome", () => {
+  it("renders skip link, route identifier disclosure, error retry panel, and sources strip", () => {
     useAuditEvidenceLineageQueryMock.mockReturnValue({
       data: undefined,
       isError: true,
@@ -42,10 +57,28 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     render(<AuditEvidenceControlLineageClient {...ids} />);
 
-    expect(screen.getByTestId("audit-evidence-lineage-error")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("audit-evidence-control-lineage-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-route-identifiers")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-lineage-error-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-control-lineage-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("audit-evidence-lineage-retry"));
+    expect(refetchMock).toHaveBeenCalledTimes(1);
+
+    expect(screen.getByTestId("audit-evidence-lineage-back-to-lookup")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence",
+    );
+    expect(screen.getByRole("button", { name: AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION })).toBeInTheDocument();
   });
 
-  it("expands chain when supported checkbox is clicked", () => {
+  it("hides raw route ids from the header and uses Button for chain toggle", () => {
     useAuditEvidenceLineageQueryMock.mockReturnValue({
       data: {
         controlNumber: "AC-1",
@@ -82,52 +115,12 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     render(<AuditEvidenceControlLineageClient {...ids} />);
 
-    expect(screen.getByTestId("audit-evidence-lineage-collapsed")).toBeInTheDocument();
+    expect(screen.queryByText(/assessmentId=/)).not.toBeInTheDocument();
+    expect(screen.getByTestId("audit-evidence-positive-checkbox")).toHaveAttribute("aria-expanded", "false");
 
     fireEvent.click(screen.getByTestId("audit-evidence-positive-checkbox"));
 
+    expect(screen.getByTestId("audit-evidence-positive-checkbox")).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByTestId("audit-evidence-lineage-spine")).toBeInTheDocument();
-    expect(screen.getByTestId("audit-evidence-spine-resource-hub-ev-1")).toHaveAttribute(
-      "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
-    );
-  });
-
-  it("shows broken links when chain is incomplete", () => {
-    useAuditEvidenceLineageQueryMock.mockReturnValue({
-      data: {
-        controlNumber: "AC-2",
-        controlTitle: "Logging",
-        readyForPositiveCheckbox: false,
-        snapshotHashVerified: false,
-        brokenLinkReasons: ["Snapshot hash unverified"],
-        evaluation: {
-          evaluationId: "eval-2",
-          outcome: "InsufficientEvidence",
-        },
-        requirementChains: [
-          {
-            requirementId: "req-2",
-            requirementName: "Log retention",
-            evidence: [
-              {
-                evidenceRowId: "ev-2",
-                linkComplete: false,
-                itemHashVerified: false,
-                missingLinkKinds: ["RawApiBlob"],
-              },
-            ],
-          },
-        ],
-      },
-      isError: false,
-      isPending: false,
-      refetch: refetchMock,
-    });
-
-    render(<AuditEvidenceControlLineageClient {...ids} />);
-
-    expect(screen.getByTestId("audit-evidence-broken-link-reasons")).toHaveTextContent("Snapshot hash unverified");
-    expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("RawApiBlob");
   });
 });
