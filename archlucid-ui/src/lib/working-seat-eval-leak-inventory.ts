@@ -26,26 +26,6 @@ export const WORKING_SEAT_EVAL_LEAK_PRIORITY_PATHS: readonly WorkingSeatEvalLeak
     ownerPrompt: "WS-06",
   },
   {
-    relativePath: "app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFirstWeekRouteGuidanceMount.tsx",
-    leakClass: "first-week",
-    ownerPrompt: "WS-10",
-  },
-  {
-    relativePath: "components/architecture/ArchitectureCreatedOverviewBuyerChrome.tsx",
-    leakClass: "buyer-chrome",
-    ownerPrompt: "WS-09",
-  },
-  {
-    relativePath: "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/FindingDetailBuyerChrome.tsx",
-    leakClass: "buyer-chrome",
-    ownerPrompt: "WS-09",
-  },
-  {
-    relativePath: "app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome.tsx",
-    leakClass: "buyer-chrome",
-    ownerPrompt: "WS-09",
-  },
-  {
     relativePath: "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection.tsx",
     leakClass: "sample",
     ownerPrompt: "WS-06",

@@ -6,6 +6,8 @@ export const ARCHITECTURE_IDENTITY_DESK_UPDATED_LABEL = "Last updated" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL = "Current draft" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL = "Continue this architecture" as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open draft" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL = "New draft version" as const;

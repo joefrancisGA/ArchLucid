@@ -107,8 +107,22 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-reviews-empty")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
+      "/architecture/architectures/architecture-identity-001/reviews/new",
     );
+  });
+
+  it("WS-12: with open draft and reviews, continue architecture is primary and Start review is absent", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-continue-architecture")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-start-review")).not.toBeInTheDocument();
   });
 
   it("shows spawn-locked handoff controls instead of continue draft", () => {
