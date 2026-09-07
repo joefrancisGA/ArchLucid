@@ -1356,3 +1356,4 @@
 {"at":"2026-09-07T08:49:39.0059969Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-07T08:56:41.4337641Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit"}
 {"at":"2026-09-07T09:07:44.7226479Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-07T09:24:08.5563337Z","zoneId":"topology-proposal-merge","outcome":"dry"}
