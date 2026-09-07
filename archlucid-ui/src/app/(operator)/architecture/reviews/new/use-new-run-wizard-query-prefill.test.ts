@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { UseFormReset } from "react-hook-form";
 
 import { useNewRunWizardQueryPrefill } from "@/app/(operator)/architecture/reviews/new/use-new-run-wizard-query-prefill";
-import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
+import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function buildParams(acceleratorPackId: string | null) {
   return {
