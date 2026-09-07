@@ -12,7 +12,7 @@ import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
+import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -29,6 +29,7 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { applyWorkingBindToolNavGateToLink } from "@/lib/apply-working-bind-tool-nav-gate";
 import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
@@ -153,6 +154,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
     const presented = presentSidebarNavLinkForCluster(
       link,
       props.buyerPolishedShell,
@@ -165,22 +167,29 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           href: presented.href,
           pathname,
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+          lastOpenArchitectureId,
         })
       : presented.href;
     const presentedWithHref =
       resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
+    const presentedForRender = workingMode
+      ? applyWorkingBindToolNavGateToLink(presentedWithHref, {
+          workingMode: true,
+          lastOpenArchitectureId,
+        })
+      : presentedWithHref;
 
     return (
       <SidebarNavLink
-        key={presentedWithHref.href}
-        presented={presentedWithHref}
-        active={isNavLinkActive(props.pathname, presentedWithHref.href)}
-        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedWithHref.href, demoOrBuyer)}
+        key={presentedForRender.href}
+        presented={presentedForRender}
+        active={isNavLinkActive(props.pathname, presentedForRender.href)}
+        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedForRender.href, demoOrBuyer)}
         buyerPolishedShell={props.buyerPolishedShell}
         navGroupId={group.id}
         unlockPhase={props.effectiveOperateUnlockPhase}
         onNavigate={props.onNavLinkNavigate}
-        afterLabel={sidebarNavLinkAfterLabel(presentedWithHref.href)}
+        afterLabel={sidebarNavLinkAfterLabel(presentedForRender.href)}
       />
     );
   }

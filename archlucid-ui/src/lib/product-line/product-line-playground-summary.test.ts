@@ -12,11 +12,11 @@ import {
 describe("product-line-playground-summary", () => {
   it("formats build env, cookie, active shell, and override count labels", () => {
     expect(formatProductLinePlaygroundBuildEnvLabel("security")).toBe(
-      "Build env (NEXT_PUBLIC_ARCHLUCID_PRODUCT): Security",
+      "Build env (NEXT_PUBLIC_ARCHLUCID_PRODUCT): SecureNow",
     );
     expect(formatProductLinePlaygroundCookieLabel(null)).toBe("Cookie override: none (using build env)");
     expect(formatProductLinePlaygroundCookieLabel("architecture")).toBe("Cookie override: Architecture");
-    expect(formatProductLinePlaygroundActiveShellLabel("security")).toBe("Active shell: Security");
+    expect(formatProductLinePlaygroundActiveShellLabel("security")).toBe("Active shell: SecureNow");
     expect(formatProductLinePlaygroundOverrideCountLabel(0)).toBe("Href overrides: none (catalog defaults only)");
     expect(formatProductLinePlaygroundOverrideCountLabel(2)).toBe("Href overrides: 2 in localStorage");
   });

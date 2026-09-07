@@ -127,7 +127,10 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <h2 id="architecture-identity-reviews-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
             {ARCHITECTURE_IDENTITY_DESK_REVIEWS_SECTION_TITLE}
           </h2>
-          <ArchitectureIdentityDeskCompareAction reviews={identity.reviews} />
+          <ArchitectureIdentityDeskCompareAction
+            reviews={identity.reviews}
+            architectureId={identity.architectureId}
+          />
         </div>
         <ArchitectureIdentityDeskReviewsTable
           reviews={identity.reviews}

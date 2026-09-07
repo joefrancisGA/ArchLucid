@@ -23,6 +23,7 @@ import {
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorSecurityTrustBuyerChrome } from "@/app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustBuyerChrome";
 import { OperatorSecurityTrustClaimOrientationStrip } from "@/app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustClaimOrientationStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -36,14 +37,14 @@ import {
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL,
   OPERATOR_SECURITY_TRUST_DATA_RETENTION_TITLE,
-  OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS,
+  operatorSecurityTrustMaterialItems,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_AVAILABLE_NOW,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
   OPERATOR_SECURITY_TRUST_MATURITY_TAGS,
   OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY,
-  OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF,
   OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL,
+  operatorSecurityTrustNdaRequestHrefForProductLine,
   OPERATOR_SECURITY_TRUST_NDA_SHARED_TODAY,
   OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM,
   OPERATOR_SECURITY_TRUST_ROADMAP_ITEMS,
@@ -123,7 +124,13 @@ function SecurityTrustMaturitySectionHeader({
   );
 }
 
-function SecurityTrustMaterialsTable({ hidePdfDownloads = false }: { readonly hidePdfDownloads?: boolean }) {
+function SecurityTrustMaterialsTable({
+  hidePdfDownloads = false,
+  materialItems,
+}: {
+  readonly hidePdfDownloads?: boolean;
+  readonly materialItems: ReadonlyArray<OperatorSecurityTrustMaterialItem>;
+}) {
   return (
     <EnterpriseTable
       ariaLabel="Procurement materials inventory"
@@ -139,7 +146,7 @@ function SecurityTrustMaterialsTable({ hidePdfDownloads = false }: { readonly hi
         </EnterpriseTableHeadRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
-        {OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS.map((item) => {
+        {materialItems.map((item) => {
           const registryEntry =
             item.docSlug !== undefined ? getProductDocumentationEntry(item.docSlug) : null;
 
@@ -275,6 +282,9 @@ function SecurityTrustRelatedSurfacesDisclosure() {
 
 /** Procurement-oriented trust center (operator shell). */
 export function OperatorSecurityTrustPageView() {
+  const { productLine } = useProductLine();
+  const materialItems = operatorSecurityTrustMaterialItems(productLine);
+  const ndaRequestHref = operatorSecurityTrustNdaRequestHrefForProductLine(productLine);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
@@ -359,7 +369,7 @@ export function OperatorSecurityTrustPageView() {
               <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 {OPERATOR_SECURITY_TRUST_SECONDARY_MATERIALS_HEADING}
               </p>
-              <SecurityTrustMaterialsTable hidePdfDownloads={buyerPolishedShell} />
+              <SecurityTrustMaterialsTable hidePdfDownloads={buyerPolishedShell} materialItems={materialItems} />
             </div>
           </div>
         </div>
@@ -450,7 +460,7 @@ export function OperatorSecurityTrustPageView() {
           {!buyerPolishedShell ? (
             <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY}{" "}
-              <a className={OPERATOR_LINK.inline} href={OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF}>
+              <a className={OPERATOR_LINK.inline} href={ndaRequestHref}>
                 {OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL}
               </a>
               .
