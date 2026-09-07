@@ -17,9 +17,6 @@ export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure evidence";
 export const SECURITY_PRODUCT_HOME_SUBTITLE =
   "Cloud inventory, drift, diagrams, grounded Ask, and remediation.";
 
-export const SECURITY_PRODUCT_HOME_CLAIM_DISCIPLINE =
-  "This shell does not run architecture reviews, sealed manifests, or approval queues. Inventory collection still uses the shared platform.";
-
 export const PRODUCT_LINE_PLAYGROUND_TITLE = "Product line";
 
 export const PRODUCT_LINE_PLAYGROUND_SUBTITLE =
