@@ -116,7 +116,51 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
     }
 
     [SkippableFact]
-    public async Task DownloadStoredEvidenceFile_AfterBulkUpload_ReturnsOriginalBytes()
+    public async Task ListStoredEvidenceFiles_AfterPngAndDocxBulkUpload_ReturnsBothCatalogRows()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-DUAL-001")));
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
+
+        using MultipartFormDataContent content = new();
+        ByteArrayContent pngContent = new([0x89, 0x50, 0x4E, 0x47]);
+        pngContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
+        content.Add(pngContent, "files", "diagram.png");
+
+        ByteArrayContent docxContent = new([0x50, 0x4B, 0x03, 0x04]);
+        docxContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        content.Add(docxContent, "files", "brief.docx");
+
+        HttpResponseMessage uploadResponse =
+            await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
+        await uploadResponse.EnsureSuccessForTestAsync();
+
+        BulkUploadResponseDto? uploadBody =
+            await uploadResponse.Content.ReadFromJsonAsync<BulkUploadResponseDto>(JsonOptions);
+        uploadBody.Should().NotBeNull();
+        uploadBody!.EvidenceItemIds.Should().HaveCount(2);
+
+        HttpResponseMessage listResponse =
+            await Client.GetAsync($"/v1/architecture/review/{runId}/evidence/files");
+        await listResponse.EnsureSuccessForTestAsync();
+
+        IReadOnlyList<RunStoredEvidenceFileDto>? files =
+            await listResponse.Content.ReadFromJsonAsync<IReadOnlyList<RunStoredEvidenceFileDto>>(JsonOptions);
+
+        files.Should().NotBeNull();
+        files!.Should().HaveCount(2);
+        files.Select(static file => file.OriginalFileName).Should().BeEquivalentTo(["diagram.png", "brief.docx"]);
+        files.Should().OnlyContain(static file => uploadBody.EvidenceItemIds.Contains(file.EvidenceItemId));
+        files.Should().Contain(static file => file.ContentType == "image/png");
+        files.Should().Contain(static file =>
+            file.ContentType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    }
+
+    [SkippableFact]
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
