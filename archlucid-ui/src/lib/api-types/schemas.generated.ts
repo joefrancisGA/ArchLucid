@@ -3074,6 +3074,10 @@ export interface components {
             priorRunId?: null | string;
             workflowIntent?: null | string;
         };
+        CreateFindingVerificationReportRequest: {
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
         CreateGovernanceActivationRequest: {
             environment?: string;
             manifestVersion?: string;
@@ -4532,6 +4536,26 @@ export interface components {
             traceConfidenceLabel: string;
         };
         FindingTreatment: number;
+        FindingVerificationReportResponse: {
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            results: components["schemas"]["FindingVerificationResultResponse"][];
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
+        FindingVerificationResultResponse: {
+            findingId: string;
+            status: components["schemas"]["FindingVerificationStatus"];
+            traceText: string;
+        };
+        /** @enum {string} */
+        FindingVerificationStatus: "Materialized" | "Mitigated" | "NotObserved" | "NotVerifiable";
         FindingsSnapshot: {
             checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */
