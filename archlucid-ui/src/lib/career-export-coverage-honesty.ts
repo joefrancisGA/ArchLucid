@@ -184,3 +184,11 @@ export function resolveCareerExportBlockedReason(
 
   return honesty.measurementFloorBlockedReason;
 }
+
+/** Re-export ADR 0078 entry point — prefer this over direct coverage-honesty imports on new surfaces. */
+export {
+  evaluateCareerArtifactHonesty,
+  type CareerArtifactHonestyInput,
+  type CareerArtifactHonestyVerdict,
+  type CareerArtifactKind,
+} from "@/lib/career-artifact/career-artifact-honesty";

@@ -11,6 +11,9 @@ import {
   PilotRoiValidationHandoffClientDeferred,
 } from "./run-detail-sponsor-briefing-deferred-chunks";
 
+import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
+import type { ManifestSummary, RunSummary } from "@/types/authority";
+
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
   readonly manifestId: string;
@@ -18,10 +21,16 @@ type RunDetailSponsorBriefingSectionProps = {
   readonly buyerPolishedArtifactTable: boolean;
   readonly sponsorDocxAvailable: boolean;
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  readonly careerArtifactHonesty?: Omit<CareerArtifactHonestyInput, "artifactKind" | "runId">;
 };
 
 export type RunDetailSponsorBriefingSectionOptions = {
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  readonly enginesSucceeded?: number | null;
+  readonly manifestSummary?: ManifestSummary | null;
+  readonly progressSummary?: RunSummary | null;
+  readonly graphSnapshot?: unknown;
+  readonly preCommitGateEnabled?: boolean | null;
 };
 
 /** Inputs already on the first-screen run-detail model — no below-fold deferred fetch required. */
@@ -56,6 +65,22 @@ export function resolveRunDetailSponsorBriefingSection(
       buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
       sponsorDocxAvailable={manifestId.length > 0}
       pagePrimaryOwnedElsewhere={options?.pagePrimaryOwnedElsewhere}
+      careerArtifactHonesty={
+        options?.progressSummary !== undefined
+        || options?.manifestSummary !== undefined
+        || options?.graphSnapshot !== undefined
+        || options?.enginesSucceeded !== undefined
+          ? {
+              progressSummary: options?.progressSummary ?? null,
+              manifestSummary: options?.manifestSummary ?? null,
+              graphSnapshot: options?.graphSnapshot ?? null,
+              enginesSucceeded: options?.enginesSucceeded ?? null,
+              workingDesk: true,
+              preCommitGateEnabled: options?.preCommitGateEnabled,
+              isSample: model.usedStaticDemoRun,
+            }
+          : undefined
+      }
     />
   );
 }
@@ -68,6 +93,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     buyerPolishedArtifactTable,
     sponsorDocxAvailable,
     pagePrimaryOwnedElsewhere,
+    careerArtifactHonesty,
   } = props;
 
   const deliverables = (
@@ -80,6 +106,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
         curatedSampleRun={curatedSampleRun}
         sponsorDocxAvailable={sponsorDocxAvailable}
         pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
+        careerArtifactHonesty={careerArtifactHonesty}
       />
     </>
   );
