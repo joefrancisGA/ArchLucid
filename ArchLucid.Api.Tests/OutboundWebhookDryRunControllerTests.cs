@@ -183,6 +183,50 @@ public sealed class OutboundWebhookDryRunControllerTests
     }
 
     [Fact]
+    public async Task DryRunAsync_returns_probe_outcome_when_audit_logging_fails()
+    {
+        Uri target = new("https://example.com/webhook");
+        OutboundWebhookDryRunResult probeResult = new()
+        {
+            TransportSucceeded = true,
+            StatusCode = 202,
+            ReasonPhrase = "Accepted",
+            ResponseBodyPreview = "ok",
+            ResponseBodyTruncated = false
+        };
+
+        Mock<IOutboundWebhookDryRunService> probe = new();
+        probe
+            .Setup(p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(probeResult);
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit store unavailable"));
+
+        OutboundWebhookDryRunController controller = new(probe.Object, audit.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = target },
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        OutboundWebhookDryRunResponse response = ok.Value.Should().BeOfType<OutboundWebhookDryRunResponse>().Subject;
+
+        response.TransportSucceeded.Should().BeTrue();
+        response.StatusCode.Should().Be(202);
+        response.ResponseBodyPreview.Should().Be("ok");
+
+        probe.Verify(
+            p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task DryRunAsync_audit_records_response_body_truncated_when_preview_truncated()
     {
         Uri target = new("https://example.com/webhook");
