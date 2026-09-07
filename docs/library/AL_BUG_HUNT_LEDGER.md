@@ -6875,22 +6875,28 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-findings-advice
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — `ConflictFindingPattern` required singular `constraint` so plural conflict wording missed falsifiability
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
-Split from retired `archlucid-core` (ABQ-08).
+Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Findings/` hunts.
 
 ### Hypotheses
+
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — plural `violates constraints` missed falsifiability and architecture-anchor routing — **hit 2026-09-07 hunt #1184 (seed→hit):** regex required singular `constraint`; insight-density gate skipped falsifiability bonus and under-specified/conflict anchor path for common plural phrasing; fixed with `violates? constraints?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `violates the constraint` with determiner between verb and noun may still miss falsifiability
+- [ ] (candidate) `InsightDensityTextSimilarity` — hyphenated resource tokens split into sub-3-char fragments and under-penalize near-duplicate findings
+
+2026-09-07 seed hunt #1184 (hit): seeded zone from split catalog; proved plural constraint conflict wording missed falsifiability signal.
 
 ---
 ## Zone: core-requests-constraints
