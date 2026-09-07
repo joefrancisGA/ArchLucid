@@ -6985,9 +6985,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — `enterprise-non-*` marketplace planId prefix false-positive Enterprise tier
 - **related-pd-tb:** none
@@ -6998,11 +6998,13 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — leading `enterprise-non-*` plan id false-positive Enterprise tier — **hit 2026-09-07 (#1169):** #880 guarded `non` only as previous token (`contoso-non-enterprise-*`); `enterprise-non-standard` still matched standalone leading `enterprise`; fixed by skipping enterprise when next delimiter token is `non` (`TierStorageCodeFromPlanId_does_not_false_positive_on_enterprise_non_prefix_plan`)
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — canceled subscription rows still label from purchased caps only; usage-based Team inference skipped when subscription is non-null
-- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — multi-`@` domain input truncates to suffix host via `LastIndexOf('@')`, re-targeting DNS verification when admins paste email-shaped strings
-- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — string-encoded boolean/`on` quantity synonyms still fall back to caller default while JSON boolean `true` coerces to one seat (intentional asymmetry; monitor for marketplace payload drift)
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — canceled subscription rows still label from purchased caps only — **disproved 2026-09-07 (#1204):** intentional since #523 (`ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active`); canceled rows retain purchased caps for tier disambiguation instead of usage inference that previously under-labeled Professional tenants
+- [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — multi-`@` input truncates via `LastIndexOf('@')` — **disproved 2026-09-07 (#1204):** standard email-to-domain extraction for admin paste (`user@host.contoso.com` → `host.contoso.com`); multi-`@` suffix behavior documented (`TryNormalize_uses_suffix_after_last_at_for_multi_at_malformed_input`); no reachable DNS hijack without malformed operator input
+- [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — string boolean/`on` quantity synonyms fall back while JSON boolean `true` coerces to one seat — **disproved 2026-09-07 (#1204):** intentional asymmetry locked by `ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity` and `ReadQuantity_uses_fallback_for_on_synonym_quantity`; JSON boolean true path covered by `ReadQuantity_reads_boolean_quantity_instead_of_fallback`
 
 2026-09-07 seed hunt #1169 (hit): reseeded Identity/Billing/Budgeting Core; proved `enterprise-non-*` marketplace planId tier false-positive beyond #880 non-enterprise guard; restored JSON boolean quantity coercion regression blocking scoped tests.
+
+2026-09-07 thorough hunt #1204 (dry): cheap-disproved all three open candidates; added pending-subscription purchased-cap regression (`ResolveCommercialTierLabel_uses_purchased_caps_for_pending_subscription_not_usage_inference`).
 
 ---
 ## Zone: core-safety-network
