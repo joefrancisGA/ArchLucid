@@ -1964,11 +1964,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 9
-- **bugs-found:** 12
+- **hunts:** 10
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — buyer proof ZIP ROI freshness badge used 90-day window while deltas JSON used 30-day HOLD
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — sparse agent results left decision-delta on Info while severity used snapshot Critical/Warning
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1994,10 +1994,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #667: proved sponsor-one-pager PDF gate bypass on incomplete ROI baselines and demo tenants.
 
 - [x] (proven) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` — sponsor badge freshness used 90-day `StaleAfterDays` while `pilot-run-deltas.json` `roiSourceFreshnessDisposition` uses 30-day `RoiMetricSourceFreshnessRules` HOLD — **hit 2026-09-05 (#802):** 31–89-day extractor timestamps showed Fresh/HOLD mismatch inside buyer proof ZIP; fixed by capping badge stale window to sponsor handoff threshold (`TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json`, `BuildMarkdownAsync_when_run_linked_extractor_is_stale_for_sponsor_handoff_emits_stale_badge_before_ninety_day_window`).
-- [ ] (candidate) `SponsorReviewPacketBuilder` / `SelectTopHighCriticalFindings` — operator-muted Critical/Error findings may appear in `sponsor-review-packet.md` while deltas JSON excludes muted rows.
-- [ ] (candidate) `SponsorEvidencePackService.BuildAsync` — `ToResponse` omits ROI freshness disposition wiring; demo-run delta may report blind `PASS` when savings + stale extractor would HOLD.
+- [x] (invalid) `SponsorReviewPacketBuilder` / `SelectTopHighCriticalFindings` — operator-muted Critical/Error findings may appear in `sponsor-review-packet.md` while deltas JSON excludes muted rows — **invalid 2026-09-07 hunt #1293:** `RunSummaryOnePagerDocumentFactory.SelectTopHighCriticalFindings` skips `IsMuted`; regression in `SelectTopHighCriticalFindings_excludes_muted_findings`
+- [x] (invalid) `SponsorEvidencePackService.BuildAsync` — `ToResponse` omits ROI freshness disposition wiring — **invalid 2026-09-07 hunt #1293:** `BuildAsync` calls `PilotRunDeltasResponseMapper.ToResponseWithProofPackage` with extractor timestamp and scorecard baselines; regression in `BuildAsync_loads_findings_snapshot_and_computes_pilot_delta_when_run_present`
+- [x] (proven) `PilotSponsorMaterialFindingsResolver` / `SponsorDecisionDeltaNoveltyResolver` — sparse agent results left decision-delta markdown on Info advisory while severity buckets used persisted snapshot Critical/Warning — **hit 2026-09-07 thorough hunt #1293:** populated `SponsorNarrativeFindings` when snapshot drives severity and prefer snapshot narrative when agent rows are sparser; regressions in `Resolve_when_sparse_agent_results_prefers_snapshot_material_findings` and `ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`
 
 2026-09-05 seed hunt #802: reseeded buyer-proof cross-surface freshness after Wave-22 guards; proved 30-day vs 90-day sponsor badge parity gap; reseeded muted-finding and evidence-pack freshness candidates.
+
+2026-09-07 thorough hunt #1293 (hit): disproved two reseeded sponsor-packet candidates; proved sparse-agent decision-delta vs snapshot severity split; 20 scoped BuyerProofPack/BoardPack/SponsorDecisionDelta tests (19 pass; 1 pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unrelated to this diff).
 
 ---
 
