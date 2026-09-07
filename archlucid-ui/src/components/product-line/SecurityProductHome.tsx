@@ -59,7 +59,6 @@ export function SecurityProductHome(): React.JSX.Element {
           <li key={link.href}>
             <Link href={link.href} className={OPERATOR_LINK.nav}>
               <span className={OPERATOR_TYPOGRAPHY.cardTitle}>{link.label}</span>
-              <span className={OPERATOR_TYPOGRAPHY.helper}>{link.title}</span>
             </Link>
           </li>
         ))}
