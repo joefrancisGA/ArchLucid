@@ -12,6 +12,9 @@ public sealed class CachingTenantSettingsRepository(
     private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), long> CacheGenerations =
         new();
 
+    private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), byte> WriteInFlightKeys =
+        new();
+
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
@@ -21,6 +24,10 @@ public sealed class CachingTenantSettingsRepository(
     public async Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
     {
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+        (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
+
+        if (WriteInFlightKeys.ContainsKey(slot))
+            return await _inner.TryGetAsync(tenantId, normalizedKey, cancellationToken);
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.
         TenantSettingCacheEntry? entry = await _hotPathReadCache.GetOrCreateAsync(
@@ -47,21 +54,49 @@ public sealed class CachingTenantSettingsRepository(
         CancellationToken cancellationToken)
     {
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+        (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        BumpCacheGeneration(tenantId, normalizedKey);
-        await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
-        BumpCacheGeneration(tenantId, normalizedKey);
+        WriteInFlightKeys.TryAdd(slot, 0);
+
+        try
+        {
+            BumpCacheGeneration(tenantId, normalizedKey);
+            await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
+            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey, cancellationToken);
+            BumpCacheGeneration(tenantId, normalizedKey);
+        }
+        finally
+        {
+            WriteInFlightKeys.TryRemove(slot, out _);
+        }
     }
 
     /// <inheritdoc />
     public async Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
     {
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
+        (Guid TenantId, string SettingKey) slot = (tenantId, normalizedKey);
 
-        BumpCacheGeneration(tenantId, normalizedKey);
-        await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
-        BumpCacheGeneration(tenantId, normalizedKey);
+        WriteInFlightKeys.TryAdd(slot, 0);
+
+        try
+        {
+            BumpCacheGeneration(tenantId, normalizedKey);
+            await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
+            await InvalidateCurrentGenerationCacheAsync(tenantId, normalizedKey, cancellationToken);
+            BumpCacheGeneration(tenantId, normalizedKey);
+        }
+        finally
+        {
+            WriteInFlightKeys.TryRemove(slot, out _);
+        }
     }
+
+    private Task InvalidateCurrentGenerationCacheAsync(
+        Guid tenantId,
+        string normalizedKey,
+        CancellationToken cancellationToken) =>
+        _hotPathReadCache.RemoveAsync(BuildCacheKey(tenantId, normalizedKey), cancellationToken);
 
     private static string BuildCacheKey(Guid tenantId, string normalizedKey)
     {

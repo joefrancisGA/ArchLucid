@@ -302,6 +302,35 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_delete_after_cached_hit_before_generation_bump()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedDeleteTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        inner.ArmDeleteDelayUntilReleased();
+        Task deleteTask = repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        inner.ReleaseBeforeDelete();
+
+        await inner.WaitUntilDeletePersistedAsync();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+
+        inner.ReleaseAfterDelete();
+
+        await deleteTask;
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -349,6 +378,80 @@ internal sealed class DelayedTenantSettingsRepository : ITenantSettingsRepositor
 
     public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
         _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+}
+
+internal sealed class DelayedDeleteTenantSettingsRepository : ITenantSettingsRepository
+{
+    private readonly InMemoryTenantSettingsRepository _inner = new();
+
+    private TaskCompletionSource? _beforeDeleteGate;
+
+    private TaskCompletionSource? _deletePersistedGate;
+
+    private TaskCompletionSource? _afterDeleteGate;
+
+    public void ArmDeleteDelayUntilReleased()
+    {
+        _beforeDeleteGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _deletePersistedGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _afterDeleteGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    public void ReleaseBeforeDelete()
+    {
+        TaskCompletionSource? gate = _beforeDeleteGate;
+
+        if (gate is not null)
+            gate.TrySetResult();
+    }
+
+    public Task WaitUntilDeletePersistedAsync()
+    {
+        TaskCompletionSource? gate = _deletePersistedGate;
+
+        if (gate is null)
+            throw new InvalidOperationException("Delete delay was not armed.");
+
+        return gate.Task;
+    }
+
+    public void ReleaseAfterDelete()
+    {
+        TaskCompletionSource? gate = _afterDeleteGate;
+
+        if (gate is not null)
+            gate.TrySetResult();
+    }
+
+    public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.TryGetAsync(tenantId, settingKey, cancellationToken);
+
+    public Task UpsertAsync(
+        Guid tenantId,
+        string settingKey,
+        string settingValue,
+        CancellationToken cancellationToken) =>
+        _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
+
+    public async Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
+    {
+        TaskCompletionSource? beforeGate = _beforeDeleteGate;
+
+        if (beforeGate is not null)
+            await beforeGate.Task.WaitAsync(cancellationToken);
+
+        await _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+
+        TaskCompletionSource? persistedGate = _deletePersistedGate;
+
+        if (persistedGate is not null)
+            persistedGate.TrySetResult();
+
+        TaskCompletionSource? afterGate = _afterDeleteGate;
+
+        if (afterGate is not null)
+            await afterGate.Task.WaitAsync(cancellationToken);
+    }
 }
 
 internal sealed class DelayedUpsertTenantSettingsRepository : ITenantSettingsRepository

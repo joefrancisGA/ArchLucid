@@ -232,11 +232,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — cached miss at old generation survived between upsert commit and generation bump
+- **last-bug:** 2026-09-07 — cached hit at post-delete generation served after row deleted but before delete wrapper finished
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -250,8 +250,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
 - [x] (proven) Cached miss at the pre-write generation survives after upsert commits but before the post-write generation bump — **hit 2026-09-07 (#1178):** a prior `TryGetAsync` miss at `g0` was served from hybrid cache while inner upsert had already persisted; fixed by bumping generation before and after inner upsert/delete; regressions in `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump` and `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed`
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertAsync` concurrent readers return pre-upsert defaults — repository returns null when row absent and never materializes defaults; reads use default `ReadCommitted` without snapshot isolation in this file; no fabricated default path in `TryGetCoreAsync`
+- [x] (proven) Cached hit at the post-delete generation survives after inner delete commits but before the caching wrapper finishes `DeleteAsync` — **hit 2026-09-07 (#1239):** `TryGetAsync` during delete could populate hybrid cache at the bumped generation while the row still existed; after inner delete the same-generation cache hit was served until the post-delete bump; fixed by write-in-flight cache bypass plus generation-slot invalidation on upsert/delete; regression in `TenantSettings_TryGetAsync_reflects_delete_after_cached_hit_before_generation_bump`
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` returns null for whitespace-only `SettingValue` rows while MERGE upsert rejects whitespace writes — legacy whitespace rows read absent but remain updatable via `UpsertAsync`; no caller path upserts whitespace to simulate delete
+- [x] (invalid) `CachingTenantSettingsRepository` passes pre-normalized keys to inner read/write — `TenantSettingKeyNormalizer.Normalize` is trim + lowercase and idempotent on already-normalized keys
 
 2026-09-07 thorough hunt #1178 (hit): proved cached-miss race between upsert commit and generation bump; cheap-disproof on SQL concurrent-default hypothesis.
+
+2026-09-07 seed hunt #1239 (hit): reseeded tenant-settings cache/SQL zone; proved delete-path cached-hit stale generation gap symmetric to #1178 miss race; cheap-disproof on whitespace-only row and double-normalization candidates.
 
 ---
 
