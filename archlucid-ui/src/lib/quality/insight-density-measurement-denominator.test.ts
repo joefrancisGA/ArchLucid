@@ -8,7 +8,7 @@ import {
 
 describe("insight-density-measurement-denominator (LK-14)", () => {
   it("pins harness and catalog counts to Decisioning constants", () => {
-    expect(INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT).toBe(32);
+    expect(INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT).toBe(35);
     expect(INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT).toBe(48);
   });
 

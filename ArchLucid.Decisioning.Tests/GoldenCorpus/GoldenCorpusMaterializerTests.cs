@@ -163,6 +163,68 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-37");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_38_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-38",
+            GoldenCorpusPathEngineGraphFactory.CreateIdentityBlastRadiusGraph(),
+            "Machine actor Contributor path to regulated Key Vault — expect **identity-blast-radius**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_39_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-39",
+            GoldenCorpusPathEngineGraphFactory.CreateSegmentationSemanticsGraph(),
+            "Internet-exposed SSH to subnet with SQL datastore path — expect **segmentation-semantics**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_40_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-40",
+            GoldenCorpusPathEngineGraphFactory.CreateDrRpoTopologyGraph(),
+            "Requirement RPO 15 min with SQL lacking replica/failover — expect **dr-rpo-topology**.");
+    }
+
+    private static async Task RecordPathEngineCaseAsync(
+        string caseFolderName,
+        GraphSnapshot graph,
+        string readmeTitle)
+    {
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, caseFolderName);
+        Directory.CreateDirectory(dir);
+
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+        };
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            $"# {caseFolderName}\n\n{readmeTitle}\n\nRegenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.\n";
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync(caseFolderName);
+    }
+
     private static async Task RecordHandAuthoredCaseAsync(string caseFolderName)
     {
         string compliance = Path.Combine(
