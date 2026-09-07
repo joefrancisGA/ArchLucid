@@ -9613,22 +9613,24 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — review cache manifest omitted client RunId from content hash
+- **last-bug:** 2026-09-07 — continue-from-existing analysis runs skipped review-cache storage / used post-pipeline model fingerprint
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
 ### Hypotheses
 
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
-- [ ] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
-- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cap can skip invalidation while entry remains pinned under improve-loop pressure
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — continue-path second identical call cache-hit coverage untested; manifest pre/post-save asymmetry may miss on boundary run
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cap can skip invalidation while entry remains pinned under improve-loop pressure — retired: `MaxDistinctPinnedStorageKeys` (64) prevents a 65th pinned invalidation target; when cap blocks a new pin the entry is removed directly without needing a tombstone slot (`AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`)
+- [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` / `ClosedLoopPublishStage` — identical continue requests missed review cache — **hit 2026-09-07 (#1195):** publish stage gated cache `Set` on `persistModel`, which is false for continue runs when publish is blocked and a model already exists; storage manifest also used post-pipeline `context.Model` fingerprint while lookup uses persisted baseline, so keys diverged when framing mutations were not saved; fixed by storing analysis-only continue results using persisted baseline fingerprint; regression in `RunAsync_second_identical_continue_request_is_cache_hit`
+
+2026-09-07 thorough hunt #1195 (hit): proved continue-from-existing review-cache skip and manifest baseline mismatch.
 
 2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
 

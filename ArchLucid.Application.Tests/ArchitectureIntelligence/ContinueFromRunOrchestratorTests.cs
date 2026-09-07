@@ -182,4 +182,51 @@ public sealed class ContinueFromRunOrchestratorTests
 
         continued.Model.Elements.Count.Should().BeGreaterThan(elementCountBeforeContinue);
     }
+
+    [Fact]
+    public async Task RunAsync_second_identical_continue_request_is_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-cache",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+            DeclaredPriorities = ["Security"],
+        });
+
+        ClosedLoopReasoningRequest continueRequest = new()
+        {
+            TenantId = "tenant-continue-cache",
+            RunId = first.RunId,
+            ContinueFromExistingRun = true,
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure claims intake",
+            },
+            DeclaredPriorities = ["Security"],
+        };
+
+        ClosedLoopReasoningResult firstContinue = await orchestrator.RunAsync(continueRequest);
+        firstContinue.CacheHit.Should().BeFalse();
+
+        ClosedLoopReasoningResult secondContinue = await orchestrator.RunAsync(continueRequest);
+        secondContinue.CacheHit.Should().BeTrue();
+        secondContinue.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+    }
 }
