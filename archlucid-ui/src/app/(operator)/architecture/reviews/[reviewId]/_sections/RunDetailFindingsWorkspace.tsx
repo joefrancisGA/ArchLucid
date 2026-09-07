@@ -10,6 +10,7 @@ import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsH
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
 import { FindingsWithheldBand } from "@/components/findings/FindingsWithheldBand";
+import { FindingMergeConflictListCue } from "@/components/findings/FindingMergeConflictListCue";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";

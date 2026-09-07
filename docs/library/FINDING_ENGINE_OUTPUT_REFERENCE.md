@@ -74,6 +74,7 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `aws-cost-recommendation` | `AwsCostRecommendationFindingEngine` | AWS cost recommendations from scoped inventory. |
 | `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
 | `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. Joins source-finding text to current-graph topology nodes (`TopologyMatch`, `MatchedTopologyNodeId`); when a deferred public-network or HTTPS theme is still unsafe on the matched node, sets `StillOpenOnCurrentGraph` with `evidence:graph-node:` trace notes. |
+| `secrets-lifecycle` | `SecretsLifecycleFindingEngine` | Security | Stale Key Vault / Secrets Manager inventory rows (90+ days since update or expiry within 14 days) when the graph references that vault or secret by name. Requires scoped extractor package; does not call live vault APIs. |
 | `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio (same tenant catalog only — ADR 0037). **Default on** — disable per tenant when cross-review reads are undesirable. |
 
 `TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.

@@ -339,7 +339,10 @@ export function ResourcesExplorerClient() {
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
                       <Link
-                        href={buildResourceHubOverviewHref(row.cloudResourceId, { snapshotId: urlSnapshotId })}
+                        href={buildResourceHubOverviewHref(row.cloudResourceId, {
+                          snapshotId: urlSnapshotId,
+                          workQueue: urlWorkQueue,
+                        })}
                         data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
                       >
                         Overview

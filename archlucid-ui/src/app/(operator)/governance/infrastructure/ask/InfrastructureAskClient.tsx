@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { formatInfraEvidenceAskScopeStack } from "@/lib/infra-evidence/infra-evidence-ask-scope-summary";
 import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
@@ -116,51 +117,33 @@ export function InfrastructureAskClient() {
     ],
   );
 
-  const contextSummary = useMemo(() => {
-    const parts: string[] = [];
-
-    if (cloudResourceId.length > 0) {
-      parts.push(`resource ${cloudResourceId}`);
-    }
-
-    if (snapshotId.length > 0) {
-      parts.push(`snapshot ${snapshotId}`);
-    }
-
-    if (diffId.length > 0) {
-      parts.push(`diff ${diffId}`);
-    }
-
-    if (findingId.length > 0) {
-      parts.push(`finding ${findingId}`);
-    }
-
-    if (instanceId.length > 0) {
-      parts.push(`instance ${instanceId}`);
-    }
-
-    if (
-      assessmentId.length > 0
-      && auditEvidenceSnapshotId.length > 0
-      && controlId.length > 0
-    ) {
-      parts.push(`audit lineage control ${controlId}`);
-    }
-
-    if (correspondenceId.length > 0) {
-      parts.push(`correspondence ${correspondenceId}`);
-    }
-
-    if (workQueueLabel != null) {
-      parts.push(`work queue ${workQueueLabel}`);
-    }
-
-    if (parts.length === 0) {
-      return null;
-    }
-
-    return parts.join(" · ");
-  }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, correspondenceId, diffId, findingId, instanceId, snapshotId, workQueueLabel]);
+  const contextSummary = useMemo(
+    () =>
+      formatInfraEvidenceAskScopeStack({
+        cloudResourceId,
+        snapshotId,
+        diffId,
+        findingId,
+        instanceId,
+        correspondenceId,
+        assessmentId,
+        auditEvidenceSnapshotId,
+        controlId,
+        workQueue,
+      }),
+    [
+      assessmentId,
+      auditEvidenceSnapshotId,
+      cloudResourceId,
+      controlId,
+      correspondenceId,
+      diffId,
+      findingId,
+      instanceId,
+      snapshotId,
+      workQueue,
+    ],
+  );
 
   const hubBackLinkTab = useMemo(() => {
     const scopeTab = resolveResourceHubTabFromAskScope({
@@ -413,7 +396,7 @@ export function InfrastructureAskClient() {
           aria-label="Ask grounding context"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Grounding context: {contextSummary}.
+            Scope stack: {contextSummary}.
           </p>
           {cloudResourceId.length > 0 ? (
             <Link

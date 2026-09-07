@@ -367,4 +367,59 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
     await expect(page.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute("href", /tab=diagram/);
     await expect(page.getByTestId("infra-ask-open-audit-hub-tab")).toHaveAttribute("href", /tab=audit/);
   });
+
+  test("drift workbench syncs diff selection into the URL", async ({ page }) => {
+    const driftUrl =
+      `/governance/infrastructure/drift?snapshotId=${snapshotId}&cloudResourceId=${cloudResourceId}`;
+
+    await page.goto(driftUrl);
+    await expect(page.getByTestId("infra-drift-diff-picker")).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId("infra-drift-diff-picker").selectOption("diff-1");
+    await expect(page).toHaveURL(/diffId=diff-1/);
+
+    await page.reload();
+    await expect(page.getByTestId("infra-drift-diff-picker")).toHaveValue("diff-1", { timeout: 60_000 });
+  });
+
+  test("degraded audit lineage shows recovery actions on drift workbench", async ({ page }) => {
+    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources**", async (route) => {
+      const url = route.request().url();
+
+      if (url.includes("/hub")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...hubFixture,
+            auditLineageLink: {
+              available: false,
+              degradedReason: "No matching audit control for this resource.",
+              relativePath: null,
+              assessmentId: null,
+              auditEvidenceSnapshotId: null,
+              controlId: null,
+              controlNumber: null,
+              controlTitle: null,
+              matches: [],
+            },
+          }),
+        });
+
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(explorerRowsFixture),
+      });
+    });
+
+    const driftUrl =
+      `/governance/infrastructure/drift?snapshotId=${snapshotId}&cloudResourceId=${cloudResourceId}`;
+
+    await page.goto(driftUrl);
+    await expect(page.getByTestId("infra-drift-audit-unavailable")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("infra-drift-audit-unavailable-open-audit-tab")).toBeVisible();
+  });
 });
