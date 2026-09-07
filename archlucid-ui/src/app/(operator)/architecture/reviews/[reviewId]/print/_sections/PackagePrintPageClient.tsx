@@ -14,7 +14,8 @@ import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
+import { resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -70,7 +71,17 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       return null;
     }
 
-    return formatCareerExportHonestyPlainText({
+    resolveCareerExportCoverageHonesty({
+      runId: summaryQuery.data.runId,
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      manifestSummary: bundle.manifestSummary ?? null,
+      graphSnapshot: bundle.buyerSummary.graphSnapshot ?? null,
+      enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
+      workingDesk: true,
+    });
+
+    return evaluateCareerArtifactHonesty({
+      artifactKind: "export",
       runId: summaryQuery.data.runId,
       progressSummary: bundle.progressSummary ?? summaryQuery.data,
       manifestSummary: bundle.manifestSummary ?? null,
@@ -78,7 +89,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       findingsSnapshot: bundle.buyerSummary.findingsSnapshot ?? null,
       enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
       workingDesk: true,
-    });
+      transparencyTrail: bundle.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+    }).headerLines.join("\n");
   }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
   if (summaryQuery.isPending) {

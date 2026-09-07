@@ -98,9 +98,11 @@ internal static class MvcExtensions
             options.AddOperationTransformer<MicrosoftOpenApiStringEnumParameterDefaultOperationTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiQualityDimensionDocumentTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiAudienceSchemaDocumentTransformer>();
+            options.AddDocumentTransformer<MicrosoftOpenApiCareerArtifactBlockedProblemDetailsDocumentTransformer>();
             options.AddSchemaTransformer<MicrosoftOpenApiJsonStringEnumSchemaTransformer>();
             options.AddSchemaTransformer<MicrosoftOpenApiRequiredRequestPropertiesSchemaTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiStandardProblemDetailsOperationTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiCareerArtifactExportOperationTransformer>();
         });
         services.AddEndpointsApiExplorer();
         services.AddArchLucidSwagger();

@@ -49,3 +49,17 @@ export function transparencyTrailIncompleteFinalizeReason(
 
   return `Transparency trail is missing required sections: ${missing.join(", ")}.`;
 }
+
+export const ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON =
+  "No asserted intake recorded — do not present this package as evidence-backed.";
+
+/** True when the trail object exists but the asserted section has no entries (FC-13). */
+export function isAssertedTransparencyTrailEmpty(
+  trail: TransparencyTrail | null | undefined,
+): boolean {
+  if (!isTransparencyTrailComplete(trail)) {
+    return false;
+  }
+
+  return trail.asserted.length === 0;
+}

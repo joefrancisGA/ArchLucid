@@ -70,25 +70,4 @@ public sealed partial class PremiumInsightDensityLlmJudge
         return finding.Classification is null
             || finding.Classification == FindingClassification.DecisionGradeFinding;
     }
-
-    private static (IReadOnlyList<Finding> Judged, int SkippedByCap) SelectJudgedCandidates(
-        IReadOnlyList<Finding> candidates,
-        int maxJudgedFindingsPerSnapshot)
-    {
-        List<Finding> ordered = candidates
-            .OrderByDescending(static finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType))
-            .ThenByDescending(static finding => finding.Severity)
-            .ThenBy(static finding => finding.InsightDensityScore ?? int.MaxValue)
-            .ThenBy(static finding => finding.FindingId, StringComparer.Ordinal)
-            .ToList();
-
-        if (ordered.Count <= maxJudgedFindingsPerSnapshot)
-        {
-            return (ordered, 0);
-        }
-
-        int skipped = ordered.Count - maxJudgedFindingsPerSnapshot;
-
-        return (ordered.Take(maxJudgedFindingsPerSnapshot).ToList(), skipped);
-    }
 }

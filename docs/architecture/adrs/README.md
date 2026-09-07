@@ -73,6 +73,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0075](0075-coordinator-audit-echo-fail-closed.md) | Coordinator audit echo fail-closed on governed mutations — finalize `Run.CommitCompleted` echo must not swallow durable write failures (**Status: Accepted** 2026-09-06) |
 | [0076](0076-finding-disposition-conflict-409.md) | Finding disposition current-pointer conflict (409) — ADR 0076 / DR-08 (**Status: Accepted** 2026-09-06) |
 | [0077](0077-working-architecture-is-the-locator.md) | Working architecture is the locator — review nests under identity; supersedes 0069/0072 Working URL clauses (**Status: Proposed** 2026-09-07) |
+| [0078](0078-career-artifact-honesty-contract.md) | Career artifact honesty contract — single fail-closed rules for stamp, finalize, and exports (**Status: Proposed** 2026-09-07) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

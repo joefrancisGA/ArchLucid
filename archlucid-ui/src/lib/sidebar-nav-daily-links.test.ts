@@ -11,6 +11,7 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 
 function link(href: string, label: string): NavLinkItem {
@@ -31,7 +32,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more).toEqual([]);
   });
 
-  it("keeps advisory scans in the governance daily strip", () => {
+  it("shows all Approval links without a daily vs more split", () => {
     const links = [
       link("/governance/advisory-scans", "Advisory scans"),
       link("/governance/alert-rules", "Alert rules"),
@@ -39,51 +40,22 @@ describe("splitSidebarLinksDailyVsMore", () => {
       link("/governance/approval-queue", "Approval"),
       link("/governance/findings", "Findings"),
       link("/governance/audit", "Audit"),
+      link("/governance/remediation-factory", "Remediation factory"),
+      link("/governance/remediation-patterns", "Remediation patterns"),
+      link("/governance/audit-evidence", "Audit evidence lineage"),
     ];
     const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
 
-    expect(split.daily.map((row) => row.href)).toEqual([
-      "/governance/approval-queue",
-      "/governance/findings",
-      "/governance/advisory-scans",
-      "/governance/alerts",
-    ]);
-    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
+    expect(split.daily).toEqual(links);
+    expect(split.more).toEqual([]);
   });
 
-  it("keeps alert rules in more when advisory scans occupies the daily slot", () => {
-    const links = [
-      link("/governance/alert-rules", "Alert rules"),
-      link("/governance/alerts", "Alerts"),
-      link("/governance/approval-queue", "Approval"),
-      link("/governance/findings", "Findings"),
-      link("/governance/audit", "Audit"),
-    ];
-    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+  it("shows every configured Approval nav link without a more disclosure", () => {
+    const governanceLinks = NAV_GROUPS.find((group) => group.id === "operate-governance")?.links ?? [];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", governanceLinks, "/");
 
-    expect(split.daily.map((row) => row.href)).toEqual([
-      "/governance/approval-queue",
-      "/governance/findings",
-      "/governance/alerts",
-    ]);
-    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
-  });
-
-  it("splits governance into daily vs more and preserves daily order", () => {
-    const links = [
-      link("/governance/alerts", "Alerts"),
-      link("/governance/approval-queue", "Approval"),
-      link("/governance/findings", "Findings"),
-      link("/governance/audit", "Audit"),
-    ];
-    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
-
-    expect(split.daily.map((row) => row.href)).toEqual([
-      "/governance/approval-queue",
-      "/governance/findings",
-      "/governance/alerts",
-    ]);
-    expect(split.more.map((row) => row.href)).toEqual(["/governance/audit"]);
+    expect(split.daily).toEqual(governanceLinks);
+    expect(split.more).toEqual([]);
   });
 
   it("leads Administration with routine configuration rather than break-glass pages", () => {
@@ -138,14 +110,14 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ]);
   });
 
-  it("promotes an active more-link into daily so the route stays visible", () => {
+  it("keeps Approval links visible on nested routes without a more disclosure", () => {
     const links = [
       link("/governance/approval-queue", "Approval"),
       link("/governance/audit", "Audit"),
     ];
     const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/governance/audit");
 
-    expect(split.daily.map((row) => row.href)).toContain("/governance/audit");
+    expect(split.daily).toEqual(links);
     expect(split.more).toEqual([]);
   });
 

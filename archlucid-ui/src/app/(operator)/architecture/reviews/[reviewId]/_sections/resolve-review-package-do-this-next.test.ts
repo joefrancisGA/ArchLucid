@@ -83,6 +83,29 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.sentence).not.toContain("start a new review");
   });
 
+  it("does not surface workspace AI settings as a secondary CTA for admin viewers", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      canConfigureWorkspaceAi: true,
+      legacyRunStatus: "Failed",
+      pipelineDiagnosticContext: { legacyRunStatus: "Failed" },
+      pipelineSummary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+      lastFailureSummary: {
+        failureClass: "invalidOperation",
+        reasonCode: "NoScheduledAgentTasks",
+      },
+    });
+
+    expect(next.kind).toBe("rerun-review");
+    expect(next.secondaryAction).toBeNull();
+  });
+
   it("builds a rerun href when correctionHref is absent on terminal failure", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
