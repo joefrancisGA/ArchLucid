@@ -90,6 +90,10 @@ import {
   parseResourceExplorerWorkQueueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import {
+  hasStaleInfraEvidenceAuditUrlParams,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
@@ -449,16 +453,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [askAuditContext],
   );
 
-  const hasStaleAuditUrlParams = useMemo(() => {
-    const hasAnyAuditParam =
-      assessmentId.length > 0
-      || auditEvidenceSnapshotId.length > 0
-      || controlId.length > 0;
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
 
-    return hasAnyAuditParam && workbenchLinkAuditContext == null;
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, workbenchLinkAuditContext]);
-
-  const auditScopeActive = workbenchLinkAuditContext != null;
+  const auditScopeActive = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams) != null;
 
   const auditScopeChipHref = useMemo(() => {
     if (!auditScopeActive) {
@@ -731,7 +731,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         </section>
       ) : null}
 
-      {workbenchLinkAuditContext != null ? (
+      {auditScopeActive && workbenchLinkAuditContext != null ? (
         <InfraEvidenceAuditScopeBar
           cloudResourceId={cloudResourceId}
           auditScope={{

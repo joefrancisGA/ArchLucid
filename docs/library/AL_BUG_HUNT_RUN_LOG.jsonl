@@ -1438,3 +1438,4 @@
 {"at":"2026-09-07T22:22:11.7531177Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T22:35:00.6521705Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T22:38:35.4135878Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
+{"at":"2026-09-07T22:43:02.0725082Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}

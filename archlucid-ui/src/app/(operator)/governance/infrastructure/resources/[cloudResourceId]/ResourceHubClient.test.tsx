@@ -599,4 +599,14 @@ describe("ResourceHubClient", () => {
       unmount();
     }
   });
+
+  it("surfaces stale audit banner for partial URL audit params even when hub payload resolves lineage", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-stale-audit-scope")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-hub-audit-scope-bar")).not.toBeInTheDocument();
+  });
 });

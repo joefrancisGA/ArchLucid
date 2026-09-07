@@ -10011,11 +10011,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — tab bar dropped review runId while cross-tab links preserved it
+- **last-bug:** 2026-09-07 — partial audit URL hid stale banner while payload-resolved scope bar still rendered
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10024,10 +10024,12 @@ ABQ-09 churn hotspot.
 ### Hypotheses
 
 - [x] (proven) `sanitizeResourceHubQueryForTab` / `ResourceHubClient.setActiveTab` — tab bar switch drops `runId` while hub cross-links preserve review scope — **hit 2026-09-07 hunt #1189 (seed→hit):** `sanitizeResourceHubQueryForTab` deleted `runId` for drift/findings/terraform/audit tabs before `resourceHubFilterHrefFromSearch`, so clicking the tab bar lost review scope that sibling quick links kept; fixed by only stripping item-scoped params (finding/diff/instance/correspondence); regressions in `infra-evidence-hub-tab-query.test.ts` and `ResourceHubClient.test.tsx`
-- [ ] (candidate) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset
-- [ ] (candidate) `fetchCachedInfraEvidenceResourceHub` — cache key omits work-queue param so explorer queue context can serve stale hub payload
+- [x] (proven) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset — **hit 2026-09-07 hunt #1281:** stale detection used `hasAnyAuditParam && workbenchLinkAuditContext == null`, but `workbenchLinkAuditContext` merges URL + hub payload via `resolveInfrastructureAskAuditContext`, so a partial URL triple (e.g. only `assessmentId`) with full hub lineage hid the stale banner while still rendering the audit scope bar; fixed by URL-only `hasStaleInfraEvidenceAuditUrlParams` + gating the scope bar on `parseInfraEvidenceWorkbenchAuditScopeFromSearch`; regressions in `infra-evidence-workbench-hub-scope.test.ts` and `ResourceHubClient.test.tsx`
+- [x] (invalid) `fetchCachedInfraEvidenceResourceHub` — cache key omits work-queue param so explorer queue context can serve stale hub payload — **invalid 2026-09-07 hunt #1281:** `workQueue` is navigation/UI context only; `fetchCloudResourceEvidenceHub` does not send it to the hub API, so omitting it from the cache key matches fetch semantics and is not a stale-payload defect
 
 2026-09-07 seed hunt #1189 (hit): seeded zone from ABQ-09 churn hotspot; proved tab-bar runId scope leak vs cross-link parity.
+
+2026-09-07 thorough hunt #1281 (hit): proved partial-audit URL stale-banner gap; disproved work-queue cache-key hypothesis; 25 scoped unit tests passed.
 
 ---
 
