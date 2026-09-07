@@ -50,6 +50,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["GraphAwsInventoryReconciliationFindingEngine"] = "aws-inventory-reconciliation",
             ["GraphGcpInventoryReconciliationFindingEngine"] = "gcp-inventory-reconciliation",
             ["DeclarationInventoryContradictionFindingEngine"] = "declaration-inventory-contradiction",
+            ["PolicyDeclarationInventoryContradictionFindingEngine"] = "policy-declaration-inventory-contradiction",
             ["DanglingDeclarationReferenceFindingEngine"] = "dangling-declaration-reference",
             ["OrphanedAwsResourceFindingEngine"] = "orphaned-aws-resource",
             ["OrphanedGcpResourceFindingEngine"] = "orphaned-gcp-resource",

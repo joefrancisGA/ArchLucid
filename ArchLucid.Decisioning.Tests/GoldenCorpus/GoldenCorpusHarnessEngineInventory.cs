@@ -28,6 +28,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
             ["checklist-cluster-synthesis"] = "Post-gate synthesis stage — needs clustered ChecklistCoverage fixtures, not graph-only golden cases.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
+            ["policy-declaration-inventory-contradiction"] = "Three-way pack contradiction needs assigned pack + inventory JSON — not on static golden graphs.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;
