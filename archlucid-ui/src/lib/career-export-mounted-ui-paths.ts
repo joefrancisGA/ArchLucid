@@ -7,6 +7,7 @@ export const CAREER_EXPORT_FORMATTER_PATHS = [
   "components/GenerateAdrFromRunModal.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx",
   "lib/export-markdown.ts",
+  "lib/sealed-manifest-json-export.ts",
 ] as const;
 
 /**
