@@ -4368,6 +4368,24 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void IsSensitiveKey_detects_debug_access_key_property_names_matching_config_redactor()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("debugAccessKey").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSensitiveKey_detects_decision_access_key_property_names_matching_config_redactor()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("decisionAccessKey").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSensitiveKey_detects_deck_access_key_property_names_matching_config_redactor()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("deckAccessKey").Should().BeTrue();
+    }
+
+    [Fact]
     public void RedactValue_returns_marker()
     {
         AzureExtractorSensitivePropertyRedactor.RedactValue("super-secret").Should().Be("[REDACTED]");

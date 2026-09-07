@@ -12079,6 +12079,87 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     }
 
     [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_configure_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot configure archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_mandate_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot mandate archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_apply_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot apply archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_enforce_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot enforce archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_maintain_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot maintain archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_ensure_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot ensure archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_provision_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot provision archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_require_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot require archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_need_suffix_phrasing()
+    {
+        GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
+                "enable encryption couldnot need archived blob keys")
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void IsObviousGenericAdvice_does_not_flag_workloads_couldnt_require_encryption_at_rest_phrasing()
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(
