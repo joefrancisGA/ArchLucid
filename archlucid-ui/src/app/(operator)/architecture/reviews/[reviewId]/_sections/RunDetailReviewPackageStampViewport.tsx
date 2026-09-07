@@ -69,6 +69,12 @@ export function RunDetailReviewPackageStampViewport(
           structuralExecutionMode={props.structuralExecutionMode}
           isSample={props.isSample}
         />
+        {isWorkingMode ? (
+          <RunDetailOverviewTransparencyTrail
+            feasibilityVerdict={feasibilityVerdict}
+            runCompleted={props.runCompleted}
+          />
+        ) : null}
         <RunDetailQualityGateModeStrip
           runId={props.runId}
           structuralExecutionMode={props.structuralExecutionMode}
@@ -90,12 +96,6 @@ export function RunDetailReviewPackageStampViewport(
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}
         />
-        {isWorkingMode ? (
-          <RunDetailOverviewTransparencyTrail
-            feasibilityVerdict={feasibilityVerdict}
-            runCompleted={props.runCompleted}
-          />
-        ) : null}
       </div>
     );
   }

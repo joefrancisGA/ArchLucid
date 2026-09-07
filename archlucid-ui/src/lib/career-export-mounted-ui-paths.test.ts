@@ -90,6 +90,6 @@ describe("career-artifact honesty guards (FC-05–FC-07)", () => {
 
   it("ratchets the grandfather inventory with FC-0078-WAIVER comments (FC-07)", () => {
     expect(findCareerArtifactHonestyGrandfatherViolations(UI_ROOT, GRANDFATHER_INVENTORY_SOURCE)).toEqual([]);
-    expect(CAREER_ARTIFACT_HONESTY_GRANDFATHERED_PATHS.length).toBeGreaterThan(0);
+    expect(CAREER_ARTIFACT_HONESTY_GRANDFATHERED_PATHS).toEqual([]);
   });
 });
