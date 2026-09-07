@@ -28,6 +28,26 @@ public sealed class GoldenCorpusInputDocument
     {
         get; set;
     }
+
+    /// <summary>Optional scoped Azure inventory fixture for effectful engines (case-37).</summary>
+    public GoldenCorpusInventoryFixtureDocument? InventoryFixture
+    {
+        get; set;
+    }
+}
+
+/// <summary>Pinned Azure extractor package for golden corpus inventory-backed engines.</summary>
+public sealed class GoldenCorpusInventoryFixtureDocument
+{
+    public Guid AzurePackageId
+    {
+        get; set;
+    }
+
+    public string ResourcesJson
+    {
+        get; set;
+    } = "[]";
 }
 
 /// <summary>JSON-friendly merge payload (lists deserialize cleanly).</summary>
