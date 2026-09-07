@@ -34,7 +34,7 @@ import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { governanceFindingsWorkspaceSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
+import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/governance-findings-architecture-scope";
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
@@ -197,13 +197,16 @@ export default function GovernanceFindingsQueueClient({
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
-        onPickReviewForTriage(applied.scopedRunId);
+        router.replace(
+          governanceFindingsRunScopedSavedViewHref(applied, navHref, applied.scopedRunId),
+          { scroll: false },
+        );
         return;
       }
 
       router.replace(governanceFindingsWorkspaceSavedViewHref(applied, navHref), { scroll: false });
     },
-    [applyGroupByResource, navHref, onPickReviewForTriage, router, setJobView, setNlFacets, setRegisterFilter],
+    [applyGroupByResource, navHref, router, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (

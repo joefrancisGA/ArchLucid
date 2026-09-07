@@ -16,7 +16,7 @@ import {
   type FindingsNaturalLanguageFacets,
 } from "@/lib/findings/findings-natural-language-filter";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
-import { governanceFindingsWorkspaceSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
+import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { patchGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
@@ -88,13 +88,16 @@ export function useGovernanceFindingsQueueSavedViews({
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
-        onPickReviewForTriage(applied.scopedRunId);
+        router.replace(
+          governanceFindingsRunScopedSavedViewHref(applied, navHref, applied.scopedRunId),
+          { scroll: false },
+        );
         return;
       }
 
       router.replace(governanceFindingsWorkspaceSavedViewHref(applied, navHref), { scroll: false });
     },
-    [applyGroupByResource, navHref, onPickReviewForTriage, router, setJobView, setNlFacets, setRegisterFilter],
+    [applyGroupByResource, navHref, router, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return {

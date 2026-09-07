@@ -1436,3 +1436,4 @@
 {"at":"2026-09-07T22:09:46.2219638Z","zoneId":"core-findings-advice","outcome":"hit"}
 {"at":"2026-09-07T22:16:15.2254894Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T22:22:11.7531177Z","zoneId":"core-requests-constraints","outcome":"hit"}
+{"at":"2026-09-07T22:35:00.6521705Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}

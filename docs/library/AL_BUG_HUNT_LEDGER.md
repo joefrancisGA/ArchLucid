@@ -9979,11 +9979,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — workspace saved view load left stale review scope in URL
+- **last-bug:** 2026-09-07 — run-scoped saved view load merged stale URL params
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9992,8 +9992,12 @@ ABQ-09 churn hotspot.
 ### Hypotheses
 
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — workspace saved view load does not clear stale `runId` scope — **hit 2026-09-07 hunt #1188 (seed→hit):** loading a saved view with `scopedRunId: null` while the URL still had `?runId=` left review scope active because only the scoped-run branch called navigation; fixed with `governanceFindingsWorkspaceSavedViewHref` and a final `router.replace` when the saved view is workspace-wide; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — run-scoped saved view load merged stale URL params instead of rebuilding from saved filters — **hit 2026-09-07 hunt #1279 (seed→hit):** run-scoped branch delegated to `onPickReviewForTriage`, which only set `runId` on the current query string so stale `filter` / `architectureId` survived after `setRegisterFilter`; fixed with `governanceFindingsRunScopedSavedViewHref`; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
+- [ ] (candidate) `GovernanceFindingsQueueClient.clearAllFilters` — clears register/facet state but `governanceFindingsSearchHrefFromSearch` preserves review/architecture scope query params (may be intentional because scope chips live outside the active-filter strip)
 
 2026-09-07 seed hunt #1188 (hit): seeded zone from ABQ-09 churn hotspot; proved saved-view scope leak on workspace-wide load.
+
+2026-09-07 seed hunt #1279 (hit): reseeded run-scoped saved-view URL merge hypothesis from `onLoadFindingsSavedView` + `onPickReviewForTriage`; 5 scoped saved-view unit tests passed.
 
 ---
 

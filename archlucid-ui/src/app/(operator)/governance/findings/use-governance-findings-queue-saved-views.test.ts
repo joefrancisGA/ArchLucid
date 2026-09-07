@@ -50,6 +50,22 @@ const workspaceSavedView: OperatorSavedView = {
   },
 };
 
+const runScopedSavedView: OperatorSavedView = {
+  id: "saved-run-open",
+  name: "Run open",
+  payload: {
+    filters: {
+      registerFilter: "open",
+      jobView: DEFAULT_FINDING_JOB_VIEW,
+      nlFacets: EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+      groupByResource: false,
+      scopedRunId: "run-2",
+    },
+    sort: null,
+    columnVisibility: null,
+  },
+};
+
 describe("useGovernanceFindingsQueueSavedViews", () => {
   beforeEach(() => {
     routerReplaceMock.mockClear();
@@ -68,5 +84,16 @@ describe("useGovernanceFindingsQueueSavedViews", () => {
 
     expect(onPickReviewForTriageMock).not.toHaveBeenCalled();
     expect(routerReplaceMock).toHaveBeenCalledWith("/governance/findings?filter=open", { scroll: false });
+  });
+
+  it("rebuilds URL from saved-view filters when loading a run-scoped saved view", () => {
+    const { result } = renderSavedViewsHook("runId=run-1&filter=expiring-soon&architectureId=arch-1");
+
+    result.current.onLoadFindingsSavedView(runScopedSavedView);
+
+    expect(onPickReviewForTriageMock).not.toHaveBeenCalled();
+    expect(routerReplaceMock).toHaveBeenLastCalledWith("/governance/findings?filter=open&runId=run-2", {
+      scroll: false,
+    });
   });
 });

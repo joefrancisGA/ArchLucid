@@ -47,6 +47,27 @@ export function governanceFindingsWorkspaceSavedViewHref(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
+/** Builds a run-scoped findings URL from saved-view filters and clears architecture scope. */
+export function governanceFindingsRunScopedSavedViewHref(
+  applied: GovernanceFindingsWorkspaceSavedViewHrefInput,
+  pathname: string,
+  runId: string,
+): string {
+  const trimmedRunId = runId.trim();
+
+  if (trimmedRunId.length === 0) {
+    return governanceFindingsWorkspaceSavedViewHref(applied, pathname);
+  }
+
+  const workspaceHref = governanceFindingsWorkspaceSavedViewHref(applied, pathname);
+  const params = new URLSearchParams(workspaceHref.includes("?") ? workspaceHref.split("?")[1] ?? "" : "");
+  params.set("runId", trimmedRunId);
+
+  const nextQuery = params.toString();
+
+  return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
+}
+
 export function buildFindingsSavedViewPayload(input: {
   readonly registerFilter: RiskRegisterFilter;
   readonly jobView: FindingJobView;
