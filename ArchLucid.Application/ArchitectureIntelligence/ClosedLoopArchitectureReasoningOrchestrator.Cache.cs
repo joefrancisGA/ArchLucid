@@ -27,8 +27,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
 
         using IReviewResultCachePinScope pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
 
-        if (pinScope.IsPinned
-            && !effectiveRequest.PublishToProduct
+        if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
             && cachedContinue is not null)
         {

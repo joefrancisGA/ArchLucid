@@ -9666,8 +9666,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — blocked full reruns with existing run id stored review cache under in-memory model fingerprint
@@ -9684,9 +9684,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` / `ClosedLoopPublishStage` — identical continue requests missed review cache — **hit 2026-09-07 (#1195):** publish stage gated cache `Set` on `persistModel`, which is false for continue runs when publish is blocked and a model already exists; storage manifest also used post-pipeline `context.Model` fingerprint while lookup uses persisted baseline, so keys diverged when framing mutations were not saved; fixed by storing analysis-only continue results using persisted baseline fingerprint; regression in `RunAsync_second_identical_continue_request_is_cache_hit`
 
 - [x] (proven) `ClosedLoopPublishStage` / full-run cache storage — blocked reruns with pre-existing run id stored analysis cache under post-pipeline `context.Model` fingerprint while lookup/`PinScope` use persisted baseline — **hit 2026-09-07 (#1197):** identical analysis reruns missed cache when publish blocked and model not persisted; fixed by aligning storage manifest baseline with persisted model when `persistModel` is false (`RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`)
-- [ ] (candidate) `ReviewResultCache.Set` — returns without inserting when cache is at `MaxEntries` and every entry is pinned, leaving coalesce leader results uncached until capacity frees
-- [ ] (candidate) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun=1` content-hash prefix applies only to `Build()` while continue coalesce uses `BuildContinueFromExistingRunCoalesceManifest`; accidental full-run cache path for continue requests would partition keys incorrectly
+- [x] (proven) `ClosedLoopPublishStage` / orchestrator cache lookup — distinct storage-pin cap caused silent cache skip and lookup miss on identical analysis reruns — **hit 2026-09-07 (#1218):** `PinScope.IsPinned` gated `TryGet` and publish `Set`; at `MaxDistinctPinnedStorageKeys` (64) saturated, second identical request re-ran full pipeline; fixed by always storing and reading cache entries without requiring pin success (`RunAsync_second_identical_request_is_cache_hit_when_distinct_pin_cap_is_saturated`)
+- [x] (valid-no-repro) `ReviewResultCache.Set` — returns without inserting when cache is at `MaxEntries` and every entry is pinned — **cheap-disproof 2026-09-07 (#1218):** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) makes all-pinned-at-cap unreachable; unpinned eviction always available (`Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`)
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun=1` content-hash prefix applies only to `Build()` while continue coalesce uses `BuildContinueFromExistingRunCoalesceManifest` — **cheap-disproof 2026-09-07 (#1218):** intentional partition; continue orchestration/publish storage use coalesce manifest exclusively (`BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build`)
 
+2026-09-07 thorough hunt #1218 (hit): proved pin-cap saturation skipped review cache read/write; disproved remaining cache-cap and continue-manifest partition candidates.
 2026-09-07 seed hunt #1197 (hit): reseeded publish-stage storage manifest paths; proved blocked full reruns with existing run id missed review cache due to baseline fingerprint mismatch.
 2026-09-07 thorough hunt #1195 (hit): proved continue-from-existing review-cache skip and manifest baseline mismatch.
 

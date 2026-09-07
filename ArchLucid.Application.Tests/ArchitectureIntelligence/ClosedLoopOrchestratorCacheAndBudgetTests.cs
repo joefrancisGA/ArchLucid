@@ -320,4 +320,57 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         second.CacheHit.Should().BeTrue();
         second.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
     }
+
+    [Fact]
+    public async Task RunAsync_second_identical_request_is_cache_hit_when_distinct_pin_cap_is_saturated()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+        IReviewResultCache reviewResultCache = provider.GetRequiredService<IReviewResultCache>();
+
+        List<IReviewResultCachePinScope> saturatedPinScopes = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pin-cap-blocker-{index}" };
+            reviewResultCache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"blocker-{index}" });
+            saturatedPinScopes.Add(reviewResultCache.PinScope(manifest));
+        }
+
+        try
+        {
+            ClosedLoopReasoningRequest request = new()
+            {
+                TenantId = "tenant-cache-pin-cap",
+                DeclaredPriorities = ["Security"],
+                SourceTexts =
+                [
+                    new ClosedLoopReasoningSourceText
+                    {
+                        FileName = "architecture.md",
+                        ContentType = "text/markdown",
+                        Content = "Public API exposes customer records without authentication.",
+                    },
+                ],
+            };
+
+            ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
+            first.CacheHit.Should().BeFalse();
+
+            ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
+            second.CacheHit.Should().BeTrue();
+            second.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+        }
+        finally
+        {
+            foreach (IReviewResultCachePinScope scope in saturatedPinScopes)
+                scope.Dispose();
+        }
+    }
 }

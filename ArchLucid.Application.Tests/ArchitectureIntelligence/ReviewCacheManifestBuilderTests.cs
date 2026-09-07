@@ -266,6 +266,23 @@ public sealed class ReviewCacheManifestBuilderTests
                 model).ContentHash);
     }
 
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheDependencyManifest continueBuild = ReviewCacheManifestBuilder.Build(request);
+        ReviewCacheDependencyManifest coalesceManifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "run-continue");
+
+        coalesceManifest.ContentHash.Should().NotBe(continueBuild.ContentHash);
+        coalesceManifest.ReuseReason.Should().Be("closed-loop-continue-existing");
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

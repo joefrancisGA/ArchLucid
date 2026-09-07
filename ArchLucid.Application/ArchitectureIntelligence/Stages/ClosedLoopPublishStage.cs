@@ -214,8 +214,7 @@ public sealed class ClosedLoopPublishStage(
 
             using IReviewResultCachePinScope storagePinScope = _reviewResultCache.PinScope(storageManifest);
 
-            if (storagePinScope.IsPinned)
-                _reviewResultCache.Set(storageManifest, result);
+            _reviewResultCache.Set(storageManifest, result);
         }
 
         return result;
