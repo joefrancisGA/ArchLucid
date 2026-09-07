@@ -61,7 +61,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
         CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
 
         honesty.BlockedForWorkingCareerExport.Should().BeTrue();
-        honesty.MeasurementFloorBlockedReason.Should().Contain("Pre-finalize governance gate is off");
+        honesty.MeasurementFloorBlockedReason.Should().Contain("not a fully governed review record");
     }
 
     [Fact]

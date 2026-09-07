@@ -64,7 +64,9 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     });
 
     expect(honesty.blockedForWorkingCareerExport).toBe(true);
-    expect(honesty.measurementFloorBlockedReason).toContain("Pre-finalize governance gate is off");
+    expect(honesty.measurementFloorBlockedReason).toContain(
+      "not a fully governed review record",
+    );
   });
 
   it("blocks Working career export when quality gate is WarnOnly on real-mode", () => {
