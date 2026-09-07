@@ -7,11 +7,13 @@ import { expect, test } from "@playwright/test";
 import {
   createAdminUserInvite,
   primeJwtBrowserSession,
+  primePrivateBetaBrowserPage,
   provisionE2ePlatformUserPreAuth,
   requireLivePrivateBetaJwtEnv,
   stubEmptyArchitectureDraftListRoute,
   clearJwtBrowserSession,
 } from "./helpers/live-private-beta-access";
+import { isLiveEmailOtpLaneConfigured, liveEmailOtpLaneSkipReason } from "./helpers/live-email-otp-harness";
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
 
 const releaseGateTag = "@release-gate";
@@ -27,6 +29,8 @@ const deepLinkTargets = [
   { path: "/architecture/reviews", fragment: "/architecture/reviews" },
   { path: "/governance/findings", fragment: "/governance/findings" },
   { path: "/architecture/reviews/new", fragment: "/architecture/reviews/new" },
+  { path: "/dashboard", fragment: "/dashboard" },
+  { path: "/onboarding", fragment: "/onboarding" },
 ] as const;
 
 test.describe(
@@ -54,7 +58,7 @@ test.describe(
       expect(diagnostics.operatorBaseUrlConfigured).toBe(true);
       expect(diagnostics.localTrialIdentityConfigured).toBe(true);
 
-      await primeJwtBrowserSession(page, accessToken);
+      await primePrivateBetaBrowserPage(page, accessToken);
       await page.goto("/administration/identity-providers/diagnostics", { waitUntil: "domcontentloaded" });
 
       await expect(page.getByTestId("identity-providers-settings-shell")).toBeVisible({ timeout: 60_000 });
@@ -139,10 +143,7 @@ test.describe(
     });
 
     test("email-OTP invite path requires dedicated CI lane (skipped in jwt-bearer push)", async () => {
-      test.skip(
-        true,
-        "Email-OTP invite E2E needs NEXT_PUBLIC_ARCHLUCID_EMAIL_OTP_ENABLED, Auth:EmailOtp:Enabled, and a challenge-code capture harness — not wired in private-beta-access-on-push.yml.",
-      );
+      test.skip(!isLiveEmailOtpLaneConfigured(), liveEmailOtpLaneSkipReason());
     });
   },
 );

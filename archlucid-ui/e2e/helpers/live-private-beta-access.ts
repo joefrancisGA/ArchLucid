@@ -117,6 +117,24 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
   );
 }
 
+export type PrimePrivateBetaBrowserPageOptions = {
+  /** When true (default), stub draft inventory before navigation. */
+  readonly stubDraftList?: boolean;
+};
+
+/** JwtBearer session priming plus the default private-beta page defaults (draft-list stub). */
+export async function primePrivateBetaBrowserPage(
+  page: Page,
+  accessToken: string,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (options?.stubDraftList !== false) {
+    await stubEmptyArchitectureDraftListRoute(page);
+  }
+
+  await primeJwtBrowserSession(page, accessToken);
+}
+
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
