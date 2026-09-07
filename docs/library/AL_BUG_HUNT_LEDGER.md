@@ -9110,22 +9110,29 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-tenancy-workspaces
 - **split-from:** api-governance-tenancy-controllers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — `DeletedUtc ?? CreatedUtc` fallback advertised `purgeAfterUtc` while retention purge worker requires `DeletedUtc IS NOT NULL` — **hit 2026-09-07 (#1172):** orphan `IsDeleted=1` rows without `DeletedUtc` surfaced a purge deadline that would never execute; fixed by listing only rows with `DeletedUtc` before computing retention schedule (`ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`)
+- [ ] (candidate) `DapperArchitectureProjectRepository.TryRestoreAsync` — active name collision check omits `TenantId` (InMemory parity gap; SQL workspace PK mitigates)
+- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — recycle bin lists all deleted workspace projects but restore requires `projectId == scope.ProjectId` (product scope-binding vs admin recycle-bin UX)
+- [ ] (candidate) Cross-workspace delete/restore via foreign route `workspaceId` — disproved by existing scope guards (`DeleteProjectAsync` / `RestoreProjectAsync` tests)
+
+2026-09-07 seed hunt #1172 (hit): reseeded tenancy workspace controllers; proved recycle-bin purge schedule false promise for soft-deletes missing `DeletedUtc`.
 
 ---
 ## Zone: application-agents
