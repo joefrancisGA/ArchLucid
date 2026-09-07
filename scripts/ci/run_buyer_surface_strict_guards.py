@@ -432,6 +432,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "policy-pack compounding-evidence ledger",
+        ("python", "scripts/ci/check_policy_pack_compounding_evidence_ledger.py"),
+        None,
+    ),
+    GuardCommand(
         "proof-language superlatives",
         ("python", "scripts/ci/check_proof_language_superlatives.py"),
         "--advisory",
