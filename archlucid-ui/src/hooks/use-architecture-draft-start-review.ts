@@ -19,7 +19,7 @@ import {
   scopeBulletsFingerprint,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import {
   architectureDraftQualityAttrEncourageConfirmHrefFromSearch,
   parseArchitectureDraftQualityAttrEncourageOpenFromSearch,
@@ -40,6 +40,7 @@ type UseArchitectureDraftStartReviewOptions = {
   readonly briefFrozen: boolean;
   readonly linkedReviewId: string | null;
   readonly effectiveDraftId: string;
+  readonly parentArchitectureId?: string | null;
   readonly fields: ArchitectureDraftFieldState;
   readonly actorSet: ActorSet;
   readonly draft: DraftRequestResponse | null;
@@ -233,7 +234,13 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
         );
       }
 
-      reviewStartProgress.openReview(startReviewFromArchitectureHref(options.effectiveDraftId));
+      reviewStartProgress.openReview(
+        startReviewFromDraftContextHref({
+          parentArchitectureId: options.parentArchitectureId,
+          draftArchitectureId: options.draft?.architectureId,
+          legacyDraftId: options.effectiveDraftId,
+        }),
+      );
     } catch {
       reviewStartProgress.reset();
       setStartReviewError("Could not start the architecture review. Try again.");
@@ -241,6 +248,7 @@ export function useArchitectureDraftStartReview(options: UseArchitectureDraftSta
   }, [
     options.draft,
     options.effectiveDraftId,
+    options.parentArchitectureId,
     options.fields.freeTextIntent,
     options.isNewDraft,
     options.linkedReviewId,

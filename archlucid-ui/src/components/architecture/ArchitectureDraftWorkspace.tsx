@@ -272,6 +272,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     briefFrozen,
     linkedReviewId,
     effectiveDraftId,
+    parentArchitectureId: props.parentArchitectureId,
     fields,
     actorSet,
     draft,

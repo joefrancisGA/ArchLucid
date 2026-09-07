@@ -13,6 +13,8 @@ import {
   isArchitectureNewDraftSegment,
   resolveArchitectureReviewHref,
   startReviewFromArchitectureHref,
+  startReviewFromDraftContextHref,
+  resolveStartReviewSourceArchitectureId,
 } from "@/lib/architecture/architecture-routes";
 
 describe("architecture-routes", () => {
@@ -24,6 +26,31 @@ describe("architecture-routes", () => {
     expect(architectureDraftPath("draft-1")).toBe("/architecture/architectures/draft-1");
     expect(startReviewFromArchitectureHref("architecture-identity-001")).toBe(
       "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
+    );
+  });
+
+  it("AO-08: start-review from draft context prefers ArchitectureId over draft id", () => {
+    expect(
+      resolveStartReviewSourceArchitectureId({
+        parentArchitectureId: "architecture-identity-001",
+        draftArchitectureId: "draft-001",
+      }),
+    ).toBe("architecture-identity-001");
+    expect(
+      startReviewFromDraftContextHref({
+        parentArchitectureId: "architecture-identity-001",
+        legacyDraftId: "draft-001",
+      }),
+    ).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
+    );
+    expect(
+      startReviewFromDraftContextHref({
+        draftArchitectureId: "architecture-identity-002",
+        legacyDraftId: "draft-legacy",
+      }),
+    ).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-002",
     );
   });
 

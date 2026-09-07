@@ -10,14 +10,14 @@ function entry(
   overrides: Partial<ArchitectureDraftRegistryEntry> = {},
 ): ArchitectureDraftRegistryEntry {
   return {
-    draftId: overrides.draftId ?? "draft-001",
-    displayName: overrides.displayName ?? "Vertex",
-    customerStatus: overrides.customerStatus ?? "draft",
-    ownerLabel: overrides.ownerLabel ?? "You",
-    lastUpdatedUtc: overrides.lastUpdatedUtc ?? "2026-01-01T00:00:00.000Z",
-    linkedReviewId: overrides.linkedReviewId ?? null,
-    serverUpdatedUtc: overrides.serverUpdatedUtc ?? "2026-01-01T00:00:00.000Z",
-    serverDraftStatus: overrides.serverDraftStatus,
+    draftId: "draft-001",
+    displayName: "Vertex",
+    customerStatus: "draft",
+    ownerLabel: "You",
+    lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+    linkedReviewId: null,
+    serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+    ...overrides,
   };
 }
 
@@ -49,6 +49,18 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
 
     expect(action).toEqual({
       href: "/architecture/architectures/draft-001",
+      ctaLabel: "Resume latest draft",
+      kind: "resume-draft",
+    });
+  });
+
+  it("AO-08: nested draft workspace when parent architecture id is known", () => {
+    const action = resolveOperatorHomeLatestDraftPrimaryAction(
+      entry({ parentArchitectureId: "architecture-identity-001" }),
+    );
+
+    expect(action).toEqual({
+      href: "/architecture/architectures/architecture-identity-001/drafts/draft-001",
       ctaLabel: "Resume latest draft",
       kind: "resume-draft",
     });

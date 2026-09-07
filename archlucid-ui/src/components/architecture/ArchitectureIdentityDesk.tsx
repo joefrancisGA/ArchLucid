@@ -8,6 +8,7 @@ import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehy
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
+import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
@@ -97,6 +98,8 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         latestReviewId={identity.latestReviewId}
         drafts={identity.drafts}
       />
+
+      <ArchitectureIdentityDeskInFlightSection architectureId={identity.architectureId} />
 
       {latestSealedManifestId.length > 0 && identity.latestReviewId !== null && identity.latestReviewId !== undefined ? (
         <p className={OPERATOR_TYPOGRAPHY.body}>

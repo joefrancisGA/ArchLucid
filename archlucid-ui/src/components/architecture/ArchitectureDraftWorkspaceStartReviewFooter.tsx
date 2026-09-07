@@ -16,7 +16,7 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import {
   ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
 } from "@/lib/architecture/architecture-draft-intake-mode";
-import { resolveArchitectureReviewHref, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref, startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
@@ -96,7 +96,10 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
     nextDraft,
   } = props;
 
-  const startReviewArchitectureId = parentArchitectureId?.trim() ?? effectiveDraftId;
+  const startReviewHref = startReviewFromDraftContextHref({
+    parentArchitectureId,
+    legacyDraftId: effectiveDraftId,
+  });
 
   return (
     <>
@@ -146,7 +149,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         >
           {intakeModeActive && linkedReviewId === null ? (
             <Button type="button" variant="primary" size="sm" asChild>
-              <Link href={startReviewFromArchitectureHref(startReviewArchitectureId)}>
+              <Link href={startReviewHref}>
                 {ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}
               </Link>
             </Button>
@@ -182,7 +185,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         ) : null}
         {reviewStartProgress.stalled ? (
           <ReviewStartNavigationStallNotice
-            href={startReviewFromArchitectureHref(startReviewArchitectureId)}
+            href={startReviewHref}
             testId="architecture-start-review-stall"
           />
         ) : null}

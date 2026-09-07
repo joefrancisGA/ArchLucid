@@ -5,6 +5,7 @@ import {
   resolveArchitectureReviewHref,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 /**
  * Redirects legacy Working peer review URLs to nested architecture job URLs (ADR 0077 / AO-06).
@@ -62,4 +63,16 @@ export function resolveArchitectureReviewHrefForWorkingDesk(
 
 export function architectureDeskPath(architectureId: string): string {
   return architectureIdentityPath(architectureId);
+}
+
+/** Nested or peer review workspace tab deep link when architecture id is known (AO-08). */
+export function resolveArchitectureReviewTabHref(
+  reviewId: string,
+  tab: ReviewDetailTabId,
+  architectureId?: string | null,
+): string {
+  const base = resolveArchitectureReviewHref(reviewId, architectureId);
+  const params = new URLSearchParams({ reviewTab: tab });
+
+  return `${base}?${params.toString()}`;
 }

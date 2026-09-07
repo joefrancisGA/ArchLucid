@@ -11,7 +11,6 @@ import { ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY } from "@/lib/architect
 import {
   architectureIdentityPath,
   ARCHITECTURES_LIST_PATH,
-  reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { OPERATOR_LINK } from "@/lib/design-tokens";

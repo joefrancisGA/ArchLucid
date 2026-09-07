@@ -102,6 +102,41 @@ export function startReviewFromArchitectureHref(architectureId: string): string 
   return `${REVIEWS_NEW_PATH}?${qs.toString()}`;
 }
 
+/** Resolves durable ArchitectureId for guided-intake `sourceArchitectureId` (AO-08 / CA-16). */
+export function resolveStartReviewSourceArchitectureId(input: {
+  readonly parentArchitectureId?: string | null;
+  readonly draftArchitectureId?: string | null;
+}): string | null {
+  const parent = input.parentArchitectureId?.trim() ?? "";
+
+  if (parent.length > 0) {
+    return parent;
+  }
+
+  const fromDraft = input.draftArchitectureId?.trim() ?? "";
+
+  if (fromDraft.length > 0) {
+    return fromDraft;
+  }
+
+  return null;
+}
+
+/**
+ * Start-review href from draft context — prefers ArchitectureId over legacy draft id (AO-08).
+ * `legacyDraftId` remains for Guided rows before ensure-on-create has run.
+ */
+export function startReviewFromDraftContextHref(input: {
+  readonly parentArchitectureId?: string | null;
+  readonly draftArchitectureId?: string | null;
+  readonly legacyDraftId?: string | null;
+}): string {
+  const architectureId =
+    resolveStartReviewSourceArchitectureId(input) ?? input.legacyDraftId?.trim() ?? "";
+
+  return startReviewFromArchitectureHref(architectureId);
+}
+
 export function isArchitectureDraftPath(pathname: string): boolean {
   return pathname === ARCHITECTURES_LIST_PATH || pathname.startsWith(`${ARCHITECTURES_LIST_PATH}/`);
 }
