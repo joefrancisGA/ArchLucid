@@ -88,7 +88,12 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;
-  const { daily, more } = splitSidebarLinksDailyVsMore(group.id, linksForRender, props.pathname ?? "/");
+  const { daily, more } = splitSidebarLinksDailyVsMore(
+    group.id,
+    linksForRender,
+    props.pathname ?? "/",
+    workingMode,
+  );
   const urlMoreGroupOpen = parseSidebarNavMoreGroupFromSearch(sidebarMoreGroupParam) === group.id;
   const moreOpen = more.length > 0 && urlMoreGroupOpen;
 

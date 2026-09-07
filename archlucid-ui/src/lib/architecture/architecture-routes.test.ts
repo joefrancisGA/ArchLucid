@@ -27,9 +27,9 @@ describe("architecture-routes", () => {
     );
   });
 
-  it("pins identity desk child draft href for post-create navigation (CA-24)", () => {
+  it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {
     expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
-      "/architecture/architectures/architecture-identity-001?draft=draft-001",
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
     );
   });
 

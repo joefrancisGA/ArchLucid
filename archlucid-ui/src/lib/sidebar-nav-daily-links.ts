@@ -7,6 +7,11 @@ import {
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import {
+  ARCHITECTURES_LIST_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
@@ -90,6 +95,36 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
   ],
 };
 
+/**
+ * Working sidebar daily strip — architecture portfolio leads; insight tools bind later (AO-14 / ADR 0077).
+ * Empty arrays demote every link in that group to “more” until the active route is promoted.
+ */
+export const SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING: Readonly<Record<string, readonly string[]>> = {
+  pilot: [
+    ARCHITECTURES_LIST_PATH,
+    REVIEWS_LIST_PATH,
+    "/",
+    SIGNED_RECORDS_LIST_PATH,
+    SPONSOR_DASHBOARD_HREF,
+  ],
+  "operate-analysis": [],
+};
+
+function resolveSidebarDailyHrefs(
+  groupId: string,
+  workingMode: boolean,
+): readonly string[] | undefined {
+  if (workingMode) {
+    if (groupId in SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING) {
+      return SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING[groupId];
+    }
+
+    return SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+  }
+
+  return SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+}
+
 export type SidebarDailyLinkSplit = {
   readonly daily: NavLinkItem[];
   readonly more: NavLinkItem[];
@@ -103,11 +138,25 @@ export function splitSidebarLinksDailyVsMore(
   groupId: string,
   links: readonly NavLinkItem[],
   pathname: string,
+  workingMode = false,
 ): SidebarDailyLinkSplit {
-  const dailyHrefs = SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+  const dailyHrefs = resolveSidebarDailyHrefs(groupId, workingMode);
 
-  if (dailyHrefs === undefined || dailyHrefs.length === 0) {
+  if (dailyHrefs === undefined) {
     return { daily: [...links], more: [] };
+  }
+
+  if (dailyHrefs.length === 0) {
+    const activeInMore = links.find((link) => sidebarLinkMatchesPathname(pathname, link.href));
+
+    if (activeInMore !== undefined) {
+      return {
+        daily: [activeInMore],
+        more: links.filter((link) => link.href !== activeInMore.href),
+      };
+    }
+
+    return { daily: [], more: [...links] };
   }
 
   const dailyHrefSet = new Set(dailyHrefs);
