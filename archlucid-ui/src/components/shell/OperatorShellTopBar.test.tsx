@@ -124,6 +124,12 @@ vi.mock("@/components/CommandPaletteLazy", () => ({
   preloadCommandPaletteChunk: vi.fn(),
 }));
 
+vi.mock("@/components/shell/operator-shell-top-bar-deferred-chunks", async (importOriginal) =>
+  (await import("@/testing/operator-shell-top-bar-deferred-chunks-vitest-mock")).buildOperatorShellTopBarDeferredChunksVitestMock(
+    importOriginal as () => Promise<typeof import("@/components/shell/operator-shell-top-bar-deferred-chunks")>,
+  ),
+);
+
 function openMoreMenu(): void {
   fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
 }
@@ -280,7 +286,7 @@ describe("OperatorShellTopBar", () => {
 
     const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
-    const accountTrigger = screen.getByTestId("account-settings-menu-trigger");
+    const accountTrigger = await screen.findByTestId("account-settings-menu-trigger");
 
     expect(scopeTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
     expect(helpTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
