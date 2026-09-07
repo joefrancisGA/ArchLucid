@@ -986,9 +986,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1241 (hit): proved run-list exclude probe false-pass on HTTP 401; cheap-disproof PascalCase `RunId` candidate against `ArchLucidApiJsonSerializerOptions` camelCase policy.
 
 - [x] (proven) Cross-tenant run-list exclude probe false-passed when `/v1/runs` returned `hasMore: true` without `nextCursor` — **hit 2026-09-07 seed hunt #1245:** `AuthorityReadsController` omits `nextCursor` when `HasMore` is true but the page is empty; probe treated the truncated scan as foreign runId absent; fixed with `RunListClaimsMorePages` → `ScanIncomplete` → SKIP; regressions in `RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing` and `RunLiveAsync_SkipsRunListProbeWhenHasMoreTrueWithoutNextCursor`.
-- [ ] (candidate) Offline manifest replay cannot express run-list scan truncation (`hasMore` without cursor or pagination cap) — `EvaluateExcludeRunIdProbeVerdict` only reads status code + `foreignRunIdVisible`; no failing repro in zone yet.
+- [x] (invalid) Offline manifest replay cannot express run-list scan truncation (`hasMore` without cursor or pagination cap) — **cheap-disproof 2026-09-07 hunt #1246:** `EvaluateReplayProbe` honors explicit manifest `verdict: "skip"` for exclude-run-id probes before status/visibility re-derivation; non-2xx list statuses also map to SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksSkipForScanTruncation`.
+- [x] (valid-no-repro) Offline overall verdict stays PASS when a cross-tenant list probe is SKIP while other probes pass — **cheap-disproof 2026-09-07 hunt #1246:** intentional fixture-mode divergence from live-api (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped`); offline manifests replay authored scenarios rather than re-executing live pagination.
 
-2026-09-07 seed hunt #1245 (hit): reseeded cli-tenant-isolation zone; proved hasMore-without-cursor false-pass; seeded offline scan-truncation manifest candidate.
+2026-09-07 thorough hunt #1246 (dry): cheap-disproved offline scan-truncation manifest candidate; documented offline-vs-live overall SKIP divergence as valid-no-repro.
 
 ---
 
