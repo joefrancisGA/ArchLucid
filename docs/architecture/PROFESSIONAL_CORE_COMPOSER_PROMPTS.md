@@ -2,6 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13
 > **Paste-ready files:** [`.cursor/prompts/professional-core-00-index.md`](../../.cursor/prompts/professional-core-00-index.md) (**PC-01–PC-13**)
 > **Successor (wave 16):** [`DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md`](DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md) (**DR-01–DR-16**) — do **not** add PC-14; paste DR files instead.
+> **Wave 17 locator (after identity exists):** [`ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md`](ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md) (**AO-01–50**) — do **not** add PC-14; issue #1 only.
 
 # Professional-core Composer prompts (PC-01–PC-13)
 
