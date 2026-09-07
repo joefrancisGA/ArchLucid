@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   resolveCareerExportBlockedReason,
   type CareerExportClassificationCounts,
