@@ -3,14 +3,15 @@
 import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AZURE_CONNECTION_CLIENT_APP_ID_HINT,
   AZURE_CONNECTION_CLIENT_APP_ID_LABEL,
-  AZURE_CONNECTION_IDS_STEP_LEAD,
+  azureConnectionIdsStepLead,
+  azureConnectionTenantIdHint,
   AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT,
   AZURE_CONNECTION_SUBSCRIPTION_IDS_LABEL,
-  AZURE_CONNECTION_TENANT_ID_HINT,
   AZURE_CONNECTION_TENANT_ID_LABEL,
 } from "@/lib/azure-cloud-connection-copy";
 import { cn } from "@/lib/utils";
@@ -39,13 +40,17 @@ export function Tier2ConnectionIdsStep({
   displayFieldErrors,
   clearFieldError,
 }: Tier2ConnectionIdsStepProps): React.ReactElement {
+  const { productLine } = useLocalizedProductCopy();
+  const idsStepLead = azureConnectionIdsStepLead(productLine);
+  const tenantIdHint = azureConnectionTenantIdHint(productLine);
+
   return (
     <section className="space-y-4" aria-labelledby="tier2-wizard-ids-heading">
       <div>
         <h3 id="tier2-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
           Enter connection identifiers
         </h3>
-        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_CONNECTION_IDS_STEP_LEAD}</p>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{idsStepLead}</p>
       </div>
 
       <div className="space-y-4 max-w-xl">
@@ -53,7 +58,7 @@ export function Tier2ConnectionIdsStep({
           <FormFieldLabelWithHelp
             htmlFor="tier2TenantId"
             label={AZURE_CONNECTION_TENANT_ID_LABEL}
-            hint={AZURE_CONNECTION_TENANT_ID_HINT}
+            hint={tenantIdHint}
           />
           <Input
             id="tier2TenantId"

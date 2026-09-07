@@ -12,7 +12,6 @@ import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DEV_CHROME_MARKER_CLASS, DEV_CHROME_SURFACE_CLASS } from "@/lib/dev-chrome-treatment";
 import { cn } from "@/lib/utils";
-import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
 
 import {
   DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT,
@@ -262,8 +261,6 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
           </div>
 
           <DevTestingQuickJumpLinks snapshot={quickJumpSnapshot} loading={quickJumpLoading} />
-
-          <ProductLineSwitchBar />
 
           <DevTestingResetDatabaseButton />
         </div>

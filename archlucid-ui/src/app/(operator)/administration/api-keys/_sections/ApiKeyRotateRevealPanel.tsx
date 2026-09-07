@@ -1,6 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 
-import { API_KEYS_ONE_TIME_COPY_NOTICE } from "@/lib/api-keys-settings-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { apiKeysOneTimeCopyNotice } from "@/lib/api-keys-settings-copy";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -14,6 +17,8 @@ export type ApiKeyRotateRevealPanelProps = {
 };
 
 export function ApiKeyRotateRevealPanel(props: ApiKeyRotateRevealPanelProps): React.JSX.Element {
+  const { productLine } = useLocalizedProductCopy();
+
   return (
     <Card data-testid="api-key-rotate-reveal">
       <CardHeader>
@@ -21,7 +26,7 @@ export function ApiKeyRotateRevealPanel(props: ApiKeyRotateRevealPanelProps): Re
       </CardHeader>
       <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
         <p className={cn("m-0 text-rose-900 dark:text-rose-100", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {API_KEYS_ONE_TIME_COPY_NOTICE}
+          {apiKeysOneTimeCopyNotice(productLine)}
         </p>
         <label className="block space-y-1">
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>Key value</span>

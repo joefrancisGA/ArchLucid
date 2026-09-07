@@ -17,6 +17,7 @@ import {
   readAzureHostedFederationConfig,
 } from "@/lib/azure-cloud-connection-federation-config";
 import { cloudSecurityPreflightTopics, type CloudSecurityPreflightVerificationState } from "@/lib/cloud-security-preflight-topics";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import {
@@ -99,6 +100,7 @@ export function useTier2ConnectionWizard({
   const securityStepOffset = skipSecurityStep ? 1 : 0;
   const canMutate = useOperateCapability();
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
+  const { productLine } = useProductLine();
   const { data: trialPayload } = useTenantTrialStatusQuery();
   const isEditing = initialConnection !== null;
   const [step, setStepState] = useState(() => {
@@ -157,7 +159,10 @@ export function useTier2ConnectionWizard({
     () => isAzureHostedFederationConfigComplete(federationConfig),
     [federationConfig],
   );
-  const federationIdentifiers = useMemo(() => tier2AzureFederationIdentifiers(federationConfig), [federationConfig]);
+  const federationIdentifiers = useMemo(
+    () => tier2AzureFederationIdentifiers(federationConfig, productLine),
+    [federationConfig, productLine],
+  );
 
   useEffect(() => {
     if (initialConnection === null) {
@@ -313,13 +318,13 @@ export function useTier2ConnectionWizard({
   const markVerifiableTopicsVerified = useCallback(() => {
     const verifiedUtc = new Date().toISOString();
     const nextState = Object.fromEntries(
-      cloudSecurityPreflightTopics("azure")
+      cloudSecurityPreflightTopics("azure", productLine)
         .filter((topic) => topic.verifiableAfterConnection === true)
         .map((topic) => [topic.id, { verifiedUtc }]),
     ) as CloudSecurityPreflightVerificationState;
 
     setVerifiedTopics(nextState);
-  }, []);
+  }, [productLine]);
 
   const handleValidateHostedRun = useCallback(async () => {
     if (!canRunValidation) {
@@ -419,6 +424,7 @@ export function useTier2ConnectionWizard({
     verifiedTopics,
     federationIdentifiers,
     setupScript,
+    productLine,
     handleNext,
     handleBack,
     handleSave,

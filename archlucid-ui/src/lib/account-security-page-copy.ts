@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 /** Operator-facing copy for `/account/security` (TB-1881). */
 
 export const ACCOUNT_SECURITY_PAGE_TITLE = "Sign-in methods" as const;
@@ -25,6 +28,10 @@ export const ACCOUNT_SECURITY_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const ACCOUNT_SECURITY_AUTH_GATE_MESSAGE =
   "Sign-in methods need a signed-in ArchLucid account. Sign in to continue." as const;
+
+export function accountSecurityAuthGateMessage(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, ACCOUNT_SECURITY_AUTH_GATE_MESSAGE);
+}
 
 export const ACCOUNT_SECURITY_DEMO_GATE_MESSAGE =
   "Sign-in methods are not part of the demo workspace." as const;

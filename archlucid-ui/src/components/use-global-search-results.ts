@@ -100,10 +100,16 @@ export function useGlobalSearchResults(
         architecturePackageScoped && architectureScopedRunIds !== null
           ? {
               ...body,
-              runs: (body.runs ?? []).filter((run) => architectureScopedRunIds.has(run.runId)),
-              findings: (body.findings ?? []).filter((finding) =>
-                architectureScopedRunIds.has(finding.runId),
-              ),
+              runs: (body.runs ?? []).filter((run) => {
+                const runId = run.runId?.trim() ?? "";
+
+                return runId.length > 0 && architectureScopedRunIds.has(runId);
+              }),
+              findings: (body.findings ?? []).filter((finding) => {
+                const runId = finding.runId?.trim() ?? "";
+
+                return runId.length > 0 && architectureScopedRunIds.has(runId);
+              }),
             }
           : body;
       setResults(scopedBody);

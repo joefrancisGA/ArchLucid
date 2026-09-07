@@ -53,6 +53,7 @@ import {
   parseWebhooksTechnicalEventNameEventIdFromSearch,
   webhooksTechnicalEventNameDisclosureHrefFromSearch,
 } from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -135,6 +136,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
     webhooksCreateSteps,
     webhooksCreateEmphasizedStepId,
   } = props;
+  const { localize } = useLocalizedProductCopy();
 
   return (
     <section
@@ -209,7 +211,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               {...register("webhookUrl")}
             />
             <p id="webhook-url-helper" className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {WEBHOOKS_DESTINATION_URL_HELPER}
+              {localize(WEBHOOKS_DESTINATION_URL_HELPER)}
             </p>
             {errors.webhookUrl?.message !== undefined ? (
               <p
@@ -249,7 +251,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               </Button>
             </div>
             <p id="webhook-secret-helper" className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {WEBHOOKS_SIGNING_SECRET_HELPER}
+              {localize(WEBHOOKS_SIGNING_SECRET_HELPER)}
             </p>
             {errors.secret?.message !== undefined ? (
               <p
@@ -283,9 +285,9 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
             {WEBHOOKS_DELIVERY_CONTRACT_HEADING}
           </summary>
           <div className={cn("mt-3 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <p className="m-0">{WEBHOOKS_ABOUT_WHEN_TO_USE}</p>
-            <p className="m-0">{WEBHOOKS_ABOUT_WHAT_WE_SEND}</p>
-            <p className="m-0">{WEBHOOKS_ABOUT_SECURITY}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_WHEN_TO_USE)}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_WHAT_WE_SEND)}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_SECURITY)}</p>
             <p className="m-0">{WEBHOOKS_ABOUT_DEVELOPERS}</p>
             <p className="m-0">{WEBHOOKS_CLOUD_EVENTS_ENVELOPE_NOTE}</p>
             <div>
@@ -310,7 +312,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               </p>
               <p className="m-0 mt-2">{WEBHOOKS_SIGNATURE_ALGORITHM}</p>
               <p className="m-0 mt-2">{WEBHOOKS_SIGNATURE_VERIFICATION}</p>
-              <p className="m-0 mt-2 text-al-text-primary">{WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE}</p>
+              <p className="m-0 mt-2 text-al-text-primary">{localize(WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE)}</p>
             </div>
           </div>
         </details>
@@ -318,7 +320,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
 
       <div className={OPERATOR_LAYOUT.sectionStack}>
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{WEBHOOKS_FORM_EVENTS_HEADING}</h3>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{WEBHOOKS_EVENTS_HELPER}</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(WEBHOOKS_EVENTS_HELPER)}</p>
 
         {showAlertSeverityFilter ? (
           <div>

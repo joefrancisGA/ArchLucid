@@ -3,6 +3,7 @@ using System.Net;
 
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
@@ -60,10 +61,7 @@ internal static class SamlCertExpiryNotificationWork
             return;
 
         EmailNotificationOptions emailOptions = emailOptionsMonitor.CurrentValue;
-        string productName =
-            string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
-                ? "ArchLucid"
-                : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase =
             string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
                 ? null

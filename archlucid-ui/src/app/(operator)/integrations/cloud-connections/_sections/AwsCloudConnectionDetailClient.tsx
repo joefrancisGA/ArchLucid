@@ -4,8 +4,9 @@ import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-o
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { AWS_TRUST_STARTER_IDENTITY_INTRO } from "@/lib/aws-cloud-connection-trust-policy-starter";
+import { awsTrustStarterIdentityIntro } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { awsConnectionStatusTagKind } from "@/lib/aws-connection-present";
 import {
   CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -69,22 +70,25 @@ function AwsCloudConnectionPageHeader(): React.ReactElement {
 }
 
 function AwsCloudConnectionDetailBody(): React.ReactElement {
+  const { productLine, localize } = useLocalizedProductCopy();
+
   return (
     <>
       <CloudProviderDetailLayout
         providerLabel="AWS"
         overview={
           <p className={OPERATOR_TYPOGRAPHY.body}>
-            Connect an AWS account for scheduled read-only inventory collection. ArchLucid stores connection
-            metadata only — no long-lived access keys.
+            {localize(
+              "Connect an AWS account for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no long-lived access keys.",
+            )}
           </p>
         }
         securityPreflight={
-          <CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws")} providerLabel="AWS" />
+          <CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws", productLine)} providerLabel="AWS" />
         }
         identitySetup={
           <div className="space-y-4">
-            <p className={OPERATOR_TYPOGRAPHY.body}>{AWS_TRUST_STARTER_IDENTITY_INTRO}</p>
+            <p className={OPERATOR_TYPOGRAPHY.body}>{awsTrustStarterIdentityIntro(productLine)}</p>
             <AwsTrustPolicyStarterPanel />
           </div>
         }
@@ -94,8 +98,9 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
         technicalDetails={
           <CloudSecurityPreflightTechnicalDetails>
             <p>
-              ArchLucid assumes your read-only IAM role through OIDC federation from its hosted identity. You only
-              configure AWS on this page — no other cloud subscription is required for this connection.
+              {localize(
+                "ArchLucid assumes your read-only IAM role through OIDC federation from its hosted identity. You only configure AWS on this page — no other cloud subscription is required for this connection.",
+              )}
             </p>
             <p>
               <Link href={inAppHelpHref("cloud-connections-aws")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
