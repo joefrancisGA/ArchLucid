@@ -24,14 +24,12 @@ export type CompareProvenanceDeltaBandProps = {
   readonly manifestDiffs?: readonly DiffItem[];
 };
 
-/** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). */
+/** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). Guided keeps a compact summary. */
 export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProps): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
-  const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId, {
-    enabled: isWorkingMode,
-  });
+  const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId);
 
-  if (!isWorkingMode || query.data === undefined) {
+  if (query.data === undefined) {
     return null;
   }
 
@@ -58,6 +56,28 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
 
   const baselineSkippedMust = listSkippedMustQuestionKeys(summary.baseline.trail).length;
   const targetSkippedMust = listSkippedMustQuestionKeys(summary.target.trail).length;
+
+  if (!isWorkingMode) {
+    return (
+      <section
+        id="compare-provenance"
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="compare-provenance-delta-band"
+      >
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Assumption and provenance delta
+        </h2>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Baseline asserted {summary.baseline.trail?.asserted.length ?? 0}, skipped MUST {baselineSkippedMust} ·
+          Updated asserted {summary.target.trail?.asserted.length ?? 0}, skipped MUST {targetSkippedMust}.
+          {summary.assumptionDiffCount > 0
+            ? ` Manifest assumptions changed in ${summary.assumptionDiffCount} row${summary.assumptionDiffCount === 1 ? "" : "s"}.`
+            : ""}{" "}
+          Open Technical details for the full trail.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section
