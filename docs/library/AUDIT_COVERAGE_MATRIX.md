@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:423 -->
+<!-- audit-core-const-count:429 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -476,6 +476,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AuthTokenDiagnosticRequested` | `Auth.TokenDiagnosticRequested` | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) |
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `FindingFeedbackRecorded` | `FindingFeedbackRecorded` | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) |
+| `FindingInsightSignalRecorded` | `FindingInsightSignalRecorded` | `FindingInsightSignalController` (`POST /v1/runs/{runId}/findings/{findingId}/insight-signal`) |
 | `FindingAskConversationPersisted` | `FindingAskConversationPersisted` | `IAskService.AskAboutFindingAsync` (`POST /v1/architecture/finding/{findingId}/ask`) |
 | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentController` (`PUT /v1/findings/{findingId}/remediation-assignment`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
@@ -587,6 +588,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
 | `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
 | `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
+| `ArchitectureIdentityArchived` | `ArchitectureIdentity.Archived` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: true`) |
+| `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |
@@ -595,6 +598,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeSubmitted` | `DraftIntake.Submitted` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/submit`) |
 | `DraftIntakeTerminalPurged` | `DraftIntake.TerminalPurged` | `DraftIntakeReaperService` (background terminal draft purge) |
 | `EvidenceBulkAttached` | `EvidenceBulkAttached` | `EvidenceBulkUploadController` (`POST /v1/architecture/run/{runId}/evidence/bulk`) |
+| `EvidenceSourceOpened` | `EvidenceSourceOpened` | `ReviewStoredEvidenceFilesController` (`GET /v1/architecture/review/{runId}/evidence/files/{evidenceItemId}`) |
 | `EvidenceProposalPromoted` | `EvidenceProposalPromoted` | `EvidenceProposalsController` (`POST /v1/admin/evidence/proposals/{resultId}/promote`) |
 | `PolicyPackCreated` | `PolicyPackCreated` | `PolicyPacksAppService` |
 | `PolicyPackVersionPublished` | `PolicyPackVersionPublished` | `PolicyPacksAppService` |
