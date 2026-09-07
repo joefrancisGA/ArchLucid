@@ -38,20 +38,23 @@ describe("KeyboardShortcutsTabContent", () => {
     expect(captions).toContain("Common");
   });
 
-  it("lists desk work before navigation when Working mode is active (PC-11 / AO-43)", () => {
+  it("lists architecture desk shortcuts before navigation when Working mode is active (AO-43)", () => {
     workspaceModeMocks.isWorkingMode = true;
 
     render(<KeyboardShortcutsTabContent />);
 
     const captions = screen.getAllByRole("table").map((table) => table.getAttribute("aria-label"));
-    const deskWorkIndex = captions.indexOf("Desk work (Working)");
+    const architectureDeskIndex = captions.indexOf("Architecture desk (Working)");
+    const nestedJobIndex = captions.indexOf("Nested job work (Working)");
     const commonIndex = captions.indexOf("Common");
 
-    expect(deskWorkIndex).toBeGreaterThan(-1);
+    expect(architectureDeskIndex).toBeGreaterThan(-1);
+    expect(nestedJobIndex).toBeGreaterThan(-1);
     expect(commonIndex).toBeGreaterThan(-1);
-    expect(deskWorkIndex).toBeLessThan(commonIndex);
+    expect(architectureDeskIndex).toBeLessThan(commonIndex);
+    expect(nestedJobIndex).toBeLessThan(commonIndex);
 
-    const deskWorkTable = screen.getByRole("table", { name: "Desk work (Working)" });
+    const deskWorkTable = screen.getByRole("table", { name: "Architecture desk (Working)" });
 
     expect(deskWorkTable).toHaveTextContent("Start review");
     expect(deskWorkTable).toHaveTextContent("resume in-flight review");

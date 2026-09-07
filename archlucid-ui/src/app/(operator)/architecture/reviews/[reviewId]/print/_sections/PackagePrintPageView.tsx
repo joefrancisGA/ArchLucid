@@ -43,6 +43,7 @@ import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFoot
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Print-friendly architecture package summary (TB-2205). */

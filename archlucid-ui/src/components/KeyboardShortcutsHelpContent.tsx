@@ -179,7 +179,10 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
       {/* Uncollapsed and first: the palette reaches every page, so it is the shortcut worth learning. */}
       <ShortcutTable entries={SHELL_COMMAND_SHORTCUTS} caption="Command palette" />
       {isWorkingMode ? (
-        <ShortcutTable entries={workingDeskWorkShortcuts} caption="Desk work (Working)" />
+        <ShortcutTable entries={ARCHITECTURE_DESK_PAGE_SHORTCUTS} caption="Architecture desk (Working)" />
+      ) : null}
+      {isWorkingMode ? (
+        <ShortcutTable entries={workingDeskWorkShortcuts} caption="Nested job work (Working)" />
       ) : null}
       <ShortcutTable entries={common} caption="Common" />
       {rest.length > 0 ? (

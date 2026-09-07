@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -15,6 +16,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
@@ -35,6 +37,8 @@ type PackagePrintPageClientProps = {
 /** Client loader for the lightweight print view — run summary only (TB-2205). */
 export function PackagePrintPageClient(props: PackagePrintPageClientProps): React.JSX.Element {
   const { runId, listScopedRunId = null } = props;
+  const pathname = usePathname() ?? "";
+  const parentArchitectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const workingDesk = useProductionDeskChrome();
   const { reviewJobHref: printBackHref } = useWorkingBackLocator({
     reviewId: runId,
@@ -139,6 +143,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
+      parentArchitectureId={parentArchitectureId}
     />
   );
 }
