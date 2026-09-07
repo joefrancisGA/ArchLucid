@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureIdentityDetail } from "@/types/architecture-identity";
 
@@ -11,6 +11,12 @@ vi.mock("@/hooks/use-architecture-identity-query", () => ({
 
 vi.mock("@/hooks/use-rehydrate-in-flight-from-architecture", () => ({
   useRehydrateInFlightOperationsFromArchitecture: vi.fn(),
+}));
+
+const useShellInFlightOperationsMock = vi.fn(() => []);
+
+vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
+  useShellInFlightOperations: () => useShellInFlightOperationsMock(),
 }));
 
 import { ArchitectureIdentityDesk } from "@/components/architecture/ArchitectureIdentityDesk";
@@ -53,6 +59,10 @@ const identityFixture: ArchitectureIdentityDetail = {
 };
 
 describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
+  beforeEach(() => {
+    useShellInFlightOperationsMock.mockReturnValue([]);
+  });
+
   it("shows one architecture with child reviews for this ArchitectureId only", () => {
     useArchitectureIdentityQueryMock.mockReturnValue({
       isLoading: false,
@@ -94,7 +104,7 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-reviews-empty")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
       "href",
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-open-1",
+      "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
     );
   });
 
@@ -122,7 +132,7 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
     expect(screen.queryByTestId("architecture-identity-open-current-draft")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-open-review")).toHaveAttribute(
       "href",
-      "/architecture/reviews/review-2",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2",
     );
     expect(screen.getByTestId("architecture-identity-new-version-from-snapshot")).toBeInTheDocument();
   });
@@ -143,5 +153,36 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
 
     expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
+  });
+
+  it("AO-21: shows in-flight chip when operations exist for this architecture", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId: "architecture-identity-001",
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-in-flight")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-in-flight-open-run:review-2")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+    );
   });
 });

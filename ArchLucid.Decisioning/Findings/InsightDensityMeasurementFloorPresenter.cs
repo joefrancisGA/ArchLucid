@@ -4,8 +4,8 @@ namespace ArchLucid.Decisioning.Findings;
 public static class InsightDensityMeasurementFloorPresenter
 {
     /// <summary>Minimum measured engines before Working career exports proceed without an explicit incomplete confirmation.</summary>
-    public const int CareerExportMeasurementFloorMinEngines =
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount;
+    public static int CareerExportMeasurementFloorMinEngines =>
+        GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount;
 
     public static InsightDensityMeasurementFloorPresentation Present(int? measuredEnginesSucceeded) =>
         Present(measuredEnginesSucceeded, context: null);

@@ -76,6 +76,17 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                     TryAddResource(childResource, declaration, results);
             }
 
+            if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement deploymentProperties)
+                && deploymentProperties.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(deploymentProperties, "template", out JsonElement template)
+                && template.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(template, "resources", out JsonElement templateResources)
+                && templateResources.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement templateResource in templateResources.EnumerateArray())
+                    TryAddResource(templateResource, declaration, results);
+            }
+
             return;
         }
 

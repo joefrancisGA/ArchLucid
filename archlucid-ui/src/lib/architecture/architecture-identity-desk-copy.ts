@@ -43,6 +43,8 @@ export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY = "No reviews yet" as cons
 
 export const ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL = "Start review" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_IN_FLIGHT_HEADING = "Review in progress" as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE = "Architecture versions" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_HONESTY =

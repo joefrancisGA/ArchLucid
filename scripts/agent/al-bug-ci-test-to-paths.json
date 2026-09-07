@@ -1,5 +1,23 @@
 {
   "_comment": "CI job / check name → production paths for ABQ-30 escape ingest. Missing or empty jobs are skipped (not unzoned). Do not map azure-extractor-pester (recursion).",
+  "_prefixes": {
+    ".NET: full regression — Api.Tests integration": ["ArchLucid.Api/"],
+    ".NET: full regression — core libraries shard": ["ArchLucid.Core/", "ArchLucid.Persistence/", "ArchLucid.Application/"]
+  },
   "dotnet-fast-core": ["ArchLucid.Core/"],
-  "Application.Tests": ["ArchLucid.Application/"]
+  "Application.Tests": ["ArchLucid.Application/"],
+  ".NET: fast core — build": ["ArchLucid.Core/", "ArchLucid.Application/", "ArchLucid.Api/"],
+  ".NET: fast core — test (Api.Tests)": ["ArchLucid.Api/"],
+  ".NET: fast core — test (Application + runtime + host)": ["ArchLucid.Application/", "ArchLucid.AgentRuntime/", "ArchLucid.Host.Core/"],
+  ".NET: fast core — test (Host composition (full DI graph))": ["ArchLucid.Host.Composition/"],
+  ".NET: fast core — test (Core + persistence stack)": ["ArchLucid.Core/", "ArchLucid.Persistence/"],
+  ".NET: fast core — test (Contracts + integrations + misc)": ["ArchLucid.Contracts/", "ArchLucid.Integrations.AzureExtractor/"],
+  ".NET: fast core (corset)": ["ArchLucid.Core/"],
+  ".NET: OpenAPI v1 contract snapshot (fail-fast)": ["ArchLucid.Api/"],
+  ".NET: full regression — Api.Tests non-integration (SQL, Category!=Slow&Category!=Integration)": ["ArchLucid.Api/"],
+  ".NET: greenfield SQL boot (empty catalog)": ["ArchLucid.Api/", "ArchLucid.Persistence/"],
+  ".NET: Tier 1.5 — DbUp migrations on empty catalog (Docker SQL)": ["ArchLucid.Persistence/"],
+  "Operator UI: typecheck (blocking)": ["archlucid-ui/src"],
+  "Operator UI: unit (Vitest)": ["archlucid-ui/src"],
+  "Operator UI: lint, typecheck, production build": ["archlucid-ui/src"]
 }

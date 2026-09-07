@@ -13,7 +13,7 @@ import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architectu
 import {
   ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
 } from "@/lib/architecture-draft-start-review-checklist";
-import { startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
 type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
@@ -26,6 +26,7 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "intakeModeActive"
   | "draft"
   | "effectiveDraftId"
+  | "parentArchitectureId"
   | "canUnlockBrief"
   | "unlockBusy"
   | "onUnlockBrief"
@@ -49,6 +50,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     intakeModeActive,
     draft,
     effectiveDraftId,
+    parentArchitectureId,
     canUnlockBrief,
     unlockBusy,
     onUnlockBrief,
@@ -60,6 +62,11 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     draftStartReviewEmphasizedStepId,
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
+  const startReviewHref = startReviewFromDraftContextHref({
+    parentArchitectureId,
+    draftArchitectureId: draft?.architectureId,
+    legacyDraftId: effectiveDraftId,
+  });
 
   return (
     <>
@@ -74,13 +81,14 @@ export function ArchitectureDraftWorkspaceIntakeStack(
           draftId={effectiveDraftId}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
+          parentArchitectureId={parentArchitectureId}
         />
       ) : null}
 
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
           status={draft?.status}
-          continueHref={startReviewFromArchitectureHref(effectiveDraftId)}
+          continueHref={startReviewHref}
           canUnlock={canUnlockBrief}
           unlockBusy={unlockBusy}
           onUnlock={onUnlockBrief}

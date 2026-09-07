@@ -124,6 +124,51 @@ def test_cli_dry_run_unknown_job_exits_zero(tmp_path_factory=None) -> None:
     assert code == 0
 
 
+def test_newly_mapped_openapi_job_recovers_api_path() -> None:
+    paths = ingest.resolve_paths(
+        [],
+        [".NET: OpenAPI v1 contract snapshot (fail-fast)"],
+        *ingest.load_job_map(_AGENT_DIR / "al-bug-ci-test-to-paths.json"),
+    )
+    assert "ArchLucid.Api/" in paths
+
+
+def test_azure_extractor_pester_not_mapped() -> None:
+    job_map, prefix_map = ingest.load_job_map(_AGENT_DIR / "al-bug-ci-test-to-paths.json")
+    assert "Azure extractor: Get-ArchLucidAzurePackage Pester (mock ARM)" not in job_map
+    paths = ingest.resolve_paths(
+        [],
+        ["Azure extractor: Get-ArchLucidAzurePackage Pester (mock ARM)"],
+        job_map,
+        prefix_map,
+    )
+    assert paths == []
+
+
+def test_paste_helper_does_not_write_escape_log() -> None:
+    target = Path("/tmp/al-bug-ingest-paste.jsonl")
+    if target.exists():
+        target.unlink()
+    code = ingest.main(
+        [
+            "--check-name",
+            "dotnet-fast-core",
+            "--run-url",
+            "https://example.invalid/runs/2",
+            "--paths",
+            "ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs",
+            "--ledger",
+            str(_AGENT_DIR.parents[1] / "docs/library/AL_BUG_HUNT_LEDGER.md"),
+            "--escape-log",
+            str(target),
+            "--paste",
+            "--dry-run",
+        ]
+    )
+    assert code == 0
+    assert not target.exists()
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):

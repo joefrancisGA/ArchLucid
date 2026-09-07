@@ -5,6 +5,7 @@ import type { CSSProperties, ReactElement } from "react";
 
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
+import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import {
   EnterpriseTableCell,
@@ -69,6 +70,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         >
           {finding.title}
         </Link>
+        <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
           <div className="mt-1">
             <FindingClassificationChip classification={finding.classification} findingId={finding.findingId} />

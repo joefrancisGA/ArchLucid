@@ -199,6 +199,10 @@ function Get-LocalUiWindowCommand {
     $lines.Add($productEnvLine)
     $lines.Add('$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true''')
     $lines.Add('$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator''')
+    if ($ProductLine -eq 'security') {
+        # Next.js 16+ dev lock is per distDir; Security must not share Architecture's `.next`.
+        $lines.Add('$env:NEXT_DIST_DIR = ''.next-security''')
+    }
     $lines.Add(('Write-Host ''Starting {0} UI on port {1}...''' -f $ProductLine, $Port))
     # Set product + port in this window. Do not use `npm run dev:security` here — that script
     # prefixes a Unix env assignment which Windows powershell.exe does not apply.

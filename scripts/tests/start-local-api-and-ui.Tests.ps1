@@ -102,6 +102,7 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
             -Port 3001
 
         $command | Should -Match '\$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''security'''
+        $command | Should -Match '\$env:NEXT_DIST_DIR = ''.next-security'''
         $command | Should -Match 'npx --no-install next dev --webpack -p 3001'
         $command | Should -Not -Match 'npm run dev:security'
         $command | Should -Not -Match 'NEXT_PUBLIC_ARCHLUCID_PRODUCT=security next'

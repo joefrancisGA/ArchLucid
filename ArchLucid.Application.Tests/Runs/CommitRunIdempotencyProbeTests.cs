@@ -82,7 +82,7 @@ public sealed class CommitRunIdempotencyProbeTests
 
         first.IdempotentReplay.Should().BeFalse();
         second.IdempotentReplay.Should().BeTrue();
-        commit.Invocations.Should().BeGreaterThanOrEqualTo(1);
+        commit.Invocations.Should().Be(1, "replay must not re-enter persist");
         repository.Verify(
             r => r.TryInsertAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<byte[]>(),

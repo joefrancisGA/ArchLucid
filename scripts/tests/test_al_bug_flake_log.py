@@ -109,6 +109,57 @@ def test_unzoned_is_allowed() -> None:
     assert validate_flake_log(path, FIXTURE_LEDGER) == []
 
 
+def test_trx_fail_then_pass_preview_line() -> None:
+    from datetime import datetime, timezone
+
+    from al_bug_flake_log import preview_trx_candidates
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "flake-fail-then-pass.trx"
+    now = datetime(2026, 9, 7, tzinfo=timezone.utc)
+    lines = preview_trx_candidates(fixture, FIXTURE_LEDGER, now)
+    assert len(lines) == 1
+    assert lines[0]["attempts"] >= 2
+    assert lines[0]["zoneId"] == "application-commit"
+
+
+def test_trx_pass_only_emits_nothing() -> None:
+    from datetime import datetime, timezone
+
+    from al_bug_flake_log import parse_trx_fail_then_pass
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "flake-pass-only.trx"
+    assert parse_trx_fail_then_pass(fixture) == []
+
+
+def test_trx_preview_does_not_write_committed_log() -> None:
+    import importlib.util
+
+    fixture = Path(__file__).resolve().parent / "fixtures" / "flake-fail-then-pass.trx"
+    target = Path("/tmp/al-bug-flake-preview-test.jsonl")
+    if target.exists():
+        target.unlink()
+    spec = importlib.util.spec_from_file_location(
+        "flake_seed",
+        _AGENT_DIR / "al-bug-seed-from-flake-log.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    code = module.main(
+        [
+            "--trx",
+            str(fixture),
+            "--flake-log",
+            str(target),
+            "--ledger",
+            str(Path(__file__).resolve().parents[2] / "docs/library/AL_BUG_HUNT_LEDGER.md"),
+            "--preview",
+        ]
+    )
+    assert code == 0
+    assert not target.exists()
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):

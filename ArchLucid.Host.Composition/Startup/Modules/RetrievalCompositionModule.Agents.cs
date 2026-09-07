@@ -36,6 +36,7 @@ partial class RetrievalCompositionModule
         services.AddScoped<IAgenticRetrievalQueryExpander, AgenticRetrievalQueryExpander>();
         services.AddScoped<IGraphCommunitySummaryCompletionClient, GraphCommunitySummaryCompletionClient>();
         services.AddScoped<IGraphCommunitySummarizationService, GraphCommunitySummarizationService>();
+        services.AddScoped<IGraphCommunitySummaryLookup, GraphCommunitySummaryLookup>();
 
         services.AddSingleton<IEmbeddingModelIdentity, ConfiguredEmbeddingModelIdentity>();
         services.AddHostedService<RetrievalEmbeddingDriftStartupValidator>();

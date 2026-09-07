@@ -72,6 +72,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0074](0074-customer-visible-architecture-identity.md) | Customer-visible durable architecture identity — `dbo.Architectures` as named parent; drafts and reviews as children; supersedes stale “no Architectures nav” assessment for Working (**Status: Accepted** 2026-09-05) |
 | [0075](0075-coordinator-audit-echo-fail-closed.md) | Coordinator audit echo fail-closed on governed mutations — finalize `Run.CommitCompleted` echo must not swallow durable write failures (**Status: Accepted** 2026-09-06) |
 | [0076](0076-finding-disposition-conflict-409.md) | Finding disposition current-pointer conflict (409) — ADR 0076 / DR-08 (**Status: Accepted** 2026-09-06) |
+| [0077](0077-working-architecture-is-the-locator.md) | Working architecture is the locator — review nests under identity; supersedes 0069/0072 Working URL clauses (**Status: Proposed** 2026-09-07) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

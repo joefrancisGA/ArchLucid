@@ -27,6 +27,7 @@ import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { TechnicalIdDisclosure } from "@/components/usability/TechnicalIdDisclosure";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
@@ -34,9 +35,11 @@ import {
 import {
   architectureDraftPath,
   ARCHITECTURES_NEW_PATH,
+  resolveArchitectureReviewHref,
   reviewDetailPath,
-  startReviewFromArchitectureHref,
+  startReviewFromDraftContextHref,
 } from "@/lib/architecture/architecture-routes";
+import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_TITLE,
@@ -129,6 +132,8 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
     workspaceScopeTeaching,
     sortOptions,
   } = props.controller;
+  const { mode } = useWorkspaceMode();
+  const workingMode = isWorkingWorkspaceMode(mode);
 
   if (!isHydrated) {
     return <ArchitecturesHubListSkeleton />;
@@ -289,6 +294,17 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
           <EnterpriseTableBody>
             {filteredEntries.map((entry) => {
               const updatedAt = formatInventoryUpdatedAtCell(entry.lastUpdatedUtc);
+              const parentArchitectureId = entry.parentArchitectureId?.trim() ?? "";
+              const linkedReviewHref =
+                entry.linkedReviewId !== null
+                  ? workingMode && parentArchitectureId.length > 0
+                    ? resolveArchitectureReviewHref(entry.linkedReviewId, parentArchitectureId)
+                    : reviewDetailPath(entry.linkedReviewId)
+                  : null;
+              const startReviewHref = startReviewFromDraftContextHref({
+                parentArchitectureId,
+                legacyDraftId: entry.draftId,
+              });
 
               return (
                 <EnterpriseTableRow
@@ -325,7 +341,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                   <EnterpriseTableCell>
                     {entry.linkedReviewId !== null ? (
                       <Link
-                        href={reviewDetailPath(entry.linkedReviewId)}
+                        href={linkedReviewHref ?? reviewDetailPath(entry.linkedReviewId)}
                         className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       >
                         Review linked
@@ -338,7 +354,9 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                     <div className="flex flex-wrap gap-2">
                       {entry.linkedReviewId !== null ? (
                         <Button type="button" variant="primary" size="sm" asChild>
-                          <Link href={reviewDetailPath(entry.linkedReviewId)}>Continue in review</Link>
+                          <Link href={linkedReviewHref ?? reviewDetailPath(entry.linkedReviewId)}>
+                            Continue in review
+                          </Link>
                         </Button>
                       ) : (
                         <ArchitectureDraftResumeControl
@@ -357,7 +375,7 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
                       ) : null}
                       {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
                         <Button type="button" variant="primary" size="sm" asChild>
-                          <Link href={startReviewFromArchitectureHref(entry.draftId)}>Start review</Link>
+                          <Link href={startReviewHref}>Start review</Link>
                         </Button>
                       ) : null}
                       <ArchitectureDraftDeleteControl

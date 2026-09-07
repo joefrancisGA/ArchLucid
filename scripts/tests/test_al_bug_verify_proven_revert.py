@@ -99,6 +99,36 @@ def test_fail_on_unguarded_still_detects_any() -> None:
     assert any(item.classification == "unguarded" for item in [unguarded])
 
 
+def test_uncheckable_key_in_baseline_exits_zero_logic() -> None:
+    baseline = {"zone-a|no-test-cited||"}
+    results = [verifier.RowVerification("zone-a", "row", "no-test-cited")]
+    assert verifier.new_uncheckable_keys(results, baseline) == []
+
+
+def test_extra_no_test_cited_is_new_uncheckable() -> None:
+    results = [verifier.RowVerification("zone-a", "row", "no-test-cited")]
+    assert verifier.new_uncheckable_keys(results, set()) == ["zone-a|no-test-cited||"]
+
+
+def test_could_not_run_in_new_uncheckable() -> None:
+    results = [
+        verifier.RowVerification(
+            "zone-a",
+            "row",
+            "could-not-run",
+            test_name="FooTests.Bar",
+            commit_sha="abc1234",
+        )
+    ]
+    fresh = verifier.new_uncheckable_keys(results, set())
+    assert fresh == ["zone-a|could-not-run|FooTests.Bar|abc1234"]
+
+
+def test_unguarded_ratchet_ignores_uncheckable() -> None:
+    results = [verifier.RowVerification("z", "t", "no-test-cited")]
+    assert verifier.new_unguarded_keys(results, set()) == []
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):
