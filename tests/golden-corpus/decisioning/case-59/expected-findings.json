@@ -1,0 +1,99 @@
+[
+  {
+    "findingId": "c0b9ce22-6ab4-bdbb-483f-5ec02863cd3f",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027checkout-func\u0027 has Contributor access to regulated datastore \u0027kvdatastore\u0027",
+    "rationale": "A machine identity can reach datastore \u0027kvdatastore\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "actor-checkout",
+      "obj-93cf65ed6a539e4b632c24f4af8cdc57",
+      "role-contrib-kv"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "Contributor",
+      "identity-blast-radius"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "f8da5091-aaca-c0fd-ce77-6d3cd8030c52",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-93cf65ed6a539e4b632c24f4af8cdc57",
+      "role-contrib-kv"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "bfb86a6c-5a1a-c892-e6bf-47f44caa0b25",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-93cf65ed6a539e4b632c24f4af8cdc57",
+      "role-contrib-kv"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "1415ea8a-e673-fd3b-a76e-b903e257a420",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "checkout-contributor-kv",
+      "kvdatastore"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "52f2ffeb-1659-d874-baed-b339027abed4",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-93cf65ed6a539e4b632c24f4af8cdc57",
+      "role-contrib-kv"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]
