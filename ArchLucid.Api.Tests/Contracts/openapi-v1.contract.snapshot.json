@@ -7653,6 +7653,27 @@
         },
         "type": "object"
       },
+      "CareerArtifactBlockedProblemDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProblemDetails"
+          }
+        ],
+        "description": "RFC 9457 Problem Details for ADR 0078 career artifact export blocks (HTTP 409).",
+        "properties": {
+          "blockReason": {
+            "description": "User-safe ADR 0078 block sentence explaining why the career export cannot render.",
+            "type": "string"
+          },
+          "blockReasonCode": {
+            "description": "Machine-readable ADR 0078 block code (for example transparency_trail_incomplete, measurement_floor_incomplete).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "blockReason"
+        ]
+      },
       "CategoryBenchmarkScore": {
         "properties": {
           "category": {
@@ -166252,7 +166273,7 @@
             "content": {
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               },
               "text/markdown": {
@@ -166417,7 +166438,7 @@
               },
               "application/problem\u002Bjson": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CareerArtifactBlockedProblemDetails"
                 }
               }
             },

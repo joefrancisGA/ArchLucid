@@ -10,4 +10,5 @@ public sealed record FirstValueReportBuildResult(
     SponsorProofReadinessClassification SponsorProofReadiness,
     TenantReportBrandingForExport? TenantReportBranding = null,
     ProofPackageCompletenessResponse? ProofPackageCompleteness = null,
-    string? CareerArtifactBlockedReason = null);
+    string? CareerArtifactBlockedReason = null,
+    string? CareerArtifactBlockedReasonCode = null);
