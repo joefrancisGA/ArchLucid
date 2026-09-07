@@ -15,6 +15,7 @@ import {
 import { localizeHelpCenterDisplay } from "@/lib/help/help-product-copy";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
@@ -236,6 +237,10 @@ export function listHelpCenterTopics(filters: HelpCenterTopicFilters): ProductDo
   const productLineId = filters.productLineId ?? "architecture";
 
   return entries.filter((entry) => {
+    if (isHelpTopicExcludedForProductLine(entry.slug, productLineId)) {
+      return false;
+    }
+
     const tier = getHelpCenterTier(entry);
 
     if (isFeaturedSlug(entry.slug, productLineId)) {

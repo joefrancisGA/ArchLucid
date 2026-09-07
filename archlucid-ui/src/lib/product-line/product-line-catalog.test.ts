@@ -136,6 +136,9 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/integrations/slack", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/webhooks", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/azure-boards", "architecture")).toBe(true);
+    expect(isPathAllowedForProductLine("/integrations/cloud-connections/aws", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/integrations/cloud-connections/gcp", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/integrations/cloud-connections/azure", "security")).toBe(true);
   });
 
   it("lets an override move a destination into Security without editing the catalog file", () => {

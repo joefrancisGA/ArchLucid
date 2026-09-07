@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
-  CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS,
   CLOUD_CONNECTIONS_HELP_TIER_1,
-  CLOUD_CONNECTIONS_HELP_TIER_2,
+  cloudConnectionsHelpProviderScopeRows,
+  cloudConnectionsHelpTier2,
 } from "@/lib/cloud-connections-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   DESIGN_TOKENS,
   OPERATOR_LINK,
@@ -36,6 +37,9 @@ function TierCardEyebrow(props: { readonly children: string }): React.ReactEleme
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLine = resolveProductLineIdFromEnv();
+  const tier2 = cloudConnectionsHelpTier2(productLine);
+  const providerRows = cloudConnectionsHelpProviderScopeRows(productLine);
 
   return (
     <section
@@ -77,10 +81,10 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
         </div>
 
         <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">
-          <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow}</TierCardEyebrow>
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_2.title}</h3>
+          <TierCardEyebrow>{tier2.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{tier2.title}</h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {CLOUD_CONNECTIONS_HELP_TIER_2.useWhen}
+            {tier2.useWhen}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="outline">
@@ -111,7 +115,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS.map((row, index) => (
+            {providerRows.map((row, index) => (
               <tr
                 key={row.platform}
                 className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
