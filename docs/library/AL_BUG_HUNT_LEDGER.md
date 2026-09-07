@@ -822,9 +822,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
 - **related-pd-tb:** none
@@ -837,9 +837,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Missing workspace still returns 200 with another workspace's rules — (valid-no-repro): `RunMatchesCallerScope` rejects foreign-workspace run detail; `StampSimulationScope` overwrites embedded rule scope before `SimulateAsync`; covered by `GetContextsAsync_when_authority_returns_foreign_workspace_run_returns_empty`
 - [x] (proven) Findings snapshot with empty `RunId` bypasses run binding and simulates unscoped findings — **hit 2026-08-24:** guard only rejected mismatched ids when `findings.RunId != Guid.Empty`; empty id skipped check; fixed by requiring `findings.RunId == runId` and matching golden-manifest run ids before compare
 - [x] (proven) `BuildContextAsync` accepted findings whose snapshot anchor ids did not match the golden manifest — **hit 2026-09-07 (#1165):** only `RunId` was checked; cross-linked `FindingsSnapshotId`/`ContextSnapshotId`/`GraphSnapshotId` could simulate foreign findings; fixed via `FindingsSnapshotMatchesGoldenManifest` (`GetContextsAsync_when_findings_snapshot_id_mismatches_golden_manifest_returns_empty`)
-- [ ] (candidate) Compared-to run path builds manifest comparison without validating compared findings snapshot anchors — comparison uses manifests only; reachability unverified for findings leakage via advisor inputs
-- [ ] (candidate) Batch recent-run replay silently drops runs with sealed-hash failures while single-run mode throws — intentional degrade; verify operator visibility
+- [x] (valid-no-repro) Compared-to run path builds manifest comparison without validating compared findings snapshot anchors — **cheap-disproof 2026-09-07 hunt #1258:** `BuildContextAsync` validates primary `FindingsSnapshotMatchesGoldenManifest` before plan generation; compared-to branch calls `IComparisonService.Compare` on golden manifests only and never reads `comparedDetail.FindingsSnapshot`; regression `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings`
+- [x] (invalid) Batch recent-run replay silently drops runs with sealed-hash failures while single-run mode throws — **cheap-disproof 2026-09-07 hunt #1258:** intentional wave-27 suggestion 261 (`skipOnSealedHashFailure: true` on recent-run sweep vs `false` on explicit `runId`); `RuleSimulationResult.EvaluatedRunCount` reflects successfully built contexts; regression `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing`; architecture test `Suggestion261_alert_simulation_multi_run_sweep_skips_unverified_runs`
 
+2026-09-07 thorough hunt #1258 (dry): cheap-disproof closed both open candidates; eight scoped unit tests passed.
 2026-09-07 seed hunt #1165 (hit): proved findings snapshot anchor mismatch bypassed golden manifest binding.
 
 ---
