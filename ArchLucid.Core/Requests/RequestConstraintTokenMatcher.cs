@@ -201,27 +201,128 @@ internal static class RequestConstraintTokenMatcher
     private static bool IsNegatedPhraseSuffix(string haystack, int tokenIndex, int tokenLength)
     {
         ReadOnlySpan<char> after = haystack.AsSpan(tokenIndex + tokenLength).TrimStart();
+        ReadOnlySpan<char> immediateSuffix = ImmediateSuffixBeforeSubordinateClause(after);
 
-        if (after.Length < 2)
+        if (immediateSuffix.Length >= 2 && ImmediateSuffixIndicatesNegation(immediateSuffix))
+            return true;
+
+        ReadOnlySpan<char> subordinateClause = SubordinateClauseSuffix(after);
+
+        if (subordinateClause.IsEmpty)
             return false;
 
-        if (after.StartsWith("not required", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("not needed", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("not necessary", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is not required", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is not needed", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is not necessary", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is unnecessary", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("isn't required", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("isn't needed", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("is optional", StringComparison.OrdinalIgnoreCase)
-            || after.StartsWith("need not", StringComparison.OrdinalIgnoreCase))
+        if (ObjectRequirementRelativeClause(subordinateClause))
+            return false;
+
+        return EnglishNegationTokenizer.ContainsNegation(subordinateClause);
+    }
+
+    private static bool ImmediateSuffixIndicatesNegation(ReadOnlySpan<char> immediateSuffix)
+    {
+        if (immediateSuffix.StartsWith("not required", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("not needed", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("not necessary", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("is not required", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("is not needed", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("is not necessary", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("is unnecessary", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("isn't required", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("isn't needed", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("is optional", StringComparison.OrdinalIgnoreCase)
+            || immediateSuffix.StartsWith("need not", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (ContainsPhrase(after, " need not "))
+        if (ContainsPhrase(immediateSuffix, " need not "))
             return true;
 
-        return EnglishNegationTokenizer.ContainsNegation(after);
+        return EnglishNegationTokenizer.ContainsNegation(immediateSuffix);
+    }
+
+    private static ReadOnlySpan<char> SubordinateClauseSuffix(ReadOnlySpan<char> after)
+    {
+        ReadOnlySpan<char> immediateSuffix = ImmediateSuffixBeforeSubordinateClause(after);
+
+        if (immediateSuffix.Length >= after.Length)
+            return ReadOnlySpan<char>.Empty;
+
+        return after.Slice(immediateSuffix.Length);
+    }
+
+    private static bool ObjectRequirementRelativeClause(ReadOnlySpan<char> subordinateClause)
+    {
+        ReadOnlySpan<char> trimmed = subordinateClause.TrimStart();
+
+        ReadOnlySpan<string> patterns =
+        [
+            "that does not require",
+            "that do not require",
+            "that did not require",
+            "which does not require",
+            "which do not require",
+            "which did not require",
+            "that must not require",
+            "that should not require",
+            "that shall not require",
+            "that need not require",
+            "that will not require",
+            "that would not require",
+            "that ought not require",
+        ];
+
+        foreach (string pattern in patterns)
+        {
+            if (trimmed.StartsWith(pattern, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static ReadOnlySpan<char> ImmediateSuffixBeforeSubordinateClause(ReadOnlySpan<char> suffix)
+    {
+        ReadOnlySpan<string> introducers =
+        [
+            " that ",
+            " which ",
+            " where ",
+            " when ",
+            " who ",
+            " whom ",
+            " whose ",
+        ];
+
+        int boundary = suffix.Length;
+
+        foreach (string introducer in introducers)
+        {
+            int index = suffix.IndexOf(introducer.AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+            if (index >= 0 && index < boundary)
+                boundary = index;
+        }
+
+        ReadOnlySpan<string> leadingIntroducers =
+        [
+            "that ",
+            "which ",
+            "where ",
+            "when ",
+            "who ",
+            "whom ",
+            "whose ",
+        ];
+
+        foreach (string leadingIntroducer in leadingIntroducers)
+        {
+            if (suffix.StartsWith(leadingIntroducer.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            {
+                boundary = 0;
+
+                break;
+            }
+        }
+
+        return suffix.Slice(0, boundary);
     }
 
     private static string? NormalizeNegationText(string? haystack)

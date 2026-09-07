@@ -75,6 +75,32 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["encryption for tenants that do not require isolation"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["encryption that does not require customer-managed keys"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption that is not required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresSearchCapability_returns_true_when_search_is_required()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["Hybrid search"]);

@@ -7060,11 +7060,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — keyword-leading modal negation missed by suffix guard
+- **last-bug:** 2026-09-07 — trailing-clause negation over-suppressed leading constraint mentions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7073,9 +7073,13 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 ### Hypotheses
 
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — keyword-leading modal negation gap — **hit 2026-09-07 hunt #1185 (seed→hit):** prefix negation via `IsAdviceStyleNegation` only inspects text before the matched phrase; constraints like `encryption should not require customer-managed keys` and `encryption must not be required for legacy blobs` false-positive because trailing `should not` / `must not be required` sat outside the hard-coded suffix list; fixed by delegating trailing text to `EnglishNegationTokenizer.ContainsNegation`; removed dead `ContainsMidSentenceNegation`; regressions in `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing`
-- [ ] (candidate) `RequestConstraintTokenMatcher` — trailing-clause negation on unrelated requirement heads may over-suppress leading affirmative constraint mentions (e.g. `encryption for tenants that do not require isolation`)
+- [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — trailing-clause negation on unrelated requirement heads over-suppressed leading affirmative constraint mentions — **hit 2026-09-07 hunt #1277:** suffix negation scanned full trailing text so `encryption for tenants that do not require isolation` and `encryption that does not require customer-managed keys` missed `HasEncryptionConstraint`; fixed by scoping suffix negation to immediate text before subordinate introducers and treating object-style `that does not require` relative clauses separately from antecedent negation; regressions in `HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement`, `HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing`
+- [ ] (candidate) `RequestConstraintTokenMatcher.IsNegatedPhrasePrefix` — mid-sentence `, not ` comma negation may still false-positive on trailing affirmative constraint tokens
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — capability tokens embedded inside longer product names may false-positive `RequiresAiCapability`
 
 2026-09-07 seed hunt #1185 (hit): seeded zone from split catalog; proved keyword-leading modal negation missed when constraint token precedes prohibitive suffix text.
+
+2026-09-07 thorough hunt #1277 (hit): proved trailing-clause negation over-suppressed leading constraint mentions; 818 scoped RequestConstraint tests passed.
 
 ---
 ## Zone: core-authority-runs
