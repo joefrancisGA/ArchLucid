@@ -161,6 +161,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
           usesCustomerAiConnection,
           effectiveSessionMode: sessionAiReadiness.sessionMode,
+          feasibilityVerdictKind: props.feasibilityVerdict?.kind ?? null,
         }),
       );
     });
