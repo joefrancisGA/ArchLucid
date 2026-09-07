@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Core.Audit;
@@ -30,6 +31,7 @@ public sealed class RemediationInstancesController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<RemediationInstanceSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? cloudResourceId,
         [FromQuery] Guid? findingId,
@@ -37,26 +39,41 @@ public sealed class RemediationInstancesController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<RemediationInstanceSummary> instances =
-            await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
+        try
+        {
+            IReadOnlyList<RemediationInstanceSummary> instances =
+                await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
 
-        return Ok(instances);
+            return Ok(instances);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("{instanceId:guid}")]
     [ProducesResponseType(typeof(RemediationInstanceDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Get(Guid instanceId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        RemediationInstanceDetail? detail =
-            await queryService.TryGetInstanceAsync(scope, instanceId, cancellationToken);
+        try
+        {
+            RemediationInstanceDetail? detail =
+                await queryService.TryGetInstanceAsync(scope, instanceId, cancellationToken);
 
-        if (detail is null)
-            return this.NotFoundProblem("Remediation instance was not found.", ProblemTypes.ResourceNotFound);
+            if (detail is null)
+                return this.NotFoundProblem("Remediation instance was not found.", ProblemTypes.ResourceNotFound);
 
-        return Ok(detail);
+            return Ok(detail);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -65,6 +82,7 @@ public sealed class RemediationInstancesController(
     [MutatingAuditExcluded("Remediation instance creation delegates to RemediationInstanceService audit events.")]
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
         [FromBody] RemediationInstanceCreateRequest? request,
         CancellationToken cancellationToken = default)
@@ -89,6 +107,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Preflight(
         Guid instanceId,
         [FromBody] RemediationInstancePreflightRequest? request,
@@ -115,6 +134,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Approve(Guid instanceId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -134,6 +154,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AssignWave(
         Guid instanceId,
         [FromBody] RemediationInstanceAssignWaveRequest? request,
@@ -160,6 +181,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Execute(
         Guid instanceId,
         [FromBody] RemediationInstanceExecuteRequest? request,
@@ -191,6 +213,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Verify(
         Guid instanceId,
         [FromBody] RemediationInstanceVerifyRequest? request,
@@ -217,6 +240,7 @@ public sealed class RemediationInstancesController(
     [ProducesResponseType(typeof(RemediationInstanceOperationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Close(Guid instanceId, CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -245,6 +269,13 @@ public sealed class RemediationInstancesController(
         if (!result.Succeeded && result.Blockers.Count > 0)
             return Ok(result);
 
+        if (!result.Succeeded && IsSealedManifestConflict(result.ErrorMessage))
+        {
+            return this.ConflictProblem(
+                result.ErrorMessage ?? "Remediation blocked: sealed manifest verification failed.",
+                ProblemTypes.Conflict);
+        }
+
         if (!result.Succeeded)
             return this.BadRequestProblem(
                 result.ErrorMessage ?? "Remediation instance operation failed.",
@@ -252,4 +283,9 @@ public sealed class RemediationInstancesController(
 
         return Ok(result);
     }
+
+    private static bool IsSealedManifestConflict(string? message) =>
+        message?.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase) == true
+        || message?.Contains("sealed manifest", StringComparison.OrdinalIgnoreCase) == true
+        || message?.Contains("lifecycle must be Complete", StringComparison.OrdinalIgnoreCase) == true;
 }

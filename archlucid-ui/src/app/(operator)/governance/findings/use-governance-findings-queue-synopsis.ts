@@ -9,6 +9,7 @@ import {
   deriveSponsorSynopsisCounts,
   deriveSponsorSynopsisPackageTitle,
   extractGovernanceFindingIds,
+  filterGovernanceFindingsArchitectureScopedRows,
   filterGovernanceFindingsDisplayedRows,
   filterGovernanceFindingsScopedRows,
   resolveAssignedToMeOldestFindingTarget,
@@ -29,6 +30,7 @@ import {
   sortGovernanceFindingsRowsBySignal,
 } from "@/lib/governance/governance-findings-density-sort";
 import { deriveGovernanceFindingsHiddenFilterHonesty } from "@/lib/governance/governance-findings-hidden-filter-honesty";
+import { deriveGovernanceFindingsArchitectureScopeHonesty } from "@/lib/governance/governance-findings-architecture-scope";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
@@ -43,6 +45,8 @@ export type UseGovernanceFindingsQueueSynopsisInput = {
   readonly loading: boolean;
   readonly loadFailed: boolean;
   readonly scopedRunId: string | null;
+  readonly architectureRunIdSet: ReadonlySet<string> | null;
+  readonly architectureScopeFilterActive: boolean;
   readonly registerFilter: RiskRegisterFilter;
   readonly nlFacets: FindingsNaturalLanguageFacets;
   readonly jobView: FindingJobView;
@@ -60,6 +64,8 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     loading,
     loadFailed,
     scopedRunId,
+    architectureRunIdSet,
+    architectureScopeFilterActive,
     registerFilter,
     nlFacets,
     jobView,
@@ -89,9 +95,13 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
   const jobViewFilterActive =
     (filterBarVisible || advancedFiltersDisclosureVisible) && jobView !== DEFAULT_FINDING_JOB_VIEW;
 
+  const architectureScopedRows = useMemo(
+    () => filterGovernanceFindingsArchitectureScopedRows(rows, architectureRunIdSet),
+    [architectureRunIdSet, rows],
+  );
   const scopedRows = useMemo(
-    () => filterGovernanceFindingsScopedRows(rows, scopedRunId),
-    [rows, scopedRunId],
+    () => filterGovernanceFindingsScopedRows(architectureScopedRows, scopedRunId),
+    [architectureScopedRows, scopedRunId],
   );
   const filteredRows = useMemo(
     () =>
@@ -192,6 +202,15 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     () => deriveGovernanceFindingsHiddenFilterHonesty(scopedRows, displayedRows),
     [displayedRows, scopedRows],
   );
+  const architectureScopeHonesty = useMemo(
+    () =>
+      deriveGovernanceFindingsArchitectureScopeHonesty(
+        rows,
+        architectureScopedRows,
+        architectureScopeFilterActive,
+      ),
+    [architectureScopeFilterActive, architectureScopedRows, rows],
+  );
 
   return {
     scopedRunFilterActive,
@@ -218,5 +237,6 @@ export function useGovernanceFindingsQueueSynopsis(input: UseGovernanceFindingsQ
     sponsorHandoffHref,
     activeFiltersSummary,
     hiddenFilterHonesty,
+    architectureScopeHonesty,
   };
 }

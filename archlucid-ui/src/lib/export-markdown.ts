@@ -1,9 +1,16 @@
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
+import { formatCareerExportDemoHonestyMarkdown } from "@/lib/career-export-demo-chrome";
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
-import { formatCareerExportHonestyMarkdown } from "@/lib/career-export-coverage-honesty";
+import {
+  formatCareerExportHonestyMarkdown,
+  resolveCareerExportMeasurementFloorOptions,
+} from "@/lib/career-export-coverage-honesty";
 import type { CareerExportCoverageHonestyInput } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { resolveLegacySealedReExportHonesty } from "@/lib/career-artifact/resolve-legacy-sealed-re-export-honesty";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
@@ -31,6 +38,7 @@ export type GoldenManifestMarkdownOptions = {
   /** Optional inputs for the shared career export honesty block (PC-13). */
   careerExportHonesty?: Omit<CareerExportCoverageHonestyInput, "runId" | "manifestSummary"> & {
     readonly manifestSummary?: ManifestSummary | null;
+    readonly usedStaticDemoRun?: boolean | null;
   };
 };
 
@@ -75,6 +83,15 @@ function resolveCareerExportHonestyInput(
     enginesSucceeded: options?.enginesSucceeded ?? honestyOptions?.enginesSucceeded ?? null,
     workingDesk: honestyOptions?.workingDesk ?? false,
     classificationCounts: honestyOptions?.classificationCounts ?? null,
+    findingsSnapshot: honestyOptions?.findingsSnapshot ?? null,
+    judgeSkippedByCap: honestyOptions?.judgeSkippedByCap ?? null,
+    preCommitGateEnabled: honestyOptions?.preCommitGateEnabled ?? null,
+    structuralExecutionMode: honestyOptions?.structuralExecutionMode ?? null,
+    isSample: honestyOptions?.isSample ?? null,
+    hostAgentExecutionMode: honestyOptions?.hostAgentExecutionMode ?? null,
+    hostQualityGateMode: honestyOptions?.hostQualityGateMode ?? null,
+    aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
+    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
   };
 }
 
@@ -90,12 +107,37 @@ function appendCareerExportHonestyMarkdownSection(
   }
 
   const honestyMarkdown = formatCareerExportHonestyMarkdown(honestyInput).trim();
+  const demoHonestyMarkdown = formatCareerExportDemoHonestyMarkdown({
+    usedStaticDemoRun: options?.careerExportHonesty?.usedStaticDemoRun ?? null,
+    isSample: honestyInput.isSample,
+    structuralExecutionMode: honestyInput.structuralExecutionMode,
+  }).trim();
+  const honestyVerdict = evaluateCareerArtifactHonesty({
+    ...honestyInput,
+    artifactKind: "export",
+    legacySealedReExport: resolveLegacySealedReExportHonesty(manifestSummary),
+    transparencyTrail: manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+  });
+  const legacyWarningLines = honestyVerdict.warnings.join("\n").trim();
+  const supplementalHeaderLines = honestyVerdict.headerLines
+    .filter((line) => !honestyMarkdown.includes(line))
+    .join("\n")
+    .trim();
 
-  if (honestyMarkdown.length === 0) {
+  const combinedHonesty = [
+    demoHonestyMarkdown,
+    honestyMarkdown,
+    supplementalHeaderLines,
+    legacyWarningLines.length > 0 ? `> **Legacy seal honesty:** ${legacyWarningLines}` : "",
+  ]
+    .filter((section) => section.length > 0)
+    .join("\n\n");
+
+  if (combinedHonesty.length === 0) {
     return body;
   }
 
-  return `${body.trim()}\n\n${honestyMarkdown}\n`;
+  return `${body.trim()}\n\n${combinedHonesty}\n`;
 }
 
 function formatManifestSummaryFallback(
@@ -168,13 +210,30 @@ function formatManifestSummaryFallback(
     lines.push(formatCareerExportHonestyMarkdown(honestyInput).trim());
     lines.push("");
   } else {
+    const measurementFloorOptions = resolveCareerExportMeasurementFloorOptions({
+      graphSnapshot: options?.careerExportHonesty?.graphSnapshot ?? null,
+      progressSummary: options?.careerExportHonesty?.progressSummary ?? null,
+      findingsSnapshot: options?.careerExportHonesty?.findingsSnapshot ?? null,
+      judgeSkippedByCap: options?.careerExportHonesty?.judgeSkippedByCap ?? null,
+    });
+
     lines.push("## Measurement floor");
     lines.push("");
-    lines.push(formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null).line);
+    lines.push(
+      formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null, measurementFloorOptions).line,
+    );
     lines.push("");
   }
 
   const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    summary.feasibilityVerdict ?? null,
+  );
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    lines.push(feasibilityVerdictMarkdown.trim());
+    lines.push("");
+  }
 
   if (honestyInput === null && trail !== null && trail !== undefined) {
     lines.push(formatTransparencyTrailMarkdownSection(trail));

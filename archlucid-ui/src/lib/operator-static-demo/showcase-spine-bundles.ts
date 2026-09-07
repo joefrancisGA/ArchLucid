@@ -229,5 +229,6 @@ export function tryStaticRunDetailWorkspaceContextBundle(runId: string): RunDeta
     priorCommittedRunComparison: null,
     priorCommittedRunId: null,
     priorCommittedRunCreatedUtc: null,
+    priorCommittedRunComparisonBlockedReason: null,
   };
 }

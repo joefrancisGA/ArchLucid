@@ -1,23 +1,5 @@
 [
   {
-    "findingId": "93b41e54-f0cb-cd12-22b5-603d802158c9",
-    "findingType": "ExternalExposureFinding",
-    "category": "Security",
-    "severity": "Warning",
-    "title": "External actor \u0027public_role\u0027 lacks an explicit trust boundary",
-    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
-    "relatedNodeIds": [
-      "declaration-actor-00000035000040008000000000000035-2"
-    ],
-    "payloadType": "ExternalExposureFindingPayload",
-    "rulesApplied": [
-      "external-exposure-trust-boundary"
-    ],
-    "decisionsTaken": [
-      "External-facing actor present without matching TrustBoundary node."
-    ]
-  },
-  {
     "findingId": "8d8594f9-ec67-6248-30a5-6e6a58d4acee",
     "findingType": "PrivilegedAccessFinding",
     "category": "Security",
@@ -109,26 +91,6 @@
     ],
     "decisionsTaken": [
       "Compared present topology categories to expected coverage categories."
-    ]
-  },
-  {
-    "findingId": "fde7b373-c635-4e14-425d-39888759c0d1",
-    "findingType": "TrustBoundaryFinding",
-    "category": "Security",
-    "severity": "Warning",
-    "title": "Mixed internal and external actors without trust-boundary segmentation",
-    "rationale": "When both internal and external actors interact with the system, an explicit trust-boundary model is required to verify cross-boundary data flows.",
-    "relatedNodeIds": [
-      "declaration-actor-00000035000040008000000000000035-1",
-      "declaration-actor-00000035000040008000000000000035-2",
-      "intake-human-1"
-    ],
-    "payloadType": "TrustBoundaryFindingPayload",
-    "rulesApplied": [
-      "trust-boundary-cross-origin"
-    ],
-    "decisionsTaken": [
-      "Detected internal and external actors with no TrustBoundary nodes."
     ]
   }
 ]

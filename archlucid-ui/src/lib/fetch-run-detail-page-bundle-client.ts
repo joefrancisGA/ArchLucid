@@ -13,6 +13,7 @@ export type RunDetailWorkspaceContextBundle = {
   readonly priorCommittedRunComparison: RunComparison | null;
   readonly priorCommittedRunId: string | null;
   readonly priorCommittedRunCreatedUtc: string | null;
+  readonly priorCommittedRunComparisonBlockedReason: string | null;
 };
 
 export type RunDetailCriticalPageBundle = {

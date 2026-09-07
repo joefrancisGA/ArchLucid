@@ -7,7 +7,7 @@ import { ManifestBuyerBundleDownloadSection } from "./ManifestBuyerBundleDownloa
 
 describe("ManifestBuyerBundleDownloadSection", () => {
   it("renders a collapsed disclosure by default", () => {
-    render(<ManifestBuyerBundleDownloadSection manifestId="manifest-1" />);
+    render(<ManifestBuyerBundleDownloadSection manifestId="manifest-1" runId="run-1" />);
 
     const region = screen.getByTestId("manifest-buyer-bundle-download");
     expect(region.tagName).toBe("DETAILS");
@@ -16,7 +16,7 @@ describe("ManifestBuyerBundleDownloadSection", () => {
   });
 
   it("renders an open card when expanded for a tab panel", () => {
-    render(<ManifestBuyerBundleDownloadSection manifestId="manifest-1" expanded />);
+    render(<ManifestBuyerBundleDownloadSection manifestId="manifest-1" runId="run-1" expanded />);
 
     const region = screen.getByTestId("manifest-buyer-bundle-download");
     expect(region.tagName).not.toBe("DETAILS");

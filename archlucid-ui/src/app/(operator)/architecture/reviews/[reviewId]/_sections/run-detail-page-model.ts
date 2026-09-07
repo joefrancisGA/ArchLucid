@@ -10,7 +10,8 @@ export type RunDetailChangesSinceLastReviewBanner = {
   readonly priorReviewDateLabel: string;
   readonly priorRunId: string;
   readonly currentRunId: string;
-  readonly copy: ChangesSinceLastReviewCopy;
+  readonly copy: ChangesSinceLastReviewCopy | null;
+  readonly blockedReason: string | null;
 };
 
 /** Server-shaped bundle passed from `loadRunDetailPageModel` into `RunDetailPageView`. */

@@ -11,7 +11,10 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Application.Exports;
 
@@ -23,11 +26,13 @@ public sealed partial class ArchitectureReviewExportService(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
     IRunExplanationSummaryService runExplanationSummaryService,
     ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore,
+    IConfiguration configuration,
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
 {
@@ -39,6 +44,11 @@ public sealed partial class ArchitectureReviewExportService(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -97,8 +107,10 @@ public sealed partial class ArchitectureReviewExportService(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
 
         ArchitectureReviewBoardExportDocumentModel documentModel =

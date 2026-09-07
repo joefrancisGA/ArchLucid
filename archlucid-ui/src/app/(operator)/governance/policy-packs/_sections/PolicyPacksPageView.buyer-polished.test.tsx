@@ -186,6 +186,6 @@ describe("PolicyPacksPageView buyer-polished shell", () => {
     expect(screen.getByTestId("policy-packs-enforced-rules-table")).toBeInTheDocument();
     expect(screen.getByText("PHI minimization on intake APIs")).toBeInTheDocument();
     expect(screen.queryByText(/Approval queue/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Governance approval record/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Approval record/i)).not.toBeInTheDocument();
   });
 });

@@ -20,6 +20,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareAgentResults(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -33,6 +34,7 @@ public sealed partial class RunComparisonController
     [ProducesResponseType(typeof(AgentResultCompareSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareAgentResultsSummary(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
@@ -84,8 +86,8 @@ public sealed partial class RunComparisonController
 
         return loadResult.Outcome switch
         {
-            ScopedRunPairLoadOutcome.Success => ReturnPairOrError(
-                TryReturnLoadedPair(loadResult.Left!, loadResult.Right!, query),
+            ScopedRunPairLoadOutcome.Success => (
+                null,
                 loadResult.Left!,
                 loadResult.Right!,
                 loadResult.InputFingerprints),
@@ -134,37 +136,21 @@ public sealed partial class RunComparisonController
                 null,
                 null,
                 null),
+            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => (
+                this.ConflictProblem(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                    ProblemTypes.Conflict),
+                null,
+                null,
+                null),
+            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => (
+                this.ConflictProblem(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                    ProblemTypes.Conflict),
+                null,
+                null,
+                null),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
-    }
-
-    private IActionResult? TryReturnLoadedPair(
-        ArchitectureRunDetail left,
-        ArchitectureRunDetail right,
-        RunPairQuery query)
-    {
-        try
-        {
-            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(left, query.LeftRunId);
-            AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(right, query.RightRunId);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-
-        return null;
-    }
-
-    private static (IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right, CompareInputFingerprints? InputFingerprints) ReturnPairOrError(
-        IActionResult? guardError,
-        ArchitectureRunDetail left,
-        ArchitectureRunDetail right,
-        CompareInputFingerprints? inputFingerprints)
-    {
-        if (guardError is not null)
-            return (guardError, null, null, null);
-
-        return (null, left, right, inputFingerprints);
     }
 }

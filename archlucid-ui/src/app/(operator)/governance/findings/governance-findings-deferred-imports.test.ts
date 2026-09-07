@@ -13,7 +13,7 @@ const assignedPageSource = readFileSync(join(routeDir, "assigned-to-me/page.tsx"
 const deferredSource = readFileSync(join(routeDir, "governance-findings-deferred-chunks.tsx"), "utf8");
 const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
-describe("governance findings deferred imports (TB-571 / wave 11)", () => {
+describe("policy findings deferred imports (TB-571 / wave 11)", () => {
   it("keeps GovernanceFindingsQueueClient off the page static import graph", () => {
     expect(pageSource).not.toContain('import GovernanceFindingsQueueClient from "./GovernanceFindingsQueueClient"');
     expect(pageSource).toContain("GovernanceFindingsQueueClientDeferred");

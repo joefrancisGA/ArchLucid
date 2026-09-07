@@ -5,7 +5,9 @@ import {
   DECISION_RECEIPT_COST_ESTIMATE_LABEL,
   DECISION_RECEIPT_SCHEMA_VERSION,
   isExportableDecisionVerdict,
+  resolveDecisionReceiptExportBlockedReason,
 } from "./decision-receipt-export";
+import { HARD_INFEASIBLE_MISSING_CITATION_EXPORT_BLOCKED_REASON } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 
 describe("decisionReceiptExport", () => {
   it("marks soft and hard infeasible verdicts exportable", () => {
@@ -51,5 +53,18 @@ describe("decisionReceiptExport", () => {
     expect(receipt.transparencyTrail?.asserted).toHaveLength(1);
     expect(receipt.transparencyTrail?.inferred).toHaveLength(1);
     expect(receipt.transparencyTrail?.skipped).toHaveLength(1);
+  });
+
+  it("blocks decision receipt export when hard infeasible lacks citation (FC-30)", () => {
+    const blockedReason = resolveDecisionReceiptExportBlockedReason({
+      source: "committed-run",
+      runId: "run-1",
+      verdict: {
+        kind: "HardInfeasible",
+        summary: "Required controls cannot be satisfied.",
+      },
+    });
+
+    expect(blockedReason).toBe(HARD_INFEASIBLE_MISSING_CITATION_EXPORT_BLOCKED_REASON);
   });
 });

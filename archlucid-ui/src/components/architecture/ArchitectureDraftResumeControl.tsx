@@ -24,13 +24,15 @@ import {
   trackArchitectureDraftResumeClick,
   type ArchitectureDraftResumeSource,
 } from "@/lib/architecture/architecture-draft-resume-telemetry";
-import { architectureDraftPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { architectureDraftPath, startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftResumeControlProps = {
   readonly draftId: string;
   readonly label: string;
   readonly source: ArchitectureDraftResumeSource;
+  readonly parentArchitectureId?: string | null;
+  readonly draftArchitectureId?: string | null;
   readonly testId?: string;
   readonly ariaLabel?: string;
   readonly title?: string;
@@ -164,8 +166,14 @@ export function ArchitectureDraftResumeControl(
 
   const handleContinueIntake = useCallback(() => {
     setDialogOpen(false);
-    router.push(startReviewFromArchitectureHref(props.draftId));
-  }, [props.draftId, router, setDialogOpen]);
+    router.push(
+      startReviewFromDraftContextHref({
+        parentArchitectureId: props.parentArchitectureId,
+        draftArchitectureId: props.draftArchitectureId,
+        legacyDraftId: props.draftId,
+      }),
+    );
+  }, [props.draftArchitectureId, props.draftId, props.parentArchitectureId, router, setDialogOpen]);
 
   const handleUnlock = useCallback(async () => {
     if (!architectureDraftAllowsBriefUnlock(status)) {

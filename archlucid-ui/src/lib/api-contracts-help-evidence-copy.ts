@@ -2,7 +2,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const API_CONTRACTS_HELP_CLAIM_DISCIPLINE =
-  "API contracts reference documents HTTP endpoints, auth, and versioning — not buyer governance approval workflows or a signed audit export. Open Governance approval or Audit trail when you need workflow or activity records.";
+  "API contracts reference documents HTTP endpoints, auth, and versioning — not buyer approval workflows or a signed audit export. Open Approval or Audit trail when you need workflow or activity records.";
 
 export const API_CONTRACTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

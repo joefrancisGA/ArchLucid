@@ -14,6 +14,7 @@ import {
 import {
   formatSessionExpiredReturnHint,
   resolveReturnDestinationLabel,
+  SESSION_EXPIRED_CONTINUE_DESK_LABEL,
 } from "@/lib/auth/sign-in-return-destination";
 import {
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
@@ -63,6 +64,10 @@ export function SessionExpiredView({
 }: SessionExpiredViewProps) {
   const copy = getSessionMessageCopy(reason);
   const returnDestinationLabel = resolveReturnDestinationLabel(returnUrl);
+  const continueDeskLabel =
+    returnDestinationLabel !== null && copy.showsReturnDestinationHint
+      ? SESSION_EXPIRED_CONTINUE_DESK_LABEL
+      : "Sign in";
   const formattedClearedAt =
     reason === "idle-timeout" && sessionClearedAt !== undefined && sessionClearedAt !== null
       ? formatSessionClearedAt(sessionClearedAt)
@@ -99,7 +104,7 @@ export function SessionExpiredView({
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button variant="primary" onClick={onSignIn} data-testid="session-expired-sign-in">
-          Sign in
+          {continueDeskLabel}
         </Button>
         {showReturnHome ? (
           <Link

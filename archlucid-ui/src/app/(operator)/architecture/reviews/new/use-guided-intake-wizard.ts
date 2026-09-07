@@ -8,7 +8,10 @@ import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
-import { SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture/architecture-routes";
+import {
+  parseArchitectureNestedStartReviewArchitectureId,
+  SOURCE_ARCHITECTURE_QUERY_PARAM,
+} from "@/lib/architecture/architecture-routes";
 import {
   isCreateArchitectureIntent,
   resolveArchitectureWorkflowIntent,
@@ -59,7 +62,10 @@ export function useGuidedIntakeWizard() {
     [searchParams],
   );
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
-  const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
+  const sourceArchitectureIdFromNestedRoute = parseArchitectureNestedStartReviewArchitectureId(pathname) ?? "";
+  const sourceArchitectureId =
+    searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ??
+    sourceArchitectureIdFromNestedRoute;
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const priorRunId = readPriorRunIdFromSearch(searchParams);
 

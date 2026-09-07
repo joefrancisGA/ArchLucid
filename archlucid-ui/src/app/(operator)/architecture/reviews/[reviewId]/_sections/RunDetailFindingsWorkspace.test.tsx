@@ -19,6 +19,14 @@ vi.mock("@/components/QuickDecisionSummary", () => ({
   QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
 }));
 
+vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", () => ({
+  RunDetailFindingsCardViewLazy: () => <div data-testid="quick-decision-summary-stub" />,
+}));
+
+vi.mock("@/components/findings/RunDetailFindingsDenseTable", () => ({
+  RunDetailFindingsDenseTable: () => <div data-testid="run-detail-findings-dense-table-stub" />,
+}));
+
 vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
 }));
@@ -151,6 +159,26 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.getByTestId("run-detail-findings-visibility-summary")).toHaveTextContent(
       "Showing 2 of 3 — 1 hidden by confidence filter",
     );
+  });
+
+  it("hides create-home orientation strip in buyer-polished shell", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
+    ];
+
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={findings}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        triageVisibleCount={1}
+        buyerPolishedShell
+      />,
+    );
+
+    expect(screen.queryByTestId("architecture-findings-orientation")).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-assessment-metric")).toBeInTheDocument();
   });
 
   it("renders create-home orientation strip and assessment metric without governance queue labels", () => {

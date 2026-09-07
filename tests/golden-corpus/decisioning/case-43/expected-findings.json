@@ -1,0 +1,99 @@
+[
+  {
+    "findingId": "0e1b02b1-f967-4706-f2c6-c70e7645d4f4",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027billing-func\u0027 has Contributor access to regulated datastore \u0027sa-audit-prod\u0027",
+    "rationale": "A machine identity can reach datastore \u0027sa-audit-prod\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "actor-billing",
+      "role-contrib-sa",
+      "sa-audit-prod"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "Contributor",
+      "identity-blast-radius"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "b09b509a-ed82-f62e-74d3-f5a905da9ab0",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "role-contrib-sa",
+      "sa-audit-prod"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "99df98d3-7ee7-f510-048e-e1998b6ef459",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "role-contrib-sa",
+      "sa-audit-prod"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "b8a3b8fa-9cc9-cf5b-fb67-a3e2a9482d81",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "billing-contributor-sa",
+      "sa-audit-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "9666fba4-806e-8e44-4438-eeda56bca155",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "role-contrib-sa",
+      "sa-audit-prod"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

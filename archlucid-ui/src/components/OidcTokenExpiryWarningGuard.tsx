@@ -12,6 +12,7 @@ import {
 import { readPresenterModeFromWindowLocation } from "@/lib/review-detail-workspace-tabs";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenExpiresAtMs } from "@/lib/oidc/session";
+import { pulseBffSessionActivity } from "@/lib/oidc/bff-session-sync";
 
 function isMeetingSafeSessionSurface(pathname: string): boolean {
   if (pathname.includes("/print")) {
@@ -37,9 +38,12 @@ export function OidcTokenExpiryWarningGuard() {
     }
 
     writeSharedSessionLastActivityAt();
+    void pulseBffSessionActivity();
 
     const heartbeatId = window.setInterval(() => {
       writeSharedSessionLastActivityAt();
+      void ensureAccessTokenFresh();
+      void pulseBffSessionActivity();
     }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
     return () => {

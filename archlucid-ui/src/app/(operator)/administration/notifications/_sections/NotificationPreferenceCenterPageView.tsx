@@ -10,6 +10,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY,
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS,
   notificationPreferenceCenterPageSubtitle,
+  resolveNotificationPreferenceChannels,
 } from "@/lib/notification-preference-center";
 import {
   resolveNotificationPreferenceSaveChannelEmphasizedStepId,
@@ -52,6 +54,8 @@ import {
 export function NotificationPreferenceCenterPageView() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const { productLine } = useProductLine();
+  const notificationPreferenceChannels = resolveNotificationPreferenceChannels(productLine);
   const searchParams = useSearchParams();
   const notificationPreferenceRelationsOpenParam = searchParams.get("notificationPreferenceRelationsOpen");
   const [relationsOpen, setRelationsOpenState] = useState(() =>
@@ -63,7 +67,7 @@ export function NotificationPreferenceCenterPageView() {
   const saveChannelChecklistInput = {
     channelsReviewed: !loading && !loadFailed,
     primaryChannelsReady: channelReady("digests") && channelReady("alerts-inbox"),
-    allChannelsReady: NOTIFICATION_PREFERENCE_CHANNELS.every((channel) => channelReady(channel.id)),
+    allChannelsReady: notificationPreferenceChannels.every((channel) => channelReady(channel.id)),
   };
   const saveChannelSteps = resolveNotificationPreferenceSaveChannelSteps(saveChannelChecklistInput);
   const saveChannelEmphasizedStepId =
@@ -164,7 +168,7 @@ export function NotificationPreferenceCenterPageView() {
             data-testid="notification-preference-channel-grid"
             role="list"
           >
-            {NOTIFICATION_PREFERENCE_CHANNELS.map((channel) => {
+            {notificationPreferenceChannels.map((channel) => {
               const deliveryStatus = statusByChannelId[channel.id];
 
               return (

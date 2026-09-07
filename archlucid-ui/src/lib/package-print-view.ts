@@ -3,11 +3,16 @@
  * Dedicated print route keeps shell chrome out of the PDF without export-format roulette.
  */
 
+import {
+  resolveWorkingReviewPackageBackHref,
+  type ResolveWorkingBackLocatorInput,
+} from "@/lib/architecture/working-back-href";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Document title / H1 for the print stylesheet view. */
 export const PACKAGE_PRINT_PAGE_TITLE = "Architecture review";
@@ -54,15 +59,18 @@ export function buildPackagePrintPath(runId: string): string {
   return `/architecture/reviews/${encodeURIComponent(trimmed)}/print`;
 }
 
-/** Builds the review workspace href with the package tab focused. */
-export function buildPackagePrintBackHref(runId: string): string {
+/** Builds the review workspace href with the package tab focused (AO-44 nested when architecture is known). */
+export function buildPackagePrintBackHref(
+  runId: string,
+  options?: Omit<ResolveWorkingBackLocatorInput, "reviewId" | "reviewTab">,
+): string {
   const trimmed = runId.trim();
 
   if (trimmed.length === 0) {
     return "/architecture/reviews";
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}?tab=review-package`;
+  return resolveWorkingReviewPackageBackHref({ reviewId: trimmed, ...options });
 }
 
 /** Invokes the browser print dialog (screen stylesheet already hides shell chrome). */
@@ -87,6 +95,8 @@ export type PackagePrintPresentation = {
   readonly coverageHonestyLine?: string | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+  readonly transparencyTrail?: TransparencyTrail | null;
+  readonly showQuietEnginesHint?: boolean;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -208,6 +218,8 @@ export function buildPackagePrintPresentation(
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+    readonly transparencyTrail?: TransparencyTrail | null;
+    readonly showQuietEnginesHint?: boolean;
   },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
@@ -236,6 +248,8 @@ export function buildPackagePrintPresentation(
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
+    transparencyTrail: options?.transparencyTrail ?? null,
+    showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

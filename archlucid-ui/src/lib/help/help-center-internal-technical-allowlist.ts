@@ -6,7 +6,4 @@
  */
 export const HELP_CENTER_INTERNAL_TECHNICAL_DOCUMENTATION_ALLOWLIST: Readonly<
   Record<string, string>
-> = {
-  "admin-diagnostics":
-    "Customer-facing Admin ops reference (OPERATOR_ADMIN_DIAGNOSTICS.md); not eng CLI/env runbook content.",
-};
+> = {};

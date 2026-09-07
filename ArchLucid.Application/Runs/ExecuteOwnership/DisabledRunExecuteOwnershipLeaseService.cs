@@ -10,6 +10,13 @@ public sealed class DisabledRunExecuteOwnershipLeaseService : IRunExecuteOwnersh
     public Task AcquireAsync(Guid runId, CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <inheritdoc />
+    public Task RenewAsync(Guid runId, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationToken cancellationToken) =>
+        NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
+
+    /// <inheritdoc />
     public Task ReleaseAsync(Guid runId, CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <inheritdoc />

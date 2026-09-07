@@ -116,7 +116,12 @@ describe("RunDetailPageView progressive disclosure", () => {
       'data-testid="run-detail-advanced-options"',
       "run-detail-operator-technical-disclosure",
     );
-    expectSourceContains(disclosureSource, "defaultOpen={false}", "run-detail-operator-technical-disclosure");
+    expectSourceContains(disclosureSource, "<AdvancedOptionsAccordion", "run-detail-operator-technical-disclosure");
+    expectSourceContains(
+      disclosureSource,
+      "parseRunTechnicalDetailsOpenFromSearch",
+      "run-detail-operator-technical-disclosure",
+    );
   });
 
   it("collapses submitted architecture by default", () => {

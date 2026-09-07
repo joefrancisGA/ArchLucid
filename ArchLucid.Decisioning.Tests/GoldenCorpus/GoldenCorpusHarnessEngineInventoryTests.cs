@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Plugins;
 
 using FluentAssertions;
@@ -16,19 +17,17 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     [Fact]
     public void Registered_count_matches_harness_contract()
     {
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(16);
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(16);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(23);
-        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(39);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(39);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(39);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(11);
+        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(50);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(39);
+        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(50);
     }
 
     [Fact]
     public void Absent_inventory_documents_cloud_and_cross_run_engines()
     {
-        GoldenCorpusHarnessEngineInventory.TryGetAbsentReason("azure-inventory-reconciliation", out string? azureReason)
-            .Should().BeTrue();
-        azureReason.Should().Contain("inventory");
-
         GoldenCorpusHarnessEngineInventory.TryGetAbsentReason("requirement-cross-run-diff", out string? diffReason)
             .Should().BeTrue();
         diffReason.Should().Contain("Cross-run");

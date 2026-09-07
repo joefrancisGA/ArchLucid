@@ -7,12 +7,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CitationChips } from "@/components/explanation/CitationChips";
 import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
-import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
+import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import {
   parseRunExplanationProvenanceOpenFromSearch,
   runExplanationProvenanceDisclosureHrefFromSearch,
@@ -97,6 +96,25 @@ function confidencePercent(confidence: number | string): number {
   const pct = normalized <= 1 ? Math.round(normalized * 100) : Math.round(normalized);
 
   return Math.min(100, Math.max(0, pct));
+}
+
+/** FC-69 — descriptive model confidence without percent-complete authority. */
+export function modelConfidenceDescriptor(confidence: number | string | null | undefined): string | null {
+  if (confidence === null || confidence === undefined) {
+    return null;
+  }
+
+  const pct = confidencePercent(confidence);
+
+  if (pct >= 80) {
+    return "High model confidence";
+  }
+
+  if (pct >= 50) {
+    return "Moderate model confidence";
+  }
+
+  return "Low model confidence";
 }
 
 /** API payloads sometimes omit `explanation`; avoid crashing the review detail client subtree. */
@@ -236,9 +254,9 @@ export function RunExplanationSection({
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback = isDeterministicExplanationFallback(summary);
   const conf = expl.confidence;
-  const pct =
+  const modelConfidenceLabel =
     conf !== null && conf !== undefined && (typeof conf === "number" || typeof conf === "string")
-      ? confidencePercent(conf)
+      ? modelConfidenceDescriptor(conf)
       : null;
   const prov = expl.provenance;
   const faith = normalizeFiniteRatio(summary.faithfulnessSupportRatio);
@@ -342,7 +360,6 @@ export function RunExplanationSection({
           </h3>
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {summary.findingTraceConfidences.map((row) => {
-              const tracePct = traceCompletenessPercent(row.traceCompletenessRatio);
               const findingTitle = findingTitlesById?.[row.findingId]?.trim();
               const findingLabel =
                 buyerPolishedShell && findingTitle !== undefined && findingTitle.length > 0
@@ -356,7 +373,7 @@ export function RunExplanationSection({
                 ) : (
                   <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{row.findingId}</code>
                 )}{" "}
-                — {row.traceConfidenceLabel} ({tracePct ?? 0}% trace fields)
+                — {row.traceConfidenceLabel}
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
@@ -376,19 +393,17 @@ export function RunExplanationSection({
         </div>
       ) : null}
 
-      {pct !== null ? (
+      {modelConfidenceLabel !== null ? (
         <div id="doc-explanation-confidence" className="mb-4">
           <p id="doc-explanation-confidence-label" className={cn("m-0 mb-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Model confidence
           </p>
-          <Progress
-            value={pct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={pct}
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
             aria-labelledby="doc-explanation-confidence-label"
-          />
-          <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{pct}%</p>
+          >
+            {modelConfidenceLabel} — not a completion or readiness score.
+          </p>
         </div>
       ) : null}
 

@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Trust;
 using ArchLucid.Core.Configuration;
@@ -31,6 +32,7 @@ public sealed partial class DemoViewerController(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IAuthorityCompareService authorityCompareService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILlmCostEstimator llmCostEstimator,

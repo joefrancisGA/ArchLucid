@@ -3,7 +3,10 @@
 import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
+import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,6 +21,15 @@ import {
   resolveCareerExportBlockedReason,
   type CareerExportClassificationCounts,
 } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { resolveLegacySealedReExportHonesty } from "@/lib/career-artifact/resolve-legacy-sealed-re-export-honesty";
+import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
+import {
+  formatRunExportLineageStatusLabel,
+  isRunExportLineageAttested,
+  RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER,
+  verifyRunExportLineage,
+} from "@/lib/exports/run-export-lineage-verify";
 import {
   buildGoldenManifestMarkdownFilename,
   formatGoldenManifestMarkdown,
@@ -27,7 +39,7 @@ import {
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 
@@ -41,7 +53,12 @@ export type GoldenManifestExportMenuProps = {
   enginesSucceeded?: number | null;
   progressSummary?: RunSummary | null;
   graphSnapshot?: unknown;
+  findingsSnapshot?: unknown;
   classificationCounts?: CareerExportClassificationCounts | null;
+  /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
+  aggregateQualityGateOutcome?: number | null;
+  /** Curated static demo run — drives demo/static export banner honesty (FC-73). */
+  usedStaticDemoRun?: boolean | null;
   /**
    * Buyer deliverables: single obvious control instead of a select labeled "More formats".
    */
@@ -74,8 +91,18 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     markdownDownloadTestId = "golden-manifest-markdown-download-button",
   } = props;
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
+  const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
+  const legacySealedReExport = resolveLegacySealedReExportHonesty(manifestSummary);
+  const usedStaticDemoRun = props.usedStaticDemoRun === true || props.progressSummary?.isSample === true;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [exportVerifyStatus, setExportVerifyStatus] = useState<string | null>(null);
+  const [exportVerifyRecovery, setExportVerifyRecovery] = useState<ReturnType<
+    typeof exportVerifyBlockedRecovery
+  > | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canExport: boolean =
@@ -85,7 +112,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     return null;
   }
 
-  function downloadMarkdownSummary(): void {
+  async function downloadMarkdownSummary(): Promise<void> {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId,
       manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
@@ -93,25 +120,66 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
     if (blockedReason !== null) {
       setExportError(blockedReason);
+      setExportVerifyRecovery(null);
       return;
     }
 
-    const careerExportBlockedReason = resolveCareerExportBlockedReason({
+    const careerHonestyInput = {
+      artifactKind: "export" as const,
       runId,
       progressSummary: props.progressSummary ?? null,
       manifestSummary,
       graphSnapshot: props.graphSnapshot ?? null,
+      findingsSnapshot: props.findingsSnapshot ?? null,
       enginesSucceeded: props.enginesSucceeded ?? null,
       workingDesk,
       classificationCounts: props.classificationCounts ?? null,
-    });
+      preCommitGateEnabled,
+      structuralExecutionMode: props.progressSummary?.structuralExecutionMode ?? null,
+      isSample: props.progressSummary?.isSample ?? null,
+      hostAgentExecutionMode,
+      hostQualityGateMode,
+      aggregateQualityGateOutcome: props.aggregateQualityGateOutcome ?? null,
+      transparencyTrail: manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+      legacySealedReExport,
+      curatedSampleRun: usedStaticDemoRun,
+    };
+    const careerExportVerdict = evaluateCareerArtifactHonesty(careerHonestyInput);
+    const careerExportBlockedReason = careerExportVerdict.canRender
+      ? null
+      : careerExportVerdict.blockedReasons[0] ?? resolveCareerExportBlockedReason(careerHonestyInput);
 
     if (careerExportBlockedReason !== null) {
       setExportError(careerExportBlockedReason);
+      setExportVerifyRecovery(null);
       return;
     }
 
     setExportError(null);
+    setExportVerifyRecovery(null);
+    setExportVerifyStatus(null);
+
+    const skipVerify = props.progressSummary?.isSample === true;
+
+    if (workingDesk && !skipVerify) {
+      setExportVerifyStatus("Verifying export lineage…");
+
+      try {
+        const verifyResult = await verifyRunExportLineage(runId);
+
+        if (!isRunExportLineageAttested(verifyResult)) {
+          setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
+          setExportVerifyRecovery(exportVerifyBlockedRecovery(verifyResult));
+          return;
+        }
+
+        setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        setExportError(message);
+        return;
+      }
+    }
 
     const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
       runId,
@@ -121,9 +189,17 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       careerExportHonesty: {
         progressSummary: props.progressSummary ?? null,
         graphSnapshot: props.graphSnapshot ?? null,
+        findingsSnapshot: props.findingsSnapshot ?? null,
         enginesSucceeded: props.enginesSucceeded ?? null,
         workingDesk,
         classificationCounts: props.classificationCounts ?? null,
+        preCommitGateEnabled,
+        structuralExecutionMode: props.progressSummary?.structuralExecutionMode ?? null,
+        isSample: props.progressSummary?.isSample ?? null,
+        hostAgentExecutionMode,
+        hostQualityGateMode,
+        aggregateQualityGateOutcome: props.aggregateQualityGateOutcome ?? null,
+        usedStaticDemoRun,
       },
     });
 
@@ -137,6 +213,47 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const markdownOptionLabel =
     buyerPolishedShell === true ? "Download review summary" : EXPORT_FORMAT_MARKDOWN.label;
 
+  const exportDemoBanner = (
+    <DemoVsLiveChromeBanner
+      usedStaticDemoRun={usedStaticDemoRun}
+      isSimulator={props.progressSummary?.structuralExecutionMode === StructuralExecutionModeWire.Simulator}
+    />
+  );
+
+  const exportLegacyWarning =
+    legacySealedReExport ? (
+      <p
+        className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="golden-manifest-export-legacy-sealed-warning"
+        role="status"
+      >
+        This sealed record predates transparency trail requirements — treat exports as incomplete for career use.
+      </p>
+    ) : null;
+
+  const exportStatusChrome =
+    exportVerifyStatus !== null ? (
+      <div className="space-y-1">
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="golden-manifest-export-verify-status"
+        >
+          Export integrity check: {exportVerifyStatus}
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER}
+        </p>
+      </div>
+    ) : null;
+
+  const exportRecoveryChrome =
+    exportVerifyRecovery !== null ? (
+      <OperatorErrorRecoveryContract
+        presentation={exportVerifyRecovery}
+        testId="golden-manifest-export-verify-recovery"
+      />
+    ) : null;
+
   if (buyerMarkdownAsPrimaryButton === true) {
     return (
       <div className="flex max-w-xs flex-col gap-1">
@@ -147,12 +264,16 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           className="h-9"
           data-testid={markdownDownloadTestId}
           onClick={() => {
-            downloadMarkdownSummary();
+            void downloadMarkdownSummary();
           }}
         >
           {markdownOptionLabel}
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
+        {exportDemoBanner}
+        {exportLegacyWarning}
+        {exportStatusChrome}
+        {exportRecoveryChrome}
         {exportError !== null ? (
           <p
             role="alert"
@@ -175,7 +296,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           return;
         }
 
-        downloadMarkdownSummary();
+        void downloadMarkdownSummary();
       }}
     >
       <SelectTrigger
@@ -203,6 +324,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </SelectItem>
       </SelectContent>
     </Select>
+      {exportDemoBanner}
+      {exportLegacyWarning}
+      {exportStatusChrome}
+      {exportRecoveryChrome}
       {exportError !== null ? (
         <p
           role="alert"

@@ -36,11 +36,11 @@ describe("ChangesSinceLastReviewBanner", () => {
     expect(screen.getByText("+1 new findings, -2 resolved")).toBeInTheDocument();
     expect(screen.getByText("1 new Critical, 2 resolved Medium")).toBeInTheDocument();
 
-    const link = screen.getByRole("link", { name: /view review change comparison/i });
+    const link = screen.getByRole("link", { name: /open full comparison/i });
 
     expect(link).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?priorRunId=prior-run&laterRunId=current-run",
+      "/insights/compare-two-reviews?leftRunId=prior-run&rightRunId=current-run",
     );
   });
 

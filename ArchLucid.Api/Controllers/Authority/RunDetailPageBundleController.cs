@@ -1,4 +1,5 @@
 using ArchLucid.Application.Audit;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
@@ -30,6 +31,7 @@ public sealed partial class RunDetailPageBundleController(
     IRunRepository runRepository,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuthorityCompareService compareService,
+    ICompareRunsApplicationFacade compareRunsFacade,
     IScopeContextProvider scopeProvider,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
@@ -56,6 +58,9 @@ public sealed partial class RunDetailPageBundleController(
 
     private readonly IAuthorityCompareService _compareService =
         compareService ?? throw new ArgumentNullException(nameof(compareService));
+
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));

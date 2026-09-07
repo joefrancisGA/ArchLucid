@@ -63,6 +63,21 @@ const ARCHITECTURE_REVIEWS_WORKING_ENTRY: PageContextualHelpEntry = {
   ],
 };
 
+const ARCHITECTURE_START_WORKING_ENTRY: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Start a review — file evidence as a review job under a named architecture identity.",
+  whatToDoNext:
+    "Confirm the architecture identity, pick an intake path, complete required fields, then submit evidence.",
+  whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
+  whereToConfigurePrerequisite:
+    "Reviews use the workspace and project selected in the header switcher.",
+  taskSteps: [
+    "Open or create the architecture identity that owns this review job.",
+    "Pick quick, guided, or detailed intake for the evidence you have.",
+    "Submit intake to create the review and open the nested workspace.",
+  ],
+};
+
 export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
     // Exact `/` only — matcher uses path === prefix; startsWith(`${prefix}/`) is `//` and does not steal other routes.
@@ -190,6 +205,10 @@ export function resolveArchitectureContextualHelpEntry(
 
   if (prefix === "/architecture/reviews") {
     return ARCHITECTURE_REVIEWS_WORKING_ENTRY;
+  }
+
+  if (prefix === REVIEWS_NEW_PATH) {
+    return ARCHITECTURE_START_WORKING_ENTRY;
   }
 
   const row = ARCHITECTURE_CONTEXTUAL_HELP_ROWS.find((candidate) => candidate.prefix === prefix);

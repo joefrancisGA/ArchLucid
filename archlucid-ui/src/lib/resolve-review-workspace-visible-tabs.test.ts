@@ -41,6 +41,18 @@ describe("resolveReviewWorkspaceVisibleTabs (TB-2367)", () => {
     ]);
   });
 
+  it("lands Working desk visits on Findings for finalized packages (PC-11)", () => {
+    const resolved = resolveReviewWorkspaceVisibleTabs({
+      lifecycle: "finalized",
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      runCompleted: true,
+      workingDesk: true,
+    });
+
+    expect(resolveReviewWorkspaceTabForVisit(null, resolved, "finalized")).toBe("findings");
+  });
+
   it("keeps canonical reviewTab ids across lifecycles for deep links", () => {
     const createHome = resolveReviewWorkspaceVisibleTabs({
       lifecycle: "create-home",

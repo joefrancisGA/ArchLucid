@@ -261,7 +261,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_boolean_unit_price_tokens()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_boolean_unit_price_tokens()
     {
         const string catalogJson = """
             {
@@ -292,7 +292,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(0m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
@@ -331,7 +331,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_boolean_nanos()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_string_encoded_boolean_nanos()
     {
         const string catalogJson = """
             {
@@ -362,7 +362,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(0m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
@@ -436,7 +436,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_boolean_hourly_usage_unit_token()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_boolean_hourly_usage_unit_token()
     {
         const string catalogJson = """
             {
@@ -467,11 +467,11 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(7.59m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_on_synonym_hourly_usage_unit()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_string_encoded_on_synonym_hourly_usage_unit()
     {
         const string catalogJson = """
             {
@@ -502,7 +502,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(7.59m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
