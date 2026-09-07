@@ -2,7 +2,6 @@
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   SECURITY_PRODUCT_HOME_SUBTITLE,
@@ -18,7 +17,6 @@ export function SecurityProductHome(): React.JSX.Element {
         navHref="/"
         headingLevel="h2"
       />
-      <ProductLineSwitchBar />
     </OperatorPageContainer>
   );
 }

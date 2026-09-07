@@ -239,6 +239,7 @@ describe("nav-config structure", () => {
     // showSystemAdministrationNav). Improvement planning lives under Insights.
     expect(systemAdminHrefs).toContain("/internal/recommendation-learning");
     expect(systemAdminHrefs).toContain("/internal/product-learning");
+    expect(systemAdminHrefs).toContain("/internal/product-line");
     expect(systemAdminHrefs).not.toContain("/insights/improvement-planning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/architecture/digests");

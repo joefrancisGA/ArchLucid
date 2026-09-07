@@ -42,7 +42,7 @@ describe("ProductLineRouteGate", () => {
     );
 
     expect(screen.queryByText("secret reviews")).not.toBeInTheDocument();
-    expect(screen.getByTestId("product-line-route-gate")).toHaveTextContent("Security product");
+    expect(screen.getByTestId("product-line-route-gate")).toHaveTextContent("SecureNow product");
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith("/");
     });
