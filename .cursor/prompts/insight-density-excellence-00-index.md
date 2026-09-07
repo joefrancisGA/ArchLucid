@@ -12,7 +12,7 @@ Canonical prompts (copy-paste blocks):
 - **DX-29–DX-35 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 - **DX-36–DX-41 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 - **DX-42–DX-46 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md)
-- **DX-47–DX-50 (ready to run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
+- **DX-47–DX-50 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -93,20 +93,22 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-45** | Honest EvidenceRefs on ARM/ARN/policy engines | Yes | none |
 | **DX-46** | Advisor + AWS/GCP cost-recommendation goldens | After DX-44 preferred | DX-40 shipped |
 
-**Next — run these:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
+**DX-47–DX-50 shipped** (2026-09-07). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|
 | **DX-47** | Honest EvidenceRefs remainder (cost + path engines) | Yes | DX-45 shipped |
 | **DX-48** | Golden fixtures proving DX-42 ingest feeds density engines | Yes | DX-42 shipped |
 | **DX-49** | Golden harness for two absent engines + topology-anti-pattern golden | After DX-48 preferred | engines shipped |
-| **DX-50** | Tighten HasConcreteEvidenceCitation (Workstream 2) | **OWNER-GATED** — after DX-47 | DX-47 shipped |
+| **DX-50** | Tighten HasConcreteEvidenceCitation (Workstream 2) | After DX-47 | DX-47 shipped |
+
+**No further Cursor-implementable DX batches remain** in the excellence prompt set. Next density work is owner-gated: **DX-18**/**DX-19**, live frontier corpus (**G-REAL-06**), Real-mode judge default-on, Graph-RAG live ablation (**TB-883**).
 
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
 - Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not. **DX-36–DX-50 add no new EngineType.**
-- **DX-50** is owner-gated — do not start until the owner unparks Workstream 2 citation tightening.
+- **DX-47–DX-50 shipped** — do not re-run.
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
 - DX-18 (TB-885) and DX-19 (ADR 0062) stay held until the owner unparks those rows.

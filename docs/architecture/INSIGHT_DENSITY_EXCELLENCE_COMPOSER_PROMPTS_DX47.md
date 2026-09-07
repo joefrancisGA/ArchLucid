@@ -4,11 +4,11 @@
 
 # Insight density — excellence Composer prompt set (DX-47–DX-50)
 
-**Created:** 2026-09-07 · **Status:** Ready to run. One prompt per chat.
+**Created:** 2026-09-07 · **Status:** **DX-47–DX-50 shipped on `master` (2026-09-07).** Do **not** re-run. **DX-18** / **DX-19** remain held in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md).
 
-DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). Latest golden case is **`case-57`**. Harness registers **39** engines; catalog has **50**; **11** absent-with-reason (`topology-anti-pattern` is already registered — it still needs a golden case). This set closes the **remaining Cursor-implementable** density holes after DX-42–DX-46: honest `EvidenceRefs` on cost-recommendation and path engines DX-45 left empty, golden cases that prove DX-42 Pulumi/CloudFormation/CDK ingest actually feeds path/contradiction engines, harness registration + goldens for `security-baseline-expectation` and `required-capability-coverage` (plus a `topology-anti-pattern` golden), and (owner-gated) Workstream 2 tightening of `HasConcreteEvidenceCitation`.
+DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). Latest golden case is **`case-63`**. Harness registers **41** engines; catalog has **50**; **9** absent-with-reason. This set closed the **remaining Cursor-implementable** density holes after DX-42–DX-46: honest `EvidenceRefs` on cost-recommendation and path engines DX-45 left empty, golden cases that prove DX-42 Pulumi/CloudFormation/CDK ingest feeds path/contradiction engines (`case-58`–`case-60`), harness registration + goldens for `security-baseline-expectation` and `required-capability-coverage` plus a `topology-anti-pattern` golden (`case-61`–`case-63`), and Workstream 2 tightening of `HasConcreteEvidenceCitation` (DX-50).
 
-**Run one prompt per chat.** Feature branch per prompt. Suggested Cloud Agent branch: `cursor/dx-<short-name>-97a4`. Name the branch in any commit/push request. **Do not push to `master`.**
+**Do not re-run.** Archive only. Feature branches landed as #2126–#2137.
 
 ## Do not re-run
 
@@ -20,7 +20,8 @@ DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 | **DX-29–DX-35** | Golden depth, Helm/Kustomize/`.bicepparam`, TF modules/OIDC/DNS, data-flow × trust-boundary, three-way pack contradiction, preferred-engine catch-up, optional novelty-rate judge sort |
 | **DX-36–DX-41** | Harness data-flow/three-way, ARM `templateLink`, novelty→InsightGenerator, pack-gated graph/inventory security, Azure inventory goldens (`case-48`–`case-50`), docs honesty |
 | **DX-42–DX-46** | Pulumi/CloudFormation/CDK in-batch ingest, five-theme three-way contradiction, AWS/GCP inventory goldens (`case-51`–`case-54`), honest `EvidenceRefs` on inventory/orphan/contradiction/coverage/secrets-lifecycle, Advisor/AWS/GCP cost goldens (`case-55`–`case-57`) |
-| Coverage-only engines | Still forbidden. This set adds **no** new `EngineType`. **DX-49** only registers three catalog engines that already exist. |
+| **DX-47–DX-50** | EvidenceRefs remainder on cost/path engines, DX-42 ingest goldens (`case-58`–`case-60`), absent-engine goldens + harness registration (`case-61`–`case-63`), `HasConcreteEvidenceCitation` tightening |
+| Coverage-only engines | Still forbidden. This set added **no** new `EngineType`. **DX-49** only registered catalog engines that already existed. |
 
 ## Sequencing
 
@@ -31,9 +32,9 @@ DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 | **DX-49** | Golden harness for two absent engines + topology-anti-pattern golden | After DX-48 preferred | engines already shipped | Measurement |
 | **DX-50** | Tighten `HasConcreteEvidenceCitation` (Workstream 2) | **OWNER-GATED** — after DX-47 | DX-47 shipped | Precision |
 
-**Start DX-47 and DX-48 now** (independent). Start **DX-49** after DX-48 if you share `case-NN` numbers, or in parallel if you pick unused numbers after checking `GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber` (currently **57**). **Do not start DX-50** until the owner explicitly unparks Workstream 2 remainder in this conversation (or a later message that names **DX-50**). Prerequisite for DX-50 is **DX-47 shipped** so path/cost findings already carry ARM/ARN citations when the package has them.
+**DX-47–DX-50 shipped** (2026-09-07). Do **not** re-run from this document.
 
-**Do not start from this document:** **DX-18** / **DX-19** (held until the owner unparks **TB-885** / **TB-2033**), **DX-50** until the owner unparks it, a Pulumi or CDK **compiler** / live `pulumi up` / `cdk synth`, live extractor-as-default (product/GTM), fake named-model frontier transcripts, Graph-RAG buyer claims (ADR 0057 / TB-883), SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType` enum value, turning `PreferHighNoveltyEngines` or the LLM judge **on by default**. DX-47 must **not** change `HasConcreteEvidenceCitation` prefixes (that is DX-50, owner-gated).
+**Do not start from this document:** **DX-18** / **DX-19** (held until the owner unparks **TB-885** / **TB-2033**), a Pulumi or CDK **compiler** / live `pulumi up` / `cdk synth`, live extractor-as-default (product/GTM), fake named-model frontier transcripts, Graph-RAG buyer claims (ADR 0057 / TB-883), SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType` enum value, turning `PreferHighNoveltyEngines` or the LLM judge **on by default**.
 
 ---
 
