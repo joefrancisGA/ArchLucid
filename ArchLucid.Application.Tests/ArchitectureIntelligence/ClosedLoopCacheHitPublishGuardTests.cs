@@ -112,6 +112,38 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
     }
 
     [Fact]
+    public void SanitizeForStorage_preserves_publish_block_metadata()
+    {
+        ClosedLoopReasoningResult stored = new()
+        {
+            PublishBlocked = true,
+            PublishBlockReasons = ["MustNotFailClass: blocked"],
+            PublishedToProduct = true,
+            PublishedRecommendationCount = 2,
+            ProductFindings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "product-finding-1",
+                    Title = "Gap",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Rationale = "Rationale.",
+                },
+            ],
+        };
+
+        ClosedLoopCacheHitPublishGuard.SanitizeForStorage(stored);
+
+        stored.PublishBlocked.Should().BeTrue();
+        stored.PublishBlockReasons.Should().ContainSingle(reason => reason == "MustNotFailClass: blocked");
+        stored.PublishedToProduct.Should().BeFalse();
+        stored.ProductFindings.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ApplyCacheHitPolicy_normalizes_hyphenated_run_id_on_assign()
     {
         ClosedLoopReasoningRequest request = new() { PublishToProduct = false };

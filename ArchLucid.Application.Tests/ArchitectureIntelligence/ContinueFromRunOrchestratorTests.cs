@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
@@ -228,5 +229,56 @@ public sealed class ContinueFromRunOrchestratorTests
         ClosedLoopReasoningResult secondContinue = await orchestrator.RunAsync(continueRequest);
         secondContinue.CacheHit.Should().BeTrue();
         secondContinue.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, AlwaysBlockedTrustPublishGate>();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-blocked-cache",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+            DeclaredPriorities = ["Security"],
+        });
+
+        ClosedLoopReasoningRequest continueRequest = new()
+        {
+            TenantId = "tenant-continue-blocked-cache",
+            RunId = first.RunId,
+            ContinueFromExistingRun = true,
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure claims intake",
+            },
+            DeclaredPriorities = ["Security"],
+        };
+
+        ClosedLoopReasoningResult firstContinue = await orchestrator.RunAsync(continueRequest);
+        firstContinue.CacheHit.Should().BeFalse();
+        firstContinue.PublishBlocked.Should().BeTrue();
+
+        ClosedLoopReasoningResult secondContinue = await orchestrator.RunAsync(continueRequest);
+        secondContinue.CacheHit.Should().BeTrue();
+        secondContinue.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+        secondContinue.PublishBlocked.Should().BeTrue();
     }
 }

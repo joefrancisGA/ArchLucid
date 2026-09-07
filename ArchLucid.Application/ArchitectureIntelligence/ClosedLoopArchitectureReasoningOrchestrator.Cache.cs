@@ -150,7 +150,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         }
 
         if (!effectiveRequest.PublishToProduct
-            && (isReviewCacheHit || shared.PublishedToProduct))
+            && shared.PublishedToProduct)
             ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
 
         // Live coalesced leaders keep PublishBlocked; analysis followers are stripped in

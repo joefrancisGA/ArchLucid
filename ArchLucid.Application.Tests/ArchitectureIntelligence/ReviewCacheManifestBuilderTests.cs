@@ -283,6 +283,32 @@ public sealed class ReviewCacheManifestBuilderTests
         coalesceManifest.ReuseReason.Should().Be("closed-loop-continue-existing");
     }
 
+    [Fact]
+    public void BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-1",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheDependencyManifest lookupManifest =
+            ReviewCacheManifestBuilder.Build(request, baseline, technologyLedgerEntries: null);
+
+        ReviewCacheDependencyManifest storageManifest =
+            ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                request,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                baseline,
+                technologyLedgerEntries: null);
+
+        lookupManifest.ContentHash.Should().Be(storageManifest.ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

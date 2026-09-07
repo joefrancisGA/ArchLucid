@@ -319,6 +319,7 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
         second.CacheHit.Should().BeTrue();
         second.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+        second.PublishBlocked.Should().BeTrue();
     }
 
     [Fact]
