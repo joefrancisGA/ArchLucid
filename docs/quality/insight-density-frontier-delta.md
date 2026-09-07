@@ -12,3 +12,22 @@ Match threshold: **0.6**
 
 Offline eval-corpus fixtures only. Hand-authored baseline transcripts are a regression instrument — not evidence that ArchLucid beats any named frontier model.
 
+## Capture schema (not a named-model benchmark)
+
+Frontier **capture** fixtures (`tests/eval-corpus/insight-density-frontier-capture/`) record sealed-run metadata for offline novelty measurement:
+
+| Field | Purpose |
+| --- | --- |
+| `architecturePackageSha256` | Pinned architecture package hash at capture time |
+| `findingsSnapshotId` | Frozen findings snapshot id |
+| `capturedUtc` | Capture timestamp (UTC) |
+| `label` | `synthetic` (committed regression) or `pilot-pending` (operator capture) |
+| `decisionGradeFindingTitles[]` | Decision-grade titles from the sealed snapshot |
+| `noveltyFindingIds[]` | Optional human **DidNotThinkOfThat** marks |
+
+Schema: `docs/quality/fixtures/insight-density-frontier-capture.schema.json`
+
+Operator script (dev/test only): `scripts/capture_insight_density_frontier.py` — requires `--dev-only` or `ARCHLUCID_DEV_CAPTURE=1`. Writes capture JSON from a sealed run id; does **not** fabricate frontier-model transcripts.
+
+**claimBoundary:** Capture fixtures and this rollup are internal measurement instruments. They must not appear in buyer copy as proof that ArchLucid beats GPT, Claude, or any other named model.
+

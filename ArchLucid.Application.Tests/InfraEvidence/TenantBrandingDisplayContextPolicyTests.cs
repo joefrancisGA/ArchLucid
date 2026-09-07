@@ -80,6 +80,15 @@ public sealed class TenantBrandingDisplayContextPolicyTests
     }
 
     [Fact]
+    public void Sample_security_help_markdown_retains_securenow_product_identity()
+    {
+        OperatorHelpProductTextPolicy.RetainsProductIdentity(
+                OperatorHelpProductTextPolicy.SampleSecurityHelpMarkdown,
+                OperatorHelpProductTextPolicy.SecurityProductNameToken)
+            .Should().BeTrue();
+    }
+
+    [Fact]
     public void MermaidDiagram_context_uses_tenant_visual_brand_when_active()
     {
         ResolvedTenantBrandingProfile profile = new()

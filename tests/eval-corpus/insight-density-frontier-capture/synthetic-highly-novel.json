@@ -1,0 +1,60 @@
+{
+  "schema": "archlucid.insight-density-frontier-capture.v1",
+  "id": "synthetic-highly-novel",
+  "architecturePackageSha256": "0000000000000000000000000000000000000000000000000000000000000001",
+  "findingsSnapshotId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "runId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "capturedUtc": "2026-09-07T00:00:00Z",
+  "label": "synthetic",
+  "decisionGradeFindingTitles": [
+    "Cross-region replication lacks documented RPO for patient intake queue",
+    "Private endpoint subnet allows outbound internet without egress firewall",
+    "Enable MFA for privileged operator accounts",
+    "Storage account allows public blob access"
+  ],
+  "noveltyFindingIds": ["f1", "f2", "f4"],
+  "archlucidFindings": [
+    {
+      "findingId": "f1",
+      "engineType": "topology",
+      "category": "Reliability",
+      "title": "Cross-region replication lacks documented RPO for patient intake queue",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f2",
+      "engineType": "topology",
+      "category": "Security",
+      "title": "Private endpoint subnet allows outbound internet without egress firewall",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f3",
+      "engineType": "compliance",
+      "category": "Security",
+      "title": "Enable MFA for privileged operator accounts",
+      "policyRuleId": null,
+      "classification": "DecisionGradeFinding"
+    },
+    {
+      "findingId": "f4",
+      "engineType": "declaration-security-baseline",
+      "category": "Security",
+      "title": "Storage account allows public blob access",
+      "policyRuleId": "storage.public-access",
+      "classification": "DecisionGradeFinding"
+    }
+  ],
+  "frontierBaseline": {
+    "findings": [
+      {
+        "category": "Security",
+        "title": "Enable MFA for privileged operator accounts",
+        "ruleId": null
+      }
+    ]
+  },
+  "expectedNoveltyPercentage": 75.0
+}

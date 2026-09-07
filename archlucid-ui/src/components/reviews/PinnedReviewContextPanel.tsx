@@ -154,10 +154,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
   const headline =
     context.summary !== null ? buyerFacingReviewTitleFromSummary(context.summary) : "Pinned review";
 
-  const architectureId = resolveReviewWorkspaceArchitectureId(
-    context.summary?.architectureId ?? null,
-    pathname,
-  );
+  const architectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const makePrimaryHref = resolveArchitectureReviewHref(pinRunId, architectureId);
 
   return (

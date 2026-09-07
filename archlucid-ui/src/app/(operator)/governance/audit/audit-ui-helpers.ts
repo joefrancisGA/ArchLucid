@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 /** Pure helpers for the operator audit page (Vitest-friendly). */
 
 import {
@@ -7,6 +10,17 @@ import {
 } from "@/lib/audit-event-presentation";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+/**
+ * Maps stored audit actor labels to the active product-line display name in the UI only.
+ * Does not change detection logic in {@link auditBuyerEventIsSystemRecordedActor}.
+ */
+export function formatAuditActorDisplayName(
+  actorUserName: string,
+  productLineId: ProductLineId = "architecture",
+): string {
+  return localizeProductCopy(productLineId, actorUserName);
+}
 
 /**
  * True when the buyer-polished audit row should treat the actor as system-recorded (aligned with card subtitles).

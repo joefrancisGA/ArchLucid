@@ -5,12 +5,13 @@ import {
   ASSURANCE_STATUS_PAGE_TITLE,
   ASSURANCE_STATUS_PRIMARY_CONTENT_ID,
 } from "@/lib/marketing/assurance-status-page-copy";
-import { SECURITY_TRUST_HERO_SUPPORTING } from "@/lib/security-trust-content";
+import { assuranceStatusHeroSupporting } from "@/lib/security-trust-product-copy";
 
 describe("assurance-status-page-copy", () => {
-  it("uses shorter buyer hero supporting copy", () => {
+  it("uses product-line hero supporting copy for architecture default export", () => {
     expect(ASSURANCE_STATUS_PAGE_TITLE).toBe("Assurance status");
     expect(ASSURANCE_STATUS_PRIMARY_CONTENT_ID).toBe("assurance-status-primary-content");
-    expect(ASSURANCE_STATUS_HERO_SUPPORTING.length).toBeLessThan(SECURITY_TRUST_HERO_SUPPORTING.length);
+    expect(ASSURANCE_STATUS_HERO_SUPPORTING).toBe(assuranceStatusHeroSupporting("architecture"));
+    expect(assuranceStatusHeroSupporting("security")).toContain("SecureNow");
   });
 });

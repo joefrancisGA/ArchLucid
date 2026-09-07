@@ -52,7 +52,6 @@ import {
 } from "@/lib/quick-scan-evidence-copy";
 import {
   SECURITY_TRUST_CLAIM_DISCIPLINE,
-  SECURITY_TRUST_SOURCES,
   SECURITY_TRUST_SOURCES_INTRO,
 } from "@/lib/security-trust-evidence-copy";
 import { SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
@@ -246,20 +245,6 @@ export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
-      claimHeading=""
-      claim=""
-    />
-  );
-}
-
-export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationSourcesAndClaimStrip
-      slug="assurance-status"
-      part="sources"
-      margin="mt-8"
-      sourcesIntro={SECURITY_TRUST_SOURCES_INTRO}
-      sources={SECURITY_TRUST_SOURCES}
       claimHeading=""
       claim=""
     />
