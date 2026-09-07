@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **39** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`**, **`case-32`**, **`case-33`**, **`case-34`**, **`case-35`**, **`case-36`**, **`case-37`**, **`case-38`**, **`case-39`**, **`case-40`**, **`case-41`**, and **`case-42`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **45** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-45`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-42`)
+## Coverage map (`case-01` … `case-45`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -50,6 +50,9 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-40`** (hand-authored) | **DX-28** — requirement RPO 15 min with SQL lacking replica/failover. Exercises **`dr-rpo-topology`**. See `tests/golden-corpus/decisioning/case-40/README.md`. |
 | **`case-41`** (hand-authored) | **DX-24** — function `appSettings` Key Vault URI with no vault node in graph. Exercises **`dangling-declaration-reference`**. See `tests/golden-corpus/decisioning/case-41/README.md`. |
 | **`case-42`** (hand-authored) | **DX-25** — zone-redundant requirement with `Standard_LRS` SQL SKU. Exercises **`requirement-sku-tier`**. See `tests/golden-corpus/decisioning/case-42/README.md`. |
+| **`case-43`** (hand-authored) | **DX-29** — second billing machine actor Contributor path to audit storage account. Exercises **`identity-blast-radius`** (second fixture). See `tests/golden-corpus/decisioning/case-43/README.md`. |
+| **`case-44`** (hand-authored) | **DX-29** — second internet-exposed RDP (3389) to subnet with HR SQL path. Exercises **`segmentation-semantics`** (second fixture). See `tests/golden-corpus/decisioning/case-44/README.md`. |
+| **`case-45`** (hand-authored) | **DX-29** — second requirement RPO 5 min with ledger SQL lacking replica/failover. Exercises **`dr-rpo-topology`** (second fixture). See `tests/golden-corpus/decisioning/case-45/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -83,7 +86,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-42` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, and expectation stamps stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-45` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, and expectation stamps stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`).
 
 ---
 
