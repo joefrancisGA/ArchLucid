@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
+import { EngineInsightNoveltyRatesFootnote } from "@/components/findings/EngineInsightNoveltyRatesFootnote";
 import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsHiddenFilterHonestyBand";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
@@ -431,6 +432,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
           </p>
+          <EngineInsightNoveltyRatesFootnote />
           <div
             className="flex flex-wrap items-center gap-2"
             role="tablist"

@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import {
   architectureIdentityPath,
   resolveArchitectureReviewHref,
-  startReviewFromArchitectureHref,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 import {

@@ -20,7 +20,7 @@ describe("toReviewsHubReviewRowDisplay", () => {
 
     expect(row.isSampleReview).toBe(true);
     expect(row.findingsCount).toBeGreaterThan(0);
-    expect(row.governanceState).toBe("Ready for governance");
+    expect(row.governanceState).toBe("Approved");
     expect(row.overallStatus).toBe("Finalized");
     expect(row.primaryAction.label).toBe("View finalized review");
     expect(row.primaryAction.href).toContain(SHOWCASE_STATIC_DEMO_RUN_ID);

@@ -3,12 +3,16 @@
      synthetic-hit treadmill (redaction allowlists, schemaVersion leniency,
      English-negation phrase lists, mega-zone picker lock).
      Wave 3 (ABQ-14–18): leftover work after ABQ-01–13 shipped in code.
-     Wave 4 (ABQ-19–25): seed quality, fix honesty, and ungameable metrics.
+     Wave 4 (ABQ-19–25): seed quality, fix honesty, and ungameable metrics (shipped).
+     Wave 5 (ABQ-26–35): surviving-mutant seeds, CI/flake ingest, class bans,
+     concurrency/authz/clock probes, drills, ratchets (shipped in code, #1969).
+     Wave 6 (ABQ-36–45): leftover honesty (blocking ratchet, dead ingest, catalog
+     without host) plus seed-only/seeder Goodhart. Prompts only until implemented.
      Do not implement from this index. -->
 
-# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-25)
+# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-45)
 
-**Status:** **ABQ-01–25 shipped in code** (wave 4 merged on `cursor/al-bug-quality-prompts-wave4-3c5e`). Prompt files remain for reference; do **not** re-implement from them unless starting a new wave.
+**Status:** **ABQ-01–45 shipped in code** (wave 5 #1969, wave 6 implementation). Do **not** re-implement 01–45 from their files.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -43,10 +47,30 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Blind seed hunts** | Hypotheses only from file reading; analyzer diagnostics unused | ABQ-23 *(shipped)* |
 | **Churn-only nominate** | `-Nominate` cannot tell an untested orchestrator from a constants file | ABQ-24 *(shipped)* |
 | **Ignored mutation scores** | Scheduled Stryker exists; picker does not show kill rate | ABQ-25 *(shipped)* |
+| **Score without loci** | Mutation % shown; surviving mutants not seeded | ABQ-26 *(shipped)* |
+| **Single-thread seeds** | Commit/persist races never constructed | ABQ-27 *(shipped)* |
+| **Hand-picked authz routes** | New OpenAPI paths skip cross-tenant cases | ABQ-28 *(shipped)* |
+| **Local DateTime windows** | JSONL ISO parsed as local; DST/Kind skew | ABQ-29 *(shipped)* |
+| **Manual escape log** | CI red on production paths never recorded | ABQ-30 *(shipped)* |
+| **Forgotten flakes** | Retry-then-green hides races | ABQ-31 *(shipped)* |
+| **Class cooldown only** | Sibling copies of retired helpers still compile | ABQ-32 *(shipped)* |
+| **Self-reported sensitivity** | Loop never measured against a known injected defect | ABQ-33 *(shipped)* |
+| **Warn-only revert verifier** | New unguarded `(proven)` rows still merge | ABQ-34 *(shipped)* |
+| **Unearned high impact** | Multiplier accepts “scary file” as user-visible harm | ABQ-35 *(shipped)* |
+| **Ratchet still warn-only** | Empty unguarded baseline + `continue-on-error` | ABQ-36 *(shipped)* |
+| **Dead CI-escape artifact** | Two-entry job map; humans never paste candidates | ABQ-37 *(shipped)* |
+| **Empty flake log** | Schema exists; no TRX/retry parser | ABQ-38 *(shipped)* |
+| **Catalog without host** | OpenAPI matrix classified; one known route never sent as tenant B | ABQ-39 *(shipped)* |
+| **Unused severity sample** | 0% harm-named; new high `(proven)` still unlinted | ABQ-40 *(shipped)* |
+| **Seed-only explore decay** | Reseed hunts shrink `explore` without a thorough hunt | ABQ-41 *(shipped)* |
+| **Replay re-enters persist** | ABQ-27 probes allow second `commitAsync` | ABQ-42 *(shipped)* |
+| **Seeder paste flood** | Three 15-caps concatenate; no cross-dedup | ABQ-43 *(shipped)* |
+| **Ghost zone paths** | Ledger prefixes survive file rename | ABQ-44 *(shipped)* |
+| **Uncheckable proven** | `no-test-cited` / `could-not-run` bypass the unguarded ratchet | ABQ-45 *(shipped)* |
 
 ## Run order
 
-**01–25 are done** (do not paste those files to re-do the work).
+**01–45 are done** (do not paste those files to re-do the work).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
@@ -75,6 +99,26 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **23** | `al-bug-quality-23-analyzer-seeded-hypotheses.md` | Analyzer/SARIF seeds as `(candidate)` only |
 | **24** | `al-bug-quality-24-coverage-churn-nominate.md` | `-Nominate` rank = churn × (1−coverage) × size |
 | **25** | `al-bug-quality-25-stryker-zone-quality.md` | Map scheduled Stryker baselines onto zones |
+| **26** | `al-bug-quality-26-surviving-mutant-seeds.md` | Surviving mutants → `(candidate)` only |
+| **27** | `al-bug-quality-27-concurrency-idempotency-probes.md` | Double-submit / crash-retry / two-caller commit probes |
+| **28** | `al-bug-quality-28-schema-authz-fuzz.md` | OpenAPI-derived wrong-tenant 403/404 matrix |
+| **29** | `al-bug-quality-29-clock-skew-properties.md` | UTC/Kind/DST properties for 24h/7d/90d windows |
+| **30** | `al-bug-quality-30-ci-escape-ingest.md` | Default-branch CI failure → escape-log `source: ci` |
+| **31** | `al-bug-quality-31-flake-ledger.md` | Retry-then-pass JSONL → race candidates |
+| **32** | `al-bug-quality-32-retired-class-bans.md` | CI ban new copies of retired treadmill helpers |
+| **33** | `al-bug-quality-33-seeded-defect-drills.md` | Inject known defect; measure picker/seed hit (no `/al-bug`) |
+| **34** | `al-bug-quality-34-revert-verifier-ratchet.md` | Fail CI on **new** unguarded proven rows vs baseline |
+| **35** | `al-bug-quality-35-severity-calibration-audit.md` | Sample high-impact rows for named 1.1b harm |
+| **36** | `al-bug-quality-36-blocking-revert-ratchet.md` | Drop `continue-on-error` on new-unguarded sample if dry-run is clean |
+| **37** | `al-bug-quality-37-ci-escape-job-map.md` | Expand CI job→path map; human paste helper; no git-push |
+| **38** | `al-bug-quality-38-flake-trx-ingest.md` | TRX/retry preview → flake JSONL stdout; log stays human-append |
+| **39** | `al-bug-quality-39-schema-authz-host-probe.md` | One known GET as tenant B; Slow/SQL skip; not a pen test |
+| **40** | `al-bug-quality-40-high-impact-proven-lint.md` | PR lint new high `(proven)` for closed harm tokens |
+| **41** | `al-bug-quality-41-seed-only-explore.md` | Explore/eligibility use thorough hunts, not seed-only |
+| **42** | `al-bug-quality-42-commit-replay-no-reenter.md` | Matching-key replay must not invoke persist twice |
+| **43** | `al-bug-quality-43-seeder-spam-cap.md` | Cross-seeder dedup + combined cap 15 |
+| **44** | `al-bug-quality-44-ghost-zone-paths.md` | Lint ledger `paths` that match no files |
+| **45** | `al-bug-quality-45-uncheckable-proven-ratchet.md` | New `no-test-cited` / `could-not-run` vs baseline |
 
 ## Already shipped — do not re-open as this set’s job
 
@@ -96,13 +140,55 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Boolean reader + identity reject (15) | `ArchLucid.Core/Json/JsonBooleanStringReader.cs`; `StrictSchemaVersionReader` on CloudInventory manifest |
 | Honest ledger counters (16) | `effectiveBugs` in picker; `al-bug-lint-ledger-counters.py` in CI |
 | Cloud pwsh setup (18) | `AGENTS.md` § Cursor Cloud specific instructions |
+| Escape log + picker penalty (19) | `docs/library/AL_BUG_ESCAPE_LOG.jsonl`; `escapeCount90d` / `−1` |
+| Revert verifier warn-only (20) | `scripts/agent/al-bug-verify-proven-revert.py`; CI `--limit 5`, no `--fail-on-unguarded` |
+| Defect-class cooldown (21) | Closed enum + picker `saturatedClasses` |
+| Parser properties (22) | FsCheck on `StrictSchemaVersionReader` / `JsonBooleanStringReader` / numeric readers |
+| Analyzer seeds (23) | `scripts/agent/al-bug-seed-from-analyzers.ps1` `(candidate)` only |
+| Coverage×churn nominate (24) | `-Nominate -CoverageCobertura` |
+| Stryker zone map (25) | `al-bug-stryker-zone-map.json`; unmapped `mutationScore` is `null`, not `0` |
+| Surviving-mutant seeds (26) | `al-bug-seed-from-surviving-mutants.ps1` `(candidate)` only |
+| Commit idempotency probes (27) | `CommitRunIdempotencyProbeTests` |
+| Schema authz catalog (28) | `SchemaAuthzFuzzCatalog` — GET/DELETE path-id matrix |
+| UTC window properties (29) | Picker 90d/14d boundary Pester |
+| CI escape ingest (30) | `al-bug-ingest-ci-escape.py` dry-run + artifact workflow |
+| Flake ledger (31) | `AL_BUG_FLAKE_LOG.jsonl` + seeder |
+| Retired-class bans (32) | `al-bug-ban-retired-classes.py` blocking in `azure-extractor-pester` |
+| Seeded-defect drills (33) | `al-bug-seeded-defect-drill.py` (no `/al-bug`, no push) |
+| Revert-verifier ratchet (34) | `--fail-on-new-unguarded` vs `al-bug-unguarded-proven-baseline.json` (CI still `continue-on-error`) |
+| Severity calibration (35) | `al-bug-audit-severity-calibration.py` + report |
 
 ### Footnotes for stale 01–10 prompt text
 
-- ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 19–25 must not recreate it.
+- ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 19–45 must not recreate it.
 - ABQ-10 asked for a **sample**; ABQ-12 classified the **full** proven-row population. Do not revert to sampling.
 - ABQ-03 + ABQ-15 consolidated boolean parsing into `JsonBooleanStringReader`; identity fields use whole-number/enum readers only.
 - ABQ-09 `-Nominate` **exists** in `al-bug-pick-zone.ps1`. Wave 4 prompt 24 **extends** it; do not re-implement Nominate from the stale 09 file.
+- ABQ-20 CI is warn-only on purpose. **ABQ-34** is the ratchet (new unguarded vs baseline). Do not flip `--fail-on-unguarded` in a 26–33 session.
+- ABQ-25 is display-only scores. **ABQ-26** seeds surviving mutants from an **existing** `mutation-report.json`; still do not run Stryker inside `/al-bug`.
+- ABQ-19 escape ingest is manual. **ABQ-30** adds CI `source: ci` (artifact/dry-run unless a bot-commit path already exists). Do not invent `PD-###`.
+
+### Footnotes for 26–35 implementers (historical)
+
+- Shared ledger parser is `scripts/agent/al_bug_ledger.py` (`parse_zones`, `collect_proven_rows`, `ProvenRow`). Import it; do not fork.
+- Closed defect-class enum (ABQ-21) stays: `fail-open-validation`, `boolean-coercion`, `strictmode-script`, `state-machine-gap`, `null-deref`, `off-by-one`, `authz-scope`, `other`. Do **not** grow it in 26–45.
+- Default hunt push target remains **`bugsmash`**. Drills (33) must not push there.
+- Picker param for Stryker files is **`StrykerBaselinesPath`** (not `StrykerBaselines` — hashtable clash).
+- `ConvertTo-RunLogUtcDateTime` already accepts ISO strings **and** `[datetime]` (ABQ-29 locks Kind/DST, does not re-litigate the JSON parser).
+- Pester **5** only (`Invoke-Pester -Strict -EnableExit`). Do not recreate deleted `_al-bug-pick-zone.ps1`.
+- ABQ-34 CI sample stayed `continue-on-error` on purpose until **ABQ-36**. Do not use `--fail-on-unguarded` nuclear in 36–45.
+- ABQ-28 shipped a **catalog**, not a full HTTP matrix. **ABQ-39** is one known route + SQL skip — not a pen test.
+
+### Footnotes for 36–45 implementers
+
+- Import `al_bug_ledger.py`; do not fork zone parsing.
+- Closed enum **unchanged**. Default `bugsmash`. No `_al-bug-pick-zone.ps1`.
+- ABQ-36 before ABQ-45 (uncheckable ratchet must not be stricter than unguarded while 36 is still warn-only).
+- ABQ-37/38 must not git-push JSONL (same won’t-do as 30/31).
+- ABQ-40 must not add harm tokens to `al-bug-audit-proven-rows.py`.
+- ABQ-41 must not stop incrementing stanza `hunts` on seed-only (audit trail); change picker denominators only.
+- ABQ-42: failing probe first; no `/al-bug` ledger tick.
+- ABQ-44: warn-only if `master` is full of ghosts; do not mass-rewrite stanzas.
 
 ## Won’t do (explicitly not prompted)
 
@@ -111,7 +197,14 @@ Do **not** create implementation prompts or engineering batches for:
 - Driving the validity audit’s remaining **unclassified** share down with more English-phrase signals (diminishing returns / misclassification). The audit is guard-symbol based on purpose. ABQ-21’s class tags are **opt-in on new rows**, not a retroactive regex pass.
 - Splitting `GenericArchitectureAdvicePatternsMultiCloudTests.cs` (~9.8k lines, ~38 `InlineData` blocks). That file is not treadmill residue.
 - Running Stryker inside `/al-bug` or adding coverlet collect to PR `dotnet-fast-core` (ABQ-24/25 are offline/scheduled inputs only).
-- Creating `PD-###` / `TB-###` ids from hunt-quality work (ABQ-19 maps existing defects; `/al-defect` remains the only PD intake).
+- Creating `PD-###` / `TB-###` ids from hunt-quality work (ABQ-19 maps existing defects; `/al-defect` remains the only PD intake; ABQ-30 `source: ci` is not a PD).
+- Running `/al-bug` to implement 26–45 (especially 33 — drills measure the loop offline; 42 is a probe+fix session, not a hunt).
+- Treating ABQ-28, ABQ-33, or **ABQ-39** as G-ASSURANCE-02 / a published third-party pen test. Do **not** HTTP-fuzz the full OpenAPI catalog.
+- Auto-pushing escape/flake JSONL from CI unless a bot-commit pattern already exists (30/31/37/38 default to artifact + dry-run + human paste).
+- Mass-reticking historical `(proven)` to `(invalid)` when ratcheting ABQ-34/36/45.
+- Using `--fail-on-unguarded` (nuclear) in CI.
+- Enabling new CI test retries solely to feed the flake log (ABQ-38).
+- Rewriting historical `bugs-found` from the ABQ-35 0% sample (ABQ-40 may demote ≤3 zone `impact:` fields).
 
 ## Global constraints (every prompt)
 
@@ -126,3 +219,7 @@ Do **not** create implementation prompts or engineering batches for:
 ## After each prompt
 
 Summarize: files changed, tests run, whether fictional allowlists/phrase lists shrank, residual risk, and which later ABQ prompt still owns leftovers. Do not mark `/al-bug` itself as retired.
+
+Wave 5 leftovers now owned by wave 6: 34→**36**; 30→**37**; 31→**38**; 28 host→**39**; 35 lint→**40**; 27 replay→**42**. 26 still does not ratchet Stryker; 32 still does not rewrite historical parsers; 33 still does not invoke `/al-bug`.
+
+Wave 6 leftovers (do not steal another prompt’s job): 36 does not nuclear `--fail-on-unguarded`; 37/38 do not git-push JSONL; 39 does not walk every in-matrix route; 40 does not rewrite `bugs-found`; 41 does not zero stanza `hunts` on seed-only; 43 does not auto-delete candidate rows; 44 does not mass-edit ghosts on the first PR; 45 does not outrun 36.

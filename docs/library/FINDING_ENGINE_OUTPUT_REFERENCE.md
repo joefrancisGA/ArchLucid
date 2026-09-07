@@ -40,7 +40,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
 | `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
 | `segmentation-semantics` | `SegmentationSemanticsFindingEngine` | Security | Parses declared NSG / security group / NetworkPolicy rules for internet-exposed admin inbound ports (22, 3389, 1433, 3306, 5432) when the control is within 3 hops of a datastore or jump box. Does not fire on control presence alone. |
-| `insight-generator` | `InsightGeneratorFindingEngine` (+ `PremiumInsightFindingGenerator`) | Security | No-op catalog engine; Real-mode Premium LLM pass proposes up to 8 package-grounded findings after typed engines. Output merged by orchestrator stage, then gated like agent findings. |
+| `insight-generator` | `InsightGeneratorFindingEngine` (+ `PremiumInsightFindingGenerator`) | Security | No-op catalog engine; Real-mode Premium LLM pass proposes up to 8 package-grounded findings after typed engines. Output merged by orchestrator stage, then gated like agent findings. When `Retrieval:Advanced:EnableCommunitySummarization` is **true** (default **false**), bounded graph community summaries may appear in the evidence pack with allow-listed `community:{id}` refs — optional retrieval context, **not** buyer Graph-RAG proof. |
 | `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
 | `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
 | `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
@@ -118,3 +118,5 @@ External **`IFindingEngine`** implementations can be dropped into **`ArchLucid:F
 | Signal | API | Notes |
 |--------|-----|-------|
 | Insight desk signal (`DidNotThinkOfThat`, `Expected`, `DismissAsChecklist`) | `POST /v1/runs/{runId}/findings/{findingId}/insight-signal` | Append-only `dbo.FindingInsightSignals`; does **not** change finding classification or replace mute. Internal insight-density numerator — **not** buyer proof or cohort evidence. |
+
+**Insight-density advisory boundary:** `typed-engine-protected` rows demoted by `DeterministicInsightDensityGate` remain **advisory** checklist coverage — not G-REAL-06 procurement proof or buyer attestations.

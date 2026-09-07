@@ -17,6 +17,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
@@ -49,6 +50,7 @@ export function SettingsPageView() {
   const settingsMasterAdvancedOpenParam = searchParams.get("settingsMasterAdvancedOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { productLine, assignmentOverrides } = useProductLine();
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [showAdvanced, setShowAdvancedState] = useState(() =>
     parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam),
@@ -112,8 +114,10 @@ export function SettingsPageView() {
         showInternalShell: isArchLucidInternalOperatorShellEnv(),
         searchQuery,
         showAdvanced,
+        productLine,
+        productLineAssignmentOverrides: assignmentOverrides,
       }),
-    [callerAuthorityRank, isAuthorityLoading, searchQuery, showAdvanced],
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
   );
 
   const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");

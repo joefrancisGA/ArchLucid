@@ -720,7 +720,7 @@ public sealed class RunsControllerTests
     public void GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation()
     {
         InMemoryAdvisoryDraftOperationStore store = new();
-        AdvisoryDraftOperationRecord record = store.CreatePending(Scope);
+        AdvisoryDraftOperationRecord record = store.CreatePending(Scope).Record;
         string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
         store.MarkFailed(opaqueOperationId, "LLM timeout");
 

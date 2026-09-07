@@ -141,7 +141,12 @@ Describe 'al-bug-pick-zone.ps1' {
 
     It 'samples an untried zone ahead of a high-hypothesis sampled zone' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
-        $result = Invoke-Picker -LedgerPath $ledger
+        [string]$runLog = Join-Path $TestDrive 'zone-a-thorough.jsonl'
+        $lines = 1..12 | ForEach-Object {
+            '{"at":"2026-08-0' + ($_ % 9 + 1) + 'T00:00:00Z","zoneId":"zone-a","outcome":"dry"}'
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog
 
         $result.zoneId | Should -Be 'zone-b'
         $result.score | Should -Be 6
@@ -449,9 +454,14 @@ Describe 'al-bug-pick-zone.ps1' {
         $one = Get-TwoZoneLedger -ZoneBOpenCount 1
         $three = Get-TwoZoneLedger -ZoneBOpenCount 3
         [string]$ledgerOne = New-LedgerFixture -Content $one
-        $resultOne = Invoke-Picker -LedgerPath $ledgerOne
         [string]$ledgerThree = New-LedgerFixture -Content $three
-        $resultThree = Invoke-Picker -LedgerPath $ledgerThree
+        [string]$runLog = Join-Path $TestDrive 'zone-a-thorough-candidates.jsonl'
+        $lines = 1..12 | ForEach-Object {
+            '{"at":"2026-08-0' + ($_ % 9 + 1) + 'T00:00:00Z","zoneId":"zone-a","outcome":"hit"}'
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+        $resultOne = Invoke-Picker -LedgerPath $ledgerOne -RunLogPath $runLog
+        $resultThree = Invoke-Picker -LedgerPath $ledgerThree -RunLogPath $runLog
 
         $resultOne.zoneId | Should -Be 'zone-b'
         $resultThree.zoneId | Should -Be 'zone-b'
@@ -1183,5 +1193,146 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.mutationScoreMissing | Should -Be $false
         $result.strykerLabel | Should -Be 'Persistence'
         $result.mutationScore | Should -Be 70.0
+    }
+
+    It 'counts an escape 1s inside the 90d window and excludes 1s outside' {
+        $content = Get-TwoZoneLedger -ZoneAChurn '0' -ZoneBChurn '0' -ZoneAHunts 5 -ZoneABugs 5 -ZoneBHunts 5 -ZoneBBugs 5
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'hunts-90d.jsonl'
+        Set-Content -LiteralPath $runLog -Value '' -Encoding UTF8
+        $now = '2026-09-07T12:00:00Z'
+        [string]$insideLog = Join-Path $TestDrive 'escape-inside.jsonl'
+        [string]$outsideLog = Join-Path $TestDrive 'escape-outside.jsonl'
+        $inside = @{ at = '2026-06-09T12:00:01Z'; source = 'ci'; zoneId = 'zone-a'; paths = @('ArchLucid.Application/Foo.cs'); ref = 'in'; huntedInPriorDays = -1 } | ConvertTo-Json -Compress
+        $outside = @{ at = '2026-06-09T11:59:59Z'; source = 'ci'; zoneId = 'zone-a'; paths = @('ArchLucid.Application/Foo.cs'); ref = 'out'; huntedInPriorDays = -1 } | ConvertTo-Json -Compress
+        Set-Content -LiteralPath $insideLog -Value $inside -Encoding UTF8
+        Set-Content -LiteralPath $outsideLog -Value $outside -Encoding UTF8
+
+        $inResult = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath $insideLog -AtUtc $now -Hint 'zone-a'
+        $outResult = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath $outsideLog -AtUtc $now -Hint 'zone-a'
+
+        $inResult.escapeCount90d | Should -Be 1
+        $outResult.escapeCount90d | Should -Be 0
+    }
+
+    It 'does not saturate a class when the fourth hit is outside the 14d window' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/AreaA/
+- **hunts:** 4
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) only boolean [class:boolean-coercion]
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/AreaB/
+- **hunts:** 4
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) other [class:null-deref]
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'class-14d.jsonl'
+        $now = '2026-09-07T12:00:00Z'
+        $lines = @(
+            (@{ at = '2026-08-24T11:59:59Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/A.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-05T10:00:00Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/B.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T10:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/C.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T11:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/D.cs') } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now
+        @($result.saturatedClasses) | Should -Not -Contain 'boolean-coercion'
+    }
+
+    It 'treats leap-day run-log timestamps as UTC without throwing' {
+        $content = Get-TwoZoneLedger
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'leap.jsonl'
+        $line = @{ at = '2024-02-29T00:00:00Z'; zoneId = 'zone-a'; outcome = 'hit' } | ConvertTo-Json -Compress
+        Set-Content -LiteralPath $runLog -Value $line -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2025-02-28T00:00:00Z' -Hint 'zone-a'
+        $result.zoneId | Should -Be 'zone-a'
+    }
+
+    It 'does not shrink explore bonus for seed-only run-log activity' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Foo.cs
+- **hunts:** 10
+- **bugs-found:** 0
+- **last-hunt:** 2026-01-01
+- **test-filter:** ``FullyQualifiedName~Foo``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) repro target
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Bar.cs
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-hunt:** never
+- **test-filter:** ``FullyQualifiedName~Bar``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) repro target
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'seed-only.jsonl'
+        $lines = @(
+            '{"at":"2026-09-06T12:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T13:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T14:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T15:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T16:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T17:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T18:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T19:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T20:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T21:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $seedOnly = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z' -Hint 'zone-a'
+        $thorough = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z' -Hint 'zone-b'
+
+        $seedOnly.exploreBonus | Should -Be 1
+        $seedOnly.thoroughHunts | Should -Be 0
+        $seedOnly.seedOnly24h | Should -Be 10
+        $thorough.exploreBonus | Should -Be 1
     }
 }

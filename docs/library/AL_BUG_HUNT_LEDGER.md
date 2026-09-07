@@ -57,7 +57,7 @@ Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean 
 effective_bugs     = min(bugs-found, hunts) when hunts > 0
 mean_hunts_per_bug = hunts / max(1, effective_bugs) when hunts > 0, else hunts + 2 (prior)
 speed              = min(1, 1 / mean_hunts_per_bug)
-explore            = 1 / sqrt(hunts + 1)
+explore            = 1 / sqrt(thoroughHunts + 1)   # thorough = run-log hit|dry only (not seed-only)
 precision          = proven / (proven + invalid) when that sum >= 2, else omitted
                      (valid-no-repro is not in the denominator)
 
@@ -76,11 +76,23 @@ score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.6
 
 Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
 
+**Seed-only:** Stanza `hunts` still increments on seed-only runs (audit trail). Seed-only does **not** count toward `thoroughHunts` for explore and does not satisfy a queued thorough hunt.
+
 **Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
 
 **Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
 
-**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`.
+**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`. Default-branch CI can **propose** `source: ci` lines via `python3 scripts/agent/al-bug-ingest-ci-escape.py --dry-run` (artifact `ci-escape-candidate.jsonl`); humans still own `PD-###`. Unknown production paths are skipped (not written as `unzoned`). Empty escape log is valid.
+
+**Flake log:** `docs/library/AL_BUG_FLAKE_LOG.jsonl` is separate (retry-then-pass tests). `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` emits `(candidate)` rows for tests that flaked ≥ 3 times in 30 days. Flakes are not proven hits.
+
+**Window math is UTC.** Picker/escape/class-saturation windows (24h / 7d / 14d / 90d) parse JSONL `at` as UTC (`ConvertTo-RunLogUtcDateTime` accepts ISO strings and `[datetime]`, including Kind Local from `ConvertFrom-Json`).
+
+**Retired-class CI bans:** once a class has a canonical helper, new copies fail CI (`scripts/ci/al-bug-ban-retired-classes.py` + `scripts/ci/al-bug-retired-class-allowlist.txt`). The closed enum does not grow.
+
+**Revert-verifier ratchet (sample window):** new unguarded `(proven)` keys fail vs `scripts/ci/al-bug-unguarded-proven-baseline.json`. Historical unguarded rows stay baselined; do not mass-retick checkboxes.
+
+**Seeded-defect drills** (`scripts/agent/al-bug-seeded-defect-drill.py`) measure picker/seed hit offline. They do not count as hunts and must not push `bugsmash`.
 
 **Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
 

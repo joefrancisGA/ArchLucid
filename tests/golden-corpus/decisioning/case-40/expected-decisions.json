@@ -1,0 +1,16 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Payment DR",
+      "rationale": "Payment SQL must meet RPO 15 min."
+    },
+    {
+      "category": "Requirement",
+      "selectedOption": "AddMissingThemes",
+      "title": "Workload-conditioned requirement themes are incomplete",
+      "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph."
+    }
+  ]
+}

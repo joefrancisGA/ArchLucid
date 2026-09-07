@@ -13284,6 +13284,50 @@
         },
         "type": "object"
       },
+      "EngineInsightNoveltyRateRow": {
+        "properties": {
+          "decisionGradeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "didNotThinkOfThatCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "rate": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "EngineInsightNoveltyRatesResponse": {
+        "properties": {
+          "fromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/EngineInsightNoveltyRateRow"
+            },
+            "type": "array"
+          },
+          "toUtcExclusive": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "EntityTagHeaderValue": {
         "properties": {
           "isWeak": {
@@ -18204,6 +18248,10 @@
       "InsightDensityCurationSummary": {
         "properties": {
           "demotedToChecklistCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "judgeSkippedByCap": {
             "format": "int32",
             "type": "integer"
           },
@@ -44683,6 +44731,9 @@
     },
     {
       "name": "InfraEvidenceSnapshots"
+    },
+    {
+      "name": "InsightDensityNoveltyRates"
     },
     {
       "name": "InternalArchitectureDiagnostics"

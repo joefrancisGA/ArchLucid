@@ -18,7 +18,7 @@ export function resolveGovernanceFindingsArchitectureScopeFromUrl(
   raw: string | null | undefined,
   defaultArchitectureId: string | null,
 ): { readonly architectureId: string | null; readonly explicit: boolean } {
-  if (raw === null || raw.trim().length === 0) {
+  if (raw === null || raw === undefined || raw.trim().length === 0) {
     return { architectureId: defaultArchitectureId, explicit: false };
   }
 
