@@ -12,7 +12,7 @@ import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { readCachedDeskContinuity } from "@/lib/desk-continuity-preference";
+import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -165,6 +165,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           href: presented.href,
           pathname,
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
+          lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
         })
       : presented.href;
     const presentedWithHref =

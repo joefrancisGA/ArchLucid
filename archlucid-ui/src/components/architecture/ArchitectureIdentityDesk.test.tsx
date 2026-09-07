@@ -79,7 +79,7 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     );
     expect(screen.getByTestId("architecture-identity-compare-entry")).toHaveAttribute(
       "href",
-      "/insights/compare-two-reviews?leftRunId=review-1&rightRunId=review-2",
+      "/insights/compare-two-reviews?priorRunId=review-1&laterRunId=review-2&architectureId=architecture-identity-001",
     );
     expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
     expect(screen.getByTestId("architecture-identity-latest-seal-link")).toBeInTheDocument();
