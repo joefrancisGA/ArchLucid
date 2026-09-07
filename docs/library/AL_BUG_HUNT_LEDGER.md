@@ -9051,22 +9051,29 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — cross-tenant catalog demote without source-pack scope binding
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` — catalog demote lacked promote symmetry scope binding — **hit 2026-09-07 (#1170):** promote requires source pack in caller `(tenant, workspace, project)` scope; demote accepted any catalog entry id under tenant admin auth and demoted globally; fixed by resolving `SourcePolicyPackId` and applying `IsPackVisibleInScope` before mutation (`TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope`, `DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope`)
+- [ ] (candidate) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin can create or toggle org-required assignment locks without tenant/workspace admin role
+- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — foreign-tenant `sourcePolicyPackId` controller scope test gap (integration covers distribution-scope rejection only)
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive (workflow guard exists)
+
+2026-09-07 seed hunt #1170 (hit): reseeded PolicyPacksController partials; proved catalog demote missing source-pack scope binding symmetric with promote.
 
 ---
 ## Zone: api-governance-stickiness
