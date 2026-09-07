@@ -1404,3 +1404,4 @@
 {"at":"2026-09-07T18:40:53.7478483Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-09-07T18:46:06.711435Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
 {"at":"2026-09-07T18:49:27.1450116Z","zoneId":"cli-tenant-isolation","outcome":"dry"}
+{"at":"2026-09-07T18:56:28.0813178Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
