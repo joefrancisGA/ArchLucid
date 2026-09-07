@@ -3,16 +3,24 @@ using System.Text;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>Builds bounded evidence summaries and allow-lists for the insight generator (DX-10).</summary>
+/// <summary>Builds bounded evidence summaries and allow-lists for the insight generator (DX-10, DX-17).</summary>
 public static class InsightGeneratorEvidenceSummary
 {
+    /// <summary>
+    ///     claimBoundary: community summaries are optional retrieval context; default off and not buyer Graph-RAG proof.
+    /// </summary>
+    public const string CommunitySummaryClaimBoundary =
+        "Community summaries are optional when Retrieval:Advanced:EnableCommunitySummarization is true (default false); not buyer Graph-RAG proof.";
+
     public static HashSet<string> CollectAllowedEvidenceRefs(
         IReadOnlyList<Finding> engineFindings,
-        GraphSnapshot graphSnapshot)
+        GraphSnapshot graphSnapshot,
+        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries = null)
     {
         ArgumentNullException.ThrowIfNull(engineFindings);
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -49,34 +57,53 @@ public static class InsightGeneratorEvidenceSummary
             }
         }
 
-        if (graphSnapshot.Nodes is null || graphSnapshot.Nodes.Count == 0)
+        if (graphSnapshot.Nodes is not null && graphSnapshot.Nodes.Count > 0)
         {
-            return allowedRefs;
-        }
-
-        foreach (GraphNode node in graphSnapshot.Nodes)
-        {
-            if (string.IsNullOrWhiteSpace(node.NodeId))
+            foreach (GraphNode node in graphSnapshot.Nodes)
             {
-                continue;
-            }
+                if (string.IsNullOrWhiteSpace(node.NodeId))
+                {
+                    continue;
+                }
 
-            allowedRefs.Add($"graph-node:{node.NodeId.Trim()}");
+                allowedRefs.Add($"graph-node:{node.NodeId.Trim()}");
 
-            if (!string.IsNullOrWhiteSpace(node.Label))
-            {
-                allowedRefs.Add(node.Label.Trim());
+                if (!string.IsNullOrWhiteSpace(node.Label))
+                {
+                    allowedRefs.Add(node.Label.Trim());
+                }
             }
         }
+
+        AppendCommunitySummariesToAllowList(allowedRefs, communitySummaries);
 
         return allowedRefs;
+    }
+
+    public static void AppendCommunitySummariesToAllowList(
+        ISet<string> allowedRefs,
+        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries)
+    {
+        ArgumentNullException.ThrowIfNull(allowedRefs);
+
+        if (communitySummaries is null || communitySummaries.Count == 0)
+            return;
+
+        foreach (InsightGeneratorCommunitySummary summary in communitySummaries)
+        {
+            if (string.IsNullOrWhiteSpace(summary.CommunityId))
+                continue;
+
+            allowedRefs.Add(InsightGeneratorCommunityEvidenceRefs.Format(summary.CommunityId));
+        }
     }
 
     public static string BuildUserPrompt(
         IReadOnlyList<Finding> engineFindings,
         GraphSnapshot graphSnapshot,
         IReadOnlySet<string> allowedEvidenceRefs,
-        int maxFindings)
+        int maxFindings,
+        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries = null)
     {
         ArgumentNullException.ThrowIfNull(engineFindings);
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -95,6 +122,7 @@ public static class InsightGeneratorEvidenceSummary
         }
 
         builder.AppendLine();
+        AppendCommunitySummariesSection(builder, communitySummaries);
         builder.AppendLine("Graph labels (sample):");
         AppendGraphLabels(builder, graphSnapshot);
         builder.AppendLine();
@@ -102,6 +130,29 @@ public static class InsightGeneratorEvidenceSummary
         AppendPreferredFindings(builder, engineFindings);
 
         return builder.ToString();
+    }
+
+    public static void AppendCommunitySummariesSection(
+        StringBuilder builder,
+        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        if (communitySummaries is null || communitySummaries.Count == 0)
+            return;
+
+        builder.AppendLine(CommunitySummaryClaimBoundary);
+        builder.AppendLine("Community summaries (optional — cite community:{id} refs only from this list):");
+
+        foreach (InsightGeneratorCommunitySummary summary in communitySummaries)
+        {
+            builder.Append("  - ");
+            builder.Append(InsightGeneratorCommunityEvidenceRefs.Format(summary.CommunityId));
+            builder.Append(": ");
+            builder.AppendLine(summary.Summary);
+        }
+
+        builder.AppendLine();
     }
 
     private static void AppendGraphLabels(StringBuilder builder, GraphSnapshot graphSnapshot)
