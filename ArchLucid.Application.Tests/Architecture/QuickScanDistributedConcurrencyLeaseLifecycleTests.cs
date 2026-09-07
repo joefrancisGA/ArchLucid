@@ -147,6 +147,94 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             "orchestrator must dispose the admitted lease when budget reservation fails after concurrency admission");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_releases_concurrency_lease_when_operational_emergency_flips_after_admission()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await store.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        QuickScanAdversarialOrchestratorTestFixture fixture = new();
+        bool firstSnapshot = true;
+
+        fixture.Operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                if (firstSnapshot)
+                {
+                    firstSnapshot = false;
+
+                    return new QuickScanSafetyOperationalSnapshot
+                    {
+                        Mode = QuickScanSafetyOperationalMode.Normal,
+                        AnonymousExecutionAllowed = true,
+                        SampleResultAvailable = true,
+                        PublicMessage = string.Empty,
+                        StoreHealthy = true,
+                    };
+                }
+
+                return new QuickScanSafetyOperationalSnapshot
+                {
+                    Mode = QuickScanSafetyOperationalMode.EmergencyDisabled,
+                    AnonymousExecutionAllowed = false,
+                    SampleResultAvailable = true,
+                    PublicMessage = "Kill switch flipped.",
+                    StoreHealthy = true,
+                };
+            });
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        });
+
+        QuickScanGuardContext guardContext = new()
+        {
+            ClientIp = "203.0.113.10",
+            SessionId = "session",
+            PayloadFingerprint = "trace",
+            UseDistributedConcurrencyLimit = true,
+        };
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            fixture.Telemetry.Object,
+            guardContext,
+            safetyOptions.Object,
+            TimeProvider.System,
+            CancellationToken.None);
+
+        fixture.Concurrency
+            .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(admission);
+
+        QuickScanExecutionResult result = await fixture.CreateOrchestrator().ExecuteAsync(
+            QuickScanAdversarialOrchestratorTestFixture.ValidRequest(),
+            QuickScanAdversarialOrchestratorTestFixture.AnonymousContext(),
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureKind.Should().Be(QuickScanExecutionFailureKind.EmergencyDisabled);
+
+        QuickScanConcurrencyAdmitResult followUp = await store.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "follow-up", maxConcurrent: 1, maxQueued: 0));
+
+        followUp.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "orchestrator must dispose the admitted lease when operational emergency flips after concurrency admission");
+    }
+
     private static QuickScanDistributedConcurrencyService CreateService(
         IQuickScanDistributedConcurrencyStore store)
     {
