@@ -10,6 +10,7 @@ using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.OperationalErrors;
@@ -108,6 +109,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IOperatorStickinessSnapshotReader, SqlOperatorStickinessSnapshotReader>();
         services.AddScoped<IAdminTenantHealthReader, SqlAdminTenantHealthReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
+        services.AddScoped<IFindingInsightSignalRepository, SqlFindingInsightSignalRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
         services.AddScoped<IFindingDispositionConcurrencyRepository, SqlFindingDispositionConcurrencyRepository>();
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();

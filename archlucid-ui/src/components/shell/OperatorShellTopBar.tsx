@@ -66,36 +66,44 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         Avoid overflow-x-hidden here: it forces overflow-y:auto on the short header.
         Single-row nowrap + min-w-0 keeps the sticky chrome budget thin.
       */}
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 flex-nowrap")}>
-        <div
-          data-testid="app-shell-topbar-primary"
-          className={cn(
-            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2 lg:px-3",
-            OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
-          )}
-        >
-          <MobileNavDrawerDeferred />
-          <h1 className="m-0">
-            <TenantMastheadWordmark href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
-          </h1>
-        </div>
-
+      <div className="flex min-w-0 w-full flex-nowrap">
         <div
           className={cn(
-            "flex min-w-0 flex-1 flex-nowrap items-center gap-x-4 py-2.5",
-            OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+            OPERATOR_SHELL_MAX_WIDTH_CLASS,
+            "flex min-w-0 flex-1 flex-nowrap",
           )}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-sm lg:max-w-md xl:max-w-xl">
-            <div className="min-w-0 flex-1">
-              <GlobalSearchBarDeferred />
-            </div>
+          <div
+            data-testid="app-shell-topbar-primary"
+            className={cn(
+              "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2 lg:px-3",
+              OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
+            )}
+          >
+            <MobileNavDrawerDeferred />
+            <h1 className="m-0">
+              <TenantMastheadWordmark href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
+            </h1>
           </div>
 
           <div
-            data-testid="app-shell-topbar-session"
-            className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3"
+            className={cn(
+              "flex min-w-0 flex-1 flex-nowrap items-center gap-x-4 py-2.5",
+              OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+            )}
           >
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-sm lg:max-w-md xl:max-w-xl">
+              <div className="min-w-0 flex-1">
+                <GlobalSearchBarDeferred />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          data-testid="app-shell-topbar-session"
+          className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3 py-2.5 pr-4 lg:pr-6"
+        >
             <div
               data-testid="app-shell-topbar-context"
               className="flex min-w-0 flex-nowrap items-center gap-2"
@@ -141,7 +149,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               ) : null}
               <AccountSettingsMenuDeferred />
             </div>
-          </div>
         </div>
       </div>
     </header>
