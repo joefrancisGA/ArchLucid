@@ -2051,11 +2051,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 10
-- **bugs-found:** 13
+- **hunts:** 11
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — cross-run diff engines suppressed expansion findings when prior revision was empty
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — bare leading `"No …"` prohibitive intent false-matched private-network conflict phrases
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2081,7 +2081,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPackCategoryCoverageValidator` omitted topology engine-type inference — **hit 2026-09-05 (#810 seed):** clean `topology-structure` runs false-failed `RequiredFindingCategories` Topology coverage; added topology substring credit; regression `GetMissingCategoryViolations_treats_successful_topology_engine_type_as_topology_coverage`
 - [x] (proven) `SecurityDeltaRegressionClassifier` ranked `gap` before `planned` and treated remediation phrases as worst-tier regression — **hit 2026-09-05 (#810 seed):** Compliant→`Gap remediation planned` fired false compliance alerts; rank planned/remediation phrases before bare `gap`; regression `IsRegression_gap_remediation_planned_from_compliant_is_not_regression`
 - [x] (proven) `FindingSnapshotMergeKey.FromFinding` used case-sensitive `PolicyRuleId` — **hit 2026-09-05 (#810 seed):** `SEC-01` vs `sec-01` duplicated ADR-0063 merge keys; lowercased policy rule id segment; regression `Merge_joins_policy_rule_ids_case_insensitively`
-- [ ] (candidate) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent (e.g. `"No private network required"`) may still match affirmative conflict phrases; negation suffix list covers `"No requirement to …"` / `"Do not …"` but not bare leading `"No …"`
+- [x] (proven) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent false-matched affirmative conflict phrases — **hit 2026-09-07 hunt #1287:** `IsPhraseNegated` covered `"No requirement to …"` / `"Do not …"` but not bare leading `"no"` before `"private network"`; fixed with word-bounded `"no"` negation suffix; regression in `Classify_does_not_fire_private_network_conflict_for_prohibitive_no_private_network_phrase`.
+
+2026-09-07 thorough hunt #1287 (hit): proved bare `"No …"` negation gap on private-network premise conflict matching.
 
 2026-09-05 seed hunt #810 (hit): reseeded from zone files; proved empty-prior cross-run expansion suppression, topology category coverage false-fail, gap/planned security delta regression noise, and case-sensitive policy-rule merge keys.
 
