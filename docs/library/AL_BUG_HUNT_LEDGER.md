@@ -1440,11 +1440,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 13
-- **bugs-found:** 20
+- **hunts:** 14
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — blob push accepted lifecycle-incomplete runs
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — board export tests broke after career honesty loader integration
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1477,11 +1477,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #665: proved board export simulator rehearsal notice parity and uncommitted-manifest export guard gap.
 
 - [x] (proven) `ArtifactExportController.PushRunExportToBlob` — accepted lifecycle-incomplete runs with a golden manifest and returned 202 while sibling export paths reject via `AuthorityLifecycleCompareExportGuard` — **hit 2026-09-05 (#799):** added `EnsureAuthorityLifecycleCompleteOrConflict` preflight before outbox enqueue; regression in `PushRunExportToBlob_returns_409_when_authority_lifecycle_not_complete`.
-- [ ] (candidate) `ArtifactExportController.PushRunExportToBlob` — omits sealed-manifest hash preflight at accept time while `CreateTerraformPr` / download paths call `EnsureSealedManifestHashOrConflict`; bad hash may enqueue then dead-letter in worker.
-- [ ] (candidate) `ArchitectureReviewBoardExportDocumentFactory` — sets simulator rehearsal notice only when `StructuralExecutionMode == Simulator`; Fallback/Mixed modes and `RealModeFellBackToSimulator` lack sponsor-packet execution-mode honesty sections.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — rebuilds analysis DOCX after sealed-hash guard but without `AuthorityLifecycleCompareExportGuard`; lifecycle-incomplete runs may replay export bytes while board/one-pager paths 409.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — omits sealed-manifest hash preflight at accept time while `CreateTerraformPr` / download paths call `EnsureSealedManifestHashOrConflict`; bad hash may enqueue then dead-letter in worker — cheap-disproved 2026-09-07 (#1228): `ArtifactExportController.Export.Push.cs` calls `EnsureSealedManifestHashOrConflict` before enqueue; regression `PushRunExportToBlob_returns_409_when_sealed_manifest_hash_missing`.
+- [x] (valid-no-repro) `ArchitectureReviewBoardExportDocumentFactory` — sets simulator rehearsal notice only when `StructuralExecutionMode == Simulator`; Fallback/Mixed modes and `RealModeFellBackToSimulator` lack sponsor-packet execution-mode honesty sections — cheap-disproved 2026-09-07 (#1228): `BoardExportExecutionModeNoticeResolver` handles Fallback, Mixed, and `RealModeFellBackToSimulator`; regressions in `ArchitectureReviewBoardSimulatorModeExportTests`.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — rebuilds analysis DOCX after sealed-hash guard but without `AuthorityLifecycleCompareExportGuard`; lifecycle-incomplete runs may replay export bytes while board/one-pager paths 409 — cheap-disproved 2026-09-07 (#1228): `ExportReplayService.ReplayAsync` calls `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` after sealed-hash guard (wave 35 #405).
 
-2026-09-05 seed hunt #799: reseeded blob-push sealed-hash preflight, board Fallback/Mixed execution-mode notice, and export-replay lifecycle candidates; proved blob push lifecycle-incomplete accept gap promoted from seed read.
+- [x] (proven) `ArchitectureReviewExportServiceTests` / `CareerExportCoverageHonestyMaterialLoader` — scoped export tests failed after wave-36 career honesty loader integration because SUT used `Mock.Of<IConfiguration>()` (cannot bind `GetSection().GetValue`) and `Mock.Of<IAgentExecutionTraceRepository>()` (null traces) — **hit 2026-09-07 (#1228):** shared `SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration` and `CreateEmptyAgentExecutionTraceRepository`; `ArchitectureReviewExportServiceTests` wired both.
+
+2026-09-07 thorough hunt #1228: cheap-disproved three stale seed candidates; proved export unit-test harness gap after career honesty loader integration.
 
 2026-09-03 seed hunt #543: proved board export authority lifecycle Complete guard gap; cheap-disproved blob URL policy; seeded simulator-notice parity candidate.
 

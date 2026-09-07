@@ -1385,3 +1385,4 @@
 {"at":"2026-09-07T16:17:45.0792218Z","zoneId":"api-policy-packs","outcome":"hit"}
 {"at":"2026-09-07T16:27:24.3278091Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit"}
 {"at":"2026-09-07T16:32:01.6543644Z","zoneId":"core-configuration-summary","outcome":"hit"}
+{"at":"2026-09-07T16:39:46.2234394Z","zoneId":"tenant-data-export","outcome":"hit"}
