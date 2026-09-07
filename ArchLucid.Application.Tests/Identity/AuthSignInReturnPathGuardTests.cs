@@ -18,6 +18,15 @@ public sealed class AuthSignInReturnPathGuardTests
     }
 
     [Theory]
+    [InlineData("/app/foo/../bar")]
+    [InlineData("/signin/../../other")]
+    [InlineData("/signin/../other?tab=settings")]
+    public void TryNormalize_rejects_dot_dot_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
     [InlineData("//evil.example")]
     [InlineData("/\\evil.example")]
     [InlineData("/redirect://evil.example")]

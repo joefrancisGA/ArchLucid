@@ -32,6 +32,7 @@ public static class AuthSignInReturnPathGuard
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
             || ContainsProtocolRelativeTraversal(candidate)
             || ContainsSlashHomoglyph(candidate)
+            || ContainsDotDotSegment(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
             || candidate.Contains('@', StringComparison.Ordinal)
             || candidate.Contains("://", StringComparison.Ordinal))
@@ -113,6 +114,7 @@ public static class AuthSignInReturnPathGuard
 
             if (ContainsProtocolRelativeTraversal(decoded)
                 || ContainsSlashHomoglyph(decoded)
+                || ContainsDotDotSegment(decoded)
                 || decoded.Contains('\\', StringComparison.Ordinal)
                 || decoded.Contains('@', StringComparison.Ordinal)
                 || decoded.Contains("://", StringComparison.Ordinal))
@@ -153,6 +155,24 @@ public static class AuthSignInReturnPathGuard
         foreach (char ch in candidate)
         {
             if (IsSlashHomoglyph(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool ContainsDotDotSegment(string candidate)
+    {
+        int queryIndex = candidate.IndexOf('?', StringComparison.Ordinal);
+        ReadOnlySpan<char> pathOnly = queryIndex >= 0
+            ? candidate.AsSpan(0, queryIndex)
+            : candidate.AsSpan();
+
+        foreach (Range segmentRange in pathOnly.Split('/'))
+        {
+            if (pathOnly[segmentRange].SequenceEqual("..".AsSpan()))
             {
                 return true;
             }
