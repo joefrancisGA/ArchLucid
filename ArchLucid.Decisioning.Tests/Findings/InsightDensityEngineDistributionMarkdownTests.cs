@@ -19,7 +19,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     [Fact]
     public void Constants_document_harness_and_catalog_sizes()
     {
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(32);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(35);
         InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(48);
     }
 
@@ -35,7 +35,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **32** engines; **0** appear in this table (≥1 finding across case-01..case-37). **48** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **35** engines; **0** appear in this table (≥1 finding across case-01..case-40). **48** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
@@ -62,7 +62,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **32** engines; **1** appear in this table (≥1 finding across case-01..case-37). **47** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **35** engines; **1** appear in this table (≥1 finding across case-01..case-40). **47** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.

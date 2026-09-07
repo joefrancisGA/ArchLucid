@@ -4,7 +4,7 @@
  */
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 
-export const INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 32;
+export const INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 35;
 
 /** Product `BuiltInFindingEngineTypeCatalog` size — not the harness slice alone. */
 export const INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT = 48;
