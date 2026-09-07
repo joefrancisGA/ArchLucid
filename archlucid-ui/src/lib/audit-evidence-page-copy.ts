@@ -54,3 +54,35 @@ export const AUDIT_EVIDENCE_FIELD_REQUIRED = "Required." as const;
 
 export const AUDIT_EVIDENCE_LINEAGE_URL_PARSE_ERROR =
   "Paste a governance audit-evidence control URL with assessment, snapshot, and control segments." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE = "Control chain of custody" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID =
+  "audit-evidence-control-lineage-primary-content" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL = "Skip to chain of custody" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_BREADCRUMB_LABEL = AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_TITLE;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_LEAD =
+  "Read-only chain of custody from audit control through requirements, evaluation, and collected evidence for one snapshot." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE =
+  "Deterministic linkage only — not an AI determination. Missing evidence links block a positive support checkbox." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_IDENTIFIERS_TITLE = "Route identifiers" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_TITLE = "Chain of custody unavailable" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_ERROR_BODY =
+  "Could not load the chain of custody for this control. Retry after confirming the assessment snapshot service is available, or return to lookup with corrected IDs." as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION = "Retry loading chain" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION = "Back to audit evidence lookup" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION = "Show chain of custody" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION = "Hide chain of custody" as const;
+
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_LOADING_LABEL = "Loading chain of custody…" as const;
