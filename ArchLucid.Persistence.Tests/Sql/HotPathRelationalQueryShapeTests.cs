@@ -70,7 +70,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
         sql.Should().Contain("StructuralExecutionMode");
     }
 
@@ -115,7 +115,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
     }
 
     [SkippableFact]
@@ -128,8 +128,17 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
         sql.Should().Contain("OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
+    }
+
+    [SkippableFact]
+    public void Runs_list_by_project_and_recent_in_scope_use_created_utc_then_run_id_order()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
+            .Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
+            .Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
     }
 
     [SkippableFact]

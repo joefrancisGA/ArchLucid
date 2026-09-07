@@ -79,7 +79,7 @@ internal static class RunListWarningFlagSql
     public const string KeysetOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>Default recent-first ordering for unpaged run lists.</summary>
-    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC";
+    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.

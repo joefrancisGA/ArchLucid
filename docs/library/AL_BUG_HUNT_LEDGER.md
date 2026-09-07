@@ -634,11 +634,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 8
-- **bugs-found:** 6
+- **hunts:** 9
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run list workflowIntent JSON fallback case sensitivity
+- **last-bug:** 2026-09-07 — offset run list missing RunId tie-break
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -658,6 +658,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SelectByScopedId` / `GetRunSummaryAsync` omit `RunListWarningFlagSql` request-JSON `PackageOrigin` COALESCE while dashboard list paths include it — **cheap-disproof 2026-09-07 hunt #1255:** TB-738/TB-740 shipped list-only JSON fallback for legacy NULL `Runs.PackageOrigin` rows; create paths persist origin via `ArchitecturePackageOriginResolver`; detail UI hides badge when origin is unknown; shape regressions in `Run_detail_read_reads_persisted_package_origin_without_request_json_fallback` and `SelectRunColumns_coalesces_persisted_package_origin_with_request_json_fallback`
 - [x] (proven) `RunListWarningFlagSql.SelectRunColumns` compares `JSON_VALUE(..., '$.workflowIntent')` case-sensitively to `N'create-architecture'` while `ArchitecturePackageOriginResolver` uses ordinal-ignore-case — legacy NULL `PackageOrigin` rows whose stored request JSON used non-canonical intent casing could list as `Reviewed` despite create intent — **hit 2026-09-07 hunt #1263:** dashboard list COALESCE used exact JSON string match; fixed with `UPPER(LTRIM(RTRIM(JSON_VALUE(...)))) = N'CREATE-ARCHITECTURE'`; regression `SelectRunColumns_workflow_intent_fallback_uses_case_insensitive_json_compare` plus `Resolve_returns_Created_when_workflow_intent_casing_differs`.
 - [x] (valid-no-repro) `SqlRunRepository.ListByArchitectureIdAsync` / `ListWithNullArchitectureIdAsync` read raw `Runs.PackageOrigin` without list COALESCE fallback — architecture-scoped run lists diverge from dashboard list badges for legacy NULL origin rows if those surfaces ever project origin — **cheap-disproof 2026-09-07 hunt #1263:** architecture identity child review/version summaries project `RunId`/`Description`/`CreatedUtc` only; TB-738 list-only JSON fallback remains dashboard-scoped by design; regression `Architecture_list_queries_read_persisted_package_origin_without_dashboard_coalesce`.
+- [ ] (candidate) `RunListWarningFlagSql.ProjectWherePrefix` compares `TRY_CONVERT(uniqueidentifier, @ProjectSlug)` without trimming `@ProjectSlug` while `MatchesProjectListFilter` accepts padded GUID strings via `Guid.TryParse` — needs SQL repro; SQL Server may already trim uniqueidentifier inputs.
+- [ ] (candidate) `RunListWarningFlagSql.SelectRunColumns` reads `JSON_VALUE(..., '$.workflowIntent')` with case-sensitive property path while legacy request JSON may use PascalCase keys — distinct from proven value-casing fix in hunt #1263.
+- [x] (proven) `RunsListRecentInScopeOffsetNoLock` / unpaged list shapes ordered by `CreatedUtc` only while keyset paths use `CreatedUtc, RunId` tie-break — **hit 2026-09-07 seed hunt #1264:** offset pagination (`ListRunSummariesOffsetAsync`) could duplicate or skip runs when timestamps tie; `CreatedUtcDescOrderBy` now `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; InMemory list/offset paths use `ThenByDescending(RunId)`; regressions in `CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages`, `Runs_list_recent_in_scope_offset_retains_nolock_scope_archived_filter_and_offset_fetch`, and `InMemory_offset_list_pages_all_runs_when_created_utc_ties`.
+
+2026-09-07 seed hunt #1264 (hit): reseeded after #1263; proved offset list ordering lacked RunId tie-break; seeded scope-project GUID trim and JSON property-path candidates.
 
 2026-09-07 thorough hunt #1263 (hit): proved workflowIntent JSON fallback case mismatch; cheap-disproof closed architecture-list PackageOrigin projection candidate; 28 scoped unit tests passed (25 Persistence + 3 Application), 1 SQL integration skipped.
 

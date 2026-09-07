@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -390,5 +391,48 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
             CancellationToken.None);
 
         listed.Should().ContainSingle(r => r.RunId == runId);
+    }
+
+    [Fact]
+    public async Task InMemory_offset_list_pages_all_runs_when_created_utc_ties()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime sharedCreatedUtc = new(2026, 9, 7, 12, 0, 0, DateTimeKind.Utc);
+        Guid runA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid runB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid runC = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid runD = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        InMemoryRunRepository runs = new();
+
+        foreach (Guid runId in new[] { runA, runB, runC, runD })
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "default",
+                    Description = "tied created utc",
+                    CreatedUtc = sharedCreatedUtc,
+                },
+                CancellationToken.None);
+        }
+
+        RunListPage firstPage = await runs.ListRecentInScopeOffsetAsync(scope, 0, 2, CancellationToken.None);
+        RunListPage secondPage = await runs.ListRecentInScopeOffsetAsync(scope, 2, 2, CancellationToken.None);
+
+        firstPage.Items.Select(r => r.RunId)
+            .Concat(secondPage.Items.Select(r => r.RunId))
+            .Should()
+            .BeEquivalentTo(new[] { runD, runC, runB, runA }, opts => opts.WithStrictOrdering());
     }
 }

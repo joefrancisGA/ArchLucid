@@ -58,6 +58,12 @@ public sealed class RunListWarningFlagSqlTests
     }
 
     [Fact]
+    public void CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages()
+    {
+        RunListWarningFlagSql.CreatedUtcDescOrderBy.Should().Be("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
     public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
     {
         HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
