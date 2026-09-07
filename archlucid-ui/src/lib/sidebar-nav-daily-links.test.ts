@@ -140,7 +140,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
       link("/administration/support", "Support"),
       link("/administration/notifications", "Notifications"),
       link("/administration/workspace-settings", "Workspace settings"),
-      link("/administration/baseline", "Baseline settings"),
+      link("/administration/baseline", "ROI Settings"),
     ];
     const split = splitSidebarLinksDailyVsMore("operator-admin", links, "/");
 
