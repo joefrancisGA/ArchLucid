@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 418
-- **bugs-found:** 3294
+- **hunts:** 419
+- **bugs-found:** 3306
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — DeltaAccessKey/DemandAccessKey/DemoAccessKey redaction, advice shouldnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix
+- **last-bug:** 2026-09-07 — DenyAccessKey/DepthAccessKey/DesignAccessKey redaction, advice wouldnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
