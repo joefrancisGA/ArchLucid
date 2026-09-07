@@ -6,4 +6,5 @@ internal enum TenantIsolationNegativeTestRunListScanOutcome
     ForeignRunIdAbsent,
     ServerError,
     ScanIncomplete,
+    ListUnavailable,
 }

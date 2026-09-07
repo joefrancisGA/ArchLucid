@@ -139,7 +139,9 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         TenantIsolationNegativeTestVerdict verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, scanOutcome);
         string observedOutcome = statusCode >= 500
             ? $"HTTP {statusCode}; skipped server error"
-            : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
+            : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable
+                ? $"HTTP {statusCode}; run list unavailable"
+                : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
                 ? $"HTTP {statusCode}; scan incomplete before run list exhausted"
                 : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
                     ? $"HTTP {statusCode}; foreign runId present"
@@ -182,6 +184,9 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
             if (lastStatusCode >= 500)
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ServerError, lastCorrelationId);
 
+            if (lastStatusCode is < 200 or >= 300)
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable, lastCorrelationId);
+
             if (TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId))
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent, lastCorrelationId);
 
@@ -199,7 +204,9 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         int statusCode,
         TenantIsolationNegativeTestRunListScanOutcome scanOutcome)
     {
-        if (statusCode >= 500 || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete)
+        if (statusCode >= 500
+            || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
+            || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable)
             return TenantIsolationNegativeTestVerdict.Skip;
 
         return scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
