@@ -27,4 +27,6 @@ public sealed record CareerArtifactCompletenessInput(
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
     bool LegacySealedReExport = false,
     bool BlockExternalSponsorDistribution = false,
-    FindingsSnapshot? FindingsSnapshot = null);
+    FindingsSnapshot? FindingsSnapshot = null,
+    bool DegradedFindingCoverage = false,
+    IReadOnlyList<string>? DegradedFindingCoverageFailedEngineLabels = null);
