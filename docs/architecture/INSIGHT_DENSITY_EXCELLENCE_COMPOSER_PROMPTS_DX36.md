@@ -4,11 +4,11 @@
 
 # Insight density — excellence Composer prompt set (DX-36–DX-41)
 
-**Created:** 2026-09-07 · **Status:** Ready to run. One prompt per chat.
+**Created:** 2026-09-07 · **Status:** **DX-36–DX-41 shipped on `master` (2026-09-07).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md) (**DX-42–DX-46**).
 
-DX-01–DX-35 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). This set closes the **remaining Cursor-implementable** holes: harness visibility for shipped path/contradiction engines, in-batch ARM `templateLink` ingest, novelty write-back into `InsightGenerator`, pack gating on graph/inventory security engines, inventory-shaped golden cases, and stale measurement copy.
+DX-01–DX-41 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). This set closed harness visibility for shipped path/contradiction engines, in-batch ARM `templateLink` ingest, novelty write-back into `InsightGenerator`, pack gating on graph/inventory security engines, Azure inventory-shaped golden cases (`case-48`–`case-50`), and stale measurement copy.
 
-**Run one prompt per chat.** Feature branch per prompt. Suggested Cloud Agent branch: `cursor/dx-<short-name>-97a4`. Name the branch in any commit/push request. **Do not push to `master`.**
+**Do not re-run.** Archive only.
 
 ## Do not re-run
 
@@ -18,7 +18,8 @@ DX-01–DX-35 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 | **DX-01–DX-16** | Gate, Real judge, actor expansion, contradiction/path engines, InsightGenerator, recurrence, ITSM, novelty signal, harness, measurement floor, starter catalog |
 | **DX-17, DX-20–DX-28** | Community summaries, frontier capture schema, judge-cap priority, checklist synthesis, novelty-rate API, dangling refs, SKU/tier, counterfactual, nested ingest, path-engine goldens |
 | **DX-29–DX-35** | Golden depth, Helm/Kustomize/`.bicepparam`, TF modules/OIDC/DNS, data-flow × trust-boundary, three-way pack contradiction, preferred-engine catch-up, optional novelty-rate judge sort |
-| Coverage-only engines | Still forbidden. This set adds **no** new `EngineType`. |
+| **DX-36–DX-41** | This file — shipped; do not re-run |
+| Coverage-only engines | Still forbidden. This set added **no** new `EngineType`. |
 
 ## Sequencing
 
@@ -31,9 +32,9 @@ DX-01–DX-35 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 | **DX-40** | Inventory-shaped golden fixtures for silent registered engines | Yes | DX-14, DX-36 preferred | Measurement |
 | **DX-41** | Measurement-copy honesty (ingest docs, ADR 0070, miss clause) | Yes | none | Honesty (not numerator) |
 
-**Start DX-36, DX-37, DX-38, DX-39, and DX-41 now** (independent). Start **DX-40** after DX-36 if you are adding cases in the same `case-NN` range, or in parallel if you pick unused numbers after checking `GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber`.
+**2026-09-07 closure:** DX-36–DX-41 landed on `master`. Do **not** re-run this file.
 
-**Do not start from this document:** **DX-18** / **DX-19** (held until the owner unparks **TB-885** / **TB-2033**), Pulumi/CDK parsers, live extractor-as-default (product/GTM), fake named-model frontier transcripts, Graph-RAG buyer claims (ADR 0057 / TB-883), SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType` enum value, turning `PreferHighNoveltyEngines` on by default.
+**Do not start from this document:** **DX-18** / **DX-19** (held until the owner unparks **TB-885** / **TB-2033**). Pulumi/CDK / CloudFormation ingest, three-way theme expansion, AWS/GCP goldens, evidence-ref honesty, and cost-recommendation goldens live in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md). Live extractor-as-default (product/GTM), fake named-model frontier transcripts, Graph-RAG buyer claims (ADR 0057 / TB-883), SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType` enum value, and turning `PreferHighNoveltyEngines` on by default remain held.
 
 ---
 
@@ -415,6 +416,7 @@ Live frontier **pilot-pending** captures need owner **G-REAL-06** runs. DX-20 sh
 - DX-01–DX-16: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
 - DX-17–DX-28: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 - DX-29–DX-35: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- Next **DX-42–DX-46:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - Miss clause: [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)
