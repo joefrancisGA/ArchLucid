@@ -126,12 +126,12 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
   }
 
-  if (input.showProgressTracker) {
-    return { label: "Analysis in progress", kind: "analysis-in-progress", statusTagKind: "in-progress" };
-  }
-
   if (runAnalysisComplete(input.run)) {
     return { label: "Review complete", kind: "review-complete", statusTagKind: "ready" };
+  }
+
+  if (input.showProgressTracker) {
+    return { label: "Analysis in progress", kind: "analysis-in-progress", statusTagKind: "in-progress" };
   }
 
   return { label: "Draft", kind: "draft", statusTagKind: "neutral" };
