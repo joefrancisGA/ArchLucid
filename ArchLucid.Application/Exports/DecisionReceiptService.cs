@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -101,6 +102,20 @@ public sealed class DecisionReceiptService(
         FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
         string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
 
+        DecisionReceiptRunBuildOutcome? readinessOutcome =
+            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
+                compareDetail.GoldenManifest,
+                verdict,
+                manifestVersion);
+
+        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
+        {
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
+            };
+        }
+
         CareerArtifactCompletenessResult careerArtifactResult = new CareerArtifactCompletenessValidator().Evaluate(
             CareerArtifactCompletenessInputMapper.MapForExport(
                 new CareerExportCoverageHonestyInput(
@@ -109,7 +124,7 @@ public sealed class DecisionReceiptService(
                         Verdict: verdict,
                         AnalysisStagesComplete: true,
                         ActorNodeCount: 0),
-                    EnginesSucceeded: null,
+                    EnginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines,
                     WorkingDesk: true,
                     ClassificationCounts: null),
                 verdict?.TransparencyTrail));
@@ -123,20 +138,6 @@ public sealed class DecisionReceiptService(
                 Outcome = DecisionReceiptRunBuildOutcome.CareerArtifactBlocked,
                 BlockReasonCode = primaryBlock.Code,
                 BlockReason = primaryBlock.Message,
-            };
-        }
-
-        DecisionReceiptRunBuildOutcome? readinessOutcome =
-            ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
-                compareDetail.GoldenManifest,
-                verdict,
-                manifestVersion);
-
-        if (readinessOutcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
-        {
-            return new DecisionReceiptRunBuildResult
-            {
-                Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
             };
         }
 

@@ -164,7 +164,14 @@ public sealed class DecisionReceiptServiceTests
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
             {
                 ManifestDocument manifest = CreateCommittedManifest(runId, CreateFeasibleVerdict());
+                string hashBeforeReceipt = ManifestDecisionReceiptExportBinder.ComputeHashBeforeReceipt(manifest, _manifestHashService);
+                DecisionReceiptDocument sealedReceipt = DecisionReceiptComposer.BuildForRun(
+                    runId,
+                    CreateFeasibleVerdict(),
+                    hashBeforeReceipt,
+                    "v1");
                 manifest.CommittedDecisionReceiptHashSha256 = new string('A', 64);
+                manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
 
                 return new RunDetailDto
                 {
@@ -335,6 +342,7 @@ public sealed class DecisionReceiptServiceTests
             hashBeforeReceipt,
             "v1");
         manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
+        manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
         sealedReceiptHash = sealedReceipt.ReceiptHashSha256!;
 
         _authority
