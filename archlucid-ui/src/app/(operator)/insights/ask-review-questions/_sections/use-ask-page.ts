@@ -18,6 +18,8 @@ import { formatConversationListDate, formatConversationListDatePolished } from "
 import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { trySeedDemoAskConversation } from "./ask-page-demo-seed";
+import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights-architecture-bind";
+
 import { useAskPageStream } from "./use-ask-page-stream";
 import { useAskPageUrlSync } from "./use-ask-page-url-sync";
 
@@ -249,6 +251,10 @@ export function useAskPage() {
   ]);
 
   const showThreadHistoryPanel = threads.length > 0;
+  const architectureBind = useWorkingInsightsArchitectureBind({
+    tool: "ask",
+    urlRunId: urlSync.urlRunIdRaw,
+  });
 
   return {
     buyerPolishedShell,
@@ -291,6 +297,9 @@ export function useAskPage() {
     onStarterPromptClick: stream.onStarterPromptClick,
     mergePromptLine: stream.mergePromptLine,
     onAsk: stream.onAsk,
+    architectureBindPending: architectureBind.bindPending,
+    showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
+    architectureBindResult: architectureBind.bindResult,
   };
 }
 

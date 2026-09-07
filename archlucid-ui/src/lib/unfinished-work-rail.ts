@@ -2,7 +2,8 @@ import { resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
-import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { architectureDraftPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import { ENTERPRISE_STATUS_LABELS, type EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -48,6 +49,8 @@ export type UnfinishedWorkRailInputs = {
   readonly incompleteWizards: readonly IncompleteWizardSignal[];
   /** Soft cap for the compact rail (default 6). */
   readonly maxItems?: number;
+  /** When true, review rows use nested architecture job URLs when parentage is known (AO-08). */
+  readonly workingMode?: boolean;
 };
 
 import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
@@ -234,7 +237,10 @@ function resolveRunRailStatusTag(run: RunSummary): {
   return { kind: statusTag.kind, label: statusTag.label ?? ENTERPRISE_STATUS_LABELS[statusTag.kind] };
 }
 
-function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
+function buildRunItems(
+  runs: readonly RunSummary[],
+  draftRegistryEntries: readonly ArchitectureDraftRegistryEntry[],
+): UnfinishedWorkRailItem[] {
   const items: UnfinishedWorkRailItem[] = [];
 
   for (const run of runs) {
@@ -262,12 +268,18 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
     const kind: UnfinishedWorkRailItemKind =
       statusTag.kind === "needs-attention" ? "awaiting-disposition" : "review-in-progress";
 
+    const reviewHref = resolveWorkingRunReviewLocator({
+      runId,
+      requestId: run.requestId,
+      draftRegistryEntries,
+    }).href;
+
     items.push(
       buildRailItemBase({
         id: `${kind}:${runId}`,
         kind,
         title: resolveReviewTitle(run),
-        href: reviewDetailPath(runId),
+        href: reviewHref,
         statusLabel: statusTag.label ?? UNFINISHED_WORK_RAIL_STATUS_LABELS[kind],
         statusKind: statusTag.kind,
         updatedUtc: run.createdUtc ?? null,
@@ -325,7 +337,7 @@ export function summarizeUnfinishedWorkRailItems(
   }
 
   const combined = collapseUnfinishedWorkLifecycleDuplicates([
-    ...buildRunItems(inputs.runs),
+    ...buildRunItems(inputs.runs, inputs.drafts),
     ...buildDraftItems(inputs.drafts),
     ...buildWizardItems(inputs.incompleteWizards),
   ]);
