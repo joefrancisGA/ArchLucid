@@ -147,7 +147,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   infrastructureDiagrams: "Inventory diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
-  infrastructureAsk: "Infrastructure Ask",
+  infrastructureAsk: "Ask",
   infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",

@@ -1,23 +1,25 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
-import { SecurityProductHome } from "@/components/product-line/SecurityProductHome";
+import { InfrastructureOverviewClient } from "@/app/(operator)/governance/infrastructure/_sections/InfrastructureOverviewClient";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
+import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
 import {
   ARCHITECTURE_HOME_SECURITY_ENV_HINT_BODY,
   ARCHITECTURE_HOME_SECURITY_ENV_HINT_TITLE,
+  PRODUCT_LINE_OPEN_INTERNAL_LINK_LABEL,
 } from "@/lib/product-line/product-line-copy";
 
 export function ProductLineHomeSwitch(props: { readonly architectureHome?: ReactNode }): React.JSX.Element {
   const { productLine } = useProductLine();
 
   if (productLine === "security") {
-    return <SecurityProductHome />;
+    return <InfrastructureOverviewClient />;
   }
 
   if (props.architectureHome !== undefined) {
@@ -32,7 +34,9 @@ export function ProductLineHomeSwitch(props: { readonly architectureHome?: React
         navHref="/"
         headingLevel="h2"
       />
-      <ProductLineSwitchBar />
+      <Link href={INTERNAL_PRODUCT_LINE_PATH} className={OPERATOR_LINK.inline}>
+        {PRODUCT_LINE_OPEN_INTERNAL_LINK_LABEL}
+      </Link>
     </OperatorPageContainer>
   );
 }

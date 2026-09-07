@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-17–DX-28)
 
-**Created:** 2026-09-07 · **Status:** ready to run (one prompt per chat) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 V1.1 slice — start only when owner unparks).
+**Created:** 2026-09-07 · **Status:** **DX-17–DX-28 shipped on `master`** (2026-09-07) except **DX-18** (TB-885 hold), **DX-19** (ADR 0062 hold), and **DX-20** (open PR until merged). Do not re-run shipped prompts.
 
 These prompts grow the **numerator** (new information sources, synthesis of demoted rows, richer ingest) and close measurement loops DX-13/DX-15 opened. They do **not** add coverage-only “node type X is missing” engines.
 
@@ -16,6 +16,7 @@ These prompts grow the **numerator** (new information sources, synthesis of demo
 |------|-----|
 | ID-01–ID-10, PP-01 map | Shipped |
 | **DX-01–DX-16** | On `master` as of 2026-09-07 (gate, Real judge, actor expansion, contradiction/path engines, InsightGenerator, recurrence default-on, ITSM Decision-grade, novelty signal, harness 32/45, measurement floor, starter catalog) |
+| **DX-17–DX-28** | Shipped on `master` as of 2026-09-07 (see sequencing table — **DX-18**/**DX-19** held; **DX-20** in PR #2002 until merged) |
 | Louvain detector | `LouvainGraphCommunityDetector` + `GraphCommunitySummarizationService` already exist — **DX-17 wires summaries into InsightGenerator**, does not recreate community detection |
 | `SelectJudgedCandidates` severity sort | Judge already orders by severity then lowest score — **DX-21 adds engine-type priority** so path/contradiction rows are not skipped by cap |
 
@@ -37,6 +38,8 @@ These prompts grow the **numerator** (new information sources, synthesis of demo
 | **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 | Sustains excellence |
 
 **Start DX-21–DX-28 now.** Start **DX-17** and **DX-20** after those land if capacity remains. Do **not** start **DX-18** or **DX-19** unless the owner explicitly unparks the matching TB row.
+
+> **2026-09-07 closure:** DX-21–DX-28, DX-17 landed on `master`. DX-20 is in PR #2002. Remaining runnable items: **DX-18** / **DX-19** only when owner unparks TB-885 / TB-2033.
 
 **Do not start from this document:** SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, fake named-model frontier transcripts, a 5th `AgentType` enum value.
 

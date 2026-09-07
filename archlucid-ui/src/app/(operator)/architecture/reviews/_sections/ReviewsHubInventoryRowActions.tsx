@@ -44,6 +44,7 @@ export function ReviewsHubInventoryRowActions(
     <div className="flex items-center justify-end gap-2">
       <PinReviewToDeskButton
         pinRunId={props.run.runId}
+        architectureId={props.row.architectureId}
         label="Pin this review"
         testId={`reviews-hub-pin-${props.row.runId}`}
       />

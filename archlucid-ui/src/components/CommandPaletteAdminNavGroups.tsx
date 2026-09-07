@@ -10,6 +10,7 @@ import {
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
 import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
+import { isWorkingPaletteNavHrefAllowed } from "@/lib/filter-working-palette-nav-hrefs";
 import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
@@ -23,6 +24,7 @@ export function CommandPaletteAdminNavGroups({
   showVendorInternalNav,
   productLine,
   productLineAssignmentOverrides,
+  workingMode,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -34,6 +36,7 @@ export function CommandPaletteAdminNavGroups({
   showVendorInternalNav: boolean;
   productLine: ProductLineId;
   productLineAssignmentOverrides: Readonly<Record<string, ProductLineAssignment>>;
+  workingMode: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -67,7 +70,7 @@ export function CommandPaletteAdminNavGroups({
   );
 
   const systemAdminRows = filterNavGroupsByRoleDensity(
-    isShowSystemAdministrationNavEnabled()
+    isShowSystemAdministrationNavEnabled() && !workingMode
       ? listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
           callerAuthorityRank,
@@ -85,26 +88,44 @@ export function CommandPaletteAdminNavGroups({
     roleNavDensityShowFullNav,
   );
 
+  function filterWorkingPaletteLinks(
+    links: readonly { href: string; label: string }[],
+  ): readonly { href: string; label: string }[] {
+    if (!workingMode) {
+      return links;
+    }
+
+    return links.filter((link) => isWorkingPaletteNavHrefAllowed(link.href));
+  }
+
   return (
     <>
-      {adminRows.map(({ group, visibleLinks }) => (
-        <CommandGroup
-          key={`palette-${group.id}`}
-          heading={group.id === "operator-admin" ? "Administration" : group.label}
-        >
-          {visibleLinks.map((link) => (
-            <CommandItem
-              key={link.href}
-              value={`administration ${link.label} ${link.href}`}
-              onSelect={() => {
-                onNavigate(link.href);
-              }}
-            >
-              {link.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      ))}
+      {adminRows.map(({ group, visibleLinks }) => {
+        const linksForPalette = filterWorkingPaletteLinks(visibleLinks);
+
+        if (linksForPalette.length === 0) {
+          return null;
+        }
+
+        return (
+          <CommandGroup
+            key={`palette-${group.id}`}
+            heading={group.id === "operator-admin" ? "Administration" : group.label}
+          >
+            {linksForPalette.map((link) => (
+              <CommandItem
+                key={link.href}
+                value={`administration ${link.label} ${link.href}`}
+                onSelect={() => {
+                  onNavigate(link.href);
+                }}
+              >
+                {link.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        );
+      })}
       {systemAdminRows.map(({ group, visibleLinks }) => (
         <CommandGroup key={`palette-${group.id}`} heading={group.label}>
           {visibleLinks.map((link) => (

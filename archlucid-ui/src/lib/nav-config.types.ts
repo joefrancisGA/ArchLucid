@@ -33,8 +33,12 @@ export type NavLinkItem = {
   navBadge?: string;
   /** When true, render a non-navigable sidebar row (e.g. gated feature below privacy threshold). */
   navLinkDisabled?: boolean;
-  /** Tooltip for disabled nav rows. */
+  /** Screen-reader supplemental hint for disabled nav rows (never native `title`). */
   navLinkDisabledTitle?: string;
+  /** Visible adjacent copy for disabled nav rows (AO-40 / LS-11). */
+  navLinkDisabledReason?: string;
+  /** Visible helper copy for disabled nav rows (AO-40 — not title-only). */
+  navLinkDisabledVisibleHint?: string;
 };
 
 /**

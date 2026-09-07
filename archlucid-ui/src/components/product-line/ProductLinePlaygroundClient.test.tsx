@@ -50,11 +50,13 @@ describe("ProductLinePlaygroundClient", () => {
 
     const summary = screen.getByTestId("product-line-playground-env-summary");
 
-    expect(summary).toHaveTextContent("Build env (NEXT_PUBLIC_ARCHLUCID_PRODUCT): Security");
+    expect(summary).toHaveTextContent("Build env (NEXT_PUBLIC_ARCHLUCID_PRODUCT): SecureNow");
     expect(summary).toHaveTextContent("Cookie override: Architecture");
     expect(summary).toHaveTextContent("Active shell: Architecture");
     expect(summary).toHaveTextContent("Href overrides: 1 in localStorage");
     expect(summary).toHaveTextContent(PRODUCT_LINE_PLAYGROUND_DUAL_START_NOTE);
+    expect(screen.getByTestId("product-line-switch-bar")).toBeInTheDocument();
+    expect(screen.getByText("Individual destinations")).toBeInTheDocument();
   });
 
   it("resets href assignments from the playground control", () => {

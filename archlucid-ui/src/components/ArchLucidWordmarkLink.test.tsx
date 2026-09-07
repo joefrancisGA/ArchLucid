@@ -1,5 +1,5 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
@@ -34,6 +34,9 @@ vi.mock("next/link", () => ({
 }));
 
 describe("ArchLucidWordmarkLink", () => {
+  afterEach(() => {
+    productLineMock.value = "architecture";
+  });
   it("renders compact ArchLucidLogo geometry for operator chrome by default", () => {
     const { container } = render(
       <ArchLucidWordmarkLink
@@ -54,10 +57,10 @@ describe("ArchLucidWordmarkLink", () => {
     expect(screen.getAllByText("ArchLucid").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders SecureNow in the Security operator shell", () => {
+  it("renders SecureNow text without the ArchLucid mark in the Security operator shell", () => {
     productLineMock.value = "security";
 
-    render(
+    const { container } = render(
       <ArchLucidWordmarkLink
         href="/"
         aria-label={PRODUCT_LINE_WORDMARK_ARIA_LABEL.security}
@@ -66,6 +69,7 @@ describe("ArchLucidWordmarkLink", () => {
     );
 
     expect(screen.getAllByText("SecureNow").length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelector("svg")).toBeNull();
   });
 
   it("renders full ArchLucidLogo for marketing chrome by default", () => {

@@ -8,7 +8,7 @@
 Canonical prompts (copy-paste blocks):
 
 - **DX-01–DX-16 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
-- **DX-17–DX-28 (run next):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+- **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-20** pending merge in PR #2002; **DX-18**/**DX-19** held)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -37,7 +37,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-15** | Measurement floor skipped engines | After DX-03 | DX-03 |
 | **DX-16** | Starter catalog mapped P0 ids | Yes | none |
 
-**DX-01–DX-16 are on `master` — do not re-run.** Next runnable set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+**DX-01–DX-16 are on `master` — do not re-run.** **DX-17–DX-28 shipped** (2026-09-07) except **DX-18**/**DX-19** (held) and **DX-20** (PR #2002). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|

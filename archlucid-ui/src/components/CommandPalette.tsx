@@ -65,6 +65,7 @@ import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewAc
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
+import { filterWorkingPaletteNavHrefs } from "@/lib/filter-working-palette-nav-hrefs";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   commandPaletteOverlayHrefFromSearch,
@@ -171,7 +172,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ? filterNavGroupsForWorkingProfessionalMode(densityFilteredRows)
       : densityFilteredRows;
 
-    return applyPatternLibraryHrefSetGate(
+    const hrefSet = applyPatternLibraryHrefSetGate(
       mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
         scopeOperatorShellHrefSet(
           visibleOperatorShellHrefSetFromNavRows(workingFilteredRows),
@@ -181,6 +182,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ),
       patternLibraryNavVisible,
     );
+
+    return workingMode ? filterWorkingPaletteNavHrefs(hrefSet) : hrefSet;
   }, [
     assignmentOverrides,
     auditRunId,
@@ -406,6 +409,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             showVendorInternalNav={showVendorInternalNav}
             productLine={productLine}
             productLineAssignmentOverrides={assignmentOverrides}
+            workingMode={workingMode}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

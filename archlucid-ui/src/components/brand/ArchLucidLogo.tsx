@@ -28,6 +28,11 @@ export type ArchLucidLogoProps = {
   wordmarkClassName?: string;
   /** Visible wordmark text. Defaults to the Architecture product name. */
   wordmarkText?: string;
+  /**
+   * When false, omit the ArchLucid SVG mark and keep the wordmark text.
+   * SecureNow chrome uses text-only branding.
+   */
+  showMark?: boolean;
   navyColor?: string;
   tealColor?: string;
 };
@@ -85,6 +90,7 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
       className,
       wordmarkClassName,
       wordmarkText = DEFAULT_WORDMARK_TEXT,
+      showMark = true,
       navyColor = ARCHLUCID_BRAND.navy,
       tealColor = ARCHLUCID_BRAND.teal,
     },
@@ -95,6 +101,18 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
     const accessibleName = title ?? DEFAULT_ACCESSIBLE_NAME;
 
     if (variant === "mark") {
+      if (!showMark) {
+        return (
+          <span
+            ref={ref}
+            className={cn("inline-flex shrink-0 items-center leading-none", className)}
+            style={{ color: navyColor }}
+          >
+            {wordmarkText}
+          </span>
+        );
+      }
+
       return (
         <span
           ref={ref}
@@ -115,15 +133,17 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
         ref={ref}
         className={cn(
           "inline-flex shrink-0 items-center",
-          layout.rootClassName,
+          showMark ? layout.rootClassName : undefined,
           className,
         )}
       >
-        <ArchLucidMark
-          size={markSize}
-          navyColor={navyColor}
-          tealColor={tealColor}
-        />
+        {showMark ? (
+          <ArchLucidMark
+            size={markSize}
+            navyColor={navyColor}
+            tealColor={tealColor}
+          />
+        ) : null}
 
         <span
           className={cn(

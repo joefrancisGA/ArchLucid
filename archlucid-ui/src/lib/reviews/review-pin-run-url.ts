@@ -1,12 +1,26 @@
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import {
+  resolveArchitectureReviewHref,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { extractReviewIdFromPathname } from "@/lib/desk-continuity-preference";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
 export const REVIEW_PIN_RUN_PARAM = "pinRunId" as const;
 
-const REVIEW_PATH_PREFIX = "/architecture/reviews/";
+export type RecentPrimaryReviewDeskTarget = {
+  readonly primaryRunId: string;
+  readonly architectureId: string | null;
+};
 
 function normalizeRunId(value: string | null | undefined): string | null {
+  const trimmed = (value ?? "").trim();
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeArchitectureId(value: string | null | undefined): string | null {
   const trimmed = (value ?? "").trim();
 
   return trimmed.length > 0 ? trimmed : null;
@@ -26,24 +40,26 @@ export function readPinRunIdFromWindowLocation(): string | null {
   return readPinRunIdFromSearchParams(new URLSearchParams(window.location.search));
 }
 
-function runIdFromRecentHref(href: string): string | null {
+function deskTargetFromRecentHref(href: string): RecentPrimaryReviewDeskTarget | null {
   const path = href.split("?")[0] ?? "";
+  const runId = extractReviewIdFromPathname(path);
 
-  if (!path.startsWith(REVIEW_PATH_PREFIX)) {
+  if (runId === null) {
     return null;
   }
 
-  const remainder = path.slice(REVIEW_PATH_PREFIX.length).trim();
+  const nested = parseArchitectureNestedRoute(path);
+  const architectureId =
+    nested?.childKind === "reviews" ? normalizeArchitectureId(nested.architectureId) : null;
 
-  if (remainder.length === 0 || remainder.includes("/")) {
-    return null;
-  }
-
-  return remainder;
+  return {
+    primaryRunId: runId,
+    architectureId,
+  };
 }
 
-/** Most recent review-detail run id from operator recent-views storage (for hub pin targets). */
-export function readRecentPrimaryReviewRunId(): string | null {
+/** Most recent review-detail desk target from operator recent-views storage (for hub pin targets). */
+export function readRecentPrimaryReviewDeskTarget(): RecentPrimaryReviewDeskTarget | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -53,10 +69,16 @@ export function readRecentPrimaryReviewRunId(): string | null {
     const state = parseStoredRecentViews(raw);
 
     for (const entry of state.entries) {
-      const runId = runIdFromRecentHref(entry.href);
+      const fromHref = deskTargetFromRecentHref(entry.href);
 
-      if (runId !== null) {
-        return runId;
+      if (fromHref !== null) {
+        const architectureId =
+          normalizeArchitectureId(entry.parentArchitectureId) ?? fromHref.architectureId;
+
+        return {
+          primaryRunId: fromHref.primaryRunId,
+          architectureId,
+        };
       }
     }
   } catch {
@@ -64,6 +86,11 @@ export function readRecentPrimaryReviewRunId(): string | null {
   }
 
   return null;
+}
+
+/** @deprecated Prefer {@link readRecentPrimaryReviewDeskTarget}. */
+export function readRecentPrimaryReviewRunId(): string | null {
+  return readRecentPrimaryReviewDeskTarget()?.primaryRunId ?? null;
 }
 
 export function isValidPinRunId(primaryRunId: string, pinRunId: string | null | undefined): boolean {
@@ -77,19 +104,33 @@ export function isValidPinRunId(primaryRunId: string, pinRunId: string | null | 
   return primary !== pin;
 }
 
+function resolveReviewDetailBaseHref(
+  primaryRunId: string,
+  architectureId?: string | null,
+): string {
+  const primary = normalizeRunId(primaryRunId);
+
+  if (primary === null) {
+    return reviewDetailPath("");
+  }
+
+  return resolveArchitectureReviewHref(primary, architectureId);
+}
+
 export function buildReviewDetailPinHref(
   primaryRunId: string,
   pinRunId: string,
   options?: {
     readonly reviewTab?: string | null;
     readonly preserveSearch?: string | null;
+    readonly architectureId?: string | null;
   },
 ): string {
   const primary = normalizeRunId(primaryRunId);
   const pin = normalizeRunId(pinRunId);
 
   if (primary === null || pin === null || primary === pin) {
-    return reviewDetailPath(pin ?? primary ?? "");
+    return resolveReviewDetailBaseHref(pin ?? primary ?? "", options?.architectureId);
   }
 
   const params = new URLSearchParams(options?.preserveSearch ?? "");
@@ -104,7 +145,7 @@ export function buildReviewDetailPinHref(
 
   params.set(REVIEW_PIN_RUN_PARAM, pin);
 
-  const base = reviewDetailPath(primary);
+  const base = resolveReviewDetailBaseHref(primary, options?.architectureId);
   const qs = params.toString();
 
   return qs.length > 0 ? `${base}?${qs}` : base;
@@ -114,6 +155,7 @@ export function buildReviewDetailPinHref(
 export function buildPinReviewToDeskHref(args: {
   readonly pinRunId: string;
   readonly primaryRunId?: string | null;
+  readonly architectureId?: string | null;
 }): string {
   const pin = normalizeRunId(args.pinRunId);
 
@@ -121,13 +163,15 @@ export function buildPinReviewToDeskHref(args: {
     return reviewDetailPath("");
   }
 
-  const primary = normalizeRunId(args.primaryRunId) ?? readRecentPrimaryReviewRunId();
+  const recent = readRecentPrimaryReviewDeskTarget();
+  const primary = normalizeRunId(args.primaryRunId) ?? recent?.primaryRunId ?? null;
+  const architectureId = normalizeArchitectureId(args.architectureId) ?? recent?.architectureId ?? null;
 
   if (primary === null || primary === pin) {
-    return reviewDetailPath(pin);
+    return resolveArchitectureReviewHref(pin, architectureId);
   }
 
-  return buildReviewDetailPinHref(primary, pin);
+  return buildReviewDetailPinHref(primary, pin, { architectureId });
 }
 
 export function reviewPinRunHrefFromSearch(

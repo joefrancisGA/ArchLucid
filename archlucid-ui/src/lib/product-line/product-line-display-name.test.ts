@@ -17,6 +17,7 @@ import {
   productLineManagedIdentityObjectIdLabel,
   productLinePasswordlessExplanation,
   productLinePoweredByLine,
+  productLineShowsArchLucidMark,
   productLineTenantIdLabel,
   productLineTitleTemplate,
   productLineTransientFailureFooter,
@@ -31,6 +32,8 @@ describe("productLineDisplayName", () => {
     expect(PRODUCT_LINE_DISPLAY_NAME.security).toBe("SecureNow");
     expect(productLineDisplayName("architecture")).toBe("ArchLucid");
     expect(productLineDisplayName("security")).toBe("SecureNow");
+    expect(productLineShowsArchLucidMark("architecture")).toBe(true);
+    expect(productLineShowsArchLucidMark("security")).toBe(false);
   });
 });
 

@@ -35,4 +35,18 @@ describe("workingShareHref (AO-09)", () => {
     expect(result.href).toBe("/architecture/architectures/architecture-identity-001");
     expect(result.isUnlinkedJob).toBe(false);
   });
+
+  it("AO-38: room elicitation share keeps nested architecture locator", () => {
+    const result = workingShareHref({
+      architectureId: "architecture-identity-001",
+      reviewId: "run-001",
+      search: { roomElicitation: "1", reviewTab: "findings" },
+    });
+
+    expect(result.href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001?roomElicitation=1&reviewTab=findings",
+    );
+    expect(result.href).toContain("architecture-identity-001");
+    expect(result.isUnlinkedJob).toBe(false);
+  });
 });

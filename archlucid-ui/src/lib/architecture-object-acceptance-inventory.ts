@@ -108,4 +108,39 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/search/working-architecture-search-scope.test.ts",
     marker: "AO-32",
   },
+  {
+    id: "AO-36",
+    relativeTestPath: "components/architecture/architecture-draft-clone-snapshot.test.tsx",
+    marker: "AO-36",
+  },
+  {
+    id: "AO-37",
+    relativeTestPath: "lib/reviews/review-pin-run-url.test.ts",
+    marker: "AO-37",
+  },
+  {
+    id: "AO-38",
+    relativeTestPath: "lib/architecture/working-share-href.test.ts",
+    marker: "AO-38",
+  },
+  {
+    id: "AO-39",
+    relativeTestPath: "lib/routing/working-route-roles.test.ts",
+    marker: "AO-39",
+  },
+  {
+    id: "AO-40",
+    relativeTestPath: "lib/apply-working-bind-tool-nav-gate.test.ts",
+    marker: "AO-40",
+  },
+  {
+    id: "AO-41",
+    relativeTestPath: "lib/filter-working-palette-nav-hrefs.test.ts",
+    marker: "AO-41",
+  },
+  {
+    id: "AO-47",
+    relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
+    marker: "AO-47",
+  },
 ];

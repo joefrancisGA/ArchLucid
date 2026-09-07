@@ -56,7 +56,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/users": "both",
   "/administration/identity-providers": "both",
   "/administration/scim-provisioning": "both",
-  "/administration/billing": "both",
+  "/administration/billing": "architecture",
   "/administration/security-trust": "both",
   "/administration/connection-status": "both",
   "/administration/system-health": "both",
@@ -74,18 +74,18 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/internal/operational-errors": "both",
   "/internal/tenants": "both",
   "/internal/tenant-health": "both",
+  "/internal/product-line": "both",
 };
 
 /**
  * Destinations that are not sidebar rows but must remain reachable in the Security shell
- * (settings hub leaves, OAuth returns, playground).
+ * (settings hub leaves, OAuth returns).
  */
 export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
   "/administration/extract-upload": "both",
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
-  "/internal/product-line": "both",
 };
 
 /** Nested URL trees that inherit the parent catalog assignment. */
@@ -121,4 +121,4 @@ export const PRODUCT_LINE_ALWAYS_ALLOWED_PREFIXES: readonly string[] = [
   "/internal/product-line",
 ];
 
-export const INTERNAL_PRODUCT_LINE_PATH = "/internal/product-line";
+export { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";
