@@ -67,6 +67,39 @@ public sealed class GcpCostRecommendationFindingEngineTests
         payload.EstimatedAnnualSavingsUsd.Should().Be(600m);
         payload.ExtractorArtifactFileName.Should().Be("recommender-cost.json");
         findings[0].Trace.RulesApplied.Should().Contain("extractor-gcp-cost-json");
+        findings[0].EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_when_row_has_gcp_resource_name()
+    {
+        const string costJson =
+            """
+            {
+              "recommendations": [
+                {
+                  "name": "projects/demo-project/locations/us-central1/recommenders/google.compute.instance.MachineTypeRecommender/recommendations/rec-1",
+                  "recommenderSubtype": "CHANGE_MACHINE_TYPE",
+                  "primaryImpact": {
+                    "costProjection": {
+                      "cost": {
+                        "units": "-50"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+
+        (GcpCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("recommender-cost.json", costJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].EvidenceRefs.Should().ContainSingle()
+            .Which.Should().Contain("projects/demo-project/");
     }
 
     [Fact]
