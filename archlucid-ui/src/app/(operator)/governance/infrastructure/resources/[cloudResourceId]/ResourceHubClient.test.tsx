@@ -197,6 +197,18 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on audit lineage tab quick links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-audit-work")).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
+    );
+  });
+
   it("preserves runId when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       "tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -295,7 +307,7 @@ describe("ResourceHubClient", () => {
     );
     expect(screen.getByTestId("infra-resource-hub-diagram-open-audit-tab")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+      `/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222${AUDIT_WORKBENCH_SUFFIX}`,
     );
   });
 

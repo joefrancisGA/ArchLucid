@@ -213,15 +213,14 @@ function buildHubAuditLineageAskHref(
 function buildHubAuditLineageTabHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   context: {
     readonly assessmentId: string;
     readonly auditEvidenceSnapshotId: string;
     readonly controlId: string;
   },
 ): string {
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
-    tab: "audit",
-    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+  return buildHubScopedTabHref(cloudResourceId, "audit", snapshotId, runId, {
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
@@ -934,7 +933,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {resolvedAuditLineage != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-audit-work">
                     <Link
-                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -1065,7 +1064,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1200,7 +1199,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1354,7 +1353,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {resolvedAuditLineage != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-audit-tab">
                     <Link
-                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -1397,7 +1396,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1556,7 +1555,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
