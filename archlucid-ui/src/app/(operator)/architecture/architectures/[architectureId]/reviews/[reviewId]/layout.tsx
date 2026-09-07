@@ -2,11 +2,18 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { metadataForWorkingArchitectureNestedReviewRoute } from "@/lib/architecture/working-architecture-document-title";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
-export const metadata: Metadata = {
-  title: "Architecture Review Detail",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ architectureId: string; reviewId: string }>;
+}): Promise<Metadata> {
+  const { architectureId } = await params;
+
+  return metadataForWorkingArchitectureNestedReviewRoute(architectureId);
+}
 
 export default async function NestedArchitectureReviewLayout({
   children,

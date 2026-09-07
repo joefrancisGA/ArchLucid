@@ -34,6 +34,7 @@ import {
   resolveGettingStartedHelpPrimaryActions,
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
+  resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
 import {
   gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
@@ -222,6 +223,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
   const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode));
   const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
   const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
+  const workflowSteps = resolveGettingStartedHelpWorkflowSteps(isWorkingMode);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -370,8 +372,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               Follow this path from evidence intake through shareable outputs.
             </p>
             <ol className="m-0 list-none space-y-0 p-0" data-testid="getting-started-workflow-stepper">
-              {GETTING_STARTED_HELP_WORKFLOW_STEPS.map((step, index) => {
-                const isLast = index === GETTING_STARTED_HELP_WORKFLOW_STEPS.length - 1;
+              {workflowSteps.map((step, index) => {
+                const isLast = index === workflowSteps.length - 1;
 
                 return (
                   <li key={step.stepNumber} className="relative flex gap-4 pb-6 last:pb-0">

@@ -5,6 +5,8 @@ const fetchPostAuthBootstrapStatus = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("returnUrl=%2Farchitecture%2Freviews"),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/auth/bootstrap",
 }));
 
 vi.mock("@/lib/auth/post-auth-bootstrap-api", () => ({
@@ -102,6 +104,7 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-sign-in-again")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
     expect(screen.getByTestId("bootstrap-public-exit")).not.toHaveAttribute("href", "/welcome");
   });
@@ -123,6 +126,7 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
   });
 });

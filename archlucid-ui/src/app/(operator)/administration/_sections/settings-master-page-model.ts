@@ -42,18 +42,6 @@ function destinationMatchesQuery(destination: SettingsMasterDestination, normali
   return haystack.includes(normalizedQuery);
 }
 
-function sectionMatchesQuery(section: SettingsMasterSection, normalizedQuery: string): boolean {
-  if (normalizedQuery.length === 0) {
-    return true;
-  }
-
-  const haystack = [section.title, section.description, section.navLabel, section.keywords.join(" ")]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(normalizedQuery);
-}
-
 function tierVisible(tier: SettingsMasterTier, showAdvanced: boolean, showInternalShell: boolean, isSearching: boolean): boolean {
   if (tier === "internal") {
     return showInternalShell;
@@ -131,7 +119,7 @@ export function buildSettingsMasterVisibleSections(
           return false;
         }
 
-        if (!destinationMatchesQuery(destination, normalizedQuery) && !sectionMatchesQuery(section, normalizedQuery)) {
+        if (!destinationMatchesQuery(destination, normalizedQuery)) {
           return false;
         }
 
@@ -156,6 +144,16 @@ export function buildSettingsMasterVisibleSections(
 
       return section.showSupportBundle;
     });
+}
+
+export function countSettingsMasterMatchingDestinations(
+  sections: readonly SettingsMasterSection[],
+  input: SettingsMasterPageModelInput,
+): number {
+  return buildSettingsMasterVisibleSections(sections, input).reduce(
+    (total, section) => total + section.destinations.length + (section.showSupportBundle ? 1 : 0),
+    0,
+  );
 }
 
 export function formatSettingsAuthorityLabel(required: RequiredAuthority): string {

@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { RunDetailPageRoute } from "@/app/(operator)/architecture/_shared/run-detail-page-route";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-
-export const metadata: Metadata = {
-  title: "Architecture Review Detail",
-};
 
 export default async function NestedArchitectureReviewPage({
   params,

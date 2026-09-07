@@ -8,6 +8,7 @@ import {
   buildSignedRecordsListRowsFromRuns,
   isSignedRecordsListRowOpenable,
 } from "./signed-records-list-row";
+import { architectureNestedReviewPath } from "@/lib/architecture/architecture-routes";
 
 const finalizedRun: RunSummary = {
   runId: "00000000-0000-0000-0000-000000000099",
@@ -18,6 +19,7 @@ const finalizedRun: RunSummary = {
   hasGraphSnapshot: false,
   hasFindingsSnapshot: true,
   hasGoldenManifest: true,
+  requestId: "architecture-identity-001",
 };
 
 const inProgressRun: RunSummary = {
@@ -45,7 +47,9 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0]?.runId).toBe(finalizedRun.runId);
-    expect(rows[0]?.reviewHref).toBe(`/architecture/reviews/${encodeURIComponent(finalizedRun.runId)}`);
+    expect(rows[0]?.reviewHref).toBe(
+      architectureNestedReviewPath("architecture-identity-001", finalizedRun.runId),
+    );
     expect(rows[0]?.signedRecordHref).toBeNull();
     expect(isSignedRecordsListRowOpenable(rows[0]!)).toBe(false);
     expect(rows[0]?.recordLookupFailure).toBe("pending-resolution");

@@ -7,6 +7,7 @@ import {
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
+  SIDEBAR_MIN_DAILY_VISIBLE_COUNT,
   sidebarMoreLinksCollapseLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
@@ -32,7 +33,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more).toEqual([]);
   });
 
-  it("shows all Approval links without a daily vs more split", () => {
+  it("shows at least three Approval links before the more disclosure", () => {
     const links = [
       link("/governance/advisory-scans", "Advisory scans"),
       link("/governance/alert-rules", "Alert rules"),
@@ -46,16 +47,88 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ];
     const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
 
-    expect(split.daily).toEqual(links);
-    expect(split.more).toEqual([]);
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.more.length).toBeGreaterThan(0);
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/advisory-scans",
+      "/governance/alerts",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual([
+      "/governance/alert-rules",
+      "/governance/audit",
+      "/governance/remediation-factory",
+      "/governance/remediation-patterns",
+      "/governance/audit-evidence",
+    ]);
   });
 
-  it("shows every configured Approval nav link without a more disclosure", () => {
+  it("keeps advisory scans in the governance daily strip", () => {
+    const links = [
+      link("/governance/advisory-scans", "Advisory scans"),
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/alerts", "Alerts"),
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/advisory-scans",
+      "/governance/alerts",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
+  });
+
+  it("keeps alert rules in more when advisory scans occupies the daily slot", () => {
+    const links = [
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/alerts", "Alerts"),
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/alerts",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/alert-rules", "/governance/audit"]);
+  });
+
+  it("splits governance into daily vs more and preserves daily order", () => {
+    const links = [
+      link("/governance/alerts", "Alerts"),
+      link("/governance/approval-queue", "Approval"),
+      link("/governance/findings", "Findings"),
+      link("/governance/audit", "Audit"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
+
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/alerts",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/audit"]);
+  });
+
+  it("shows at least three configured Approval nav links before more disclosure", () => {
     const governanceLinks = NAV_GROUPS.find((group) => group.id === "operate-governance")?.links ?? [];
     const split = splitSidebarLinksDailyVsMore("operate-governance", governanceLinks, "/");
 
-    expect(split.daily).toEqual(governanceLinks);
-    expect(split.more).toEqual([]);
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.more.length).toBeGreaterThan(0);
+    expect(split.daily.length + split.more.length).toBe(governanceLinks.length);
   });
 
   it("leads Administration with routine configuration rather than break-glass pages", () => {
@@ -67,7 +140,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
       link("/administration/support", "Support"),
       link("/administration/notifications", "Notifications"),
       link("/administration/workspace-settings", "Workspace settings"),
-      link("/administration/baseline", "Baseline settings"),
+      link("/administration/baseline", "ROI Settings"),
     ];
     const split = splitSidebarLinksDailyVsMore("operator-admin", links, "/");
 
@@ -83,6 +156,27 @@ describe("splitSidebarLinksDailyVsMore", () => {
       "/administration/support",
       "/administration/baseline",
     ]);
+  });
+
+  it("lists every Administration destination on Administration routes", () => {
+    const links = [
+      link("/administration", "All settings"),
+      link("/administration/users", "Users & roles"),
+      link("/administration/billing", "Billing & plans"),
+      link("/administration/system-health", "System health"),
+      link("/administration/support", "Support"),
+      link("/administration/notifications", "Notifications"),
+      link("/administration/workspace-settings", "Workspace settings"),
+      link("/administration/baseline", "Baseline settings"),
+    ];
+    const split = splitSidebarLinksDailyVsMore(
+      "operator-admin",
+      links,
+      "/administration/workspace-settings",
+    );
+
+    expect(split.daily).toEqual(links);
+    expect(split.more).toEqual([]);
   });
 
   it("splits Insights into daily vs more and preserves daily order", () => {
@@ -110,15 +204,15 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ]);
   });
 
-  it("keeps Approval links visible on nested routes without a more disclosure", () => {
+  it("promotes an active more-link into daily so the route stays visible", () => {
     const links = [
       link("/governance/approval-queue", "Approval"),
       link("/governance/audit", "Audit"),
     ];
     const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/governance/audit");
 
-    expect(split.daily).toEqual(links);
-    expect(split.more).toEqual([]);
+    expect(split.daily.map((row) => row.href)).toContain("/governance/audit");
+    expect(split.more.map((row) => row.href)).not.toContain("/governance/audit");
   });
 
   it("promotes an active more-link when its href includes a fragment anchor", () => {
@@ -130,8 +224,27 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ];
     const split = splitSidebarLinksDailyVsMore("operate-policy", links, "/governance/recurrence-schedules");
 
+    expect(split.daily.length).toBeGreaterThanOrEqual(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
     expect(split.daily.map((row) => row.href)).toContain("/governance/recurrence-schedules");
     expect(split.more.map((row) => row.href)).not.toContain("/governance/recurrence-schedules");
+  });
+
+  it("shows at least three Policy links before the more disclosure", () => {
+    const links = [
+      link("/governance/policy-packs", "Policy packs"),
+      link("/governance/standards-and-rules", "Standards & rules"),
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/recurrence-schedules", "Recurrence schedules"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-policy", links, "/");
+
+    expect(split.daily.length).toBe(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.daily.map((row) => row.href)).toEqual([
+      "/governance/policy-packs",
+      "/governance/standards-and-rules",
+      "/governance/alert-rules",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual(["/governance/recurrence-schedules"]);
   });
 
   it("splits Internal ops into daily vs more links", () => {
@@ -156,7 +269,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more.map((row) => row.href)).toEqual(["/internal/tenant-health", "/internal/tenants"]);
   });
 
-  it("AO-14: Working pilot daily strip leads with architectures then review inbox", () => {
+  it("AO-14 / SY-56: Working pilot daily strip leads with Home then architectures and review inbox", () => {
     const links = [
       link("/", "Home"),
       link(ARCHITECTURES_LIST_PATH, "Architectures"),
@@ -169,9 +282,9 @@ describe("splitSidebarLinksDailyVsMore", () => {
     const split = splitSidebarLinksDailyVsMore("pilot", links, "/", true);
 
     expect(split.daily.map((row) => row.href)).toEqual([
+      "/",
       ARCHITECTURES_LIST_PATH,
       REVIEWS_LIST_PATH,
-      "/",
       SIGNED_RECORDS_LIST_PATH,
       SPONSOR_DASHBOARD_HREF,
     ]);
@@ -181,7 +294,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ]);
   });
 
-  it("AO-14: Working operate-analysis demotes insight tools to more", () => {
+  it("AO-14: Working operate-analysis demotes insight tools to more after the daily floor", () => {
     const links = [
       link("/insights/evidence-graph", "Evidence graph"),
       link("/insights/ask-review-questions", "Ask review questions"),
@@ -191,11 +304,14 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ];
     const split = splitSidebarLinksDailyVsMore("operate-analysis", links, "/", true);
 
-    expect(split.daily).toEqual([]);
-    expect(split.more.map((row) => row.href)).toEqual([
+    expect(split.daily.length).toBe(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.more.length).toBe(links.length - SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(split.daily.map((row) => row.href)).toEqual([
       "/insights/evidence-graph",
       "/insights/ask-review-questions",
       "/insights/search-review-evidence",
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual([
       "/insights/sponsor-report",
       "/insights/compare-two-reviews",
     ]);
@@ -212,8 +328,8 @@ describe("splitSidebarLinksDailyVsMore", () => {
     const working = splitSidebarLinksDailyVsMore("operate-analysis", links, "/", true);
 
     expect(guided.daily.map((row) => row.href)[0]).toBe("/insights/evidence-graph");
-    expect(working.daily).toEqual([]);
-    expect(working.more.length).toBe(links.length);
+    expect(working.daily.length).toBe(SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
+    expect(working.more.length).toBe(links.length - SIDEBAR_MIN_DAILY_VISIBLE_COUNT);
   });
 });
 

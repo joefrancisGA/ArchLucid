@@ -32,6 +32,7 @@ import {
 import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE } from "@/lib/governance/governance-infrastructure-evidence-copy";
 import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-copy";
 import { cn } from "@/lib/utils";
 
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
@@ -42,11 +43,19 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
+export type InfrastructureOverviewClientProps = {
+  /** SecureNow `/` home — page title and nav target differ from the infrastructure overview hub. */
+  readonly secureNowHome?: boolean;
+};
+
 /** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
-export function InfrastructureOverviewClient() {
+export function InfrastructureOverviewClient(props: InfrastructureOverviewClientProps = {}) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { productLine } = useProductLine();
   const showSecureNowGroupedHomeSections = productLine === "security";
+  const secureNowHome = props.secureNowHome === true;
+  const pageTitle = secureNowHome ? SECURITY_PRODUCT_HOME_TITLE : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE;
+  const pageNavHref = secureNowHome ? "/" : GOVERNANCE_INFRASTRUCTURE_PATH;
 
   return (
     <OperatorPageContainer
@@ -64,8 +73,8 @@ export function InfrastructureOverviewClient() {
       ) : null}
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_PATH}
-        title={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE}
+        navHref={pageNavHref}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
         claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="governance-infrastructure-overview-claim-discipline"

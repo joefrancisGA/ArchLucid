@@ -74,6 +74,12 @@ public static partial class AuditEventTypes
     /// <summary>Operator recorded an insight-density desk signal on a finding (DX-13).</summary>
     public const string FindingInsightSignalRecorded = "FindingInsightSignalRecorded";
 
+    /// <summary>Operator started an ADR 0062 finding verification pass on a sealed run package.</summary>
+    public const string FindingVerificationStarted = "FindingVerificationStarted";
+
+    /// <summary>Operator completed an ADR 0062 finding verification pass; append-only report artifact persisted.</summary>
+    public const string FindingVerificationCompleted = "FindingVerificationCompleted";
+
     /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
     public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
 

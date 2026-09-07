@@ -25,7 +25,7 @@ describe("review-pin-run-url", () => {
     );
   });
 
-  it("AO-37: builds nested pin href when architecture id is known", () => {
+  it("SY-22: AO-37 builds nested pin href when architecture id is known", () => {
     expect(
       buildReviewDetailPinHref("run-a", "run-b", {
         architectureId: "architecture-identity-001",

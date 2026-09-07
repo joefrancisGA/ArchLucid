@@ -11,7 +11,7 @@ import {
 
 export const DEV_QUICK_SWITCH_PANEL_VISIBILITY_EVENT = "archlucid-dev-quick-switch-panel-visibility";
 
-export const DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT = "Alt+Shift+D";
+export const DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT = "Ctrl+Shift+H";
 
 function dispatchDevQuickSwitchPanelVisibilityChanged(hidden: boolean): void {
   if (typeof window === "undefined") {

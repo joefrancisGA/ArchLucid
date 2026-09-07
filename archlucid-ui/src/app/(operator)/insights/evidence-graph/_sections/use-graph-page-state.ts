@@ -26,9 +26,14 @@ import { graphRunIdHrefFromSearch } from "@/lib/insights/graph-run-id-url";
 import { graphLoadRequestedHrefFromSearch } from "@/lib/insights/graph-load-requested-url";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
-export function useGraphPageState() {
+export type UseGraphPageStateOptions = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
   const router = useRouter();
-  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
+  const pathname = usePathname() ?? options.basePathname ?? EVIDENCE_GRAPH_PATH;
   const searchParams = useSearchParams();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
@@ -72,6 +77,7 @@ export function useGraphPageState() {
   const architectureBind = useWorkingInsightsArchitectureBind({
     tool: "evidence-graph",
     urlRunId,
+    pinnedArchitectureId: options.pinnedArchitectureId,
   });
 
   const setGraphLoadRequested = useCallback(

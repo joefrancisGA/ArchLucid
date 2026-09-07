@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import type { ProvenanceViewMode } from "@/components/provenance/ProvenanceViewModeSwitcher";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import {
   parseProvenanceCategoryFromSearch,
@@ -72,7 +71,8 @@ function flashNodeRow(nodeId: string): void {
 export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) {
   const { runId, provenanceTraceId, reviewContext, dataOrigin = "live" } = props;
   const router = useRouter();
-  const pathname = usePathname() ?? reviewDetailPath(runId);
+  const workingBackLocator = useWorkingBackLocator({ reviewId: runId });
+  const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
   const searchParams = useSearchParams();
   const urlViewMode = parseProvenanceViewModeFromSearch(searchParams.get("view"));
   const urlCategory = parseProvenanceCategoryFromSearch(searchParams.get("category"));
@@ -381,7 +381,6 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   }, []);
 
   const reviewTitle = reviewContext?.reviewTitle?.trim() ?? "";
-  const workingBackLocator = useWorkingBackLocator({ reviewId: runId });
   const reviewHref = workingBackLocator.reviewJobHref;
 
   useEffect(() => {

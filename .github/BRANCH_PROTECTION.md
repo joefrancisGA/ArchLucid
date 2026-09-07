@@ -57,7 +57,7 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 **Not in the five-check JSON** (do not pretend the live ruleset requires them):
 
 - `.NET: OpenAPI v1 contract snapshot (fail-fast)` — now a job on `.github/workflows/ui-typecheck-on-push.yml`. Owner may add the check after one green trunk run.
-- `Operator UI: private-beta access-path (JwtBearer)` — produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push. **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run. After the first green private-beta smoke on `master`, extend `.github/rulesets/golden-cohort-gate-required-check.json` and re-run `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` (or add the check in GitHub Rulesets UI).
+- `Operator UI: private-beta access-path (JwtBearer)` — produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push. **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run. After the first green private-beta smoke on `master`, apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) via `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1 -PayloadPath .github/rulesets/golden-cohort-gate-private-beta-addon.json` (or merge into `golden-cohort-gate-required-check.json`) and re-run the script (or add the check in GitHub Rulesets UI).
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 

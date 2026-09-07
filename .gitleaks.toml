@@ -121,6 +121,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Insight density Composer prompt packs: internal engineering docs with golden case-NN references and engine identifiers only — never credential values; generic-api-key false positives on cost/path golden prose"
+paths = [
+  '''(?:^|/)docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.*\.md$''',
+]
+
+[[allowlists]]
 description = "server-operator-scope Vitest: ARCHLUCID_PROXY_BEARER_TOKEN env stub only (not a real JWT/API key); generic-api-key false positive on retired eyJ-prefixed fixture in git history"
 paths = [
   '''(?:^|/)archlucid-ui/src/lib/server-operator-scope\.test\.ts$''',

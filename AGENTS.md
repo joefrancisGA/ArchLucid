@@ -4,6 +4,12 @@
 
 Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/engineering/AGENTS.md](docs/engineering/AGENTS.md)`** · Next.js app only: **`[archlucid-ui/AGENTS.md](archlucid-ui/AGENTS.md)`**.
 
+## Compile verification (agents)
+
+**Debug `dotnet build` success is not evidence** that trunk will stay green. The **master/main push corset** (`.github/workflows/ui-typecheck-on-push.yml`) builds **Release** with `TreatWarningsAsErrors=true`. Prefer `scripts/ci/run_push_corset_dotnet.sh` or `scripts/ci/agent-compile-check.ps1` before claiming compile health.
+
+After `npm ci` in `archlucid-ui`, CI asserts a single resolved `@tanstack/query-core` version (`scripts/ci/assert_single_npm_dependency_version.py`). Stale `node_modules` can hide duplicate nested copies that fail clean install on CI.
+
 ## Cursor Cloud specific instructions
 
 Cursor Cloud Agent VMs are **Linux**. **`pwsh` is not preinstalled**; `python3` and `dotnet` usually are. Repo scripts and Pester suites expect PowerShell 7 + Pester 5 (same band as CI `azure-extractor-pester`).
