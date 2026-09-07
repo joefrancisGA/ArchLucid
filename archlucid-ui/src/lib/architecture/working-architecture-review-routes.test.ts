@@ -9,6 +9,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import {
   isNestedReviewArchitectureMismatch,
+  resolveArchitectureReviewTabHref,
   resolveWorkingPeerReviewRedirectHref,
 } from "@/lib/architecture/working-architecture-review-routes";
 
@@ -34,6 +35,12 @@ describe("architecture nested route builders (AO-02)", () => {
       architectureNestedReviewPath("architecture-identity-001", "run-001"),
     );
     expect(resolveArchitectureReviewHref("run-001", null)).toBe(reviewDetailPath("run-001"));
+  });
+
+  it("AO-08: builds nested review tab hrefs for in-flight resume", () => {
+    expect(resolveArchitectureReviewTabHref("run-001", "activity", "architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
+    );
   });
 });
 

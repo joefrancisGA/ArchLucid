@@ -2,7 +2,8 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { isArchitectureDraftInReviewIntake } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   architectureDraftPath,
-  startReviewFromArchitectureHref,
+  architectureIdentityDraftHref,
+  startReviewFromDraftContextHref,
 } from "@/lib/architecture/architecture-routes";
 import {
   OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
@@ -44,6 +45,7 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
   }
 
   const draftId = entry.draftId.trim();
+  const parentArchitectureId = entry.parentArchitectureId?.trim() ?? "";
 
   if (draftId.length === 0) {
     return null;
@@ -55,9 +57,14 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
     return null;
   }
 
+  const draftWorkspaceHref =
+    parentArchitectureId.length > 0
+      ? architectureIdentityDraftHref(parentArchitectureId, draftId)
+      : architectureDraftPath(draftId);
+
   if (entry.serverDraftStatus === "Submitted") {
     return {
-      href: architectureDraftPath(draftId),
+      href: draftWorkspaceHref,
       ctaLabel: OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
       kind: "resume-draft",
     };
@@ -65,14 +72,17 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
 
   if (isArchitectureDraftPastDraftingOnRegistryEntry(entry)) {
     return {
-      href: startReviewFromArchitectureHref(draftId),
+      href: startReviewFromDraftContextHref({
+        parentArchitectureId,
+        legacyDraftId: draftId,
+      }),
       ctaLabel: OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
       kind: "continue-intake",
     };
   }
 
   return {
-    href: architectureDraftPath(draftId),
+    href: draftWorkspaceHref,
     ctaLabel: OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     kind: "resume-draft",
   };

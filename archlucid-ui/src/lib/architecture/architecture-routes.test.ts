@@ -13,6 +13,8 @@ import {
   isArchitectureNewDraftSegment,
   resolveArchitectureReviewHref,
   startReviewFromArchitectureHref,
+  startReviewFromDraftContextHref,
+  resolveStartReviewSourceArchitectureId,
 } from "@/lib/architecture/architecture-routes";
 
 describe("architecture-routes", () => {
@@ -27,21 +29,34 @@ describe("architecture-routes", () => {
     );
   });
 
-  it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {
-    expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
-      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+  it("AO-08: start-review from draft context prefers ArchitectureId over draft id", () => {
+    expect(
+      resolveStartReviewSourceArchitectureId({
+        parentArchitectureId: "architecture-identity-001",
+        draftArchitectureId: "draft-001",
+      }),
+    ).toBe("architecture-identity-001");
+    expect(
+      startReviewFromDraftContextHref({
+        parentArchitectureId: "architecture-identity-001",
+        legacyDraftId: "draft-001",
+      }),
+    ).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
+    );
+    expect(
+      startReviewFromDraftContextHref({
+        draftArchitectureId: "architecture-identity-002",
+        legacyDraftId: "draft-legacy",
+      }),
+    ).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-002",
     );
   });
 
-  it("builds nested Working job paths (AO-02)", () => {
-    expect(architectureNestedReviewPath("architecture-identity-001", "run-001")).toBe(
-      "/architecture/architectures/architecture-identity-001/reviews/run-001",
-    );
-    expect(architectureNestedDraftPath("architecture-identity-001", "draft-001")).toBe(
+  it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {
+    expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
       "/architecture/architectures/architecture-identity-001/drafts/draft-001",
-    );
-    expect(resolveArchitectureReviewHref("run-001", "architecture-identity-001")).toBe(
-      architectureNestedReviewPath("architecture-identity-001", "run-001"),
     );
   });
 
