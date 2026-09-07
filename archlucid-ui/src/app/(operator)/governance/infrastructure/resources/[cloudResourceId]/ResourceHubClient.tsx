@@ -194,6 +194,7 @@ function buildHubRemediationAskHref(
 function buildHubAuditLineageAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   context: {
     readonly assessmentId: string;
     readonly auditEvidenceSnapshotId: string;
@@ -203,6 +204,7 @@ function buildHubAuditLineageAskHref(
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
@@ -1641,7 +1643,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Button>
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-ask">
                     <Link
-                      href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -1713,7 +1715,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"
-                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,

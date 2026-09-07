@@ -10044,11 +10044,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — audit lineage tab links dropped review `runId` while sibling hub cross-links preserved it
+- **last-bug:** 2026-09-07 — audit tab Infrastructure Ask links dropped review `runId` while diagram/finding ask helpers preserved it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10060,8 +10060,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset — **hit 2026-09-07 hunt #1281:** stale detection used `hasAnyAuditParam && workbenchLinkAuditContext == null`, but `workbenchLinkAuditContext` merges URL + hub payload via `resolveInfrastructureAskAuditContext`, so a partial URL triple (e.g. only `assessmentId`) with full hub lineage hid the stale banner while still rendering the audit scope bar; fixed by URL-only `hasStaleInfraEvidenceAuditUrlParams` + gating the scope bar on `parseInfraEvidenceWorkbenchAuditScopeFromSearch`; regressions in `infra-evidence-workbench-hub-scope.test.ts` and `ResourceHubClient.test.tsx`
 - [x] (invalid) `fetchCachedInfraEvidenceResourceHub` — cache key omits work-queue param so explorer queue context can serve stale hub payload — **invalid 2026-09-07 hunt #1281:** `workQueue` is navigation/UI context only; `fetchCloudResourceEvidenceHub` does not send it to the hub API, so omitting it from the cache key matches fetch semantics and is not a stale-payload defect
 - [x] (proven) `buildHubAuditLineageTabHref` — audit lineage hub tab links omit `runId` while `buildHubScopedTabHref` cross-links preserve review scope — **hit 2026-09-07 hunt #1285 (seed→hit):** `resourceHubFilterHrefFromSearch` rebuild dropped `runId` on all `*-open-audit-*` tab links; fixed by routing through `buildHubScopedTabHref`; regression in `preserves runId on audit lineage tab quick links`
-- [ ] (candidate) `buildHubAuditLineageAskHref` — Infrastructure Ask links from audit tab omit `runId` while diagram/finding ask helpers pass it when present
+- [x] (proven) `buildHubAuditLineageAskHref` — Infrastructure Ask links from audit tab omit `runId` while diagram/finding ask helpers pass it when present — **hit 2026-09-07 hunt #1295:** audit-tab Ask helper never forwarded `runId` to `buildInfrastructureAskHref` while sibling ask helpers did; fixed by threading `runId` through `buildHubAuditLineageAskHref` and call sites; regression in `preserves runId on audit lineage Infrastructure Ask link`
 
+2026-09-07 thorough hunt #1295 (hit): proved audit-tab Infrastructure Ask runId scope leak; aligned ask helper with diagram/finding ask parity.
 2026-09-07 seed hunt #1285 (hit): reseeded ui-infra-resource-hub; proved audit lineage tab link runId scope leak; seeded audit-tab Ask runId candidate.
 
 2026-09-07 seed hunt #1189 (hit): seeded zone from ABQ-09 churn hotspot; proved tab-bar runId scope leak vs cross-link parity.

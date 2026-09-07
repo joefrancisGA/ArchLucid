@@ -209,6 +209,18 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on audit lineage Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-audit-ask")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
   it("preserves runId when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       "tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
