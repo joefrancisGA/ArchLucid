@@ -108,7 +108,7 @@ function appendCareerExportHonestyMarkdownSection(
 
   const honestyMarkdown = formatCareerExportHonestyMarkdown(honestyInput).trim();
   const demoHonestyMarkdown = formatCareerExportDemoHonestyMarkdown({
-    usedStaticDemoRun: options?.careerExportHonesty?.usedStaticDemoRun ?? null,
+    usedStaticDemoRun: options?.careerExportHonesty?.usedStaticDemoRun === true ? true : undefined,
     isSample: honestyInput.isSample,
     structuralExecutionMode: honestyInput.structuralExecutionMode,
   }).trim();
