@@ -126,17 +126,17 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
             instances. All six destinations are available from this hub.
             {showSecureNowGroupedHomeSections
-              ? " Compliance, infrastructure, and security destinations are grouped below."
+              ? " Security, compliance, and infrastructure destinations are grouped below."
               : null}
           </p>
         )}
 
         {showSecureNowGroupedHomeSections ? (
-          <>
+          <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
+            <SecureNowSecurityHomeSection />
             <SecureNowComplianceHomeSection />
             <SecureNowInfrastructureHomeSection />
-            <SecureNowSecurityHomeSection />
-          </>
+          </div>
         ) : (
           <section aria-labelledby="governance-infrastructure-workbenches-heading">
             <h2

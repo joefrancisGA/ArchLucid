@@ -231,7 +231,7 @@ const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>
   "operate-analysis": "Insights",
   "operate-governance": "Approval",
   "operate-policy": "Policy",
-  "operate-compliance": "Compliance",
+  "operate-compliance": "ARC-AMPE compliance",
   "operate-infrastructure": "Infrastructure",
   "operate-security": "Security",
   "operator-admin": "Administration",
