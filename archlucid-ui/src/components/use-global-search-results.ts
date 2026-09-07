@@ -34,6 +34,7 @@ export type RouteLocalSearchMode = "reviews-hub" | "findings-queue" | "review-de
 export type UseGlobalSearchResultsOptions = {
   readonly packageRunId?: string | null;
   readonly searchScope?: ReviewPackageSearchScope;
+  readonly architectureScopedRunIds?: ReadonlySet<string> | null;
 };
 
 export function useGlobalSearchResults(
@@ -52,13 +53,19 @@ export function useGlobalSearchResults(
   >([]);
 
   const packageRunId = options.packageRunId?.trim() ?? "";
+  const architectureScopedRunIds = options.architectureScopedRunIds ?? null;
+  const architecturePackageScoped =
+    architectureScopedRunIds !== null &&
+    architectureScopedRunIds.size > 0 &&
+    options.searchScope === "package";
   const packageScoped =
     routeLocalSearchMode === "review-detail" &&
     options.searchScope === "package" &&
     packageRunId.length > 0;
   const workspaceScoped =
     routeLocalSearchMode === null ||
-    (routeLocalSearchMode === "review-detail" && options.searchScope === "workspace");
+    (routeLocalSearchMode === "review-detail" && options.searchScope === "workspace") ||
+    architecturePackageScoped;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
   const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 50, {
@@ -89,14 +96,24 @@ export function useGlobalSearchResults(
       }
 
       const body = (await res.json()) as GlobalSearchResponse;
-      setResults(body);
+      const scopedBody =
+        architecturePackageScoped && architectureScopedRunIds !== null
+          ? {
+              ...body,
+              runs: (body.runs ?? []).filter((run) => architectureScopedRunIds.has(run.runId)),
+              findings: (body.findings ?? []).filter((finding) =>
+                architectureScopedRunIds.has(finding.runId),
+              ),
+            }
+          : body;
+      setResults(scopedBody);
     } catch {
       setResults(null);
       setSearchError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [architecturePackageScoped, architectureScopedRunIds]);
 
   const fetchPackageResults = useCallback(
     async (q: string) => {
