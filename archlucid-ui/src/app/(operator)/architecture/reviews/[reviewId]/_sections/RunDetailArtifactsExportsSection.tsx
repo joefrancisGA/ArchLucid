@@ -362,6 +362,7 @@ export function RunDetailArtifactsExportsSection(
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
               </div>
             ) : (
@@ -376,6 +377,7 @@ export function RunDetailArtifactsExportsSection(
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
                   {collateralExportBlockedReason !== null ? (
