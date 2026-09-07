@@ -43,6 +43,8 @@ describe("GlobalSearchQuickActionsPanel", () => {
     render(<GlobalSearchQuickActionsPanel inputId="search-input" onClose={vi.fn()} />);
 
     expect(screen.getByRole("link", { name: /Ask questions/i })).toBeInTheDocument();
+    expect(screen.getByText("Scoped Q&A")).toBeInTheDocument();
+    expect(screen.queryByText("Scoped Q&A over review evidence")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Ask review questions/i })).not.toBeInTheDocument();
   });
 });
