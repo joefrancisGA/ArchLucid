@@ -31868,6 +31868,28 @@
         ],
         "type": "object"
       },
+      "RunStoredEvidenceFileDto": {
+        "properties": {
+          "byteLength": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidenceItemId": {
+            "type": "string"
+          },
+          "originalFileName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunSummaryResponse": {
         "properties": {
           "authorityLifecyclePhase": {
@@ -44884,6 +44906,9 @@
     },
     {
       "name": "ReviewClarificationQuestions"
+    },
+    {
+      "name": "ReviewStoredEvidenceFiles"
     },
     {
       "name": "ReviewsDemo"
