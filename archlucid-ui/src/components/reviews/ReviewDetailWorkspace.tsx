@@ -2,11 +2,14 @@
 
 import { createContext, useCallback, useContext, type ReactNode } from "react";
 
+import { PinnedReviewContextPanel } from "@/components/reviews/PinnedReviewContextPanel";
 import { ReviewPresenterSurface } from "@/components/reviews/ReviewPresenterSurface";
+import { ReviewDetailPinnedContextLayout } from "@/components/reviews/ReviewDetailPinnedContextLayout";
 import { ReviewDetailWorkspaceTabShell } from "@/components/reviews/ReviewDetailWorkspaceTabShell";
 import {
   ReviewWorkbenchSelectionProvider,
 } from "@/components/reviews/ReviewWorkbenchSelectionContext";
+import { usePinnedReviewContext } from "@/hooks/use-pinned-review-context";
 import { useReviewDetailWorkspacePresenter } from "@/components/reviews/use-review-detail-workspace-presenter";
 import { useReviewDetailWorkspaceSelection } from "@/components/reviews/use-review-detail-workspace-selection";
 import { useReviewDetailWorkspaceTabs } from "@/components/reviews/use-review-detail-workspace-tabs";
@@ -69,6 +72,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
   const { isWorkingMode } = useWorkspaceMode();
   const tabs = useReviewDetailWorkspaceTabs(props);
   const presenter = useReviewDetailWorkspacePresenter();
+  const pinContext = usePinnedReviewContext(props.runId);
   const selection = useReviewDetailWorkspaceSelection({
     activeTab: tabs.activeTab,
     initialFindingId: tabs.initialFindingId,
@@ -86,12 +90,21 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
 
   const workspaceBody = (
     <ReviewDetailWorkspaceTabContext.Provider value={{ navigateTab: tabs.navigateTab }}>
-      <ReviewDetailWorkspaceTabShell
-        props={props}
-        tabs={tabs}
-        navigateTab={tabs.navigateTab}
-        onEnterPresenter={presenter.enterPresenter}
-      />
+      <ReviewDetailPinnedContextLayout
+        pinOpen={pinContext.isOpen}
+        panel={
+          pinContext.isOpen ? (
+            <PinnedReviewContextPanel primaryRunId={props.runId} context={pinContext} />
+          ) : null
+        }
+      >
+        <ReviewDetailWorkspaceTabShell
+          props={props}
+          tabs={tabs}
+          navigateTab={tabs.navigateTab}
+          onEnterPresenter={presenter.enterPresenter}
+        />
+      </ReviewDetailPinnedContextLayout>
     </ReviewDetailWorkspaceTabContext.Provider>
   );
 

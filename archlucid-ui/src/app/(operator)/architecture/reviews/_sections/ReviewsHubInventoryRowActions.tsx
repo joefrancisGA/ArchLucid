@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
+import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -41,6 +42,11 @@ export function ReviewsHubInventoryRowActions(
 
   return (
     <div className="flex items-center justify-end gap-2">
+      <PinReviewToDeskButton
+        pinRunId={props.run.runId}
+        label="Pin this review"
+        testId={`reviews-hub-pin-${props.row.runId}`}
+      />
       <Button variant="outline" size="sm" asChild>
         <Link
           href={props.row.reviewHref}

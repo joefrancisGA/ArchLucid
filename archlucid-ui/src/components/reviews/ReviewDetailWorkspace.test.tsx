@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
+import { REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
   REVIEW_WORKBENCH_DIAGRAM_NODES_EVENT,
@@ -43,6 +44,22 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 
 vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
   useReviewWorkbenchShortcuts: vi.fn(),
+}));
+
+const pinnedReviewContextMock = vi.hoisted(() => ({
+  isOpen: false,
+  pinRunId: null as string | null,
+  summary: null,
+  findings: [] as const,
+  findingsCount: null as number | null,
+  stampStatusLine: null as string | null,
+  loading: false,
+  notFound: false,
+  closePin: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-pinned-review-context", () => ({
+  usePinnedReviewContext: () => pinnedReviewContextMock,
 }));
 
 const RUN_ID = "run-abc";
@@ -414,5 +431,36 @@ describe("ReviewDetailWorkspace", () => {
     expect(screen.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID)).toBeInTheDocument();
     expect(screen.getAllByTestId("in-pipeline-banner").length).toBeGreaterThan(0);
     expect(screen.getByRole("tab", { name: /Architecture/i })).toBeInTheDocument();
+  });
+
+  it("keeps the full primary tab strip visible when a pin is open (DR-11)", () => {
+    pinnedReviewContextMock.isOpen = true;
+    pinnedReviewContextMock.pinRunId = "run-pinned";
+    pinnedReviewContextMock.findingsCount = 3;
+    pinnedReviewContextMock.stampStatusLine = "Evaluation · Active";
+
+    renderWorkingWorkbench();
+
+    expect(screen.getByTestId("review-detail-pinned-context-layout")).toHaveAttribute("data-pin-open", "true");
+    expect(screen.getByTestId("pinned-review-context-panel")).toBeInTheDocument();
+    expect(screen.getByTestId(REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Overview/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Findings/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("review-detail-workspace-tab-additional-label")).toBeNull();
+
+    pinnedReviewContextMock.isOpen = false;
+    pinnedReviewContextMock.pinRunId = null;
+  });
+
+  it("omits pin layout in Guided mode even when pinRunId is present (DR-11)", () => {
+    pinnedReviewContextMock.isOpen = false;
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview&pinRunId=run-pinned");
+
+    render(
+      <ReviewDetailWorkspace runId={RUN_ID} tabLifecycle={tabLifecycle} panels={workspacePanels} />,
+    );
+
+    expect(screen.queryByTestId("pinned-review-context-panel")).toBeNull();
+    expect(screen.getByTestId("review-detail-pinned-context-layout")).toHaveAttribute("data-pin-open", "false");
   });
 });
