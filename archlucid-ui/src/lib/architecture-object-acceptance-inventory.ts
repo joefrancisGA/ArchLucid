@@ -123,4 +123,9 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/architecture/working-share-href.test.ts",
     marker: "AO-38",
   },
+  {
+    id: "AO-39",
+    relativeTestPath: "lib/routing/working-route-roles.test.ts",
+    marker: "AO-39",
+  },
 ];
