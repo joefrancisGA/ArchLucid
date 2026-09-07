@@ -16,7 +16,8 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture/review/{runId:guid}/evidence")]
 public sealed class ReviewStoredEvidenceFilesController(
-    IRunStoredEvidenceFileCatalogService catalogService) : ControllerBase
+    IRunStoredEvidenceFileCatalogService catalogService,
+    IRunStoredEvidenceFileContentService contentService) : ControllerBase
 {
     /// <summary>Returns metadata for evidence files stored for this review run.</summary>
     [HttpGet("files")]
@@ -37,5 +38,35 @@ public sealed class ReviewStoredEvidenceFilesController(
         }
 
         return Ok(files);
+    }
+
+    /// <summary>Returns the original bytes for one stored evidence file on this review run.</summary>
+    [HttpGet("files/{evidenceItemId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetStoredEvidenceFileAsync(
+        Guid runId,
+        string evidenceItemId,
+        [FromQuery] string? disposition,
+        CancellationToken cancellationToken)
+    {
+        RunStoredEvidenceFileContentResult? content =
+            await contentService.GetContentAsync(runId, evidenceItemId, cancellationToken);
+
+        if (content is null)
+        {
+            return NotFound();
+        }
+
+        bool inlineRequested = string.Equals(disposition, "inline", StringComparison.OrdinalIgnoreCase);
+
+        return StoredEvidenceFileHttpResults.Respond(
+            Request,
+            content.Bytes,
+            content.ContentType,
+            content.OriginalFileName,
+            inlineRequested);
     }
 }

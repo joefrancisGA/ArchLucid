@@ -99629,7 +99629,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                         "text/markdown": components["schemas"]["ProblemDetails"];
                     };
                 };
@@ -99772,7 +99772,7 @@ export interface paths {
                     };
                     content: {
                         "application/pdf": components["schemas"]["ProblemDetails"];
-                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["CareerArtifactBlockedProblemDetails"];
                     };
                 };
                 /** @description Unsupported Media Type. */
