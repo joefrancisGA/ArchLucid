@@ -3,10 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailFindingsDenseTableRow } from "@/components/findings/RunDetailFindingsDenseTableRow";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
-import {
-  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
-  FINDING_CLASSIFICATION_DECISION_GRADE,
-} from "@/lib/findings/review-detail-findings-classification-band";
+import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 vi.mock("next/navigation", () => ({
