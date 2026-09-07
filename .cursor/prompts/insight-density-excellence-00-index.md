@@ -3,13 +3,14 @@
      docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md
      Do not implement from this index. -->
 
-# Insight-density excellence — Composer prompt set (DX-01–DX-35)
+# Insight-density excellence — Composer prompt set (DX-01–DX-41)
 
 Canonical prompts (copy-paste blocks):
 
 - **DX-01–DX-16 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
 - **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-18**/**DX-19** held)
 - **DX-29–DX-35 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- **DX-36–DX-41 (ready to run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -69,10 +70,21 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-34** | Preferred-engine list catch-up | Yes | DX-21 shipped |
 | **DX-35** | Novelty-rate judge-cap sort (default off) | After DX-34 | DX-21, DX-23 shipped |
 
+**Next — run these:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
+
+| Prompt | Title | Parallel? | Depends on |
+|--------|-------|-----------|------------|
+| **DX-36** | Golden harness: data-flow + three-way contradiction | Yes | DX-32, DX-33 shipped |
+| **DX-37** | ARM `templateLink` in-batch resolution | Yes | DX-27 shipped |
+| **DX-38** | Novelty rates into InsightGenerator (default off) | Yes | DX-10, DX-23, DX-35 shipped |
+| **DX-39** | Policy maps on graph + inventory security engines | Yes | PP-01 / DX-33 shipped |
+| **DX-40** | Inventory-shaped golden fixtures | After DX-36 preferred | DX-14 shipped |
+| **DX-41** | Measurement-copy honesty | Yes | none |
+
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
-- Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not.
+- Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not. **DX-36–DX-41 add no new EngineType.**
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
 - DX-18 (TB-885) and DX-19 (ADR 0062) stay held until the owner unparks those rows.
