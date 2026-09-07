@@ -1415,3 +1415,4 @@
 {"at":"2026-09-07T19:43:47.4331564Z","zoneId":"sql-run-repository","outcome":"seed-only"}
 {"at":"2026-09-07T19:53:44.8312001Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-09-07T20:01:42.5068614Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
+{"at":"2026-09-07T20:08:32.7884897Z","zoneId":"alert-simulation","outcome":"dry"}
