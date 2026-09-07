@@ -38,6 +38,7 @@ import { inviteReviewerPageSubtitle } from "./invite-reviewer-page-copy";
 import { INVITE_REVIEWER_CLAIM_DISCIPLINE } from "@/lib/invite-reviewer-evidence-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import { AuthBetaReadinessInviteCallout } from "./AuthBetaReadinessInviteCallout";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
@@ -136,6 +137,7 @@ export function InviteReviewerPageView(props: Props) {
   return (
     <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} inviteBackHref={inviteBackHref} />
+      <AuthBetaReadinessInviteCallout />
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
