@@ -1,7 +1,6 @@
 import { loadRunDetailPipelineTimelineCached } from "./load-run-detail-pipeline-timeline-cached";
 import { loadRunDetailWorkspaceContextBundleCached } from "./load-run-detail-workspace-context-bundle-cached";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import { resolveArchitectureGraphTemporalMinUtc } from "@/lib/resolve-architecture-graph-temporal-min-utc";
@@ -155,7 +154,7 @@ async function loadProjectRunContext(
 
     canShowCompareReviewButton = projectRuns.length >= 2;
 
-    if (isBuyerPolishedOperatorShellEnv()) {
+    if (context.buyerPolishedArtifactTable) {
       canShowCompareReviewButton = false;
     }
 

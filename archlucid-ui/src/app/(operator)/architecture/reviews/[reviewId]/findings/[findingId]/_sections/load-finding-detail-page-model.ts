@@ -1,4 +1,4 @@
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import {
   findingDetailHeadingTitleForRoute,
   isPhiMinimizationFindingId,
@@ -48,7 +48,7 @@ export async function loadFindingDetailPageModel(
   const inspectPayload: FindingInspectPayload | null = inspectPayloadRaw;
   const inspectFailure = inspectFailureRaw;
 
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const linkedManifestHref = findingLinkedManifestDetailHrefForRun(runId);
   const pageTitle = findingDetailHeadingTitleForRoute(decodedFindingId, inspectPayload);
   const findingIsPhi =

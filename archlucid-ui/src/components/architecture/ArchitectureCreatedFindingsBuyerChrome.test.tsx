@@ -1,19 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const evalChromeMock = vi.hoisted(() => ({ enabled: true }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
+}));
+
 import { ArchitectureCreatedFindingsBuyerChrome } from "@/components/architecture/ArchitectureCreatedFindingsBuyerChrome";
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
-}));
-
-const demoEnvMock = vi.hoisted(() => ({
-  buyerPolished: true,
-}));
-
 describe("ArchitectureCreatedFindingsBuyerChrome", () => {
-  it("renders Sources orientation in buyer-polished shell", () => {
-    demoEnvMock.buyerPolished = true;
+  it("renders Sources orientation in Guided eval chrome", () => {
+    evalChromeMock.enabled = true;
 
     render(<ArchitectureCreatedFindingsBuyerChrome />);
 
@@ -21,8 +19,8 @@ describe("ArchitectureCreatedFindingsBuyerChrome", () => {
     expect(screen.getByTestId("architecture-findings-sources")).toBeInTheDocument();
   });
 
-  it("renders nothing outside buyer-polished shell", () => {
-    demoEnvMock.buyerPolished = false;
+  it("renders nothing outside eval chrome", () => {
+    evalChromeMock.enabled = false;
 
     const { container } = render(<ArchitectureCreatedFindingsBuyerChrome />);
 

@@ -32,7 +32,8 @@ describe("production-desk-chrome eval guard (WA-01)", () => {
         source.includes("useProductionEvalChrome") ||
         source.includes("useProductionDeskChrome") ||
         source.includes("resolveProductionEvalChrome") ||
-        source.includes("resolveProductionDeskChrome");
+        source.includes("resolveProductionDeskChrome") ||
+        source.includes("resolveProductionEvalChromeFromStorage");
 
       expect(inGrandfather || usesResolver).toBe(true);
     }

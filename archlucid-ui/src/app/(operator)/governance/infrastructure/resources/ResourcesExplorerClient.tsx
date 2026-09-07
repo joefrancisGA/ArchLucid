@@ -59,7 +59,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
 import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_LOAD_ERROR_TITLE,
@@ -105,7 +105,7 @@ function resolveExplorerAskHubTab(
 }
 
 export function ResourcesExplorerClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();

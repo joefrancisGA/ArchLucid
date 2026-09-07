@@ -11,7 +11,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE,
@@ -39,7 +39,7 @@ export function SecureNowHomeDestinationSection({
   tableAriaLabel,
   linkTestIdPrefix,
 }: SecureNowHomeDestinationSectionProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   return (
     <section aria-labelledby={headingId} data-testid={sectionTestId}>

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const evalChromeMock = vi.hoisted(() => ({ enabled: true }));
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => evalChromeMock.enabled,
@@ -9,7 +9,17 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
 
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 
-describe("ArchitectureCreatedOverviewBuyerChrome", () => {
+describe("ArchitectureCreatedOverviewBuyerChrome working eval leakage guard (WS-09)", () => {
+  beforeEach(() => {
+    evalChromeMock.enabled = false;
+  });
+
+  it("renders nothing on Working production chrome", () => {
+    const { container } = render(<ArchitectureCreatedOverviewBuyerChrome />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("renders Sources orientation in Guided eval chrome", () => {
     evalChromeMock.enabled = true;
 
@@ -17,13 +27,5 @@ describe("ArchitectureCreatedOverviewBuyerChrome", () => {
 
     expect(screen.getByTestId("architecture-overview-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-overview-sources")).toBeInTheDocument();
-  });
-
-  it("renders nothing outside eval chrome", () => {
-    evalChromeMock.enabled = false;
-
-    const { container } = render(<ArchitectureCreatedOverviewBuyerChrome />);
-
-    expect(container).toBeEmptyDOMElement();
   });
 });
