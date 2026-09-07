@@ -197,6 +197,9 @@ describe("RunDetailWorkspaceHeader", () => {
       "data-disabled-reason",
       "Unavailable until the review completes. Resolve the execution failure and re-run the review.",
     );
+    expect(screen.getByTestId("review-header-actions-disabled-hint")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-header-share-disabled-hint")).toBeNull();
+    expect(screen.queryByTestId("review-header-ask-disabled-hint")).toBeNull();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

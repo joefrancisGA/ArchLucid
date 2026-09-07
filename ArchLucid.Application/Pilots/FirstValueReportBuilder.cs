@@ -198,7 +198,7 @@ public sealed class FirstValueReportBuilder(
             careerExportHonesty,
             transparencyTrail,
             blockExternalSponsorDistribution: deltas.IsDemoTenant);
-        string? careerArtifactBlockedReason = CareerArtifactExportCompletenessGate.ResolveBlockedReason(
+        CareerArtifactExportBlock? careerArtifactBlock = CareerArtifactExportCompletenessGate.ResolveBlock(
             careerExportHonesty,
             careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
@@ -295,7 +295,8 @@ public sealed class FirstValueReportBuilder(
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
             tenantBranding,
             proofCompleteness,
-            careerArtifactBlockedReason);
+            careerArtifactBlock?.Message,
+            careerArtifactBlock?.Code);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

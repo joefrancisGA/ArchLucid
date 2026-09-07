@@ -20,6 +20,7 @@ import {
   resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
 import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import {
   Dialog,
   DialogContent,
@@ -107,9 +108,25 @@ export function GenerateAdrFromRunModal({
     hostQualityGateMode,
     aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
   });
+  const careerArtifactVerdict = evaluateCareerArtifactHonesty({
+    artifactKind: "export",
+    runId: input.runId,
+    progressSummary,
+    manifestSummary: null,
+    graphSnapshot,
+    findingsSnapshot,
+    enginesSucceeded,
+    workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+  });
   const exportBlocked =
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
-    || (coverageHonesty.blockedForWorkingCareerExport && !incompleteExportConfirmed);
+    || (!careerArtifactVerdict.canRender && !incompleteExportConfirmed);
 
   const buildExportMarkdown = useCallback(
     (exportInput: AdrGeneratorRunInput): string => {

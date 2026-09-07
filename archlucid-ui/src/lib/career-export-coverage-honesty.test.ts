@@ -103,7 +103,25 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     const markdown = formatCareerExportHonestyMarkdown({
       runId: "run-1",
       progressSummary: null,
-      manifestSummary: null,
+      manifestSummary: {
+        manifestId: "m-1",
+        status: "Committed",
+        ruleSetId: "pack",
+        ruleSetVersion: "1",
+        manifestHash: "hash",
+        decisionCount: 1,
+        warningCount: 0,
+        unresolvedIssueCount: 0,
+        feasibilityVerdict: {
+          kind: "Feasible",
+          summary: "ok",
+          transparencyTrail: {
+            asserted: [],
+            inferred: [],
+            skipped: [{ questionKey: "drRpo", tier: "Must" }],
+          },
+        },
+      } as never,
       graphSnapshot: null,
       enginesSucceeded: 16,
       workingDesk: true,
@@ -113,6 +131,39 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(markdown).toMatch(/Measurement floor/i);
     expect(markdown).toMatch(/Decision-grade: 4/i);
     expect(markdown).toMatch(/Checklist: 2/i);
+    expect(markdown).toMatch(/Skipped required questions/i);
+    expect(markdown).toMatch(/drRpo/);
+  });
+
+  it("blocks export when skipped must questions are present on the manifest trail", () => {
+    expect(
+      resolveCareerExportBlockedReason({
+        runId: "run-1",
+        progressSummary: null,
+        manifestSummary: {
+          manifestId: "m-1",
+          status: "Committed",
+          ruleSetId: "pack",
+          ruleSetVersion: "1",
+          manifestHash: "hash",
+          decisionCount: 1,
+          warningCount: 0,
+          unresolvedIssueCount: 0,
+          feasibilityVerdict: {
+            kind: "Feasible",
+            summary: "ok",
+            transparencyTrail: {
+              asserted: [],
+              inferred: [],
+              skipped: [{ questionKey: "drRpo", tier: "Must" }],
+            },
+          },
+        } as never,
+        graphSnapshot: null,
+        enginesSucceeded: 16,
+        workingDesk: true,
+      }),
+    ).toMatch(/required intake questions are unanswered/i);
   });
 
   it("returns a blocked reason helper for manifest export gates", () => {
@@ -120,7 +171,21 @@ describe("career-export-coverage-honesty (PC-13)", () => {
       resolveCareerExportBlockedReason({
         runId: "run-1",
         progressSummary: null,
-        manifestSummary: null,
+        manifestSummary: {
+          manifestId: "m-1",
+          status: "Committed",
+          ruleSetId: "pack",
+          ruleSetVersion: "1",
+          manifestHash: "hash",
+          decisionCount: 1,
+          warningCount: 0,
+          unresolvedIssueCount: 0,
+          feasibilityVerdict: {
+            kind: "Feasible",
+            summary: "ok",
+            transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+          },
+        } as never,
         graphSnapshot: null,
         enginesSucceeded: 5,
         workingDesk: true,

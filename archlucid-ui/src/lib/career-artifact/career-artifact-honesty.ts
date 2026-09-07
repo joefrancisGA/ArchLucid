@@ -1,11 +1,13 @@
 import {
   formatCareerExportClassificationBandLine,
   formatCareerExportHonestyPlainText,
-  resolveCareerExportBlockedReason,
   resolveCareerExportCoverageHonesty,
   type CareerExportCoverageHonestyInput,
 } from "@/lib/career-export-coverage-honesty";
+import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import {
+  ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON,
+  isAssertedTransparencyTrailEmpty,
   isTransparencyTrailComplete,
   transparencyTrailIncompleteFinalizeReason,
 } from "@/lib/feasibility/transparency-trail-completeness";
@@ -50,7 +52,15 @@ function formatSkippedMustBlockedReason(skippedMustCount: number): string {
 function resolveTrailBlockedReason(
   input: CareerArtifactHonestyInput,
 ): string | null {
-  const trail = input.transparencyTrail ?? input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
+  const manifestTrail = input.manifestSummary?.feasibilityVerdict?.transparencyTrail;
+  const hasLoadedManifest = input.manifestSummary !== null && input.manifestSummary !== undefined;
+  const hasExplicitTrail = input.transparencyTrail !== undefined;
+
+  if (!hasExplicitTrail && !hasLoadedManifest) {
+    return null;
+  }
+
+  const trail = input.transparencyTrail ?? manifestTrail ?? null;
 
   if (input.artifactKind === "finalize") {
     if (trail === null || trail === undefined) {
@@ -112,6 +122,25 @@ function buildHeaderLines(input: CareerArtifactHonestyInput): readonly string[] 
     lines.push(coverageHonesty.measurementFloor.line.trim());
   }
 
+  const trail = input.transparencyTrail ?? input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
+  const skippedMustKeys = listSkippedMustQuestionKeys(trail);
+
+  if (skippedMustKeys.length > 0) {
+    const skippedMustLine = `Skipped required questions: ${skippedMustKeys.join(", ")}`;
+
+    if (!lines.some((line) => line.startsWith("Skipped required questions:"))) {
+      lines.push(skippedMustLine);
+    }
+  }
+
+  if (
+    input.workingDesk === true
+    && isAssertedTransparencyTrailEmpty(trail)
+    && !lines.some((line) => line.includes("No asserted intake recorded"))
+  ) {
+    lines.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+  }
+
   return lines;
 }
 
@@ -156,11 +185,15 @@ export function evaluateCareerArtifactHonesty(
     blockedReasons.push(skippedMustBlockedReason);
   }
 
-  const measurementBlockedReason =
-    input.artifactKind === "export" ? resolveCareerExportBlockedReason(input) : null;
+  if (input.artifactKind === "export") {
+    const coverageHonesty = resolveCareerExportCoverageHonesty(input);
 
-  if (measurementBlockedReason !== null) {
-    blockedReasons.push(measurementBlockedReason);
+    if (
+      coverageHonesty.blockedForWorkingCareerExport
+      && coverageHonesty.measurementFloorBlockedReason !== null
+    ) {
+      blockedReasons.push(coverageHonesty.measurementFloorBlockedReason);
+    }
   }
 
   const preCommitBlockedReason = formatPreCommitGateDisabledCareerBlockedReason(input.preCommitGateEnabled);
@@ -173,6 +206,16 @@ export function evaluateCareerArtifactHonesty(
 
   if (demoSampleBlockedReason !== null) {
     blockedReasons.push(demoSampleBlockedReason);
+  }
+
+  const trail = input.transparencyTrail ?? input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
+
+  if (input.workingDesk === true && isAssertedTransparencyTrailEmpty(trail)) {
+    if (input.artifactKind === "export") {
+      blockedReasons.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+    } else {
+      warnings.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+    }
   }
 
   if (input.isSample === true && input.artifactKind === "export") {

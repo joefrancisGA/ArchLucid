@@ -31,10 +31,12 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
       ...baseExportInput,
       artifactKind: "finalize",
       transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+      workingDesk: true,
     });
 
     expect(verdict.canRender).toBe(true);
     expect(verdict.blockedReasons).toHaveLength(0);
+    expect(verdict.warnings.join(" ")).toMatch(/no asserted intake recorded/i);
   });
 
   it("blocks finalize when trail is null", () => {
@@ -81,13 +83,46 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.warnings.join(" ")).toMatch(/sealed record/i);
   });
 
-  it("includes measurement floor line in headerLines when render is allowed", () => {
+  it("blocks Working export when asserted trail is empty", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
       transparencyTrail: { asserted: [], inferred: [], skipped: [] },
     });
 
-    expect(verdict.canRender).toBe(true);
-    expect(verdict.headerLines.join(" ")).toMatch(/catalog engines/i);
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons.join(" ")).toMatch(/no asserted intake recorded/i);
+  });
+
+  it("includes skipped must keys in headerLines for export", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      manifestSummary: {
+        manifestId: "m-1",
+        status: "Committed",
+        ruleSetId: "pack",
+        ruleSetVersion: "1",
+        manifestHash: "hash",
+        decisionCount: 1,
+        warningCount: 0,
+        unresolvedIssueCount: 0,
+        feasibilityVerdict: {
+          kind: "Feasible",
+          summary: "ok",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [{ questionKey: "drRpo", tier: "Must" }],
+          },
+        },
+      } as never,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [{ questionKey: "drRpo", tier: "Must" }],
+      },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.headerLines.join(" ")).toMatch(/Skipped required questions: drRpo/i);
   });
 });

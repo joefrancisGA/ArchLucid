@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   findForbiddenQualityOutagePhrases,
+  plainLanguageFailureCauseSentence,
   plainLanguageRejectCategoryLabel,
   resolveExecutionVsQualityAxis,
   resolveLastFailureCardCopy,
@@ -48,6 +49,19 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     expect(copy.axis).toBe("execution");
     expect(copy.remediation.toLowerCase()).toContain("do this next");
     expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
+  });
+
+  it("keeps buyer what-failed copy to one processing-stopped sentence without speculative scheduling jargon", () => {
+    const sentence = plainLanguageFailureCauseSentence({
+      failureClass: "invalidOperation",
+      reasonCode: "NoScheduledAgentTasks",
+      completedStages: 0,
+    });
+
+    expect(sentence.match(/processing stopped/gi)?.length).toBe(1);
+    expect(sentence.toLowerCase()).not.toContain("deferred scheduling miss");
+    expect(sentence.toLowerCase()).not.toContain("reason codes");
+    expect(sentence.toLowerCase()).not.toContain("older failure records");
   });
 
   it("maps reject categories to plain language without model jargon overload", () => {
