@@ -135,7 +135,7 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
   },
   {
     id: "AO-41",
-    relativeTestPath: "lib/resolve-visible-command-palette-actions.test.ts",
+    relativeTestPath: "lib/filter-working-palette-nav-hrefs.test.ts",
     marker: "AO-41",
   },
   {

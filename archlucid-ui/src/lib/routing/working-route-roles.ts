@@ -143,3 +143,21 @@ export function requiresOpenArchitecture(role: WorkingRouteRole): boolean {
 export function isLegacyPeerWorkingRoute(role: WorkingRouteRole): boolean {
   return role === "legacyPeerJob";
 }
+
+/** AO-41 — palette navigation rows allowed in Working mode (ADR 0077). */
+export function isWorkingPaletteNavRole(role: WorkingRouteRole, pathname: string): boolean {
+  if (role === "bindTool" || role === "legacyPeerJob" || role === "marketing" || role === "auth") {
+    return false;
+  }
+
+  if (role === "locator" || role === "nestedJob" || role === "inbox" || role === "help") {
+    return true;
+  }
+
+  if (role === "evalAdmin") {
+    return /^\/administration(\/|$)/.test(normalizeRoutePathname(pathname));
+  }
+
+  return false;
+}
+
