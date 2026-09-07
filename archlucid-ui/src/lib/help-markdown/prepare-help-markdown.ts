@@ -31,13 +31,18 @@ import {
   resolveDuplicateSectionTitles,
 } from "./topic-rule-sets";
 import { stripSponsorReportPilotRoiMeasurementLeakage, stripTenantIsolationContributorLeakage, alignDataHandlingIsolationHonesty } from "./contributor-leakage";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { finalizeSecurityTrustHelpPresentation } from "@/lib/security-trust-help-presentation";
+
+import { applyHelpProductBrandRewrite } from "./help-product-brand-rewrite";
 
 export type PrepareHelpMarkdownPresentationOptions = {
   /** Engineering runbooks keep documentation governance lines (Last reviewed, etc.). */
   readonly preserveMaintenanceMetadata?: boolean;
   /** In-app help topic slug — gates topic-specific presentation strips. */
   readonly helpTopicSlug?: string;
+  /** Active product line — Security rewrites consumer product mentions to SecureNow after leakage cleanup. */
+  readonly productLineId?: ProductLineId;
 };
 
 /** Documentation governance lines stripped from buyer/operator help presentation. */
@@ -148,5 +153,5 @@ export function prepareHelpMarkdownForPresentation(
     finalBody = finalizeSecurityTrustHelpPresentation(finalBody);
   }
 
-  return finalBody;
+  return applyHelpProductBrandRewrite(finalBody, options?.productLineId ?? "architecture");
 }

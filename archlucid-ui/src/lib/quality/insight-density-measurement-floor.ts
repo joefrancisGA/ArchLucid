@@ -5,7 +5,10 @@ import {
   INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
 } from "@/lib/quality/insight-density-measurement-denominator";
 
-/** claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof. */
+/**
+ * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
+ * `typed-engine-protected` demotions stay advisory checklist rows; this floor only gates career export completeness.
+ */
 export type InsightDensityMeasurementFloorCounts = {
   readonly catalogEngineCount: number;
   readonly measuredThisRunEngineCount: number | null;

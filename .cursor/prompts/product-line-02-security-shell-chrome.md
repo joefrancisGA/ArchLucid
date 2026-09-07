@@ -6,7 +6,7 @@
 
 A Security window (`NEXT_PUBLIC_ARCHLUCID_PRODUCT=security`, typically :3001) must *read* as the Infrastructure / Security product:
 
-1. Wordmark accessible name uses `PRODUCT_LINE_WORDMARK_ARIA_LABEL.security` (`ArchLucid Security — go to workspace overview`).
+1. Wordmark accessible name uses `PRODUCT_LINE_WORDMARK_ARIA_LABEL.security`. If **SN-01** (SecureNow consumer brand) has landed or is the owner’s current intent, that string is **SecureNow**, not `ArchLucid Security`. Do not ship both. See [`.cursor/prompts/securenow-brand-01-display-name-chrome.md`](securenow-brand-01-display-name-chrome.md).
 2. Home document title matches Security home (`SECURITY_PRODUCT_HOME_TITLE` / Infrastructure evidence), not the Architecture operator-home label.
 3. Server render of `/` on the Security process does **not** construct `OperatorHomeRunsDashboardAsync`. `ProductLineHomeSwitch` receiving architecture home as a prop still creates that tree on the server.
 

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { ArchitectureDraftHandoffPanel } from "@/components/architecture/ArchitectureDraftHandoffPanel";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
+import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY } from "@/lib/architecture/architecture-identity-desk-copy";
 import {
@@ -132,6 +133,28 @@ export type ArchitectureDraftWorkspaceBodyProps = {
   readonly nextDraft: Parameters<typeof ArchitectureDraftNextDraftFooter>[0]["target"] | null;
 };
 
+function WorkingNestedDraftIdentityAnchors(props: {
+  readonly parentArchitectureId?: string | null;
+}): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
+  const architectureId = props.parentArchitectureId?.trim() ?? "";
+
+  if (!isWorkingMode || architectureId.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <WorkingNestedArchitectureIdentityChromeMount parentArchitectureId={architectureId} />
+      <p className={OPERATOR_TYPOGRAPHY.body} data-testid="architecture-draft-back-to-desk">
+        <Link href={architectureIdentityPath(architectureId)} className={OPERATOR_LINK.nav}>
+          Back to architecture desk
+        </Link>
+      </p>
+    </>
+  );
+}
+
 export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspaceBodyProps): React.JSX.Element {
   const {
     loading,
@@ -205,6 +228,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
   if (isWorkingMode && handoffEditorLocked && linkedReviewId !== null) {
     return (
       <div className="space-y-4" data-testid="architecture-draft-workspace">
+        <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
           draftId={draftId}
@@ -228,13 +252,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
           {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
         </p>
       ) : null}
-      {props.parentArchitectureId !== null && props.parentArchitectureId !== undefined && props.parentArchitectureId.trim().length > 0 ? (
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          <Link href={architectureIdentityPath(props.parentArchitectureId)} className={OPERATOR_LINK.nav}>
-            Back to architecture desk
-          </Link>
-        </p>
-      ) : null}
+      <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
       <ArchitectureDraftWorkspaceHeaderChrome {...props} />
       <ArchitectureDraftWorkspaceIntakeStack {...props} />
 
