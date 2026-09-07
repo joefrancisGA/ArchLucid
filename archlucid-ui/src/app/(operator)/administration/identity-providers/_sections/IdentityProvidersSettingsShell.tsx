@@ -23,6 +23,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { AuthBetaReadinessInviteCallout } from "@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { IdentityProvidersSettingsPageHeader } from "./IdentityProvidersSettingsPageHeader";
 import {
@@ -219,6 +220,8 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
             })}
           </ul>
         </nav>
+
+        <AuthBetaReadinessInviteCallout diagnosticsHref="/administration/identity-providers/diagnostics" />
 
         {props.children}
       </div>
