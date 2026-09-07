@@ -2040,11 +2040,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 400
-- **bugs-found:** 3078
+- **hunts:** 401
+- **bugs-found:** 3090
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — ColumnAccessKey/ComicAccessKey/CommonAccessKey redaction, advice arent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix
+- **last-bug:** 2026-09-07 — CompanyAccessKey/CompareAccessKey/ComputerAccessKey redaction, advice darent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5450,6 +5450,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent need` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_need_suffix_phrasing`).
 
 2026-09-07 seed hunt #1128 (hit): reseeded after #1127 closure; proved twelve hunt-ready rows — ColumnAccessKey/ComicAccessKey/CommonAccessKey redaction parity and advice arent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CompanyAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_company_access_key_config_path`, `IsSensitiveKey_detects_company_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CompareAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_compare_access_key_config_path`, `IsSensitiveKey_detects_compare_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ComputerAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_computer_access_key_config_path`, `IsSensitiveKey_detects_computer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent configure` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent mandate` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent apply` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent enforce` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent maintain` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent ensure` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent provision` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent require` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent need` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1129 (hit): reseeded after #1128 closure; proved twelve hunt-ready rows — CompanyAccessKey/CompareAccessKey/ComputerAccessKey redaction parity and advice darent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
