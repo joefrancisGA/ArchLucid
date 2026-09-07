@@ -102,4 +102,18 @@ public sealed class AuthSignInReturnPathGuardTests
 
         AuthSignInReturnPathGuard.TryNormalize($"/welcome{payload}").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/\uFF0E\uFF0E/admin")]
+    [InlineData("/%EF%BC%8E%EF%BC%8E/admin")]
+    public void TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_residual_percent_after_decode_cap()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/path%252525252525252525").Should().BeNull();
+    }
 }

@@ -513,8 +513,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07
@@ -534,8 +534,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `..` path segments bypass return-path normalization — **hit 2026-09-07 (#1176):** `/signin/../../other` and `/app/foo/../bar` passed `TryNormalizeRelativePath` while browsers normalize to destinations outside the intended subtree; fixed with `ContainsDotDotSegment` parity to UI `isSafeReturnPath`; regression in `TryNormalize_rejects_dot_dot_path_traversal_segments`
 - [x] (valid-no-repro) Ninth percent-decode pass introducing `//` after the eight-pass cap — `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap` (10 encode passes) and `ContainsResidualEncodedTraversal` `%2f`/`%5c`/`%2e` residue checks already reject before redirect
 - [x] (valid-no-repro) Percent-encoded slash homoglyphs absent before first decode — decode loop re-runs `ContainsSlashHomoglyph`/`TryNormalizeRelativePath` each pass; regressions in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths` and `TryNormalize_rejects_deeply_encoded_additional_unicode_slash_homoglyph_segment`
+- [x] (proven) Unicode dot homoglyphs bypass ASCII `..` segment check — **hit 2026-09-07 (#1222):** fullwidth full stop (`．`, `%EF%BC%8E`) evaded `ContainsDotDotSegment`; fixed with `ContainsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
+- [x] (proven) Residual percent signs survive eight-pass decode cap — **hit 2026-09-07 (#1222):** deeply nested `%25` left `/path%25` accepted while UI rejects any residual `%`; fixed with `ContainsTrailingPercentAfterDecodeCap` parity; regression in `TryNormalize_rejects_residual_percent_after_decode_cap`
+- [x] (valid-no-repro) Percent-encoded backslash dot-dot chains — `/welcome%5c..%5c..%5coperator` already rejected via `%5c`/`%2e` residual checks
 
 2026-09-07 thorough hunt #1176 (hit): proved dot-dot segment bypass; cheap-disproof on ninth-decode traversal and decode-only homoglyph emergence.
+
+2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
 ---
 
