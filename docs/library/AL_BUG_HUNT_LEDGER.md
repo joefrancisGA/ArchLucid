@@ -369,10 +369,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-16
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-07
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -384,9 +384,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
 - [x] Consistency gate drops a relationship the post-processor just added
 - [x] Category rewrite does not update synthetic `ds-` aliases
-- [ ] (hunt-ready) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — `CollectKnownEndpointKeys` indexes `ds-{name}` but not `svc-{name}` for manifest datastores; both endpoints appear declared under raw `Contains`, yet `RelationshipEndpointsAreKnown` drops the edge when both source/target match declared keys.
-- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — `declaredBatchEndpointKeys` may hold raw plus normalized keys from `AddArmResourceIdEndpointKeys`, but `Contains(relationship.SourceId)` on an unnormalized relationship id marks `sourceDeclaredInBatch` false and retains the row for later gates while `validationEndpointKeys` still fail `RelationshipEndpointsAreKnown`, silently stripping edges before merge.
-- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — adds manifest endpoint keys to `claimedServiceEndpointKeys` after an earlier agent already claimed the stable id, but `declaredBatchEndpointKeys` was collected pre-claim without the renamed label, so downstream relationship-only proposals referencing only the new name miss batch declaration checks.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — **disproved 2026-09-07 (#1274):** undeclared `svc-{datastoreName}` endpoints defer via `!sourceDeclared || !targetDeclared`; declared `svc-api`/`svc-sql` pairs remain when both keys are indexed (`ApplyToProposal_preserves_relationship_when_target_uses_svc_prefix_for_declared_datastore`)
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — **disproved 2026-09-07 (#1274):** mixed-case ARM relationship ids survive via claimed-key normalization union in `validationEndpointKeys` (`ApplyToResults_preserves_relationship_only_proposal_when_arm_endpoint_uses_different_casing_than_batch_declaration`)
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — **disproved 2026-09-07 (#1274):** compliance rename aliases register on `declaredBatchEndpointKeys` during pre-claim batch collection and cost relationship-only rows referencing renamed labels are retained (`ApplyToResults_preserves_cost_relationship_only_proposal_after_compliance_rename_alias_without_prior_batch_declaration`)
+- [ ] (candidate) `AgentProposalStructuralPostProcessor` — compliance agents placing storage synthetic `ds-{label}` on `AddedServices.ServiceId` while relationships target manifest service names; post-processor indexes `svc-{name}` for services only and may defer edges merge gate must alias (see graph merge `storage_synthetic_datastore_id` regression family)
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — relationship-only rows whose endpoints match only via `EndpointKeyIsKnownViaArmNormalization` while `declaredBatchEndpointKeys.Contains` is false defer to merge gate by design; confirm merge gate does not silently drop deferred ARM-keyed edges
+
+2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
+
+2026-08-16 dry hunt: listed hypotheses do not hold on `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate`. Neither file rewrites datastore category (`storage` vs `data`); synthetic `ds-` aliases are unchanged. Existing keep-path tests (26) pass; the gate does not drop a relationship the post-processor retained under current claim/validation key unions.
 
 ---
 
