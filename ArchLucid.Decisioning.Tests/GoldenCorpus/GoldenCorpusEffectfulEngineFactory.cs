@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -24,11 +25,13 @@ internal static class GoldenCorpusEffectfulEngineFactory
         IScopeContextProvider scopeContextProvider,
         IAzureExtractorPackageRepository azurePackageRepository,
         ICloudInventoryExtractorPackageRepository cloudPackageRepository,
+        IComplianceRulePackProvider rulePackProvider,
         TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
         ArgumentNullException.ThrowIfNull(azurePackageRepository);
         ArgumentNullException.ThrowIfNull(cloudPackageRepository);
+        ArgumentNullException.ThrowIfNull(rulePackProvider);
         ArgumentNullException.ThrowIfNull(timeProvider);
 
         IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions =
@@ -66,9 +69,9 @@ internal static class GoldenCorpusEffectfulEngineFactory
             new OrphanedGcpResourceFindingEngine(scopeContextProvider, cloudPackageRepository, timeProvider, freshnessOptions),
             new AwsCostRecommendationFindingEngine(scopeContextProvider, cloudPackageRepository, timeProvider, freshnessOptions),
             new GcpCostRecommendationFindingEngine(scopeContextProvider, cloudPackageRepository, timeProvider, freshnessOptions),
-            new AzureInventorySecurityBaselineFindingEngine(scopeContextProvider, azurePackageRepository, timeProvider, freshnessOptions),
-            new AwsInventorySecurityBaselineFindingEngine(scopeContextProvider, cloudPackageRepository, timeProvider, freshnessOptions),
-            new GcpInventorySecurityBaselineFindingEngine(scopeContextProvider, cloudPackageRepository, timeProvider, freshnessOptions),
+            new AzureInventorySecurityBaselineFindingEngine(scopeContextProvider, azurePackageRepository, rulePackProvider, timeProvider, freshnessOptions),
+            new AwsInventorySecurityBaselineFindingEngine(scopeContextProvider, cloudPackageRepository, rulePackProvider, timeProvider, freshnessOptions),
+            new GcpInventorySecurityBaselineFindingEngine(scopeContextProvider, cloudPackageRepository, rulePackProvider, timeProvider, freshnessOptions),
             new OpenCommitmentFindingEngine(
                 scopeContextProvider,
                 reviewTrailRepository,
