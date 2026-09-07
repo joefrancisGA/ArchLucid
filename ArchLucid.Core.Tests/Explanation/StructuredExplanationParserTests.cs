@@ -115,4 +115,37 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Confidence.Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_encoded_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_encoded_schema_version()
+    {
+        const string json = """{"schemaVersion":"2","reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75"}""";
+
+        StructuredExplanation s = StructuredExplanationParser.Parse(json);
+
+        s.Reasoning.Should().Be("Main");
+        s.Confidence.Should().Be(0.75m);
+    }
 }

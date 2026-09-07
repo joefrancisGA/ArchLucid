@@ -18,6 +18,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID,
@@ -123,20 +124,19 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
           </section>
         ) : (
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
-            instances. All six destinations are available from this hub.
+            {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO}
             {showSecureNowGroupedHomeSections
-              ? " Compliance, infrastructure, and security destinations are grouped below."
+              ? " Security, compliance, and infrastructure destinations are grouped below."
               : null}
           </p>
         )}
 
         {showSecureNowGroupedHomeSections ? (
-          <>
+          <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
+            <SecureNowSecurityHomeSection />
             <SecureNowComplianceHomeSection />
             <SecureNowInfrastructureHomeSection />
-            <SecureNowSecurityHomeSection />
-          </>
+          </div>
         ) : (
           <section aria-labelledby="governance-infrastructure-workbenches-heading">
             <h2

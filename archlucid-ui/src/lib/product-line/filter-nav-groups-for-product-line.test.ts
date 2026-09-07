@@ -5,6 +5,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 import {
   SECURENOW_COMPLIANCE_NAV_GROUP_ID,
   SECURENOW_SECURITY_NAV_GROUP_ID,
@@ -15,7 +16,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     vi.unstubAllEnvs();
   });
 
-  it("puts Compliance first, then Infrastructure and Security, and uses Home instead of Infrastructure overview", () => {
+  it("puts Security first with Home, then ARC-AMPE compliance and Infrastructure without Infrastructure overview", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       AUTHORITY_RANK.AdminAuthority,
@@ -25,11 +26,11 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       { productLine: "security", showVendorInternalNav: true },
     );
 
-    expect(rows[0]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
-    expect(rows[0]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.compliance);
-    expect(rows[1]?.group.id).toBe("operate-infrastructure");
-    expect(rows[2]?.group.id).toBe(SECURENOW_SECURITY_NAV_GROUP_ID);
-    expect(rows[2]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.security);
+    expect(rows[0]?.group.id).toBe(SECURENOW_SECURITY_NAV_GROUP_ID);
+    expect(rows[0]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.security);
+    expect(rows[1]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
+    expect(rows[1]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
+    expect(rows[2]?.group.id).toBe("operate-infrastructure");
 
     const groupIds = rows.map((row) => row.group.id);
 
@@ -48,11 +49,11 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/governance/findings",
       "/governance/audit-evidence",
     ]);
-    expect(infrastructureLinks[0]?.href).toBe("/");
-    expect(infrastructureLinks[0]?.label).toBe(OPERATOR_NAV_LINK_LABELS.home);
+    expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
     expect(securityLinks.map((link) => link.href)).toEqual([
+      "/",
       "/governance/findings/assigned-to-me",
       "/governance/remediation-factory",
       "/governance/remediation-patterns",

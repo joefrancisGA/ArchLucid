@@ -201,6 +201,20 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("valid JSON");
     }
 
+    [Fact]
+    public void Validate_rejects_non_array_resources_json()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: true, resourcesJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("resources.json root must be a JSON array");
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
@@ -208,7 +222,8 @@ public sealed class AzureExtractorPackageZipValidatorTests
         bool malformedManifest = false,
         bool pascalCaseSchemaVersion = false,
         bool stringSchemaVersion = false,
-        string? rawSchemaVersion = null)
+        string? rawSchemaVersion = null,
+        string resourcesJson = "[]")
     {
         using MemoryStream ms = new();
 
@@ -240,7 +255,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
                 using StreamWriter writer = new(resources.Open());
 
-                writer.Write("[]");
+                writer.Write(resourcesJson);
             }
         }
 

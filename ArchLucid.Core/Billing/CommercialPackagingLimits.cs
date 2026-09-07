@@ -8,9 +8,17 @@ public static class CommercialPackagingLimits
 
     public const int TeamSeatsIncluded = 5;
 
+    /// <summary>Team hard cap (included + add-on). An 11th seat requires Professional.</summary>
+    public const int TeamSeatsMax = 10;
+
     public const int TeamWorkspacesIncluded = 1;
 
-    public const int ProfessionalSeatsIncluded = 20;
+    public const int ProfessionalSeatsIncluded = 10;
 
-    public const int ProfessionalWorkspacesIncluded = 5;
+    /// <summary>Professional hard cap (included + add-on). Beyond this requires Enterprise.</summary>
+    public const int ProfessionalSeatsMax = 20;
+
+    public const int ProfessionalWorkspacesIncluded = 1;
+
+    public const int ProfessionalWorkspacesMax = 5;
 }

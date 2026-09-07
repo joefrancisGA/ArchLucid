@@ -27,6 +27,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "architectures-hub",
   "architectures-new",
   "audit-trail",
+  "audit-trail-help",
   "auth-callback",
   "auth-domains-settings",
   "auth-invite",

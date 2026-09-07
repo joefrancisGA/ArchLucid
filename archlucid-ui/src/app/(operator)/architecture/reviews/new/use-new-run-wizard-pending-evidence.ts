@@ -161,6 +161,10 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       return;
     }
 
+    if (pendingEvidenceFile !== null && pendingInventoryPlatform === null) {
+      return;
+    }
+
     if (evidenceUploadState !== "idle") {
       return;
     }
@@ -171,6 +175,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
     evidenceUploadState,
     pendingDocumentFiles,
     pendingEvidenceFile,
+    pendingInventoryPlatform,
     runId,
     uploadPendingEvidence,
   ]);

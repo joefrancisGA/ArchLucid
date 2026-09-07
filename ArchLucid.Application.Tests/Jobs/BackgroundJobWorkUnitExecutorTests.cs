@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Tenancy;
@@ -48,6 +49,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             audit.Object,
             tenantDeletion.Object,
             itsmOutbound.Object,
+            Mock.Of<IFindingVerificationService>(),
             Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         AnalysisReportDocxWorkUnit unit = new(
@@ -101,6 +103,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             audit.Object,
             tenantDeletion.Object,
             itsmOutbound.Object,
+            Mock.Of<IFindingVerificationService>(),
             Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ConsultingDocxWorkUnit unit = new(
@@ -154,6 +157,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             audit.Object,
             tenantDeletion.Object,
             itsmOutbound.Object,
+            Mock.Of<IFindingVerificationService>(),
             Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         TenantDeletionWorkUnit unit = new(
@@ -204,6 +208,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             audit.Object,
             tenantDeletion.Object,
             itsmOutbound.Object,
+            Mock.Of<IFindingVerificationService>(),
             Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ItsmOutboundCreateWorkUnit unit = new(
@@ -268,6 +273,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             audit.Object,
             tenantDeletion.Object,
             itsmOutbound.Object,
+            Mock.Of<IFindingVerificationService>(),
             Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ItsmOutboundCreateWorkUnit unit = new(

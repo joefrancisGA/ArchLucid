@@ -91,6 +91,70 @@ internal sealed class InMemoryFindingDispositionConcurrencyRepository : IFinding
         };
     }
 
+    public async Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
+        IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reviewEvents);
+
+        if (reviewEvents.Count == 0)
+            throw new ArgumentException("At least one review event is required.", nameof(reviewEvents));
+
+        List<(string Key, PointerRow Pointer, byte[] RowVersion)> staged = new(reviewEvents.Count);
+
+        lock (_gate)
+        {
+            foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+            {
+                string key = BuildKey(reviewEvent);
+                _pointers.TryGetValue(key, out PointerRow? current);
+
+                if (current is not null)
+                {
+                    return new FindingDispositionBulkRecordResult
+                    {
+                        Status = FindingDispositionRecordStatus.Conflict,
+                        Conflict = BuildConflict(reviewEvent.FindingId, current),
+                    };
+                }
+
+                byte[] newRowVersion = Guid.NewGuid().ToByteArray();
+
+                staged.Add((
+                    key,
+                    new PointerRow
+                    {
+                        EventId = reviewEvent.EventId,
+                        FindingId = reviewEvent.FindingId,
+                        Disposition = reviewEvent.Disposition ?? FindingDispositionKind.Accepted,
+                        ReviewerUserId = reviewEvent.ReviewerUserId,
+                        OccurredAtUtc = reviewEvent.OccurredAtUtc,
+                        RowVersion = newRowVersion,
+                    },
+                    newRowVersion));
+            }
+        }
+
+        foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+        {
+            await _trailRepository.AppendAsync(reviewEvent, cancellationToken);
+        }
+
+        lock (_gate)
+        {
+            foreach ((string key, PointerRow pointer, byte[] _) in staged)
+            {
+                _pointers[key] = pointer;
+            }
+        }
+
+        return new FindingDispositionBulkRecordResult
+        {
+            Status = FindingDispositionRecordStatus.Recorded,
+            NewCurrentRowVersions = staged.Select(static entry => entry.RowVersion).ToList(),
+        };
+    }
+
     private static string BuildKey(FindingReviewEventRecord reviewEvent)
     {
         return $"{reviewEvent.TenantId:N}:{reviewEvent.WorkspaceId:N}:{reviewEvent.ProjectId:N}:{reviewEvent.FindingId.Trim()}";

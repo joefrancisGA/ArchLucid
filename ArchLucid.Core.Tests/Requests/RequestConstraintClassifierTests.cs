@@ -379,6 +379,22 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption should not require customer-managed keys"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption must not be required for legacy blobs"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void HasEncryptionConstraint_does_not_false_positive_on_shall_not_require_encryption_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["workloads shall not require encryption at rest"]);

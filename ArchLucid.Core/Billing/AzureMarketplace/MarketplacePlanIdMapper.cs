@@ -26,8 +26,32 @@ public static class MarketplacePlanIdMapper
 
     private static bool PlanIdContainsEnterpriseTierToken(string planId)
     {
+        List<string> tokens = ExtractPlanIdTokens(planId);
+
+        for (int i = 0; i < tokens.Count; i++)
+        {
+            if (!tokens[i].Equals("enterprise", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string? previousToken = i > 0 ? tokens[i - 1] : null;
+            string? nextToken = i + 1 < tokens.Count ? tokens[i + 1] : null;
+
+            if (string.Equals(previousToken, "non", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (string.Equals(nextToken, "non", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static List<string> ExtractPlanIdTokens(string planId)
+    {
+        List<string> tokens = new();
         int start = 0;
-        string? previousToken = null;
 
         for (int i = 0; i <= planId.Length; i++)
         {
@@ -36,15 +60,13 @@ public static class MarketplacePlanIdMapper
 
             ReadOnlySpan<char> token = planId.AsSpan(start, i - start);
 
-            if (token.Equals("enterprise", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(previousToken, "non", StringComparison.OrdinalIgnoreCase))
-                return true;
+            if (token.Length > 0)
+                tokens.Add(token.ToString());
 
-            previousToken = token.Length == 0 ? previousToken : token.ToString();
             start = i + 1;
         }
 
-        return false;
+        return tokens;
     }
 
     private static bool IsPlanIdDelimiter(char value) =>

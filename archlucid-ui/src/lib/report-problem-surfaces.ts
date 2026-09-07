@@ -146,6 +146,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/auth/bootstrap/PostAuthBootstrapClient.tsx",
     description: "Post-sign-in bootstrap failed to load status, accept an invitation, or grant workspace access — invite-wave recovery surface.",
   },
+  {
+    id: "admin-support-bundle-download-failure",
+    kind: "contact-support-help",
+    routePattern: "/administration/support",
+    componentPath: "app/(operator)/administration/support/_sections/AdminSupportPageView.tsx",
+    description: "Support bundle download failed on the Settings → Support workspace.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

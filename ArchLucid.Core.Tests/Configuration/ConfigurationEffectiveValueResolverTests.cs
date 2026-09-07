@@ -38,6 +38,42 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_preserves_llm_prompt_redaction_replacement_token()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["LlmPromptRedaction:ReplacementToken"] = "[REDACTED]",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "LlmPromptRedaction:ReplacementToken",
+            isSet: true);
+
+        value.Should().Be("[REDACTED]");
+    }
+
+    [Fact]
+    public void Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:InternalCrossTenantAnalytics:PseudonymizationSalt"] = "dev-only-cross-tenant-analytics-salt",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:InternalCrossTenantAnalytics:PseudonymizationSalt",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_returns_scalar_when_not_sensitive()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
@@ -103,6 +139,62 @@ public sealed class ConfigurationEffectiveValueResolverTests
         string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
 
         value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("Billing:Stripe:WebhookSigningSecret")]
+    [InlineData("Billing:Stripe:CheckoutSecretKey")]
+    [InlineData("Billing:Stripe:SubscriptionWebhookSigningSecret")]
+    [InlineData("Billing:Stripe:WalletWebhookSigningSecret")]
+    public void Resolve_redacts_compound_stripe_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("AzureDevOps:PersonalAccessToken")]
+    [InlineData("Integrations:Itsm:Outbound:PersonalAccessToken")]
+    [InlineData("Integrations:Itsm:Outbound:OAuthRefreshToken")]
+    [InlineData("ConfluencePublishing:OAuthRefreshToken")]
+    public void Resolve_redacts_compound_token_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "pat-or-refresh-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_access_token_lifetime_minutes_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes"] = "60",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes",
+            isSet: true);
+
+        value.Should().Be("60");
     }
 
     [Fact]

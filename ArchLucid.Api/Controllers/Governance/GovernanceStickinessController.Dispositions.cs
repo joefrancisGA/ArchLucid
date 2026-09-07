@@ -126,6 +126,8 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordBulkDisposition(
         [FromBody] RecordBulkFindingDispositionRequest? request,
@@ -165,6 +167,16 @@ public sealed partial class GovernanceStickinessController
         try
         {
             response = await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return this.ConflictProblem(
+                ex.Message,
+                ProblemTypes.Conflict,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["currentDisposition"] = ex.CurrentDisposition,
+                });
         }
         catch (InvalidOperationException ex)
         {
