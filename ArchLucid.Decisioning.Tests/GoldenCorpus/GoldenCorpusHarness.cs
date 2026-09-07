@@ -186,7 +186,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         {
             AzureExtractorPackageDownloadRecord azureDownload = GoldenCorpusEffectfulInventorySupport.CreateAzurePackage(
                 inventoryFixture.AzurePackageId,
-                inventoryFixture.ResourcesJson);
+                inventoryFixture.ResourcesJson,
+                inventoryFixture.ExtraZipEntries);
 
             azureRepository = GoldenCorpusEffectfulInventorySupport.CreateSeededAzureRepository(
                 scope,
@@ -226,7 +227,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             CloudInventoryExtractorPackageDownloadRecord cloudDownload =
                 GoldenCorpusEffectfulCloudInventorySupport.CreateCloudPackage(
                     inventoryFixture.CloudPackageId,
-                    cloudResourcesJson);
+                    cloudResourcesJson,
+                    inventoryFixture.ExtraZipEntries);
 
             cloudRepository = GoldenCorpusEffectfulCloudInventorySupport.CreateSeededCloudRepository(
                 scope,
@@ -300,6 +302,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),
             new DataFlowTrustBoundaryFindingEngine(),
+            new TopologyAntiPatternFindingEngine(),
         ];
     }
 

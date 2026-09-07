@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
 import { FindingEvidenceGraph } from "@/components/findings/FindingEvidenceGraphLazy";
@@ -27,6 +28,10 @@ import {
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
 } from "@/lib/findings/finding-explainability-summary";
+import {
+  findingExplainabilityTechnicalDisclosureHrefFromSearch,
+  parseFindingExplainabilityTechnicalOpenFromSearch,
+} from "@/lib/findings/finding-explainability-technical-disclosure-url";
 import { truncateForList } from "@/lib/truncate-for-list";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
@@ -53,9 +58,38 @@ export function FindingExplainabilityDialog({
   runId,
   findingId,
 }: FindingExplainabilityDialogProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingExplainabilityTechnicalOpenParam = searchParams.get("findingExplainabilityTechnicalOpen");
   const [data, setData] = useState<FindingExplainability | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
+  const [technicalAuditOpen, setTechnicalAuditOpenState] = useState(() =>
+    parseFindingExplainabilityTechnicalOpenFromSearch(findingExplainabilityTechnicalOpenParam),
+  );
+
+  const syncTechnicalAuditOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingExplainabilityTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalAuditOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalAuditOpenState(open);
+      syncTechnicalAuditOpenToUrl(open);
+    },
+    [syncTechnicalAuditOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalAuditOpenState(parseFindingExplainabilityTechnicalOpenFromSearch(findingExplainabilityTechnicalOpenParam));
+  }, [findingExplainabilityTechnicalOpenParam]);
 
   const load = useCallback(async () => {
     if (findingId === null || findingId.trim().length === 0) {
@@ -194,7 +228,13 @@ export function FindingExplainabilityDialog({
               </section>
             ) : null}
 
-            <details className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40">
+            <details
+              className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40"
+              open={technicalAuditOpen}
+              onToggle={(event) => {
+                setTechnicalAuditOpen(event.currentTarget.open);
+              }}
+            >
               <summary className={cn(
                 "cursor-pointer select-none rounded-md px-3 py-2 font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100",
                 OPERATOR_DISCLOSURE_TRIGGER_CLASS,

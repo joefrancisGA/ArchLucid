@@ -41,6 +41,10 @@ import {
   policyPackAuthoringInputModeHrefFromSearch,
   type PolicyPackAuthoringInputMode,
 } from "@/lib/policy/policy-pack-authoring-input-mode-url";
+import {
+  parsePolicyRuleAuthoringRawJsonOpenFromSearch,
+  policyRuleAuthoringRawJsonDisclosureHrefFromSearch,
+} from "@/lib/governance/policy-rule-authoring-raw-json-disclosure-url";
 
 export type PolicyRuleAuthoringWizardProps = {
   readonly canMutatePacks: boolean;
@@ -85,6 +89,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   const pathname = usePathname() ?? GOVERNANCE_POLICY_PACKS_PATH;
   const searchParams = useSearchParams();
   const urlInputMode = parsePolicyPackAuthoringInputModeFromSearch(searchParams.get("inputMode"));
+  const policyRuleAuthoringRawJsonOpenParam = searchParams.get("policyRuleAuthoringRawJsonOpen");
   const {
     canMutatePacks,
     loading,
@@ -112,8 +117,10 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   const [inputMode, setInputModeState] = useState<AuthoringInputMode>(() =>
     resolveInitialInputMode(initialInputMode, urlInputMode),
   );
-  const [rawJsonAccordionOpen, setRawJsonAccordionOpen] = useState(
-    resolveInitialInputMode(initialInputMode, urlInputMode) === "json",
+  const [rawJsonAccordionOpen, setRawJsonAccordionOpenState] = useState(
+    () =>
+      parsePolicyRuleAuthoringRawJsonOpenFromSearch(policyRuleAuthoringRawJsonOpenParam) ||
+      resolveInitialInputMode(initialInputMode, urlInputMode) === "json",
   );
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
@@ -141,12 +148,37 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     [syncInputModeToUrl],
   );
 
+  const syncRawJsonAccordionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        policyRuleAuthoringRawJsonDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRawJsonAccordionOpen = useCallback(
+    (open: boolean) => {
+      setRawJsonAccordionOpenState(open);
+      syncRawJsonAccordionOpenToUrl(open);
+    },
+    [syncRawJsonAccordionOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRawJsonAccordionOpenState(parsePolicyRuleAuthoringRawJsonOpenFromSearch(policyRuleAuthoringRawJsonOpenParam));
+  }, [policyRuleAuthoringRawJsonOpenParam]);
+
   useEffect(() => {
     const nextMode = parsePolicyPackAuthoringInputModeFromSearch(searchParams.get("inputMode"));
     const resolved = resolveInitialInputMode(initialInputMode, nextMode);
     setInputModeState(resolved);
-    setRawJsonAccordionOpen(resolved === "json");
-  }, [initialInputMode, searchParams]);
+
+    if (resolved === "json") {
+      setRawJsonAccordionOpen(true);
+    }
+  }, [initialInputMode, searchParams, setRawJsonAccordionOpen]);
 
   useEffect(() => {
     if (skipHydrationRef.current) {
