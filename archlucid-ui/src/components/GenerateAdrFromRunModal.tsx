@@ -36,12 +36,18 @@ import {
   reviewGenerateAdrPanelsHrefFromSearch,
 } from "@/lib/reviews/review-generate-adr-panels-url";
 
+import type { RunSummary } from "@/types/authority";
+
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
   /** Total findings on the review before any export cap (DA-11). */
   totalFindingCount?: number;
   /** Distinct engines that produced findings on this package snapshot (PC-01). */
   enginesSucceeded?: number | null;
+  /** Graph + snapshot context for measurement-floor skipped-actor honesty (DX-15). */
+  graphSnapshot?: unknown;
+  progressSummary?: RunSummary | null;
+  findingsSnapshot?: unknown;
   /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
   aggregateQualityGateOutcome?: number | null;
   /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
@@ -55,6 +61,9 @@ export function GenerateAdrFromRunModal({
   input,
   totalFindingCount,
   enginesSucceeded = null,
+  graphSnapshot = null,
+  progressSummary = null,
+  findingsSnapshot = null,
   buyerPolished = false,
 }: GenerateAdrFromRunModalProps) {
   const workingDesk = useProductionDeskChrome();
@@ -85,9 +94,10 @@ export function GenerateAdrFromRunModal({
   const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
   const coverageHonesty = resolveCareerExportCoverageHonesty({
     runId: input.runId,
-    progressSummary: null,
+    progressSummary,
     manifestSummary: null,
-    graphSnapshot: null,
+    graphSnapshot,
+    findingsSnapshot,
     enginesSucceeded,
     workingDesk,
     preCommitGateEnabled,
@@ -106,9 +116,10 @@ export function GenerateAdrFromRunModal({
       const careerExportHonestyMarkdown = workingDesk
         ? formatCareerExportHonestyMarkdown({
             runId: input.runId,
-            progressSummary: null,
+            progressSummary,
             manifestSummary: null,
-            graphSnapshot: null,
+            graphSnapshot,
+            findingsSnapshot,
             enginesSucceeded,
             workingDesk: true,
             preCommitGateEnabled,
@@ -122,7 +133,7 @@ export function GenerateAdrFromRunModal({
 
       return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
     },
-    [enginesSucceeded, hostAgentExecutionMode, hostQualityGateMode, input.aggregateQualityGateOutcome, input.isSample, input.runId, input.structuralExecutionMode, preCommitGateEnabled, workingDesk],
+    [enginesSucceeded, findingsSnapshot, graphSnapshot, hostAgentExecutionMode, hostQualityGateMode, input.aggregateQualityGateOutcome, input.isSample, input.runId, input.structuralExecutionMode, preCommitGateEnabled, progressSummary, workingDesk],
   );
 
   const seedFromInput = useCallback(() => {

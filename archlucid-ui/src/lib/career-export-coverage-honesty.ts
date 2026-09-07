@@ -5,6 +5,7 @@ import {
   type InsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { formatQualityGateCareerExportBlockedReason } from "@/lib/governance/agent-output-quality-gate-career-honesty";
@@ -29,6 +30,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly judgeSkippedByCap?: number | null;
+  readonly findingsSnapshot?: unknown;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -85,14 +87,24 @@ export function formatCareerExportMeasurementFloorMarkdown(
   return `## Measurement floor\n\n${presentation.line}\n`;
 }
 
-function resolveMeasurementFloorOptions(
-  input: CareerExportCoverageHonestyInput,
+export function resolveCareerExportMeasurementFloorOptions(
+  input: Pick<
+    CareerExportCoverageHonestyInput,
+    "graphSnapshot" | "progressSummary" | "judgeSkippedByCap" | "findingsSnapshot"
+  >,
 ): InsightDensityMeasurementFloorOptions {
   return {
     actorNodeCount: countActorNodesInGraphSnapshot(input.graphSnapshot),
     analysisStagesComplete: analysisStagesCompleteOnSummary(input.progressSummary ?? null),
-    judgeSkippedByCap: input.judgeSkippedByCap ?? null,
+    judgeSkippedByCap:
+      input.judgeSkippedByCap ?? readJudgeSkippedByCapFromFindingsSnapshot(input.findingsSnapshot),
   };
+}
+
+function resolveMeasurementFloorOptions(
+  input: CareerExportCoverageHonestyInput,
+): InsightDensityMeasurementFloorOptions {
+  return resolveCareerExportMeasurementFloorOptions(input);
 }
 
 export function formatCareerExportClassificationBandMarkdown(
