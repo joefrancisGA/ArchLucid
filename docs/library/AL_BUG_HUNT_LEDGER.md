@@ -1680,11 +1680,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — case-variant untrusted_input tags bypass delimiter neutralization
+- **last-bug:** 2026-09-07 — persisted task objectives replayed raw customer prose outside customer-data quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1699,6 +1699,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Case-variant `<untrusted_input>` / `</untrusted_input>` tags bypass delimiter neutralization — **hit 2026-09-07 (#1224):** `EscapeEmbeddedUntrustedTags` used case-sensitive `Replace`, so uppercase homoglyphs like `</UNTRUSTED_INPUT>` broke out of the outer wrapper; fixed with `OrdinalIgnoreCase` replacement; regressions in `EscapeEmbeddedUntrustedTags_neutralizes_case_variant_close_and_open_tags` and `SanitizeScalar_keeps_case_variant_tag_payload_inside_single_outer_wrapper`; parity hardening on `CustomerContentPromptDelimiters.EscapeEmbeddedMarkers`.
 
 2026-09-07 seed hunt #1224 (hit): proved case-variant untrusted delimiter bypass; hardened customer-content marker escape for ignore-case parity.
+
+- [ ] (candidate) `PriorManifest.ManifestVersion` — omitted from `AgentEvidenceUntrustedInputSanitizer` while rendered via `EscapeData` in `AgentUserPromptBuilder`; seeded 2026-09-07 (#1229) pending cheap-disproof.
+- [ ] (candidate) Staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize without re-run of `AgentEvidenceUntrustedInputSanitizer`; seeded 2026-09-07 (#1229) pending cheap-disproof.
+
+- [x] (proven) `AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources` — persisted starter objectives embed raw `ArchitectureRequest` description/system name/constraints at run creation while execute-time sanitize only rewrites live request/evidence; task objective rendered outside `CustomerContentPromptDelimiters` quarantine — **hit 2026-09-07 (#1229):** quarantine task objective via `AppendQuarantinedSection` + `RedactAndEscape`; regression `TopologyUserPrompt_quarantines_persisted_task_objective_embedding_customer_description`.
+
+2026-09-07 seed hunt #1229 (hit): proved persisted task-objective customer-prose bypass of TB-949 quarantine; seeded prior-manifest version and staged-note re-sanitize candidates.
 
 ---
 
