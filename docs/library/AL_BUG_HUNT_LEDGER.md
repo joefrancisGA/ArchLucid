@@ -9644,11 +9644,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — completed pre-finalize runs still treated as analysis in progress
+- **last-bug:** 2026-09-07 — legacy archTab deep links ignored on initial hydration; findings tab badge omitted when explanation deferred
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9657,11 +9657,12 @@ ABQ-09 churn hotspot; review detail route tree.
 ### Hypotheses
 
 - [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
-- [ ] (candidate) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — uses `findingCountDisplay` from deferred explanation summary while findings list uses detail snapshot on first paint
-- [ ] (candidate) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only)
-- [ ] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`
+- [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
+- [x] (proven) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only) — **hit 2026-09-07 (#1196):** initial tab resolution read only `reviewTab`; fixed via `resolveReviewWorkspaceTabFromSearchParams` and `resolveReviewDetailTabFromLocation` on first paint (`hydrates legacy archTab deep links on initial visit`, `maps legacy archTab params when reviewTab is absent`)
+- [x] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`; governance CTA hidden when manifest status is Committed
 
 2026-09-07 seed hunt #1174 (hit): reseeded review detail workspace presentation/lifecycle paths; proved completed pre-finalize runs mislabeled in progress when no manifest.
+2026-09-07 thorough hunt #1196 (hit): proved legacy archTab initial hydration gap and deferred-explanation findings tab badge gap; classified deriveRunDetailWorkspaceStatus as valid-no-repro.
 
 ---
 
