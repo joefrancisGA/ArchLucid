@@ -379,7 +379,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             m.cancelRemove();
           }
         }}
-        title="Remove Teams connection?"
+        title={localize("Remove Microsoft Teams connection?")}
         description={localize(TEAMS_INTEGRATION_REMOVE_CONFIRM)}
         confirmLabel="Remove connection"
         variant="destructive"
