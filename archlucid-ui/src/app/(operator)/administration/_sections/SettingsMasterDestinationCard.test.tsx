@@ -54,4 +54,32 @@ describe("SettingsMasterDestinationCard (TB-1198 / TB-1203)", () => {
     expect(screen.getByText("Scope and editability details")).toBeInTheDocument();
     expect(screen.getByTestId("settings-scope-meta")).toBeInTheDocument();
   });
+
+  it("does not show audit-trail copy on read-only destinations", () => {
+    render(
+      <SettingsMasterDestinationCard
+        destination={buildDestination({
+          editability: "read-only",
+          highImpact: true,
+          saveBehavior: "Changes require confirmation on destination page",
+        })}
+      />,
+    );
+
+    expect(screen.queryByText(/recorded in the audit trail/i)).not.toBeInTheDocument();
+  });
+
+  it("shows audit-trail copy on editable destinations with high impact", () => {
+    render(
+      <SettingsMasterDestinationCard
+        destination={buildDestination({
+          editability: "admin-only",
+          highImpact: true,
+          saveBehavior: "Save on destination page",
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/recorded in the audit trail/i)).toBeInTheDocument();
+  });
 });
