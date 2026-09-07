@@ -9130,11 +9130,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — cross-tenant catalog demote without source-pack scope binding
+- **last-bug:** 2026-09-07 — org-required assign/toggle reachable by project admin without tenant admin
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9143,10 +9143,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` — catalog demote lacked promote symmetry scope binding — **hit 2026-09-07 (#1170):** promote requires source pack in caller `(tenant, workspace, project)` scope; demote accepted any catalog entry id under tenant admin auth and demoted globally; fixed by resolving `SourcePolicyPackId` and applying `IsPackVisibleInScope` before mutation (`TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope`, `DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope`)
-- [ ] (candidate) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin can create or toggle org-required assignment locks without tenant/workspace admin role
-- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — foreign-tenant `sourcePolicyPackId` controller scope test gap (integration covers distribution-scope rejection only)
-- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive (workflow guard exists)
+- [x] (proven) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin could create or toggle org-required assignment locks without tenant/workspace admin role — **hit 2026-09-07 (#1205):** `PolicyPackMutationAuthority` allows SCIM `ProjectAdmin`; org-required locks are organization-governance tier (`AssignPolicyPackRequest` documents workspace-admin disable/archive lockout); fixed by requiring `AdminAuthority` on `SetAssignmentOrganizationRequired` and rejecting `Assign` with `isOrganizationRequired` when `ICallerRoleAccessor.IsTenantAdministrator()` is false (`TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator`, `Assign_returns_forbidden_when_organization_required_without_tenant_administrator`, `HandleRequirementAsync_project_admin_succeeds_policy_pack_mutation_without_tenant_admin_jwt`)
+- [x] (valid-no-repro) `PolicyPacksController.PromoteCatalogEntry` — foreign-tenant `sourcePolicyPackId` controller scope test gap — **disproved 2026-09-07 (#1205):** `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` binds pack `(tenant, workspace, project)` to caller scope before promotion; added controller parity test `PromoteCatalogEntry_returns_not_found_when_source_pack_is_out_of_scope`
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive — **disproved 2026-09-07 (#1205):** workflow guard `TryArchiveAssignmentWithOutcomeAsync` already returns not-found via `PolicyPackAssignmentScope.IsVisibleInScope`; added controller parity test `ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope`
 
+2026-09-07 hunt #1205 (hit): org-required assign/toggle required tenant admin; promote/archive scope parity tests added.
 2026-09-07 seed hunt #1170 (hit): reseeded PolicyPacksController partials; proved catalog demote missing source-pack scope binding symmetric with promote.
 
 ---

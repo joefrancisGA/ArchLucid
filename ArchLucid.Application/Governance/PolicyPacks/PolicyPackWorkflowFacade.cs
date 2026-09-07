@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
@@ -15,6 +16,7 @@ namespace ArchLucid.Application.Governance.PolicyPacks;
 /// </summary>
 public sealed partial class PolicyPackWorkflowFacade(
     IScopeContextProvider scopeProvider,
+    ICallerRoleAccessor callerRoleAccessor,
     IPolicyPackRepository packRepository,
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackVersionRepository versionRepository,
@@ -33,6 +35,9 @@ public sealed partial class PolicyPackWorkflowFacade(
 {
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ICallerRoleAccessor _callerRoleAccessor =
+        callerRoleAccessor ?? throw new ArgumentNullException(nameof(callerRoleAccessor));
 
     private readonly IPolicyPackRepository _packRepository =
         packRepository ?? throw new ArgumentNullException(nameof(packRepository));
@@ -126,6 +131,9 @@ public sealed partial class PolicyPackWorkflowFacade(
         bool isOrganizationRequired,
         CancellationToken ct)
     {
+        if (isOrganizationRequired && !_callerRoleAccessor.IsTenantAdministrator())
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Forbidden, null);
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct);
 

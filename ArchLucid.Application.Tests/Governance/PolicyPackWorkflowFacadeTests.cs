@@ -1,3 +1,4 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
@@ -94,6 +95,36 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         result.Outcome.Should().Be(PolicyPackAssignOutcome.PackNotFound);
         result.Assignment.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        Mock<ICallerRoleAccessor> callerRoles = new();
+        callerRoles.Setup(r => r.IsTenantAdministrator()).Returns(false);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            appService: appService.Object,
+            callerRoleAccessor: callerRoles.Object);
+
+        PolicyPackAssignWorkflowResult result = await sut.TryAssignAsync(
+            packId,
+            "1.0.0",
+            "Project",
+            false,
+            isOrganizationRequired: true,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(PolicyPackAssignOutcome.Forbidden);
+        result.Assignment.Should().BeNull();
+        packs.VerifyNoOtherCalls();
+        appService.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -750,19 +781,29 @@ public sealed class PolicyPackWorkflowFacadeTests
             IsDeleted = false,
         };
 
+    private static ICallerRoleAccessor CreateTenantAdminCallerRoleAccessor()
+    {
+        Mock<ICallerRoleAccessor> callerRoles = new();
+        callerRoles.Setup(r => r.IsTenantAdministrator()).Returns(true);
+
+        return callerRoles.Object;
+    }
+
     private static PolicyPackWorkflowFacade CreateSut(
         IPolicyPackRepository packRepository,
         IPolicyPackVersionRepository? versions = null,
         IPolicyPacksAppService? appService = null,
         IPolicyPackGovernanceDryRunService? dryRun = null,
         IPlatformBundledPolicyPackAvailability? platformAvailability = null,
-        IPolicyPackAssignmentRepository? assignments = null)
+        IPolicyPackAssignmentRepository? assignments = null,
+        ICallerRoleAccessor? callerRoleAccessor = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            callerRoleAccessor ?? CreateTenantAdminCallerRoleAccessor(),
             packRepository,
             assignments ?? Mock.Of<IPolicyPackAssignmentRepository>(),
             versions ?? Mock.Of<IPolicyPackVersionRepository>(),
@@ -797,6 +838,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            CreateTenantAdminCallerRoleAccessor(),
             packRepository,
             Mock.Of<IPolicyPackAssignmentRepository>(),
             Mock.Of<IPolicyPackVersionRepository>(),
@@ -839,6 +881,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            CreateTenantAdminCallerRoleAccessor(),
             packRepository,
             assignmentRepository,
             Mock.Of<IPolicyPackVersionRepository>(),
@@ -870,6 +913,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            CreateTenantAdminCallerRoleAccessor(),
             Mock.Of<IPolicyPackRepository>(),
             Mock.Of<IPolicyPackAssignmentRepository>(),
             Mock.Of<IPolicyPackVersionRepository>(),

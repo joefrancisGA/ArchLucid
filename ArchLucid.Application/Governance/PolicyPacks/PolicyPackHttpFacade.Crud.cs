@@ -78,6 +78,10 @@ public sealed partial class PolicyPackHttpFacade
                 Outcome = PolicyPackHttpOutcome.Success,
                 Assignment = assignResult.Assignment,
             },
+            PolicyPackAssignOutcome.Forbidden => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            },
             PolicyPackAssignOutcome.PackNotFound => new PolicyPackAssignHttpResult
             {
                 Outcome = PolicyPackHttpOutcome.ResourceNotFound,

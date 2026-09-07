@@ -138,7 +138,7 @@ public sealed partial class PolicyPacksController
 
     /// <summary>Marks or clears organization-required lock on one policy pack assignment for the current scope.</summary>
     [HttpPut("assignments/{assignmentId:guid}/organization-required")]
-    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
