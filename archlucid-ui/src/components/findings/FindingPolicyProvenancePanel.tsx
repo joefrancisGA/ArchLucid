@@ -1,3 +1,8 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
@@ -7,6 +12,10 @@ import type { ReactElement } from "react";
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  findingPolicyTraceExcerptDisclosureHrefFromSearch,
+  parseFindingPolicyTraceExcerptOpenFromSearch,
+} from "@/lib/findings/finding-policy-trace-excerpt-disclosure-url";
 
 export type FindingPolicyProvenancePanelProps = {
   readonly model: FindingPolicyEvidenceCitationModel;
@@ -45,10 +54,39 @@ function ProvenanceLink(props: {
 
 /** Prominent policy pack, rule, evidence, and trace excerpt for a finding. */
 export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanelProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingPolicyTraceExcerptOpenParam = searchParams.get("findingPolicyTraceExcerptOpen");
+  const [traceExcerptOpen, setTraceExcerptOpenState] = useState(() =>
+    parseFindingPolicyTraceExcerptOpenFromSearch(findingPolicyTraceExcerptOpenParam),
+  );
   const { model, traceExcerpt, compact = false, variant = "default", className } = props;
   const trimmedTrace = traceExcerpt?.trim() ?? "";
   const hasPolicyContext = model.pack !== null || model.policy !== null;
   const prominent = variant === "prominent";
+
+  const syncTraceExcerptOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingPolicyTraceExcerptDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTraceExcerptOpen = useCallback(
+    (open: boolean) => {
+      setTraceExcerptOpenState(open);
+      syncTraceExcerptOpenToUrl(open);
+    },
+    [syncTraceExcerptOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTraceExcerptOpenState(parseFindingPolicyTraceExcerptOpenFromSearch(findingPolicyTraceExcerptOpenParam));
+  }, [findingPolicyTraceExcerptOpenParam]);
 
   if (!hasPolicyContext && model.evidence.length === 0 && trimmedTrace.length === 0) {
     return null;
@@ -119,7 +157,13 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
       ) : null}
 
       {trimmedTrace.length > 0 ? (
-        <details className="rounded-md border border-neutral-200 bg-white/80 dark:border-neutral-700 dark:bg-neutral-950/50">
+        <details
+          className="rounded-md border border-neutral-200 bg-white/80 dark:border-neutral-700 dark:bg-neutral-950/50"
+          open={traceExcerptOpen}
+          onToggle={(event) => {
+            setTraceExcerptOpen(event.currentTarget.open);
+          }}
+        >
           <summary className={cn("cursor-pointer select-none px-3 py-2 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             View evidence trace excerpt
           </summary>

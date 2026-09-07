@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
@@ -12,6 +15,10 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  governanceResolutionPackOrderingDisclosureHrefFromSearch,
+  parseGovernanceResolutionPackOrderingOpenFromSearch,
+} from "@/lib/governance/governance-resolution-pack-ordering-disclosure-url";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveStandardsRulesPolicyPackProvenanceLabel } from "@/lib/standards-rules-rows";
@@ -29,6 +36,37 @@ export function GovernanceResolutionOperatorDiagnostics(
 ): React.JSX.Element {
   const m = props.model;
   const canMutateEnterprisePolicySurfaces = m.canMutateEnterprisePolicySurfaces;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceResolutionPackOrderingOpenParam = searchParams.get("governanceResolutionPackOrderingOpen");
+  const [packOrderingOpen, setPackOrderingOpenState] = useState(() =>
+    parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
+  );
+
+  const syncPackOrderingOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceResolutionPackOrderingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPackOrderingOpen = useCallback(
+    (open: boolean) => {
+      setPackOrderingOpenState(open);
+      syncPackOrderingOpenToUrl(open);
+    },
+    [syncPackOrderingOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPackOrderingOpenState(
+      parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
+    );
+  }, [governanceResolutionPackOrderingOpenParam]);
 
   return (
     <>
@@ -79,7 +117,13 @@ export function GovernanceResolutionOperatorDiagnostics(
             >
               {m.data ? JSON.stringify(m.data.effectiveContent, null, 2) : " — "}
             </pre>
-            <details className="max-w-3xl">
+            <details
+              className="max-w-3xl"
+              open={packOrderingOpen}
+              onToggle={(event) => {
+                setPackOrderingOpen((event.currentTarget as HTMLDetailsElement).open);
+              }}
+            >
               <summary className={cn("cursor-pointer font-semibold text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 How packs are ordered (scope, pins, ties)
               </summary>

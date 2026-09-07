@@ -11,15 +11,10 @@ export const SECURENOW_COMPLIANCE_HOME_SECTION_HEADING = "Compliance posture" as
 export const SECURENOW_COMPLIANCE_HOME_SECTION_LEAD =
   "Assign ARC-AMPE architecture themes, review cloud-evidence findings, and export audit control lineage for CMS ACA and Medicaid partner diligence." as const;
 
-export type SecureNowComplianceHomeRow = {
-  readonly href: string;
-  readonly label: string;
-  readonly summary: string;
-  readonly recommendedFirst?: boolean;
-};
+import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
 /** SecureNow home — surfaces ARC-AMPE and related compliance destinations. */
-export const SECURENOW_COMPLIANCE_HOME_ROWS: readonly SecureNowComplianceHomeRow[] = [
+export const SECURENOW_COMPLIANCE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: GOVERNANCE_POLICY_PACKS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.policyPacks,

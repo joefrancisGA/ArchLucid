@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import { HelpAdvisoryScansSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAdvisoryScansSourcesOrientationStrip";
+import { HelpAdvisoryScansTroubleshootingList } from "@/app/(operator)/help/_sections/HelpAdvisoryScansTroubleshootingList";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { AdvisoryScansHelpClaimDisciplineStrip } from "@/components/help/AdvisoryScansHelpClaimDisciplineStrip";
 import { AdvisoryScansHelpEvidenceOrientationStrip } from "@/components/help/AdvisoryScansHelpEvidenceOrientationStrip";
-import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -41,13 +41,11 @@ import {
   ADVISORY_SCANS_HELP_SUMMARY_METRICS,
   ADVISORY_SCANS_HELP_SUMMARY_SECTION_TITLE,
   ADVISORY_SCANS_HELP_TILE_ITEMS,
-  ADVISORY_SCANS_HELP_TROUBLESHOOTING,
   ADVISORY_SCANS_HELP_TROUBLESHOOTING_HEADING_ID,
   ADVISORY_SCANS_HELP_TROUBLESHOOTING_TITLE,
   ADVISORY_SCANS_HELP_WHAT_SHOWS_HEADING_ID,
   ADVISORY_SCANS_HELP_WHAT_SHOWS_SECTION_TITLE,
   type AdvisoryScansHelpHowToReadStep,
-  type AdvisoryScansHelpTroubleshootingItem,
 } from "@/lib/advisory-scans-help-guide-content";
 import {
   ADVISORY_SCANS_HELP_CANONICAL_PATH,
@@ -132,37 +130,7 @@ function AdvisoryScansStartHereScopeNote(): React.ReactElement {
 }
 
 function AdvisoryScansTroubleshootingList(): React.ReactElement {
-  return (
-    <ul className="m-0 list-none space-y-2 p-0" data-testid="help-advisory-scans-troubleshooting">
-      {ADVISORY_SCANS_HELP_TROUBLESHOOTING.map((item: AdvisoryScansHelpTroubleshootingItem) => (
-        <li key={item.issue}>
-          <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
-            <summary
-              className={cn(
-                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
-                OPERATOR_TYPOGRAPHY.cardTitle,
-              )}
-            >
-              <DisclosureTriangleIndicator />
-              {item.issue}
-            </summary>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              {item.resolution}
-              {item.href !== undefined && item.linkLabel !== undefined ? (
-                <>
-                  {" "}
-                  <Link href={item.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    {item.linkLabel}
-                  </Link>
-                  .
-                </>
-              ) : null}
-            </p>
-          </details>
-        </li>
-      ))}
-    </ul>
-  );
+  return <HelpAdvisoryScansTroubleshootingList />;
 }
 
 function AdvisoryScansStartHereActionPanel(): React.ReactElement {

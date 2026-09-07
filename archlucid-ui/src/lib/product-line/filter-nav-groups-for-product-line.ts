@@ -5,6 +5,7 @@ import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infr
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { productLineAssignmentIncludes, type ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import { resolveProductLineAssignmentForPath } from "@/lib/product-line/product-line-path-access";
+import { reshapeNavGroupsForSecureNow } from "@/lib/product-line/securenow-nav-reshape";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type ProductLineNavGroupRow = {
@@ -70,28 +71,6 @@ export function mergeInternalNavUnderAdministration(
     .map((row) => (row.group.id === "operator-admin" ? mergedAdminRow : row));
 }
 
-function reorderNavGroupsForProductLine(
-  rows: readonly ProductLineNavGroupRow[],
-  productLine: ProductLineId,
-): ProductLineNavGroupRow[] {
-  if (productLine !== "security") {
-    return [...rows];
-  }
-
-  const infrastructureIndex = rows.findIndex((row) => row.group.id === "operate-infrastructure");
-
-  if (infrastructureIndex <= 0) {
-    return [...rows];
-  }
-
-  const reordered = [...rows];
-  const [infrastructureRow] = reordered.splice(infrastructureIndex, 1);
-
-  reordered.unshift(infrastructureRow);
-
-  return reordered;
-}
-
 /**
  * Drops sidebar rows that are not assigned to the active product.
  * Unlisted hrefs default to Architecture, so the Architecture shell keeps the full catalog
@@ -112,19 +91,19 @@ export function filterNavGroupsForProductLine(
         return productLineAssignmentIncludes(assignment, productLine);
       }),
     }))
-    .filter((row) => row.visibleLinks.length > 0)
+    .filter((row) => row.visibleLinks.length > 0);
+
+  const shaped = filtered
     .map((row) => ({
       group: row.group,
       visibleLinks: shapeNavLinksForProductLine(row.group, row.visibleLinks, productLine),
     }));
 
-  const reordered = reorderNavGroupsForProductLine(filtered, productLine);
-
   if (productLine === "security") {
-    return mergeInternalNavUnderAdministration(reordered);
+    return mergeInternalNavUnderAdministration(reshapeNavGroupsForSecureNow(shaped));
   }
 
-  return reordered;
+  return shaped;
 }
 
 export function productLineSkipsReviewLifecycleNavShaping(productLine: ProductLineId): boolean {

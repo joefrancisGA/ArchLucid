@@ -17,6 +17,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string PreCommitGateCode = "pre_commit_gate_disabled";
     public const string QualityGateCode = "quality_gate_incomplete";
     public const string DemoSampleCode = "demo_sample_external_block";
+    public const string SampleWorkspaceExportCode = "sample_workspace_export_block";
     public const string AssertedEmptyCode = "asserted_trail_empty";
     public const string DecisionGradeProvenanceCode = "decision_grade_provenance";
 
@@ -28,6 +29,9 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
 
     public const string DemoSampleExternalBlockMessage =
         "Demo or sample data cannot be emailed as production proof without explicit waiver copy.";
+
+    public const string SampleWorkspaceExportBlockMessage =
+        "Sample workspace — career export is blocked until you run a production review.";
 
     public const string LegacySealedTrailWarning =
         "This sealed record was finalized before transparency trail sections were required — treat exports as incomplete for career use.";
@@ -51,11 +55,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         EvaluateQualityGate(input, blockReasons);
         EvaluateDemoSampleExternalBlock(input, blockReasons);
         EvaluateDecisionGradeProvenance(input, blockReasons);
-
-        if (input.IsSampleRun && input.ArtifactKind == CareerArtifactKind.Export)
-        {
-            warnings.Add("Sample workspace — not production customer evidence.");
-        }
+        EvaluateSampleWorkspaceExport(input, blockReasons, warnings);
 
         AppendMeasurementFloorHeader(input, headerLines);
 
@@ -226,6 +226,28 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         foreach (string violation in DecisionGradeFindingProvenanceValidator.GetViolations(input.FindingsSnapshot))
         {
             blockReasons.Add(new CareerArtifactBlockReason(DecisionGradeProvenanceCode, violation));
+        }
+    }
+
+    private static void EvaluateSampleWorkspaceExport(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons,
+        List<string> warnings)
+    {
+        if (!input.IsSampleRun || input.ArtifactKind != CareerArtifactKind.Export)
+        {
+            return;
+        }
+
+        if (input.WorkingDesk)
+        {
+            blockReasons.Add(new CareerArtifactBlockReason(
+                SampleWorkspaceExportCode,
+                SampleWorkspaceExportBlockMessage));
+        }
+        else
+        {
+            warnings.Add("Sample workspace — not production customer evidence.");
         }
     }
 
