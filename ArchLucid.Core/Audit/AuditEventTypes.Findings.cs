@@ -65,6 +65,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 
+    /// <summary>Operator recorded an insight-density desk signal on a finding (DX-13).</summary>
+    public const string FindingInsightSignalRecorded = "FindingInsightSignalRecorded";
+
     /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
     public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
 

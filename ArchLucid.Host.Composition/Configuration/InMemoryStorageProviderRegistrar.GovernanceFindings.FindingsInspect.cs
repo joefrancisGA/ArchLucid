@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Feedback;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
@@ -55,6 +56,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
             InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
+        services.AddSingleton<IFindingInsightSignalRepository, InMemoryFindingInsightSignalRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
         services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();

@@ -4374,6 +4374,11 @@ export interface components {
         };
         /** @enum {string} */
         FindingHumanReviewStatus: "NotRequired" | "Pending" | "Approved" | "Rejected" | "Overridden";
+        /** @enum {string} */
+        FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
+        FindingInsightSignalStatusResponse: {
+            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+        };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
             excerpt?: null | string;
@@ -7259,8 +7264,8 @@ export interface components {
             /** Format: int32 */
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
-            readyToFinalize?: boolean;
             preCommitGateEnabled?: boolean;
+            readyToFinalize?: boolean;
             runId?: string;
         };
         PreviewRecurrenceScheduleRunsRequest: {
@@ -7883,6 +7888,9 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordFindingInsightSignalRequest: {
+            kind?: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;
