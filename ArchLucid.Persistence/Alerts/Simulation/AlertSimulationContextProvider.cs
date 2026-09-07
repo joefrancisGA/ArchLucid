@@ -125,7 +125,7 @@ public sealed class AlertSimulationContextProvider(
 
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 
-        if (findings.RunId != runId)
+        if (!FindingsSnapshotMatchesGoldenManifest(findings, detail.GoldenManifest))
             return null;
 
         ComparisonResult? comparison = null;
@@ -197,6 +197,12 @@ public sealed class AlertSimulationContextProvider(
         run.TenantId == scope.TenantId
         && run.WorkspaceId == scope.WorkspaceId
         && run.ScopeProjectId == scope.ProjectId;
+
+    private static bool FindingsSnapshotMatchesGoldenManifest(FindingsSnapshot findings, ManifestDocument manifest) =>
+        findings.RunId == manifest.RunId
+        && findings.FindingsSnapshotId == manifest.FindingsSnapshotId
+        && findings.ContextSnapshotId == manifest.ContextSnapshotId
+        && findings.GraphSnapshotId == manifest.GraphSnapshotId;
 
     private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest) =>
         new()

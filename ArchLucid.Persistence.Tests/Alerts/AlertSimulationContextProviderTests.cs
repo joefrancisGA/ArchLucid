@@ -324,6 +324,85 @@ public sealed class AlertSimulationContextProviderTests
     }
 
     [Fact]
+    public async Task GetContextsAsync_when_findings_snapshot_id_mismatches_golden_manifest_returns_empty()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid manifestFindingsSnapshotId = Guid.NewGuid();
+        Guid foreignFindingsSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = manifestFindingsSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = foreignFindingsSnapshotId,
+                    Findings =
+                    [
+                        new Finding
+                        {
+                            FindingId = "cross-linked-finding",
+                            Title = "Should not enter caller simulation context",
+                        }
+                    ]
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().BeEmpty();
+        advisor.Verify(
+            a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetContextsAsync_when_golden_manifest_run_id_mismatches_requested_run_returns_empty()
     {
         Guid tenantId = Guid.NewGuid();
