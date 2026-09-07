@@ -64,7 +64,7 @@ function sendToSponsorHref(runId: string): string {
 }
 
 function decisionReceiptHref(runId: string): string {
-  return buildReviewDetailTabHref(runId, "artifacts");
+  return buildReviewDetailTabHref(runId, "evidence", { hash: "artifacts-exports" });
 }
 
 function buildLinkAction(
