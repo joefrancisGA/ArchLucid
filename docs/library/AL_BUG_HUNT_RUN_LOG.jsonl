@@ -1382,3 +1382,4 @@
 {"at":"2026-09-07T15:58:33.9775289Z","zoneId":"auth-return-path","outcome":"hit"}
 {"at":"2026-09-07T16:03:59.4267392Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-07T16:09:44.5276781Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-09-07T16:17:45.0792218Z","zoneId":"api-policy-packs","outcome":"hit"}
