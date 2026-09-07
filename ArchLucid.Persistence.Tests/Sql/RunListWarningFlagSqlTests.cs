@@ -51,10 +51,10 @@ public sealed class RunListWarningFlagSqlTests
     }
 
     [Fact]
-    public void SelectRunColumns_workflow_intent_fallback_uses_case_sensitive_json_compare()
+    public void SelectRunColumns_workflow_intent_fallback_uses_case_insensitive_json_compare()
     {
         RunListWarningFlagSql.SelectRunColumns.Should()
-            .Contain("JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'");
+            .Contain("UPPER(LTRIM(RTRIM(JSON_VALUE(ar.RequestJson, '$.workflowIntent')))) = N'CREATE-ARCHITECTURE'");
     }
 
     [Fact]

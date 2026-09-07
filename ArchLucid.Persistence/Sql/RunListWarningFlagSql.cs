@@ -27,7 +27,7 @@ internal static class RunListWarningFlagSql
                                            COALESCE(
                                                r.PackageOrigin,
                                                CASE
-                                                   WHEN JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'
+                                                   WHEN UPPER(LTRIM(RTRIM(JSON_VALUE(ar.RequestJson, '$.workflowIntent')))) = N'CREATE-ARCHITECTURE'
                                                        THEN N'Created'
                                                    ELSE N'Reviewed'
                                                END) AS PackageOrigin

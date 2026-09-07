@@ -634,11 +634,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 7
-- **bugs-found:** 5
+- **hunts:** 8
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run list `ArchitectureRequests` join compared raw `ArchitectureRequestId` while existence paths trim and ignore case
+- **last-bug:** 2026-09-07 — run list workflowIntent JSON fallback case sensitivity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -656,8 +656,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CountActiveRunsForArchitectureRequestAsync` / `ExistsRunForArchitectureRequestInScopeAsync` compared raw `ArchitectureRequestId` while project-slug paths trim stored values — **hit 2026-09-03 hunt #603 (seed→hit):** padded stored request ids missed active-run concurrency and scope-existence checks (`RequestReleased` latch, idempotency guard); SQL uses `UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId`; InMemory uses `ArchitectureRequestIdMatches`; regressions in `RunRepositoryArchitectureRequestSqlTests`
 - [x] (proven) `RunListWarningFlagSql.LeftJoinAggregates` joined `ArchitectureRequests` on raw `ArchitectureRequestId` while scoped existence paths trim and ignore case — **hit 2026-09-07 hunt #1183 (seed→hit):** padded stored request ids missed the join so `PackageOrigin` COALESCE defaulted to `Reviewed` instead of reading `workflowIntent`; SQL uses `UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))`; regression in `LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join`
 - [x] (valid-no-repro) `SelectByScopedId` / `GetRunSummaryAsync` omit `RunListWarningFlagSql` request-JSON `PackageOrigin` COALESCE while dashboard list paths include it — **cheap-disproof 2026-09-07 hunt #1255:** TB-738/TB-740 shipped list-only JSON fallback for legacy NULL `Runs.PackageOrigin` rows; create paths persist origin via `ArchitecturePackageOriginResolver`; detail UI hides badge when origin is unknown; shape regressions in `Run_detail_read_reads_persisted_package_origin_without_request_json_fallback` and `SelectRunColumns_coalesces_persisted_package_origin_with_request_json_fallback`
-- [ ] (candidate) `RunListWarningFlagSql.SelectRunColumns` compares `JSON_VALUE(..., '$.workflowIntent')` case-sensitively to `N'create-architecture'` while `ArchitecturePackageOriginResolver` uses ordinal-ignore-case — legacy NULL `PackageOrigin` rows whose stored request JSON used non-canonical intent casing could list as `Reviewed` despite create intent
-- [ ] (candidate) `SqlRunRepository.ListByArchitectureIdAsync` / `ListWithNullArchitectureIdAsync` read raw `Runs.PackageOrigin` without list COALESCE fallback — architecture-scoped run lists diverge from dashboard list badges for legacy NULL origin rows if those surfaces ever project origin
+- [x] (proven) `RunListWarningFlagSql.SelectRunColumns` compares `JSON_VALUE(..., '$.workflowIntent')` case-sensitively to `N'create-architecture'` while `ArchitecturePackageOriginResolver` uses ordinal-ignore-case — legacy NULL `PackageOrigin` rows whose stored request JSON used non-canonical intent casing could list as `Reviewed` despite create intent — **hit 2026-09-07 hunt #1263:** dashboard list COALESCE used exact JSON string match; fixed with `UPPER(LTRIM(RTRIM(JSON_VALUE(...)))) = N'CREATE-ARCHITECTURE'`; regression `SelectRunColumns_workflow_intent_fallback_uses_case_insensitive_json_compare` plus `Resolve_returns_Created_when_workflow_intent_casing_differs`.
+- [x] (valid-no-repro) `SqlRunRepository.ListByArchitectureIdAsync` / `ListWithNullArchitectureIdAsync` read raw `Runs.PackageOrigin` without list COALESCE fallback — architecture-scoped run lists diverge from dashboard list badges for legacy NULL origin rows if those surfaces ever project origin — **cheap-disproof 2026-09-07 hunt #1263:** architecture identity child review/version summaries project `RunId`/`Description`/`CreatedUtc` only; TB-738 list-only JSON fallback remains dashboard-scoped by design; regression `Architecture_list_queries_read_persisted_package_origin_without_dashboard_coalesce`.
+
+2026-09-07 thorough hunt #1263 (hit): proved workflowIntent JSON fallback case mismatch; cheap-disproof closed architecture-list PackageOrigin projection candidate; 28 scoped unit tests passed (25 Persistence + 3 Application), 1 SQL integration skipped.
 
 2026-09-07 seed hunt #1255 (seed-only): reseeded after #1183; cheap-disproof closed detail-vs-list PackageOrigin parity as documented TB-738 list-only fallback; seeded workflowIntent case-sensitivity and architecture-list projection candidates; shape regressions for COALESCE/list/detail split.
 
