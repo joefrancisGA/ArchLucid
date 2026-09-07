@@ -125,6 +125,181 @@ internal static class GoldenCorpusPathEngineGraphFactory
             ]);
     }
 
+    internal static GraphSnapshot CreateIdentityBlastRadiusGraphSecond()
+    {
+        return WrapCaseGraph(
+            caseNumber: 43,
+            nodes:
+            [
+                new GraphNode
+                {
+                    NodeId = "actor-billing",
+                    NodeType = GraphNodeTypes.Actor,
+                    Label = "billing-func",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["kind"] = nameof(ActorKind.Machine),
+                        ["trustOrigin"] = nameof(TrustOrigin.Internal),
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "role-contrib-sa",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "billing-contributor-sa",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_role_assignment",
+                        ["roleName"] = "Contributor",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "sa-audit-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sa-audit-prod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Storage,
+                        [CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.DataBearing,
+                    },
+                },
+            ],
+            edges:
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "actor-billing",
+                    ToNodeId = "role-contrib-sa",
+                    EdgeType = GraphEdgeTypes.RelatesTo,
+                    Weight = 1.0,
+                },
+                new GraphEdge
+                {
+                    FromNodeId = "role-contrib-sa",
+                    ToNodeId = "sa-audit-prod",
+                    EdgeType = GraphEdgeTypes.AppliesTo,
+                    Weight = 1.0,
+                },
+            ]);
+    }
+
+    internal static GraphSnapshot CreateSegmentationSemanticsGraphSecond()
+    {
+        return WrapCaseGraph(
+            caseNumber: 44,
+            nodes:
+            [
+                new GraphNode
+                {
+                    NodeId = "nsg-db",
+                    NodeType = GraphNodeTypes.SecurityBaseline,
+                    Label = "db-nsg",
+                    SourceId = "azurerm_network_security_group.db",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_network_security_group",
+                        ["tf.security_rule"] =
+                            "access = allow direction = inbound source_address_prefix = * destination_port_range = 3389",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "subnet-db",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "db-subnet",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Network,
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "sql-hr",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql-hr-prod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Data,
+                    },
+                },
+            ],
+            edges:
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "nsg-db",
+                    ToNodeId = "subnet-db",
+                    EdgeType = GraphEdgeTypes.AppliesTo,
+                    Weight = 1.0,
+                },
+                new GraphEdge
+                {
+                    FromNodeId = "subnet-db",
+                    ToNodeId = "sql-hr",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 1.0,
+                },
+            ]);
+    }
+
+    internal static GraphSnapshot CreateDrRpoTopologyGraphSecond()
+    {
+        return WrapCaseGraph(
+            caseNumber: 45,
+            nodes:
+            [
+                new GraphNode
+                {
+                    NodeId = "req-dr-2",
+                    NodeType = GraphNodeTypes.Requirement,
+                    Label = "Ledger DR",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["text"] = "Ledger SQL must meet RPO 5 min.",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "svc-ledger",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "ledger-api",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Compute,
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "sql-ledger-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql-ledger-prod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Data,
+                        ["terraformType"] = "azurerm_mssql_database",
+                    },
+                },
+            ],
+            edges:
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "req-dr-2",
+                    ToNodeId = "svc-ledger",
+                    EdgeType = GraphEdgeTypes.RelatesTo,
+                    Weight = 1.0,
+                },
+                new GraphEdge
+                {
+                    FromNodeId = "svc-ledger",
+                    ToNodeId = "sql-ledger-prod",
+                    EdgeType = GraphEdgeTypes.DependsOn,
+                    Weight = 1.0,
+                },
+            ]);
+    }
+
     internal static GraphSnapshot CreateDrRpoTopologyGraph()
     {
         return WrapCaseGraph(
