@@ -960,13 +960,95 @@ public sealed class GcpCloudBillingCatalogClientTests
         monthly.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token()
+    {
+        const string pageOneJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n2-standard-4 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "200000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "nextPageToken": "page-2"
+            }
+            """;
+
+        const string pageTwoJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(request =>
+        {
+            string query = request.RequestUri?.Query ?? string.Empty;
+
+            if (query.Contains("pageToken=page-2", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(pageTwoJson),
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(pageOneJson),
+            };
+        });
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
     private static GcpCloudBillingCatalogClient CreateClient(string catalogJson)
     {
-        HttpClient httpClient = new(new StubHttpMessageHandler(_ =>
+        return CreateClient(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(catalogJson),
-            }));
+            });
+    }
+
+    private static GcpCloudBillingCatalogClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> responder)
+    {
+        HttpClient httpClient = new(new StubHttpMessageHandler(responder));
 
         return new GcpCloudBillingCatalogClient(
             () => httpClient,
