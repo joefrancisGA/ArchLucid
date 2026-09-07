@@ -29,8 +29,8 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { applyWorkingBindToolNavGateToLink } from "@/lib/apply-working-bind-tool-nav-gate";
 import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
-import { applyWorkingBindToolNavPresentation } from "@/lib/working-bind-tool-nav";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   parseSidebarNavMoreGroupFromSearch,
@@ -154,6 +154,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   );
 
   function renderLink(link: (typeof linksForRender)[number]): ReactElement {
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
     const presented = presentSidebarNavLinkForCluster(
       link,
       props.buyerPolishedShell,
@@ -166,39 +167,30 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
           href: presented.href,
           pathname,
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
-          lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+          lastOpenArchitectureId,
         })
       : presented.href;
     const presentedWithHref =
       resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
-    const presentedForRender = applyWorkingBindToolNavPresentation(
-      presentedWithHref,
-      readCachedLastOpenArchitectureId(),
-      workingMode,
-    );
+    const presentedForRender = workingMode
+      ? applyWorkingBindToolNavGateToLink(presentedWithHref, {
+          workingMode: true,
+          lastOpenArchitectureId,
+        })
+      : presentedWithHref;
 
     return (
-      <div key={presentedForRender.href} className="space-y-1">
-        <SidebarNavLink
-          presented={presentedForRender}
-          active={isNavLinkActive(props.pathname, presentedForRender.href)}
-          advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedForRender.href, demoOrBuyer)}
-          buyerPolishedShell={props.buyerPolishedShell}
-          navGroupId={group.id}
-          unlockPhase={props.effectiveOperateUnlockPhase}
-          onNavigate={props.onNavLinkNavigate}
-          afterLabel={sidebarNavLinkAfterLabel(presentedForRender.href)}
-        />
-        {presentedForRender.navLinkDisabledVisibleHint !== undefined
-        && presentedForRender.navLinkDisabledVisibleHint.length > 0 ? (
-          <p
-            className={cn("m-0 px-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid={`sidebar-bind-tool-hint-${presentedForRender.href.replace(/[^a-zA-Z0-9]+/g, "-")}`}
-          >
-            {presentedForRender.navLinkDisabledVisibleHint}
-          </p>
-        ) : null}
-      </div>
+      <SidebarNavLink
+        key={presentedForRender.href}
+        presented={presentedForRender}
+        active={isNavLinkActive(props.pathname, presentedForRender.href)}
+        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedForRender.href, demoOrBuyer)}
+        buyerPolishedShell={props.buyerPolishedShell}
+        navGroupId={group.id}
+        unlockPhase={props.effectiveOperateUnlockPhase}
+        onNavigate={props.onNavLinkNavigate}
+        afterLabel={sidebarNavLinkAfterLabel(presentedForRender.href)}
+      />
     );
   }
 

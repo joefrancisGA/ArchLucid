@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 /** Operator-facing copy for `/integrations/cloud-connections/azure` (TB-1766, TB-1767). */
 
 export const AZURE_CLOUD_CONNECTION_BANNED_COPY = [
@@ -38,6 +41,10 @@ export const AZURE_CONNECTION_TENANT_ID_LABEL = "Azure Tenant ID";
 export const AZURE_CONNECTION_TENANT_ID_HINT =
   "Directory (tenant) ID for the Entra tenant that owns the app registration — not ArchLucid's tenant.";
 
+export function azureConnectionTenantIdHint(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, AZURE_CONNECTION_TENANT_ID_HINT);
+}
+
 export const AZURE_CONNECTION_SUBSCRIPTION_IDS_LABEL = "Subscription IDs";
 
 export const AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT =
@@ -45,6 +52,10 @@ export const AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT =
 
 export const AZURE_CONNECTION_IDS_STEP_LEAD =
   `Paste the Azure tenant ID, ${AZURE_CONNECTION_CLIENT_APP_ID_TERM}, and comma-separated subscription IDs from your provisioning output. ArchLucid stores identifiers only — never client secrets.`;
+
+export function azureConnectionIdsStepLead(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, AZURE_CONNECTION_IDS_STEP_LEAD);
+}
 
 export const AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT =
   "Entra tenant ID ArchLucid uses for federation. Use this in the federated credential issuer, not your customer tenant ID.";

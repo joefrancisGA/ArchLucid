@@ -25079,7 +25079,7 @@ Adoption friction P0 (**TB-926**): refine ONLY `/digests?tab=subscriptions` into
 6. Permissions: `useOperateCapability`, nav `requiredAuthority`, controller `[Authorize]` policies for alert-rule mutations.
 7. Sample/demo/static mode: whether `/governance/alert-rules` is reachable without sign-in; expected read-only posture (`demo-ui-env`, operator shell gates, `OperatorRoleGate`).
 8. Internal operations nav: `showSystemAdministrationNav`, `operator-system-admin-nav-group-builder.ts`, direct URL authorization tests.
-9. Existing tests: `AlertRulesContent` tests, `operate-authority-ui-shaping.test.tsx`, Playwright accessibility/live-api specs touching alerts.
+9. Existing tests: `AlertRulesContent` tests, `operate-authority-ui-shaping-*.test.tsx` shards (`hub`, `alerts-inbox`, `alerts-rules`, `governance`, `policy-packs`), Playwright accessibility/live-api specs touching alerts.
 
 **Approach (16 themes):**
 

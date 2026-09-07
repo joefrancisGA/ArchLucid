@@ -17,7 +17,6 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
     ILogger<WeeklySponsorSummaryEmailDispatcher> logger) : IWeeklySponsorSummaryEmailDispatcher
 {
     public const string TemplateId = "WeeklySponsorSummary";
-    private const string DefaultProductName = "ArchLucid";
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
@@ -62,7 +61,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
             return false;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
 
         WeeklySponsorSummaryEmailModel model = new()

@@ -1,0 +1,798 @@
+{
+  "linePatterns": [
+    {
+      "pattern": "@archlucid\\.net",
+      "reason": "Company email addresses stay on archlucid.net"
+    },
+    {
+      "pattern": "archlucid\\.net",
+      "reason": "Company domain references"
+    },
+    {
+      "pattern": "archlucid\\.com",
+      "reason": "Company domain references"
+    },
+    {
+      "pattern": "X-ArchLucid-",
+      "reason": "Protocol header names are not consumer product labels"
+    },
+    {
+      "pattern": "ArchLucidAuth",
+      "reason": "Configuration key prefix"
+    },
+    {
+      "pattern": "hosted ArchLucid",
+      "reason": "Legal entity / hosted SaaS company phrasing"
+    },
+    {
+      "pattern": "from ArchLucid",
+      "reason": "Company attribution (SecureNow, from ArchLucid)"
+    },
+    {
+      "pattern": "ArchLucid internal",
+      "reason": "Company security ownership vendor rows"
+    },
+    {
+      "pattern": "ArchLucid SaaS",
+      "reason": "Legal entity subprocessors phrasing"
+    },
+    {
+      "pattern": "ArchLucid accessibility",
+      "reason": "Company accessibility custodians row"
+    },
+    {
+      "pattern": "ArchLucid platform operations",
+      "reason": "Company operations vendor row"
+    },
+    {
+      "pattern": "ArchLucid%20",
+      "reason": "URL-encoded mailto subject tokens"
+    },
+    {
+      "pattern": "\\{ArchLucid ",
+      "reason": "Script placeholder tokens (SN-02 federation)"
+    },
+    {
+      "pattern": "architecture: \"ArchLucid\"",
+      "reason": "Product line display name map"
+    },
+    {
+      "pattern": "replaceAll\\(\"ArchLucid\"",
+      "reason": "localizeProductCopy rewrite implementation"
+    },
+    {
+      "pattern": "ArchitectureProductNameToken",
+      "reason": "Help brand rewrite policy constant"
+    },
+    {
+      "pattern": "SecurityProductNameToken",
+      "reason": "Help brand rewrite policy constant"
+    },
+    {
+      "pattern": "localizeProductCopy",
+      "reason": "Product-line localization helper reference"
+    },
+    {
+      "pattern": "PRODUCT_LINE_DISPLAY_NAME",
+      "reason": "Canonical display name map"
+    },
+    {
+      "pattern": "isArchLucid",
+      "reason": "Code identifier (vendor staff, logo, etc.)"
+    },
+    {
+      "pattern": "ArchLucidLogo",
+      "reason": "Component identifier"
+    },
+    {
+      "pattern": "ArchLucidMark",
+      "reason": "Component identifier"
+    },
+    {
+      "pattern": "ArchLucidWordmark",
+      "reason": "Component identifier"
+    },
+    {
+      "pattern": "showPoweredByArchLucid",
+      "reason": "OpenAPI/branding field name"
+    },
+    {
+      "pattern": "Why ArchLucid",
+      "reason": "Architecture product proof page"
+    },
+    {
+      "pattern": "why-archlucid",
+      "reason": "Architecture product route slug"
+    },
+    {
+      "pattern": "how-archlucid-works",
+      "reason": "Help anchor slug (labels localized at render)"
+    },
+    {
+      "pattern": "com\\.archlucid\\.",
+      "reason": "Event type / package identifiers"
+    },
+    {
+      "pattern": "ArchLucid\\.Api",
+      "reason": "Backend project reference in comments"
+    },
+    {
+      "pattern": "not ArchLucid",
+      "reason": "Test/assertion negation"
+    },
+    {
+      "pattern": "without ArchLucid",
+      "reason": "Test/assertion negation"
+    },
+    {
+      "pattern": "no ArchLucid",
+      "reason": "Test/assertion negation"
+    },
+    {
+      "pattern": "stays ArchLucid",
+      "reason": "Documentation comment"
+    },
+    {
+      "pattern": "remains ArchLucid",
+      "reason": "Documentation comment"
+    },
+    {
+      "pattern": "keep ArchLucid",
+      "reason": "Documentation comment"
+    },
+    {
+      "pattern": "defaults to ArchLucid",
+      "reason": "Documentation comment"
+    },
+    {
+      "pattern": "legal entity stays ArchLucid",
+      "reason": "Documentation comment"
+    },
+    {
+      "pattern": "company/legal",
+      "reason": "Brand rewrite allowlist comments"
+    },
+    {
+      "pattern": "^\\s*//",
+      "reason": "Line comment"
+    },
+    {
+      "pattern": "^\\s*\\*",
+      "reason": "Block comment line"
+    },
+    {
+      "pattern": "^\\s*import ",
+      "reason": "Import statement"
+    },
+    {
+      "pattern": "^\\s*export type ",
+      "reason": "Type export"
+    },
+    {
+      "pattern": "from \"@/",
+      "reason": "Import path"
+    },
+    {
+      "pattern": "from '@/",
+      "reason": "Import path"
+    }
+  ],
+  "fileExclusions": [
+    {
+      "path": "src/lib/product-line/product-line-display-name.ts",
+      "reason": "Canonical Architecture→ArchLucid display map (SN-01)"
+    },
+    {
+      "path": "src/lib/product-line/securenow-archlucid-leak-scanner.ts",
+      "reason": "Scanner implementation"
+    },
+    {
+      "path": "src/lib/help-markdown/help-product-brand-rewrite.ts",
+      "reason": "Help rewrite rules reference ArchLucid tokens (SN-04)"
+    },
+    {
+      "path": "src/lib/webhooks-page-copy.ts",
+      "reason": "SN-03: literals localized via localizeProductCopy() at export boundaries"
+    },
+    {
+      "path": "src/lib/azure-cloud-connection-copy.ts",
+      "reason": "SN-02: literals localized via localizeProductCopy() at export boundaries"
+    },
+    {
+      "path": "src/lib/aws-cloud-connection-trust-policy-starter.ts",
+      "reason": "SN-02: preserves {ArchLucid tenant ID} placeholders; labels localized at render"
+    },
+    {
+      "path": "src/lib/gcp-cloud-connection-copy.ts",
+      "reason": "SN-02: literals localized via localizeProductCopy() at export boundaries"
+    },
+    {
+      "path": "src/lib/azure-cloud-connection-federation-identity-source.ts",
+      "reason": "SN-02: federation copy localized at render"
+    },
+    {
+      "path": "src/lib/cloud-connections-copy.ts",
+      "reason": "SN-02: cloud connection copy localized at render"
+    },
+    {
+      "path": "src/lib/cloud-security-preflight-topics.ts",
+      "reason": "SN-02: preflight topics localized at render"
+    },
+    {
+      "path": "src/lib/account-security-page-copy.ts",
+      "reason": "SN-03: auth copy localized at render"
+    },
+    {
+      "path": "src/lib/api-keys-settings-copy.ts",
+      "reason": "SN-03: admin copy pending full product-line sweep"
+    },
+    {
+      "path": "src/lib/sso-wizard-copy.ts",
+      "reason": "SN-03: SAML SP values; ArchLucidAuth allowlisted"
+    },
+    {
+      "path": "src/lib/sign-in-methods-problem.ts",
+      "reason": "SN-03: localized via resolveProductLineIdFromEnv"
+    },
+    {
+      "path": "src/lib/security-trust-evidence-copy.ts",
+      "reason": "SN-06: evidence link labels localized via securityTrustEvidenceSources()"
+    },
+    {
+      "path": "src/lib/trust-center-evidence-copy.ts",
+      "reason": "Company Trust Center; conservative ArchLucid company phrasing"
+    },
+    {
+      "path": "src/lib/trust-center-buyer-content.ts",
+      "reason": "Company Trust Center marketing body"
+    },
+    {
+      "path": "src/lib/trust-center-public-assurance.ts",
+      "reason": "Shared trust/assurance artifacts; company-level"
+    },
+    {
+      "path": "src/lib/why-archlucid-evidence-copy.ts",
+      "reason": "Architecture product proof page (why-archlucid)"
+    },
+    {
+      "path": "src/components/marketing/welcome-marketing-copy.ts",
+      "reason": "Architecture marketing welcome page"
+    },
+    {
+      "path": "src/components/marketing/MarketingTrustCenterBuyerBody.tsx",
+      "reason": "Company Trust Center buyer body"
+    },
+    {
+      "path": "src/components/TrustCenterFaqJsonLd.tsx",
+      "reason": "Company FAQ JSON-LD"
+    },
+    {
+      "path": "src/components/ui/welcome-modal.tsx",
+      "reason": "Architecture welcome modal defaults"
+    },
+    {
+      "path": "src/components/try-cli-demo-copy.ts",
+      "reason": "CLI demo requires ArchLucid CLI naming"
+    },
+    {
+      "path": "src/lib/see-it-page-copy.ts",
+      "reason": "Architecture evaluation marketing page"
+    },
+    {
+      "path": "src/lib/marketing/pricing-page-copy.ts",
+      "reason": "Shared pricing marketing; architecture product positioning"
+    },
+    {
+      "path": "src/lib/demo-readiness-evidence-copy.ts",
+      "reason": "Internal demo-operator surface"
+    },
+    {
+      "path": "src/lib/demo-explain-evidence-copy.ts",
+      "reason": "Demo / why-archlucid cross-links"
+    },
+    {
+      "path": "src/lib/path-chooser-help-guide-content.ts",
+      "reason": "Architecture evaluation path chooser"
+    },
+    {
+      "path": "src/lib/pilot-feedback-help-guide-content.ts",
+      "reason": "Architecture pilot feedback help"
+    },
+    {
+      "path": "src/lib/evidence-intake-help-guide-content.ts",
+      "reason": "Architecture package intake help"
+    },
+    {
+      "path": "src/lib/baseline-settings-help-guide-content.ts",
+      "reason": "Architecture ROI baseline help"
+    },
+    {
+      "path": "src/lib/soc2-self-assessment-help-guide-content.ts",
+      "reason": "Company assurance help; ArchLucid as legal entity"
+    },
+    {
+      "path": "src/lib/subprocessors-help-guide-content.ts",
+      "reason": "hosted ArchLucid legal entity help"
+    },
+    {
+      "path": "src/lib/engineering-troubleshooting-help-guide-content.ts",
+      "reason": "Engineering troubleshooting; ArchLucid support contact"
+    },
+    {
+      "path": "src/lib/troubleshooting-help-guide-content.ts",
+      "reason": "Auth troubleshooting help"
+    },
+    {
+      "path": "src/lib/jira-integration-help-guide-content.ts",
+      "reason": "Architecture work-item integration help"
+    },
+    {
+      "path": "src/lib/azure-boards-help-evidence-copy.ts",
+      "reason": "Architecture Azure Boards integration evidence"
+    },
+    {
+      "path": "src/lib/azure-boards-page-copy.ts",
+      "reason": "Architecture Azure Boards integration page"
+    },
+    {
+      "path": "src/lib/servicenow-integration-page-copy.ts",
+      "reason": "Architecture ServiceNow integration page"
+    },
+    {
+      "path": "src/lib/slack-integration-page-copy.ts",
+      "reason": "Alerts integration copy pending security sweep"
+    },
+    {
+      "path": "src/lib/digests-browse-copy.ts",
+      "reason": "Digest emails copy pending security sweep"
+    },
+    {
+      "path": "src/lib/notification-preference-center-copy.ts",
+      "reason": "Notification preferences copy pending security sweep"
+    },
+    {
+      "path": "src/lib/alerts-help-guide-content.ts",
+      "reason": "Alerts help guide pending security sweep"
+    },
+    {
+      "path": "src/lib/alerts-help-evidence-copy.ts",
+      "reason": "Evidence strip labels localized at render in SN-04 pattern"
+    },
+    {
+      "path": "src/lib/notifications-help-evidence-copy.ts",
+      "reason": "Evidence strip labels localized at render"
+    },
+    {
+      "path": "src/lib/settings-users-evidence-copy.ts",
+      "reason": "Evidence strip labels localized at render"
+    },
+    {
+      "path": "src/lib/approval-lineage-evidence-copy.ts",
+      "reason": "Evidence strip labels localized at render"
+    },
+    {
+      "path": "src/lib/decision-register-evidence-copy.ts",
+      "reason": "Evidence strip labels localized at render"
+    },
+    {
+      "path": "src/lib/auth-domains-page-copy.ts",
+      "reason": "Auth domains admin copy pending security sweep"
+    },
+    {
+      "path": "src/lib/signup-verify-page-copy.ts",
+      "reason": "Shared signup verify flow"
+    },
+    {
+      "path": "src/lib/auth/invitation-invalid-recovery-copy.ts",
+      "reason": "Shared auth recovery copy"
+    },
+    {
+      "path": "src/lib/auth/post-auth-bootstrap-denial-copy.ts",
+      "reason": "Shared auth bootstrap copy"
+    },
+    {
+      "path": "src/lib/webhooks-integration-help-guide-content.ts",
+      "reason": "Webhooks help guide pending security sweep"
+    },
+    {
+      "path": "src/lib/architecture/architecture-work-item-model.ts",
+      "reason": "Architecture product work-item templates"
+    },
+    {
+      "path": "src/lib/runs/run-detail-create-home-activity-copy.ts",
+      "reason": "Architecture review workspace copy"
+    },
+    {
+      "path": "src/lib/runs/run-detail-decision-delta.ts",
+      "reason": "Architecture review decision copy"
+    },
+    {
+      "path": "src/app/(operator)/governance/audit/audit-ui-helpers.ts",
+      "reason": "SN-03: formatAuditActorDisplayName localizes system labels"
+    },
+    {
+      "path": "src/app/(operator)/administration/identity-providers/_sections/ArchLucidSamlSpValuesCard.tsx",
+      "reason": "SN-03: SAML SP card localized at render"
+    },
+    {
+      "path": "src/app/(operator)/administration/identity-providers/_sections/SamlSpClaimMappingsFields.tsx",
+      "reason": "SN-03: SAML mappings localized at render"
+    },
+    {
+      "path": "src/components/operator/OperatorJwtBearerRoleMappingCallout.tsx",
+      "reason": "SN-03: localized at render"
+    },
+    {
+      "path": "src/components/HelpPanel.tsx",
+      "reason": "Global help search; pending security product label sweep"
+    },
+    {
+      "path": "src/components/governance/RecurrenceSchedulesClient.tsx",
+      "reason": "Architecture recurrence schedules copy"
+    },
+    {
+      "path": "src/components/architecture/ArchitectureCreatedClarificationsPanel.tsx",
+      "reason": "Architecture review workspace copy"
+    },
+    {
+      "path": "src/components/marketing/privacy-policy/PrivacyPolicyAtGlanceSummary.tsx",
+      "reason": "Legal privacy policy; ArchLucid company entity"
+    },
+    {
+      "path": "src/components/marketing/privacy-policy/PrivacyPolicyPageClient.tsx",
+      "reason": "Legal privacy policy; ArchLucid company entity"
+    },
+    {
+      "path": "src/components/marketing/WelcomeMarketingProofAtGlanceSection.tsx",
+      "reason": "Architecture welcome marketing"
+    },
+    {
+      "path": "src/components/marketing/WelcomeMarketingEngagementPathsSection.tsx",
+      "reason": "Architecture welcome marketing"
+    },
+    {
+      "path": "src/components/marketing/MarketingResourcesMenu.tsx",
+      "reason": "Architecture marketing resources menu"
+    },
+    {
+      "path": "src/app/(marketing)/get-started/get-started-content.ts",
+      "reason": "Architecture/marketing copy — out of Security-shell scope"
+    },
+    {
+      "path": "src/app/(operator)/administration/identity-providers/_sections/diagnostics-settings-page-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/app/(operator)/administration/identity/sso-wizard/_sections/SsoWizardStepContent.tsx",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/app/(operator)/administration/support/_sections/admin-support-page-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/app/(operator)/auth/signin/session-message-copy.ts",
+      "reason": "SN-03: shared auth copy pending security product localization"
+    },
+    {
+      "path": "src/app/(operator)/insights/compare-two-reviews/_sections/compare-workspace-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/app/(operator)/integrations/cloud-connections/_sections/aws-connection-wizard-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/app/(operator)/integrations/cloud-connections/_sections/gcp-connection-wizard-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/app/(operator)/integrations/cloud-connections/_sections/tier2-connection-wizard-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/access-denied-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/admin-diagnostics-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/advisory-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/advisory-scans-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/alert-rule-conditions-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/api-keys-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/approval-queue-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/architecture/architecture-sponsor-readiness-copy.ts",
+      "reason": "Architecture product copy — out of Security-shell scope"
+    },
+    {
+      "path": "src/lib/architecture/architecture-structured-content-copy.ts",
+      "reason": "Architecture product copy — out of Security-shell scope"
+    },
+    {
+      "path": "src/lib/audit-trail-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/auth/access-request-copy.ts",
+      "reason": "SN-03: shared auth copy pending security product localization"
+    },
+    {
+      "path": "src/lib/auth/session-expired-page-copy.ts",
+      "reason": "SN-03: shared auth copy pending security product localization"
+    },
+    {
+      "path": "src/lib/auth/sign-in-page-copy.ts",
+      "reason": "SN-03: shared auth copy pending security product localization"
+    },
+    {
+      "path": "src/lib/authentication-sign-in-help-guide-content.ts",
+      "reason": "SN-03: shared auth copy pending security product localization"
+    },
+    {
+      "path": "src/lib/aws-cloud-connection-copy.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/azure-cloud-connection-permissions-copy.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/billing-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/cloud-connections-evidence-copy.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/cloud-connections-help-guide-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/cloud-neutral-primary-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/compliance-journey-page-copy.ts",
+      "reason": "Shared billing/compliance copy pending security sweep"
+    },
+    {
+      "path": "src/lib/connect-aws-securely-help-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/connect-azure-securely-help-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/connect-gcp-securely-help-content.ts",
+      "reason": "SN-02: cloud connection copy localized at render or pending sweep"
+    },
+    {
+      "path": "src/lib/core-pilot-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/customer-glossary-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/data-handling-tenant-isolation-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/data-handling-tenant-isolation-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/demo-explain-page-copy.ts",
+      "reason": "Demo / evaluation surfaces pending security localization"
+    },
+    {
+      "path": "src/lib/demo-preview-page-copy.ts",
+      "reason": "Demo / evaluation surfaces pending security localization"
+    },
+    {
+      "path": "src/lib/deployment-status-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/digests-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/dpa-template-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/error-recovery-contract-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/evidence/evidence-extraction-progress-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/findings/finding-governance-action-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/findings/finding-optional-artifact-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/findings/findings-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/first-pilot-diagnostics-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/getting-started-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/guided-intake-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/help/help-cli-usage-reference-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/help/help-search-panel-catalog-topics.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/help/help-workspace-mode-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/iana-time-zone-preference-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/identity-providers-settings-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/itsm/itsm-atlassian-oauth-callback-error-copy.ts",
+      "reason": "Integration copy pending security product localization"
+    },
+    {
+      "path": "src/lib/itsm/itsm-atlassian-oauth-callback-page-copy.ts",
+      "reason": "Integration copy pending security product localization"
+    },
+    {
+      "path": "src/lib/jira-integration-page-copy.ts",
+      "reason": "Integration copy pending security product localization"
+    },
+    {
+      "path": "src/lib/model-governance-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/model-governance-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/pattern-library-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/pilot-guide-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/planning-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/preferences-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/privacy-policy-page-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/recurrence-schedules-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/recurrence-schedules-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/repeat-review-loop-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/report-problem-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/review-failure-recovery-role-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/scim-provisioning-page-copy.ts",
+      "reason": "Pending security product localization — TODO SN-02–SN-06"
+    },
+    {
+      "path": "src/lib/slack-integration-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/slack-integration-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/sponsor/pilot-roi-measurement-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/sponsor/sponsor-report-help-guide-content.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/teams-integration-page-copy.ts",
+      "reason": "Integration copy pending security product localization"
+    },
+    {
+      "path": "src/lib/troubleshooting-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/users-and-roles-help-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/users-and-roles-help-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/welcome-evidence-copy.ts",
+      "reason": "Help/evidence copy pending security product localization (SN-04)"
+    },
+    {
+      "path": "src/lib/why-archlucid-page-copy.ts",
+      "reason": "Architecture/marketing copy — out of Security-shell scope"
+    },
+    {
+      "path": "src/lib/why-page-copy.ts",
+      "reason": "Architecture/marketing copy — out of Security-shell scope"
+    }
+  ],
+  "strictPaths": [
+    "src/lib/security-trust-product-copy.ts",
+    "src/lib/security-trust-content.ts",
+    "src/lib/operator/operator-security-trust-content.ts",
+    "src/lib/finding-work-item-product-copy.ts",
+    "src/lib/copy-finding-as-work-item-inspect.ts",
+    "src/lib/copy-finding-as-work-item-trace-row.ts",
+    "src/lib/marketing/assurance-status-page-copy.ts",
+    "src/lib/server/access-request-email.ts",
+    "src/lib/operator/operator-security-trust-page-copy.ts",
+    "src/lib/settings-security-trust-evidence-copy.ts"
+  ]
+}

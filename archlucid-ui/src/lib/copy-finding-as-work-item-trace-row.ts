@@ -3,6 +3,12 @@ import {
   findingTrustExportJsonFields,
   formatFindingTrustExportLine,
 } from "@/lib/findings/finding-trust-export";
+import {
+  findingWorkItemDefaultTitle,
+  findingWorkItemHeading,
+  findingWorkItemInspectorLinkLabel,
+  findingWorkItemReviewLinkLabel,
+} from "@/lib/finding-work-item-product-copy";
 
 import {
   na,
@@ -68,7 +74,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
 
   if (format === "jiraWiki") {
     const lines = [
-      `h2. ArchLucid Finding — ${title}`,
+      `h2. ${findingWorkItemHeading(input.productLineId, title)}`,
       "",
       `*Finding ID:* {{${input.findingId}}}`,
       "",
@@ -87,7 +93,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
       reco,
       "",
       "*Links*",
-      `* (${links.runUrl}|ArchLucid review)`,
+      `* (${links.runUrl}|${findingWorkItemReviewLinkLabel(input.productLineId)})`,
       `* (${links.findingUrl}|Finding — explain page)`,
       `* (${links.inspectUrl}|Structured inspector — Why?)`,
     );
@@ -107,7 +113,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     }
 
     return [
-      `Short description: ArchLucid finding — ${title} (${input.findingId})`,
+      `Short description: ${findingWorkItemDefaultTitle(input.productLineId)} — ${title} (${input.findingId})`,
       "",
       "Description:",
       ...descriptionLines,
@@ -119,7 +125,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
       "1. Open the structured inspector link below.",
       `2. ${remediationStep}`,
       "",
-      `ArchLucid inspector link: ${links.inspectUrl}`,
+      `${findingWorkItemInspectorLinkLabel(input.productLineId)}: ${links.inspectUrl}`,
       `Finding ID: ${input.findingId}`,
       `Run ID: ${input.runId}`,
     ].join("\n");
@@ -145,7 +151,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     reco,
     "",
     "### Links",
-    `- ArchLucid review: ${links.runUrl}`,
+    `- ${findingWorkItemReviewLinkLabel(input.productLineId)}: ${links.runUrl}`,
     `- Finding (explain page): ${links.findingUrl}`,
     `- Structured inspector: ${links.inspectUrl}`,
   );

@@ -25,6 +25,7 @@ describe("live-api-private-beta-access loader smoke", () => {
 
     expect(spec).toContain("liveE2ePrivateBetaAccessPlaywrightTimeoutMs");
     expect(spec).toContain("live-api-private-beta-access");
+    expect(spec).toContain("fetchAuthMeWithBearer");
     expect(spec).toContain("test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs())");
   });
 });

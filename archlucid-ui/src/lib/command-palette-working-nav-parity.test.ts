@@ -4,14 +4,14 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
+import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { isWorkingPaletteNavHrefAllowed } from "@/lib/filter-working-palette-nav-hrefs";
 import { BOOKMARK_PERMANENT_REDIRECTS } from "@/lib/next/bookmark-permanent-redirects";
 import { resolveVisibleCommandPaletteHrefActions } from "@/lib/resolve-visible-command-palette-actions";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
-const WORKING_PALETTE_NAV_ALLOWLIST = new Set<string>(["/help", "/help/report-problem"]);
-
-describe("command palette Working nav parity (PC-12 / SD-11)", () => {
-  it("filters Working palette href actions to sidebar-visible destinations plus allowlist", () => {
+describe("command palette Working nav parity (PC-12 / SD-11 / AO-41)", () => {
+  it("filters Working palette href actions to role-allowed destinations", () => {
     const visibleNavHrefs = new Set<string>([
       "/architecture/reviews",
       "/architecture/architectures/new",
@@ -25,14 +25,12 @@ describe("command palette Working nav parity (PC-12 / SD-11)", () => {
     });
 
     for (const action of workingActions) {
-      const allowed =
-        visibleNavHrefs.has(action.href) || WORKING_PALETTE_NAV_ALLOWLIST.has(action.href);
-
-      expect(allowed).toBe(true);
+      expect(isWorkingPaletteNavHrefAllowed(action.href)).toBe(true);
     }
 
     expect(workingActions.some((action) => action.href === "/architecture/reviews")).toBe(true);
     expect(workingActions.some((action) => action.href === "/insights/sponsor-report")).toBe(false);
+    expect(workingActions.some((action) => action.href === EVIDENCE_GRAPH_PATH)).toBe(false);
   });
 
   it("keeps CommandPalette wired to the same visible href set helper as the sidebar", () => {
@@ -40,6 +38,7 @@ describe("command palette Working nav parity (PC-12 / SD-11)", () => {
 
     expect(source).toContain("visibleOperatorShellHrefSetFromNavRows");
     expect(source).toContain("filterNavGroupsForWorkingProfessionalMode");
+    expect(source).toContain("filterWorkingPaletteNavHrefs");
     expect(source).toContain("visibleHrefs");
   });
 

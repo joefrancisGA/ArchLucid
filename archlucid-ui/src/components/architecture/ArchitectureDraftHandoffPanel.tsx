@@ -70,7 +70,7 @@ export function ArchitectureDraftHandoffPanel(
             </Button>
             <ArchitectureDraftCloneSnapshotControl
               draftId={props.draftId}
-              parentArchitectureId={props.parentArchitectureId}
+              parentArchitectureId={props.parentArchitectureId ?? undefined}
               variant="outline"
             />
           </div>
