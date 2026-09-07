@@ -51,6 +51,8 @@ internal static class FindingsOrchestratorComposer
             insightDensityGate,
             timeProvider);
 
+        IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
+
         IFindingsSnapshotEmitStage snapshotEmitStage = new FindingsSnapshotEmitStage(
             NullLogger<FindingsSnapshotEmitStage>.Instance);
 
@@ -59,6 +61,7 @@ internal static class FindingsOrchestratorComposer
             engineInvokeStage,
             insightGeneratorStage,
             mergeAndGateStage,
+            checklistClusterStage,
             snapshotEmitStage);
     }
 }

@@ -62,6 +62,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
             ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
             ["dangling-declaration-reference"] = "Cross-file dangling refs need paired source/target fixtures — not on default golden graphs.",
+            ["checklist-cluster-synthesis"] = "Post-gate synthesis stage — needs clustered ChecklistCoverage fixtures, not graph-only golden cases.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
         };
 

@@ -28,6 +28,7 @@ public static class FindingPayloadRegistry
         [nameof(DeclarationPremiseConflictFindingPayload)] = typeof(DeclarationPremiseConflictFindingPayload),
         [nameof(PortfolioRecurrenceFindingPayload)] = typeof(PortfolioRecurrenceFindingPayload),
         [nameof(SecretsLifecycleFindingPayload)] = typeof(SecretsLifecycleFindingPayload),
+        [nameof(ChecklistClusterSynthesisFindingPayload)] = typeof(ChecklistClusterSynthesisFindingPayload),
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

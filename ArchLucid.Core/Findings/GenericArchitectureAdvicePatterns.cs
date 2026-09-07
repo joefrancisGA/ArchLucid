@@ -731,7 +731,7 @@ public static partial class GenericArchitectureAdvicePatterns
         return false;
     }
 
-    internal static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs)
+    public static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs)
     {
         if (evidenceRefs.Count == 0)
             return false;
@@ -770,6 +770,13 @@ public static partial class GenericArchitectureAdvicePatterns
             string nodeId = trimmed["graph-node:".Length..].Trim();
 
             return IsProductShapedGraphNodeId(nodeId);
+        }
+
+        if (trimmed.StartsWith("finding:", StringComparison.OrdinalIgnoreCase))
+        {
+            string findingId = trimmed["finding:".Length..].Trim();
+
+            return !string.IsNullOrWhiteSpace(findingId);
         }
 
         if (trimmed.StartsWith("aws:arn:", StringComparison.OrdinalIgnoreCase))
