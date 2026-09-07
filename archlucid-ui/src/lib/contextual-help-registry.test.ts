@@ -158,7 +158,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves getting-started Category-1 help (HGX)", () => {
     expect(contextualHelpForPathname("/help/getting-started")?.whatIsThisPage).toContain("Getting started guide");
-    expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("Start a review");
+    expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("architecture identity");
   });
 
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {

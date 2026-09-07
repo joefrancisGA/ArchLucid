@@ -23,7 +23,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
       "docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md",
     ],
     "lastReviewed": "2026-08-09",
-    "releaseApplicability": "product orientation and first review workflow",
+    "releaseApplicability": "product orientation and architecture desk workflow",
     "pdfStatus": "public",
   },
   {

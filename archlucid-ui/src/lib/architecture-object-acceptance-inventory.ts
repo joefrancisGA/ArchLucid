@@ -138,4 +138,9 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/filter-working-palette-nav-hrefs.test.ts",
     marker: "AO-41",
   },
+  {
+    id: "AO-42",
+    relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
+    marker: "AO-42",
+  },
 ];

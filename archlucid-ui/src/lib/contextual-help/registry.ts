@@ -204,7 +204,7 @@ export function contextualHelpForPathname(
 
   const architectureOverride = resolveArchitectureContextualHelpEntry(row.prefix, workingMode);
 
-  if (architectureOverride !== null && ARCHITECTURE_CONTEXTUAL_HELP_ROWS.some((r) => r.prefix === row.prefix)) {
+  if (architectureOverride !== null) {
     return architectureOverride;
   }
 
