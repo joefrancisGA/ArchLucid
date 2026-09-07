@@ -13,8 +13,6 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 internal static class InsightDensityJudgeCandidateSelector
 {
-    internal const int DefaultNoveltyRateWindowDays = 90;
-
     internal static async Task<(IReadOnlyList<Finding> Judged, int SkippedByCap)> SelectEngineJudgedCandidatesAsync(
         IReadOnlyList<Finding> candidates,
         InsightDensityGateOptions options,
@@ -30,7 +28,7 @@ internal static class InsightDensityJudgeCandidateSelector
             && insightSignalRepository is not null
             && scopeContextProvider is not null)
         {
-            noveltyRatesByEngineType = await TryLoadNoveltyRatesAsync(
+            noveltyRatesByEngineType = await InsightDensityNoveltyRateLookup.TryLoadNoveltyRatesAsync(
                 options,
                 insightSignalRepository,
                 scopeContextProvider,
@@ -56,7 +54,7 @@ internal static class InsightDensityJudgeCandidateSelector
         if (noveltyRatesByEngineType is not null)
         {
             orderedQuery = orderedQuery.ThenByDescending(finding =>
-                ResolveNoveltyRate(finding.EngineType, noveltyRatesByEngineType));
+                InsightDensityNoveltyRateLookup.ResolveNoveltyRate(finding.EngineType, noveltyRatesByEngineType));
         }
 
         List<Finding> ordered = orderedQuery
@@ -80,77 +78,5 @@ internal static class InsightDensityJudgeCandidateSelector
         return options.PreferHighNoveltyEngines
             && options.EnableLlmJudge
             && options.EnableLlmJudgeForEngineFindings;
-    }
-
-    private static async Task<IReadOnlyDictionary<string, double>?> TryLoadNoveltyRatesAsync(
-        InsightDensityGateOptions options,
-        IFindingInsightSignalRepository insightSignalRepository,
-        IScopeContextProvider scopeContextProvider,
-        TimeProvider timeProvider,
-        ILogger logger,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-            if (scope.TenantId == Guid.Empty)
-            {
-                return null;
-            }
-
-            int windowDays = options.NoveltyRateWindowDays > 0
-                ? options.NoveltyRateWindowDays
-                : DefaultNoveltyRateWindowDays;
-
-            DateTime toUtcExclusive = timeProvider.GetUtcNow().UtcDateTime;
-            DateTime fromUtc = toUtcExclusive.AddDays(-windowDays);
-
-            IReadOnlyList<EngineInsightNoveltyRateRow> rows = await insightSignalRepository.ListNoveltyRatesAsync(
-                scope,
-                fromUtc,
-                toUtcExclusive,
-                cancellationToken);
-
-            Dictionary<string, double> ratesByEngineType = new(StringComparer.OrdinalIgnoreCase);
-
-            foreach (EngineInsightNoveltyRateRow row in rows)
-            {
-                if (string.IsNullOrWhiteSpace(row.EngineType))
-                {
-                    continue;
-                }
-
-                ratesByEngineType[row.EngineType.Trim()] = row.Rate ?? 0;
-            }
-
-            return ratesByEngineType;
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(
-                ex,
-                "Insight-density novelty-rate lookup failed; falling back to default judge-cap ordering.");
-
-            return null;
-        }
-    }
-
-    private static double ResolveNoveltyRate(
-        string? engineType,
-        IReadOnlyDictionary<string, double> noveltyRatesByEngineType)
-    {
-        if (string.IsNullOrWhiteSpace(engineType))
-        {
-            return 0;
-        }
-
-        return noveltyRatesByEngineType.TryGetValue(engineType.Trim(), out double rate)
-            ? rate
-            : 0;
     }
 }
