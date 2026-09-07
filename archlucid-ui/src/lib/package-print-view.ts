@@ -12,6 +12,7 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Document title / H1 for the print stylesheet view. */
 export const PACKAGE_PRINT_PAGE_TITLE = "Architecture review";
@@ -94,6 +95,8 @@ export type PackagePrintPresentation = {
   readonly coverageHonestyLine?: string | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+  readonly transparencyTrail?: TransparencyTrail | null;
+  readonly showQuietEnginesHint?: boolean;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -215,6 +218,8 @@ export function buildPackagePrintPresentation(
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+    readonly transparencyTrail?: TransparencyTrail | null;
+    readonly showQuietEnginesHint?: boolean;
   },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
@@ -243,6 +248,8 @@ export function buildPackagePrintPresentation(
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
+    transparencyTrail: options?.transparencyTrail ?? null,
+    showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

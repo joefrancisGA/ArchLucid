@@ -25,6 +25,7 @@ import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recover
 import {
   formatRunExportLineageStatusLabel,
   isRunExportLineageAttested,
+  RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER,
   verifyRunExportLineage,
 } from "@/lib/exports/run-export-lineage-verify";
 import {
@@ -159,7 +160,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         const verifyResult = await verifyRunExportLineage(runId);
 
         if (!isRunExportLineageAttested(verifyResult)) {
-          setExportVerifyStatus(`Not attested`);
+          setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
           setExportVerifyRecovery(exportVerifyBlockedRecovery(verifyResult));
           return;
         }
@@ -205,12 +206,17 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
   const exportStatusChrome =
     exportVerifyStatus !== null ? (
-      <p
-        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="golden-manifest-export-verify-status"
-      >
-        Export lineage: {exportVerifyStatus}
-      </p>
+      <div className="space-y-1">
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="golden-manifest-export-verify-status"
+        >
+          Export integrity check: {exportVerifyStatus}
+        </p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER}
+        </p>
+      </div>
     ) : null;
 
   const exportRecoveryChrome =

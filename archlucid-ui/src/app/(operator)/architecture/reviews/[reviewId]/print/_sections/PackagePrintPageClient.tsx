@@ -19,6 +19,7 @@ import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-arti
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
@@ -126,6 +127,15 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         ? coverageHonestyLine
         : null,
     meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
+    transparencyTrail:
+      workingDesk && coverageHonestyQuery.data !== undefined
+        ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
+        : undefined,
+    showQuietEnginesHint:
+      workingDesk
+      && coverageHonestyQuery.data !== undefined
+      && analysisStagesCompleteOnSummary(summaryQuery.data)
+      && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
