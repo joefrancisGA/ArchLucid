@@ -769,4 +769,53 @@ public sealed class SimpleTerraformDeclarationParserTests
 
         baseline.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ParseAsync_LiteralForEachMap_EmitsOneObjectPerKey()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-for-each",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        for_each = {
+                          k1 = "eastus"
+                          k2 = "westus"
+                        }
+                        location = "eastus"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Select(o => o.Name).Should().BeEquivalentTo(["docs[\"k1\"]", "docs[\"k2\"]"]);
+        result.Should().OnlyContain(o => o.Properties["forEachKey"] == "k1" || o.Properties["forEachKey"] == "k2");
+        result.Should().OnlyContain(o => o.Properties["tf.location"] == "eastus");
+        result.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task ParseAsync_UnresolvedForEachExpression_EmitsSingleBlock()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_storage_account" "docs" {
+                        for_each = var.regions
+                        location = "eastus"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "docs");
+        result[0].Properties.Should().NotContainKey("forEachKey");
+    }
 }

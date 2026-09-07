@@ -15,9 +15,18 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         ArgumentNullException.ThrowIfNull(payload);
 
         NormalizedContextBatch batch = new();
+        Dictionary<string, InfrastructureDeclarationReference> bicepBatchByPath =
+            BicepDeclarationBatchIndex.Build(payload.InfrastructureDeclarations);
+
+        HashSet<string> referencedBicepModulePaths = BicepDeclarationBatchIndex.CollectReferencedModulePaths(
+            payload.InfrastructureDeclarations,
+            bicepBatchByPath);
 
         foreach (InfrastructureDeclarationReference declaration in payload.InfrastructureDeclarations)
         {
+            if (ShouldSkipReferencedBicepModule(declaration, referencedBicepModulePaths))
+                continue;
+
             IInfrastructureDeclarationParser? parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
 
             if (parser is null)
@@ -27,10 +36,25 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
                 continue;
             }
 
-            IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(declaration, ct);
+            IReadOnlyList<CanonicalObject> objects = parser is BicepInfrastructureDeclarationParser bicepParser
+                ? await bicepParser.ParseAsync(declaration, bicepBatchByPath, ct)
+                : await parser.ParseAsync(declaration, ct);
+
             batch.CanonicalObjects.AddRange(objects);
         }
 
         return batch;
+    }
+
+    private static bool ShouldSkipReferencedBicepModule(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> referencedBicepModulePaths)
+    {
+        if (!string.Equals(declaration.Format?.Trim(), "bicep", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string normalizedName = BicepDeclarationBatchIndex.NormalizeLookupKey(declaration.Name);
+
+        return referencedBicepModulePaths.Contains(normalizedName);
     }
 }
