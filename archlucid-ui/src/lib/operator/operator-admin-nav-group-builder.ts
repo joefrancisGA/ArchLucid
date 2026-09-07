@@ -4,6 +4,8 @@ import {
 
   Bell,
 
+  BrainCircuit,
+
   Building2,
 
   Cpu,
@@ -232,7 +234,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           title: "AI models — workspace execution profile, allowed models, and task-to-model mappings",
 
-          icon: ShieldCheck,
+          icon: BrainCircuit,
 
           tier: "extended",
 
