@@ -7077,9 +7077,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
@@ -7098,8 +7098,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `FailedPartial` / numeric-ordinal terminal statuses masked as InProgress when progress markers precede terminal resolution — **disproved 2026-09-07 (#1203):** #1168 ordering already resolves terminal failures before progress markers (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, `TryParseStatus_parses_numeric_ordinal_for_failed_partial`)
 - [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with active `LegacyRunStatus` (`WaitingForResults`, `TasksGenerated`, `ReadyForCommit`, `Retrying`) but no progress markers returned `NotStarted` — **hit 2026-09-07 seed hunt #1271:** list/export/replay surfaces diverged from operation projector Running/Pending semantics; fixed via `TryResolveInProgressLegacyStatus` (`ResolveFromRunHeader_waiting_for_results_without_progress_markers_returns_in_progress_not_not_started`)
 - [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with `PartiallyCompleted` legacy status but no progress markers returned `NotStarted` instead of `Failed` — **hit 2026-09-07 seed hunt #1271:** TB-937 partial-run terminal treated as not-started on authority list; fixed by extending `TryResolveTerminalFailurePhase` (`ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started`)
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` ignores JSON array payloads (`[...]`) even when elements carry `failureClass: PipelineDeadLetter` — writers persist object-shaped summaries only; no failing repro in zone yet.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — empty fixture divergence only; no operator-facing wrong outcome reproduced in zone yet.
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` ignores JSON array payloads (`[...]`) even when elements carry `failureClass: PipelineDeadLetter` — **disproved 2026-09-07 (#1272):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter writers persist object-shaped summaries only; no array-root writer in repo (`IsDeadLettered_returns_false_for_json_array_root_even_when_element_has_pipeline_dead_letter`)
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — **disproved 2026-09-07 (#1272):** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks whitespace-only persisted values; list/export uses `ResolveFromRunHeader` only (`TryParseStatus_coerces_whitespace_only_legacy_status_to_created`, `ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only`)
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens; no writer emits array-valued failureClass via `AgentExecutionFailureSummaryJson.Serialize`.
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks; operator list may disagree with detail-only retry semantics if retry rows retain stale snapshots.
+
+2026-09-07 thorough hunt #1272 (dry): cheap-disproof closed both open candidates from #1271; 29 scoped unit tests passed; reseeded array-valued failureClass and Retrying+snapshot lifecycle candidates.
 
 2026-09-07 seed hunt #1271 (hit): reseeded zone; proved active/partial legacy statuses without progress markers misclassified on list/export lifecycle phase; seeded array-root dead-letter and blank-status divergence candidates.
 

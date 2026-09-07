@@ -42,4 +42,13 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeTrue();
         status.Should().Be(ArchitectureRunStatus.FailedPartial);
     }
+
+    [Fact]
+    public void TryParseStatus_coerces_whitespace_only_legacy_status_to_created()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("   ", out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
 }

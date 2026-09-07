@@ -175,4 +175,20 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa03"),
+            LegacyRunStatus = "   ",
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        // SQL CK_Runs_LegacyRunStatus allowlist rejects whitespace-only LegacyRunStatus on persisted rows.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.NotStarted);
+    }
 }
