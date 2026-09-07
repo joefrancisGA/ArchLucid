@@ -944,13 +944,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — security/cost trade-off attached to first matching recommendation instead of primary dimension
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -958,8 +958,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Alternative list duplicates the primary recommendation as if it were distinct
 - [x] Engine emits a must-change when evidence only supports a suggestion (proven)
 - [x] (proven) Unverified/indeterminate findings still emit production-control alternatives — **hit 2026-08-23:** `ArchitectureRecommendationAlternatives.Build` ignored `ProvenancePresentationMapper` and returned private-network/API-gateway paths while `ProposedChange` asked to collect evidence first
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — competing-dimension trade-off attaches to `recommendations.First` list order instead of the primary dimension recommendation — **hit 2026-09-07 seed hunt #1283:** when Cost preceded Security in finding order, Security/Cost trade-off landed on the Cost card and the Security recommendation had no trade-off; fixed by resolving the target recommendation via primary dimension first; regression in `ArchitectureRecommendationTradeOffBuilderTests`
+- [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — hypothesis-tier (`SystemProposed`) Fail findings still emit production-control copy — **valid-no-repro 2026-09-07 seed hunt #1283:** Fail + `EvidenceCondition.Sufficient` is an intentional must-change path; only `ProvenancePresentationBucket.Unverified` (including Indeterminate) gates evidence-first copy
+- [ ] (candidate) `ArchitectureRecommendationAlternatives.Build` — security trust-boundary branch keys on title substring only, so non-public trust-boundary gaps can still receive public-exposure remediation alternatives while `ProposedChange` stays generic — no failing repro in zone yet
 
----
+2026-09-07 seed hunt #1283 (hit): reseeded architecture-recommendation zone; proved trade-off attachment order bug; disproved hypothesis-tier must-change gap; seeded trust-boundary alternative mismatch candidate.
 
 ## Zone: extraction-router
 
