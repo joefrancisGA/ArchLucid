@@ -528,6 +528,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "ready-for-sponsor-packet",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 

@@ -60,6 +60,8 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 
 **01–35 are done** (do not paste those files to re-do the work).
 
+**26–35 recommended order:** cheap compounding first (**26, 30, 32**), then **31**, **29**, **28**, **27**, **33**, then ratchets (**34** last, after an unguarded baseline exists). **35** can run anytime as a docs/audit script (no product-code dependency).
+
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
 | 01 | `al-bug-quality-01-azure-extractor-redactor.md` | Azure ARM property redactor fail-open |

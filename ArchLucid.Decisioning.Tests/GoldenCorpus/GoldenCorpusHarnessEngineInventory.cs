@@ -61,6 +61,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
             ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
             ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
+            ["dangling-declaration-reference"] = "Cross-file dangling refs need paired source/target fixtures — not on default golden graphs.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
         };
 

@@ -1,12 +1,19 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import {
+  resetGovernanceWorkflowVitestNavigation,
+  scopeGovernanceWorkflowVitestReview,
+} from "@/testing/governance-workflow-vitest-navigation";
+
+const governanceWorkflowVitestNavigation = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
 
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import { GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS } from "@/lib/governance/governance-workflow-section-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),
@@ -45,7 +52,7 @@ vi.mock("@/lib/operator/operator-static-demo", async (importOriginal) => {
 vi.mock("next/navigation", () => ({
   usePathname: (): string => "/governance/approval-queue",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useSearchParams: (): URLSearchParams => governanceWorkflowVitestNavigation.searchParams,
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -144,7 +151,7 @@ import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
 
 const approvedRequest: GovernanceApprovalRequest = {
   approvalRequestId: "claims-intake-approval-001",
-  runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+  runId: "gov-ui-shape-run",
   manifestVersion: "3.4.1",
   sourceEnvironment: "dev",
   targetEnvironment: "test",
@@ -161,6 +168,7 @@ describe("GovernanceWorkflowPageContent approval state", () => {
   useOperatorQueryTestLifecycle();
 
   beforeEach(() => {
+    resetGovernanceWorkflowVitestNavigation(governanceWorkflowVitestNavigation);
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
@@ -197,6 +205,7 @@ describe("GovernanceWorkflowPageContent approval state", () => {
   });
 
   it("renders the governance job router triad with Approval queue current (TB-2230)", async () => {
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
     renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
 
     const strip = await screen.findByTestId("governance-job-router");
@@ -216,10 +225,8 @@ describe("GovernanceWorkflowPageContent approval state", () => {
   });
 
   it("shows no-request guidance without completion messaging when a review has no approval history", async () => {
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
     renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
-
-    fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
-    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(() => {
       expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
@@ -235,13 +242,12 @@ describe("GovernanceWorkflowPageContent approval state", () => {
 
   it("shows supporting approval request history when an approved request exists", async () => {
     apiHoisted.listApprovalRequests.mockResolvedValue([approvedRequest]);
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
     renderWithOperatorQuery(<GovernanceWorkflowPageContent />);
-
-    fireEvent.change(screen.getByLabelText("Review"), { target: { value: SHOWCASE_STATIC_DEMO_RUN_ID } });
-    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(() => {
       expect(screen.getByTestId("governance-approval-requests-section")).toBeInTheDocument();
+      expect(screen.getByText(/Taylor Morgan/i)).toBeInTheDocument();
     });
 
     expect(screen.queryByText("No approval requests for this review")).not.toBeInTheDocument();

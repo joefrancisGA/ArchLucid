@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildOperationalErrorsTableClipboardText,
   rowMatchesOperationalErrorFilters,
   truncateOperationalErrorMessage,
   type OperationalErrorRow,
@@ -42,5 +43,22 @@ describe("operational-errors-presentation", () => {
     expect(
       rowMatchesOperationalErrorFilters(sampleRow, "DatabaseError", "all", "", ""),
     ).toBe(false);
+  });
+
+  it("builds clipboard text with full row values and csv escaping", () => {
+    const rowWithQuotes: OperationalErrorRow = {
+      ...sampleRow,
+      message: 'Must declare the scalar variable "@tenantId".',
+      correlationId: "corr-123",
+      tenantId: "tenant-abc",
+    };
+
+    const clipboardText = buildOperationalErrorsTableClipboardText([rowWithQuotes, sampleRow]);
+
+    expect(clipboardText.startsWith("Occurred (UTC),Category,Status,Path,Message,Correlation,Tenant")).toBe(true);
+    expect(clipboardText).toContain('"Must declare the scalar variable ""@tenantId""."');
+    expect(clipboardText).toContain("corr-123");
+    expect(clipboardText).toContain("tenant-abc");
+    expect(clipboardText.split("\n")).toHaveLength(3);
   });
 });

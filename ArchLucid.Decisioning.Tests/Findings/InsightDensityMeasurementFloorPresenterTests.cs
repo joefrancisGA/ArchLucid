@@ -12,8 +12,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(39);
-        presentation.HarnessEngineCount.Should().Be(16);
+        presentation.CatalogEngineCount.Should().Be(46);
+        presentation.HarnessEngineCount.Should().Be(32);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
 
@@ -37,7 +37,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
 
         presentation.MeasuredThisRunEngineCount.Should().Be(0);
         presentation.MeetsCareerExportFloor.Should().BeFalse();
-        presentation.Sentence.Should().Contain("0 of 39");
+        presentation.Sentence.Should().Contain("0 of 46");
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     public void Present_harness_floor_meets_career_export_gate()
     {
         InsightDensityMeasurementFloorPresentation presentation =
-            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16);
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 32);
 
         presentation.MeetsCareerExportFloor.Should().BeTrue();
         presentation.Sentence.Should().NotContain("analytically incomplete");
@@ -112,7 +112,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     [Fact]
     public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
     {
-        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(16).Should().BeNull();
+        InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(32).Should().BeNull();
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         string? reason = InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(null);
 
         reason.Should().Contain("not been measured");
-        reason.Should().Contain("16");
+        reason.Should().Contain("32");
     }
 
     [Fact]
