@@ -73,4 +73,20 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
 
         phase.Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_dead_lettered_with_forward_compatible_schema_version_returns_failed()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            ContextSnapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            LastFailureReason = """{"schemaVersion":2,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header);
+
+        phase.Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
 }
