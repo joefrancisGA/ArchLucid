@@ -62,6 +62,10 @@ vi.mock("@/hooks/use-pinned-review-context", () => ({
   usePinnedReviewContext: () => pinnedReviewContextMock,
 }));
 
+vi.mock("@/hooks/use-oidc-session-keepalive", () => ({
+  useOidcSessionKeepalive: vi.fn(),
+}));
+
 const RUN_ID = "run-abc";
 
 const workspacePanels = {

@@ -10,6 +10,7 @@ import {
   ReviewWorkbenchSelectionProvider,
 } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { usePinnedReviewContext } from "@/hooks/use-pinned-review-context";
+import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useReviewDetailWorkspacePresenter } from "@/components/reviews/use-review-detail-workspace-presenter";
 import { useReviewDetailWorkspaceSelection } from "@/components/reviews/use-review-detail-workspace-selection";
 import { useReviewDetailWorkspaceTabs } from "@/components/reviews/use-review-detail-workspace-tabs";
@@ -78,6 +79,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     initialFindingId: tabs.initialFindingId,
     workbenchFocusColumn: tabs.workbenchFocusColumn,
   });
+  useOidcSessionKeepalive(isWorkingMode && !tabs.presenterMode);
 
   const presenterBody =
     props.presenterFindingBody ?? (

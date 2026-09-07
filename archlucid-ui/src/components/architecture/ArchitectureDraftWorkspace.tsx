@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -58,6 +59,7 @@ type ArchitectureDraftWorkspaceProps = {
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
+  useOidcSessionKeepalive(true);
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
   const searchParams = useSearchParams();
