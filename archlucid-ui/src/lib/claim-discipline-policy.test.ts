@@ -148,4 +148,15 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("audit-trail-help")).toBe(true);
     expect(resolveClaimDisciplineForStrip("audit-trail-help", "Not a diligence package.")).toBeUndefined();
   });
+
+  it("omits help-advisory-scans when claim discipline is folded into the page header", () => {
+    expect(shouldOmitClaimDisciplineBand("help-advisory-scans")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-advisory-scans",
+        [{ id: "what-advisory-scans-are-not", title: "Claim discipline" }],
+        "what-advisory-scans-are-not",
+      ),
+    ).toEqual([]);
+  });
 });
