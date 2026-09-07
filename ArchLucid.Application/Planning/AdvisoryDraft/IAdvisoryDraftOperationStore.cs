@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Planning.AdvisoryDraft;
 
 public interface IAdvisoryDraftOperationStore
 {
-    AdvisoryDraftOperationRecord CreatePending(ScopeContext scope);
+    AdvisoryDraftOperationCreateResult CreatePending(ScopeContext scope);
 
     bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record);
 
