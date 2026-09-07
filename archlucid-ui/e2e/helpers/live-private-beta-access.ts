@@ -432,6 +432,55 @@ export async function revokeAdminUserInvite(
   }
 }
 
+/** E2E harness — force invitation expiry for expired-invite recovery UI smoke (TB-797 wave 2). */
+export async function expireAdminUserInvitation(
+  request: APIRequestContext,
+  invitationId: string,
+  expiresUtc: Date = new Date(Date.now() - 60_000),
+): Promise<void> {
+  const trimmedId = invitationId.trim();
+
+  if (trimmedId.length === 0) {
+    throw new Error("expireAdminUserInvitation requires a non-empty invitation id.");
+  }
+
+  const res = await request.post(`${liveApiBase}/v1/e2e/invitations/set-expires`, {
+    headers: liveE2eHarnessHeaders(),
+    data: {
+      invitationId: trimmedId,
+      expiresUtc: expiresUtc.toISOString(),
+    },
+  });
+
+  if (res.status() !== 204) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/e2e/invitations/set-expires failed ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
+/** Non-admin principals must not create invitations (TB-797 wave 2). */
+export async function assertNonAdminCannotInvite(
+  request: APIRequestContext,
+  bearerAccessToken: string,
+  email: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/v1/admin/users/invite`, {
+    headers: liveJsonHeaders(null, bearerAccessToken),
+    data: { email, appRole: "Reader", message: "TB-797 non-admin invite probe" },
+  });
+
+  if (res.status() !== 403) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/admin/users/invite as non-admin expected 403, got ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {
   const res = await request.get(`${liveApiBase}/v1/admin/users/invitations`, {
     headers: liveJsonHeaders(),
