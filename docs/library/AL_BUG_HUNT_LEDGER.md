@@ -7743,11 +7743,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 10
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
+- **hunts:** 11
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — `OperationalErrorRetentionHostedService` ran on every Worker/Combined replica without leader election
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7779,6 +7779,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `trial-lifecycle` container offload drops `TrialLifecycleArchLucidJob` — same dual registration pattern; `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_job_not_scheduler_hosted_service` (2026-09-04).
 - [x] (valid-no-repro) `exec-digest-weekly` / `weekly-architecture-digest` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` exec-digest and weekly-architecture-digest parity, 2026-09-04).
 - [x] (invalid) `ApiRequestUsageEventBatchFlushHostedService` registered on Worker without metering middleware — Worker flush is a harmless no-op on an empty buffer; Api role registers flush where middleware enqueues (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`, 2026-09-04).
+- [x] (proven) `OperationalErrorRetentionHostedService` registered on Worker+Combined without leader election — **hit 2026-09-07 hunt #1256 (seed→hit):** every replica ran retention purge every six hours; fixed with `HostLeaderElectionCoordinator` + `hosted:operational-error-retention-purge`; regressions in `OperationalErrorRetentionHostedService_purges_rows_under_leader_coordinator` and `OperationalErrorRetentionHostedService_constructor_requires_leader_election_coordinator`
+- [x] (valid-no-repro) `sponsor-digest-weekly` / `weekly-sponsor-report` / `compliance-drift-escalation` / `trial-email-scan` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` parity tests added hunt #1256, 2026-09-07)
+- [ ] (candidate) `ScimTokenRotationReminderJob` runs on every Worker/Combined replica without leader election — daily scan inserts `dbo.AdminNotifications` rows; Api-role duplication fixed 2026-08-24 but job lives in Application layer and cannot take `HostLeaderElectionCoordinator` without Host.Core refactor
+
+2026-09-07 seed hunt #1256 (hit): reseeded after 65 commits; proved operational-error retention missing leader election; cheap-disproved four container-offload parity gaps; seeded SCIM rotation multi-replica candidate.
 
 2026-09-02 thorough hunt #427: cheap-disproved all three hosting-role-gate candidates; fixed `TrialLifecycleCompositionModule_registers_trial_lifecycle_services` to use Worker role for preseed assertion.
 
