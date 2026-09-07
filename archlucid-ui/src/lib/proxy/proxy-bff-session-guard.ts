@@ -165,7 +165,7 @@ export function enforceProxyBffSessionGuard(
     };
   }
 
-  if (isMutatingProxyMethod(method)) {
+  if (isMutatingProxyMethod(method) && !skipAnonymousMarketingMutationGuard) {
     if (!isSameOriginProxyRequest(request)) {
       return {
         allowed: false,

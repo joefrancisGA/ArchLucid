@@ -171,6 +171,27 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("allows anonymous marketing mutations with a valid BFF session and no CSRF token", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-marketing-valid-session",
+      "v1/marketing/early-access",
+    );
+
+    expect(result.allowed).toBe(true);
+  });
+
   it("allows same-origin mutations with a valid session and CSRF token", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",

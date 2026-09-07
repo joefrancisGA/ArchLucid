@@ -1626,11 +1626,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 13
-- **bugs-found:** 12
+- **hunts:** 14
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — expired BFF session blocked anonymous marketing proxy POST
+- **last-bug:** 2026-09-07 — valid BFF session CSRF blocked anonymous marketing proxy POST
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1653,7 +1653,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/showcase/{runKey}` — **hit 2026-09-07 (#1250):** `/api/proxy/v1/marketing/showcase/{runKey}` attached `ARCHLUCID_PROXY_BEARER_TOKEN` unlike other anonymous marketing GETs; extended allowlist with `startsWith("v1/marketing/showcase/")`; regression `does not attach server bearer for marketing showcase GET`.
 
 - [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous marketing proxy mutations when a stale HttpOnly BFF cookie was present — **hit 2026-09-07 (#1251):** expired or idle-expired session returned 401 before `isAnonymousMarketingProxyPath` bypass; marketing POSTs (e.g. `/api/proxy/v1/marketing/early-access`) failed for returning visitors; fixed by allowing anonymous marketing paths and clearing stale cookies; regressions in `proxy-bff-session-guard.test.ts` and `forwards anonymous marketing early-access POST when BFF session cookie is expired`.
-- [ ] (candidate) `isAnonymousMarketingProxyPath` remains a manual prefix allowlist — new `[AllowAnonymous]` marketing routes under `/v1/marketing/*` need explicit listing before proxy bearer stripping parity; watch OpenAPI diff on marketing controller changes
+- [x] (valid-no-repro) `isAnonymousMarketingProxyPath` remains a manual prefix allowlist — OpenAPI `/v1/marketing/*` paths in `paths.generated.ts` (early-access, enterprise-comparison.pdf, pricing/quote-request, quick-scan + sample/status, showcase/{runKey}, sponsor-brief.pdf, trust-center/evidence-pack.zip, why-archlucid-pack.pdf) all match `proxy-anonymous-marketing-paths.ts`; UI proxy callers grep to the same set; no uncovered route today — process risk only when new marketing endpoints ship without allowlist update.
+- [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous marketing proxy mutations when a valid BFF session lacked CSRF — **hit 2026-09-07 (#1252):** signed-in visitor with active HttpOnly session got 403 on POST `/api/proxy/v1/marketing/early-access` because LK-07 CSRF gate ran after stale-session bypass; marketing hooks omit BFF CSRF header; fixed by skipping same-origin/CSRF mutation guard on `isAnonymousMarketingProxyPath`; regressions in `proxy-bff-session-guard.test.ts` and `forwards anonymous marketing early-access POST when BFF session cookie is valid but CSRF is omitted`.
+- [ ] (candidate) New `[AllowAnonymous]` marketing routes under `/v1/marketing/*` still require manual `isAnonymousMarketingProxyPath` updates before proxy bearer stripping parity — watch OpenAPI diff on marketing controller changes
+
+2026-09-07 thorough hunt #1252 (hit): cheap-disproof closed allowlist-maintenance candidate (OpenAPI/UI parity complete); proved valid BFF session CSRF blocked public marketing POST; reseeded allowlist-maintenance process candidate.
 
 2026-09-07 seed hunt #1251 (hit): reseeded BFF guard vs anonymous marketing; proved stale session cookie blocked public marketing POST; seeded allowlist-maintenance candidate.
 
