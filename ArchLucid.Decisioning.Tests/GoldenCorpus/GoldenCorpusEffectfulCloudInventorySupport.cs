@@ -14,13 +14,19 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 internal static class GoldenCorpusEffectfulCloudInventorySupport
 {
-    internal static CloudInventoryExtractorPackageDownloadRecord CreateCloudPackage(Guid packageId, string resourcesJson)
+    internal static CloudInventoryExtractorPackageDownloadRecord CreateCloudPackage(
+        Guid packageId,
+        string resourcesJson,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries = null)
     {
+        List<(string Name, string Content)> entries = [("resources.json", resourcesJson)];
+        GoldenCorpusEffectfulInventorySupport.AppendExtraZipEntriesForCloud(entries, extraZipEntries);
+
         return new CloudInventoryExtractorPackageDownloadRecord
         {
             PackageId = packageId,
             OriginalFileName = "cloud-inventory.zip",
-            PackageBytes = BuildZip(("resources.json", resourcesJson)),
+            PackageBytes = BuildZip(entries.ToArray()),
         };
     }
 

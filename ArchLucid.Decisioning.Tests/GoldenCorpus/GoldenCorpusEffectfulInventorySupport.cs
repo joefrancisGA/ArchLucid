@@ -59,13 +59,19 @@ internal static class GoldenCorpusEffectfulInventorySupport
         };
     }
 
-    internal static AzureExtractorPackageDownloadRecord CreateAzurePackage(Guid packageId, string resourcesJson)
+    internal static AzureExtractorPackageDownloadRecord CreateAzurePackage(
+        Guid packageId,
+        string resourcesJson,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries = null)
     {
+        List<(string Name, string Content)> entries = [("resources.json", resourcesJson)];
+        AppendExtraZipEntries(entries, extraZipEntries);
+
         return new AzureExtractorPackageDownloadRecord
         {
             PackageId = packageId,
             OriginalFileName = "inventory.zip",
-            PackageBytes = BuildZip(("resources.json", resourcesJson)),
+            PackageBytes = BuildZip(entries.ToArray()),
         };
     }
 
@@ -103,4 +109,25 @@ internal static class GoldenCorpusEffectfulInventorySupport
 
         return stream.ToArray();
     }
+
+    private static void AppendExtraZipEntries(
+        List<(string Name, string Content)> entries,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries)
+    {
+        if (extraZipEntries is null)
+            return;
+
+        foreach (GoldenCorpusInventoryZipEntryDocument extra in extraZipEntries)
+        {
+            if (string.IsNullOrWhiteSpace(extra.FileName) || string.IsNullOrWhiteSpace(extra.JsonBody))
+                continue;
+
+            entries.Add((extra.FileName.Trim(), extra.JsonBody));
+        }
+    }
+
+    internal static void AppendExtraZipEntriesForCloud(
+        List<(string Name, string Content)> entries,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries) =>
+        AppendExtraZipEntries(entries, extraZipEntries);
 }

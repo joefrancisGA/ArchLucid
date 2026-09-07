@@ -35,7 +35,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **38** engines; **0** appear in this table (≥1 finding across case-01..case-54). **50** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **38** engines; **0** appear in this table (≥1 finding across case-01..case-57). **50** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
@@ -62,7 +62,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **38** engines; **1** appear in this table (≥1 finding across case-01..case-54). **49** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **38** engines; **1** appear in this table (≥1 finding across case-01..case-57). **49** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
