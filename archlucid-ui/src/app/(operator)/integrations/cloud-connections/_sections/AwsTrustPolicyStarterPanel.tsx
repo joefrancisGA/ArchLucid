@@ -16,15 +16,16 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   AWS_TRUST_STARTER_FEDERATION_HEADING,
-  AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS,
-  AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD,
   AWS_TRUST_STARTER_FEDERATION_INTRO_MID,
   AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL,
   AWS_TRUST_STARTER_TRUST_POLICY_HEADING,
   AWS_TRUST_STARTER_TRUST_POLICY_INTRO,
-  AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT,
+  awsTrustStarterFederationIdentifiers,
+  awsTrustStarterFederationIntroLead,
+  awsTrustStarterTrustPolicyReplaceHint,
   buildAwsTrustStarterPolicyTemplate,
 } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
@@ -34,6 +35,19 @@ import { cn } from "@/lib/utils";
 
 /** Federation identifiers and copyable IAM trust-policy starter for AWS identity setup (TB-1765). */
 export function AwsTrustPolicyStarterPanel(): React.ReactElement {
+  const { productLine } = useLocalizedProductCopy();
+  const federationIdentifiers = useMemo(
+    () => awsTrustStarterFederationIdentifiers(productLine),
+    [productLine],
+  );
+  const federationIntroLead = useMemo(
+    () => awsTrustStarterFederationIntroLead(productLine),
+    [productLine],
+  );
+  const trustPolicyReplaceHint = useMemo(
+    () => awsTrustStarterTrustPolicyReplaceHint(productLine),
+    [productLine],
+  );
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const trustPolicyTemplate = useMemo(() => buildAwsTrustStarterPolicyTemplate(), []);
   const awsHelpHref = inAppHelpHref("cloud-connections-aws");
@@ -53,7 +67,7 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
       <div className="space-y-3">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AWS_TRUST_STARTER_FEDERATION_HEADING}</h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD}{" "}
+          {federationIntroLead}{" "}
           <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Connection status
           </Link>{" "}
@@ -77,7 +91,7 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>
             <EnterpriseTableBody>
-              {AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS.map((identifier, index) => (
+              {federationIdentifiers.map((identifier, index) => (
                 <EnterpriseTableRow
                   key={identifier.id}
                   className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
@@ -140,7 +154,7 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
           <code>{trustPolicyTemplate}</code>
         </pre>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT}
+          {trustPolicyReplaceHint}
         </p>
       </div>
     </div>

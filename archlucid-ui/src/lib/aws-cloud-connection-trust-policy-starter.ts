@@ -3,8 +3,15 @@
  * Pairs with help **TB-1237** — `connect-aws-securely-help-content.ts` re-exports these symbols.
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 export const AWS_TRUST_STARTER_IDENTITY_INTRO =
   "Create a read-only IAM role with an OIDC trust policy for ArchLucid's federated identity. Use the federation identifiers and copyable template below, then paste your role ARN into Connection details.";
+
+export function awsTrustStarterIdentityIntro(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, AWS_TRUST_STARTER_IDENTITY_INTRO);
+}
 
 export const AWS_TRUST_STARTER_FEDERATION_HEADING = "Federation identifiers";
 
@@ -18,6 +25,14 @@ export const AWS_TRUST_STARTER_FEDERATION_INTRO_MID = "or the";
 /** Closing clause after the AWS help link in the federation intro. */
 export const AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL =
   "when values are environment-specific.";
+
+export function awsTrustStarterFederationIntroLead(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD);
+}
+
+export function awsTrustStarterTrustPolicyReplaceHint(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT);
+}
 
 /** @deprecated Render {@link AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD} with links in AwsTrustPolicyStarterPanel instead. */
 export const AWS_TRUST_STARTER_FEDERATION_INTRO = `${AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD} Assurance status or the in-product AWS connection security review ${AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}`;
@@ -60,6 +75,15 @@ export const AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS: readonly AwsTrustStarterF
     isPlaceholder: true,
   },
 ] as const;
+
+export function awsTrustStarterFederationIdentifiers(
+  productLineId: ProductLineId = "architecture",
+): readonly AwsTrustStarterFederationIdentifier[] {
+  return AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS.map((identifier) => ({
+    ...identifier,
+    hint: localizeProductCopy(productLineId, identifier.hint),
+  }));
+}
 
 export const AWS_TRUST_STARTER_TRUST_POLICY_HEADING = "IAM trust policy template";
 

@@ -5,6 +5,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 import { gcpConnectionStatusTagKind } from "@/lib/gcp-connection-present";
@@ -66,57 +67,69 @@ function GcpCloudConnectionPageHeader(): React.ReactElement {
   );
 }
 
+function GcpCloudConnectionDetailBody(): React.ReactElement {
+  const { productLine, localize } = useLocalizedProductCopy();
+
+  return (
+    <>
+      <CloudProviderDetailLayout
+        providerLabel="GCP"
+        overview={
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            {localize(
+              "Connect a GCP project for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no downloadable service-account JSON keys.",
+            )}
+          </p>
+        }
+        securityPreflight={
+          <CloudSecurityPreflightPanel
+            topics={cloudSecurityPreflightTopics("gcp", productLine)}
+            providerLabel="GCP"
+            collapsedByDefault
+          />
+        }
+        identitySetup={
+          <div className="space-y-4">
+            <p className={OPERATOR_TYPOGRAPHY.body}>{localize(GCP_WIF_STARTER_IDENTITY_INTRO)}</p>
+            <GcpWifStarterPanel />
+          </div>
+        }
+        connectionDetails={<GcpConnectionSection embedded />}
+        validateConnection={<GcpConnectionValidatePanel />}
+        recentActivity={<GcpConnectionRecentActivityPanel />}
+        technicalDetails={
+          <CloudSecurityPreflightTechnicalDetails>
+            <p>
+              {localize(
+                "GCP Workload Identity Federation binds ArchLucid's hosted identity to your service account without downloadable JSON keys.",
+              )}
+            </p>
+            <p>
+              <Link href={inAppHelpHref("cloud-connections-gcp")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                View setup guide
+              </Link>
+            </p>
+          </CloudSecurityPreflightTechnicalDetails>
+        }
+      />
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="cloud-connections-gcp"
+        claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
+        sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+        sources={cloudProviderConnectionSources("gcp")}
+        claimElement="aside"
+        sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
+      />
+    </>
+  );
+}
+
 export function GcpCloudConnectionDetailClient() {
   return (
     <GcpConnectionDataProvider>
       <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cloud-connection-detail-gcp">
         <GcpCloudConnectionPageHeader />
-        <CloudProviderDetailLayout
-          providerLabel="GCP"
-          overview={
-            <p className={OPERATOR_TYPOGRAPHY.body}>
-              Connect a GCP project for scheduled read-only inventory collection. ArchLucid stores connection metadata
-              only — no downloadable service-account JSON keys.
-            </p>
-          }
-          securityPreflight={
-            <CloudSecurityPreflightPanel
-              topics={cloudSecurityPreflightTopics("gcp")}
-              providerLabel="GCP"
-              collapsedByDefault
-            />
-          }
-          identitySetup={
-            <div className="space-y-4">
-              <p className={OPERATOR_TYPOGRAPHY.body}>{GCP_WIF_STARTER_IDENTITY_INTRO}</p>
-              <GcpWifStarterPanel />
-            </div>
-          }
-          connectionDetails={<GcpConnectionSection embedded />}
-          validateConnection={<GcpConnectionValidatePanel />}
-          recentActivity={<GcpConnectionRecentActivityPanel />}
-          technicalDetails={
-            <CloudSecurityPreflightTechnicalDetails>
-              <p>
-                GCP Workload Identity Federation binds ArchLucid&apos;s hosted identity to your service account without
-                downloadable JSON keys.
-              </p>
-              <p>
-                <Link href={inAppHelpHref("cloud-connections-gcp")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                  View setup guide
-                </Link>
-              </p>
-            </CloudSecurityPreflightTechnicalDetails>
-          }
-        />
-        <EvidenceOrientationClaimAndSourcesStrip
-          slug="cloud-connections-gcp"
-          claim={CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE}
-          sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
-          sources={cloudProviderConnectionSources("gcp")}
-          claimElement="aside"
-          sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-        />
+        <GcpCloudConnectionDetailBody />
       </OperatorPageContainer>
     </GcpConnectionDataProvider>
   );
