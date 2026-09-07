@@ -57,7 +57,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
     callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
   const showMoreMenu = showAuthorityThemeToggle;
-  const showAnalysisModeTopBarChip = productLine !== "security";
+  const showDevAnalysisTopBarChrome = productLine !== "security";
 
   useSearchShortcut();
 
@@ -118,7 +118,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
               <GuidedModeTopBarChip />
-              {showAnalysisModeTopBarChip ? <SimulatorModeTopBarChip /> : null}
+              {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
                 aria-label={OPERATOR_HELP_ARIA_LABEL}

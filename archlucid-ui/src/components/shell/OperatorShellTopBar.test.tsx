@@ -230,7 +230,7 @@ describe("OperatorShellTopBar", () => {
     );
   });
 
-  it("hides the analysis mode top bar chip in the Security product shell", async () => {
+  it("hides dev and analysis top bar chrome in the Security product shell", async () => {
     productLineMock.value = "security";
     devTestingOverridesMock.enabled = true;
 
@@ -240,8 +240,8 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
     expect(screen.queryByTestId("dev-environment-top-bar-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
   });
 
   it("hides the AI budget pill when remaining budget is healthy", async () => {
