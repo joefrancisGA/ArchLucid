@@ -44,4 +44,36 @@ public sealed class DeskContinuityValuesTests
         continuity.LastOpenDraftId.Should().BeNull();
         continuity.LastVisitWatermarkUtc.Should().BeNull();
     }
+
+    [Fact]
+    public void ApplyReadBackfill_promotes_architecture_id_from_review_lookup_without_dropping_child()
+    {
+        DeskContinuityDto legacy = new()
+        {
+            LastOpenReviewId = "run-42",
+            LastOpenDraftId = "draft-9",
+            LastVisitWatermarkUtc = "2026-09-05T12:00:00Z",
+        };
+
+        DeskContinuityDto backfilled = DeskContinuityValues.ApplyReadBackfill(legacy, "arch-locator-1");
+
+        backfilled.LastOpenArchitectureId.Should().Be("arch-locator-1");
+        backfilled.LastOpenReviewId.Should().Be("run-42");
+        backfilled.LastOpenDraftId.Should().Be("draft-9");
+        backfilled.LastVisitWatermarkUtc.Should().Be("2026-09-05T12:00:00Z");
+    }
+
+    [Fact]
+    public void ApplyReadBackfill_leaves_continuity_unchanged_when_locator_already_set()
+    {
+        DeskContinuityDto continuity = new()
+        {
+            LastOpenArchitectureId = "arch-existing",
+            LastOpenReviewId = "run-42",
+        };
+
+        DeskContinuityDto backfilled = DeskContinuityValues.ApplyReadBackfill(continuity, "arch-other");
+
+        backfilled.LastOpenArchitectureId.Should().Be("arch-existing");
+    }
 }
