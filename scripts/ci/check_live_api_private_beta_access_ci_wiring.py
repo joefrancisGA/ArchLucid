@@ -11,6 +11,7 @@ from pathlib import Path
 _CI_REL = ".github/workflows/ci.yml"
 _PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
 _SPEC = "live-api-private-beta-access.spec.ts"
+_INVITE_FLOW_SPEC = "live-api-invite-flow.spec.ts"
 _CLIENT_REL = "archlucid-ui/e2e/helpers/live-api-client.ts"
 _PRIVATE_BETA_TIMEOUT_FN = "liveE2ePrivateBetaAccessPlaywrightTimeoutMs"
 _LEGACY_RUN_CYCLE_TIMEOUT_FN = "liveE2eArchitectureRunCyclePlaywrightTimeoutMs"
@@ -407,6 +408,12 @@ def main(argv: list[str] | None = None) -> int:
             errors.append(
                 f"{_PUSH_REL}: must not wait on {_FULL_REGRESSION_NEED} "
                 "(invite-wave path must start without full ci.yml regression)",
+            )
+
+        if _INVITE_FLOW_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_INVITE_FLOW_SPEC} on trunk push "
+                "(admin invite round-trip guards private-beta invite surfaces)",
             )
 
     retrigger_path = root / _RETRIGGER_SCRIPT

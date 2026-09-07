@@ -19,6 +19,7 @@ import {
   listPendingInvitations,
   provisionE2ePlatformUserPreAuth,
   readRoleClaims,
+  revokeAdminUserInvite,
   stubEmptyArchitectureDraftListRoute,
   validateInvitationToken,
   LIVE_E2E_DEFAULT_PROJECT_ID,
@@ -106,6 +107,63 @@ test.describe(
     await expect(page.getByTestId("operator-access-denied-heading")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("operator-access-denied-return-sign-in")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("operator-access-denied-use-different-account")).toBeVisible({ timeout: 30_000 });
+    });
+
+    test("signed-in /me 403 surfaces wrong-tenant supplement and Report Problem", async ({ page }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+    const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+    await primeJwtBrowserSession(page, accessToken);
+    await page.route("**/api/proxy/api/auth/me**", async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+
+        return;
+      }
+
+      await route.fulfill({
+        status: 403,
+        contentType: "application/json",
+        body: "{}",
+      });
+    });
+
+    await page.goto("/403", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByTestId("operator-access-denied-supplement")).toContainText(
+      "not authorized for the selected tenant",
+      { timeout: 30_000 },
+    );
+    await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
+    });
+
+    test("revoked invitation token surfaces recovery copy and Report Problem on /auth/invite", async ({
+      page,
+      request,
+    }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+    requireLivePrivateBetaJwtEnv();
+
+    const inviteEmail = `e2e-beta-revoked-${Date.now()}@example.com`;
+    const invite = await createAdminUserInvite(request, inviteEmail);
+
+    await revokeAdminUserInvite(request, invite.id);
+
+    const validation = await validateInvitationToken(request, invite.invitationToken);
+
+    expect(validation.status).toBe("Revoked");
+
+    await page.goto(`/auth/invite?token=${encodeURIComponent(invite.invitationToken)}`, {
+      waitUntil: "domcontentloaded",
+    });
+
+    await expect(page.getByTestId("invitation-invalid-alert")).toContainText("no longer active", {
+      timeout: 30_000,
+    });
+    await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("invitation-secondary-sign-in-again")).toBeVisible({ timeout: 30_000 });
     });
 
   test.describe("browser journeys", () => {
@@ -326,6 +384,52 @@ test.describe(
 
     test.info().annotations.push({ type: "e2e-beta-invitee-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-invitee-platform-user-id", description: preAuth.platformUserId });
+    });
+
+    test("Reader invitee accept → first-review-guide under invitee principal (TB-927)", async ({
+      page,
+      request,
+    }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+    requireLivePrivateBetaJwtEnv();
+
+    const inviteeEmail = `e2e-beta-reader-${Date.now()}@example.com`;
+    const invite = await createAdminUserInvite(request, inviteeEmail, { appRole: "Reader" });
+
+    const validation = await validateInvitationToken(request, invite.invitationToken);
+
+    expect(validation.status).toBe("Valid");
+    expect(validation.appRole).toBe("Reader");
+
+    const preAuth = await provisionE2ePlatformUserPreAuth(request, inviteeEmail);
+    const inviteeSession = await acceptInvitationAsPlatformUser(
+      request,
+      preAuth.preAuthAccessToken,
+      invite.id,
+      invite.invitationToken,
+    );
+
+    expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
+
+    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+
+    const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
+    const directRoles = readRoleClaims(meDirect.claims);
+
+    expect(directRoles.map((role) => role.toLowerCase())).toContain("reader");
+
+    const me = await fetchAuthMeViaProxy(page, inviteeSession.accessToken);
+    const roles = readRoleClaims(me.claims);
+
+    expect(roles.map((role) => role.toLowerCase())).toContain("reader");
+
+    test.info().annotations.push({
+      type: "e2e-beta-reader-platform-user-id",
+      description: preAuth.platformUserId,
+    });
     });
   });
 });

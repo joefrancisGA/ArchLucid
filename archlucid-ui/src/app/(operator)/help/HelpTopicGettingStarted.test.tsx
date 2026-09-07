@@ -19,6 +19,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/getting-started",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
