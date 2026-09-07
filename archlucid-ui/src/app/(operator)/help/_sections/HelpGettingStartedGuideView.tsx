@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
@@ -34,6 +35,14 @@ import {
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
 } from "@/lib/getting-started-help-guide-content";
+import {
+  gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
+  parseGettingStartedEvaluatingArchitectureOpenFromSearch,
+} from "@/lib/help/getting-started-evaluating-architecture-disclosure-url";
+import {
+  gettingStartedTechnicalDetailsDisclosureHrefFromSearch,
+  parseGettingStartedTechnicalDetailsOpenFromSearch,
+} from "@/lib/help/getting-started-technical-details-disclosure-url";
 import { evaluatingProductHelpSectionTitle } from "@/lib/help/help-product-copy";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
@@ -139,8 +148,67 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
 /** Buyer-safe onboarding guide for `/help/getting-started`. */
 export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const gettingStartedEvaluatingArchitectureOpenParam = searchParams.get("gettingStartedEvaluatingArchitectureOpen");
+  const gettingStartedTechnicalDetailsOpenParam = searchParams.get("gettingStartedTechnicalDetailsOpen");
+  const [evaluatingArchitectureOpen, setEvaluatingArchitectureOpenState] = useState(() =>
+    parseGettingStartedEvaluatingArchitectureOpenFromSearch(gettingStartedEvaluatingArchitectureOpenParam),
+  );
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseGettingStartedTechnicalDetailsOpenFromSearch(gettingStartedTechnicalDetailsOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { isWorkingMode } = useWorkspaceMode();
+
+  const syncEvaluatingArchitectureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setEvaluatingArchitectureOpen = useCallback(
+    (open: boolean) => {
+      setEvaluatingArchitectureOpenState(open);
+      syncEvaluatingArchitectureOpenToUrl(open);
+    },
+    [syncEvaluatingArchitectureOpenToUrl],
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        gettingStartedTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setEvaluatingArchitectureOpenState(
+      parseGettingStartedEvaluatingArchitectureOpenFromSearch(gettingStartedEvaluatingArchitectureOpenParam),
+    );
+  }, [gettingStartedEvaluatingArchitectureOpenParam]);
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseGettingStartedTechnicalDetailsOpenFromSearch(gettingStartedTechnicalDetailsOpenParam),
+    );
+  }, [gettingStartedTechnicalDetailsOpenParam]);
   const { localize, productLine } = useLocalizedProductCopy();
   const diagramTitle = howProductWorksTitle(productLine);
   const guideHeadings = useMemo(
@@ -212,6 +280,10 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             <details
               className={HELP_PAGE_LAYOUT.details}
               data-testid="getting-started-evaluating-architecture-section"
+              open={evaluatingArchitectureOpen}
+              onToggle={(event) => {
+                setEvaluatingArchitectureOpen((event.currentTarget as HTMLDetailsElement).open);
+              }}
             >
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {evaluatingProductHelpSectionTitle(productLine)}
@@ -340,6 +412,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
             summary={GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
             bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
+            open={technicalDetailsOpen}
+            onOpenChange={setTechnicalDetailsOpen}
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY)}</p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
 import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
@@ -40,6 +42,18 @@ import {
   resolveHelpPageContentGridClass,
 } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import {
+  corePilotActorIntakeDisclosureHrefFromSearch,
+  parseCorePilotActorIntakeOpenFromSearch,
+} from "@/lib/help/core-pilot-actor-intake-disclosure-url";
+import {
+  corePilotGuideVocabularyDisclosureHrefFromSearch,
+  parseCorePilotGuideVocabularyOpenFromSearch,
+} from "@/lib/help/core-pilot-guide-vocabulary-disclosure-url";
+import {
+  corePilotWhatGuideCoversDisclosureHrefFromSearch,
+  parseCorePilotWhatGuideCoversOpenFromSearch,
+} from "@/lib/help/core-pilot-what-guide-covers-disclosure-url";
 
 type HelpCorePilotGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -60,9 +74,24 @@ function HelpDisclosure(props: {
   readonly title: string;
   readonly children: ReactNode;
   readonly testId?: string;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }): React.ReactElement {
+  const controlled = props.open !== undefined && props.onOpenChange !== undefined;
+
   return (
-    <details className={HELP_PAGE_LAYOUT.details} data-testid={props.testId}>
+    <details
+      className={HELP_PAGE_LAYOUT.details}
+      data-testid={props.testId}
+      open={controlled ? props.open : undefined}
+      onToggle={
+        controlled
+          ? (event) => {
+              props.onOpenChange?.((event.currentTarget as HTMLDetailsElement).open);
+            }
+          : undefined
+      }
+    >
       <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</summary>
       <div className={cn(HELP_PAGE_LAYOUT.detailsBody, OPERATOR_TYPOGRAPHY.body)}>{props.children}</div>
     </details>
@@ -72,12 +101,93 @@ function HelpDisclosure(props: {
 /** Guided first-review workflow for `/help/first-architecture-review` — action-oriented, not prose documentation. */
 export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const corePilotGuideVocabularyOpenParam = searchParams.get("corePilotGuideVocabularyOpen");
+  const corePilotWhatGuideCoversOpenParam = searchParams.get("corePilotWhatGuideCoversOpen");
+  const corePilotActorIntakeOpenParam = searchParams.get("corePilotActorIntakeOpen");
+  const [guideVocabularyOpen, setGuideVocabularyOpenState] = useState(() =>
+    parseCorePilotGuideVocabularyOpenFromSearch(corePilotGuideVocabularyOpenParam),
+  );
+  const [whatGuideCoversOpen, setWhatGuideCoversOpenState] = useState(() =>
+    parseCorePilotWhatGuideCoversOpenFromSearch(corePilotWhatGuideCoversOpenParam),
+  );
+  const [actorIntakeOpen, setActorIntakeOpenState] = useState(() =>
+    parseCorePilotActorIntakeOpenFromSearch(corePilotActorIntakeOpenParam),
+  );
   const { isWorkingMode } = useWorkspaceMode();
   const summaryTitle = resolveCorePilotHelpSummaryTitle(isWorkingMode);
   const summaryCopy = resolveCorePilotHelpSummaryCopy(isWorkingMode);
   const deskPrimaryActions = resolveHelpWorkingDeskPrimaryActions();
   const contentGridClass = resolveHelpPageContentGridClass(CORE_PILOT_HELP_GUIDE_HEADINGS.length);
   const showSectionNav = CORE_PILOT_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+
+  const syncGuideVocabularyOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        corePilotGuideVocabularyDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setGuideVocabularyOpen = useCallback(
+    (open: boolean) => {
+      setGuideVocabularyOpenState(open);
+      syncGuideVocabularyOpenToUrl(open);
+    },
+    [syncGuideVocabularyOpenToUrl],
+  );
+
+  const syncWhatGuideCoversOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        corePilotWhatGuideCoversDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setWhatGuideCoversOpen = useCallback(
+    (open: boolean) => {
+      setWhatGuideCoversOpenState(open);
+      syncWhatGuideCoversOpenToUrl(open);
+    },
+    [syncWhatGuideCoversOpenToUrl],
+  );
+
+  const syncActorIntakeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        corePilotActorIntakeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setActorIntakeOpen = useCallback(
+    (open: boolean) => {
+      setActorIntakeOpenState(open);
+      syncActorIntakeOpenToUrl(open);
+    },
+    [syncActorIntakeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setGuideVocabularyOpenState(parseCorePilotGuideVocabularyOpenFromSearch(corePilotGuideVocabularyOpenParam));
+  }, [corePilotGuideVocabularyOpenParam]);
+
+  useEffect(() => {
+    setWhatGuideCoversOpenState(parseCorePilotWhatGuideCoversOpenFromSearch(corePilotWhatGuideCoversOpenParam));
+  }, [corePilotWhatGuideCoversOpenParam]);
+
+  useEffect(() => {
+    setActorIntakeOpenState(parseCorePilotActorIntakeOpenFromSearch(corePilotActorIntakeOpenParam));
+  }, [corePilotActorIntakeOpenParam]);
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-core-pilot-guide">
@@ -94,7 +204,14 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
       </header>
 
       {isWorkingMode ? (
-        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-evaluating-architecture-section">
+        <details
+          className={HELP_PAGE_LAYOUT.details}
+          data-testid="core-pilot-evaluating-architecture-section"
+          open={guideVocabularyOpen}
+          onToggle={(event) => {
+            setGuideVocabularyOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
           </summary>
@@ -110,7 +227,14 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           </div>
         </details>
       ) : (
-        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-guide-vocabulary-disclosure">
+        <details
+          className={HELP_PAGE_LAYOUT.details}
+          data-testid="core-pilot-guide-vocabulary-disclosure"
+          open={guideVocabularyOpen}
+          onToggle={(event) => {
+            setGuideVocabularyOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>About this guide</summary>
           <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-0")}>
             <PilotGuideGettingStartedFirstReviewVocabularyRail
@@ -179,13 +303,19 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             <HelpCorePilotWorkflowStepper />
           </section>
 
-          <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
+          <HelpDisclosure
+            title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}
+            open={whatGuideCoversOpen}
+            onOpenChange={setWhatGuideCoversOpen}
+          >
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
           <HelpDisclosure
             title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
             testId="core-pilot-actor-intake-disclosure"
+            open={actorIntakeOpen}
+            onOpenChange={setActorIntakeOpen}
           >
             {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
           </HelpDisclosure>
