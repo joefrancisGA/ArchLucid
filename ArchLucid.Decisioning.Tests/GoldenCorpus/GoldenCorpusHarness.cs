@@ -144,10 +144,13 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         ICloudInventoryExtractorPackageRepository cloudRepository = new NoOpCloudInventoryExtractorPackageRepository();
 
         IFindingEngine[] engines = CreateEngines();
+        FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
+        FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
         IEffectfulFindingEngine[] effectfulEngines = GoldenCorpusEffectfulEngineFactory.Create(
             _scopeContextProvider,
             azureRepository,
             cloudRepository,
+            complianceProvider,
             _timeProvider);
 
         FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
@@ -210,9 +213,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new SecurityBaselineCompletenessFindingEngine(analyzer),
             new SecurityGapFindingEngine(),
             new SecurityCoverageFindingEngine(analyzer),
-            new ExternalExposureFindingEngine(),
-            new TrustBoundaryFindingEngine(),
-            new PrivilegedAccessFindingEngine(),
+            new ExternalExposureFindingEngine(complianceProvider),
+            new TrustBoundaryFindingEngine(complianceProvider),
+            new PrivilegedAccessFindingEngine(complianceProvider),
             new IdentityBlastRadiusFindingEngine(),
             new SegmentationSemanticsFindingEngine(),
             new DrRpoTopologyFindingEngine(),
