@@ -50,6 +50,7 @@ import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/ArchitectureDraftWorkspaceBody";
 import { useArchitectureDraftWorkspaceEffects } from "@/components/architecture/ArchitectureDraftWorkspaceEffects";
+import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 
 type ArchitectureDraftWorkspaceProps = {
   readonly draftId: string;
@@ -383,6 +384,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         onConfirmLeave={inAppNavigationGuard.confirmLeave}
         onCancelLeave={inAppNavigationGuard.cancelLeave}
       />
+      <ReviewRoomElicitationShortcutHost />
       <ArchitectureDraftWorkspaceBody
       draftId={props.draftId}
       parentArchitectureId={props.parentArchitectureId}

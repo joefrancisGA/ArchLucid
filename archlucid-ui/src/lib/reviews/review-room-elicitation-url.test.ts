@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   readRoomElicitationFromSearchParams,
+  reviewDetailRoomElicitationHref,
   reviewRoomElicitationHrefFromSearch,
 } from "@/lib/reviews/review-room-elicitation-url";
 
@@ -28,5 +29,11 @@ describe("review-room-elicitation-url (DR-16)", () => {
     expect(readRoomElicitationFromSearchParams(new URLSearchParams("roomElicitation=1"))).toBe(true);
     expect(readRoomElicitationFromSearchParams(new URLSearchParams("roomElicitation=true"))).toBe(true);
     expect(readRoomElicitationFromSearchParams(new URLSearchParams("reviewTab=overview"))).toBe(false);
+  });
+
+  it("builds linked review room elicitation href from architecture draft desk", () => {
+    expect(reviewDetailRoomElicitationHref("run-42")).toBe(
+      "/architecture/reviews/run-42?roomElicitation=1",
+    );
   });
 });

@@ -2,14 +2,12 @@
 
 import { useEffect } from "react";
 
-import { useReviewDetailWorkspaceRoomElicitation } from "@/components/reviews/use-review-detail-workspace-room-elicitation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { queryVisibleReviewRoomEnterControl } from "@/lib/command-palette-work-action-dom";
 
-/** Alt+M toggles room elicitation on review-detail when the Room control is available (DR-16). */
+/** Alt+M activates the visible Room control on review-detail or architecture draft desk (DR-16). */
 export function ReviewRoomElicitationShortcutHost(): null {
   const { isWorkingMode } = useWorkspaceMode();
-  const room = useReviewDetailWorkspaceRoomElicitation();
 
   useEffect(() => {
     if (!isWorkingMode) {
@@ -36,18 +34,20 @@ export function ReviewRoomElicitationShortcutHost(): null {
         return;
       }
 
-      if (queryVisibleReviewRoomEnterControl() === null) {
+      const roomControl = queryVisibleReviewRoomEnterControl();
+
+      if (roomControl === null) {
         return;
       }
 
       event.preventDefault();
-      room.toggleRoomElicitation();
+      roomControl.click();
     };
 
     window.addEventListener("keydown", onKeyDown);
 
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isWorkingMode, room]);
+  }, [isWorkingMode]);
 
   return null;
 }
