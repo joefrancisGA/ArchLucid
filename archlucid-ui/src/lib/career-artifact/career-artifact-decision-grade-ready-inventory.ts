@@ -15,6 +15,7 @@ export const CAREER_ARTIFACT_DECISION_GRADE_READY_GUARDED_PATHS = [
   "components/GenerateAdrFromRunModal.tsx",
   "app/(operator)/architecture/reviews/[reviewId]/print/_sections/PackagePrintPageClient.tsx",
   "lib/export-markdown.ts",
+  "components/QualityGateMetricsTile.tsx",
 ] as const;
 
 /** Mitigations that prove decision-grade is not rendered as workflow Ready. */
@@ -23,6 +24,7 @@ export const CAREER_ARTIFACT_DECISION_GRADE_READY_MITIGATION_MARKERS = [
   "densityBandKind",
   "INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE",
   "evaluateCareerArtifactHonesty",
+  "resolveQualityGateStatusKind",
 ] as const;
 
 /** Labels that indicate decision-grade classification in the same surface. */

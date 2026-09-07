@@ -232,7 +232,12 @@ public sealed class FirstValueReportBuilder(
             valueWindowSnapshot,
             ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
             costEvidenceFreshnessForBadges);
-        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness, deltas, run);
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            proofCompleteness,
+            deltas,
+            run,
+            proofCompleteness.DeferredBuyerRequirementsPresent);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());

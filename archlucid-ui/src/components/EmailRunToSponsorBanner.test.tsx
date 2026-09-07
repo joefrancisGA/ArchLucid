@@ -473,6 +473,30 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
   });
 
+  it("blocks sponsor PDF when career artifact honesty fails (FC-48)", async () => {
+    stubFetchForBannerMocks();
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: null,
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+  });
+
   it("hides the badge when trial-status returns 5xx", async () => {
     vi.stubGlobal(
       "fetch",

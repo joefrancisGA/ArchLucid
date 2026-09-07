@@ -53,9 +53,16 @@ export function EmailRunToSponsorBanner({
   sponsorDocxAvailable = false,
   curatedSampleRun = false,
   pagePrimaryOwnedElsewhere = false,
+  careerArtifactHonesty,
 }: EmailRunToSponsorBannerProps) {
   const proofPackZipVariant = pagePrimaryOwnedElsewhere ? "outline" : "primary";
-  const banner = useEmailRunToSponsorBanner({ runId, manifestId, sponsorDocxAvailable, curatedSampleRun });
+  const banner = useEmailRunToSponsorBanner({
+    runId,
+    manifestId,
+    sponsorDocxAvailable,
+    curatedSampleRun,
+    careerArtifactHonesty,
+  });
 
   return (
     <aside
