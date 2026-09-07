@@ -73,7 +73,7 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
 
     expect(action).toEqual({
       href: "/architecture/reviews/run-001",
-      ctaLabel: "Continue in review",
+      ctaLabel: "Continue review",
       kind: "continue-review",
     });
   });
