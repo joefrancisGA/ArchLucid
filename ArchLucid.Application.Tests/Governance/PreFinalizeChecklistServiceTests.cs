@@ -224,6 +224,8 @@ public sealed class PreFinalizeChecklistServiceTests
         result.PreCommitGateEnabled.Should().BeFalse();
         result.Items.Should().Contain(item =>
             item.ItemId == "pre-commit-gate"
+            && item.Title == PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle
+            && item.Detail == PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage
             && item.Status == PreFinalizeChecklistItemStatus.Blocking);
     }
 

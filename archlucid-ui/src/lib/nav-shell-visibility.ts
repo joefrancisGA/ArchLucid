@@ -12,6 +12,12 @@ import {
   resolveNavShellPresetId,
 } from "@/lib/nav-shell-preset";
 import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
+import {
+  filterNavGroupsForProductLine,
+  productLineSkipsReviewLifecycleNavShaping,
+} from "@/lib/product-line/filter-nav-groups-for-product-line";
 
 function omitApiKeysSettingsWhenSurfaceDisabled(links: NavLinkItem[]): NavLinkItem[] {
   if (isApiKeysSettingsSurfaceEnabled()) {
@@ -39,8 +45,9 @@ export type NavGroupWithVisibleLinks = {
  * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **Pre-commit** (`filterNavLinksByCommittedArchitectureReviewGate`)
  * runs first so Operate/diagnostics stay off the default spine until **`hasCommittedArchitectureReview`**. **Authority**
  * (`filterNavLinksByAuthority`) runs after promotion metadata. Demo/buyer packaging omissions use an explicit shell preset
- * ({@link resolveNavShellPresetId} / {@link applyNavShellPresetPackagingFilter} — TB-2233). **Packaging map:**
- * **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
+ * ({@link resolveNavShellPresetId} / {@link applyNavShellPresetPackagingFilter} — TB-2233). **Product line**
+ * (`filterNavGroupsForProductLine`) runs last so Architecture vs Security shells share one catalog.
+ * **Packaging map:** **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table (**`NAV_GROUPS[].id`** → layer).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
  * so filtering matches **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
@@ -94,6 +101,10 @@ export type ListNavGroupsVisibleInOperatorShellOptions = {
   readonly hideGettingStartedFromMainNav?: boolean;
   /** Vendor-staff principal — gates `staffInternalOnly` / system-admin clusters (not workspace mode). */
   readonly showVendorInternalNav?: boolean;
+  /** Architecture (default) vs Security operator shell. */
+  readonly productLine?: ProductLineId;
+  /** Playground overlays on the product-line catalog. */
+  readonly productLineAssignmentOverrides?: Readonly<Record<string, ProductLineAssignment>>;
 };
 
 export function listNavGroupsVisibleInOperatorShell(
@@ -106,6 +117,9 @@ export function listNavGroupsVisibleInOperatorShell(
 ): NavGroupWithVisibleLinks[] {
   const presetId = resolveNavShellPresetId();
   const showVendorInternalNav = options.showVendorInternalNav ?? false;
+  const productLine = options.productLine ?? DEFAULT_PRODUCT_LINE_ID;
+  const skipReviewLifecycleNavShaping = productLineSkipsReviewLifecycleNavShaping(productLine);
+  const committedForNav = skipReviewLifecycleNavShaping || hasCommittedArchitectureReview;
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
@@ -132,7 +146,7 @@ export function listNavGroupsVisibleInOperatorShell(
       filterNavLinksForOperatorShell(
         effectiveGroup.links,
         callerAuthorityRank,
-        hasCommittedArchitectureReview,
+        committedForNav,
         hideGettingStartedFromMainNav,
       ),
     );
@@ -144,7 +158,9 @@ export function listNavGroupsVisibleInOperatorShell(
     out.push({ group: effectiveGroup, visibleLinks });
   }
 
-  return out;
+  return filterNavGroupsForProductLine(out, productLine, {
+    assignmentOverrides: options.productLineAssignmentOverrides,
+  });
 }
 
 /**
@@ -154,12 +170,15 @@ export function listNavGroupsVisibleInOperatorShell(
 export function visibleOperatorShellHrefSet(
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
+  options: ListNavGroupsVisibleInOperatorShellOptions = {},
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
     callerAuthorityRank,
     "all",
     hasCommittedArchitectureReview,
+    false,
+    options,
   );
   const hrefs = new Set<string>();
 

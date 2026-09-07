@@ -13,6 +13,7 @@ DEFAULT_LEDGER_PATH = REPO_ROOT / "docs/library/AL_BUG_HUNT_LEDGER.md"
 ZONE_HEADER = re.compile(r"^## Zone:\s+(.+)$", re.MULTILINE)
 FIELD_ID = re.compile(r"^\s*-\s+\*\*id:\*\*\s+(.+?)\s*$", re.MULTILINE)
 FIELD_PATHS = re.compile(r"^\s*-\s+\*\*paths:\*\*\s+(.+?)\s*$", re.MULTILINE)
+FIELD_IMPACT = re.compile(r"^\s*-\s+\*\*impact:\*\*\s+(.+?)\s*$", re.MULTILINE)
 PROVEN_LINE = re.compile(r"^\s*-\s+\[[xX]\]\s+(\(proven\)\s+)?(.+)$", re.MULTILINE)
 DEFECT_CLASS_TAG = re.compile(r"\[class:([a-z0-9-]+)\]", re.IGNORECASE)
 
@@ -104,6 +105,17 @@ def extract_defect_class_tag(text: str) -> str | None:
 
 def normalize_path(path: str) -> str:
     return path.replace("\\", "/").strip()
+
+
+def parse_zone_impacts(ledger_text: str) -> dict[str, str]:
+    impacts: dict[str, str] = {}
+    zones = parse_zones(ledger_text)
+    for zone_id, body in zones.items():
+        match = FIELD_IMPACT.search(body)
+        if match is None:
+            continue
+        impacts[zone_id] = match.group(1).strip().lower()
+    return impacts
 
 
 def map_paths_to_zone_ids(ledger_text: str, paths: list[str]) -> list[str]:

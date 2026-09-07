@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -269,6 +270,111 @@ def render_report(results: list[RowVerification]) -> str:
     return "\n".join(lines)
 
 
+DEFAULT_UNGUARDED_BASELINE = REPO_ROOT / "scripts/ci/al-bug-unguarded-proven-baseline.json"
+DEFAULT_UNCHECKABLE_BASELINE = REPO_ROOT / "scripts/ci/al-bug-uncheckable-proven-baseline.json"
+UNCHECKABLE_CLASSIFICATIONS = frozenset({"no-test-cited", "could-not-run"})
+
+
+def unguarded_key(item: RowVerification) -> str:
+    """Stable identity: zoneId|testName|shaPrefix (7 chars when present)."""
+    sha = (item.commit_sha or "")[:7]
+    test_name = item.test_name or ""
+    return f"{item.zone_id}|{test_name}|{sha}"
+
+
+def load_unguarded_baseline(path: Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    keys = payload.get("unguardedKeys", [])
+    return {str(key) for key in keys}
+
+
+def new_unguarded_keys(results: list[RowVerification], baseline: set[str]) -> list[str]:
+    found: list[str] = []
+    for item in results:
+        if item.classification != "unguarded":
+            continue
+        key = unguarded_key(item)
+        if key not in baseline:
+            found.append(key)
+    return found
+
+
+def uncheckable_key(item: RowVerification) -> str:
+    """Stable identity for no-test-cited / could-not-run rows in the sample window."""
+    sha = (item.commit_sha or "")[:7]
+    test_name = item.test_name or ""
+    return f"{item.zone_id}|{item.classification}|{test_name}|{sha}"
+
+
+def load_uncheckable_baseline(path: Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    keys = payload.get("uncheckableKeys", [])
+    return {str(key) for key in keys}
+
+
+def new_uncheckable_keys(results: list[RowVerification], baseline: set[str]) -> list[str]:
+    found: list[str] = []
+    for item in results:
+        if item.classification not in UNCHECKABLE_CLASSIFICATIONS:
+            continue
+        key = uncheckable_key(item)
+        if key not in baseline:
+            found.append(key)
+    return found
+
+
+def write_uncheckable_baseline(
+    path: Path,
+    results: list[RowVerification],
+    previous: set[str],
+    *,
+    allow_shrink: bool,
+) -> set[str]:
+    current = {
+        uncheckable_key(item)
+        for item in results
+        if item.classification in UNCHECKABLE_CLASSIFICATIONS
+    }
+    merged = set(previous) | current
+    if allow_shrink:
+        still_uncheckable = current
+        merged = still_uncheckable | {key for key in previous if key in still_uncheckable}
+    payload = {
+        "uncheckableKeys": sorted(merged),
+        "_measuredDate": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "_comment": "ABQ-45: known no-test-cited / could-not-run keys in the verifier sample window.",
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return merged
+
+
+def write_unguarded_baseline(
+    path: Path,
+    results: list[RowVerification],
+    previous: set[str],
+    *,
+    allow_shrink: bool,
+) -> set[str]:
+    current_unguarded = {unguarded_key(item) for item in results if item.classification == "unguarded"}
+    guarded_now = {unguarded_key(item) for item in results if item.classification == "guarded"}
+    merged = set(previous) | current_unguarded
+    if allow_shrink:
+        merged -= guarded_now
+    payload = {
+        "unguardedKeys": sorted(merged),
+        "_measuredDate": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "_comment": "ABQ-34: known unguarded proven-row keys in the verifier sample window. Add-only unless --allow-shrink.",
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return merged
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--zone", help="Optional ledger zone id filter")
@@ -277,6 +383,25 @@ def main() -> int:
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT_PATH)
     parser.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER_PATH)
     parser.add_argument("--fail-on-unguarded", action="store_true")
+    parser.add_argument(
+        "--fail-on-new-unguarded",
+        action="store_true",
+        help="Exit 1 only when unguarded keys are not in --baseline (ABQ-34 ratchet).",
+    )
+    parser.add_argument("--baseline", type=Path, default=DEFAULT_UNGUARDED_BASELINE)
+    parser.add_argument("--write-baseline", action="store_true")
+    parser.add_argument(
+        "--allow-shrink",
+        action="store_true",
+        help="With --write-baseline, drop keys that this run classified as guarded.",
+    )
+    parser.add_argument(
+        "--fail-on-new-uncheckable",
+        action="store_true",
+        help="Exit 1 when no-test-cited / could-not-run keys are not in --uncheckable-baseline (ABQ-45).",
+    )
+    parser.add_argument("--uncheckable-baseline", type=Path, default=DEFAULT_UNCHECKABLE_BASELINE)
+    parser.add_argument("--write-uncheckable-baseline", action="store_true")
     parser.add_argument("--dry-run-fixture", action="store_true", help="Use built-in fixture rows (tests).")
     args = parser.parse_args()
 
@@ -304,8 +429,45 @@ def main() -> int:
     args.report.write_text(report + "\n", encoding="utf-8")
     print(report)
 
+    if args.write_baseline:
+        previous = load_unguarded_baseline(args.baseline)
+        write_unguarded_baseline(
+            args.baseline,
+            results,
+            previous,
+            allow_shrink=args.allow_shrink,
+        )
+
+    if args.write_uncheckable_baseline:
+        previous_uncheckable = load_uncheckable_baseline(args.uncheckable_baseline)
+        write_uncheckable_baseline(
+            args.uncheckable_baseline,
+            results,
+            previous_uncheckable,
+            allow_shrink=args.allow_shrink,
+        )
+
     if args.fail_on_unguarded and any(item.classification == "unguarded" for item in results):
         return 1
+
+    if args.fail_on_new_unguarded:
+        baseline = load_unguarded_baseline(args.baseline)
+        fresh = new_unguarded_keys(results, baseline)
+        if fresh:
+            print("New unguarded proven rows (not in baseline):", file=sys.stderr)
+            for key in fresh:
+                print(key, file=sys.stderr)
+            return 1
+
+    if args.fail_on_new_uncheckable:
+        baseline = load_uncheckable_baseline(args.uncheckable_baseline)
+        fresh_uncheckable = new_uncheckable_keys(results, baseline)
+        if fresh_uncheckable:
+            print("New uncheckable proven rows (not in baseline):", file=sys.stderr)
+            for key in fresh_uncheckable:
+                print(key, file=sys.stderr)
+            return 1
+
     return 0
 
 

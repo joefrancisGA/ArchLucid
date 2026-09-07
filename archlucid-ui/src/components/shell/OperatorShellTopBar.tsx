@@ -31,8 +31,9 @@ import {
   OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
 import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
@@ -46,6 +47,8 @@ type OperatorShellTopBarProps = {
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const { productLine } = useProductLine();
+  const wordmarkAriaLabel = PRODUCT_LINE_WORDMARK_ARIA_LABEL[productLine];
   const showEngineerOperatorChrome = isOperatorExperienceFullShellEnv();
   const presenterQuiet = useReviewPresenterChromeActive();
   const showLlmBudgetPill =
@@ -82,7 +85,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           >
             <MobileNavDrawerDeferred />
             <h1 className="m-0">
-              <TenantMastheadWordmark href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
+              <TenantMastheadWordmark href="/" aria-label={wordmarkAriaLabel} variant="operator" />
             </h1>
           </div>
 

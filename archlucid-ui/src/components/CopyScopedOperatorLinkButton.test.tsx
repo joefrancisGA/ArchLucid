@@ -25,4 +25,22 @@ describe("CopyScopedOperatorLinkButton", () => {
       );
     });
   });
+
+  it("shows a manual copy fallback when clipboard copy fails", async () => {
+    vi.spyOn(shareableOperatorLink, "buildShareableOperatorUrl").mockReturnValue(
+      "https://example.test/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    );
+    vi.spyOn(shareableOperatorLink, "copyShareableOperatorLink").mockResolvedValue(false);
+
+    render(<CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />);
+    fireEvent.click(screen.getByTestId("infra-ask-copy-scoped-link"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-ask-copy-scoped-link-fallback")).toBeInTheDocument();
+    });
+
+    expect(screen.getByDisplayValue(
+      "https://example.test/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111",
+    )).toBeInTheDocument();
+  });
 });

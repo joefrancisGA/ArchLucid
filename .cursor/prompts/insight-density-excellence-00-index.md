@@ -3,15 +3,18 @@
      docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md
      Do not implement from this index. -->
 
-# Insight-density excellence — Composer prompt set (DX-01–DX-16)
+# Insight-density excellence — Composer prompt set (DX-01–DX-28)
 
-Canonical prompts (copy-paste blocks): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
+Canonical prompts (copy-paste blocks):
+
+- **DX-01–DX-16 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
+- **DX-17–DX-28 (run next):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
 **Do not implement from this index.** Open the architecture file and paste **one** `DX-nn` prompt into a fresh Composer / Cloud Agent chat.
 
-**Do not re-run** ID-01–ID-10, PP-01 (map already shipped), WK-08 (expand via DX-03).
+**Do not re-run** ID-01–ID-10, PP-01 (map already shipped), WK-08, **DX-01–DX-16**.
 
 ## Sequence (run in order unless marked parallel)
 
@@ -34,11 +37,27 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-15** | Measurement floor skipped engines | After DX-03 | DX-03 |
 | **DX-16** | Starter catalog mapped P0 ids | Yes | none |
 
-DX-17–DX-20 (Graph-RAG, TB-885, verification loop, live frontier capture) are listed at the bottom of the architecture file — start only after DX-01–DX-10.
+**DX-01–DX-16 are on `master` — do not re-run.** Next runnable set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+
+| Prompt | Title | Parallel? | Depends on |
+|--------|-------|-----------|------------|
+| **DX-21** | Judge cap engine-type priority | Yes | DX-02 shipped |
+| **DX-22** | Checklist-cluster synthesis | Yes | DX-01 shipped |
+| **DX-23** | Novelty rate by engine | Yes | DX-13 shipped |
+| **DX-24** | Dangling declaration refs | Yes | none |
+| **DX-25** | Requirement × SKU/tier | Yes | DX-08 shipped |
+| **DX-26** | Path counterfactual line | Yes | DX-06 shipped |
+| **DX-27** | Nested ARM / Bicep module / TF for_each ingest | Yes | none |
+| **DX-28** | Path-engine golden fixtures | Yes | DX-14 shipped |
+| **DX-17** | Community summaries → InsightGenerator | After DX-21–28 | DX-10 shipped |
+| **DX-20** | Frontier capture schema | After DX-21–28 | DX-13 preferred |
+| **DX-18** | TB-885 compounding ledger | **Held** | Owner unparks TB-885 |
+| **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 |
 
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
-- Path/contradiction engines DX-06–DX-09 are authorized; coverage-only “node missing” engines are not.
+- Path/contradiction engines DX-06–DX-09 and follow-on DX-22 / DX-24 / DX-25 are authorized; coverage-only “node missing” engines are not.
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
+- DX-18 (TB-885) and DX-19 (ADR 0062) stay held until the owner unparks those rows.

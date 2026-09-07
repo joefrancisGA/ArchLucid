@@ -117,6 +117,46 @@ def compute_zone_escape_stats(
     return escape_count, escape_rate
 
 
+def read_run_log_entries(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    entries: list[dict] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            entries.append(payload)
+    return entries
+
+
+def compute_hunted_in_prior_days(
+    hunt_entries: list[dict],
+    zone_id: str,
+    now_utc: datetime,
+) -> int:
+    last: datetime | None = None
+    for entry in hunt_entries:
+        if str(entry.get("zoneId", "")) != zone_id:
+            continue
+        at_raw = entry.get("at")
+        if at_raw is None:
+            continue
+        try:
+            at = parse_iso_utc(str(at_raw))
+        except ValueError:
+            continue
+        if last is None or at > last:
+            last = at
+    if last is None:
+        return -1
+    delta = now_utc - last
+    return max(0, int(delta.total_seconds() // 86400))
+
+
 def suggest_zone_for_paths(ledger_text: str, paths: list[str]) -> str:
     matches = map_paths_to_zone_ids(ledger_text, paths)
     if not matches:

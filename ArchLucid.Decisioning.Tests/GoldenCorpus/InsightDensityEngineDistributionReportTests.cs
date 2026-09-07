@@ -211,8 +211,8 @@ public sealed class InsightDensityEngineDistributionReportTests
 
         markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
         markdown.Should().Contain("typed-engine-scored");
-        markdown.Should().Contain("**32** engines");
-        markdown.Should().Contain("registers **32** engines");
+        markdown.Should().Contain("**35** engines");
+        markdown.Should().Contain("registers **35** engines");
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
     }
