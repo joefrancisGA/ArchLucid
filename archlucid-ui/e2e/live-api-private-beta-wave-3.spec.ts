@@ -24,6 +24,9 @@ const deepLinkTargets = [
     path: "/administration/identity-providers/diagnostics",
     fragment: "/administration/identity-providers/diagnostics",
   },
+  { path: "/architecture/reviews", fragment: "/architecture/reviews" },
+  { path: "/governance/findings", fragment: "/governance/findings" },
+  { path: "/architecture/reviews/new", fragment: "/architecture/reviews/new" },
 ] as const;
 
 test.describe(
