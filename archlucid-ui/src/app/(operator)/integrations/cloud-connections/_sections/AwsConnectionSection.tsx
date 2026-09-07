@@ -11,6 +11,7 @@ import { disconnectAwsTier2Connection } from "@/lib/api/aws-cloud-connections-ap
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_CONNECTION_DISCONNECT_FAILED_ERROR } from "@/lib/aws-cloud-connection-copy";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { awsConnectionStatusTagKind, formatAwsConnectionTimestamp } from "@/lib/aws-connection-present";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { CLOUD_CONNECTIONS_AWS_PATH } from "@/lib/cloud-connections-paths";
@@ -28,6 +29,7 @@ import { useAwsConnectionData } from "./AwsConnectionDataContext";
 
 export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
   const embedded = props.embedded === true;
+  const { localize } = useLocalizedProductCopy();
   const {
     connections,
     isLoading,
@@ -237,8 +239,9 @@ export function AwsConnectionSection(props: { readonly embedded?: boolean }) {
       <CardHeader>
         <CardTitle>Connect AWS</CardTitle>
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Use IAM role ARN + OIDC federation for read-only inventory collection. ArchLucid stores connection metadata
-          only; no long-lived access keys are stored.
+          {localize(
+            "Use IAM role ARN + OIDC federation for read-only inventory collection. ArchLucid stores connection metadata only; no long-lived access keys are stored.",
+          )}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">{body}</CardContent>

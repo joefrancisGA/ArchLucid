@@ -25,6 +25,7 @@ import {
   type HelpSearchPanelAction,
   type HelpSearchPanelTopic,
 } from "@/lib/help/help-search-panel-catalog";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { searchHelpDocumentation, type HelpDocSearchRecord } from "@/lib/help/help-index";
 import {
   helpDocRecordTargetsPath,
@@ -159,12 +160,24 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const helpOnHelp = isHelpOnHelpPath(pathname);
 
   const situation = useHelpPageSituation();
+  const { localize } = useLocalizedProductCopy();
+  const localizeHelpSearchTopic = useCallback(
+    (topic: HelpSearchPanelTopic): HelpSearchPanelTopic => ({
+      ...topic,
+      title: localize(topic.title),
+      description: localize(topic.description),
+    }),
+    [localize],
+  );
   const visibleGroups = useMemo(() => listHelpSearchPanelGroups(isAdmin), [isAdmin]);
-  const allTopics = useMemo(() => listHelpSearchPanelTopics(isAdmin), [isAdmin]);
+  const allTopics = useMemo(
+    () => listHelpSearchPanelTopics(isAdmin).map(localizeHelpSearchTopic),
+    [isAdmin, localizeHelpSearchTopic],
+  );
   const collapseStartHere = useMemo(() => shouldCollapseHelpStartHereGroup(pathname), [pathname]);
   const recommendedTopics = useMemo(
-    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation, isWorkingMode),
-    [isAdmin, isWorkingMode, pathname, situation],
+    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation, isWorkingMode).map(localizeHelpSearchTopic),
+    [isAdmin, isWorkingMode, localizeHelpSearchTopic, pathname, situation],
   );
   const { doThisNow, moreRecommended } = useMemo(
     () => splitHelpSearchPanelDoThisNow(recommendedTopics),

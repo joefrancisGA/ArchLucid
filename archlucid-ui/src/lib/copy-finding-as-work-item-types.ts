@@ -1,3 +1,5 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"
@@ -54,6 +56,8 @@ export type FindingWorkItemBuildInput = {
   coverageHonestyProvenanceKind?: FindingWorkItemProvenanceKind | null;
   /** When false, omit coverage honesty even if populated (Guided paste). */
   includeCoverageHonesty?: boolean;
+  /** Active product shell for consumer-facing product labels (defaults to architecture). */
+  productLineId?: ProductLineId;
 };
 
 /** Minimal block for per-finding table rows (aggregate explanation list / governance queue). */
@@ -68,6 +72,8 @@ export type TraceRowWorkItemInput = {
   siteOrigin: string;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  /** Active product shell for consumer-facing product labels (defaults to architecture). */
+  productLineId?: ProductLineId;
 };
 
 export function na(value: string | null | undefined): string {
