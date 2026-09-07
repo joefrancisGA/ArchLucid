@@ -68,6 +68,31 @@ export function architectureNestedReviewPath(architectureId: string, reviewId: s
   return `${architectureIdentityPath(architectureId)}/reviews/${encodeURIComponent(reviewId.trim())}`;
 }
 
+/** Working nested Ask tool — ADR 0079 / SY-36. */
+export function architectureNestedAskPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/ask`;
+}
+
+/** Parses `/architecture/architectures/{id}/ask` for nested Ask routes (SY-36). */
+export function parseArchitectureNestedAskArchitectureId(pathname: string): string | null {
+  const path = pathname.split("?")[0] ?? "";
+  const suffix = "/ask";
+  const prefix = `${ARCHITECTURES_LIST_PATH}/`;
+
+  if (!path.startsWith(prefix) || !path.endsWith(suffix)) {
+    return null;
+  }
+
+  const middle = path.slice(prefix.length, path.length - suffix.length).trim();
+  const segments = middle.split("/").filter((segment) => segment.length > 0);
+
+  if (segments.length !== 1) {
+    return null;
+  }
+
+  return segments[0] ?? null;
+}
+
 /**
  * Working uses nested review paths when `architectureId` is known; Guided and unlinked reviews keep the peer URL.
  */
@@ -93,6 +118,7 @@ export function isReviewsPath(pathname: string): boolean {
   return pathname === REVIEWS_LIST_PATH || pathname.startsWith(`${REVIEWS_LIST_PATH}/`);
 }
 
+/** Review intake for an existing architecture — **Guided/legacy peer** URL (SY-16). Working uses {@link startReviewFromArchitectureNestedHref}. */
 export function startReviewFromArchitectureHref(architectureId: string): string {
   const qs = new URLSearchParams({
     path: "guided-intake",
@@ -166,6 +192,12 @@ export function startReviewFromDraftContextHref(input: {
 }): string {
   const architectureId =
     resolveStartReviewSourceArchitectureId(input) ?? input.legacyDraftId?.trim() ?? "";
+
+  const parentArchitectureId = resolveStartReviewSourceArchitectureId(input);
+
+  if (parentArchitectureId !== null && parentArchitectureId.length > 0) {
+    return startReviewFromArchitectureNestedHref(parentArchitectureId);
+  }
 
   return startReviewFromArchitectureHref(architectureId);
 }

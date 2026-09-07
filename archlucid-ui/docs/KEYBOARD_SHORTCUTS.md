@@ -33,7 +33,7 @@ The deferred **Shift+?** help overlay still mounts from [`KeyboardShortcutProvid
 | Combo | Action | Navigates to |
 |-------|--------|--------------|
 | **Alt+N** | Start review / draft editor | `/architecture/architectures/new` (Working); Guided intake wizard at `/architecture/reviews/new` |
-| **Alt+R** | Packages list | `/architecture/reviews` |
+| **Alt+R** | Packages list (Guided) / architecture desk or portfolio (Working) | Guided: `/architecture/reviews`; Working: last-open `/architecture/architectures/{id}` or `/architecture/architectures` |
 | **Alt+C** | Compare | `/insights/compare-two-reviews` (Working review-detail scopes base run to the open review) |
 | **Alt+A** | Ask (Q&A) | `/insights/ask-review-questions` |
 | **Alt+G** | Governance findings | `/governance/findings` |
