@@ -76,10 +76,12 @@ public sealed partial class DifficultyBasedExtractionRouter
             return true;
         }
 
-        bool lowClarity = sourceText.Length < 200
-            || !sourceText.Contains(':', StringComparison.Ordinal);
+        if (sourceText.Length >= 200)
+        {
+            return true;
+        }
 
-        return lowClarity;
+        return !sourceText.Contains(':', StringComparison.Ordinal);
     }
 
     private static bool LooksAmbiguous(string sourceText)

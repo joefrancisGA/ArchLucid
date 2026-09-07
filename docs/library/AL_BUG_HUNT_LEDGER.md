@@ -974,11 +974,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — long structured GDPR JSON bypassed human-review classification
+- **last-bug:** 2026-09-07 — long sensitive prose bypassed human-review classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -989,7 +989,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Difficulty score is computed from a different document than the one extracted (retired: Classify and Extract share the same sourceText)
 - [x] (proven) `InferLifecycleScopeForIndex` tags elements TargetState when any target marker appears before matchIndex, ignoring a later current-state section (`Extract_tags_component_after_current_state_section_even_when_target_state_appears_first`, `Extract_tags_component_after_as_is_section_even_when_to_be_appears_first`)
 - [x] (proven) `RequiresHumanReview` low-clarity gate let long structured compliance JSON classify as `StructuredParse` / `DirectlyEstablished` — **hit 2026-09-07 seed hunt #1244:** sensitive-marker docs with JSON/YAML/table shape bypassed human review when length ≥ 200 and colons present; fixed by requiring human review when sensitive content also matches `LooksStructured`; regressions in `Classify_returns_human_review_for_long_structured_gdpr_json` and `Extract_does_not_stamp_sensitive_structured_content_directly_established`.
-- [ ] (candidate) Long non-structured sensitive prose (>200 chars with colons) still classifies `ClearExtraction` without human review — `RequiresHumanReview` only gates on length/colon after structured check; no failing repro in zone yet.
+- [x] (proven) `RequiresHumanReview` — long non-structured sensitive prose (>200 chars with colons) classified `ClearExtraction` / `DirectlyEstablished` — **hit 2026-09-07 hunt #1286:** colon presence inverted the low-clarity gate so long GDPR/compliance prose skipped human review after the structured fix in #1244; fixed by requiring human review for sensitive content with length ≥ 200 regardless of colon; regressions in `Classify_returns_human_review_for_long_sensitive_prose_without_structure` and `Extract_does_not_stamp_long_sensitive_prose_directly_established`.
+
+2026-09-07 thorough hunt #1286 (hit): proved long sensitive prose human-review bypass; promoted ledger candidate to proven.
 
 2026-09-07 seed hunt #1244 (hit): reseeded extraction-router zone; proved sensitive structured compliance bypass; seeded long-form sensitive prose candidate.
 
