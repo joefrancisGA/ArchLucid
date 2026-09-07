@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 
 
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -153,7 +154,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
-      showOwnerCadence={tone === "detail" && isBuyerPolishedOperatorShellEnv()}
+      showOwnerCadence={tone === "detail" && resolveProductionEvalChromeFromStorage()}
     />
   );
 

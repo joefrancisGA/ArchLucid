@@ -6,10 +6,8 @@ import { expect, test } from "@playwright/test";
 
 import {
   createAdminUserInvite,
-  createScimAdminToken,
   primeJwtBrowserSession,
   provisionE2ePlatformUserPreAuth,
-  provisionScimDirectoryUser,
   requireLivePrivateBetaJwtEnv,
   stubEmptyArchitectureDraftListRoute,
   clearJwtBrowserSession,

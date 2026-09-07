@@ -3,10 +3,20 @@ import type { ErrorRecoveryContractGuardedSurface } from "@/lib/error-recovery-c
 /**
  * Grandfathered eval-chrome call sites still using `isBuyerPolishedOperatorShellEnv()` directly.
  * WA-01: remove paths as they migrate to `useProductionEvalChrome` / `resolveProductionEvalChrome`.
+ * WS-04 shrink-only priority list: docs/architecture/WORKING_SEAT_EVAL_LEAK_INVENTORY.md
+ * WS-08: grandfather is shrink-only — see {@link PRODUCTION_DESK_CHROME_EVAL_ARCHITECTURE_REVIEWS_GRANDFATHER_BASELINE}
+ * and {@link PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS}.
+ *
+ * **Admin-only growth:** do not append paths here to silence CI. Migrate to the production-desk
+ * resolver and delete the row, or follow `WORKING_SEAT_EVAL_LEAK_INVENTORY.md` § Admin exception
+ * (documented row + entry in `PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS`).
+ * Architecture / review / desk paths must **never** join this list — use `useProductionEvalChrome`.
  * New production operator files must not call buyer-polish for eval chrome without going through the resolver.
  */
 export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
+  // --- account (admin-adjacent; shrink on touch — WS-08) ---
   "app/(operator)/account/security/use-account-security-page.ts",
+  // --- administration (settings surfaces; Guided-aligned soften acceptable — WS-08) ---
   "app/(operator)/administration/_sections/SettingsPageView.tsx",
   "app/(operator)/administration/ai-usage/_sections/AiUsageSettingsHeaderActions.tsx",
   "app/(operator)/administration/ai-usage/_sections/CostReportingSettingsPageView.tsx",
@@ -42,24 +52,13 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/administration/users/_sections/SettingsRolesPageView.tsx",
   "app/(operator)/administration/workspace-settings/_sections/TenantSettingsPageView.tsx",
   "app/(operator)/administration/workspace-settings/_sections/load-tenant-settings-page-data.ts",
+  // --- architecture (priority shrink — WS-08 baseline; migrate before admin churn) ---
   "app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults.tsx",
   "app/(operator)/architecture/architecture-intelligence/_sections/use-architecture-intelligence-product-context.ts",
-  "app/(operator)/architecture/architectures/new/_sections/ArchitecturesNewPageSubtitle.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model.ts",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectAuditSection.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectEvidenceSection.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectFindingBody.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectItsmWorkflowPanel.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectReasoningPayloadDetails.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectWhyMattersSection.tsx",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/finding-detail-route-display.ts",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/_sections/load-finding-detail-page-model.ts",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/use-finding-inspect-governance-stickiness-dispositions.ts",
-  "app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/use-finding-inspect-governance-stickiness.ts",
   "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardLiveKpiCards.tsx",
   "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView.tsx",
-  "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection.tsx",
   "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx",
+  // --- governance (ops hubs; not Monday-morning desk — WS-08) ---
   "app/(operator)/governance/_sections/use-governance-workflow-page-mutations.ts",
   "app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx",
   "app/(operator)/governance/alerts/AlertsHubChrome.tsx",
@@ -76,6 +75,7 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/governance/sealed-records/[manifestId]/artifacts/[artifactId]/_sections/load-signed-record-artifact-page-model.ts",
   "app/(operator)/governance/sealed-records/[manifestId]/loading.tsx",
   "app/(operator)/governance/standards-and-rules/_sections/use-governance-resolution-page.ts",
+  // --- help (teaching docs; Guided-aligned — WS-08) ---
   "app/(operator)/help/HelpPageView.tsx",
   "app/(operator)/help/_sections/HelpAdminDiagnosticsGuideView.tsx",
   "app/(operator)/help/_sections/HelpAdminDiagnosticsHeaderActions.tsx",
@@ -173,6 +173,7 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView.tsx",
   "app/(operator)/help/_sections/HelpWebhooksIntegrationHeaderActions.tsx",
   "app/(operator)/help/_sections/HelpWorkspaceSettingsGuideView.tsx",
+  // --- insights / integrations / marketing (onboarding-adjacent — WS-08) ---
   "app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPageView.tsx",
   "app/(operator)/insights/architecture-scorecard/_sections/PilotScorecardPrimaryOutcomes.tsx",
   "app/(operator)/insights/ask-review-questions/_sections/AskPageHeaderActions.tsx",
@@ -201,6 +202,7 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx",
   "app/(operator)/why-archlucid/_sections/WhyArchLucidPage.tsx",
   "app/(operator)/why-archlucid/page.tsx",
+  // --- shared components / lib (cross-cutting; shrink when touched — WS-08) ---
   "components/ArtifactListTable.tsx",
   "components/ChangesSinceLastReviewBanner.tsx",
   "components/CommandPalette.tsx",
@@ -259,14 +261,10 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "components/pilots/PilotRoiValidationHandoffCard.tsx",
   "components/provenance/ProvenanceSectionNav.tsx",
   "components/runs/RunDecisionExplainabilitySection.tsx",
-  "components/runs/RunDetailActivityTabSectionNav.tsx",
   "components/runs/RunDetailOutcomeCards.tsx",
   "components/runs/RunDetailPackageStatusStrip.tsx",
-  "components/runs/RunDetailPageHeader.tsx",
   "components/runs/RunDetailRunGovernanceDispositionActions.tsx",
-  "components/runs/RunDetailSectionNav.tsx",
   "components/runs/RunEstimatedLlmCostCard.tsx",
-  "components/runs/RunExplanationConfidenceBanner.tsx",
   "components/runs/RunExplanationSection.tsx",
   "components/runs/RunFindingExplainabilityTable.tsx",
   "components/runs/RunInspectorPreview.tsx",
@@ -276,7 +274,6 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "components/runs/RunsRowBaselineMenu.tsx",
   "components/runs/use-run-progress-tracker.ts",
   "components/shell/AppShellWorkspaceFooter.tsx",
-  "components/shell/BuyerGoldenJourneyLayerContextStrip.tsx",
   "components/shell/TenantWorkspaceBoundaryBadge.tsx",
   "components/tenancy/TenantMigrationMaintenanceBanner.tsx",
   "components/trial/TrialExpiryBanner.tsx",
@@ -290,7 +287,6 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "components/use-global-search-mode.ts",
   "components/use-sponsor-workspace-health-dashboard.ts",
   "components/wizard/steps/WizardStepTrack.tsx",
-  "hooks/use-effective-nav-committed-architecture-review.ts",
   "hooks/use-reviews-new-suppress-wizard-resume-prompt.ts",
   "hooks/useOperatorShellNavRows.ts",
   "lib/active-tenant-context-display.ts",
@@ -313,11 +309,39 @@ export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   "lib/sponsor/sponsor-roi-kpi-display.ts",
 ] as const;
 
+/** WS-08 freeze: total grandfather rows at wave close — shrink by migration, not growth. */
+export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_COUNT_BASELINE = 286 as const;
+
+/**
+ * WS-08 freeze: architecture / review paths still grandfathered after WS-06.
+ * Shrink-only — new rows under `architecture/` or `/reviews/` must use the resolver, not this list.
+ */
+export const PRODUCTION_DESK_CHROME_EVAL_ARCHITECTURE_REVIEWS_GRANDFATHER_BASELINE = [
+  "app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults.tsx",
+  "app/(operator)/architecture/architecture-intelligence/_sections/use-architecture-intelligence-product-context.ts",
+  "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardLiveKpiCards.tsx",
+  "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView.tsx",
+  "app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx",
+  "components/architecture/use-architecture-draft-list.ts",
+] as const;
+
+/**
+ * Admin-only grandfather growth after WS-08. Each path requires a row in
+ * `docs/architecture/WORKING_SEAT_EVAL_LEAK_INVENTORY.md` § Admin exception.
+ * Architecture / review paths are **never** eligible.
+ */
+export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS = [] as const;
+
+export function isArchitectureOrReviewEvalGrandfatherPath(relativePath: string): boolean {
+  return relativePath.includes("architecture/") || relativePath.includes("/reviews/");
+}
+
 const PRODUCTION_DESK_CHROME_RESOLVER_MARKERS = [
   "useProductionEvalChrome",
   "useProductionDeskChrome",
   "resolveProductionEvalChrome",
   "resolveProductionDeskChrome",
+  "resolveProductionEvalChromeFromStorage",
 ] as const;
 
 /** High-traffic operator surfaces migrated off bare buyer-polish for eval chrome (WA-01). */

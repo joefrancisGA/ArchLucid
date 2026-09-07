@@ -16,6 +16,7 @@ public sealed class FindingVerificationGoldenManifestImmutabilityArchitectureTes
         Path.Combine("ArchLucid.Persistence", "Findings", "SqlFindingVerificationReportRepository.cs"),
         Path.Combine("ArchLucid.Persistence", "Findings", "InMemoryFindingVerificationReportRepository.cs"),
         Path.Combine("ArchLucid.Application", "Findings", "FindingVerification", "FindingVerificationService.cs"),
+        Path.Combine("ArchLucid.Application", "Findings", "FindingVerification", "FindingVerificationDeterministicScorer.cs"),
         Path.Combine("ArchLucid.Persistence", "Migrations", "373_FindingVerificationReports.sql"),
     ];
 

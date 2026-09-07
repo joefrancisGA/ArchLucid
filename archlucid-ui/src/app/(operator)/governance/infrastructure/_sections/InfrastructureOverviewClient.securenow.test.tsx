@@ -71,5 +71,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       "/integrations/cloud-connections",
     );
+    expect(screen.queryByText(/\bAWS\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\bGCP\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Google Cloud/i)).not.toBeInTheDocument();
   });
 });

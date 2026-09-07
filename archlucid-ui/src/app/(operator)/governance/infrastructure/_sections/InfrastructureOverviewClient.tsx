@@ -15,7 +15,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD,
@@ -50,7 +50,7 @@ export type InfrastructureOverviewClientProps = {
 
 /** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
 export function InfrastructureOverviewClient(props: InfrastructureOverviewClientProps = {}) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const showSecureNowGroupedHomeSections = productLine === "security";
   const secureNowHome = props.secureNowHome === true;
@@ -121,15 +121,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
               </Button>
             </div>
           </section>
-        ) : (
-          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
-            instances. All six destinations are available from this hub.
-            {showSecureNowGroupedHomeSections
-              ? " Security, compliance, and infrastructure destinations are grouped below."
-              : null}
-          </p>
-        )}
+        ) : null}
 
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">

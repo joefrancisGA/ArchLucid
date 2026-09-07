@@ -43,10 +43,13 @@ ALLOWED_PATHS_REL = {
 # Exact price strings that must not appear outside ALLOWED_PATHS.
 # These match the locked list prices from PRICING_PHILOSOPHY.md §5.2.
 PRICE_PATTERNS = [
-    "$199",
-    "$899",
-    "$79",
-    "$179",
+    "$339",
+    "$1,079",
+    "$211",
+    "$215",
+    "$1,169",
+    "$2,299",
+    "$169",
     "$60,000",
     "$15,000",
     "$9,500",

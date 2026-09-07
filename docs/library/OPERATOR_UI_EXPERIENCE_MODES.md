@@ -45,7 +45,7 @@ Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`). **Missing/nu
 
 | Mode | Behavior |
 |------|----------|
-| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. |
+| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. **Working is not an `/al-ui-rate` buyer-confidence target** — that command rates Working screenshots as an all-day instrument (ADR 0080 / WS-07). |
 | **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. |
 
 Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, Working-mode users may see a dismissible offer to switch to Guided for teaching chrome — never an auto-switch.

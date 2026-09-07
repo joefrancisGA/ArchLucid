@@ -1,6 +1,6 @@
 "use client";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { FindingDetailClaimOrientationStrip } from "./FindingDetailClaimOrientationStrip";
 
@@ -13,7 +13,9 @@ export type FindingDetailBuyerChromeProps = {
 export function FindingDetailBuyerChrome(
   props: FindingDetailBuyerChromeProps,
 ): React.JSX.Element | null {
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  const evalChromeShell = useProductionEvalChrome();
+
+  if (!evalChromeShell) {
     return null;
   }
 
