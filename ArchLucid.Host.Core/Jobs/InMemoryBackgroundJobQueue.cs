@@ -204,13 +204,17 @@ public sealed class InMemoryBackgroundJobQueue(
                 }
                 else
                 {
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? terminalCandidate) ||
+                        terminalCandidate.State == BackgroundJobState.Canceled)
+                        continue;
+
                     logger.LogError(
                         ex,
                         "Background job {JobId} failed after {Attempts} attempt(s); moving to DLQ.",
                         LogSanitizer.Sanitize(item.JobId),
                         nextRetry);
 
-                    _info[item.JobId] = failed with
+                    _info[item.JobId] = terminalCandidate with
                     {
                         State = BackgroundJobState.Failed, CompletedUtc = TimeProvider.System.GetUtcNow(), RetryCount = nextRetry, Error = ex.Message
                     };
