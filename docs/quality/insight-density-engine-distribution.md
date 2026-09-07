@@ -1,6 +1,7 @@
 # Insight-density engine distribution
 
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
+Historical `typed-engine-protected` bypass is superseded; demotion remains advisory checklist coverage, not procurement proof.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
 (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
 The golden corpus harness registers **38** engines; **26** appear in this table (≥1 finding across case-01..case-50). **24** built-in product engines are absent from this corpus-derived slice.
