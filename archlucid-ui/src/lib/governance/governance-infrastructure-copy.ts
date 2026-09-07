@@ -170,6 +170,26 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SNAPSHOT_CONTEXT_HELPER =
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_REDIRECT_LABEL = "Opening resource evidence hub…" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_TITLE = "Resource evidence hub" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID = "infra-resource-hub-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL = "Skip to resource evidence hub" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PAGE_LEAD =
+  "Review drift, findings, remediation, diagram correspondence, Terraform mapping, and audit lineage for one cloud resource." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLAIM_DISCIPLINE =
+  "Hub tabs surface inventory evidence scoped to this resource — not sealed review records or official assurance materials." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE = "Resource evidence hub unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL = "Cloud resource id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL = "ARM resource path" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL = "Terraform address" as const;
+
 export type InfrastructureWorkbenchRow = {
   readonly href: string;
   readonly label: string;
