@@ -394,6 +394,66 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void MatchesProjectListFilter_accepts_padded_scope_project_guid_string()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        RunRecord run = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "display-name",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        string paddedScopeProjectId = $"  {scope.ProjectId:D}  ";
+
+        RunRepositoryCore.MatchesProjectListFilter(run, paddedScopeProjectId).Should().BeTrue(
+            "Guid.TryParse accepts leading/trailing whitespace; SQL uniqueidentifier conversion does the same.");
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_matches_padded_scope_project_guid_filter()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "display-name",
+                Description = "padded scope guid list",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            $"  {scope.ProjectId:D}  ",
+            10,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == runId);
+    }
+
+    [Fact]
     public async Task InMemory_offset_list_pages_all_runs_when_created_utc_ties()
     {
         ScopeContext scope = new()

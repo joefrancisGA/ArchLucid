@@ -1,3 +1,8 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
@@ -61,6 +66,21 @@ public sealed class RunListWarningFlagSqlTests
     public void CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages()
     {
         RunListWarningFlagSql.CreatedUtcDescOrderBy.Should().Be("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void Package_origin_json_fallback_targets_camel_case_workflow_intent_from_contract_json()
+    {
+        string json = JsonSerializer.Serialize(
+            new ArchitectureRequest { WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture },
+            ContractJson.Default);
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        document.RootElement.TryGetProperty("workflowIntent", out JsonElement intent).Should().BeTrue();
+        intent.GetString().Should().Be(ArchitectureWorkflowIntent.CreateArchitecture);
+        document.RootElement.TryGetProperty("WorkflowIntent", out _).Should().BeFalse(
+            "ArchitectureRequests.RequestJson is always written via ContractJson.Default camelCase.");
     }
 
     [Fact]
