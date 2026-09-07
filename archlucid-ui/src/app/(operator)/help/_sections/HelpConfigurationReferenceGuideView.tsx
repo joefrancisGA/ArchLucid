@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpUrlSyncedLazyDetails } from "@/components/help/HelpUrlSyncedLazyDetails";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,11 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  HELP_CONFIGURATION_REFERENCE_CATALOG_OPEN_PARAM,
+  helpConfigurationReferenceCatalogDisclosureHrefFromSearch,
+  parseHelpConfigurationReferenceCatalogOpenFromSearch,
+} from "@/lib/help/help-configuration-reference-catalog-disclosure-url";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -167,7 +172,10 @@ export function HelpConfigurationReferenceGuideView(
           </ol>
         </section>
 
-        <HelpLazyDetails
+        <HelpUrlSyncedLazyDetails
+          paramName={HELP_CONFIGURATION_REFERENCE_CATALOG_OPEN_PARAM}
+          parseOpenFromSearch={parseHelpConfigurationReferenceCatalogOpenFromSearch}
+          disclosureHrefFromSearch={helpConfigurationReferenceCatalogDisclosureHrefFromSearch}
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
           data-testid="help-configuration-reference-catalog-appendix"
           summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -188,7 +196,7 @@ export function HelpConfigurationReferenceGuideView(
             sourceDocPath={sourceDocPath}
             helpTopicSlug={entry.slug}
           />
-        </HelpLazyDetails>
+        </HelpUrlSyncedLazyDetails>
 
         <section
           aria-labelledby="help-configuration-reference-related-heading"
