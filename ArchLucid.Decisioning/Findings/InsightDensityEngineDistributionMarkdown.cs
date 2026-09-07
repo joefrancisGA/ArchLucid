@@ -10,7 +10,7 @@ public static class InsightDensityEngineDistributionMarkdown
     public const int GoldenCorpusHarnessEngineCount = 32;
 
     /// <summary>Product <c>EngineType</c> ids in <c>BuiltInFindingEngineTypeCatalog</c>.</summary>
-    public const int BuiltInProductEngineCount = 45;
+    public const int BuiltInProductEngineCount = 46;
 
     public static string Build(IReadOnlyList<InsightDensityEngineDistributionRow> rows)
     {
