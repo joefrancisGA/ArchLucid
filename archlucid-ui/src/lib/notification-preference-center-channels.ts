@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+=======
+>>>>>>> 13b08f916d (fix(ci): unblock push corset gitleaks and notification typecheck)
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
