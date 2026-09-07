@@ -89,6 +89,7 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/internal/configuration");
     expect(hrefs).toContain("/internal/tenants");
     expect(hrefs).toContain("/internal/product-line");
+    expect(hrefs).not.toContain("/internal/deployment-status");
     expect(hrefs).not.toContain("/internal/trial-funnel");
     expect(hrefs).not.toContain("/internal/pricing-quote-aging");
     expect(hrefs).not.toContain("/internal/validate-route");
@@ -143,6 +144,13 @@ describe("product-line catalog", () => {
         "security",
       ),
     ).toBe(true);
+  });
+
+  it("keeps deployment status architecture-only even though other Internal diagnostics are shared", () => {
+    expect(resolveProductLineAssignmentForPath("/internal/deployment-status")).toBe("architecture");
+    expect(isPathAllowedForProductLine("/internal/deployment-status", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/internal/deployment-status", "architecture")).toBe(true);
+    expect(isPathAllowedForProductLine("/internal/health", "security")).toBe(true);
   });
 
   it("keeps recycle bin architecture-only even though workspace-settings is both", () => {

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { evidenceTrailSearchQuickActionLabel, askReviewQuestionsQuickActionLabel } from "@/lib/search-surface-disambiguation";
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 
 type GlobalSearchQuickActionsPanelProps = {
@@ -14,6 +16,10 @@ type GlobalSearchQuickActionsPanelProps = {
 };
 
 export function GlobalSearchQuickActionsPanel(props: GlobalSearchQuickActionsPanelProps) {
+  const { productLine } = useProductLine();
+  const askQuestionsLabel = askReviewQuestionsQuickActionLabel(productLine);
+  const evidenceSearchLabel = evidenceTrailSearchQuickActionLabel(productLine);
+
   return (
     <div
       id={`${props.inputId}-results`}
@@ -48,7 +54,7 @@ export function GlobalSearchQuickActionsPanel(props: GlobalSearchQuickActionsPan
               className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
               onClick={() => props.onClose()}
             >
-              Ask review questions
+              {askQuestionsLabel}
               <span className={cn("mt-0.5 block text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 Scoped Q&amp;A over review evidence
               </span>
@@ -60,7 +66,7 @@ export function GlobalSearchQuickActionsPanel(props: GlobalSearchQuickActionsPan
               className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
               onClick={() => props.onClose()}
             >
-              Search review evidence
+              {evidenceSearchLabel}
               <span className={cn("mt-0.5 block text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 Search the evidence trail across reviews
               </span>
