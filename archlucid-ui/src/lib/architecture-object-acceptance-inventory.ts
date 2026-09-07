@@ -143,4 +143,14 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
     marker: "AO-42",
   },
+  {
+    id: "AO-43",
+    relativeTestPath: "lib/architecture/architecture-desk-shortcuts.test.ts",
+    marker: "AO-43",
+  },
+  {
+    id: "AO-47",
+    relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
+    marker: "AO-47",
+  },
 ];

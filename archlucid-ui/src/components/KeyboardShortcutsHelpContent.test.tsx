@@ -38,7 +38,7 @@ describe("KeyboardShortcutsTabContent", () => {
     expect(captions).toContain("Common");
   });
 
-  it("lists desk work before navigation when Working mode is active (PC-11)", () => {
+  it("lists desk work before navigation when Working mode is active (PC-11 / AO-43)", () => {
     workspaceModeMocks.isWorkingMode = true;
 
     render(<KeyboardShortcutsTabContent />);
@@ -50,6 +50,14 @@ describe("KeyboardShortcutsTabContent", () => {
     expect(deskWorkIndex).toBeGreaterThan(-1);
     expect(commonIndex).toBeGreaterThan(-1);
     expect(deskWorkIndex).toBeLessThan(commonIndex);
+
+    const deskWorkTable = screen.getByRole("table", { name: "Desk work (Working)" });
+
+    expect(deskWorkTable).toHaveTextContent("Start review");
+    expect(deskWorkTable).toHaveTextContent("resume in-flight review");
+    expect(deskWorkTable).toHaveTextContent("Alt");
+    expect(deskWorkTable).toHaveTextContent("Shift");
+    expect(deskWorkTable).toHaveTextContent("R");
 
     workspaceModeMocks.isWorkingMode = false;
   });
