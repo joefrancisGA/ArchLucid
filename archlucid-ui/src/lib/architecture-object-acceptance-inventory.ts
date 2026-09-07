@@ -58,4 +58,34 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/architecture/finalize-success-desk-href.test.ts",
     marker: "AO-35",
   },
+  {
+    id: "AO-28",
+    relativeTestPath: "lib/governance/governance-findings-architecture-scope.test.ts",
+    marker: "AO-28",
+  },
+  {
+    id: "AO-34",
+    relativeTestPath: "components/architecture/WorkingNestedArchitectureIdentityChrome.test.tsx",
+    marker: "AO-34",
+  },
+  {
+    id: "AO-07",
+    relativeTestPath: "lib/architecture/architecture-draft-spawn-handoff-working-guard.test.ts",
+    marker: "AO-07",
+  },
+  {
+    id: "AO-20",
+    relativeTestPath: "components/architecture/ArchitectureIdentityDesk.test.tsx",
+    marker: "AO-20",
+  },
+  {
+    id: "AO-24",
+    relativeTestPath: "components/architecture/ArchitectureDraftWorkspace.test.tsx",
+    marker: "AO-24",
+  },
+  {
+    id: "AO-25",
+    relativeTestPath: "lib/working-start-route.test.ts",
+    marker: "AO-25",
+  },
 ];
