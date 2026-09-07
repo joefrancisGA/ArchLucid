@@ -158,7 +158,10 @@ public sealed class AuthorityPipelineFindingsStage(
 
         try
         {
-            await _insightDensityLlmJudge.ApplyToFindingsAsync(findingsSnapshot.Findings, cancellationToken);
+            int judgeSkippedByCap = await _insightDensityLlmJudge
+                .ApplyToFindingsAsync(findingsSnapshot.Findings, cancellationToken);
+
+            ApplyJudgeSkippedByCap(findingsSnapshot, judgeSkippedByCap);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -216,6 +219,19 @@ public sealed class AuthorityPipelineFindingsStage(
                 context.UnitOfWork.SupportsExternalTransaction ? context.UnitOfWork.Transaction : null,
                 cancellationToken);
         }
+    }
+
+    private static void ApplyJudgeSkippedByCap(FindingsSnapshot snapshot, int judgeSkippedByCap)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        if (judgeSkippedByCap <= 0)
+        {
+            return;
+        }
+
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.JudgeSkippedByCap = judgeSkippedByCap;
     }
 
     private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)

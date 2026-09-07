@@ -31,6 +31,7 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest
         runId="run-1"
+        enginesSucceeded={16}
         feasibilityVerdict={feasibilityVerdict}
         runCompleted
       />,
@@ -43,6 +44,29 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
     expect(screen.getByText(/inferred \(1\)/i)).toBeVisible();
     expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
+  });
+
+  it("shows skipped actor engines on the measurement strip for IaC-only graphs", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        enginesSucceeded={12}
+        analysisStagesComplete
+        graphSnapshot={{ nodes: [] }}
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      "external-exposure",
+    );
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      "no Actor nodes",
+    );
   });
 
   it("keeps the sealed Guided stamp to receipt only so Overview can own the trail", () => {

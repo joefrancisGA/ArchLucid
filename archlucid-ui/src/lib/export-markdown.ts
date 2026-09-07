@@ -1,7 +1,10 @@
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 import { formatManifestDocumentShape } from "./export-markdown-manifest-document";
-import { formatCareerExportHonestyMarkdown } from "@/lib/career-export-coverage-honesty";
+import {
+  formatCareerExportHonestyMarkdown,
+  resolveCareerExportMeasurementFloorOptions,
+} from "@/lib/career-export-coverage-honesty";
 import type { CareerExportCoverageHonestyInput } from "@/lib/career-export-coverage-honesty";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
@@ -75,6 +78,15 @@ function resolveCareerExportHonestyInput(
     enginesSucceeded: options?.enginesSucceeded ?? honestyOptions?.enginesSucceeded ?? null,
     workingDesk: honestyOptions?.workingDesk ?? false,
     classificationCounts: honestyOptions?.classificationCounts ?? null,
+    findingsSnapshot: honestyOptions?.findingsSnapshot ?? null,
+    judgeSkippedByCap: honestyOptions?.judgeSkippedByCap ?? null,
+    preCommitGateEnabled: honestyOptions?.preCommitGateEnabled ?? null,
+    structuralExecutionMode: honestyOptions?.structuralExecutionMode ?? null,
+    isSample: honestyOptions?.isSample ?? null,
+    hostAgentExecutionMode: honestyOptions?.hostAgentExecutionMode ?? null,
+    hostQualityGateMode: honestyOptions?.hostQualityGateMode ?? null,
+    aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
+    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
   };
 }
 
@@ -168,9 +180,18 @@ function formatManifestSummaryFallback(
     lines.push(formatCareerExportHonestyMarkdown(honestyInput).trim());
     lines.push("");
   } else {
+    const measurementFloorOptions = resolveCareerExportMeasurementFloorOptions({
+      graphSnapshot: options?.careerExportHonesty?.graphSnapshot ?? null,
+      progressSummary: options?.careerExportHonesty?.progressSummary ?? null,
+      findingsSnapshot: options?.careerExportHonesty?.findingsSnapshot ?? null,
+      judgeSkippedByCap: options?.careerExportHonesty?.judgeSkippedByCap ?? null,
+    });
+
     lines.push("## Measurement floor");
     lines.push("");
-    lines.push(formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null).line);
+    lines.push(
+      formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null, measurementFloorOptions).line,
+    );
     lines.push("");
   }
 

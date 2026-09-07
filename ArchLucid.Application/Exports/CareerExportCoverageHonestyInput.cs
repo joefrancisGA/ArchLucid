@@ -18,4 +18,5 @@ public sealed record CareerExportCoverageHonestyInput(
     string? HostAgentExecutionMode = null,
     AgentOutputQualityGateMode HostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
     AgentOutputQualityGateMode? RecordedQualityGateMode = null,
-    AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null);
+    AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
+    int? JudgeSkippedByCap = null);

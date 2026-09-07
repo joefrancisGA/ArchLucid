@@ -194,6 +194,43 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("Measurement floor");
   });
 
+  it("fallback measurement floor names skipped actor engines when graph context is provided", () => {
+    const summary: ManifestSummary = {
+      manifestId: "m9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: 4,
+      warningCount: 1,
+      unresolvedIssueCount: 0,
+      operatorSummary: "One-line operator summary.",
+    };
+
+    const md = formatGoldenManifestMarkdown(null, {
+      runId: "r9",
+      manifestSummaryFallback: summary,
+      enginesSucceeded: 12,
+      careerExportHonesty: {
+        enginesSucceeded: 12,
+        workingDesk: true,
+        graphSnapshot: { nodes: [] },
+        progressSummary: {
+          runId: "r9",
+          projectId: "p1",
+          createdUtc: "2026-01-01T00:00:00Z",
+          hasFindingsSnapshot: true,
+          hasGraphSnapshot: true,
+          hasContextSnapshot: true,
+        },
+      },
+    });
+
+    expect(md).toContain("external-exposure");
+    expect(md).toContain("no Actor nodes");
+  });
+
   it("appends shared career export honesty to full manifest JSON exports (PC-13)", () => {
     const md = formatGoldenManifestMarkdown(
       { runId: "r1", manifestId: "m1", manifestHash: "h1" },

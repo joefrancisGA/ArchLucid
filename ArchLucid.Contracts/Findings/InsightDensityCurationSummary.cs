@@ -14,4 +14,11 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Premium insight-density LLM judge findings skipped by per-snapshot cap (DX-15).</summary>
+    public int JudgeSkippedByCap
+    {
+        get;
+        set;
+    }
 }

@@ -49,6 +49,7 @@ export type GoldenManifestExportMenuProps = {
   enginesSucceeded?: number | null;
   progressSummary?: RunSummary | null;
   graphSnapshot?: unknown;
+  findingsSnapshot?: unknown;
   classificationCounts?: CareerExportClassificationCounts | null;
   /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
   aggregateQualityGateOutcome?: number | null;
@@ -120,6 +121,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       progressSummary: props.progressSummary ?? null,
       manifestSummary,
       graphSnapshot: props.graphSnapshot ?? null,
+      findingsSnapshot: props.findingsSnapshot ?? null,
       enginesSucceeded: props.enginesSucceeded ?? null,
       workingDesk,
       classificationCounts: props.classificationCounts ?? null,
@@ -171,6 +173,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       careerExportHonesty: {
         progressSummary: props.progressSummary ?? null,
         graphSnapshot: props.graphSnapshot ?? null,
+        findingsSnapshot: props.findingsSnapshot ?? null,
         enginesSucceeded: props.enginesSucceeded ?? null,
         workingDesk,
         classificationCounts: props.classificationCounts ?? null,

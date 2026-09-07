@@ -35,4 +35,18 @@ public sealed class InsightDensityMeasurementFloorPresentation
         get;
         init;
     }
+
+    /// <summary>Actor-dependent engine types that did not run because the graph has no Actor nodes (DX-15).</summary>
+    public IReadOnlyList<string> SkippedActorEngineTypes
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Premium insight-density judge findings skipped by per-snapshot cap when persisted on the snapshot.</summary>
+    public int? JudgeSkippedByCap
+    {
+        get;
+        init;
+    }
 }
