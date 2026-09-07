@@ -101,6 +101,26 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL = "Diagram mode" as c
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL = "Seed cloud resource id" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDrift;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID = "infra-drift-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL = "Skip to drift comparison" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD =
+  "Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot evidence." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE =
+  "Advisory Terraform exports are reconstructed from inventory evidence — not original Terraform and must not be applied without human review." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL = "Scoped to resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE = "Drift workbench unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
+
 export type InfrastructureWorkbenchRow = {
   readonly href: string;
   readonly label: string;
