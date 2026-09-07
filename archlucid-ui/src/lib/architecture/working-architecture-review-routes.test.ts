@@ -10,6 +10,7 @@ import {
 import {
   isNestedReviewArchitectureMismatch,
   resolveArchitectureReviewTabHref,
+  resolveReviewWorkspaceArchitectureId,
   resolveWorkingPeerReviewRedirectHref,
 } from "@/lib/architecture/working-architecture-review-routes";
 
@@ -41,6 +42,30 @@ describe("architecture nested route builders (AO-02)", () => {
     expect(resolveArchitectureReviewTabHref("run-001", "activity", "architecture-identity-001")).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
     );
+  });
+});
+
+describe("resolveReviewWorkspaceArchitectureId (AO-33)", () => {
+  it("prefers explicit architecture id over nested pathname", () => {
+    expect(
+      resolveReviewWorkspaceArchitectureId(
+        "architecture-explicit",
+        "/architecture/architectures/architecture-nested/reviews/run-001",
+      ),
+    ).toBe("architecture-explicit");
+  });
+
+  it("reads architecture id from nested review pathname", () => {
+    expect(
+      resolveReviewWorkspaceArchitectureId(
+        null,
+        "/architecture/architectures/architecture-identity-001/reviews/run-001",
+      ),
+    ).toBe("architecture-identity-001");
+  });
+
+  it("returns null for peer review paths without explicit architecture id", () => {
+    expect(resolveReviewWorkspaceArchitectureId(null, "/architecture/reviews/run-001")).toBeNull();
   });
 });
 

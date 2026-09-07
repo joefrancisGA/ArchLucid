@@ -97,6 +97,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred
             runId={model.resolvedDetail.run.runId}
+            parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
             sections={model.runDetailNavSections}
           />
         }

@@ -120,7 +120,11 @@ export function resolveRunDetailPageViewChrome(
   );
 
   const sectionNavEl = (
-    <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
+    <RunDetailSectionNavDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      sections={m.runDetailNavSections}
+    />
   );
 
   const governanceCtaEl = showGovernanceCta ? (
