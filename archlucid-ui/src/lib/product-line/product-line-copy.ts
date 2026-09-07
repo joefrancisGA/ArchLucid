@@ -15,7 +15,7 @@ export const PRODUCT_LINE_WORDMARK_ARIA_LABEL: Record<ProductLineId, string> = {
 export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure evidence";
 
 export const SECURITY_PRODUCT_HOME_SUBTITLE =
-  "Cloud inventory, drift, diagrams, grounded Ask, and remediation — without the architecture-review spine.";
+  "Cloud inventory, drift, diagrams, grounded Ask, and remediation.";
 
 export const SECURITY_PRODUCT_HOME_CLAIM_DISCIPLINE =
   "This shell does not run architecture reviews, sealed manifests, or approval queues. Inventory collection still uses the shared platform.";

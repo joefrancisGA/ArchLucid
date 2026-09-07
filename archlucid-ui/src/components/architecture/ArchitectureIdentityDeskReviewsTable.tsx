@@ -19,7 +19,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY,
   ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import type { ArchitectureIdentityChildReviewSummary } from "@/types/architecture-identity";
@@ -77,7 +77,7 @@ export function ArchitectureIdentityDeskReviewsTable(
           return (
             <EnterpriseTableRow key={review.runId} data-testid={`architecture-identity-review-row-${review.runId}`}>
               <EnterpriseTableCell>
-                <Link href={reviewDetailPath(review.runId)} className={OPERATOR_LINK.nav}>
+                <Link href={resolveArchitectureReviewHref(review.runId, props.architectureId)} className={OPERATOR_LINK.nav}>
                   {label}
                 </Link>
               </EnterpriseTableCell>

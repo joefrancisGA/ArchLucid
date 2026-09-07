@@ -39,13 +39,14 @@ export function architectureIdentityPath(architectureId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(architectureId)}`;
 }
 
-/** Opens the draft editor as a child of the durable architecture identity desk. */
+/** Opens the nested draft editor under a durable architecture identity desk (ADR 0077 / AO-05). */
 export function architectureIdentityDraftHref(architectureId: string, draftId: string): string {
-  const params = new URLSearchParams({
-    [ARCHITECTURE_DRAFT_QUERY_PARAM]: draftId.trim(),
-  });
+  return architectureNestedDraftPath(architectureId, draftId);
+}
 
-  return `${architectureIdentityPath(architectureId)}?${params.toString()}`;
+/** Working nested draft job — ADR 0077 / AO-02. Prefer over legacy {@link architectureDraftPath} on Working. */
+export function architectureNestedDraftPath(architectureId: string, draftId: string): string {
+  return `${architectureIdentityPath(architectureId)}/drafts/${encodeURIComponent(draftId.trim())}`;
 }
 
 /** Draft editor path — segment is a {@link DraftRequestResponse.draftId}, not an architecture identity id. */
@@ -57,8 +58,31 @@ export function isArchitectureNewDraftSegment(draftId: string): boolean {
   return draftId.trim() === ARCHITECTURE_NEW_DRAFT_SEGMENT;
 }
 
+/** Legacy / Guided peer review URL — do not add new Working call sites (ADR 0077 / AO-02). */
 export function reviewDetailPath(reviewId: string): string {
   return `${REVIEWS_LIST_PATH}/${encodeURIComponent(reviewId)}`;
+}
+
+/** Working nested review job — ADR 0077 / AO-02. */
+export function architectureNestedReviewPath(architectureId: string, reviewId: string): string {
+  return `${architectureIdentityPath(architectureId)}/reviews/${encodeURIComponent(reviewId.trim())}`;
+}
+
+/**
+ * Working uses nested review paths when `architectureId` is known; Guided and unlinked reviews keep the peer URL.
+ */
+export function resolveArchitectureReviewHref(
+  reviewId: string,
+  architectureId?: string | null,
+): string {
+  const trimmedReviewId = reviewId.trim();
+  const trimmedArchitectureId = architectureId?.trim() ?? "";
+
+  if (trimmedArchitectureId.length > 0) {
+    return architectureNestedReviewPath(trimmedArchitectureId, trimmedReviewId);
+  }
+
+  return reviewDetailPath(trimmedReviewId);
 }
 
 export function isReviewsListPath(pathname: string): boolean {
@@ -69,10 +93,10 @@ export function isReviewsPath(pathname: string): boolean {
   return pathname === REVIEWS_LIST_PATH || pathname.startsWith(`${REVIEWS_LIST_PATH}/`);
 }
 
-export function startReviewFromArchitectureHref(draftId: string): string {
+export function startReviewFromArchitectureHref(architectureId: string): string {
   const qs = new URLSearchParams({
     path: "guided-intake",
-    [SOURCE_ARCHITECTURE_QUERY_PARAM]: draftId,
+    [SOURCE_ARCHITECTURE_QUERY_PARAM]: architectureId.trim(),
   });
 
   return `${REVIEWS_NEW_PATH}?${qs.toString()}`;
@@ -90,13 +114,25 @@ export function parseArchitectureDraftIdFromPath(pathname: string): string | nul
     return null;
   }
 
-  const segment = path.slice(prefix.length).split("/")[0]?.trim() ?? "";
+  const segments = path
+    .slice(prefix.length)
+    .split("/")
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0);
 
-  if (segment.length === 0 || segment === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
+  if (segments.length === 0 || segments[0] === ARCHITECTURE_NEW_DRAFT_SEGMENT) {
     return null;
   }
 
-  return segment;
+  if (segments.length === 3 && segments[1] === "drafts") {
+    return segments[2] ?? null;
+  }
+
+  if (segments.length === 1) {
+    return segments[0] ?? null;
+  }
+
+  return null;
 }
 
 /** Reads `?draft=` when the pathname segment is an architecture identity id. */

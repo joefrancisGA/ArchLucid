@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { CTA_WIDTH, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ export const ARCHITECTURE_DRAFT_HANDOFF_LOCK_SENTENCE =
 
 type ArchitectureDraftHandoffPanelProps = {
   readonly draftId: string;
+  readonly parentArchitectureId?: string | null;
   readonly workspaceHeading: string;
   readonly linkedReviewId: string;
   readonly linkedReviewTitle: string;
@@ -25,7 +26,7 @@ type ArchitectureDraftHandoffPanelProps = {
 export function ArchitectureDraftHandoffPanel(
   props: ArchitectureDraftHandoffPanelProps,
 ): React.JSX.Element {
-  const reviewHref = reviewDetailPath(props.linkedReviewId);
+  const reviewHref = resolveArchitectureReviewHref(props.linkedReviewId, props.parentArchitectureId);
   const reviewLabel = props.linkedReviewTitle.trim().length > 0
     ? props.linkedReviewTitle
     : "Linked review";

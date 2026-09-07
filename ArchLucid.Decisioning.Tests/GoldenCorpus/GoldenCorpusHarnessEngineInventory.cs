@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Plugins;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
@@ -8,43 +9,10 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 /// </summary>
 public static class GoldenCorpusHarnessEngineInventory
 {
-    public const int RegisteredEngineCount = 32;
+    public static int RegisteredEngineCount => GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount;
 
-    public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
-    [
-        "requirement",
-        "requirement-expectation",
-        "requirement-coverage",
-        "topology-coverage",
-        "topology-structure",
-        "security-baseline",
-        "security-baseline-completeness",
-        "security-gap",
-        "security-coverage",
-        "external-exposure",
-        "trust-boundary",
-        "privileged-access",
-        "compliance",
-        "cost-constraint",
-        "declaration-security-baseline",
-        "declaration-premise-conflict",
-        "orphaned-azure-resource",
-        "advisor-cost-recommendation",
-        "azure-inventory-reconciliation",
-        "aws-inventory-reconciliation",
-        "gcp-inventory-reconciliation",
-        "declaration-inventory-contradiction",
-        "orphaned-aws-resource",
-        "orphaned-gcp-resource",
-        "aws-cost-recommendation",
-        "gcp-cost-recommendation",
-        "azure-inventory-security-baseline",
-        "aws-inventory-security-baseline",
-        "gcp-inventory-security-baseline",
-        "open-commitment",
-        "secrets-lifecycle",
-        "portfolio-recurrence",
-    ];
+    public static IReadOnlyList<string> RegisteredEngineTypeIds =>
+        GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds;
 
     private static readonly IReadOnlyDictionary<string, string> AbsentReasons =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -52,15 +20,13 @@ public static class GoldenCorpusHarnessEngineInventory
             ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
-            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-37.",
+            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-40.",
             ["security-baseline-expectation"] = "Expectation engine needs declaration fixtures beyond default graphs.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["required-capability-coverage"] = "Capability coverage needs inventory-shaped graph not in corpus.",
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
-            ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
-            ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
-            ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
+            ["requirement-sku-tier"] = "SKU/replication tier checks need requirement redundancy text plus linked datastore SKU properties — not on default golden graphs.",
             ["dangling-declaration-reference"] = "Cross-file dangling refs need paired source/target fixtures — not on default golden graphs.",
             ["checklist-cluster-synthesis"] = "Post-gate synthesis stage — needs clustered ChecklistCoverage fixtures, not graph-only golden cases.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",

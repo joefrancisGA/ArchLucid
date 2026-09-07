@@ -7,7 +7,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import {
   ARCHITECTURE_DRAFT_QUERY_PARAM,
   ARCHITECTURE_NEW_DRAFT_SEGMENT,
-  architectureIdentityDraftHref,
+  architectureNestedDraftPath,
 } from "@/lib/architecture/architecture-routes";
 import { metadataForArchitectureDraftEditRoute } from "@/lib/architecture/architecture-draft-route-metadata";
 import { resolveArchitectureRouteSegment } from "@/lib/architecture/resolve-architecture-route-segment";
@@ -52,7 +52,7 @@ export default async function ArchitectureSegmentPage(
   const resolved = await resolveArchitectureRouteSegment(segment);
 
   if (resolved.kind === "draft-handoff") {
-    redirect(architectureIdentityDraftHref(resolved.architectureId, resolved.draftId));
+    redirect(architectureNestedDraftPath(resolved.architectureId, resolved.draftId));
   }
 
   if (resolved.kind === "new-draft") {
@@ -76,16 +76,7 @@ export default async function ArchitectureSegmentPage(
   }
 
   if (draftQueryId !== null) {
-    return (
-      <OperatorPageContainer variant="workflow">
-        <div className="mt-6 space-y-4">
-          <ArchitectureDraftWorkspace
-            draftId={draftQueryId}
-            parentArchitectureId={resolved.architectureId}
-          />
-        </div>
-      </OperatorPageContainer>
-    );
+    redirect(architectureNestedDraftPath(resolved.architectureId, draftQueryId));
   }
 
   return (

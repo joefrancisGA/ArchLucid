@@ -9,7 +9,6 @@ import {
 } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDevEmployeeRoleOverrideActive } from "@/lib/dev-testing-overrides";
@@ -55,13 +54,11 @@ export function SecurityProductHome(): React.JSX.Element {
         navHref="/"
         headingLevel="h2"
       />
-      <ProductLineSwitchBar />
       <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
         {destinations.map((link) => (
           <li key={link.href}>
             <Link href={link.href} className={OPERATOR_LINK.nav}>
               <span className={OPERATOR_TYPOGRAPHY.cardTitle}>{link.label}</span>
-              <span className={OPERATOR_TYPOGRAPHY.helper}>{link.title}</span>
             </Link>
           </li>
         ))}
