@@ -28,7 +28,7 @@ public static class CommercialPackagingTierResolver
         if (subscription is not null)
         {
             if (subscription.WorkspacesPurchased <= CommercialPackagingLimits.TeamWorkspacesIncluded &&
-                subscription.SeatsPurchased <= CommercialPackagingLimits.TeamSeatsIncluded)
+                subscription.SeatsPurchased <= CommercialPackagingLimits.TeamSeatsMax)
             {
                 return CommercialPackagingTierLabels.Team;
             }
@@ -38,7 +38,7 @@ public static class CommercialPackagingTierResolver
 
         // Sales-led Standard tenants without a billing row: infer Team when usage fits Team caps.
         if (workspacesUsed <= CommercialPackagingLimits.TeamWorkspacesIncluded &&
-            seatsUsed <= CommercialPackagingLimits.TeamSeatsIncluded)
+            seatsUsed <= CommercialPackagingLimits.TeamSeatsMax)
         {
             return CommercialPackagingTierLabels.Team;
         }
