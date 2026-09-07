@@ -6,8 +6,10 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } 
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailCreateHomeCapturedEvidenceInventory } from "@/components/runs/RunDetailCreateHomeCapturedEvidenceInventory";
 import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
+import { useRunStoredEvidenceCatalogQuery } from "@/hooks/use-run-stored-evidence-catalog-query";
 import {
   deriveCapturedEvidenceFromArtifacts,
+  deriveCapturedEvidenceFromCatalog,
   mergeCapturedEvidenceUploadOutcomes,
   readPersistedCapturedEvidenceInventory,
   reconcileCapturedEvidenceInventory,
@@ -25,13 +27,27 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
   props: RunDetailCreateHomeEvidenceCaptureRegionProps,
 ): ReactElement {
   const router = useRouter();
+  const { catalog, isLoading: catalogLoading } = useRunStoredEvidenceCatalogQuery(props.runId);
+  const catalogItems = useMemo(
+    () =>
+      deriveCapturedEvidenceFromCatalog(
+        catalog.map((entry) => ({
+          evidenceItemId: entry.evidenceItemId,
+          originalFileName: entry.originalFileName,
+          contentType: entry.contentType,
+        })),
+      ),
+    [catalog],
+  );
   const initialCaptured = useMemo(
     () =>
       reconcileCapturedEvidenceInventory(
-        deriveCapturedEvidenceFromArtifacts(props.artifacts),
+        catalogItems.length > 0
+          ? catalogItems
+          : deriveCapturedEvidenceFromArtifacts(props.artifacts),
         readPersistedCapturedEvidenceInventory(props.runId),
       ),
-    [props.artifacts, props.runId],
+    [catalogItems, props.artifacts, props.runId],
   );
   const [capturedItems, setCapturedItems] = useState<readonly RunDetailCreateHomeCapturedEvidenceItem[]>(initialCaptured);
   const trackedRunIdRef = useRef(props.runId);
@@ -62,7 +78,12 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
       }
 
       setCapturedItems((current) => {
-        const next = mergeCapturedEvidenceUploadOutcomes(current, summary.outcomes, new Date().toISOString());
+        const next = mergeCapturedEvidenceUploadOutcomes(
+          current,
+          summary.outcomes,
+          new Date().toISOString(),
+          summary.evidenceItemIds,
+        );
 
         writePersistedCapturedEvidenceInventory(props.runId, next);
 
@@ -75,7 +96,11 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
 
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-evidence-capture-region">
-      <RunDetailCreateHomeCapturedEvidenceInventory items={capturedItems} />
+      <RunDetailCreateHomeCapturedEvidenceInventory
+        runId={props.runId}
+        items={capturedItems}
+        catalogAvailable={!catalogLoading || catalog.length > 0}
+      />
       <RunDetailCaptureEvidenceSection
         runId={props.runId}
         buyerPolished={props.buyerPolished}

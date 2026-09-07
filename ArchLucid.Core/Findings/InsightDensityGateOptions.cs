@@ -75,4 +75,25 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = 8;
+
+    /// <summary>
+    ///     When true in Real execution mode, tenant novelty rates from
+    ///     <see cref="IFindingInsightSignalRepository.ListNoveltyRatesAsync" /> rank engine findings in the Premium
+    ///     judge-cap selector (requires <see cref="EnableLlmJudge" /> and
+    ///     <see cref="EnableLlmJudgeForEngineFindings" />) and in the insight generator sample when
+    ///     <see cref="EnableInsightGenerator" /> is also true. Internal ranking only — not a buyer claim or G-REAL-06
+    ///     proof. Default false; Simulator ignores this flag.
+    /// </summary>
+    public bool PreferHighNoveltyEngines
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>Trailing window for <see cref="PreferHighNoveltyEngines" /> rate lookup. Default 90 days.</summary>
+    public int NoveltyRateWindowDays
+    {
+        get;
+        set;
+    } = 90;
 }

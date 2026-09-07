@@ -49,18 +49,31 @@ export function CommandPaletteAdminNavGroups({
   const adminRows = filterNavGroupsByRoleDensity(
     applyPatternLibraryNavGate(
       scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          callerAuthorityRank,
-          "platform-admin",
-          hasCommittedArchitectureReview,
-          false,
-          {
-            showVendorInternalNav,
-            productLine,
-            productLineAssignmentOverrides,
-          },
-        ),
+        (productLine === "security"
+          ? listNavGroupsVisibleInOperatorShell(
+              NAV_GROUPS,
+              callerAuthorityRank,
+              "all",
+              hasCommittedArchitectureReview,
+              false,
+              {
+                showVendorInternalNav,
+                productLine,
+                productLineAssignmentOverrides,
+              },
+            ).filter((row) => row.group.id === "operator-admin")
+          : listNavGroupsVisibleInOperatorShell(
+              NAV_GROUPS,
+              callerAuthorityRank,
+              "platform-admin",
+              hasCommittedArchitectureReview,
+              false,
+              {
+                showVendorInternalNav,
+                productLine,
+                productLineAssignmentOverrides,
+              },
+            )),
         auditRunId,
       ),
       patternLibraryNavVisible,
@@ -70,7 +83,7 @@ export function CommandPaletteAdminNavGroups({
   );
 
   const systemAdminRows = filterNavGroupsByRoleDensity(
-    isShowSystemAdministrationNavEnabled() && !workingMode
+    isShowSystemAdministrationNavEnabled() && !workingMode && productLine !== "security"
       ? listNavGroupsVisibleInOperatorShell(
           NAV_GROUPS,
           callerAuthorityRank,

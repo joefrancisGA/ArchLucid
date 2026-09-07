@@ -6,7 +6,9 @@ import {
   resolveCareerExportMeasurementFloorOptions,
 } from "@/lib/career-export-coverage-honesty";
 import type { CareerExportCoverageHonestyInput } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
@@ -102,12 +104,23 @@ function appendCareerExportHonestyMarkdownSection(
   }
 
   const honestyMarkdown = formatCareerExportHonestyMarkdown(honestyInput).trim();
+  const honestyVerdict = evaluateCareerArtifactHonesty({
+    ...honestyInput,
+    artifactKind: "export",
+    transparencyTrail: manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+  });
+  const supplementalHeaderLines = honestyVerdict.headerLines
+    .filter((line) => !honestyMarkdown.includes(line))
+    .join("\n")
+    .trim();
 
-  if (honestyMarkdown.length === 0) {
+  if (honestyMarkdown.length === 0 && supplementalHeaderLines.length === 0) {
     return body;
   }
 
-  return `${body.trim()}\n\n${honestyMarkdown}\n`;
+  const combinedHonesty = [honestyMarkdown, supplementalHeaderLines].filter((section) => section.length > 0).join("\n\n");
+
+  return `${body.trim()}\n\n${combinedHonesty}\n`;
 }
 
 function formatManifestSummaryFallback(
@@ -196,6 +209,14 @@ function formatManifestSummaryFallback(
   }
 
   const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    summary.feasibilityVerdict ?? null,
+  );
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    lines.push(feasibilityVerdictMarkdown.trim());
+    lines.push("");
+  }
 
   if (honestyInput === null && trail !== null && trail !== undefined) {
     lines.push(formatTransparencyTrailMarkdownSection(trail));

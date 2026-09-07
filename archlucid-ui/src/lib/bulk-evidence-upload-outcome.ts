@@ -14,6 +14,7 @@ export type BulkEvidenceUploadSummary = {
   uploadedCount: number;
   failedCount: number;
   outcomes: BulkEvidenceFileOutcome[];
+  evidenceItemIds: readonly string[];
   /** True when some files succeeded and some did not. */
   isPartial: boolean;
   /** Top-level operator message. */
@@ -86,6 +87,7 @@ export function buildBulkEvidenceUploadSummary(
   uploadedNonEmptyCount: number,
   failedReason: string,
   successMessage: string,
+  evidenceItemIds: readonly string[] = [],
 ): BulkEvidenceUploadSummary {
   const outcomes = mapBulkEvidenceFileOutcomes(files, uploadedNonEmptyCount, failedReason);
   const uploadedCount = outcomes.filter((o) => o.status === "uploaded").length;
@@ -102,16 +104,26 @@ export function buildBulkEvidenceUploadSummary(
     uploadedCount,
     failedCount,
     outcomes,
+    evidenceItemIds,
     isPartial,
     message,
   };
 }
 
 export function parseSuccessUploadedCount(bodyText: string): number {
+  return parseEvidenceItemIdsFromSuccessBody(bodyText).length;
+}
+
+export function parseEvidenceItemIdsFromSuccessBody(bodyText: string): readonly string[] {
   try {
     const parsed = JSON.parse(bodyText) as BulkEvidenceUploadSuccessBody;
-    return Array.isArray(parsed.evidenceItemIds) ? parsed.evidenceItemIds.length : 0;
+
+    if (!Array.isArray(parsed.evidenceItemIds)) {
+      return [];
+    }
+
+    return parsed.evidenceItemIds.filter((id): id is string => typeof id === "string" && id.trim().length > 0);
   } catch {
-    return 0;
+    return [];
   }
 }

@@ -16,6 +16,7 @@ vi.mock("next/navigation", () => ({
 import { HelpPolicyPackDeltaDemoGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPackDeltaDemoGuideView";
 import {
   POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
 } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
 import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
@@ -51,6 +52,10 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
     expect(screen.getByTestId("help-policy-pack-delta-demo-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-pack-delta-demo-narrative-arc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-finding-toggle")).toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-finding-toggle")).toHaveTextContent(
+      POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+    );
     expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeNull();
     expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).toHaveTextContent(
       POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,

@@ -138,13 +138,6 @@ export function plainLanguageFailureCauseSentence(args: {
 
   const failureClass = (args.failureClass ?? "").trim();
   const completedStages = args.completedStages ?? 0;
-  const likelyCause = resolveLikelyCauseFromArgs(args);
-
-  if (likelyCause !== null) {
-    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
-
-    return `${stagePrefix} ${likelyCause}`;
-  }
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
     const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
@@ -227,38 +220,6 @@ function resolveFailureResolutionHint(
   }
 
   return "";
-}
-
-function resolveLikelyCauseFromArgs(args: {
-  readonly failureClass?: string | null;
-  readonly reasonCode?: string | null;
-  readonly completedStages?: number;
-}): string | null {
-  const failureClass = (args.failureClass ?? "").trim();
-  const reasonCode = (args.reasonCode ?? "").trim();
-  const completedStages = args.completedStages ?? 0;
-
-  if (reasonCode === "NoScheduledAgentTasks") {
-    return "Execute ran before any agent tasks were scheduled — typical deferred scheduling miss. Re-run should resume the queued work on current builds.";
-  }
-
-  if (reasonCode === "MissingArchitectureRequest") {
-    return "Re-run could not load the architecture request needed to resume — data repair or support may be required.";
-  }
-
-  if (reasonCode === "ExecuteOwnershipLeaseExpired") {
-    return "The execute worker lost its ownership lease before finishing. Reopen this review or retry execute; persisted agent results are kept and retry skips them, but unpersisted in-flight LLM spend may rebill.";
-  }
-
-  if (failureClass === "invalidOperation" && completedStages === 0) {
-    return "Pre-stage invalid operation — processing stopped before assessments began. Often the same deferred scheduling miss when reason codes are absent on older failure records.";
-  }
-
-  if (failureClass === "pipelineDeadLetter") {
-    return "Work dead-lettered after repeated failures — inspect worker health and outbox depth.";
-  }
-
-  return null;
 }
 
 export function plainLanguageTriageTitle(triageScenarioId: string | null | undefined): string | null {

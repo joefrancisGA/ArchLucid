@@ -3,6 +3,9 @@ import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTH
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+import { localizeHelpCopy } from "@/lib/help/help-product-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.";
 
@@ -13,10 +16,15 @@ export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
-export function gettingStartedHelpPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell
+export function gettingStartedHelpPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const subtitle = buyerPolishedShell
     ? GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER
     : GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR;
+
+  return localizeHelpCopy(productLineId, subtitle);
 }
 
 export const GETTING_STARTED_HELP_AUDIENCE_LINE =

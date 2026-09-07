@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   POLICY_PACK_DELTA_DEMO_HELP_CANONICAL_PATH,
   POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
   POLICY_PACK_DELTA_DEMO_HELP_SOURCES,
@@ -20,6 +24,12 @@ describe("policy-pack-delta-demo-help-guide-content", () => {
   it("lists a four-beat narrative arc", () => {
     expect(POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC).toHaveLength(4);
     expect(POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC[2]?.toLowerCase()).toContain("dry-run");
+  });
+
+  it("documents finding-set toggle offline golden tests and honesty", () => {
+    expect(POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS).toContain("PolicyPackP1ToggleGoldenCorpusTests");
+    expect(POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY.toLowerCase()).toContain("p1");
+    expect(POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST.length).toBeGreaterThan(0);
   });
 
   it("lists Sources without a self-link to this topic", () => {

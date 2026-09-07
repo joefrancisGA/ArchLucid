@@ -52,5 +52,10 @@ internal static class InsightDensityGateEffectiveOptionsMerger
             isOverridden: false,
             tenantValue: false,
             isRealExecutionMode);
+
+        if (!isRealExecutionMode)
+        {
+            effective.PreferHighNoveltyEngines = false;
+        }
     }
 }

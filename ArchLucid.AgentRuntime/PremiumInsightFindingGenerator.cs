@@ -6,6 +6,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,10 @@ public sealed class PremiumInsightFindingGenerator(
     IGraphCommunitySummaryLookup communitySummaryLookup,
     IOptionsMonitor<AdvancedRetrievalOptions> advancedRetrievalOptions,
     IConfiguration configuration,
-    ILogger<PremiumInsightFindingGenerator> logger) : IInsightFindingGenerator
+    ILogger<PremiumInsightFindingGenerator> logger,
+    IFindingInsightSignalRepository? insightSignalRepository = null,
+    IScopeContextProvider? scopeContextProvider = null,
+    TimeProvider? timeProvider = null) : IInsightFindingGenerator
 {
     private readonly IAgentTierCompletionRouter _tierCompletionRouter =
         tierCompletionRouter ?? throw new ArgumentNullException(nameof(tierCompletionRouter));
@@ -47,6 +51,12 @@ public sealed class PremiumInsightFindingGenerator(
 
     private readonly ILogger<PremiumInsightFindingGenerator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IFindingInsightSignalRepository? _insightSignalRepository = insightSignalRepository;
+
+    private readonly IScopeContextProvider? _scopeContextProvider = scopeContextProvider;
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     public async Task<IReadOnlyList<Finding>> GenerateAsync(
         IReadOnlyList<Finding> engineFindings,
@@ -73,6 +83,21 @@ public sealed class PremiumInsightFindingGenerator(
         IReadOnlyList<InsightGeneratorCommunitySummary> communitySummaries =
             await ResolveCommunitySummariesAsync(graphSnapshot, cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null;
+
+        if (ShouldApplyNoveltyRates(options)
+            && _insightSignalRepository is not null
+            && _scopeContextProvider is not null)
+        {
+            noveltyRatesByEngineType = await InsightDensityNoveltyRateLookup.TryLoadNoveltyRatesAsync(
+                options,
+                _insightSignalRepository,
+                _scopeContextProvider,
+                _timeProvider,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+        }
+
         HashSet<string> allowedRefs = InsightGeneratorEvidenceSummary.CollectAllowedEvidenceRefs(
             engineFindings,
             graphSnapshot,
@@ -89,7 +114,8 @@ public sealed class PremiumInsightFindingGenerator(
             graphSnapshot,
             allowedRefs,
             options.MaxGeneratedInsightFindingsPerSnapshot,
-            communitySummaries);
+            communitySummaries,
+            noveltyRatesByEngineType);
 
         (IAgentCompletionClient completionClient, _) = _tierCompletionRouter.ResolveForAgentTypeName(
             InsightDensityJudgeAgentTypeNames.Judge,
@@ -237,5 +263,10 @@ public sealed class PremiumInsightFindingGenerator(
         }
 
         return nodeIds;
+    }
+
+    private static bool ShouldApplyNoveltyRates(InsightDensityGateOptions options)
+    {
+        return options.PreferHighNoveltyEngines && options.EnableInsightGenerator;
     }
 }
