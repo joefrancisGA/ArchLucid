@@ -12,7 +12,7 @@ using FluentAssertions;
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>
-///     DX-22 sibling: proves checklist-cluster synthesis on findings shaped like the case-43 declaration graph.
+///     DX-22 sibling: proves checklist-cluster synthesis on findings shaped like the case-46 declaration graph.
 ///     Merge harness output alone cannot emit synthesis (demoted rows need dismiss posture); this fixture
 ///     simulates that posture on real engine rows from the golden graph.
 /// </summary>
@@ -22,7 +22,7 @@ public sealed class ChecklistClusterSynthesisGoldenCorpusTests
     private const string SharedPolicyRuleId = "cis-az-012";
 
     [Fact]
-    public async Task Case43_graph_declaration_rows_cluster_into_checklist_synthesis()
+    public async Task Case46_graph_declaration_rows_cluster_into_checklist_synthesis()
     {
         GraphSnapshot graph = GoldenCorpusChecklistClusterGraphFactory.CreateSixHttpsDeclarationClusterGraph();
         string complianceRulesPath = Path.Combine(

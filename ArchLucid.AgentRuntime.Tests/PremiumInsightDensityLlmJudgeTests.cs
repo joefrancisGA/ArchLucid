@@ -202,6 +202,39 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     }
 
     [Fact]
+    public async Task ApplyToFindingsAsync_prefers_dangling_declaration_reference_under_cap()
+    {
+        List<Finding> findings = Enumerable.Range(0, 12)
+            .Select(index => CreatePromotedEngineFinding(
+                $"coverage-{index:D2}",
+                engineType: "topology-coverage",
+                severity: FindingSeverity.Warning,
+                insightDensityScore: 50))
+            .ToList();
+
+        Finding danglingFinding = CreatePromotedEngineFinding(
+            "dangling-1",
+            engineType: "dangling-declaration-reference",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        findings.Add(danglingFinding);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 12,
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        judgingClient.CallCount.Should().Be(12);
+        judgingClient.JudgedFindingIds.Should().Contain("dangling-1");
+        judgingClient.JudgedFindingIds.Should().NotContain("coverage-11");
+    }
+
+    [Fact]
     public async Task ApplyToFindingsAsync_respects_per_snapshot_cap()
     {
         List<Finding> findings = Enumerable.Range(0, 30)
