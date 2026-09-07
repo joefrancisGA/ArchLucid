@@ -84,6 +84,7 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/internal/health");
     expect(hrefs).toContain("/internal/configuration");
     expect(hrefs).toContain("/internal/tenants");
+    expect(hrefs).toContain("/internal/product-line");
     expect(hrefs).not.toContain("/internal/trial-funnel");
     expect(hrefs).not.toContain("/internal/pricing-quote-aging");
     expect(hrefs).not.toContain("/internal/validate-route");
