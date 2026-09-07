@@ -6871,11 +6871,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — compound Stripe signing secrets leaked through config summary redaction
+- **last-bug:** 2026-09-07 — compound OAuth/PAT token paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6889,13 +6889,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `EmailOtpAuthOptionsValidator.IsProductionLike` omits `SaaS` and `ARCHLUCID_ENVIRONMENT` unlike Quick Scan validator — **hit 2026-09-07 (#1214):** validator only checked ASP.NET `Production`/`Staging` and bypassed all checks on `IsDevelopment()` even when `ARCHLUCID_ENVIRONMENT=Production`; hosted SaaS or archlucid-prod dev hosts could start with Email OTP enabled and short/missing `HashPepper`; fixed by reusing `QuickScanSafetyProductionLikeHostClassification` with `IConfiguration`; regressions `Validate_saas_environment_requires_hash_pepper_when_enabled`, `Validate_archlucid_environment_production_requires_hash_pepper_when_enabled`
 - [x] (proven) Compound Stripe webhook signing secrets bypass embedded-`Secret` fragment matching — **hit 2026-09-07 (#1223):** catalog paths `Billing:Stripe:*SigningSecret` and `CheckoutSecretKey` leaked raw values because `IsEmbeddedSensitiveFragment` skipped mid-segment `Secret`; fixed with `IsCompoundSecretCredentialSegment` suffix rules; regression in `Resolve_redacts_compound_stripe_secret_config_paths`
 - [x] (valid-no-repro) `Auth:EmailOtp:HashPepper` and `Auth:EmailOtp:BotChallenge:SecretKey` catalog-adjacent paths — already redacted via `Pepper` suffix and standalone `SecretKey` segment matching
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound OAuth/PAT token paths bypass embedded-`Token` fragment matching — **hit 2026-09-07 (#1227):** catalog paths such as `AzureDevOps:PersonalAccessToken` and `OAuthRefreshToken` leaked raw values because mid-segment `Token` is treated as embedded; fixed with `IsCompoundTokenCredentialSegment` suffix rules for `AccessToken`, `RefreshToken`, `IdToken`, and `BearerToken`; regression in `Resolve_redacts_compound_token_credential_config_paths` and `Resolve_preserves_access_token_lifetime_minutes_path`
 
-2026-09-07 seed hunt #1167 (hit): proved pseudonymization salt leaked through config summary redaction.
-
-2026-09-07 thorough hunt #1201 (hit): disproved ReplacementToken over-redaction; proved Quick Scan operational fail-closed scope drift from validator production-like classification.
-
-2026-09-07 thorough hunt #1214 (hit): proved Email OTP validator production-like scope drift from Quick Scan shared classification on SaaS and ARCHLUCID_ENVIRONMENT hosts.
-
+2026-09-07 seed hunt #1227 (hit): reseeded config summary redaction paths; proved compound OAuth/PAT token segments leaked through embedded-Token skip.
 2026-09-07 seed hunt #1223 (hit): proved compound Stripe signing secrets leaked through config summary redaction; cheap-disproof on Email OTP HashPepper/BotChallenge paths.
 
 ---

@@ -160,6 +160,43 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("AzureDevOps:PersonalAccessToken")]
+    [InlineData("Integrations:Itsm:Outbound:PersonalAccessToken")]
+    [InlineData("Integrations:Itsm:Outbound:OAuthRefreshToken")]
+    [InlineData("ConfluencePublishing:OAuthRefreshToken")]
+    public void Resolve_redacts_compound_token_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "pat-or-refresh-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_preserves_access_token_lifetime_minutes_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes"] = "60",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes",
+            isSet: true);
+
+        value.Should().Be("60");
+    }
+
     [Fact]
     public void Resolve_redacts_sync_access_key_config_path()
     {
