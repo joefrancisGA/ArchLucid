@@ -9,8 +9,12 @@ import {
   architectureIdentityDraftHref,
   architectureNestedDraftPath,
   architectureNestedAskPath,
+  architectureNestedComparePath,
+  architectureNestedFindingsPath,
+  architectureNestedGraphPath,
   architectureNestedReviewPath,
   parseArchitectureNestedAskArchitectureId,
+  parseArchitectureNestedToolArchitectureId,
   ARCHITECTURES_NEW_PATH,
   isArchitectureNewDraftSegment,
   resolveArchitectureReviewHref,
@@ -77,6 +81,24 @@ describe("architecture-routes", () => {
     expect(
       parseArchitectureNestedAskArchitectureId(
         "/architecture/architectures/architecture-identity-001/ask",
+      ),
+    ).toBe("architecture-identity-001");
+  });
+
+  it("SY-38–43: builds nested Compare, Graph, and Findings paths", () => {
+    expect(architectureNestedComparePath("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/compare",
+    );
+    expect(architectureNestedGraphPath("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/graph",
+    );
+    expect(architectureNestedFindingsPath("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/findings",
+    );
+    expect(
+      parseArchitectureNestedToolArchitectureId(
+        "/architecture/architectures/architecture-identity-001/compare",
+        "compare",
       ),
     ).toBe("architecture-identity-001");
   });

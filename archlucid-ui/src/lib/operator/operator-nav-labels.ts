@@ -78,8 +78,8 @@ export function resolveNewReviewPrimaryNavTitle(): string {
   return resolveStartReviewPrimaryNavTitle();
 }
 
-/** Working sidebar label for `/architecture/reviews` — inbox, not Monday morning (AO-14). */
-export const WORKING_REVIEWS_INBOX_NAV_LABEL = "Review inbox" as const;
+/** Working sidebar label for `/architecture/reviews` — inbox, not Monday morning (AO-14 / SY-56). */
+export const WORKING_REVIEWS_INBOX_NAV_LABEL = "Inbox" as const;
 
 const WORKING_REVIEWS_INBOX_NAV_TITLE =
   "Cross-architecture review inbox — all jobs in this workspace, not your architecture desk";

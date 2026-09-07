@@ -139,16 +139,24 @@ export function resolveShortcutDescription(
 
   if (normalizeCombo(entry.key) === "alt+c" && workingMode) {
     return onReviewPage
-      ? "Compare two reviews — uses this review as the base run"
-      : "Compare two reviews — on a review page, uses that review as the base run";
+      ? "Compare two reviews on the architecture desk — uses this review as the base run"
+      : "Compare two reviews on the architecture desk — last-open architecture or portfolio";
   }
 
-  if (normalizeCombo(entry.key) === "alt+a" && workingMode && onReviewPage) {
-    return "Ask review questions — scoped to this review";
+  if (normalizeCombo(entry.key) === "alt+a" && workingMode) {
+    return onReviewPage
+      ? "Ask review questions on the architecture desk — scoped to this review"
+      : "Ask review questions on the architecture desk — last-open architecture or portfolio";
   }
 
-  if (normalizeCombo(entry.key) === "alt+y" && workingMode && onReviewPage) {
-    return "Open evidence graph — scoped to this review";
+  if (normalizeCombo(entry.key) === "alt+y" && workingMode) {
+    return onReviewPage
+      ? "Open evidence graph on the architecture desk — scoped to this review"
+      : "Open evidence graph on the architecture desk — last-open architecture or portfolio";
+  }
+
+  if (normalizeCombo(entry.key) === "alt+g" && workingMode) {
+    return "Open findings on the architecture desk — last-open architecture or portfolio";
   }
 
   return entry.description;
