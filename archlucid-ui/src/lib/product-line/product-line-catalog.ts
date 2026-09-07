@@ -56,7 +56,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/users": "both",
   "/administration/identity-providers": "both",
   "/administration/scim-provisioning": "both",
-  "/administration/billing": "both",
+  "/administration/billing": "architecture",
   "/administration/security-trust": "both",
   "/administration/connection-status": "both",
   "/administration/system-health": "both",

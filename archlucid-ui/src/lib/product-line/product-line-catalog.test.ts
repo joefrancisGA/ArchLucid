@@ -48,14 +48,18 @@ describe("product-line catalog", () => {
     );
     const hrefs = rows.flatMap((row) => row.visibleLinks.map((link) => link.href));
 
-    expect(hrefs).toContain("/governance/infrastructure");
+    expect(hrefs).toContain("/");
+    expect(hrefs).not.toContain("/governance/infrastructure");
     expect(hrefs).toContain("/governance/infrastructure/drift");
+    expect(rows[0]?.group.id).toBe("operate-infrastructure");
+    expect(rows.some((row) => row.group.id === "pilot")).toBe(false);
     expect(hrefs).toContain("/integrations/cloud-connections");
     expect(hrefs).toContain("/integrations/jira");
     expect(hrefs).toContain("/integrations/servicenow");
     expect(hrefs).toContain("/integrations/teams");
     expect(hrefs).toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
+    expect(hrefs).not.toContain("/administration/billing");
     expect(hrefs).not.toContain("/integrations/azure-boards");
     expect(hrefs).not.toContain("/integrations/slack");
     expect(hrefs).not.toContain("/integrations/webhooks");
@@ -100,7 +104,8 @@ describe("product-line catalog", () => {
     );
     const hrefs = rows.flatMap((row) => row.visibleLinks.map((link) => link.href));
 
-    expect(hrefs).toContain("/governance/infrastructure");
+    expect(hrefs).toContain("/");
+    expect(hrefs).not.toContain("/governance/infrastructure");
     expect(hrefs).toContain("/integrations/cloud-connections");
     expect(hrefs).not.toContain("/integrations/azure-boards");
     expect(hrefs).not.toContain("/integrations/slack");
@@ -120,6 +125,7 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/auth-domains", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/azure-boards", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/slack", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/webhooks", "security")).toBe(false);

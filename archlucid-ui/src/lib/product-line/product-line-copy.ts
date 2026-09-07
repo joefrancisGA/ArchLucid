@@ -12,7 +12,7 @@ export const PRODUCT_LINE_WORDMARK_ARIA_LABEL: Record<ProductLineId, string> = {
   security: "ArchLucid Security — go to workspace overview",
 };
 
-export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure evidence";
+export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure overview";
 
 export const SECURITY_PRODUCT_HOME_SUBTITLE =
   "Cloud inventory, drift, diagrams, grounded Ask, and remediation.";

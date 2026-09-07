@@ -19,8 +19,8 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   }),
 }));
 
-vi.mock("@/components/product-line/SecurityProductHome", () => ({
-  SecurityProductHome: () => <div data-testid="security-product-home-stub">security home</div>,
+vi.mock("@/app/(operator)/governance/infrastructure/_sections/InfrastructureOverviewClient", () => ({
+  InfrastructureOverviewClient: () => <div data-testid="infrastructure-overview-home-stub">infrastructure overview</div>,
 }));
 
 vi.mock("@/components/product-line/ProductLineSwitchBar", () => ({
@@ -36,17 +36,17 @@ describe("ProductLineHomeSwitch", () => {
     );
 
     expect(screen.getByTestId("architecture-home-stub")).toBeInTheDocument();
-    expect(screen.queryByTestId("security-product-home-stub")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infrastructure-overview-home-stub")).not.toBeInTheDocument();
   });
 
-  it("renders the Security home when the shell is Security", () => {
+  it("renders the infrastructure overview home when the shell is Security", () => {
     productLineMock.value = "security";
 
     render(
       <ProductLineHomeSwitch architectureHome={<p data-testid="architecture-home-stub">architecture home</p>} />,
     );
 
-    expect(screen.getByTestId("security-product-home-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
   });
 
