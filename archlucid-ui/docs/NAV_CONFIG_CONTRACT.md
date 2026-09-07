@@ -173,7 +173,7 @@ UI hint only; API still 401/403.
 
 **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**) for every route and POST — always. `requiredAuthority` drives **shell visibility** in **`nav-shell-visibility`** — not whether HTTP writes succeed. Keep policy **names** aligned with C# when moving routes.
 
-**Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`** (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`src/app/(operator)/operate-authority-ui-shaping.test.tsx`** (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
+**Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`** (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`operate-authority-ui-shaping-*.test.tsx`** shards (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
 
 Omitting `requiredAuthority` is used only for **Pilot essentials** (default path for any authenticated rank). Every **Operate** nav link sets `requiredAuthority`. Applied in **`nav-shell-visibility`**.
 

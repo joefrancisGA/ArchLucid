@@ -58,7 +58,7 @@ const identityFixture: ArchitectureIdentityDetail = {
   versions: [],
 };
 
-describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
+describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
   beforeEach(() => {
     useShellInFlightOperationsMock.mockReturnValue([]);
   });
@@ -153,6 +153,55 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
 
     expect(screen.getByTestId("architecture-identity-compare-disabled-reason")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-identity-compare-entry")).not.toBeInTheDocument();
+  });
+
+  it("AO-20: keeps child reviews table visible when an in-flight chip is present", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+    useShellInFlightOperationsMock.mockReturnValue([
+      {
+        operationId: "run:review-2",
+        title: "Architecture review analysis",
+        href: "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
+        startedAtMs: 1_700_000_000_000,
+        stepLabel: "Agents running",
+        state: "Running",
+        runId: "review-2",
+        architectureId: "architecture-identity-001",
+        retainUntilConsumed: false,
+        terminalToastShown: false,
+      },
+    ]);
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-in-flight")).toBeInTheDocument();
+    expect(screen.getAllByTestId(/^architecture-identity-review-row-/)).toHaveLength(2);
+    expect(screen.getByTestId("architecture-identity-reviews-table")).toBeInTheDocument();
+  });
+
+  it("AO-25: shows sealed review record child row with nested desk link", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-latest-seal-link")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001/reviews/review-2",
+    );
+    expect(screen.getByTestId("architecture-identity-latest-seal-link")).not.toHaveAttribute(
+      "href",
+      "/architecture/reviews/review-2",
+    );
   });
 
   it("AO-21: shows in-flight chip when operations exist for this architecture", () => {
