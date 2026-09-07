@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CitationChips } from "@/components/explanation/CitationChips";
 import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
@@ -12,6 +13,10 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
+import {
+  parseRunExplanationProvenanceOpenFromSearch,
+  runExplanationProvenanceDisclosureHrefFromSearch,
+} from "@/lib/runs/run-explanation-provenance-disclosure-url";
 
 export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
@@ -128,6 +133,35 @@ export function RunExplanationSection({
   findingTitlesById,
 }: RunExplanationSectionProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runExplanationProvenanceOpenParam = searchParams.get("runExplanationProvenanceOpen");
+  const [provenanceOpen, setProvenanceOpenState] = useState(() =>
+    parseRunExplanationProvenanceOpenFromSearch(runExplanationProvenanceOpenParam),
+  );
+
+  const syncProvenanceOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runExplanationProvenanceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setProvenanceOpen = useCallback(
+    (open: boolean) => {
+      setProvenanceOpenState(open);
+      syncProvenanceOpenToUrl(open);
+    },
+    [syncProvenanceOpenToUrl],
+  );
+
+  useEffect(() => {
+    setProvenanceOpenState(parseRunExplanationProvenanceOpenFromSearch(runExplanationProvenanceOpenParam));
+  }, [runExplanationProvenanceOpenParam]);
 
   const tocItems = useMemo((): DocumentTocItem[] => {
     if (summary === null) {
@@ -392,7 +426,14 @@ export function RunExplanationSection({
       </div>
 
       {prov ? (
-        <details id="doc-explanation-provenance" className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+        <details
+          id="doc-explanation-provenance"
+          className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          open={provenanceOpen}
+          onToggle={(event) => {
+            setProvenanceOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {buyerPolishedShell ? "How this narrative was produced" : "Provenance metadata"}
           </summary>

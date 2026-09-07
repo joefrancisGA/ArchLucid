@@ -4712,6 +4712,100 @@ describe("wave60 filter url helpers", () => {
   });
 });
 
+describe("wave61 filter url helpers", () => {
+  it("help billing faq, report a problem deferred details, advisory scans troubleshooting, azure permissions technical details, sso wizard protocol help, policy packs bundled rule keys, manifest deliverables artifacts, governance resolution pack ordering, graph evidence trail error technical details, run explanation provenance params", async () => {
+    const {
+      helpBillingFaqDisclosureHrefFromSearch,
+      parseHelpBillingFaqIdFromSearch,
+    } = await import("@/lib/help/help-billing-faq-disclosure-url");
+    const {
+      helpReportAProblemDeferredDetailsDisclosureHrefFromSearch,
+      parseHelpReportAProblemDeferredDetailsOpenFromSearch,
+    } = await import("@/lib/help/help-report-a-problem-deferred-details-disclosure-url");
+    const {
+      advisoryScansTroubleshootingIssueSlug,
+      helpAdvisoryScansTroubleshootingDisclosureHrefFromSearch,
+      parseHelpAdvisoryScansTroubleshootingIssueFromSearch,
+    } = await import("@/lib/help/help-advisory-scans-troubleshooting-disclosure-url");
+    const {
+      helpAzurePermissionsTechnicalDetailsDisclosureHrefFromSearch,
+      parseHelpAzurePermissionsTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/help/help-azure-permissions-technical-details-disclosure-url");
+    const {
+      parseSsoWizardProtocolHelpOpenFromSearch,
+      ssoWizardProtocolHelpDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/sso-wizard-protocol-help-disclosure-url");
+    const {
+      parsePolicyPacksBundledRuleKeysOpenFromSearch,
+      policyPacksBundledRuleKeysDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/policy-packs-bundled-rule-keys-disclosure-url");
+    const {
+      manifestDeliverablesArtifactsDisclosureHrefFromSearch,
+      parseManifestDeliverablesArtifactsOpenFromSearch,
+    } = await import("@/lib/governance/manifest-deliverables-artifacts-disclosure-url");
+    const {
+      governanceResolutionPackOrderingDisclosureHrefFromSearch,
+      parseGovernanceResolutionPackOrderingOpenFromSearch,
+    } = await import("@/lib/governance/governance-resolution-pack-ordering-disclosure-url");
+    const {
+      graphEvidenceTrailErrorTechnicalDetailsDisclosureHrefFromSearch,
+      parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/insights/graph-evidence-trail-error-technical-details-disclosure-url");
+    const {
+      parseRunExplanationProvenanceOpenFromSearch,
+      runExplanationProvenanceDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-explanation-provenance-disclosure-url");
+
+    expect(parseHelpBillingFaqIdFromSearch("trial-ends")).toBe("trial-ends");
+    expect(helpBillingFaqDisclosureHrefFromSearch("", "trial-ends", "/help/billing-and-plans")).toBe(
+      "/help/billing-and-plans?helpBillingFaqId=trial-ends",
+    );
+    expect(parseHelpReportAProblemDeferredDetailsOpenFromSearch("1")).toBe(true);
+    expect(helpReportAProblemDeferredDetailsDisclosureHrefFromSearch("", true, "/help/report-a-problem")).toBe(
+      "/help/report-a-problem?helpReportAProblemDeferredDetailsOpen=1",
+    );
+    expect(parseHelpAdvisoryScansTroubleshootingIssueFromSearch("generate-scan-is-unavailable")).toBe(
+      "generate-scan-is-unavailable",
+    );
+    expect(advisoryScansTroubleshootingIssueSlug("Generate scan is unavailable")).toBe("generate-scan-is-unavailable");
+    expect(
+      helpAdvisoryScansTroubleshootingDisclosureHrefFromSearch(
+        "",
+        "generate-scan-is-unavailable",
+        "/help/advisory-scans",
+      ),
+    ).toBe("/help/advisory-scans?helpAdvisoryScansTroubleshootingIssue=generate-scan-is-unavailable");
+    expect(parseHelpAzurePermissionsTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(helpAzurePermissionsTechnicalDetailsDisclosureHrefFromSearch("", true, "/help/azure-permissions")).toBe(
+      "/help/azure-permissions?helpAzurePermissionsTechnicalDetailsOpen=1",
+    );
+    expect(parseSsoWizardProtocolHelpOpenFromSearch("1")).toBe(true);
+    expect(ssoWizardProtocolHelpDisclosureHrefFromSearch("", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?ssoWizardProtocolHelpOpen=1",
+    );
+    expect(parsePolicyPacksBundledRuleKeysOpenFromSearch("true")).toBe(true);
+    expect(policyPacksBundledRuleKeysDisclosureHrefFromSearch("", true, "/governance/policy-packs")).toBe(
+      "/governance/policy-packs?policyPacksBundledRuleKeysOpen=1",
+    );
+    expect(parseManifestDeliverablesArtifactsOpenFromSearch("1")).toBe(true);
+    expect(
+      manifestDeliverablesArtifactsDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestDeliverablesArtifactsOpen=1");
+    expect(parseGovernanceResolutionPackOrderingOpenFromSearch("true")).toBe(true);
+    expect(
+      governanceResolutionPackOrderingDisclosureHrefFromSearch("", true, "/governance/standards-and-rules/resolution"),
+    ).toBe("/governance/standards-and-rules/resolution?governanceResolutionPackOrderingOpen=1");
+    expect(parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(
+      graphEvidenceTrailErrorTechnicalDetailsDisclosureHrefFromSearch("", true, "/insights/evidence-graph/run-1"),
+    ).toBe("/insights/evidence-graph/run-1?graphEvidenceTrailErrorTechnicalDetailsOpen=1");
+    expect(parseRunExplanationProvenanceOpenFromSearch("true")).toBe(true);
+    expect(
+      runExplanationProvenanceDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/runs/run1"),
+    ).toBe("/architecture/reviews/r1/runs/run1?runExplanationProvenanceOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
