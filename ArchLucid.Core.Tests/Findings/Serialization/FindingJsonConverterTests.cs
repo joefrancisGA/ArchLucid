@@ -1119,7 +1119,7 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
-    public void Deserialize_boolean_severity_maps_warning()
+    public void Deserialize_boolean_severity_rejects_boolean_synonym()
     {
         const string json = """
                             {
@@ -1144,14 +1144,13 @@ public sealed class FindingJsonConverterTests
 
         JsonSerializerOptions options = CreateOptions();
 
-        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
 
-        finding.Should().NotBeNull();
-        finding!.Severity.Should().Be(FindingSeverity.Warning);
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]
-    public void Deserialize_string_encoded_on_severity_maps_warning()
+    public void Deserialize_string_encoded_on_severity_rejects_boolean_synonym()
     {
         const string json = """
                             {
@@ -1176,10 +1175,9 @@ public sealed class FindingJsonConverterTests
 
         JsonSerializerOptions options = CreateOptions();
 
-        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
 
-        finding.Should().NotBeNull();
-        finding!.Severity.Should().Be(FindingSeverity.Warning);
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]
@@ -1216,7 +1214,7 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
-    public void Deserialize_string_encoded_boolean_severity_maps_warning()
+    public void Deserialize_string_encoded_boolean_severity_rejects_boolean_synonym()
     {
         const string json = """
                             {
@@ -1241,10 +1239,9 @@ public sealed class FindingJsonConverterTests
 
         JsonSerializerOptions options = CreateOptions();
 
-        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
 
-        finding.Should().NotBeNull();
-        finding!.Severity.Should().Be(FindingSeverity.Warning);
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]
@@ -1344,7 +1341,7 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
-    public void Deserialize_boolean_humanReviewStatus_maps_pending()
+    public void Deserialize_boolean_humanReviewStatus_rejects_boolean_synonym()
     {
         const string json = """
                             {
@@ -1369,14 +1366,13 @@ public sealed class FindingJsonConverterTests
 
         JsonSerializerOptions options = CreateOptions();
 
-        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
 
-        finding.Should().NotBeNull();
-        finding!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]
-    public void Deserialize_string_encoded_boolean_humanReviewStatus_maps_pending()
+    public void Deserialize_string_encoded_boolean_humanReviewStatus_rejects_boolean_synonym()
     {
         const string json = """
                             {
@@ -1401,10 +1397,9 @@ public sealed class FindingJsonConverterTests
 
         JsonSerializerOptions options = CreateOptions();
 
-        Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
+        Action act = () => JsonSerializer.Deserialize<Finding>(json, options);
 
-        finding.Should().NotBeNull();
-        finding!.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
+        act.Should().Throw<JsonException>();
     }
 
     [Fact]
@@ -1996,7 +1991,7 @@ public sealed class FindingJsonConverterTests
     }
 
     [Fact]
-    public void Deserialize_boolean_confidenceScore_maps_one()
+    public void Deserialize_boolean_confidenceScore_ignores_boolean_synonym()
     {
         const string json = """
                             {
@@ -2025,11 +2020,11 @@ public sealed class FindingJsonConverterTests
         Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
 
         finding.Should().NotBeNull();
-        finding!.ConfidenceScore.Should().Be(1.0);
+        finding!.ConfidenceScore.Should().BeNull();
     }
 
     [Fact]
-    public void Deserialize_boolean_evaluationConfidenceScore_maps_one()
+    public void Deserialize_boolean_evaluationConfidenceScore_ignores_boolean_synonym()
     {
         const string json = """
                             {
@@ -2058,11 +2053,11 @@ public sealed class FindingJsonConverterTests
         Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
 
         finding.Should().NotBeNull();
-        finding!.EvaluationConfidenceScore.Should().Be(1);
+        finding!.EvaluationConfidenceScore.Should().BeNull();
     }
 
     [Fact]
-    public void Deserialize_string_encoded_boolean_confidenceScore_maps_one()
+    public void Deserialize_string_encoded_boolean_confidenceScore_ignores_boolean_synonym()
     {
         const string json = """
                             {
@@ -2091,7 +2086,7 @@ public sealed class FindingJsonConverterTests
         Finding? finding = JsonSerializer.Deserialize<Finding>(json, options);
 
         finding.Should().NotBeNull();
-        finding!.ConfidenceScore.Should().Be(1.0);
+        finding!.ConfidenceScore.Should().BeNull();
     }
 
     [Fact]
