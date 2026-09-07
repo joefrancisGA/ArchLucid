@@ -156,7 +156,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
     expect(split.more.map((row) => row.href)).toEqual(["/internal/tenant-health", "/internal/tenants"]);
   });
 
-  it("AO-14: Working pilot daily strip leads with architectures then review inbox", () => {
+  it("AO-14: Working pilot daily strip leads with Home then architectures and review inbox", () => {
     const links = [
       link("/", "Home"),
       link(ARCHITECTURES_LIST_PATH, "Architectures"),
@@ -169,9 +169,9 @@ describe("splitSidebarLinksDailyVsMore", () => {
     const split = splitSidebarLinksDailyVsMore("pilot", links, "/", true);
 
     expect(split.daily.map((row) => row.href)).toEqual([
+      "/",
       ARCHITECTURES_LIST_PATH,
       REVIEWS_LIST_PATH,
-      "/",
       SIGNED_RECORDS_LIST_PATH,
       SPONSOR_DASHBOARD_HREF,
     ]);

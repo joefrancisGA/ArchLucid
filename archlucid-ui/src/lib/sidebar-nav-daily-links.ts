@@ -88,14 +88,14 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
 };
 
 /**
- * Working sidebar daily strip — architecture portfolio leads; insight tools bind later (AO-14 / ADR 0077).
+ * Working sidebar daily strip — Home leads the Architecture group; insight tools bind later (AO-14 / ADR 0077).
  * Empty arrays demote every link in that group to “more” until the active route is promoted.
  */
 export const SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING: Readonly<Record<string, readonly string[]>> = {
   pilot: [
+    "/",
     ARCHITECTURES_LIST_PATH,
     REVIEWS_LIST_PATH,
-    "/",
     SIGNED_RECORDS_LIST_PATH,
     SPONSOR_DASHBOARD_HREF,
   ],
