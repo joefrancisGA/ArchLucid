@@ -6927,22 +6927,29 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-tenancy-commercial
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — `enterprise-non-*` marketplace planId prefix false-positive Enterprise tier
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — leading `enterprise-non-*` plan id false-positive Enterprise tier — **hit 2026-09-07 (#1169):** #880 guarded `non` only as previous token (`contoso-non-enterprise-*`); `enterprise-non-standard` still matched standalone leading `enterprise`; fixed by skipping enterprise when next delimiter token is `non` (`TierStorageCodeFromPlanId_does_not_false_positive_on_enterprise_non_prefix_plan`)
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — canceled subscription rows still label from purchased caps only; usage-based Team inference skipped when subscription is non-null
+- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — multi-`@` domain input truncates to suffix host via `LastIndexOf('@')`, re-targeting DNS verification when admins paste email-shaped strings
+- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — string-encoded boolean/`on` quantity synonyms still fall back to caller default while JSON boolean `true` coerces to one seat (intentional asymmetry; monitor for marketplace payload drift)
+
+2026-09-07 seed hunt #1169 (hit): reseeded Identity/Billing/Budgeting Core; proved `enterprise-non-*` marketplace planId tier false-positive beyond #880 non-enterprise guard; restored JSON boolean quantity coercion regression blocking scoped tests.
 
 ---
 ## Zone: core-safety-network
