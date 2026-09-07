@@ -333,6 +333,59 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-57");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_cases_58_60_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-58",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase58CloudFormationContradictionGraphAsync(),
+            GoldenCorpusIngestDeclarationGraphFactory.CreateCase58AwsInventoryFixture(),
+            "CloudFormation S3 declaration (format cloudformation) vs AWS inventory public access — expect **declaration-inventory-contradiction** (DX-48).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-59",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase59PulumiIdentityBlastRadiusGraphAsync(),
+            null,
+            "Pulumi stack-export storage node (format pulumi-stack-json) with identity path overlay — expect **identity-blast-radius** (DX-48).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-60",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase60CdkDataFlowTrustBoundaryGraphAsync(),
+            null,
+            "CDK synth Lambda node (format cdk-synth) with external actor path overlay — expect **data-flow-trust-boundary** (DX-48).");
+    }
+
+    private static async Task RecordIngestDeclarationCaseAsync(
+        string caseFolderName,
+        GraphSnapshot graph,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture,
+        string readmeTitle)
+    {
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, caseFolderName);
+        Directory.CreateDirectory(dir);
+
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            InventoryFixture = inventoryFixture,
+        };
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            $"# {caseFolderName}\n\n{readmeTitle}\n\nRegenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.\n";
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync(caseFolderName);
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,

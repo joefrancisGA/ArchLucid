@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **57** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-57`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **60** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-60`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-57`)
+## Coverage map (`case-01` … `case-60`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -65,6 +65,9 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-55`** (hand-authored) | **DX-46** — pinned Azure inventory ZIP with `advisor-cost.json` and empty `resources.json`. Exercises **`advisor-cost-recommendation`**. See `tests/golden-corpus/decisioning/case-55/README.md`. |
 | **`case-56`** (hand-authored) | **DX-46** — pinned AWS inventory ZIP with `advisor-cost.json` cost row and empty `resources.json`. Exercises **`aws-cost-recommendation`**. See `tests/golden-corpus/decisioning/case-56/README.md`. |
 | **`case-57`** (hand-authored) | **DX-46** — pinned GCP inventory ZIP with `recommender-cost.json` and empty `resources.json`. Exercises **`gcp-cost-recommendation`**. See `tests/golden-corpus/decisioning/case-57/README.md`. |
+| **`case-58`** (hand-authored) | **DX-48** — CloudFormation S3 declaration (`PublicNetworkAccess: Disabled`) vs pinned AWS inventory `publiclyAccessible: true` on the same ARN. Exercises **`declaration-inventory-contradiction`** from in-batch CloudFormation ingest. See `tests/golden-corpus/decisioning/case-58/README.md`. |
+| **`case-59`** (hand-authored) | **DX-48** — Pulumi stack-export storage node with identity path overlay (Contributor to regulated Key Vault). Exercises **`identity-blast-radius`** from in-batch Pulumi ingest. See `tests/golden-corpus/decisioning/case-59/README.md`. |
+| **`case-60`** (hand-authored) | **DX-48** — CDK synth Lambda node with external actor path overlay (no trust-boundary hop). Exercises **`data-flow-trust-boundary`** from in-batch CDK synth ingest. See `tests/golden-corpus/decisioning/case-60/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -98,7 +101,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-57` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-60` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
 
 ---
 
