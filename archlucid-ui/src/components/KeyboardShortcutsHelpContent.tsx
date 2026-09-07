@@ -170,7 +170,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
   }, [shortcutsSectionParam]);
 
   const workingDeskWorkShortcuts = useMemo(
-    () => [...FINDINGS_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS],
+    () => [...ARCHITECTURE_DESK_PAGE_SHORTCUTS, ...REVIEW_DETAIL_PAGE_SHORTCUTS, ...FINDINGS_PAGE_SHORTCUTS],
     [],
   );
 

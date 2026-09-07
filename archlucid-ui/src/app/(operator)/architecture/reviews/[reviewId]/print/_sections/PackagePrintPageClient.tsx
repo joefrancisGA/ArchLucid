@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
+import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
@@ -20,7 +21,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
-  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
@@ -40,6 +40,10 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const pathname = usePathname() ?? "";
   const parentArchitectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const workingDesk = useProductionDeskChrome();
+  const { reviewJobHref: printBackHref } = useWorkingBackLocator({
+    reviewId: runId,
+    reviewTab: "review-package",
+  });
   const summaryQuery = useRunSummaryQuery(runId);
   const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, {
     enabled: workingDesk && summaryQuery.isSuccess,
@@ -127,7 +131,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={buildPackagePrintBackHref(runId, parentArchitectureId)} data-testid="package-print-blocked-back">
+          <Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>

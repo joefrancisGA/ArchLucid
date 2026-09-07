@@ -145,12 +145,12 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
   },
   {
     id: "AO-42",
-    relativeTestPath: "lib/help/help-working-desk-copy-guard.test.ts",
+    relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
     marker: "AO-42",
   },
   {
     id: "AO-43",
-    relativeTestPath: "lib/shortcut-registry.test.ts",
+    relativeTestPath: "lib/architecture/architecture-desk-shortcuts.test.ts",
     marker: "AO-43",
   },
   {
@@ -160,7 +160,7 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
   },
   {
     id: "AO-45",
-    relativeTestPath: "lib/guided-two-door-working-guard.test.ts",
+    relativeTestPath: "lib/guided-two-door-working-mode-guard.test.tsx",
     marker: "AO-45",
   },
   {

@@ -54,6 +54,14 @@ describe("KeyboardShortcutsTabContent", () => {
     expect(architectureDeskIndex).toBeLessThan(commonIndex);
     expect(nestedJobIndex).toBeLessThan(commonIndex);
 
+    const deskWorkTable = screen.getByRole("table", { name: "Architecture desk (Working)" });
+
+    expect(deskWorkTable).toHaveTextContent("Start review");
+    expect(deskWorkTable).toHaveTextContent("resume in-flight review");
+    expect(deskWorkTable).toHaveTextContent("Alt");
+    expect(deskWorkTable).toHaveTextContent("Shift");
+    expect(deskWorkTable).toHaveTextContent("R");
+
     workspaceModeMocks.isWorkingMode = false;
   });
 
