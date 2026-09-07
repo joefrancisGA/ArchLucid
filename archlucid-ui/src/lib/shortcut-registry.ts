@@ -254,6 +254,41 @@ export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
     label: "Save architecture draft",
     description: "Save the architecture draft from the review workbench when a draft editor is open",
   },
+  {
+    key: "alt+m",
+    label: "Toggle room elicitation",
+    description:
+      "Start or stop room elicitation on a completed review without entering projector presenter mode",
+  },
+];
+
+/** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
+export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "alt+n",
+    label: "Start or resume",
+    description: WORKING_ALT_N_SHORTCUT_DESCRIPTION,
+  },
+  {
+    key: "alt+shift+r",
+    label: "Start review",
+    description: "Start a review job from the focused architecture desk",
+  },
+  {
+    key: "alt+shift+d",
+    label: "Continue draft",
+    description: "Open the current draft on this architecture desk when one exists",
+  },
+  {
+    key: "alt+shift+i",
+    label: "Resume in-flight",
+    description: "Open the first in-flight review job listed on this desk",
+  },
+  {
+    key: "ctrl+shift+s",
+    label: "Save draft",
+    description: "Save architecture draft changes when a draft editor control is available on the desk",
+  },
 ];
 
 /**

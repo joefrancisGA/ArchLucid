@@ -22,7 +22,7 @@ internal static class FindingSnapshotConfluentMerger
             return new FindingSnapshotMergeResult([], []);
 
         List<Finding> kept = [];
-        List<FindingEngineFailure> conflicts = [];
+        List<FindingSnapshotMergeConflict> conflicts = [];
 
         IEnumerable<IGrouping<string, Finding>> partitions = findings.GroupBy(
             FindingSnapshotMergeKey.FromFinding,
@@ -45,7 +45,25 @@ internal static class FindingSnapshotConfluentMerger
             }
 
             kept.Add(primary);
-            conflicts.Add(CreateConflictFailure(members, clock));
+
+            string conflictFindingId = Guid.NewGuid().ToString("N");
+            List<WithheldFindingSummary> dropped = [];
+
+            foreach (Finding member in members)
+            {
+                if (ReferenceEquals(member, primary))
+                {
+                    continue;
+                }
+
+                dropped.Add(WithheldFindingSummaryMapper.FromMergeDroppedFinding(member, conflictFindingId));
+            }
+
+            conflicts.Add(
+                new FindingSnapshotMergeConflict(
+                    CreateConflictFailure(members, clock),
+                    conflictFindingId,
+                    dropped));
         }
 
         return new FindingSnapshotMergeResult(kept, conflicts);

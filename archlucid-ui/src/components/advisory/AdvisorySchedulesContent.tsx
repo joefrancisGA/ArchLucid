@@ -17,7 +17,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
   ADVISORY_SCANS_SCHEDULES_INTRO,
@@ -38,7 +38,7 @@ export type AdvisorySchedulesContentProps = {
 
 export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = {}): ReactElement {
   const page = useAdvisorySchedulesPage(props.initialRunId);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   const createScheduleButton =
     page.showHeaderCreate && !buyerPolishedShell ? (

@@ -143,6 +143,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const deliverablesCard = (
     <ManifestDetailDeliverablesCard
       manifestId={manifestId}
+      runId={summary.runId}
       buyerPolishedLayout={buyerPolishedLayout}
       artifacts={artifacts}
       artifactsFailure={model.artifactsFailure}
@@ -316,7 +317,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               {deliverablesCard}
             </>
           }
-          downloads={<ManifestBuyerBundleDownloadSection manifestId={manifestId} expanded />}
+          downloads={<ManifestBuyerBundleDownloadSection manifestId={manifestId} runId={summary.runId} expanded />}
           diligence={diligenceAskCard}
         />
       ) : (

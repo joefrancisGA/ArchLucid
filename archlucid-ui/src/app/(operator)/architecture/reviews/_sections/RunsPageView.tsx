@@ -6,18 +6,14 @@ import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStat
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/operator/OperatorShellMessage";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { RunsListProofHeadline } from "@/components/runs/RunsListProofHeadline";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isApiNotFoundFailure } from "@/lib/api-load-failure";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { REVIEWS_HUB_CLAIM_DISCIPLINE } from "@/lib/reviews-hub-evidence-copy";
 import {
   REVIEWS_HUB_FIRST_VIEWPORT_ID,
   REVIEWS_HUB_PRIMARY_CONTENT_ID,
@@ -29,10 +25,8 @@ import {
   REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
-  REVIEWS_HUB_PAGE_SUBTITLE,
-  REVIEWS_HUB_PAGE_TITLE,
 } from "./reviews-hub-copy";
-import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
+import { ReviewsHubPageHeader } from "./ReviewsHubPageHeader";
 import { ReviewsHubBuyerChrome } from "./ReviewsHubBuyerChrome";
 import {
   OperatorWelcomeOnboardingDeferred,
@@ -44,7 +38,6 @@ import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
 import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
 import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
 import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
-import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
@@ -83,30 +76,7 @@ export function RunsPageView(props: Props) {
       </a>
 
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
-      <OperatorPageHeader
-        navHref={REVIEWS_LIST_PATH}
-        title={REVIEWS_HUB_PAGE_TITLE}
-        subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
-        claimDiscipline={REVIEWS_HUB_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="reviews-hub-claim-discipline"
-        headingLevel="h1"
-        titleTestId="reviews-hub-page-title"
-        subtitleTestId="reviews-hub-page-subtitle"
-        metadata={
-          <>
-            {m.projectId !== "default" ? (
-              <span
-                className={cn(OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-                data-testid="runs-page-project-label"
-              >
-                <InlineGuidanceText text={m.projectTitle} />
-              </span>
-            ) : null}
-            {isOperatorExperienceFullShellEnv() ? <RunsListProofHeadline /> : null}
-          </>
-        }
-        actions={<ReviewsHubHeaderActions />}
-      />
+      <ReviewsHubPageHeader projectId={m.projectId} projectTitle={m.projectTitle} />
       <div
         id={REVIEWS_HUB_PRIMARY_CONTENT_ID}
         data-testid={REVIEWS_HUB_PRIMARY_CONTENT_ID}

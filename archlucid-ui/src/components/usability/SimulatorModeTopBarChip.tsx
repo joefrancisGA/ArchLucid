@@ -15,10 +15,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DEV_CHROME_SURFACE_CLASS } from "@/lib/dev-chrome-treatment";
 import {
   isDevTestingOverridesEnabled,
   readDevAgentExecutionModeOverrideFromDocument,
@@ -113,13 +114,19 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
 
   return (
     <>
+      <StatusTag
+        kind="neutral"
+        label="Dev"
+        className="shrink-0"
+        data-testid="dev-environment-top-bar-tag"
+      />
       <Button
         type="button"
-        variant="secondary"
+        variant="outline"
         size="sm"
         className={cn(
-          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 border-neutral-400 bg-neutral-100 px-2.5 text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-100",
-          OPERATOR_TYPOGRAPHY.helper,
+          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 px-2.5",
+          DEV_CHROME_SURFACE_CLASS,
           props.className,
         )}
         data-testid="simulator-mode-top-bar-chip-toggle"

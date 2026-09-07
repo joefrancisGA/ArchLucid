@@ -28,4 +28,11 @@ public sealed class RunDetailWorkspaceContextBundleResponse
         get;
         init;
     }
+
+    /// <summary>When prior-committed compare is blocked by lifecycle or sealed-manifest gates.</summary>
+    public string? PriorCommittedRunComparisonBlockedReason
+    {
+        get;
+        init;
+    }
 }

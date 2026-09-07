@@ -45,7 +45,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
     expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Approval help" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Audit trail help" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(
       /Where approval decisions are recorded/i,
@@ -84,7 +84,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     );
   });
 
-  it("shows open exceptions and warning banner when governance warnings are present", () => {
+  it("shows open exceptions and warning banner when approval warnings are present", () => {
     render(
       <RunDetailGovernanceDecisionSection
         {...baseProps}

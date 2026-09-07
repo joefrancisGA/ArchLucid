@@ -29,17 +29,17 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
   const browserBearer = authHeader?.trim() ?? "";
-  const cookieBearer = browserBearer.length === 0 ? resolveBffSessionBearerFromRequest(request) : "";
+  const cookieBearer = resolveBffSessionBearerFromRequest(request);
   const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
   const skipPrivilegedUpstreamAuth =
     proxyPath !== undefined &&
     proxyPath.length > 0 &&
     isAnonymousMarketingProxyPath(proxyPath);
   const bearerToUse =
-    browserBearer.length > 0
-      ? browserBearer
-      : cookieBearer.length > 0
-        ? cookieBearer
+    cookieBearer.length > 0
+      ? cookieBearer
+      : browserBearer.length > 0
+        ? browserBearer
         : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
           ? `Bearer ${serverBearerToken}`
           : "";

@@ -128,17 +128,13 @@ export function RunDetailPipelineStagesSection({
             </li>
           ))}
         </ul>
-        <details
-          className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+        <CollapsibleSection
+          title="Technical details"
           open={technicalOpen}
-          onToggle={(event) => {
-            setTechnicalOpen((event.currentTarget as HTMLDetailsElement).open);
-          }}
+          onToggle={setTechnicalOpen}
+          sectionTestId="run-detail-pipeline-stages-technical-collapsible"
         >
-          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Technical details
-          </summary>
-          <div className="mt-3 space-y-3">
+          <div className="space-y-3">
             {otelTraceId ? (
               <div className={OPERATOR_TYPOGRAPHY.body}>
                 <RunTraceViewerLink traceId={otelTraceId} />
@@ -160,7 +156,7 @@ export function RunDetailPipelineStagesSection({
               ))}
             </ul>
           </div>
-        </details>
+        </CollapsibleSection>
       </CollapsibleSection>
     </section>
   );

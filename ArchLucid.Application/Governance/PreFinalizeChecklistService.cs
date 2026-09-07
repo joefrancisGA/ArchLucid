@@ -22,6 +22,7 @@ public sealed partial class PreFinalizeChecklistService(
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
+    IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     PreFinalizeExecuteBaselineDriftEvaluator executeBaselineDriftEvaluator,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
@@ -52,6 +53,9 @@ public sealed partial class PreFinalizeChecklistService(
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
+        preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
 
     private readonly PreFinalizeExecuteBaselineDriftEvaluator _executeBaselineDriftEvaluator =
         executeBaselineDriftEvaluator ?? throw new ArgumentNullException(nameof(executeBaselineDriftEvaluator));
@@ -123,7 +127,8 @@ public sealed partial class PreFinalizeChecklistService(
                 .ConfigureAwait(false);
         }
 
-        items.Add(BuildPreCommitGateItem(gateResult));
+        bool preCommitGateEnabled = _preCommitGovernanceGateOptions.Value.PreCommitGateEnabled;
+        items.Add(BuildPreCommitGateItem(gateResult, preCommitGateEnabled));
 
         items.AddRange(
             await BuildExecuteBaselineDriftItemsAsync(scope, run, cancellationToken).ConfigureAwait(false));
@@ -142,6 +147,7 @@ public sealed partial class PreFinalizeChecklistService(
             Items = items,
             AdvisoryCount = advisoryCount,
             BlockingCount = blockingCount,
+            PreCommitGateEnabled = preCommitGateEnabled,
         };
     }
 

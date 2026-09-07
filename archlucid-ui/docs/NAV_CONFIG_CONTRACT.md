@@ -40,7 +40,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-**8** groups, **76** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+**8** groups, **77** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
 
 | Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
 |-------------------------|----------------|-------------------|---------|------:|--------|
@@ -51,11 +51,31 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
 | `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
-| `operator-system-admin` | Internal       | `system-admin`    | Admin   | 17 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
+| `operator-system-admin` | Internal       | `system-admin`    | Admin   | 18 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
 
 Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `operator-admin` and `operator-system-admin`, which inline their labels. `OPERATOR_NAV_GROUP_LABELS` still exports `reports`, `operations`, and `help` values that no live group consumes.
 
 **Shell filter:** `listNavGroupsVisibleInOperatorShell(..., surfaceFilter)` can target **`review-workflow`** vs **`platform-admin`** so buyer-first chrome (sidebar, palette) can separate review work from administration without duplicating hrefs.
+
+## Product line (Architecture vs Security)
+
+One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|security` (default **architecture**) plus cookie `archlucid_product_line_v1` selects the shell. Assignments live in **`src/lib/product-line/product-line-catalog.ts`**:
+
+| Assignment | Effect |
+|---|---|
+| `both` | Visible in Architecture and Security |
+| `architecture` (default for unlisted hrefs) | Architecture shell only |
+| `security` | Security shell only |
+
+**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, billing, trust, health, support — not AI usage / model governance / baseline / recycle bin), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+
+The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations from **Internal → Product line** (`/internal/product-line`, localStorage overlay). Product shell selection lives on that Internal page, not the home body.
+
+**SecureNow nav merge:** In the Security shell, vendor **Internal** destinations that survive product-line filtering are **merged into the Administration group** (no separate **Internal** sidebar cluster). Architecture keeps Administration and Internal as separate groups.
+
+**Local start:** `.\scripts\start-local-api-and-ui.ps1` starts **one** `ArchLucid.Api` plus **two** Next.js windows against `archlucid-ui/.env.local` — Architecture on **3000**, Security on **3001**. Pass `-SkipSecurityUi` to keep the old one-UI loop. Windows spawn sets `$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT` in each window; Security also sets `$env:NEXT_DIST_DIR = '.next-security'` so Next.js 16's per-directory dev lock does not block the second shell. Do not rely on `npm run dev:security` there (Unix `VAR=value` prefixes do not apply in `powershell.exe`). On Unix-like shells, `npm run dev:security` still boots Security on **3001**.
+
+Do **not** split hosts, migrations, or git branches for this. Product line is UI composition on the shared platform.
 
 ## Drift guard (contributors)
 
@@ -65,7 +85,7 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **76** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
+Operator sidebar groups imply a URL prefix in the address bar. **77** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
@@ -155,7 +175,7 @@ UI hint only; API still 401/403.
 
 **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**) for every route and POST — always. `requiredAuthority` drives **shell visibility** in **`nav-shell-visibility`** — not whether HTTP writes succeed. Keep policy **names** aligned with C# when moving routes.
 
-**Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`** (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`src/app/(operator)/operate-authority-ui-shaping.test.tsx`** (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
+**Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`** (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`operate-authority-ui-shaping-*.test.tsx`** shards (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
 
 Omitting `requiredAuthority` is used only for **Pilot essentials** (default path for any authenticated rank). Every **Operate** nav link sets `requiredAuthority`. Applied in **`nav-shell-visibility`**.
 

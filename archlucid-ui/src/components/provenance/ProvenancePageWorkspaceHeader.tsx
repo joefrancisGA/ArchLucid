@@ -12,12 +12,18 @@ import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
+import { truncateMiddle } from "@/lib/truncate-middle";
 import {
   PROVENANCE_CLAIM_DISCIPLINE,
   PROVENANCE_PAGE_TITLE,
   PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
   PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
 } from "@/lib/provenance-evidence-copy";
+import {
+  PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROVENANCE_PAGE_SUBTITLE_BUYER,
+} from "@/lib/provenance-page-copy";
 import type { ProvenanceReviewContext } from "@/components/provenance/provenance-page-workspace-types";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import { cn } from "@/lib/utils";
@@ -35,7 +41,7 @@ export type ProvenancePageWorkspaceHeaderProps = {
   readonly reviewTitle: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly provenanceTraceId: string | null;
-  readonly evidenceGraphHref: string;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ProvenancePageWorkspaceHeader({
@@ -47,7 +53,7 @@ export function ProvenancePageWorkspaceHeader({
   reviewTitle,
   graph,
   provenanceTraceId,
-  evidenceGraphHref,
+  buyerPolishedShell = false,
 }: ProvenancePageWorkspaceHeaderProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -79,6 +85,16 @@ export function ProvenancePageWorkspaceHeader({
     setReviewIdentifierOpenState(parseProvenanceReviewIdentifierOpenFromSearch(provenanceReviewIdentifierOpenParam));
   }, [provenanceReviewIdentifierOpenParam]);
 
+  const scopedReviewIdLabel = truncateMiddle(scopedRunId, 20);
+  const provenanceLoaded = graph.nodes.length > 0;
+  const statusLabel = reviewContext?.statusLabel ?? "";
+  const statusTagKind = reviewContext?.statusTagKind;
+  const showPipelineStatusTag =
+    statusLabel.length > 0 &&
+    statusTagKind !== null &&
+    statusTagKind !== undefined &&
+    !(provenanceLoaded && statusLabel === PIPELINE_STATUS_LABELS.starting);
+
   return (
     <>
       {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
@@ -94,11 +110,12 @@ export function ProvenancePageWorkspaceHeader({
           data-testid="provenance-run-scope-banner"
         >
           {"Inspecting provenance for review "}
-          <span className="font-mono text-neutral-900 dark:text-neutral-100">{scopedRunId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.nav} href={reviewHref}>
-            Open review
-          </Link>
+          <span
+            className="font-mono text-neutral-900 dark:text-neutral-100"
+            title={scopedRunId}
+          >
+            {scopedReviewIdLabel}
+          </span>
           {" · "}
           <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">
             All reviews
@@ -107,16 +124,17 @@ export function ProvenancePageWorkspaceHeader({
       )}
 
       <header className="space-y-2">
-        <ProvenanceWayfinding reviewPackageHref={reviewHref} />
-        <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />
+        <ProvenanceWayfinding reviewPackageHref={reviewHref} hideContextualHelp={buyerPolishedShell} />
+        {buyerPolishedShell ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-buyer-subtitle">
+            {PROVENANCE_PAGE_SUBTITLE_BUYER}
+          </p>
+        ) : null}
+        {buyerPolishedShell ? null : <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />}
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{PROVENANCE_PAGE_TITLE}</h2>
-          {reviewContext?.statusLabel !== null &&
-          reviewContext?.statusLabel !== undefined &&
-          reviewContext.statusLabel.length > 0 &&
-          reviewContext.statusTagKind !== null &&
-          reviewContext.statusTagKind !== undefined ? (
-            <StatusTag kind={reviewContext.statusTagKind} label={reviewContext.statusLabel} />
+          {showPipelineStatusTag && statusTagKind !== undefined ? (
+            <StatusTag kind={statusTagKind} label={statusLabel} />
           ) : null}
         </div>
         {reviewTitle.length > 0 ? (
@@ -143,9 +161,20 @@ export function ProvenancePageWorkspaceHeader({
           <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.micro)}>
             <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
           </p>
+          {provenanceTraceId !== null && provenanceTraceId.length > 0 ? (
+            <div className="mt-2">
+              <RunTraceViewerLink traceId={provenanceTraceId} presentation="disclosure-body" />
+            </div>
+          ) : null}
         </details>
-        <RunTraceViewerLink traceId={provenanceTraceId} />
-        {shouldOmitClaimDisciplineBand("provenance") ? null : (
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {PROVENANCE_CLAIM_DISCIPLINE}
+          </p>
+        ) : shouldOmitClaimDisciplineBand("provenance") ? null : (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="provenance-claim-discipline"
@@ -153,15 +182,13 @@ export function ProvenancePageWorkspaceHeader({
             {PROVENANCE_CLAIM_DISCIPLINE}
           </p>
         )}
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.nav} href={evidenceGraphHref}>
-            Open Evidence graph
-          </Link>
-          {" Â· "}
-          <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
-            Search review evidence
-          </Link>
-        </p>
+        {buyerPolishedShell ? null : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
+              Search review evidence
+            </Link>
+          </p>
+        )}
       </header>
 
       {graph.traceabilityGaps.length > 0 ? (

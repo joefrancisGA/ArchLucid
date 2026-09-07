@@ -45,6 +45,9 @@ public sealed class GoldenCorpusHarnessEngineTests
         engineTypes.Should().Contain(typeof(TrustBoundaryFindingEngine));
         engineTypes.Should().Contain(typeof(PrivilegedAccessFindingEngine));
         engineTypes.Should().Contain(typeof(ExternalExposureFindingEngine));
-        engineTypes.Count.Should().Be(16, "harness engine registration is a merge-blocking contract (WK-06 actor slice)");
+        engineTypes.Should().Contain(typeof(DanglingDeclarationReferenceFindingEngine));
+        engineTypes.Should().Contain(typeof(RequirementSkuTierFindingEngine));
+        engineTypes.Should().Contain(typeof(DataFlowTrustBoundaryFindingEngine));
+        engineTypes.Count.Should().Be(22, "harness graph engine registration is a merge-blocking contract (WK-06 + DX-24/25/36 golden fixtures)");
     }
 }

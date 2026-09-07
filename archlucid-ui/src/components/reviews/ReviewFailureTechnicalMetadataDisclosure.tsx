@@ -87,7 +87,7 @@ export function ReviewFailureTechnicalMetadataDisclosure(
       }}
     >
       <summary className={cn("cursor-pointer font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Failure metadata
+        Technical failure detail
       </summary>
       <dl className={cn("m-0 mt-3 space-y-2", OPERATOR_TYPOGRAPHY.helper)}>
         {rows.map((row) => (

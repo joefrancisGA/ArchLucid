@@ -47,4 +47,14 @@ public sealed class RecordFindingDispositionRequest
         get;
         init;
     }
+
+    /// <summary>
+    ///     Optimistic concurrency token for <c>dbo.FindingCurrentDispositions</c> (ADR 0076). Required when a current
+    ///     disposition pointer already exists; omit only for the first disposition on a finding.
+    /// </summary>
+    public string? ExpectedCurrentDispositionRowVersionBase64
+    {
+        get;
+        init;
+    }
 }

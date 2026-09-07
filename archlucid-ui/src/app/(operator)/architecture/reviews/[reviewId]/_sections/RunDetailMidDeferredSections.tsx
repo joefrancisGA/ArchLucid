@@ -30,6 +30,7 @@ export async function RunDetailMidDeferredSections(
           priorRunId={deferred.changesSinceLastReviewBanner.priorRunId}
           currentRunId={deferred.changesSinceLastReviewBanner.currentRunId}
           copy={deferred.changesSinceLastReviewBanner.copy}
+          blockedReason={deferred.changesSinceLastReviewBanner.blockedReason}
         />
       ) : null}
       {includeSavingsSummary && deferred.savingsSummary !== null ? (

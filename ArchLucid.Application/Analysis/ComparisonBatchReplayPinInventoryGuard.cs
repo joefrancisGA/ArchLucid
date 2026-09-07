@@ -45,6 +45,10 @@ internal static class ComparisonBatchReplayPinInventoryGuard
             case ScopedRunPairLoadOutcome.SealedManifestHashMismatch:
                 throw new ConflictException(
                     "Batch replay blocked: sealed manifest hash verification failed for one or both selected runs.");
+            case ScopedRunPairLoadOutcome.LeftLifecycleIncomplete:
+            case ScopedRunPairLoadOutcome.RightLifecycleIncomplete:
+                throw new ConflictException(
+                    "Batch replay blocked: one or both runs have incomplete authority lifecycle.");
             default:
                 throw new ConflictException(
                     $"Batch replay blocked for comparison '{record.ComparisonRecordId}': run pair is not inventory-checked ({loadResult.Outcome}).");

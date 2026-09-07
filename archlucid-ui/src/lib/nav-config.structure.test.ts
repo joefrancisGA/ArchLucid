@@ -239,6 +239,7 @@ describe("nav-config structure", () => {
     // showSystemAdministrationNav). Improvement planning lives under Insights.
     expect(systemAdminHrefs).toContain("/internal/recommendation-learning");
     expect(systemAdminHrefs).toContain("/internal/product-learning");
+    expect(systemAdminHrefs).toContain("/internal/product-line");
     expect(systemAdminHrefs).not.toContain("/insights/improvement-planning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/architecture/digests");
@@ -376,5 +377,13 @@ describe("nav-config structure", () => {
         }
       }
     }
+  });
+
+  it("keeps Internal nav gated to vendor staff via staffInternalOnly", () => {
+    const internalGroup = NAV_GROUPS.find((group) => group.id === "operator-system-admin");
+
+    expect(internalGroup).toBeDefined();
+    expect(internalGroup!.label).toBe("Internal");
+    expect(internalGroup!.staffInternalOnly).toBe(true);
   });
 });

@@ -1,9 +1,11 @@
 import {
   isCommandPaletteFinalizeReviewAvailable,
   isCommandPaletteReviewSaveAvailable,
+  isCommandPaletteRoomElicitationAvailable,
 } from "@/lib/command-palette-work-action-dom";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
+export const COMMAND_PALETTE_FINALIZE_REVIEW_EVENT = "archlucid-command-palette-finalize-review";
 export const COMMAND_PALETTE_UNDO_MUTATION_EVENT = "archlucid-command-palette-undo-mutation";
 export const COMMAND_PALETTE_FINDING_NEXT_EVENT = "archlucid-command-palette-finding-next";
 export const COMMAND_PALETTE_FINDING_PREV_EVENT = "archlucid-command-palette-finding-prev";
@@ -18,11 +20,12 @@ export const COMMAND_PALETTE_ALERT_PREV_EVENT = "archlucid-command-palette-alert
 export const COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT = "archlucid-command-palette-alert-acknowledge";
 export const COMMAND_PALETTE_ALERT_RESOLVE_EVENT = "archlucid-command-palette-alert-resolve";
 export const COMMAND_PALETTE_ALERT_SUPPRESS_EVENT = "archlucid-command-palette-alert-suppress";
-export const COMMAND_PALETTE_FINALIZE_REVIEW_EVENT = "archlucid-command-palette-finalize-review";
+export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette-room-elicitation";
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
   | "action-finalize-review"
+  | "action-room-elicitation"
   | "action-undo-mutation"
   | "action-finding-next"
   | "action-finding-prev"
@@ -92,6 +95,13 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     searchValue: "action finalize review commit seal scorecard ready",
     isAvailable: (pathname) =>
       isReviewDetailWorkPath(pathname) && isCommandPaletteFinalizeReviewAvailable(),
+  },
+  {
+    id: "action-room-elicitation",
+    label: "Start room elicitation",
+    searchValue: "action room elicitation meeting mediate must questions presenter",
+    isAvailable: (pathname) =>
+      isReviewDetailWorkPath(pathname) && isCommandPaletteRoomElicitationAvailable(),
   },
   {
     id: "action-undo-mutation",
@@ -171,6 +181,7 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
 const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-save-draft": COMMAND_PALETTE_SAVE_DRAFT_EVENT,
   "action-finalize-review": COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
+  "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
   "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,
   "action-finding-next": COMMAND_PALETTE_FINDING_NEXT_EVENT,
   "action-finding-prev": COMMAND_PALETTE_FINDING_PREV_EVENT,
