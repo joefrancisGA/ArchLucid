@@ -6,7 +6,8 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
-import { describe, expect, it } from "vitest";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { describe, expect, it, vi } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
 
@@ -26,6 +27,15 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/internal/validate-route")).toBe(OPERATOR_NAV_LINK_LABELS.replayReview);
     expect(getRouteTitle("/insights/ask-review-questions")).toBe("Ask review questions");
     expect(getRouteTitle("/insights/search-review-evidence")).toBe("Search review evidence");
+  });
+
+  it("uses Teams instead of Microsoft Teams on the SecureNow process", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "security");
+
+    expect(getRouteTitle(INTEGRATIONS_TEAMS_PATH)).toBe("Teams");
+
+    vi.unstubAllEnvs();
+    process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "architecture";
   });
 });
 
