@@ -1400,3 +1400,4 @@
 {"at":"2026-09-07T18:19:27.5271149Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
 {"at":"2026-09-07T18:24:02.6916559Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
 {"at":"2026-09-07T18:29:17.5619996Z","zoneId":"agent-runtime-safety","outcome":"dry"}
+{"at":"2026-09-07T18:35:36.9764212Z","zoneId":"finding-inspect-sql","outcome":"hit"}

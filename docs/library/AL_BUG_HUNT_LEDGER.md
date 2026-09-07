@@ -661,11 +661,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — corrupt PayloadJson returned null typedPayload indistinguishable from missing payload
+- **last-bug:** 2026-09-07 — inspect `ParseDisposition` accepted undefined numeric disposition strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -688,6 +688,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — **cheap-disproof 2026-09-07 hunt #1238:** `docs/library/EXPLAINABILITY.md` and #667 fix require first applied rule id from `DecisioningTraces` when present; per-finding trace text is the fallback when JSON is absent.
 
 2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
+
+- [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` accepts undefined numeric `FindingReviewEvents.Disposition` strings (e.g. `"999"`) — **hit 2026-09-07 seed hunt #1243:** `Enum.TryParse` without `Enum.IsDefined` parity to disposition validation (#750); inspect surfaced invalid `LatestDisposition` instead of null; fixed in mapper; regressions in `ParseDisposition_returns_null_for_undefined_or_unrecognized_values`.
+- [ ] (candidate) `MainInspect*` selects `r.GoldenManifestId` into `MainRow` but `MapInspectResponse` never projects it on `FindingInspectResponse` — SQL fetch cost with no inspect explainability field despite `FindingEvidenceChainResponse` exposing golden manifest id elsewhere.
+
+2026-09-07 seed hunt #1243 (hit): reseeded after #1238; proved undefined numeric disposition on inspect read; seeded golden-manifest projection gap candidate.
 
 2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
 2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.
