@@ -54,11 +54,14 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -208,6 +211,10 @@ export function DiagramReconcileWorkbenchClient() {
   }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCloudResourceId, urlCorrespondenceId]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope, runId),
@@ -472,14 +479,35 @@ export function DiagramReconcileWorkbenchClient() {
     }
   }, []);
 
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedCorrespondenceId == null || selectedCorrespondenceId.length === 0) {
+      return null;
+    }
+
+    const selectedRow = filteredRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (selectedRow == null) {
+      return `Showing diagram correspondence ${selectedCorrespondenceId}.`;
+    }
+
+    return `Showing diagram correspondence ${selectedRow.diagramNodeLabel ?? selectedCorrespondenceId}.`;
+  }, [filteredRows, selectedCorrespondenceId]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagram-reconcile-workbench">
       <LayerHeader pageKey="infrastructure-diagram-reconcile" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
-        deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
-        evidence to confirmed.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
+          deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
+          evidence to confirmed.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer
+        message={selectionAnnouncement}
+        testId="infra-diagram-reconcile-selection-announcer"
+      />
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -494,10 +522,16 @@ export function DiagramReconcileWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {(auditScope != null || resourceHub?.auditLineageLink.available === false) ? (
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
               hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={scopedSnapshotId}
+              runId={runId}
+              activeTab="diagram"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
               provenanceTestId="infra-diagram-reconcile-audit-provenance"
               unavailableTestId="infra-diagram-reconcile-audit-unavailable"
             />
@@ -517,7 +551,12 @@ export function DiagramReconcileWorkbenchClient() {
             extraLinks={[
               {
                 testId: "infra-diagram-reconcile-open-diagrams",
-                href: buildResourceHubDiagramsWorkbenchHref(scopedSnapshotId, urlCloudResourceId, undefined, auditScope ?? undefined),
+                href: buildResourceHubDiagramsWorkbenchHref(
+                  scopedSnapshotId,
+                  urlCloudResourceId,
+                  undefined,
+                  mergeInfrastructureAskAuditScope(auditScope),
+                ),
                 label: "Open inventory diagrams",
               },
             ]}
@@ -706,7 +745,24 @@ export function DiagramReconcileWorkbenchClient() {
                   <EnterpriseTableRow
                     key={row.correspondenceId}
                     data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
-                    className={selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined}
+                    className={cn(
+                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                      selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined,
+                    )}
+                    role="button"
+                    tabIndex={0}
+                    aria-selected={selectedCorrespondenceId === row.correspondenceId}
+                    onClick={() => {
+                      setSelectedCorrespondenceId(row.correspondenceId);
+                      syncUrl({ correspondenceId: row.correspondenceId });
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedCorrespondenceId(row.correspondenceId);
+                        syncUrl({ correspondenceId: row.correspondenceId });
+                      }
+                    }}
                   >
                     <EnterpriseTableCell>{row.matchKind}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.confidenceBand}</EnterpriseTableCell>

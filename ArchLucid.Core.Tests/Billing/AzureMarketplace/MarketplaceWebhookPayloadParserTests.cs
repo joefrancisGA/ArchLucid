@@ -115,13 +115,13 @@ public sealed class MarketplaceWebhookPayloadParserTests
     }
 
     [Fact]
-    public void ReadQuantity_reads_string_encoded_boolean_quantity_instead_of_fallback()
+    public void ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity()
     {
         using JsonDocument document = JsonDocument.Parse("""{"quantity":"true"}""");
 
         int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 10);
 
-        quantity.Should().Be(1);
+        quantity.Should().Be(10);
     }
 
     [Fact]
@@ -136,13 +136,13 @@ public sealed class MarketplaceWebhookPayloadParserTests
     }
 
     [Fact]
-    public void ReadQuantity_reads_on_synonym_quantity_instead_of_fallback()
+    public void ReadQuantity_uses_fallback_for_on_synonym_quantity()
     {
         using JsonDocument document = JsonDocument.Parse("""{"quantity":"on"}""");
 
         int quantity = MarketplaceWebhookPayloadParser.ReadQuantity(document.RootElement, fallback: 10);
 
-        quantity.Should().Be(1);
+        quantity.Should().Be(10);
     }
 
     [Fact]

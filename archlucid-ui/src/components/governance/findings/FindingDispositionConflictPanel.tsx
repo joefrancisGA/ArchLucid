@@ -26,7 +26,6 @@ export function FindingDispositionConflictPanel(
     <div className="space-y-2" data-testid={testId}>
       <OperatorMutationInlineError
         testId={`${testId}-message`}
-        title="Disposition conflict"
         message={formatFindingDispositionConflictMessage(props.conflict)}
       />
       <div className="flex flex-wrap gap-2">

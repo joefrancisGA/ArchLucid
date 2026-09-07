@@ -220,6 +220,8 @@ export type DeriveHomePreviewTabCountsInput = {
   /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
   readonly excludeShowcaseRunId?: string | undefined;
   readonly awaitingApprovalRunIds?: readonly string[];
+  /** Workspace-wide awaiting-approval count when preview rows have not loaded queue membership yet. */
+  readonly awaitingApprovalCount?: number;
 };
 
 function countAwaitingApprovalPreviewRuns(
@@ -249,7 +251,20 @@ export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInpu
       ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
       : input.previewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
-  const awaitingApproval = countAwaitingApprovalPreviewRuns(listItems, input.awaitingApprovalRunIds);
+  const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
+  const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);
+  const workspaceAwaitingApproval = input.awaitingApprovalCount ?? 0;
+
+  let awaitingApproval = previewAwaitingApproval;
+
+  if (
+    previewAwaitingApproval === 0
+    && awaitingApprovalRunIds !== undefined
+    && awaitingApprovalRunIds.length > 0
+  ) {
+    // Queue membership loaded but preview rows omit queue members — align tab label with workspace summary.
+    awaitingApproval = workspaceAwaitingApproval;
+  }
   const recentTotalCount = listItems.length;
   const recentVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
 

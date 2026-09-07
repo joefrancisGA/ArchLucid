@@ -7,6 +7,11 @@ import {
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import {
+  buildInfraEvidenceResourceHubCacheKey,
+  readCachedInfraEvidenceResourceHub,
+  writeCachedInfraEvidenceResourceHub,
+} from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 
 export function useInfraEvidenceResourceHubAuditLineage(
   cloudResourceId: string,
@@ -29,6 +34,17 @@ export function useInfraEvidenceResourceHubAuditLineage(
       return;
     }
 
+    const cacheKey = buildInfraEvidenceResourceHubCacheKey(cloudResourceId, snapshotId);
+    const cachedHub = readCachedInfraEvidenceResourceHub(cacheKey);
+
+    if (cachedHub != null) {
+      setHub(cachedHub);
+      setLoadError(null);
+      setLoading(false);
+
+      return;
+    }
+
     let cancelled = false;
 
     async function loadHub() {
@@ -41,6 +57,7 @@ export function useInfraEvidenceResourceHubAuditLineage(
         });
 
         if (!cancelled) {
+          writeCachedInfraEvidenceResourceHub(cacheKey, response);
           setHub(response);
         }
       } catch (error: unknown) {

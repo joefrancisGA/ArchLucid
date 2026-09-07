@@ -71,6 +71,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator persisted a finding-scoped ask conversation turn (<c>ConversationThread</c> / messages).</summary>
     public const string FindingAskConversationPersisted = "FindingAskConversationPersisted";
 
+    /// <summary>Operator recorded an insight-density desk signal on a finding (DX-13).</summary>
+    public const string FindingInsightSignalRecorded = "FindingInsightSignalRecorded";
+
     /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
     public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
 

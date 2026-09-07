@@ -114,15 +114,15 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.getByTestId("infra-resource-explorer-overview-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?workQueue=open-findings",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&workQueue=open-findings",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&workQueue=open-findings",
     );
     expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-findings")).toHaveAttribute(
       "href",
@@ -168,11 +168,11 @@ describe("ResourcesExplorerClient", () => {
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift&workQueue=recent-drift",
     );
     expect(screen.getByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=drift&workQueue=recent-drift",
     );
   });
 
@@ -183,7 +183,7 @@ describe("ResourcesExplorerClient", () => {
 
     expect(await screen.findByTestId("infra-resource-explorer-hub-tab-11111111-1111-1111-1111-111111111111")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=remediation&workQueue=open-remediation",
     );
     expect(screen.getByRole("link", { name: "Remediation" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-work-count-11111111-1111-1111-1111-111111111111-remediation")).toHaveAttribute(

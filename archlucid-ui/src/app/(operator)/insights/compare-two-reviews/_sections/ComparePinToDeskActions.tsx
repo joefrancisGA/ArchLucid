@@ -1,7 +1,6 @@
 "use client";
 
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
-import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

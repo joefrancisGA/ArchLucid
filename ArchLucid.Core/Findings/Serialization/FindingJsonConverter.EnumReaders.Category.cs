@@ -12,14 +12,6 @@ public sealed partial class FindingJsonConverter
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
 
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingEnforcementTier), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
-
-            return (FindingEnforcementTier)booleanOrdinalFromString;
-        }
-
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric)
             || TryParseWholeNumberString(raw, out numeric))
         {
@@ -45,14 +37,6 @@ public sealed partial class FindingJsonConverter
             return (FindingEnforcementTier)numeric;
         }
 
-        if (TryReadBooleanOrdinal(element, out int booleanOrdinal))
-        {
-            if (!Enum.IsDefined(typeof(FindingEnforcementTier), booleanOrdinal))
-                throw new JsonException($"Unknown finding enforcement tier value '{booleanOrdinal}'.");
-
-            return (FindingEnforcementTier)booleanOrdinal;
-        }
-
         if (element.ValueKind != JsonValueKind.String)
             throw new JsonException("Expected string or number for finding enforcement tier.");
 
@@ -60,14 +44,6 @@ public sealed partial class FindingJsonConverter
 
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
-
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingEnforcementTier), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
-
-            return (FindingEnforcementTier)booleanOrdinalFromString;
-        }
 
         return ReadEnforcementTierFromString(raw);
     }
@@ -82,14 +58,6 @@ public sealed partial class FindingJsonConverter
             return (FindingClassification)numeric;
         }
 
-        if (TryReadBooleanOrdinal(element, out int booleanOrdinal))
-        {
-            if (!Enum.IsDefined(typeof(FindingClassification), booleanOrdinal))
-                throw new JsonException($"Unknown finding classification value '{booleanOrdinal}'.");
-
-            return (FindingClassification)booleanOrdinal;
-        }
-
         if (element.ValueKind != JsonValueKind.String)
             throw new JsonException("Expected string or number for finding classification.");
 
@@ -97,14 +65,6 @@ public sealed partial class FindingJsonConverter
 
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding classification value is required.");
-
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingClassification), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding classification value '{raw}'.");
-
-            return (FindingClassification)booleanOrdinalFromString;
-        }
 
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
             || TryParseWholeNumberString(raw, out numericFromString))

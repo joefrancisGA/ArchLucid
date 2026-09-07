@@ -60,6 +60,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["DeclarationPremiseConflictFindingEngine"] = "declaration-premise-conflict",
             ["OpenCommitmentFindingEngine"] = "open-commitment",
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
+            ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
             ["InsightGeneratorFindingEngine"] = "insight-generator",
         };
 

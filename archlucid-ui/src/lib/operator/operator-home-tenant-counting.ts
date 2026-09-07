@@ -39,6 +39,7 @@ export function deriveOperatorHomeTenantCountingSnapshot(
     previewItems: tenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,
     awaitingApprovalRunIds: input.awaitingApprovalRunIds,
+    awaitingApprovalCount,
   });
 
   return {

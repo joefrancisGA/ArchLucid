@@ -29,10 +29,10 @@ describe("OperatorHomePrimaryAttentionLead", () => {
         new RegExp(OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].description.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Reviews waiting for approval/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].ctaLabel }),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/approval warnings count governance checks/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/governance/i)).not.toBeInTheDocument();
   });
 });

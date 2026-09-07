@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
+import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +43,10 @@ import {
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
+import {
+  buildInfraEvidenceClearAuditScopeHref,
+} from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
+import { formatResourceHubTabLabelWithAuditScope } from "@/lib/infra-evidence/infra-evidence-hub-tab-audit-label";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import {
   fetchCloudResourceEvidenceHub,
@@ -433,6 +439,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [askAuditContext],
   );
 
+  const hasStaleAuditUrlParams = useMemo(() => {
+    const hasAnyAuditParam =
+      assessmentId.length > 0
+      || auditEvidenceSnapshotId.length > 0
+      || controlId.length > 0;
+
+    return hasAnyAuditParam && workbenchLinkAuditContext == null;
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, workbenchLinkAuditContext]);
+
+  const auditScopeActive = workbenchLinkAuditContext != null;
+
   const hubTabs = useMemo(() => {
     if (hub == null) {
       return HUB_TABS;
@@ -443,20 +460,48 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return HUB_TABS.map((tab) => {
       if (tab.id === "findings" && openFindingsCount > 0) {
-        return { ...tab, label: `Findings (${openFindingsCount})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Findings (${openFindingsCount})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
       }
 
       if (tab.id === "remediation" && hub.remediationInstances.totalCount > 0) {
-        return { ...tab, label: `Remediation (${hub.remediationInstances.totalCount})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Remediation (${hub.remediationInstances.totalCount})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
       }
 
       if (tab.id === "drift" && hub.recentChanges.length > 0) {
-        return { ...tab, label: `Drift (${hub.recentChanges.length})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Drift (${hub.recentChanges.length})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
+      }
+
+      if (auditScopeActive) {
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(tab.label, auditScopeActive, tab.id),
+        };
       }
 
       return tab;
     });
-  }, [hub]);
+  }, [auditScopeActive, hub]);
 
   const openFindingsCount = useMemo(() => {
     if (hub == null) {
@@ -532,10 +577,40 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {hub?.externalResourceId ?? cloudResourceId}
           </p>
         </div>
-        <Link className="text-sm text-al-link hover:underline" href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}>
-          Back to explorer
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
+          <Link className="text-sm text-al-link hover:underline" href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}>
+            Back to explorer
+          </Link>
+        </div>
       </div>
+
+      {workbenchLinkAuditContext != null ? (
+        <InfraEvidenceAuditScopeBar
+          cloudResourceId={cloudResourceId}
+          auditScope={{
+            assessmentId: workbenchLinkAuditContext.assessmentId ?? "",
+            auditEvidenceSnapshotId: workbenchLinkAuditContext.auditEvidenceSnapshotId ?? "",
+            controlId: workbenchLinkAuditContext.controlId ?? "",
+          }}
+          currentSearch={searchParams.toString()}
+          activeTab={activeTab}
+          snapshotId={resolvedSnapshotId}
+          runId={runId}
+          controlNumber={hub?.auditLineageLink.controlNumber}
+          controlTitle={hub?.auditLineageLink.controlTitle}
+          testId="infra-resource-hub-audit-scope-bar"
+        />
+      ) : null}
+
+      {hasStaleAuditUrlParams ? (
+        <InfraAuditLineageUnavailableBanner
+          degradedReason="Audit scope in the URL could not be resolved for this resource."
+          testId="infra-resource-hub-stale-audit-scope"
+          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab: "audit" })}
+          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(cloudResourceId, searchParams.toString(), activeTab)}
+        />
+      ) : null}
 
       {loadError != null ? (
         <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
