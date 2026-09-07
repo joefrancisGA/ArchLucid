@@ -1365,3 +1365,4 @@
 {"at":"2026-09-07T10:05:34.1181615Z","zoneId":"api-policy-packs","outcome":"hit"}
 {"at":"2026-09-07T10:12:42.783547Z","zoneId":"api-policy-packs","outcome":"hit"}
 {"at":"2026-09-07T10:21:08.0006736Z","zoneId":"api-governance-stickiness","outcome":"hit"}
+{"at":"2026-09-07T10:27:42.1768503Z","zoneId":"api-tenancy-workspaces","outcome":"dry"}

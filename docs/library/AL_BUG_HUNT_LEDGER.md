@@ -9196,9 +9196,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
@@ -9209,10 +9209,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — `DeletedUtc ?? CreatedUtc` fallback advertised `purgeAfterUtc` while retention purge worker requires `DeletedUtc IS NOT NULL` — **hit 2026-09-07 (#1172):** orphan `IsDeleted=1` rows without `DeletedUtc` surfaced a purge deadline that would never execute; fixed by listing only rows with `DeletedUtc` before computing retention schedule (`ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`)
-- [ ] (candidate) `DapperArchitectureProjectRepository.TryRestoreAsync` — active name collision check omits `TenantId` (InMemory parity gap; SQL workspace PK mitigates)
-- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — recycle bin lists all deleted workspace projects but restore requires `projectId == scope.ProjectId` (product scope-binding vs admin recycle-bin UX)
-- [ ] (candidate) Cross-workspace delete/restore via foreign route `workspaceId` — disproved by existing scope guards (`DeleteProjectAsync` / `RestoreProjectAsync` tests)
+- [x] (invalid) `DapperArchitectureProjectRepository.TryRestoreAsync` — active name collision check omits `TenantId` — **cheap-disproof 2026-09-07 (#1208):** `TenantWorkspaces.Id` is globally unique (`FK_Projects_TenantWorkspaces2`); `UX_Projects_Workspace_Name_Active2` scopes by `WorkspaceId`; cross-tenant collision unreachable in SQL; InMemory false-positive without `TenantId` is test-double-only
+- [x] (invalid) `TenantWorkspacesController.RestoreProjectAsync` — recycle bin lists deleted workspace projects but restore requires `projectId == scope.ProjectId` — **cheap-disproof 2026-09-07 (#1208):** intentional project-scoped mutation guard (#281); ledger rows #419/#8124; `RestoreProjectAsync_returns_not_found_when_project_id_is_sibling_in_same_workspace`
+- [x] (invalid) Cross-workspace delete/restore via foreign route `workspaceId` — **cheap-disproof 2026-09-07 (#1208):** `workspaceId == scope.WorkspaceId` guard on delete/restore; regressions `DeleteProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope` and `RestoreProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope`
 
+2026-09-07 thorough hunt #1208 (dry): cheap-disproved three workspace restore/list parity candidates; no failing production repro.
 2026-09-07 seed hunt #1172 (hit): reseeded tenancy workspace controllers; proved recycle-bin purge schedule false promise for soft-deletes missing `DeletedUtc`.
 
 ---
