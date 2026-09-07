@@ -67,10 +67,10 @@ export async function postArchitectureRequestRaw(
   });
 }
 
-/** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — fail faster than the 12×300s create-run loop. */
+/** Private-beta smoke sets LIVE_E2E_PRIVATE_BETA_ACCESS=1 — cap retries so a wedged create cannot burn 25+ minutes. */
 function maxArchitectureMutationAttempts(): number {
   if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
-    return 5;
+    return 2;
   }
 
   return getMaxInfrastructureMutationAttempts();
@@ -499,15 +499,58 @@ function isTransientLiveApiTransportError(error: unknown): boolean {
 }
 
 /**
+ * Per-attempt HTTP budget for POST `/v1/architecture/request` on invite-wave private-beta CI.
+ * Must exceed `AuthorityPipeline__PipelineTimeout` (default 5m) on API-only hosts (no Worker).
+ */
+export const LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS = 540_000;
+
+/**
  * Per-attempt HTTP budget for POST `/v1/architecture/request`.
  * Create-run runs the full inline authority pipeline before returning; cold SQL CI hosts can exceed 90s.
  */
 export function liveE2eArchitectureRequestAttemptHttpTimeoutMs(requestedMs = 90_000): number {
+  if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1" && process.env.CI) {
+    return LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS;
+  }
+
   if (process.env.CI && requestedMs <= 90_000) {
     return 300_000;
   }
 
   return requestedMs;
+}
+
+/**
+ * JIT-warms the inline create-run pipeline on cold SQL before browser journeys.
+ * Invite-wave CI skips shell warm; a best-effort create primes caches without failing the suite.
+ */
+export async function warmPrivateBetaCreateRunPipeline(
+  request: APIRequestContext,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<void> {
+  if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
+    return;
+  }
+
+  try {
+    await createRun(
+      request,
+      enrichArchitectureRequestBody({
+        requestId: `E2E-BETA-PIPELINE-WARM-${Date.now()}`,
+        description: liveE2eArchitectureDescription("Private beta create-run pipeline warm-up."),
+        systemName: "PrivateBetaPipelineWarm",
+        environment: "prod",
+        cloudProvider: 1,
+        constraints: [] as string[],
+        requiredCapabilities: ["SQL"],
+        assumptions: [] as string[],
+        priorManifestVersion: null as string | null,
+      }),
+      tenantScope,
+    );
+  } catch {
+    // Best-effort — browser journeys still call createRun with the private-beta retry budget.
+  }
 }
 
 /** CI live API + SQL commit convergence needs more wall clock than local runs. */

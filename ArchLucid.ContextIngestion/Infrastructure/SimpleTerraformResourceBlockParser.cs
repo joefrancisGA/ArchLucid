@@ -58,6 +58,20 @@ internal static class SimpleTerraformResourceBlockParser
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+    private static readonly Regex ModuleHeaderRegex = new(
+        """
+        module\s+"(?<name>[^"]+)"|module\s+'(?<name>[^']+)'
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleSourceAssignmentRegex = new(
+        """
+        ^\s*source\s*=\s*(?<value>.+?)\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    internal readonly record struct SimpleTerraformModuleBlock(string Name, string Source, string Body);
+
     internal static bool TryExtractLiteralForEachKeys(string body, out IReadOnlyList<string> keys)
     {
         keys = [];
@@ -175,6 +189,59 @@ internal static class SimpleTerraformResourceBlockParser
         }
 
         return blocks;
+    }
+
+    internal static IReadOnlyList<SimpleTerraformModuleBlock> ExtractModuleBlocks(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return [];
+
+        MatchCollection matches = ModuleHeaderRegex.Matches(content);
+
+        if (matches.Count == 0)
+            return [];
+
+        List<SimpleTerraformModuleBlock> blocks = [];
+
+        for (int index = 0; index < matches.Count; index++)
+        {
+            Match match = matches[index];
+            string name = match.Groups["name"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            int bodyStart = match.Index + match.Length;
+            int bodyEnd = index + 1 < matches.Count ? matches[index + 1].Index : content.Length;
+            string body = content[bodyStart..bodyEnd];
+
+            if (!TryExtractModuleSource(body, out string source))
+                continue;
+
+            blocks.Add(new SimpleTerraformModuleBlock(name, source, body));
+        }
+
+        return blocks;
+    }
+
+    private static bool TryExtractModuleSource(string moduleBody, out string source)
+    {
+        source = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(moduleBody))
+            return false;
+
+        Match match = ModuleSourceAssignmentRegex.Match(moduleBody);
+
+        if (!match.Success)
+            return false;
+
+        source = match.Groups["value"].Value.Trim();
+        source = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(source);
+        source = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(source);
+        source = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(source);
+
+        return !string.IsNullOrWhiteSpace(source);
     }
 
     internal static void ParseBodyIntoProperties(string body, Dictionary<string, string> properties)

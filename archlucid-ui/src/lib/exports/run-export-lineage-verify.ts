@@ -47,6 +47,11 @@ export async function verifyRunExportLineage(runId: string): Promise<RunExportLi
   };
 }
 
+export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL = "Integrity check passed";
+export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL = "Integrity check failed";
+export const RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_DISCLAIMER =
+  "Hash verification only — not a new attestation or re-approval.";
+
 /** DR-10: Match is the attested success path (prompt "Attested" = API Match). */
 export function isRunExportLineageAttested(result: RunExportLineageVerificationResult): boolean {
   return result.status === "Match";
@@ -54,8 +59,10 @@ export function isRunExportLineageAttested(result: RunExportLineageVerificationR
 
 export function formatRunExportLineageStatusLabel(
   result: RunExportLineageVerificationResult,
-): "Attested" | "Not attested" {
-  return isRunExportLineageAttested(result) ? "Attested" : "Not attested";
+): typeof RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL | typeof RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL {
+  return isRunExportLineageAttested(result)
+    ? RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_PASSED_LABEL
+    : RUN_EXPORT_LINEAGE_INTEGRITY_CHECK_FAILED_LABEL;
 }
 
 /** Returns the first non-attested verify result, or null when every run attests. */

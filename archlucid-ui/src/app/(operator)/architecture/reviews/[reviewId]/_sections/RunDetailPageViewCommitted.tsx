@@ -140,6 +140,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
             realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
             pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
           }}
+          careerArtifactHonesty={{
+            progressSummary: m.progressForPipelineUi,
+            manifestSummary: m.manifestSummaryForUi,
+            graphSnapshot: m.resolvedDetail.graphSnapshot,
+            enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+            isSample: m.usedStaticDemoRun,
+          }}
         />
       ) : null}
 
@@ -233,7 +240,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
 
       {buyerFinalizedPackage ? null : sectionNavEl}
 
-      {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
+      {resolveRunDetailSponsorBriefingSection(m, {
+        pagePrimaryOwnedElsewhere: true,
+        enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+        manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
+        progressSummary: m.progressForPipelineUi,
+        graphSnapshot: m.resolvedDetail.graphSnapshot,
+      })}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
         <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />

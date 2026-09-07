@@ -2235,6 +2235,13 @@ export interface components {
             sourceId?: string;
             sourceType?: string;
         };
+        /** @description RFC 9457 Problem Details for ADR 0078 career artifact export blocks (HTTP 409). */
+        CareerArtifactBlockedProblemDetails: {
+            /** @description User-safe ADR 0078 block sentence explaining why the career export cannot render. */
+            blockReason: string;
+            /** @description Machine-readable ADR 0078 block code (for example transparency_trail_incomplete, measurement_floor_incomplete). */
+            blockReasonCode?: string;
+        } & components["schemas"]["ProblemDetails"];
         CategoryBenchmarkScore: {
             category?: components["schemas"]["BenchmarkScoreCategory"];
             detail?: string;
@@ -3476,6 +3483,7 @@ export interface components {
             snapshotId?: string;
         };
         DeskContinuityDto: {
+            lastOpenArchitectureId?: null | string;
             lastOpenDraftId?: null | string;
             lastOpenReviewId?: null | string;
             lastVisitWatermarkUtc?: null | string;
@@ -4238,6 +4246,7 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             /** Format: uuid */
             evidencePackageId?: null | string;
+            evidenceRefs?: string[];
             findingId?: string;
             /** Format: int32 */
             findingSchemaVersion?: number;
@@ -7477,6 +7486,7 @@ export interface components {
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
             committedManifestTimestampResolved?: boolean;
+            deferredBuyerRequirementsPresent?: boolean;
             demoTenantWarningRequired?: boolean;
             evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;
@@ -8881,6 +8891,7 @@ export interface components {
         };
         RunDetailWorkspaceContextBundleResponse: {
             priorCommittedRunComparison?: null | components["schemas"]["RunComparisonResponse"];
+            priorCommittedRunComparisonBlockedReason?: null | string;
             /** Format: date-time */
             priorCommittedRunCreatedUtc?: null | string;
             /** Format: uuid */
@@ -9300,6 +9311,15 @@ export interface components {
             /** Format: int32 */
             manifestModeledElementApproxCount?: number;
             runId: string;
+        };
+        RunStoredEvidenceFileDto: {
+            /** Format: int64 */
+            byteLength?: number;
+            contentType?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceItemId?: string;
+            originalFileName?: string;
         };
         RunSummaryResponse: {
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];

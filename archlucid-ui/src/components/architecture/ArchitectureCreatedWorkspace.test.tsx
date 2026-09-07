@@ -151,6 +151,102 @@ describe("ArchitectureCreatedWorkspace", () => {
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
   });
 
+  it("hides evidence vocabulary rail and mounts buyer Sources on evidence tab in buyer-polished shell", () => {
+    demoEnvMock.buyerPolished = true;
+    demoEnvMock.evalChrome = true;
+    searchParamsState.value = new URLSearchParams(
+      "fromGeneration=1&intent=create-architecture&reviewTab=evidence",
+    );
+
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          runId: "run-1",
+          architectureName: "Claims platform",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
+          businessOutcome: "Reduce manual triage time.",
+          peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
+          ownerLabel: "owner@example.com",
+          lastUpdatedLabel: "Jul 11, 2026",
+          workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+          assessmentInProgress: false,
+          hasArtifacts: false,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
+        }}
+        architectureSourceText="Generated architecture body"
+        canEditDiagram
+        findings={[]}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
+        panels={{
+          findings: <div data-testid="findings-panel-slot">Findings</div>,
+          evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
+          governance: <div data-testid="governance-panel-slot">Governance</div>,
+          activity: <div data-testid="activity-panel-slot">Activity</div>,
+          submittedArchitecture: <div data-testid="submitted-panel-slot">Submitted</div>,
+        }}
+      />,
+    );
+
+    const evidencePanel = screen.getByTestId("architecture-workspace-panel-evidence");
+
+    expect(within(evidencePanel).queryByTestId("package-evidence-evidence-graph-vocabulary")).not.toBeInTheDocument();
+    expect(within(evidencePanel).getByTestId("architecture-evidence-orientation-bottom")).toBeInTheDocument();
+    expect(within(evidencePanel).getByTestId("evidence-panel-slot")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-created-compact-context-bar")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
+
+    searchParamsState.value = new URLSearchParams("fromGeneration=1&intent=create-architecture");
+  });
+
+  it("hides findings vocabulary rail and mounts buyer Sources on findings tab in buyer-polished shell", () => {
+    demoEnvMock.buyerPolished = true;
+    demoEnvMock.evalChrome = true;
+    searchParamsState.value = new URLSearchParams(
+      "fromGeneration=1&intent=create-architecture&reviewTab=findings",
+    );
+
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          runId: "run-1",
+          architectureName: "Claims platform",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
+          businessOutcome: "Reduce manual triage time.",
+          peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
+          ownerLabel: "owner@example.com",
+          lastUpdatedLabel: "Jul 11, 2026",
+          workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+          assessmentInProgress: false,
+          hasArtifacts: false,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
+        }}
+        architectureSourceText="Generated architecture body"
+        canEditDiagram
+        findings={[]}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
+        panels={{
+          findings: <div data-testid="findings-panel-slot">Findings</div>,
+          evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
+          governance: <div data-testid="governance-panel-slot">Governance</div>,
+          activity: <div data-testid="activity-panel-slot">Activity</div>,
+          submittedArchitecture: <div data-testid="submitted-panel-slot">Submitted</div>,
+        }}
+      />,
+    );
+
+    const findingsPanel = screen.getByTestId("architecture-workspace-panel-findings");
+
+    expect(within(findingsPanel).queryByTestId("clarifications-findings-vocabulary")).not.toBeInTheDocument();
+    expect(within(findingsPanel).getByTestId("architecture-findings-orientation-bottom")).toBeInTheDocument();
+    expect(within(findingsPanel).getByTestId("findings-panel-slot")).toBeInTheDocument();
+
+    searchParamsState.value = new URLSearchParams("fromGeneration=1&intent=create-architecture");
+  });
+
   it("uses compact context bar on governance tab instead of full first viewport", () => {
     searchParamsState.value = new URLSearchParams(
       "fromGeneration=1&intent=create-architecture&reviewTab=policies",

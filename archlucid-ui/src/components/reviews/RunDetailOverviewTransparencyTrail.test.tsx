@@ -43,6 +43,7 @@ describe("RunDetailOverviewTransparencyTrail", () => {
 
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
+    expect(screen.getByTestId("transparency-trail-panel").tagName).toBe("SECTION");
     expect(screen.queryByRole("group")).not.toBeInTheDocument();
   });
 

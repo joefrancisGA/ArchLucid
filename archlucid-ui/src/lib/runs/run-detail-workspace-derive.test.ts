@@ -138,7 +138,7 @@ describe("run-detail-workspace-derive", () => {
     expect(failed).toMatchObject({
       label: "Execution failed",
       kind: "execution-failed",
-      statusTagKind: "needs-attention",
+      statusTagKind: "blocked",
     });
     expect(isReviewPipelineIncomplete(failed)).toBe(true);
     expect(deriveDecisionSnapshotSuppressedReason(failed)).toMatch(/re-run the review/i);

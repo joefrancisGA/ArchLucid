@@ -1,7 +1,8 @@
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingReviewsInboxParentLink } from "@/lib/resolve-working-evidence-parent-link";
 import type { PageHelpTopic } from "@/lib/usability/page-help-topic-rows";
 
 export const REVIEW_WORKSPACE_HELP_TOPIC_LABEL = "Review workspace" as const;
@@ -61,19 +62,25 @@ export const REVIEW_WORKSPACE_SOURCES_INTRO =
 
 
 /** Build operator Sources for a run — never self-links the review detail path. */
-export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSourceLink[] {
+export function buildReviewWorkspaceSources(
+  runId: string,
+  architectureId?: string | null,
+  options?: { readonly workingMode?: boolean },
+): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
+  const workingMode = options?.workingMode === true;
+  const reviewsParent = resolveWorkingReviewsInboxParentLink(workingMode);
   const evidenceHref =
     trimmed.length > 0
       ? `/insights/evidence-graph?runId=${encodeURIComponent(trimmed)}`
       : "/insights/evidence-graph";
   const findingsHref =
     trimmed.length > 0
-      ? `${reviewDetailPath(trimmed)}?reviewTab=findings`
+      ? `${resolveArchitectureReviewHref(trimmed, architectureId)}?reviewTab=findings`
       : GOVERNANCE_FINDINGS_PATH;
 
   return [
-    { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
+    { label: reviewsParent.label, href: reviewsParent.href },
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: evidenceHref },
     { label: "Findings tab", href: findingsHref },

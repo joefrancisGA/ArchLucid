@@ -17,12 +17,17 @@ import type { ProductLineAssignment } from "@/lib/product-line/product-line-assi
  * Edit this file for committed defaults, or `/internal/product-line` for a browser-only overlay
  * (localStorage). Dual local start: Architecture :3000 + Security :3001 via `start-local-api-and-ui.ps1`.
  *
- * Security product spine: the `operate-infrastructure` group (`/governance/infrastructure/*`)
- * plus inventory intake (cloud connections / extract-upload) and OpSec factory pages that
- * already sit under Approval nav.
+ * Security product spine: the `operate-infrastructure` group (`/governance/infrastructure/*`),
+ * ARC-AMPE compliance posture under `operate-policy` and related Approval rows, inventory intake
+ * (cloud connections / extract-upload), and OpSec factory pages that already sit under Approval nav.
  */
 export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
   "/": "both",
+
+  // Compliance posture — ARC-AMPE pack assignment, effective rules, and cloud-evidence findings.
+  "/governance/policy-packs": "both",
+  "/governance/standards-and-rules": "both",
+  "/governance/findings": "both",
 
   // Infrastructure evidence workbenches (operate-infrastructure).
   "/governance/infrastructure": "both",
@@ -68,13 +73,13 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
 
   // Shared operator diagnostics (Internal). Architecture-only GTM rows stay unlisted.
   "/internal/health": "both",
-  "/internal/deployment-status": "both",
+  "/internal/deployment-status": "architecture",
   "/internal/configuration": "both",
   "/internal/failed-integration-messages": "both",
   "/internal/operational-errors": "both",
   "/internal/tenants": "both",
   "/internal/tenant-health": "both",
-  "/internal/product-line": "both",
+  "/internal/product-line": "architecture",
 };
 
 /**
@@ -86,6 +91,8 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
   "/administration/auth-domains": "both",
   "/administration/identity/sso-wizard": "both",
   "/integrations/itsm/oauth/callback": "both",
+  "/integrations/cloud-connections/aws": "architecture",
+  "/integrations/cloud-connections/gcp": "architecture",
 };
 
 /** Nested URL trees that inherit the parent catalog assignment. */
@@ -94,6 +101,9 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/audit-evidence",
   "/governance/remediation-patterns",
   "/governance/remediation-factory",
+  "/governance/findings",
+  "/governance/policy-packs",
+  "/governance/standards-and-rules",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",
@@ -111,14 +121,13 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/auth",
 ];
 
-/** Always reachable in every product (account, help, auth, playground). */
+/** Always reachable in every product (account, help, auth). */
 export const PRODUCT_LINE_ALWAYS_ALLOWED_PREFIXES: readonly string[] = [
   "/help",
   "/account",
   "/auth",
   "/403",
   "/why-archlucid",
-  "/internal/product-line",
 ];
 
 export { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";

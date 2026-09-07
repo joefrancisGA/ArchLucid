@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-17–DX-28)
 
-**Created:** 2026-09-07 · **Status:** **DX-17–DX-28 shipped on `master`** (2026-09-07) except **DX-18** (TB-885 hold), **DX-19** (ADR 0062 hold), and **DX-20** (open PR until merged). Do not re-run shipped prompts.
+**Created:** 2026-09-07 · **Status:** **DX-17–DX-28 shipped on `master`** (2026-09-07). **DX-18** (TB-885) and **DX-19** (TB-2033 / ADR 0062 slice 1) shipped 2026-09-07. Do not re-run shipped prompts.
 
 These prompts grow the **numerator** (new information sources, synthesis of demoted rows, richer ingest) and close measurement loops DX-13/DX-15 opened. They do **not** add coverage-only “node type X is missing” engines.
 
@@ -16,7 +16,7 @@ These prompts grow the **numerator** (new information sources, synthesis of demo
 |------|-----|
 | ID-01–ID-10, PP-01 map | Shipped |
 | **DX-01–DX-16** | On `master` as of 2026-09-07 (gate, Real judge, actor expansion, contradiction/path engines, InsightGenerator, recurrence default-on, ITSM Decision-grade, novelty signal, harness 32/45, measurement floor, starter catalog) |
-| **DX-17–DX-28** | Shipped on `master` as of 2026-09-07 (see sequencing table — **DX-18**/**DX-19** held; **DX-20** in PR #2002 until merged) |
+| **DX-17–DX-28** | Shipped on `master` as of 2026-09-07 (including **DX-18** and **DX-19**) |
 | Louvain detector | `LouvainGraphCommunityDetector` + `GraphCommunitySummarizationService` already exist — **DX-17 wires summaries into InsightGenerator**, does not recreate community detection |
 | `SelectJudgedCandidates` severity sort | Judge already orders by severity then lowest score — **DX-21 adds engine-type priority** so path/contradiction rows are not skipped by cap |
 
@@ -34,12 +34,12 @@ These prompts grow the **numerator** (new information sources, synthesis of demo
 | **DX-28** | Path-engine golden fixtures + floor derive | After DX-14 | DX-14 (shipped) | Measurement |
 | **DX-17** | Community summaries → InsightGenerator | After DX-10 | DX-10 (shipped) | **Generative** (retrieval context) |
 | **DX-20** | Live frontier capture schema + one labeled synthetic | After DX-13 | DX-13 preferred | Measurement |
-| **DX-18** | TB-885 compounding ledger | **Held** | Owner unparks TB-885 | Packaging |
-| **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 | Sustains excellence |
+| **DX-18** | TB-885 compounding ledger | **Shipped** (2026-09-07) | — | Packaging |
+| **DX-19** | ADR 0062 verification slice 1 | **Shipped** (2026-09-07) | TB-2033 / ADR 0062 | Sustains excellence |
 
-**Start DX-21–DX-28 now.** Start **DX-17** and **DX-20** after those land if capacity remains. Do **not** start **DX-18** or **DX-19** unless the owner explicitly unparks the matching TB row.
+**DX-17–DX-28 shipped** (2026-09-07), including **DX-18** and **DX-19**.
 
-> **2026-09-07 closure:** DX-21–DX-28, DX-17 landed on `master`. DX-20 is in PR #2002. Remaining runnable items: **DX-18** / **DX-19** only when owner unparks TB-885 / TB-2033.
+> **2026-09-07 closure:** DX-17–DX-28 landed on `master`, including **DX-18** (TB-885) and **DX-19** (TB-2033 / ADR 0062 slice 1).
 
 **Do not start from this document:** SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, fake named-model frontier transcripts, a 5th `AgentType` enum value.
 
@@ -536,9 +536,9 @@ Done when: schema + one synthetic fixture + calculator regression still PASS; do
 
 ---
 
-# DX-18 — TB-885 policy-pack compounding ledger (**held**)
+# DX-18 — TB-885 policy-pack compounding ledger (**shipped**)
 
-**Status:** **Do not run** until the owner unparks **TB-885** in `docs/library/TECH_BACKLOG.md` (currently Hold for reassessment / G-REAL-06). Prompt is stored so the chat is ready.
+**Status:** **Shipped on `master` (2026-09-07).** Do not re-run. Ledger: [`../quality/policy-pack-compounding-evidence-ledger.md`](../quality/policy-pack-compounding-evidence-ledger.md) · generator `scripts/ci/write_policy_pack_compounding_evidence_ledger.py` · tests `PolicyPackCompoundingEvidenceLedgerTests`.
 
 **Closes:** “Compounds over time” remains narrative; dry-run exists but no older-vs-newer ledger.
 **Depends on:** owner unpark
@@ -564,15 +564,14 @@ Done when: one pack with 2+ versions + one historical run produces a ledger file
 
 ---
 
-# DX-19 — ADR 0062 verification loop slice 1 (**held**)
+# DX-19 — ADR 0062 verification loop slice 1 (**shipped**)
 
-**Status:** **Do not run** until the owner unparks **TB-2033** (ADR 0062 is Proposed / V1.1). Prompt is stored so the chat is ready.
+**Status:** **Shipped on `master` (2026-09-07).** Do not re-run. TB-2033 Done; ADR 0062 Accepted.
 
 **Closes:** First-review density is not raised; excellence is **sustained** by scoring whether findings materialized.
-**Depends on:** owner unpark
-**Branch suggestion:** `cursor/dx-19-verification-loop-slice-1`
+**Branch:** `cursor/dx-19-verification-loop-slice-1-97a4`
 
-### Prompt (copy below) — only after owner unparks TB-2033
+### Prompt (archived — shipped 2026-09-07)
 
 ```text
 You are working in the ArchLucid repo on a FEATURE BRANCH (not master). Goal: ADR 0062 slice 1 — FindingVerificationReports + FindingVerificationResults tables (migration + ArchLucid.sql), IFindingVerificationService that writes a linked artifact for a finalized package + later snapshot, statuses Materialized | Mitigated | Not observed | Not verifiable. Do not mutate ManifestHash. Do not put confirmation rates in buyer copy.
@@ -595,5 +594,8 @@ Done when: POST writes a report artifact; sealed package unchanged; 404 cross-te
 
 - Strategy: [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 - DX-01–DX-16: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
+- **DX-29–DX-35** (shipped): [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- **DX-36–DX-41** (shipped): [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
+- Next **DX-42–DX-46:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)

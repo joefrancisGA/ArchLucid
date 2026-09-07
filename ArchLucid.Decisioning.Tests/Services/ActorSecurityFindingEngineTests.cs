@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Tests.GoldenCorpus;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -38,7 +40,7 @@ public sealed class ActorSecurityFindingEngineTests
             Nodes = [ingress, .. materialized],
         };
 
-        ExternalExposureFindingEngine sut = new();
+        ExternalExposureFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
@@ -88,7 +90,7 @@ public sealed class ActorSecurityFindingEngineTests
             Nodes = [functionApp, ingress, .. materialized],
         };
 
-        TrustBoundaryFindingEngine sut = new();
+        TrustBoundaryFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
@@ -116,7 +118,7 @@ public sealed class ActorSecurityFindingEngineTests
             ],
         };
 
-        ExternalExposureFindingEngine sut = new();
+        ExternalExposureFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
@@ -156,7 +158,7 @@ public sealed class ActorSecurityFindingEngineTests
             ],
         };
 
-        TrustBoundaryFindingEngine sut = new();
+        TrustBoundaryFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
@@ -185,11 +187,32 @@ public sealed class ActorSecurityFindingEngineTests
             ],
         };
 
-        PrivilegedAccessFindingEngine sut = new();
+        PrivilegedAccessFindingEngine sut = new(new FixedComplianceRulePackProvider(CreateFailOpenPack()));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("privileged-access");
     }
+
+    private static ComplianceRulePack CreateFailOpenPack() =>
+        new()
+        {
+            RulePackId = "actor-security-fail-open",
+            Name = "Actor security fail-open",
+            Version = "1",
+            Rules =
+            [
+                new ComplianceRule
+                {
+                    RuleId = "cost-opt-001",
+                    ControlId = "c",
+                    ControlName = "n",
+                    AppliesToCategory = "cat",
+                    RequiredNodeType = "t",
+                    RequiredEdgeType = "e",
+                    Description = "d",
+                },
+            ],
+        };
 }

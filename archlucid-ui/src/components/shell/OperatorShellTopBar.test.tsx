@@ -27,6 +27,7 @@ const navigationTestState = vi.hoisted(() => ({
 
 const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
 const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+const devTestingOverridesMock = vi.hoisted(() => ({ enabled: false }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -109,6 +110,11 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   }),
 }));
 
+vi.mock("@/lib/dev-testing-overrides", () => ({
+  isDevTestingOverridesEnabled: () => devTestingOverridesMock.enabled,
+  readDevAgentExecutionModeOverrideFromDocument: () => null,
+}));
+
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
 }));
@@ -117,6 +123,12 @@ vi.mock("@/components/CommandPaletteLazy", () => ({
   CommandPalette: () => null,
   preloadCommandPaletteChunk: vi.fn(),
 }));
+
+vi.mock("@/components/shell/operator-shell-top-bar-deferred-chunks", async (importOriginal) =>
+  (await import("@/testing/operator-shell-top-bar-deferred-chunks-vitest-mock")).buildOperatorShellTopBarDeferredChunksVitestMock(
+    importOriginal as () => Promise<typeof import("@/components/shell/operator-shell-top-bar-deferred-chunks")>,
+  ),
+);
 
 function openMoreMenu(): void {
   fireEvent.click(screen.getByTestId("operator-shell-topbar-more-trigger"));
@@ -135,6 +147,7 @@ describe("OperatorShellTopBar", () => {
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     productLineMock.value = "architecture";
+    devTestingOverridesMock.enabled = false;
     fetchBudgetStatus.mockReset();
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -223,6 +236,20 @@ describe("OperatorShellTopBar", () => {
     );
   });
 
+  it("hides dev and analysis top bar chrome in the Security product shell", async () => {
+    productLineMock.value = "security";
+    devTestingOverridesMock.enabled = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("dev-environment-top-bar-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
+  });
+
   it("hides the AI budget pill when remaining budget is healthy", async () => {
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -259,7 +286,7 @@ describe("OperatorShellTopBar", () => {
 
     const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
-    const accountTrigger = screen.getByTestId("account-settings-menu-trigger");
+    const accountTrigger = await screen.findByTestId("account-settings-menu-trigger");
 
     expect(scopeTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
     expect(helpTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);

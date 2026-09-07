@@ -17,12 +17,12 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     [Fact]
     public void Registered_count_matches_harness_contract()
     {
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(35);
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(35);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(13);
-        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(48);
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(35);
-        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(48);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(41);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(41);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(9);
+        BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(50);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(41);
+        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(50);
     }
 
     [Fact]

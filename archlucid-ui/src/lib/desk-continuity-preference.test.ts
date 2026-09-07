@@ -60,6 +60,7 @@ describe("desk-continuity-preference (IS-13 / AO-16)", () => {
 
   it("defaults empty continuity", () => {
     expect(defaultDeskContinuityDto()).toEqual({
+      lastOpenArchitectureId: null,
       lastOpenReviewId: null,
       lastOpenDraftId: null,
       lastVisitWatermarkUtc: null,

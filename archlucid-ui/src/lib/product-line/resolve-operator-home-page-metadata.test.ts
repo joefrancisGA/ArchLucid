@@ -6,6 +6,7 @@ import { resolveOperatorHomePageMetadataTitle } from "@/lib/product-line/resolve
 
 describe("resolveOperatorHomePageMetadataTitle", () => {
   it("uses the Security home title for the security product line", () => {
+    expect(resolveOperatorHomePageMetadataTitle("security")).toBe(OPERATOR_NAV_LINK_LABELS.home);
     expect(resolveOperatorHomePageMetadataTitle("security")).toBe(SECURITY_PRODUCT_HOME_TITLE);
   });
 

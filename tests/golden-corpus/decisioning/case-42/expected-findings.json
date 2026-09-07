@@ -1,0 +1,139 @@
+[
+  {
+    "findingId": "acab5345-c2c4-a976-0380-5ad0311543a8",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "req-redundancy-1",
+      "sql-pay-prod",
+      "svc-checkout"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "78c20aa4-14b2-e89c-35e6-9e9347339b1b",
+    "findingType": "RequirementFinding",
+    "category": "Requirement",
+    "severity": "Info",
+    "title": "Requirement detected: Payment SQL",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "relatedNodeIds": [
+      "req-redundancy-1",
+      "svc-checkout"
+    ],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "requirement-surface"
+    ],
+    "decisionsTaken": [
+      "Linked requirement to the sole in-scope topology resource (single-topology fallback)."
+    ]
+  },
+  {
+    "findingId": "4003aebf-b68d-eb18-3f0f-94b2c8b3de24",
+    "findingType": "RequirementSkuTierFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Requirement \u0027Payment SQL\u0027 requires zone-redundant storage but datastore \u0027sql-pay-prod\u0027 declares Standard_LRS",
+    "rationale": "Linked datastore \u0027sql-pay-prod\u0027 declares single-region SKU/replication (Standard_LRS) while the requirement asks for zone-redundant storage.",
+    "relatedNodeIds": [
+      "req-redundancy-1",
+      "sql-pay-prod"
+    ],
+    "payloadType": "RequirementSkuTierFindingPayload",
+    "rulesApplied": [
+      "datastore-sku-reader",
+      "requirement-sku-tier"
+    ],
+    "decisionsTaken": [
+      "Parsed redundancy requirement without matching SKU/replication tier on linked datastore."
+    ]
+  },
+  {
+    "findingId": "f090e04b-45fa-6213-cc51-c4fbb12be539",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "req-redundancy-1",
+      "sql-pay-prod",
+      "svc-checkout"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "67ed0705-0d26-0d8e-9539-ddeb0fef3b3e",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "req-redundancy-1",
+      "sql-pay-prod",
+      "svc-checkout"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "f8494cdb-dbe9-44c3-4765-ccfbb75d073a",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "checkout-api",
+      "sql-pay-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "56125f50-c931-0c5a-ef87-47766ee175ce",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "sql-pay-prod",
+      "svc-checkout"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

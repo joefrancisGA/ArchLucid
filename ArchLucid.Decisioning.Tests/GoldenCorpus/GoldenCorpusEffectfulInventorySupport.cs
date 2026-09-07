@@ -19,26 +19,59 @@ internal static class GoldenCorpusEffectfulInventorySupport
         Guid packageId,
         DateTime collectionUtc)
     {
+        return CreatePinnedContext(
+            runId,
+            contextSnapshotId,
+            [
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = packageId,
+                    CollectionUtc = collectionUtc,
+                },
+            ]);
+    }
+
+    internal static FindingAnalysisContext CreateMultiProviderPinnedContext(
+        Guid runId,
+        Guid contextSnapshotId,
+        IReadOnlyList<EvidencePackagePin> evidencePins)
+    {
+        return CreatePinnedContext(runId, contextSnapshotId, evidencePins);
+    }
+
+    private static FindingAnalysisContext CreatePinnedContext(
+        Guid runId,
+        Guid contextSnapshotId,
+        IReadOnlyList<EvidencePackagePin> evidencePins)
+    {
+        ArgumentNullException.ThrowIfNull(evidencePins);
+
+        if (evidencePins.Count == 0)
+            throw new InvalidOperationException("At least one evidence pin is required.");
+
         return new FindingAnalysisContext
         {
             RunId = runId,
             ContextSnapshotId = contextSnapshotId,
-            EvidencePin = new EvidencePackagePin
-            {
-                Provider = RunEvidencePackagePinService.AzureProvider,
-                PackageId = packageId,
-                CollectionUtc = collectionUtc,
-            },
+            EvidencePin = evidencePins[0],
+            EvidencePins = evidencePins,
         };
     }
 
-    internal static AzureExtractorPackageDownloadRecord CreateAzurePackage(Guid packageId, string resourcesJson)
+    internal static AzureExtractorPackageDownloadRecord CreateAzurePackage(
+        Guid packageId,
+        string resourcesJson,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries = null)
     {
+        List<(string Name, string Content)> entries = [("resources.json", resourcesJson)];
+        AppendExtraZipEntries(entries, extraZipEntries);
+
         return new AzureExtractorPackageDownloadRecord
         {
             PackageId = packageId,
             OriginalFileName = "inventory.zip",
-            PackageBytes = BuildZip(("resources.json", resourcesJson)),
+            PackageBytes = BuildZip(entries.ToArray()),
         };
     }
 
@@ -76,4 +109,25 @@ internal static class GoldenCorpusEffectfulInventorySupport
 
         return stream.ToArray();
     }
+
+    private static void AppendExtraZipEntries(
+        List<(string Name, string Content)> entries,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries)
+    {
+        if (extraZipEntries is null)
+            return;
+
+        foreach (GoldenCorpusInventoryZipEntryDocument extra in extraZipEntries)
+        {
+            if (string.IsNullOrWhiteSpace(extra.FileName) || string.IsNullOrWhiteSpace(extra.JsonBody))
+                continue;
+
+            entries.Add((extra.FileName.Trim(), extra.JsonBody));
+        }
+    }
+
+    internal static void AppendExtraZipEntriesForCloud(
+        List<(string Name, string Content)> entries,
+        IReadOnlyList<GoldenCorpusInventoryZipEntryDocument>? extraZipEntries) =>
+        AppendExtraZipEntries(entries, extraZipEntries);
 }

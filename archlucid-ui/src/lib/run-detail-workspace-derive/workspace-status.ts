@@ -52,7 +52,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     return {
       label: resolveExecutionFailedWorkspaceStatusLabel(),
       kind: "execution-failed",
-      statusTagKind: "needs-attention",
+      statusTagKind: "blocked",
     };
   }
 

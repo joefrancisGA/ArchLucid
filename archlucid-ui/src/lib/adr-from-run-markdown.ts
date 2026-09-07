@@ -144,10 +144,26 @@ export function buildMadrMarkdownFromRun(
             const trustLine = formatFindingTrustExportLine(f);
             const trustBullet =
               trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
+            const provenanceKind = f.provenanceKind ?? "Unknown";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
           .join("\n");
+
+  const findingProvenanceSection =
+    input.findings.length === 0
+      ? ""
+      : [
+          "## Finding provenance",
+          "",
+          "| Finding | Provenance |",
+          "| --- | --- |",
+          ...input.findings.map(
+            (finding) =>
+              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Unknown"} |`,
+          ),
+          "",
+        ].join("\n");
 
   const decisionDrivers = exp !== null ? exp.keyDrivers : [];
   const decisionFromDrivers =
@@ -236,7 +252,7 @@ ${themes}
 ### Findings (prioritized snapshot)
 
 ${findingsSection}
-
+${findingProvenanceSection}
 ## Decision
 
 ${decisionFromDrivers}

@@ -1,0 +1,16 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Payment SQL",
+      "rationale": "Payment SQL must be zone-redundant."
+    },
+    {
+      "category": "Requirement",
+      "selectedOption": "AddMissingThemes",
+      "title": "Workload-conditioned requirement themes are incomplete",
+      "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph."
+    }
+  ]
+}

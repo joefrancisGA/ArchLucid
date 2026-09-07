@@ -79,7 +79,29 @@ describe("report-problem-surfaces (TB-782)", () => {
 
   it("enables fatal page surfaces by registry id (TB-786)", () => {
     expect(isReportProblemEnabledForSurface("reviews-hub-unexpected-response")).toBe(true);
+    expect(isReportProblemEnabledForSurface("auth-signin-cannot-proceed")).toBe(true);
+    expect(isReportProblemEnabledForSurface("auth-invitation-accept-validation-failure")).toBe(true);
     expect(isReportProblemEnabledForSurface("unknown-surface")).toBe(false);
+  });
+
+  it("maps auth recovery routes to invite-wave Report Problem surfaces (TB-782 / #1792)", () => {
+    const signInSurfaces = reportProblemSurfacesForPathname("/auth/signin").map((surface) => surface.id);
+    const inviteSurfaces = reportProblemSurfacesForPathname("/auth/invite").map((surface) => surface.id);
+    const callbackSurfaces = reportProblemSurfacesForPathname("/auth/callback").map((surface) => surface.id);
+    const bootstrapSurfaces = reportProblemSurfacesForPathname("/auth/bootstrap").map((surface) => surface.id);
+    const sessionExpiredSurfaces = reportProblemSurfacesForPathname("/auth/session-expired").map(
+      (surface) => surface.id,
+    );
+    const accessDeniedSurfaces = reportProblemSurfacesForPathname("/403").map((surface) => surface.id);
+
+    expect(signInSurfaces).toContain("auth-signin-cannot-proceed");
+    expect(inviteSurfaces).toContain("auth-invitation-accept-validation-failure");
+    expect(callbackSurfaces).toContain("auth-callback-cannot-complete");
+    expect(bootstrapSurfaces).toContain("auth-bootstrap-cannot-complete");
+    expect(sessionExpiredSurfaces).toContain("session-expired-sign-in-failure");
+    expect(accessDeniedSurfaces).toContain("access-denied-wrong-tenant");
+    expect(accessDeniedSurfaces).toContain("auth-jwt-insufficient-scope");
+    expect(accessDeniedSurfaces).toContain("operator-role-gate-session-break");
   });
 });
 

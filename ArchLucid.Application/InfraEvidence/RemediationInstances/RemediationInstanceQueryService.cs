@@ -207,6 +207,18 @@ public sealed class RemediationInstanceQueryService(
             instances = await instanceRepository.ListByTenantAsync(scope.TenantId, cancellationToken);
         }
 
+        foreach (RemediationInstanceRecord instance in instances)
+        {
+            await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
+                instance.FindingId,
+                scope,
+                findingRepository,
+                _auditManualEvidenceRepository,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+
         return instances
             .OrderByDescending(item => item.UpdatedUtc)
             .Select(MapSummary)

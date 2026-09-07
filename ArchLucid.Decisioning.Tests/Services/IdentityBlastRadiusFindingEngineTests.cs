@@ -38,6 +38,23 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         finding.Trace!.Notes.Should().Contain(note =>
             note.StartsWith("counterfactual:", StringComparison.OrdinalIgnoreCase)
             && note.Contains("write/admin path (2 hops)", StringComparison.Ordinal));
+        finding.EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_node_property_bags()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.KeyVault/vaults/kv-pay-prod";
+
+        GraphSnapshot graph = BuildActorContributorKeyVaultFixture(keyVaultResourceId: armResourceId);
+
+        IdentityBlastRadiusFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
     }
 
     [Fact]
@@ -52,7 +69,9 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         findings.Should().BeEmpty();
     }
 
-    private static GraphSnapshot BuildActorContributorKeyVaultFixture(bool includeRoleToKeyVault = true)
+    private static GraphSnapshot BuildActorContributorKeyVaultFixture(
+        bool includeRoleToKeyVault = true,
+        string? keyVaultResourceId = null)
     {
         GraphNode actor = new()
         {
@@ -89,6 +108,11 @@ public sealed class IdentityBlastRadiusFindingEngineTests
                 [CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.DataBearing,
             },
         };
+
+        if (!string.IsNullOrWhiteSpace(keyVaultResourceId))
+        {
+            keyVault.Properties["resourceId"] = keyVaultResourceId;
+        }
 
         List<GraphEdge> edges =
         [

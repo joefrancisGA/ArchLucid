@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
@@ -75,6 +76,9 @@ internal static class CloudCostRecommendationFindingAnalyzer
         string entryName,
         AdvisorCostRecommendationFinding recommendation)
     {
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, recommendation.InventoryResourceId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -85,6 +89,7 @@ internal static class CloudCostRecommendationFindingAnalyzer
             Title = $"Cost recommendation: {recommendation.Title}",
             Rationale = request.Rationale,
             RelatedNodeIds = [],
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(AdvisorCostRecommendationFindingPayload),
             Payload = new AdvisorCostRecommendationFindingPayload
             {

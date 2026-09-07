@@ -20,6 +20,7 @@ import {
   resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
 import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   parseReviewGenerateAdrOpenFromSearch,
@@ -107,9 +109,25 @@ export function GenerateAdrFromRunModal({
     hostQualityGateMode,
     aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
   });
+  const careerArtifactVerdict = evaluateCareerArtifactHonesty({
+    artifactKind: "export",
+    runId: input.runId,
+    progressSummary,
+    manifestSummary: null,
+    graphSnapshot,
+    findingsSnapshot,
+    enginesSucceeded,
+    workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+  });
   const exportBlocked =
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
-    || (coverageHonesty.blockedForWorkingCareerExport && !incompleteExportConfirmed);
+    || (!careerArtifactVerdict.canRender && !incompleteExportConfirmed);
 
   const buildExportMarkdown = useCallback(
     (exportInput: AdrGeneratorRunInput): string => {
@@ -128,6 +146,12 @@ export function GenerateAdrFromRunModal({
             hostAgentExecutionMode,
             hostQualityGateMode,
             aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+            exportFindings: exportInput.findings.map((finding) => ({
+              findingId: finding.findingId,
+              title: finding.title,
+              trustLabel: finding.trustLabel ?? null,
+              trustLabelReason: finding.trustLabelReason ?? null,
+            })) as QuickDecisionFinding[],
           })
         : null;
 

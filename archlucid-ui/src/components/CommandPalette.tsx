@@ -316,8 +316,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
 
   const polishedPalettePlaceholder = useMemo(() => {
-    return resolveShellHeaderSearchPlaceholder(pathname ?? "");
-  }, [pathname]);
+    return resolveShellHeaderSearchPlaceholder(pathname ?? "", productLine);
+  }, [pathname, productLine]);
 
   return (
     <>
@@ -361,7 +361,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         onSearchValueChange={setPaletteQuery}
       >
         <CommandInput
-          placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"}
+          placeholder={
+            buyerPolishedShell || productLine === "security"
+              ? polishedPalettePlaceholder
+              : "Search pages or paste a review ID…"
+          }
         />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />

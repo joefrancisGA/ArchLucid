@@ -10,6 +10,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 
 export type DeskContinuityPatch = {
+  readonly lastOpenArchitectureId?: string | null;
   readonly lastOpenReviewId?: string | null;
   readonly lastOpenDraftId?: string | null;
   readonly lastVisitWatermarkUtc?: string | null;
@@ -26,6 +27,10 @@ export function mergeDeskContinuity(
   patch: DeskContinuityPatch,
 ): DeskContinuityDto {
   return {
+    lastOpenArchitectureId:
+      patch.lastOpenArchitectureId !== undefined
+        ? normalizeOptionalId(patch.lastOpenArchitectureId)
+        : normalizeOptionalId(current.lastOpenArchitectureId),
     lastOpenReviewId:
       patch.lastOpenReviewId !== undefined
         ? normalizeOptionalId(patch.lastOpenReviewId)
@@ -38,6 +43,29 @@ export function mergeDeskContinuity(
       patch.lastVisitWatermarkUtc !== undefined
         ? normalizeOptionalId(patch.lastVisitWatermarkUtc)
         : normalizeOptionalId(current.lastVisitWatermarkUtc),
+  };
+}
+
+/** Read-model backfill when legacy prefs stored only a review id (AO-48). */
+export function applyReadBackfillDeskContinuity(
+  continuity: DeskContinuityDto,
+  architectureIdFromReviewLookup: string | null | undefined,
+): DeskContinuityDto {
+  const existingArchitectureId = normalizeOptionalId(continuity.lastOpenArchitectureId);
+
+  if (existingArchitectureId !== null) {
+    return continuity;
+  }
+
+  const backfilledArchitectureId = normalizeOptionalId(architectureIdFromReviewLookup);
+
+  if (backfilledArchitectureId === null) {
+    return continuity;
+  }
+
+  return {
+    ...continuity,
+    lastOpenArchitectureId: backfilledArchitectureId,
   };
 }
 
@@ -95,6 +123,12 @@ export function extractArchitectureDraftIdFromPathname(pathname: string): string
 const LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY = "archlucid.lastOpenArchitectureId.v1";
 
 export function readCachedLastOpenArchitectureId(): string | null {
+  const fromDeskContinuity = normalizeOptionalId(readCachedDeskContinuity().lastOpenArchitectureId);
+
+  if (fromDeskContinuity !== null) {
+    return fromDeskContinuity;
+  }
+
   if (typeof window === "undefined") {
     return null;
   }

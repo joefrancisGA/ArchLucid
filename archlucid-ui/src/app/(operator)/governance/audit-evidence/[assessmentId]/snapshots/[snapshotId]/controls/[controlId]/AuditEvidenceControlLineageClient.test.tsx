@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const useAuditEvidenceLineageQueryMock = vi.hoisted(() => vi.fn());
+const refetchMock = vi.fn();
 
 vi.mock("@/hooks/use-audit-evidence-lineage-query", () => ({
   useAuditEvidenceLineageQuery: (...args: unknown[]) => useAuditEvidenceLineageQueryMock(...args),
@@ -13,6 +14,15 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
 import { AuditEvidenceControlLineageClient } from "./AuditEvidenceControlLineageClient";
 
 const ids = {
@@ -23,7 +33,12 @@ const ids = {
 
 describe("AuditEvidenceControlLineageClient", () => {
   it("renders error state when lineage fetch fails", () => {
-    useAuditEvidenceLineageQueryMock.mockReturnValue({ data: undefined, isError: true, isPending: false });
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isPending: false,
+      refetch: refetchMock,
+    });
 
     render(<AuditEvidenceControlLineageClient {...ids} />);
 
@@ -62,6 +77,7 @@ describe("AuditEvidenceControlLineageClient", () => {
       },
       isError: false,
       isPending: false,
+      refetch: refetchMock,
     });
 
     render(<AuditEvidenceControlLineageClient {...ids} />);
@@ -106,6 +122,7 @@ describe("AuditEvidenceControlLineageClient", () => {
       },
       isError: false,
       isPending: false,
+      refetch: refetchMock,
     });
 
     render(<AuditEvidenceControlLineageClient {...ids} />);

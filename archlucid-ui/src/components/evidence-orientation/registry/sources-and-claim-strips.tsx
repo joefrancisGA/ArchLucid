@@ -9,6 +9,11 @@ import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-created-clarifications-sources";
 import {
+  ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_EVIDENCE_SOURCES,
+  ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO,
+} from "@/lib/architecture/architecture-created-evidence-sources";
+import {
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO,
@@ -113,6 +118,19 @@ export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX
       sources={ARCHITECTURE_CREATED_FINDINGS_SOURCES}
       claimHeading="Before finalize — findings only"
       claim={ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="architecture-evidence"
+      align="text-left"
+      sourcesIntro={ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO}
+      sources={ARCHITECTURE_CREATED_EVIDENCE_SOURCES}
+      claimHeading="Before finalize — evidence capture only"
+      claim={ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
     />
   );
 }

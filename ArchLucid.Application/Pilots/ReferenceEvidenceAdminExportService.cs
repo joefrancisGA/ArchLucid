@@ -2,11 +2,15 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Roi;
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Pilots;
 
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +24,9 @@ public sealed class ReferenceEvidenceAdminExportService(
     FirstValueReportBuilder firstValueReportBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
+    ValueReportBuilder valueReportBuilder,
+    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
+    IPilotBaselineRepository pilotBaselineRepository,
     ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -37,6 +44,15 @@ public sealed class ReferenceEvidenceAdminExportService(
 
     private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder =
         sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
+
+    private readonly ValueReportBuilder _valueReportBuilder =
+        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
+    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
+        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
+
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
 
     /// <inheritdoc/>
     public async Task<Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
@@ -63,7 +79,29 @@ public sealed class ReferenceEvidenceAdminExportService(
                 if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken) is not { } detail)
                     return null;
                 PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
-                PilotRunDeltasResponse deltaDto = PilotRunDeltasResponseMapper.ToResponse(deltas);
+                DateTimeOffset end = TimeProvider.System.GetUtcNow();
+                DateTimeOffset start = end.AddDays(-30);
+                ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    start,
+                    end,
+                    cancellationToken);
+                PilotBaselineRecord? scorecardBaselines =
+                    await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+                DateTime? extractorCollectionTimestampUtc =
+                    await _roiCostEvidenceCollectionResolver.TryResolveLatestCollectionTimestampUtcAsync(
+                        scope,
+                        detail.Run.RunId,
+                        cancellationToken).ConfigureAwait(false);
+                PilotRunDeltasResponse deltaDto = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
+                    detail.Run,
+                    detail.Manifest,
+                    deltas,
+                    valueWindowSnapshot,
+                    extractorCollectionTimestampUtc,
+                    scorecardBaselines);
                 byte[] deltasJson = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(deltaDto, JsonOptions));
                 ZipArchiveEntry deltasEntry = zip.CreateEntry("pilot-run-deltas.json");
                 await using (Stream s = await deltasEntry.OpenAsync(cancellationToken))

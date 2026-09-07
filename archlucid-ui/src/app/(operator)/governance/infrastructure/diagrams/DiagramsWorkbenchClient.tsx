@@ -6,9 +6,16 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   downloadInfraEvidenceMermaidPng,
   fetchInfraEvidenceMermaidPreview,
@@ -60,10 +67,34 @@ import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/Workben
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { cn } from "@/lib/utils";
 import { showError } from "@/lib/toast";
+
+import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
+import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
+
+const cnCard =
+  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+
+const cnField =
+  "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
@@ -103,8 +134,8 @@ function FallbackCard(props: {
       className={cn(
         "rounded-md border p-3 text-left transition-colors",
         selected
-          ? "border-[var(--al-accent-border-focus)] bg-[var(--al-accent-surface-subtle)]"
-          : "border-border bg-background hover:bg-muted/40",
+          ? "border-neutral-300 bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900"
+          : "border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900",
       )}
       data-testid={`infra-diagrams-fallback-${artifact.key}`}
       onClick={onSelect}
@@ -118,6 +149,7 @@ function FallbackCard(props: {
 }
 
 export function DiagramsWorkbenchClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -434,20 +466,65 @@ export function DiagramsWorkbenchClient() {
   }, [mermaidSource, selectedSnapshotId]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagrams-workbench">
-      <LayerHeader pageKey="infrastructure-diagrams" />
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-diagrams-workbench"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH}
+        title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
+        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="infra-diagrams-claim-discipline"
+        titleTestId="infra-diagrams-page-title"
+        breadcrumb={buyerPolishedShell ? <DiagramsBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {!buyerPolishedShell ? (
+              <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
+            ) : null}
+          </div>
+        }
+      />
+
+      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagrams" /> : null}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          buyerPolishedShell ? "scroll-mt-24" : undefined,
+        )}
+        data-testid="infra-diagrams-primary-content"
+      >
+      {buyerPolishedShell ? (
+        <div className="flex justify-end">
+          <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
+        </div>
+      ) : null}
+
+      {!buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
           thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
         </p>
-        <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
-      </div>
+      ) : null}
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
       {deepLinkedSnapshotMissing ? (
         <p
-          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-snapshot-deep-link-missing"
           role="status"
         >
@@ -456,18 +533,48 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {loadError != null ? (
-        <StatusTag kind="needs-attention" label={loadError} />
+        buyerPolishedShell ? (
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-diagrams-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
+                Reload page
+              </Button>
+            }
+          />
+        ) : (
+          <StatusTag kind="needs-attention" label={loadError} />
+        )
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-diagrams-resource-scope-banner"
           aria-label="Diagrams workbench resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SCOPE_LABEL}
+            {!buyerPolishedShell ? (
+              <> <span className="font-mono text-xs">{urlCloudResourceId}</span>.</>
+            ) : (
+              "."
+            )}
           </p>
+          {buyerPolishedShell ? (
+            <CollapsibleSection
+              title="Resource id"
+              sectionTestId="infra-diagrams-resource-id-disclosure"
+              summaryLine="Cloud resource UUID from the scoped link"
+            >
+              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {urlCloudResourceId}
+              </p>
+            </CollapsibleSection>
+          ) : null}
           {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -512,61 +619,127 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2" aria-label="Snapshot and mode selection">
-        <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
-          <select
-            className="rounded border border-border bg-background px-3 py-2"
-            data-testid="infra-diagrams-snapshot-picker"
-            disabled={loadingSnapshots || snapshots.length === 0}
-            value={selectedSnapshotId}
-            onChange={(event) => handleSnapshotChange(event.target.value)}
-          >
-            {snapshots.length === 0 ? (
-              <option value="">No snapshots available</option>
-            ) : (
-              snapshots.map((snapshot) => (
-                <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                  {formatSnapshotLabel(snapshot)}
-                </option>
-              ))
-            )}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Diagram mode</span>
-          <select
-            className="rounded border border-border bg-background px-3 py-2"
-            data-testid="infra-diagrams-mode-picker"
-            disabled={loadingPreview || selectedSnapshotId.length === 0}
-            value={selectedMode}
-            onChange={(event) => handleModeChange(event.target.value)}
-          >
-            {INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <section className={cn("grid gap-4 md:grid-cols-2", cnCard)} aria-label="Snapshot and mode selection">
+        {buyerPolishedShell ? (
+          <>
+            <div className="grid gap-2">
+              <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
+              <select
+                id="infra-diagrams-snapshot-picker"
+                className={cnField}
+                data-testid="infra-diagrams-snapshot-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSnapshotId}
+                onChange={(event) => handleSnapshotChange(event.target.value)}
+              >
+                {snapshots.length === 0 ? (
+                  <option value="">No snapshots available</option>
+                ) : (
+                  snapshots.map((snapshot) => (
+                    <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                      {formatSnapshotLabel(snapshot)}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
+              <select
+                id="infra-diagrams-mode-picker"
+                className={cnField}
+                data-testid="infra-diagrams-mode-picker"
+                disabled={loadingPreview || selectedSnapshotId.length === 0}
+                value={selectedMode}
+                onChange={(event) => handleModeChange(event.target.value)}
+              >
+                {INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : (
+          <>
+            <label className="flex flex-col gap-1">
+              <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
+              <select
+                className={cnField}
+                data-testid="infra-diagrams-snapshot-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSnapshotId}
+                onChange={(event) => handleSnapshotChange(event.target.value)}
+              >
+                {snapshots.length === 0 ? (
+                  <option value="">No snapshots available</option>
+                ) : (
+                  snapshots.map((snapshot) => (
+                    <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                      {formatSnapshotLabel(snapshot)}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className={OPERATOR_TYPOGRAPHY.helper}>Diagram mode</span>
+              <select
+                className={cnField}
+                data-testid="infra-diagrams-mode-picker"
+                disabled={loadingPreview || selectedSnapshotId.length === 0}
+                value={selectedMode}
+                onChange={(event) => handleModeChange(event.target.value)}
+              >
+                {INFRA_DIAGRAMS_MODE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
       </section>
 
       {selectedMode === "dependencyNeighborhood" ? (
-        <section className="flex flex-wrap items-end gap-3" aria-label="Dependency neighborhood drill-down">
-          <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
-            <span className={OPERATOR_TYPOGRAPHY.helper}>Seed cloud resource id</span>
-            <input
-              className="rounded border border-border bg-background px-3 py-2"
-              data-testid="infra-diagrams-seed-node-input"
-              value={seedNodeId}
-              onChange={(event) => setSeedNodeId(event.target.value)}
-              placeholder="/subscriptions/.../resourceGroups/.../providers/..."
-            />
-          </label>
-          <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
-            Focus neighborhood
-          </Button>
+        <section className={cn("flex flex-wrap items-end gap-3", cnCard)} aria-label="Dependency neighborhood drill-down">
+          {buyerPolishedShell ? (
+            <>
+              <div className="grid min-w-[16rem] flex-1 gap-2">
+                <Label htmlFor="infra-diagrams-seed-node-input">
+                  {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                </Label>
+                <Input
+                  id="infra-diagrams-seed-node-input"
+                  data-testid="infra-diagrams-seed-node-input"
+                  value={seedNodeId}
+                  onChange={(event) => setSeedNodeId(event.target.value)}
+                  placeholder="/subscriptions/.../resourceGroups/.../providers/..."
+                />
+              </div>
+              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                Focus neighborhood
+              </Button>
+            </>
+          ) : (
+            <>
+              <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Seed cloud resource id</span>
+                <input
+                  className={cnField}
+                  data-testid="infra-diagrams-seed-node-input"
+                  value={seedNodeId}
+                  onChange={(event) => setSeedNodeId(event.target.value)}
+                  placeholder="/subscriptions/.../resourceGroups/.../providers/..."
+                />
+              </label>
+              <Button type="button" variant="outline" onClick={handleSeedNodeApply}>
+                Focus neighborhood
+              </Button>
+            </>
+          )}
         </section>
       ) : null}
 
@@ -578,7 +751,7 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {showFallbackCards ? (
-        <section className="grid gap-3" aria-label="Partitioned diagram views" data-testid="infra-diagrams-fallback-cards">
+        <section className={cn("grid gap-3", cnCard)} aria-label="Partitioned diagram views" data-testid="infra-diagrams-fallback-cards">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Partitioned views</h2>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             This snapshot is too large for a single diagram. Pick a focused view — Executive is the default.
@@ -596,7 +769,7 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className="flex flex-wrap items-center gap-2" aria-label="Diagram export actions">
+      <section className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram export actions">
         <Button
           type="button"
           variant="default"
@@ -657,6 +830,9 @@ export function DiagramsWorkbenchClient() {
       ) : renderResult?.status === "Failed" ? (
         <StatusTag kind="needs-attention" label="Diagram render failed for the selected mode." />
       ) : null}
-    </div>
+
+        {buyerPolishedShell ? <DiagramsClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
   );
 }

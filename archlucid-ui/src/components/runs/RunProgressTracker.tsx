@@ -180,6 +180,7 @@ export function RunProgressTracker({
         activeSummary={tracker.activeSummary}
         pipelineTerminalFailure={tracker.showPipelineTerminalFailure}
         suppressIntakeDescription={deferFailureRecoveryToDoThisNext}
+        suppressStageCountLine={deferFailureRecoveryToDoThisNext && tracker.buyerAssessmentCopy}
       />
 
       {tracker.pipelineDebugEnabled ? (

@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useReviewsHubUnfinishedWorkHref } from "@/hooks/use-reviews-hub-unfinished-work-href";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
-import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
 import {
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
@@ -232,6 +232,7 @@ function UnfinishedWorkRailList(props: {
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
+  const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
   const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot, reportHomeAttentionPreviewExcludedRunIds, reportUnfinishedWorkRailCount } =
     useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
@@ -303,7 +304,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
       {railSummary.truncated ? (
         <p className="m-0">
           <Link
-            href={REVIEWS_HUB_UNFINISHED_WORK_HREF}
+            href={unfinishedWorkHref}
             className={cn("font-medium", OPERATOR_LINK.nav)}
             data-testid="unfinished-work-rail-view-all"
           >

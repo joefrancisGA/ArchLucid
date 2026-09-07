@@ -1,10 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isAuditEvidenceRoutePath } from "@/lib/audit-evidence-lineage-route";
+import {
+  isGovernanceInfrastructureAskRoutePath,
+  isGovernanceInfrastructureRoutePath,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -31,6 +37,7 @@ export function RealModeAiReadinessShellBanner(
   props: RealModeAiReadinessShellBannerProps,
 ): React.JSX.Element | null {
   const readiness = useSessionAiReadiness();
+  const pathname = usePathname();
   const [hasAnnouncedFailure, setHasAnnouncedFailure] = useState(false);
   const probeFailed = isLiveAiAvailabilityProbeFailed(readiness.probeState);
 
@@ -52,6 +59,14 @@ export function RealModeAiReadinessShellBanner(
   }
 
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
+  if (isAuditEvidenceRoutePath(pathname)) {
+    return null;
+  }
+
+  if (isGovernanceInfrastructureRoutePath(pathname) && !isGovernanceInfrastructureAskRoutePath(pathname)) {
     return null;
   }
 

@@ -9,8 +9,13 @@ import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-j
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { formatQualityGateCareerExportBlockedReason } from "@/lib/governance/agent-output-quality-gate-career-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
+import { formatCareerExportFindingTrustMarkdownSection } from "@/lib/findings/format-career-export-finding-trust-markdown-section";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export type CareerExportClassificationCounts = {
@@ -31,6 +36,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly aggregateQualityGateOutcome?: number | null;
   readonly judgeSkippedByCap?: number | null;
   readonly findingsSnapshot?: unknown;
+  readonly exportFindings?: readonly QuickDecisionFinding[];
 };
 
 export type CareerExportCoverageHonesty = {
@@ -137,6 +143,20 @@ export function formatCareerExportClassificationBandLine(
   return `Decision-grade: ${decisionGrade} · Checklist: ${checklist} (ADR 0070 gate classification on this package snapshot).`;
 }
 
+function formatSkippedMustExportHeaderMarkdown(
+  input: CareerExportCoverageHonestyInput,
+): string {
+  const skippedMustKeys = listSkippedMustQuestionKeys(
+    input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+  );
+
+  if (skippedMustKeys.length === 0) {
+    return "";
+  }
+
+  return `## Skipped required questions\n\n- ${skippedMustKeys.join(", ")}\n`;
+}
+
 /** Shared markdown honesty block for sponsor PDF, ADR, print, and manifest exports (PC-13). */
 export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHonestyInput): string {
   const honesty = resolveCareerExportCoverageHonesty(input);
@@ -151,8 +171,28 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
     sections.push(classificationMarkdown.trim());
   }
 
+  const skippedMustMarkdown = formatSkippedMustExportHeaderMarkdown(input);
+
+  if (skippedMustMarkdown.trim().length > 0) {
+    sections.push(skippedMustMarkdown.trim());
+  }
+
   if (honesty.sponsorHonestyMarkdown.trim().length > 0) {
     sections.push(honesty.sponsorHonestyMarkdown.trim());
+  }
+
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    input.manifestSummary?.feasibilityVerdict ?? null,
+  );
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    sections.push(feasibilityVerdictMarkdown.trim());
+  }
+
+  const findingTrustMarkdown = formatCareerExportFindingTrustMarkdownSection(input.exportFindings ?? []);
+
+  if (findingTrustMarkdown.trim().length > 0) {
+    sections.push(findingTrustMarkdown.trim());
   }
 
   if (honesty.blockedForWorkingCareerExport && honesty.measurementFloorBlockedReason !== null) {
@@ -176,11 +216,23 @@ export function formatCareerExportHonestyPlainText(input: CareerExportCoverageHo
 export function resolveCareerExportBlockedReason(
   input: CareerExportCoverageHonestyInput,
 ): string | null {
-  const honesty = resolveCareerExportCoverageHonesty(input);
+  const verdict = evaluateCareerArtifactHonesty({
+    ...input,
+    artifactKind: "export",
+    transparencyTrail: input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+  });
 
-  if (!honesty.blockedForWorkingCareerExport) {
+  if (verdict.canRender) {
     return null;
   }
 
-  return honesty.measurementFloorBlockedReason;
+  return verdict.blockedReasons[0] ?? null;
 }
+
+/** Re-export ADR 0078 entry point — prefer this over direct coverage-honesty imports on new surfaces. */
+export {
+  evaluateCareerArtifactHonesty,
+  type CareerArtifactHonestyInput,
+  type CareerArtifactHonestyVerdict,
+  type CareerArtifactKind,
+} from "@/lib/career-artifact/career-artifact-honesty";

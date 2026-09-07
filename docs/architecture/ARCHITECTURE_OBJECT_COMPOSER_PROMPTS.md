@@ -1,12 +1,13 @@
 > **Scope:** Copy-paste Composer prompts that make **Architecture the Working locator** and demote Review to a nested job. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/architecture-object-00-index.md`](../../.cursor/prompts/architecture-object-00-index.md) (**AO-01–50**)
+> **Wave 18 (work-surface leftovers):** [`SYSTEM_DESK_COMPOSER_PROMPTS.md`](SYSTEM_DESK_COMPOSER_PROMPTS.md) (**SY-01–SY-100**) — do **not** add AO-51; paste SY files. AO nested the job URL; Monday morning is still a job because Alt+R / Insights stay peer products.
 > **Wave 16:** [`DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md`](DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md) (**DR-01–16**) — fail-closed leftovers; do not paste DR unless a row names pin/room nest
 > **Wave 14:** [`CUSTOMER_ARCHITECTURE_COMPOSER_PROMPTS.md`](CUSTOMER_ARCHITECTURE_COMPOSER_PROMPTS.md) (**CA-01–50**) — named identity; this set supersedes CA’s “keep ADR 0072 review-as-canonical-URL” for Working
 
 # Architecture-object Composer prompts (AO-01–AO-50)
 
-**Created:** 2026-09-07 · **Status:** ready to run · **Do not re-run** CA, DA, PC, DR, LK, or overlay waves except as an AO row names a leftover. **Do not paste this wave to “fix” insight density, dual skin, or what-if cost** — those are later issues.
+**Created:** 2026-09-07 · **Status:** locator shipped / do not re-run for work-surface leftovers · **Do not re-run** CA, DA, PC, DR, LK, or overlay waves except as an AO row names a leftover. **Wave 18:** [`SYSTEM_DESK_COMPOSER_PROMPTS.md`](SYSTEM_DESK_COMPOSER_PROMPTS.md) (**SY-01–SY-100**) owns Alt+R, nested Ask/Compare/Graph, remaining `reviewDetailPath` mints. **Do not paste this wave to “fix” insight density, dual skin, or what-if cost** — those are later issues.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **Issue #1** is that the work object is still a **pipeline**. Persistence has `dbo.Architectures`. The paying desk still **lives in** `/architecture/reviews/{id}` after spawn (`resolveWorkingStartHref` returns `reviewDetailPath` first).
 

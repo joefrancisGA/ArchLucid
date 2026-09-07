@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -30,14 +31,16 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 
-        List<Finding> findings = gaps.Select(BuildFinding).ToList();
+        List<Finding> findings = gaps.Select(gap => BuildFinding(graphSnapshot, gap)).ToList();
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding BuildFinding(DrRpoTopologyGap gap)
+    private static Finding BuildFinding(GraphSnapshot graphSnapshot, DrRpoTopologyGap gap)
     {
         string objectiveText = BuildObjectiveText(gap.RpoMinutes, gap.RtoMinutes);
+        List<string> relatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId];
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
 
         return new Finding
         {
@@ -52,7 +55,8 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
                 $"Linked datastore '{gap.DatastoreLabel}' does not declare geo-replica, failover group, or equivalent recovery topology for {objectiveText}.",
             DecisionConsequence =
                 "Add replica, failover group, or geo-redundant configuration to the linked datastore or revise the stated recovery objective before approval.",
-            RelatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId],
+            RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(DrRpoTopologyFindingPayload),
             Payload = new DrRpoTopologyFindingPayload
             {

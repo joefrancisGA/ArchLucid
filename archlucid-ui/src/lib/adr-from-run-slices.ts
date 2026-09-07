@@ -31,6 +31,7 @@ export type AdrGeneratorFindingSlice = {
   aiReasoningExcerpt: string;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  provenanceKind?: "Asserted" | "Inferred" | "Unknown" | null;
 };
 
 export type AdrGeneratorRunInput = {

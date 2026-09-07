@@ -1316,14 +1316,7 @@ public static partial class GenericArchitectureAdvicePatterns
 
     private static bool IsProductShapedGraphNodeId(string nodeId)
     {
-        if (string.IsNullOrWhiteSpace(nodeId))
-            return false;
-
-        // Bare GUIDs in graph-node: refs are not resolvable package evidence.
-        if (Guid.TryParse(nodeId, out _))
-            return false;
-
-        return nodeId.Length >= 3;
+        return FindingEvidenceRefs.TryFormatInventoryResourceId(nodeId) is not null;
     }
 
     private static bool HasQuotedResourceNameInEvidence(string message, IReadOnlyList<string> evidenceRefs)

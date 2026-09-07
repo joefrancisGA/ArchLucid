@@ -281,7 +281,7 @@ export function RunDetailPageHeader({
                   ) : null}
                 </h1>
                 {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
-                  <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
                 ) : null}
               </div>
               {buyerPolishedShell === true && finalizedBuyerChrome === true && buyerHeaderStatusCaption ? (
@@ -322,7 +322,7 @@ export function RunDetailPageHeader({
           !(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
             <div className="flex flex-wrap items-center gap-2">
               {!(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
-                <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
               ) : null}
               {runSummary.runDegradedExecution === true ? (
                 <StatusTag

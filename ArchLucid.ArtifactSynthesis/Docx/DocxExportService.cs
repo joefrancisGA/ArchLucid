@@ -122,6 +122,13 @@ public sealed partial class DocxExportService(
             $"\"/reviews/{manifest.RunId:D}\" to return to this run after export.");
         WordDocumentBuilder.AddSpacer(body, 2);
 
+        if (!string.IsNullOrWhiteSpace(request.CareerExportHonestyPlainText))
+        {
+            WordDocumentBuilder.AddHeading(body, "Career export honesty");
+            WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(request.CareerExportHonestyPlainText));
+            WordDocumentBuilder.AddSpacer(body, 2);
+        }
+
         WordDocumentBuilder.AddHeading(body, "Sponsor Summary");
         if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
             WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");

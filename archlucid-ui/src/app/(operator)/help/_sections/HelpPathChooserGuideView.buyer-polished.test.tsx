@@ -16,6 +16,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/choose-your-next-step",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpPathChooserGuideView } from "@/app/(operator)/help/_sections/HelpPathChooserGuideView";

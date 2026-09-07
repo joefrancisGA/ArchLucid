@@ -20,6 +20,10 @@ import {
   PROVENANCE_SECTION_LINKAGE_POINTS_LABEL,
   PROVENANCE_SECTION_RELATIONSHIPS_LABEL,
 } from "@/lib/provenance-evidence-copy";
+import {
+  PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROVENANCE_PAGE_SUBTITLE_BUYER,
+} from "@/lib/provenance-page-copy";
 import type { ProvenanceReviewContext } from "@/components/provenance/provenance-page-workspace-types";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import { cn } from "@/lib/utils";
@@ -37,6 +41,7 @@ export type ProvenancePageWorkspaceHeaderProps = {
   readonly reviewTitle: string;
   readonly graph: ArchitectureRunProvenanceGraph;
   readonly provenanceTraceId: string | null;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ProvenancePageWorkspaceHeader({
@@ -48,6 +53,7 @@ export function ProvenancePageWorkspaceHeader({
   reviewTitle,
   graph,
   provenanceTraceId,
+  buyerPolishedShell = false,
 }: ProvenancePageWorkspaceHeaderProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -118,8 +124,13 @@ export function ProvenancePageWorkspaceHeader({
       )}
 
       <header className="space-y-2">
-        <ProvenanceWayfinding reviewPackageHref={reviewHref} />
-        <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />
+        <ProvenanceWayfinding reviewPackageHref={reviewHref} hideContextualHelp={buyerPolishedShell} />
+        {buyerPolishedShell ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-buyer-subtitle">
+            {PROVENANCE_PAGE_SUBTITLE_BUYER}
+          </p>
+        ) : null}
+        {buyerPolishedShell ? null : <RunProvenanceEvidenceGraphVocabularyRail currentSurfaceId="run-provenance" />}
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{PROVENANCE_PAGE_TITLE}</h2>
           {showPipelineStatusTag && statusTagKind !== undefined ? (
@@ -156,7 +167,14 @@ export function ProvenancePageWorkspaceHeader({
             </div>
           ) : null}
         </details>
-        {shouldOmitClaimDisciplineBand("provenance") ? null : (
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {PROVENANCE_CLAIM_DISCIPLINE}
+          </p>
+        ) : shouldOmitClaimDisciplineBand("provenance") ? null : (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="provenance-claim-discipline"
@@ -164,11 +182,13 @@ export function ProvenancePageWorkspaceHeader({
             {PROVENANCE_CLAIM_DISCIPLINE}
           </p>
         )}
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
-            Search review evidence
-          </Link>
-        </p>
+        {buyerPolishedShell ? null : (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link className={OPERATOR_LINK.nav} href="/insights/search-review-evidence">
+              Search review evidence
+            </Link>
+          </p>
+        )}
       </header>
 
       {graph.traceabilityGaps.length > 0 ? (

@@ -94,9 +94,8 @@ describe("TenantCostSettingsCard", () => {
     });
 
     const eaInput = screen.getByTestId("tenant-cost-ea-percentage");
-    expect(eaInput).toHaveAttribute("type", "number");
-    expect(eaInput).toHaveAttribute("min", "0");
-    expect(eaInput).toHaveAttribute("max", "100");
+    expect(eaInput).toHaveAttribute("type", "text");
+    expect(eaInput).toHaveAttribute("inputMode", "decimal");
     expect(eaInput).toHaveClass("pr-7");
     expect(screen.getByText(TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER)).toBeInTheDocument();
     expect(eaInput).toHaveAttribute("aria-describedby", "ea-discount-percentage-helper");
@@ -155,7 +154,7 @@ describe("TenantCostSettingsCard", () => {
 
     expect(screen.getByTestId("mutating-in-tenant-chip")).toBeInTheDocument();
 
-    expect(screen.getByTestId("tenant-cost-hourly-rate")).toHaveClass("pl-7");
+    expect(screen.getByTestId("tenant-cost-hourly-rate")).toHaveClass("pl-9");
     expect(screen.getByTestId("tenant-cost-settings-save")).toHaveClass("bg-[var(--al-primary-action-bg)]");
 
     fireEvent.change(screen.getByTestId("tenant-cost-hourly-rate"), { target: { value: "175" } });

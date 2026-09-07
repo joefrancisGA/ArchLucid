@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models.Runs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Scoping;
@@ -44,10 +45,20 @@ public sealed partial class RunDetailPageBundleController
             .ConfigureAwait(false);
 
         RunComparisonResponse? priorComparison = null;
+        string? priorComparisonBlockedReason = null;
 
         if (priorCommittedRun is not null)
         {
-            try
+            ScopedRunPairLoadResult loadResult = await _compareRunsFacade
+                .LoadScopedRunPairAsync(
+                    priorCommittedRun.RunId.ToString("N"),
+                    runId.ToString("N"),
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            priorComparisonBlockedReason = MapPriorCompareBlockedReason(loadResult);
+
+            if (priorComparisonBlockedReason is null && loadResult.Outcome == ScopedRunPairLoadOutcome.Success)
             {
                 RunComparisonResult? comparison = await _compareService
                     .CompareRunsAsync(scope, priorCommittedRun.RunId, runId, cancellationToken)
@@ -58,14 +69,6 @@ public sealed partial class RunDetailPageBundleController
                     priorComparison = MapRunComparison(comparison);
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.LogDebug(
-                    ex,
-                    "Prior-committed compare skipped for run {RunId} against {PriorRunId}.",
-                    runId,
-                    priorCommittedRun.RunId);
-            }
         }
 
         RunDetailWorkspaceContextBundleResponse body = new()
@@ -74,10 +77,32 @@ public sealed partial class RunDetailPageBundleController
             PriorCommittedRunComparison = priorComparison,
             PriorCommittedRunId = priorCommittedRun?.RunId,
             PriorCommittedRunCreatedUtc = priorCommittedRun?.CreatedUtc,
+            PriorCommittedRunComparisonBlockedReason = priorComparisonBlockedReason,
         };
 
         return Ok(body);
     }
+
+    private static string? MapPriorCompareBlockedReason(ScopedRunPairLoadResult loadResult) =>
+        loadResult.Outcome switch
+        {
+            ScopedRunPairLoadOutcome.Success => null,
+            ScopedRunPairLoadOutcome.LeftRunNotFound => null,
+            ScopedRunPairLoadOutcome.RightRunNotFound => null,
+            ScopedRunPairLoadOutcome.LeftManifestNotFound => null,
+            ScopedRunPairLoadOutcome.RightManifestNotFound => null,
+            ScopedRunPairLoadOutcome.PinFingerprintMismatch =>
+                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch =>
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+            ScopedRunPairLoadOutcome.SealedManifestHashMismatch =>
+                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete =>
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+            ScopedRunPairLoadOutcome.RightLifecycleIncomplete =>
+                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
+        };
 
     private static RunComparisonResponse MapRunComparison(RunComparisonResult result)
     {

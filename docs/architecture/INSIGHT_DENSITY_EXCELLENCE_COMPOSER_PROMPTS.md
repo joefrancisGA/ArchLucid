@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-01–DX-16)
 
-**Created:** 2026-09-06 · **Status:** **SHIPPED on `master` (2026-09-07).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-21–DX-28**).
+**Created:** 2026-09-06 · **Status:** **SHIPPED on `master` (2026-09-07).** Do **not** re-run. **DX-01–DX-41** complete except **DX-18**/**DX-19** (held). Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md) (**DX-42–DX-46**). Archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md).
 
 These prompts turn the excellence strategy into Cursor-shippable batches. They raise **Decision-Changing Insight Density** by growing the **numerator** (new information sources) and making **dismiss** actually demote generic rows. Cost and calendar are not constraints; **false-hard (R5)** and **tenant isolation (ADR 0037)** still are.
 
@@ -768,24 +768,24 @@ Done when: every DeclarationSignalPolicyKeyMap id exists in the merged catalog; 
 
 ---
 
-## Later chats (DX-17–DX-28)
+## Later chats (DX-17–DX-41)
 
 **DX-01–DX-16 shipped on `master` (2026-09-07).** Do not re-run them.
 
-Copy-paste prompts for the next batches live in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md):
+**DX-17–DX-28 shipped** (except DX-18/DX-19 held). Copy-paste archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md).
+
+**DX-29–DX-35 shipped.** Copy-paste archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md).
+
+Next batches: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 
 | Prompt | Intent | Run now? |
 |--------|--------|----------|
-| **DX-21** | Judge cap prefers path/contradiction engines | Yes |
-| **DX-22** | Checklist-cluster synthesis | Yes |
-| **DX-23** | Novelty-signal → per-engine rate | Yes |
-| **DX-24** | Dangling declaration references | Yes |
-| **DX-25** | Requirement × SKU/tier contradiction | Yes |
-| **DX-26** | Deterministic path counterfactual line | Yes |
-| **DX-27** | Ingestion nested ARM / Bicep modules / TF for_each | Yes |
-| **DX-28** | Path-engine golden fixtures | Yes |
-| **DX-17** | Community summaries → InsightGenerator | After DX-21–28 if capacity remains |
-| **DX-20** | Live frontier capture schema (synthetic labeled) | After DX-21–28 if capacity remains |
+| **DX-36** | Golden harness: data-flow + three-way contradiction | Yes |
+| **DX-37** | ARM `templateLink` in-batch | Yes |
+| **DX-38** | Novelty rates into InsightGenerator (default off) | Yes |
+| **DX-39** | Policy maps on graph + inventory security | Yes |
+| **DX-40** | Inventory-shaped golden fixtures | After DX-36 preferred |
+| **DX-41** | Measurement-copy honesty | Yes |
 | **DX-18** | TB-885 compounding ledger | **Held** until owner unparks TB-885 |
 | **DX-19** | ADR 0062 verification slice 1 | **Held** until owner unparks TB-2033 |
 
@@ -795,5 +795,7 @@ Copy-paste prompts for the next batches live in [`INSIGHT_DENSITY_EXCELLENCE_COM
 
 - Strategy: [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 - Follow-on **DX-17–DX-28:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+- **DX-29–DX-35** (shipped): [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- Next **DX-36–DX-41:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)

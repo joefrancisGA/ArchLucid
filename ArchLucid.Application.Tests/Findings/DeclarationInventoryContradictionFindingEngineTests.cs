@@ -63,6 +63,7 @@ public sealed class DeclarationInventoryContradictionFindingEngineTests
         finding.Title.Should().Contain("Enabled");
         finding.Trace.Notes.Should().Contain($"evidence:inventory:{StorageArmId}");
         finding.Trace.Notes.Should().Contain("evidence:graph-node:storage-1");
+        finding.EvidenceRefs.Should().Contain(StorageArmId);
 
         DeclarationInventoryContradictionFindingPayload payload =
             finding.Payload.Should().BeOfType<DeclarationInventoryContradictionFindingPayload>().Subject;

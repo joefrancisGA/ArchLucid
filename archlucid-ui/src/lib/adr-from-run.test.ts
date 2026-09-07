@@ -47,6 +47,7 @@ describe("adr-from-run", () => {
           aiReasoningExcerpt: "Model cited graph path.",
           trustLabel: "EvidenceBacked",
           trustLabelReason: "Cited graph path.",
+          provenanceKind: "Asserted",
         },
       ],
     };
@@ -54,6 +55,9 @@ describe("adr-from-run", () => {
     const md = buildMadrMarkdownFromRun(input);
 
     expect(md).toContain("# ADR: Spike: data residency");
+    expect(md).toContain("## Finding provenance");
+    expect(md).toContain("| `f1` — Store PII in-region | Asserted |");
+    expect(md).toContain("- **Provenance:** Asserted");
     expect(md).toContain("## Status");
     expect(md).toContain("accepted");
     expect(md).toContain("## Context");

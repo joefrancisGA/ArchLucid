@@ -18,6 +18,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -192,7 +193,16 @@ public sealed class FirstValueReportBuilder(
             workingDesk: true,
             _configuration,
             cancellationToken);
+        TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
+        CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
+            careerExportHonesty,
+            transparencyTrail,
+            blockExternalSponsorDistribution: deltas.IsDemoTenant);
+        CareerArtifactExportBlock? careerArtifactBlock = CareerArtifactExportCompletenessGate.ResolveBlock(
+            careerExportHonesty,
+            careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, run);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,
@@ -222,7 +232,12 @@ public sealed class FirstValueReportBuilder(
             valueWindowSnapshot,
             ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
             costEvidenceFreshnessForBadges);
-        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness, deltas, run);
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            proofCompleteness,
+            deltas,
+            run,
+            proofCompleteness.DeferredBuyerRequirementsPresent);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -252,6 +267,7 @@ public sealed class FirstValueReportBuilder(
             PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
@@ -285,7 +301,9 @@ public sealed class FirstValueReportBuilder(
             evidenceCompleteness,
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
             tenantBranding,
-            proofCompleteness);
+            proofCompleteness,
+            careerArtifactBlock?.Message,
+            careerArtifactBlock?.Code);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

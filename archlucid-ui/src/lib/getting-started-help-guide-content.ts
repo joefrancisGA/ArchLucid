@@ -1,7 +1,19 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  architectureIdentityPath,
+  architectureNestedFindingsPath,
+  architectureNestedReviewPath,
+  ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE } from "@/lib/golden-sponsor-package-walkthrough";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
+import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
+
+import { localizeHelpCopy } from "@/lib/help/help-product-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
   "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.";
@@ -13,10 +25,15 @@ export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
-export function gettingStartedHelpPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell
+export function gettingStartedHelpPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const subtitle = buyerPolishedShell
     ? GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER
     : GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR;
+
+  return localizeHelpCopy(productLineId, subtitle);
 }
 
 export const GETTING_STARTED_HELP_AUDIENCE_LINE =
@@ -136,6 +153,8 @@ export type GettingStartedWorkflowStep = {
   readonly ctaLabel: string;
 };
 
+export const GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
+
 export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflowStep[] = [
   {
     stepNumber: 1,
@@ -178,6 +197,61 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     ctaLabel: "Open reviews",
   },
 ];
+
+/** SY-87 — Working help examples use architecture nested URLs; inbox stays labeled Inbox. */
+export function resolveGettingStartedHelpWorkflowSteps(
+  workingMode: boolean,
+): readonly GettingStartedWorkflowStep[] {
+  if (!workingMode) {
+    return GETTING_STARTED_HELP_WORKFLOW_STEPS;
+  }
+
+  const exampleArchitectureId = GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID;
+  const exampleReviewId = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
+
+  return [
+    {
+      stepNumber: 1,
+      title: "Add architecture evidence",
+      description: "Open your architecture desk and attach briefs, diagrams, documents, IaC, or optional cloud inventory.",
+      expectedOutputs: "Evidence linked to the architecture review.",
+      href: ARCHITECTURES_NEW_PATH,
+      ctaLabel: "New review",
+    },
+    {
+      stepNumber: 2,
+      title: "Analyze the architecture",
+      description: "Start the review from the architecture desk and monitor progress until findings are ready to inspect.",
+      expectedOutputs: "Findings with severity, impact, and evidence labels.",
+      href: architectureIdentityPath(exampleArchitectureId),
+      ctaLabel: "Open architecture desk",
+    },
+    {
+      stepNumber: 3,
+      title: "Review findings",
+      description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
+      expectedOutputs: "Prioritized findings ready for decisions.",
+      href: architectureNestedFindingsPath(exampleArchitectureId),
+      ctaLabel: "Open findings",
+    },
+    {
+      stepNumber: 4,
+      title: "Record decisions",
+      description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
+      expectedOutputs: "Architecture decisions and approval notes.",
+      href: "/governance/approval-queue",
+      ctaLabel: "Open approval workflow",
+    },
+    {
+      stepNumber: 5,
+      title: "Finalize and share outputs",
+      description: "Lock the review from the nested review desk and export sponsor-ready artifacts for stakeholders.",
+      expectedOutputs: "Sealed review record, evidence trail, and exports.",
+      href: architectureNestedReviewPath(exampleArchitectureId, exampleReviewId),
+      ctaLabel: "Open review desk",
+    },
+  ];
+}
 
 export type GettingStartedActionCard = {
   readonly title: string;
@@ -239,10 +313,10 @@ export function resolveGettingStartedHelpPrimaryActions(workingMode: boolean): r
       ctaLabel: "Open drafts",
     },
     {
-      title: "Open packages",
+      title: WORKING_REVIEWS_INBOX_NAV_LABEL,
       description: "Resume in-progress or finalized architecture reviews in this workspace.",
-      href: "/architecture/reviews",
-      ctaLabel: "Open reviews",
+      href: REVIEWS_LIST_PATH,
+      ctaLabel: WORKING_REVIEWS_INBOX_NAV_LABEL,
     },
   ];
 }

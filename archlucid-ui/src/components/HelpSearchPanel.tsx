@@ -26,6 +26,7 @@ import {
   type HelpSearchPanelTopic,
 } from "@/lib/help/help-search-panel-catalog";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { localizeHelpSearchPanelTopics } from "@/lib/help/help-product-copy";
 import { searchHelpDocumentation, type HelpDocSearchRecord } from "@/lib/help/help-index";
 import {
   helpDocRecordTargetsPath,
@@ -160,24 +161,27 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const helpOnHelp = isHelpOnHelpPath(pathname);
 
   const situation = useHelpPageSituation();
-  const { localize } = useLocalizedProductCopy();
-  const localizeHelpSearchTopic = useCallback(
-    (topic: HelpSearchPanelTopic): HelpSearchPanelTopic => ({
-      ...topic,
-      title: localize(topic.title),
-      description: localize(topic.description),
-    }),
-    [localize],
-  );
-  const visibleGroups = useMemo(() => listHelpSearchPanelGroups(isAdmin), [isAdmin]);
+  const { productLine } = useLocalizedProductCopy();
   const allTopics = useMemo(
-    () => listHelpSearchPanelTopics(isAdmin).map(localizeHelpSearchTopic),
-    [isAdmin, localizeHelpSearchTopic],
+    () => localizeHelpSearchPanelTopics(listHelpSearchPanelTopics(isAdmin), productLine),
+    [isAdmin, productLine],
   );
   const collapseStartHere = useMemo(() => shouldCollapseHelpStartHereGroup(pathname), [pathname]);
   const recommendedTopics = useMemo(
-    () => recommendedHelpSearchPanelTopics(pathname, isAdmin, situation, isWorkingMode).map(localizeHelpSearchTopic),
-    [isAdmin, isWorkingMode, localizeHelpSearchTopic, pathname, situation],
+    () =>
+      localizeHelpSearchPanelTopics(
+        recommendedHelpSearchPanelTopics(pathname, isAdmin, situation, isWorkingMode, productLine),
+        productLine,
+      ),
+    [isAdmin, isWorkingMode, pathname, productLine, situation],
+  );
+  const visibleGroups = useMemo(
+    () =>
+      listHelpSearchPanelGroups(isAdmin).map((group) => ({
+        ...group,
+        topics: localizeHelpSearchPanelTopics(group.topics, productLine),
+      })),
+    [isAdmin, productLine],
   );
   const { doThisNow, moreRecommended } = useMemo(
     () => splitHelpSearchPanelDoThisNow(recommendedTopics),

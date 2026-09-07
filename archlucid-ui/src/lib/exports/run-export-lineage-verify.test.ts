@@ -15,10 +15,10 @@ describe("run-export-lineage-verify (DR-10)", () => {
     };
 
     expect(isRunExportLineageAttested(result)).toBe(true);
-    expect(formatRunExportLineageStatusLabel(result)).toBe("Attested");
+    expect(formatRunExportLineageStatusLabel(result)).toBe("Integrity check passed");
   });
 
-  it("treats NotAttested and Mismatch as not attested", () => {
+  it("treats NotAttested and Mismatch as integrity check failed", () => {
     const notAttested: RunExportLineageVerificationResult = {
       status: "NotAttested",
       runId: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -26,7 +26,7 @@ describe("run-export-lineage-verify (DR-10)", () => {
     };
 
     expect(isRunExportLineageAttested(notAttested)).toBe(false);
-    expect(formatRunExportLineageStatusLabel(notAttested)).toBe("Not attested");
+    expect(formatRunExportLineageStatusLabel(notAttested)).toBe("Integrity check failed");
 
     const mismatch: RunExportLineageVerificationResult = {
       status: "Mismatch",

@@ -61,7 +61,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
     },
     [syncShareMenuOpenToUrl],
   );
-  const inviteHref = buildInviteReviewerHref(props.runId);
+  const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
     findingsQueueHref: props.findingsQueueHref,

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:423 -->
+<!-- audit-core-const-count:431 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -228,6 +228,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Remediation pattern lifecycle transitions (infra-evidence plane) | `RemediationPatternsController` (`POST /v1/operational-security/remediation-patterns/{patternId}/submit`, `POST /v1/operational-security/remediation-patterns/{patternId}/approve`, `POST /v1/operational-security/remediation-patterns/{patternId}/deprecate`, `POST /v1/operational-security/remediation-patterns/{patternId}/retire`); `RemediationPatternService` | — | — | Version status transitions with SoD in service layer — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Remediation wave create (infra-evidence plane) | `RemediationWavesController` (`POST /v1/operational-security/remediation-waves`); `RemediationWaveService` | — | — | Tenant-scoped wave orchestration metadata — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Remediation prioritization weights upsert (infra-evidence plane) | `RemediationPrioritizationController` (`PUT /v1/operational-security/remediation-prioritization/weights`); `RemediationPrioritizationService` | — | — | Tenant-scoped ranking weights — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Operational finding remediation pattern match (infra-evidence plane) | `InfraEvidenceOperationalFindingRemediationController` (`POST /v1/infra-evidence/operational-findings/{findingId}/match`); `IRemediationPatternMatcherService` | — | — | Structured pattern match evaluation only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Remediation instance lifecycle (infra-evidence plane) | `RemediationInstancesController` (`POST /v1/infra-evidence/remediation-instances`, `POST /v1/infra-evidence/remediation-instances/{instanceId}/preflight`, `POST /v1/infra-evidence/remediation-instances/{instanceId}/approve`, `POST /v1/infra-evidence/remediation-instances/{instanceId}/assign-wave`, `POST /v1/infra-evidence/remediation-instances/{instanceId}/verify`, `POST /v1/infra-evidence/remediation-instances/{instanceId}/close`); `RemediationInstanceService` | `RemediationInstanceCreated`, `RemediationInstanceExecuted`, `RemediationInstanceClosed` | Tenant/Workspace/Project from ambient scope | Instance id + lifecycle transition — service emits durable audit rows; controller `[MutatingAuditExcluded]` |
 | Internal cross-tenant analytics rollup refresh (operator) | `InternalCrossTenantAnalyticsController` (`POST /v1/internal/analytics/cross-tenant/daily/refresh`) | `InternalCrossTenantRollupRefreshed` | Operator RBAC; non-tenant aggregate surface | `{ rollupDate }` (UTC calendar day string) |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` (`POST /v1/value-report/generate`, `POST /v1/value-report/{tenantId}/generate`); `InMemoryValueReportJobQueue` (async completion) | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
@@ -476,6 +478,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AuthTokenDiagnosticRequested` | `Auth.TokenDiagnosticRequested` | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) |
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `FindingFeedbackRecorded` | `FindingFeedbackRecorded` | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) |
+| `FindingInsightSignalRecorded` | `FindingInsightSignalRecorded` | `FindingInsightSignalController` (`POST /v1/runs/{runId}/findings/{findingId}/insight-signal`) |
+| `FindingVerificationStarted` | `FindingVerificationStarted` | `FindingVerificationService.CreateReportAsync` (`POST /v1/runs/{runId}/finding-verification`) |
+| `FindingVerificationCompleted` | `FindingVerificationCompleted` | `FindingVerificationService.CreateReportAsync` (`POST /v1/runs/{runId}/finding-verification`) |
 | `FindingAskConversationPersisted` | `FindingAskConversationPersisted` | `IAskService.AskAboutFindingAsync` (`POST /v1/architecture/finding/{findingId}/ask`) |
 | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentController` (`PUT /v1/findings/{findingId}/remediation-assignment`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
@@ -587,6 +592,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
 | `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
 | `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
+| `ArchitectureIdentityArchived` | `ArchitectureIdentity.Archived` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: true`) |
+| `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |
@@ -595,6 +602,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeSubmitted` | `DraftIntake.Submitted` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/submit`) |
 | `DraftIntakeTerminalPurged` | `DraftIntake.TerminalPurged` | `DraftIntakeReaperService` (background terminal draft purge) |
 | `EvidenceBulkAttached` | `EvidenceBulkAttached` | `EvidenceBulkUploadController` (`POST /v1/architecture/run/{runId}/evidence/bulk`) |
+| `EvidenceSourceOpened` | `EvidenceSourceOpened` | `ReviewStoredEvidenceFilesController` (`GET /v1/architecture/review/{runId}/evidence/files/{evidenceItemId}`) |
 | `EvidenceProposalPromoted` | `EvidenceProposalPromoted` | `EvidenceProposalsController` (`POST /v1/admin/evidence/proposals/{resultId}/promote`) |
 | `PolicyPackCreated` | `PolicyPackCreated` | `PolicyPacksAppService` |
 | `PolicyPackVersionPublished` | `PolicyPackVersionPublished` | `PolicyPacksAppService` |

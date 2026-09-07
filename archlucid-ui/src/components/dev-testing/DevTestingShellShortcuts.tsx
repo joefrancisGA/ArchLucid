@@ -3,7 +3,12 @@
 import { useEffect } from "react";
 
 import { toggleDevQuickSwitchPanelVisibility } from "@/lib/dev-quick-switch-panel-visibility";
-import { isDevTestingOverridesEnabled } from "@/lib/dev-testing-overrides";
+import { keyEventMatchesCombo } from "@/hooks/useKeyboardShortcuts";
+import {
+  cycleDevShellExperienceOverride,
+  isDevTestingOverridesEnabled,
+  reloadAfterDevTestingOverrideChange,
+} from "@/lib/dev-testing-overrides";
 
 function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   return (
@@ -14,7 +19,7 @@ function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** Local-dev global hotkeys for the dev quick-switch drawer. */
+/** Local-dev global hotkeys: Ctrl+Shift+H toggles the quick-switch drawer; Alt+Shift+D cycles shell density. */
 export function DevTestingShellShortcuts(): null {
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
@@ -26,12 +31,20 @@ export function DevTestingShellShortcuts(): null {
         return;
       }
 
-      if (!event.altKey || !event.shiftKey || event.key.toLowerCase() !== "d") {
+      if (keyEventMatchesCombo(event, "ctrl+shift+h")) {
+        event.preventDefault();
+        toggleDevQuickSwitchPanelVisibility();
+
+        return;
+      }
+
+      if (!keyEventMatchesCombo(event, "alt+shift+d")) {
         return;
       }
 
       event.preventDefault();
-      toggleDevQuickSwitchPanelVisibility();
+      cycleDevShellExperienceOverride();
+      reloadAfterDevTestingOverrideChange();
     };
 
     window.addEventListener("keydown", onKeyDown);

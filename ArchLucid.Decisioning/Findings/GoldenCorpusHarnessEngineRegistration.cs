@@ -5,17 +5,20 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class GoldenCorpusHarnessEngineRegistration
 {
-    public const int LatestGoldenCorpusCaseNumber = 40;
+    public const int LatestGoldenCorpusCaseNumber = 63;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
         "requirement",
         "requirement-expectation",
         "requirement-coverage",
+        "requirement-sku-tier",
+        "required-capability-coverage",
         "topology-coverage",
         "topology-structure",
         "security-baseline",
         "security-baseline-completeness",
+        "security-baseline-expectation",
         "security-gap",
         "security-coverage",
         "external-exposure",
@@ -28,6 +31,7 @@ public static class GoldenCorpusHarnessEngineRegistration
         "cost-constraint",
         "declaration-security-baseline",
         "declaration-premise-conflict",
+        "dangling-declaration-reference",
         "orphaned-azure-resource",
         "advisor-cost-recommendation",
         "azure-inventory-reconciliation",
@@ -44,6 +48,8 @@ public static class GoldenCorpusHarnessEngineRegistration
         "open-commitment",
         "secrets-lifecycle",
         "portfolio-recurrence",
+        "data-flow-trust-boundary",
+        "topology-anti-pattern",
     ];
 
     public static int RegisteredEngineCount => RegisteredEngineTypeIds.Count;

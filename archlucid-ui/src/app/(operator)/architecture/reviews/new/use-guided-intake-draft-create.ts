@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+
 import {
   createDraftRequest,
   getDraftQuestions,
@@ -40,6 +42,7 @@ type Options = {
 
 export function useGuidedIntakeDraftCreate(options: Options) {
   const { core, form, isCreateArchitectureFlow, navigate, priorRunId, setStep, sourceArchitectureId } = options;
+  const { isWorkingMode } = useWorkspaceMode();
   const creationInitStartedRef = useRef(false);
   const sourceArchitectureLoadedRef = useRef(false);
 
@@ -126,7 +129,11 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
       if (isGuidedIntakeAccessBlocked(draft.status)) {
         core.setSourceArchitectureAccessBlocked(true);
-        navigate(resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId));
+        navigate(
+          resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId, {
+            workingMode: isWorkingMode,
+          }),
+        );
 
         return;
       }

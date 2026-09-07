@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import {
@@ -45,6 +46,7 @@ export function ArchitectureDraftResumeControl(
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const intakeModeConfirmParam = searchParams.get("intakeModeConfirm");
   const intakeModeDraftIdParam = searchParams.get("intakeModeDraftId");
   const [dialogOpen, setDialogOpenState] = useState(false);
@@ -141,6 +143,7 @@ export function ArchitectureDraftResumeControl(
           resolveGuidedIntakeBlockedRedirectHref(
             props.draftId,
             architectureDraftSpawnedRunId(draft),
+            { workingMode: isWorkingMode },
           ),
         );
 

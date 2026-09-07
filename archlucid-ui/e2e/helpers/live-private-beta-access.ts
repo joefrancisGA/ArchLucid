@@ -408,6 +408,30 @@ export function readRoleClaims(
   return collectArchLucidRoleClaimValues(claims ?? []);
 }
 
+/** Admin revokes a pending invitation (TB-797 revoked-invite recovery UI smoke). */
+export async function revokeAdminUserInvite(
+  request: APIRequestContext,
+  invitationId: string,
+): Promise<void> {
+  const trimmedId = invitationId.trim();
+
+  if (trimmedId.length === 0) {
+    throw new Error("revokeAdminUserInvite requires a non-empty invitation id.");
+  }
+
+  const res = await request.delete(`${liveApiBase}/v1/admin/users/invitations/${encodeURIComponent(trimmedId)}`, {
+    headers: liveJsonHeaders(),
+  });
+
+  if (res.status() !== 204) {
+    const body = await res.text();
+
+    throw new Error(
+      `DELETE /v1/admin/users/invitations/${trimmedId} failed ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {
   const res = await request.get(`${liveApiBase}/v1/admin/users/invitations`, {
     headers: liveJsonHeaders(),

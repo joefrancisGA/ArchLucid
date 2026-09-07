@@ -99,6 +99,11 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IInfrastructureDeclarationParser, ArmJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesYamlInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, HelmChartInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, KustomizeOverlayInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, PulumiStackJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, CloudFormationInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, CdkSynthInfrastructureDeclarationParser>();
 
         services.AddSingleton<IDiagramSourceParser, MermaidDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();

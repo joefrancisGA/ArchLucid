@@ -19,6 +19,10 @@ import {
   parseRunPipelineStagesOpenFromSearch,
   runPipelineStagesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-pipeline-stages-disclosure-url";
+import {
+  parseRunPipelineStagesTechnicalOpenFromSearch,
+  runPipelineStagesTechnicalDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -35,8 +39,11 @@ export function RunDetailPipelineStagesSection({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const runPipelineStagesOpenParam = searchParams.get("runPipelineStagesOpen");
+  const runPipelineStagesTechnicalOpenParam = searchParams.get("runPipelineStagesTechnicalOpen");
   const [open, setOpenState] = useState(() => parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
-  const [technicalOpen, setTechnicalOpen] = useState(false);
+  const [technicalOpen, setTechnicalOpenState] = useState(() =>
+    parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam),
+  );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -58,6 +65,28 @@ export function RunDetailPipelineStagesSection({
   useEffect(() => {
     setOpenState(parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
   }, [runPipelineStagesOpenParam]);
+
+  const syncTechnicalOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        runPipelineStagesTechnicalDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setTechnicalOpenState(detailsOpen);
+      syncTechnicalOpenToUrl(detailsOpen);
+    },
+    [syncTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalOpenState(parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam));
+  }, [runPipelineStagesTechnicalOpenParam]);
 
   if (stageTimeline.length === 0) {
     return null;
