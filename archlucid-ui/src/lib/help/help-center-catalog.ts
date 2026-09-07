@@ -7,7 +7,14 @@ import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-r
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-page-copy";
 import { ADMIN_DIAGNOSTICS_HELP_PAGE_TITLE } from "@/lib/admin-diagnostics-help-page-copy";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
+import {
+  getHelpCenterSecurityDisplayOverride,
+  HELP_CENTER_SECURITY_FEATURED_SLUGS,
+  isHelpCenterSecurityFeaturedSlug,
+} from "@/lib/help/help-center-catalog-security";
+import { localizeHelpCenterDisplay } from "@/lib/help/help-product-copy";
 import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
@@ -162,14 +169,23 @@ export function getHelpCenterTier(entry: ProductDocumentationEntry): HelpCenterT
   return "product";
 }
 
-export function getHelpCenterDisplay(entry: ProductDocumentationEntry): HelpCenterDisplay {
-  const override = HELP_CENTER_DISPLAY_OVERRIDES[entry.slug];
+export function getHelpCenterDisplay(
+  entry: ProductDocumentationEntry,
+  productLineId: ProductLineId = "architecture",
+): HelpCenterDisplay {
+  const securityOverride =
+    productLineId === "security" ? getHelpCenterSecurityDisplayOverride(entry.slug) : undefined;
 
-  if (override !== undefined) {
-    return override;
+  if (securityOverride !== undefined) {
+    return securityOverride;
   }
 
-  return { title: entry.title, summary: entry.summary };
+  const override = HELP_CENTER_DISPLAY_OVERRIDES[entry.slug];
+
+  const display =
+    override !== undefined ? override : { title: entry.title, summary: entry.summary };
+
+  return localizeHelpCenterDisplay(display, productLineId);
 }
 
 export type HelpCenterTopicFilters = {
@@ -177,9 +193,22 @@ export type HelpCenterTopicFilters = {
   isAdmin: boolean;
   /** ArchLucid internal operator shell — required to list host configuration catalogs. */
   isInternalOperator?: boolean;
+  productLineId?: ProductLineId;
 };
 
-function isFeaturedSlug(slug: string): boolean {
+function resolveFeaturedSlugs(productLineId: ProductLineId): readonly string[] {
+  if (productLineId === "security") {
+    return HELP_CENTER_SECURITY_FEATURED_SLUGS;
+  }
+
+  return HELP_CENTER_FEATURED_SLUGS;
+}
+
+function isFeaturedSlug(slug: string, productLineId: ProductLineId = "architecture"): boolean {
+  if (productLineId === "security") {
+    return isHelpCenterSecurityFeaturedSlug(slug);
+  }
+
   return HELP_CENTER_FEATURED_SLUGS.includes(slug);
 }
 
@@ -204,11 +233,12 @@ export function listHelpCenterAdvancedGuideTopics(filters: HelpCenterTopicFilter
 /** Topics for the Help landing grid — featured by default; admin/internal when expanded and permitted. */
 export function listHelpCenterTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
   const entries = listProductDocumentationEntries();
+  const productLineId = filters.productLineId ?? "architecture";
 
   return entries.filter((entry) => {
     const tier = getHelpCenterTier(entry);
 
-    if (isFeaturedSlug(entry.slug)) {
+    if (isFeaturedSlug(entry.slug, productLineId)) {
       return true;
     }
 
@@ -230,12 +260,15 @@ export function listHelpCenterTopics(filters: HelpCenterTopicFilters): ProductDo
 
 /** Non-featured topics revealed when advanced is expanded (for section headings). */
 export function listHelpCenterAdvancedTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
-  return listHelpCenterTopics(filters).filter((entry) => !isFeaturedSlug(entry.slug));
+  const productLineId = filters.productLineId ?? "architecture";
+
+  return listHelpCenterTopics(filters).filter((entry) => !isFeaturedSlug(entry.slug, productLineId));
 }
 
 export function filterHelpCenterTopicsByQuery(
   topics: readonly ProductDocumentationEntry[],
   query: string,
+  productLineId: ProductLineId = "architecture",
 ): ProductDocumentationEntry[] {
   const q = query.trim().toLowerCase();
 
@@ -244,9 +277,13 @@ export function filterHelpCenterTopicsByQuery(
   }
 
   return topics.filter((entry) => {
-    const display = getHelpCenterDisplay(entry);
+    const display = getHelpCenterDisplay(entry, productLineId);
     const haystack = `${display.title} ${display.summary} ${entry.slug}`.toLowerCase();
 
     return haystack.includes(q);
   });
+}
+
+export function listHelpCenterFeaturedSlugs(productLineId: ProductLineId = "architecture"): readonly string[] {
+  return resolveFeaturedSlugs(productLineId);
 }
