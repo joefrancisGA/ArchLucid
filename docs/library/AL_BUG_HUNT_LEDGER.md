@@ -651,11 +651,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — FollowUpBatch omitted ADR 0076 disposition pointer fields on inspect read
+- **last-bug:** 2026-09-07 — FollowUpBatch omitted RevisitDueUtc from deferred disposition inspect read
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -672,7 +672,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ResolveRuleFields` with `AppliedRuleIdsJson` containing a null first element — **hit 2026-09-03:** `ids[0].Trim()` threw `NullReferenceException` on `[null]` instead of falling back to `firstRuleText`; fixed with null/whitespace guard; consolidated regressions in `FindingInspectReadRepositoryCoreTests` (removed stale reflection tests on moved helper)
 - [x] (proven) `ResolveRuleFields` with null/blank prefix in `AppliedRuleIdsJson` drops later rule ids — **hit 2026-09-07 (#1179 seed→hit):** `[null, "cost-guardrail"]` returned `(null, null)` after the #603 null guard because only `ids[0]` was considered; fixed by selecting the first non-blank id in the array; regression in `ResolveRuleFields_when_first_applied_rule_id_is_null_uses_next_non_blank_id`
 - [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — **hit 2026-09-07 hunt #1230:** inspect omitted `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId`; fixed with pointer-table join + mapper; regressions in `FollowUpBatch_scopes_latest_disposition_to_workspace_and_project` and `GetInspectAsync_surfaces_current_disposition_pointer_fields_from_FindingCurrentDispositions`
+- [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition join omits `RevisitDueUtc` from current pointer event — **hit 2026-09-07 hunt #1233 (seed→hit):** deferred disposition inspect returned null `RevisitDueUtc` at repository layer; fixed SQL projection + mapper; regressions in `FollowUpBatch_disposition_subquery_projects_revisit_due_from_current_pointer_event` and ADR 0076 integration test
+- [x] (valid-no-repro) `MainInspect*` `AND (r.ArchivedUtc IS NULL)` serves older active run when newest rerun is archived — **cheap-disproof 2026-09-07 hunt #1233:** intentional soft-archive parity with list/run surfaces; archived runs remain in DB but drop out of active inspect selection
+- [ ] (candidate) `TryParsePayloadJson` returns null on corrupt `PayloadJson` without surfacing parse failure — inspect 200 with `TypedPayload: null` indistinguishable from missing payload
+- [ ] (candidate) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — multi-finding runs may show first run-level rule id instead of finding-specific trace text (may match contract)
 
+2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
 2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.
 
 ---

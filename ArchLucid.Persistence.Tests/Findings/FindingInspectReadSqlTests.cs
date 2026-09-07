@@ -25,6 +25,14 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_disposition_subquery_projects_revisit_due_from_current_pointer_event()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("e.RevisitDueUtc");
+    }
+
+    [Fact]
     public void FollowUpBatch_scopes_active_waiver_count_to_workspace_and_project()
     {
         string waiverSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");

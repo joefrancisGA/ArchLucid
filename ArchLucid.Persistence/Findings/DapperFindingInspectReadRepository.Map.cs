@@ -62,6 +62,10 @@ public sealed partial class DapperFindingInspectReadRepository
                 ? null
                 : Convert.ToBase64String(joinResult.DispositionRow.RowVersionStamp),
             LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
+            RevisitDueUtc = joinResult.DispositionRow?.RevisitDueUtc is null
+                ? null
+                : new DateTimeOffset(
+                    DateTime.SpecifyKind(joinResult.DispositionRow.RevisitDueUtc.Value, DateTimeKind.Utc)),
             HasActiveWaiver = joinResult.ActiveWaiverCount > 0,
             AssignedToUserId = row.AssignedToUserId,
             RemediationDueUtc = row.RemediationDueUtc is null
@@ -228,6 +232,12 @@ public sealed partial class DapperFindingInspectReadRepository
         }
 
         public DateTimeOffset? OccurredAtUtc
+        {
+            get;
+            init;
+        }
+
+        public DateTime? RevisitDueUtc
         {
             get;
             init;

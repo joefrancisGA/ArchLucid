@@ -44,6 +44,7 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
         Guid eventId = Guid.NewGuid();
         const string reviewerUserId = "reviewer@contoso.com";
         DateTimeOffset occurredAtUtc = new(2026, 9, 7, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset revisitDueUtc = new(2026, 10, 1, 0, 0, 0, TimeSpan.Zero);
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlFindingDispositionConcurrencyRepository dispositionRepository = new(factory);
@@ -58,8 +59,9 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
                 FindingId = FindingId,
                 ReviewerUserId = reviewerUserId,
                 Action = FindingReviewAction.RecordDisposition,
-                Disposition = FindingDisposition.Accepted,
+                Disposition = FindingDisposition.Deferred,
                 OccurredAtUtc = occurredAtUtc,
+                RevisitDueUtc = revisitDueUtc,
                 RunId = runId,
             },
             expectedCurrentRowVersion: null,
@@ -78,11 +80,12 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
             CancellationToken.None);
 
         response.Should().NotBeNull();
-        response!.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+        response!.LatestDisposition.Should().Be(FindingDisposition.Deferred);
         response.LatestDispositionOccurredAtUtc.Should().Be(occurredAtUtc);
         response.LatestDispositionEventId.Should().Be(eventId);
         response.LatestDispositionReviewerUserId.Should().Be(reviewerUserId);
         response.LatestDispositionRowVersionBase64.Should().Be(expectedRowVersionBase64);
+        response.RevisitDueUtc.Should().Be(revisitDueUtc);
     }
 
     private static async Task<Guid> SeedFindingAsync(string connectionString, ScopeContext scope)

@@ -173,7 +173,7 @@ internal static class FindingInspectReadSql
                                          AND ae.EventType = @EventType
                                        ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
 
-                                       SELECT TOP 1 e.Disposition, e.OccurredAtUtc, e.EventId, e.ReviewerUserId, c.RowVersionStamp
+                                       SELECT TOP 1 e.Disposition, e.OccurredAtUtc, e.RevisitDueUtc, e.EventId, e.ReviewerUserId, c.RowVersionStamp
                                        FROM dbo.FindingCurrentDispositions AS c
                                        INNER JOIN dbo.FindingReviewEvents AS e
                                            ON c.TenantId = e.TenantId
