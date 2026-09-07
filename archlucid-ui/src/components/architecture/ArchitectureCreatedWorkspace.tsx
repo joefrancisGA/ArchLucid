@@ -10,6 +10,7 @@ import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedEvidenceBuyerChrome } from "@/components/architecture/ArchitectureCreatedEvidenceBuyerChrome";
+import { ArchitectureCreatedFindingsBuyerChrome } from "@/components/architecture/ArchitectureCreatedFindingsBuyerChrome";
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -387,10 +388,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
       <div hidden={activeTab !== "findings"} data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
-            <ClarificationsFindingsVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="findings"
-            />
+            {buyerPolishedShell ? null : (
+              <ClarificationsFindingsVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="findings"
+              />
+            )}
             <ArchitectureCreatedFindingsNextAction
               runId={props.baseline.runId}
               findings={props.findings}
@@ -401,6 +404,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
             {props.panels.findings}
+            {buyerPolishedShell ? <ArchitectureCreatedFindingsBuyerChrome /> : null}
           </div>
       </div>
 
