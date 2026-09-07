@@ -5,7 +5,7 @@
 
 # False-confidence career-artifact Composer prompts (FC-01–FC-80)
 
-**Created:** 2026-09-07 · **Status:** ready to run · **Do not paste** prior waves (LK, DR, CD, CR, WA, FD, IS, SD, PC) except as named leftovers in each FC file.
+**Created:** 2026-09-07 · **Status:** FC-01–03 + validator phases **shipped**; ADR **0078 Accepted** (WS-02); per-surface FC-04–80 inventories may have named leftovers only · **Do not paste** prior waves (LK, DR, CD, CR, WA, FD, IS, SD, PC) except as named leftovers in each FC file.
 
 ## Problem statement
 
