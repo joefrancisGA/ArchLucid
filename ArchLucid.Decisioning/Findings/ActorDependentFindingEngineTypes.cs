@@ -9,10 +9,13 @@ public static class ActorDependentFindingEngineTypes
 
     public const string PrivilegedAccess = "privileged-access";
 
+    public const string DataFlowTrustBoundary = "data-flow-trust-boundary";
+
     public static IReadOnlyList<string> All { get; } =
     [
         ExternalExposure,
         TrustBoundary,
         PrivilegedAccess,
+        DataFlowTrustBoundary,
     ];
 }

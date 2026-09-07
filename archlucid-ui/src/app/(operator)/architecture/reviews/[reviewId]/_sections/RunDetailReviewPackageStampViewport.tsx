@@ -1,6 +1,7 @@
 "use client";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { RunDetailCareerArtifactHonestyStrip } from "@/components/reviews/RunDetailCareerArtifactHonestyStrip";
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 
@@ -17,6 +18,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
   readonly suppressMeasurementDenominator?: boolean;
+  readonly pipelineTerminalFailure?: boolean;
   readonly enginesSucceeded?: number | null;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
@@ -29,6 +31,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly judgeSkippedByCap?: number | null;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
+  readonly preCommitGateEnabled?: boolean | null;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -38,6 +41,7 @@ export function RunDetailReviewPackageStampViewport(
   const { isWorkingMode } = useWorkspaceMode();
   const feasibilityVerdict = props.feasibilityVerdict ?? null;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const pipelineTerminalFailure = props.pipelineTerminalFailure === true;
   const measurementFloorOptions = {
     actorNodeCount,
     analysisStagesComplete: props.analysisStagesComplete === true,
@@ -51,9 +55,28 @@ export function RunDetailReviewPackageStampViewport(
 
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-        <RunDetailPreFinalizeGateHonestyStrip />
-        <RunDetailQualityGateModeStrip
+        {!pipelineTerminalFailure ? (
+          <>
+            <RunDetailPreFinalizeGateHonestyStrip />
+            <RunDetailQualityGateModeStrip
+              runId={props.runId}
+              structuralExecutionMode={props.structuralExecutionMode}
+              isSample={props.isSample}
+            />
+          </>
+        ) : null}
+        <RunDetailCareerArtifactHonestyStrip
+          artifactKind="finalize"
           runId={props.runId}
+          progressSummary={null}
+          manifestSummary={null}
+          graphSnapshot={props.graphSnapshot}
+          transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
+          enginesSucceeded={props.enginesSucceeded}
+          workingDesk={isWorkingMode}
+          judgeSkippedByCap={props.judgeSkippedByCap}
+          catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+          preCommitGateEnabled={props.preCommitGateEnabled}
           structuralExecutionMode={props.structuralExecutionMode}
           isSample={props.isSample}
         />
@@ -85,9 +108,28 @@ export function RunDetailReviewPackageStampViewport(
 
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-      <RunDetailPreFinalizeGateHonestyStrip />
-      <RunDetailQualityGateModeStrip
+      {!pipelineTerminalFailure ? (
+        <>
+          <RunDetailPreFinalizeGateHonestyStrip />
+          <RunDetailQualityGateModeStrip
+            runId={props.runId}
+            structuralExecutionMode={props.structuralExecutionMode}
+            isSample={props.isSample}
+          />
+        </>
+      ) : null}
+      <RunDetailCareerArtifactHonestyStrip
+        artifactKind="finalize"
         runId={props.runId}
+        progressSummary={null}
+        manifestSummary={null}
+        graphSnapshot={props.graphSnapshot}
+        transparencyTrail={props.transparencyTrail ?? feasibilityVerdict?.transparencyTrail ?? null}
+        enginesSucceeded={props.enginesSucceeded}
+        workingDesk={isWorkingMode}
+        judgeSkippedByCap={props.judgeSkippedByCap}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        preCommitGateEnabled={props.preCommitGateEnabled}
         structuralExecutionMode={props.structuralExecutionMode}
         isSample={props.isSample}
       />

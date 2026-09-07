@@ -45,6 +45,11 @@ public static class SponsorFirstValuePdfGate
             return "Sponsor PDF export is blocked until ROI baseline inputs are captured and sponsor-safe.";
         }
 
+        if (!string.IsNullOrWhiteSpace(built.CareerArtifactBlockedReason))
+        {
+            return built.CareerArtifactBlockedReason;
+        }
+
         return null;
     }
 }

@@ -1,8 +1,9 @@
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -25,8 +26,8 @@ public sealed class TrustBoundaryFindingEngine : IFindingEngine
         if (actorNodes.Count < 2)
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
-        bool hasInternal = actorNodes.Any(IsInternalActor);
-        bool hasExternal = actorNodes.Any(IsExternalFacingActor);
+        bool hasInternal = actorNodes.Any(ActorOriginHeuristics.IsInternalActor);
+        bool hasExternal = actorNodes.Any(ActorOriginHeuristics.IsExternalFacingActor);
         IReadOnlyList<GraphNode> trustBoundaryNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TrustBoundary);
 
         if (!hasInternal || !hasExternal || trustBoundaryNodes.Count > 0)
@@ -46,8 +47,8 @@ public sealed class TrustBoundaryFindingEngine : IFindingEngine
             Payload = new TrustBoundaryFindingPayload
             {
                 ActorCount = actorNodes.Count,
-                InternalActorCount = actorNodes.Count(IsInternalActor),
-                ExternalActorCount = actorNodes.Count(IsExternalFacingActor),
+                InternalActorCount = actorNodes.Count(ActorOriginHeuristics.IsInternalActor),
+                ExternalActorCount = actorNodes.Count(ActorOriginHeuristics.IsExternalFacingActor),
             },
             RelatedNodeIds = actorNodes.Select(static n => n.NodeId).ToList(),
             RecommendedActions =
@@ -66,18 +67,5 @@ public sealed class TrustBoundaryFindingEngine : IFindingEngine
         };
 
         return Task.FromResult<IReadOnlyList<Finding>>([finding]);
-    }
-
-    private static bool IsInternalActor(GraphNode actor) =>
-        actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin)
-        && string.Equals(trustOrigin, "Internal", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsExternalFacingActor(GraphNode actor)
-    {
-        if (!actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin))
-            return false;
-
-        return string.Equals(trustOrigin, "External", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trustOrigin, "PublicAnonymous", StringComparison.OrdinalIgnoreCase);
     }
 }

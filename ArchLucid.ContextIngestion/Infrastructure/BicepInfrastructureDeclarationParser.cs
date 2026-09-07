@@ -42,6 +42,15 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
         CancellationToken ct)
     {
+        return ParseAsync(declaration, batchByPath, parameterValues: null, ct);
+    }
+
+    internal Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        IReadOnlyDictionary<string, string>? parameterValues,
+        CancellationToken ct)
+    {
         _ = ct;
 
         if (string.IsNullOrWhiteSpace(declaration.Content))
@@ -54,6 +63,7 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
             declaration,
             declaration.Content,
             batchByPath,
+            parameterValues,
             moduleDepth: 0,
             visitedModuleKeys,
             results);
@@ -79,11 +89,12 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
         InfrastructureDeclarationReference declaration,
         string content,
         IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        IReadOnlyDictionary<string, string>? parameterValues,
         int moduleDepth,
         HashSet<string> visitedModuleKeys,
         List<CanonicalObject> results)
     {
-        ParseResourcesFromContent(declaration, content, results);
+        ParseResourcesFromContent(declaration, content, parameterValues, results);
 
         if (batchByPath is null || moduleDepth >= MaxModuleRecursionDepth)
             return;
@@ -114,6 +125,7 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 moduleDeclaration,
                 moduleDeclaration.Content,
                 batchByPath,
+                parameterValues,
                 moduleDepth + 1,
                 visitedModuleKeys,
                 results);
@@ -123,6 +135,7 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
     private static void ParseResourcesFromContent(
         InfrastructureDeclarationReference declaration,
         string content,
+        IReadOnlyDictionary<string, string>? parameterValues,
         List<CanonicalObject> results)
     {
         MatchCollection matches = ResourceRegex.Matches(content);
@@ -166,7 +179,7 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                 string braceBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromMatch, braceIndex);
 
                 if (!string.IsNullOrWhiteSpace(braceBody))
-                    BicepResourceBodyParser.ParseBodyIntoProperties(braceBody, properties);
+                    BicepResourceBodyParser.ParseBodyIntoProperties(braceBody, properties, parameterValues);
             }
 
             string canonicalName = symbolicName.ToLowerInvariant();

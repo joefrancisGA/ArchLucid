@@ -24,6 +24,29 @@ export const POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC = [
   "Audit proof — export or open the audit trail for simulation / dry-run events.",
 ] as const;
 
+export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE =
+  "Finding-set toggle (compliance + declaration + extras)";
+
+export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SUMMARY =
+  "Same architecture, different assigned packs change which compliance and declaration findings fire — not only pre-finalize gate floors. Overlay extras (FinOps cost.requireBudgetCap, CIS identity topology) change coverage and cost rows when bundled JSON includes the keys.";
+
+export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS = [
+  "PolicyFilteredGoldenCorpusTests",
+  "PolicyFilteredDeclarationGoldenCorpusTests",
+  "PolicyPackP1ToggleGoldenCorpusTests",
+  "PolicyExpectationCoverageGoldenCorpusTests",
+] as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST = [
+  "Findings list (SOC 2 assignment vs CIS Azure assignment)",
+  "Severity column",
+  "Pre-finalize / dry-run verdict",
+  "Audit FindingsSnapshotSealed or policy assignment rows",
+] as const;
+
+export const POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY =
+  "SOC 2 assignment alone does not add topology identity unless that pack's advisoryDefaults includes expectation.topologyCategories.add=identity. Use a P1 arm for honest SOC 2 vs CIS Azure declaration comparison.";
+
 export const POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS = {
   openPolicyPacks: {
     label: "Open policy packs",

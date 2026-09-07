@@ -22,7 +22,10 @@ import {
   isProjectedUsdSponsorBadgeVisible,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
-import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
+import {
+  evaluateCareerArtifactHonesty,
+  type CareerArtifactHonestyInput,
+} from "@/lib/career-artifact/career-artifact-honesty";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
 
@@ -50,6 +53,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     manifestId,
     sponsorDocxAvailable = false,
     curatedSampleRun = false,
+    careerArtifactHonesty,
   } = props;
 
   const [busy, setBusy] = useState(false);
@@ -230,11 +234,30 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     proofGate.status === "ok"
     && isExternalSponsorPdfBlockedForExecutionMode(proofGate.payload)
     && !curatedSampleRun;
+  const careerArtifactVerdict = useMemo(() => {
+    if (careerArtifactHonesty === undefined) {
+      return null;
+    }
+
+    const input: CareerArtifactHonestyInput = {
+      ...careerArtifactHonesty,
+      artifactKind: "export",
+      runId,
+      curatedSampleRun,
+      blockExternalSponsorDistribution: true,
+      workingDesk: careerArtifactHonesty.workingDesk ?? true,
+    };
+
+    return evaluateCareerArtifactHonesty(input);
+  }, [careerArtifactHonesty, curatedSampleRun, runId]);
+  const blockSponsorPdfForCareerArtifact =
+    careerArtifactVerdict !== null && !careerArtifactVerdict.canRender;
   const blockSponsorPdf =
     blockSponsorPdfForRoi
     || blockSponsorPdfForProjectedDollar
     || blockSponsorPdfForAiGate
-    || blockSponsorPdfForExecutionMode;
+    || blockSponsorPdfForExecutionMode
+    || blockSponsorPdfForCareerArtifact;
   const executionModeLabel =
     proofGate.status === "ok" ? formatStructuralExecutionModeLabel(proofGate.payload) : null;
 
@@ -266,6 +289,8 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     blockSponsorPdfForProjectedDollar,
     blockSponsorPdfForAiGate,
     blockSponsorPdfForExecutionMode,
+    blockSponsorPdfForCareerArtifact,
+    careerArtifactVerdict,
     blockSponsorPdf,
     executionModeLabel,
   };
