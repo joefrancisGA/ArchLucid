@@ -1,8 +1,6 @@
 import {
   ARCHITECTURES_LIST_PATH,
   REVIEWS_LIST_PATH,
-  architectureIdentityPath,
-  architectureNestedAskPath,
 } from "@/lib/architecture/architecture-routes";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -50,51 +48,13 @@ export const WORKING_MONDAY_OBJECT_CONTRACT: WorkingMondayObjectContract = {
   forbiddenWorkingStartPrefixes: [REVIEWS_LIST_PATH],
 };
 
-export { architectureNestedAskPath };
-
-/** Nested Compare — implemented in SY-38; stub returns null until route lands. */
-export function architectureNestedComparePath(architectureId: string | null | undefined): string | null {
-  const trimmed = architectureId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  return `${architectureIdentityPath(trimmed)}/compare`;
-}
-
-/** Nested Graph — implemented in SY-40; stub returns null until route lands. */
-export function architectureNestedGraphPath(architectureId: string | null | undefined): string | null {
-  const trimmed = architectureId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  return `${architectureIdentityPath(trimmed)}/graph`;
-}
-
-/** Nested Search — implemented in SY-42; stub returns null until route lands. */
-export function architectureNestedSearchPath(architectureId: string | null | undefined): string | null {
-  const trimmed = architectureId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  return `${architectureIdentityPath(trimmed)}/search`;
-}
-
-/** Nested Findings — implemented in SY-43; stub returns null until route lands. */
-export function architectureNestedFindingsPath(architectureId: string | null | undefined): string | null {
-  const trimmed = architectureId?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  return `${architectureIdentityPath(trimmed)}/findings`;
-}
+export {
+  architectureNestedAskPath,
+  architectureNestedComparePath,
+  architectureNestedGraphPath,
+  architectureNestedSearchPath,
+  architectureNestedFindingsPath,
+} from "@/lib/architecture/architecture-routes";
 
 export const WORKING_PEER_INSIGHTS_TOOL_PATHS = {
   ask: ASK_REVIEW_QUESTIONS_PATH,

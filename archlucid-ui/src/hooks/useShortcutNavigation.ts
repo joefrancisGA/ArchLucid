@@ -3,15 +3,17 @@
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { askReviewQuestionsHref } from "@/lib/ask-review-questions-route";
-import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { SHORTCUTS, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
-import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
+import { readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
 import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
 import { resolveWorkingAltRHref } from "@/lib/resolve-working-alt-r-href";
+import {
+  resolveWorkingDeskToolHref,
+  type WorkingDeskTool,
+} from "@/lib/resolve-working-desk-tool-href";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
@@ -46,9 +48,11 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
           lastOpenReviewId: readCachedDeskContinuity().lastOpenReviewId,
         })
       : readReviewRunIdFromPathname(pathname ?? "");
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
     const workingAltRHref = resolveWorkingAltRHref({
-      lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+      lastOpenArchitectureId,
     }).href;
+    const deskContinuity = readCachedDeskContinuity();
 
     for (const entry of SHORTCUTS) {
       if (entry.route !== undefined && entry.route !== "") {
@@ -63,16 +67,17 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
               ? workingAltRHref
               : entry.route;
 
-        if (workingMode && entry.key === "alt+c" && openPackageRunId !== null) {
-          route = buildCompareTwoReviewsHref({ baseRunId: openPackageRunId });
-        }
+        if (workingMode) {
+          const deskTool = workingDeskToolFromShortcutKey(entry.key);
 
-        if (workingMode && entry.key === "alt+a" && openPackageRunId !== null) {
-          route = askReviewQuestionsHref({ runId: openPackageRunId });
-        }
-
-        if (workingMode && entry.key === "alt+y" && openPackageRunId !== null) {
-          route = evidenceGraphHref({ runId: openPackageRunId });
+          if (deskTool !== null) {
+            route = resolveWorkingDeskToolHref({
+              tool: deskTool,
+              lastOpenArchitectureId,
+              pathname,
+              lastOpenReviewId: deskContinuity.lastOpenReviewId,
+            });
+          }
         }
 
         next[entry.key] = {
@@ -107,4 +112,19 @@ function isHelpShortcutKey(key: string): boolean {
 
 function noop(): void {
   /* default help: no overlay until Prompt 2 */
+}
+
+function workingDeskToolFromShortcutKey(key: string): WorkingDeskTool | null {
+  switch (key.toLowerCase().trim()) {
+    case "alt+c":
+      return "compare";
+    case "alt+a":
+      return "ask";
+    case "alt+y":
+      return "graph";
+    case "alt+g":
+      return "findings";
+    default:
+      return null;
+  }
 }

@@ -18,7 +18,8 @@ import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import {
   architectureNestedAskPath,
-  parseArchitectureNestedAskArchitectureId,
+  architectureNestedGraphPath,
+  parseArchitectureNestedDeskArchitectureId,
 } from "@/lib/architecture/architecture-routes";
 
 export type UseWorkingInsightsArchitectureBindInput = {
@@ -42,7 +43,7 @@ export function useWorkingInsightsArchitectureBind(
   const pathname = usePathname() ?? "/";
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
-  const routeArchitectureId = parseArchitectureNestedAskArchitectureId(pathname);
+  const routeArchitectureId = parseArchitectureNestedDeskArchitectureId(pathname);
   const pinnedArchitectureId = input.pinnedArchitectureId?.trim() ?? "";
   const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
   const architectureIdForBind =
@@ -105,7 +106,9 @@ export function useWorkingInsightsArchitectureBind(
         ? routeArchitectureId !== null && routeArchitectureId.length > 0
           ? `${architectureNestedAskPath(routeArchitectureId)}?runId=${encodeURIComponent(runId)}`
           : askReviewQuestionsHref({ runId })
-        : evidenceGraphHref({ runId });
+        : routeArchitectureId !== null && routeArchitectureId.length > 0
+          ? `${architectureNestedGraphPath(routeArchitectureId)}?runId=${encodeURIComponent(runId)}`
+          : evidenceGraphHref({ runId });
 
     router.replace(href, { scroll: false });
   }, [bindPending, bindResult, input.tool, routeArchitectureId, router, shouldResolveBind]);

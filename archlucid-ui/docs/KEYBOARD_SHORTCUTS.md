@@ -34,10 +34,10 @@ The deferred **Shift+?** help overlay still mounts from [`KeyboardShortcutProvid
 |-------|--------|--------------|
 | **Alt+N** | Start review / draft editor | `/architecture/architectures/new` (Working); Guided intake wizard at `/architecture/reviews/new` |
 | **Alt+R** | Packages list (Guided) / architecture desk or portfolio (Working) | Guided: `/architecture/reviews`; Working: last-open `/architecture/architectures/{id}` or `/architecture/architectures` |
-| **Alt+C** | Compare | `/insights/compare-two-reviews` (Working review-detail scopes base run to the open review) |
-| **Alt+A** | Ask (Q&A) | `/insights/ask-review-questions` |
-| **Alt+G** | Governance findings | `/governance/findings` |
-| **Alt+Y** | Graph | `/insights/evidence-graph` |
+| **Alt+C** | Compare | Guided: `/insights/compare-two-reviews`; Working: nested `/architecture/architectures/{id}/compare` (scopes base run on review-detail) |
+| **Alt+A** | Ask (Q&A) | Guided: `/insights/ask-review-questions`; Working: nested `/architecture/architectures/{id}/ask` |
+| **Alt+G** | Governance findings | Guided: `/governance/findings`; Working: nested `/architecture/architectures/{id}/findings` |
+| **Alt+Y** | Graph | Guided: `/insights/evidence-graph`; Working: nested `/architecture/architectures/{id}/graph` |
 | **Alt+L** | Alerts | `/governance/alerts` |
 | **Alt+H** | Overview | `/` |
 | **Shift+?** | Open / close help (Escape closes) | *(dialog only)* |

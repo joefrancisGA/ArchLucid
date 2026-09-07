@@ -75,8 +75,38 @@ export function architectureNestedAskPath(architectureId: string): string {
 
 /** Parses `/architecture/architectures/{id}/ask` for nested Ask routes (SY-36). */
 export function parseArchitectureNestedAskArchitectureId(pathname: string): string | null {
+  return parseArchitectureNestedToolArchitectureId(pathname, "ask");
+}
+
+export type ArchitectureNestedToolSegment = "ask" | "compare" | "graph" | "findings" | "search";
+
+/** Working nested Compare tool — ADR 0079 / SY-38. */
+export function architectureNestedComparePath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/compare`;
+}
+
+/** Working nested Evidence graph tool — ADR 0079 / SY-40. */
+export function architectureNestedGraphPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/graph`;
+}
+
+/** Working nested Findings tool — ADR 0079 / SY-43. */
+export function architectureNestedFindingsPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/findings`;
+}
+
+/** Working nested Search tool — ADR 0079 / SY-42. */
+export function architectureNestedSearchPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/search`;
+}
+
+/** Parses `/architecture/architectures/{id}/{tool}` nested desk tools (SY-36+). */
+export function parseArchitectureNestedToolArchitectureId(
+  pathname: string,
+  toolSegment: ArchitectureNestedToolSegment,
+): string | null {
   const path = pathname.split("?")[0] ?? "";
-  const suffix = "/ask";
+  const suffix = `/${toolSegment}`;
   const prefix = `${ARCHITECTURES_LIST_PATH}/`;
 
   if (!path.startsWith(prefix) || !path.endsWith(suffix)) {
@@ -91,6 +121,27 @@ export function parseArchitectureNestedAskArchitectureId(pathname: string): stri
   }
 
   return segments[0] ?? null;
+}
+
+/** Parses any nested desk tool segment under `/architecture/architectures/{id}/…`. */
+export function parseArchitectureNestedDeskArchitectureId(pathname: string): string | null {
+  const segments: ArchitectureNestedToolSegment[] = [
+    "ask",
+    "compare",
+    "graph",
+    "findings",
+    "search",
+  ];
+
+  for (const segment of segments) {
+    const architectureId = parseArchitectureNestedToolArchitectureId(pathname, segment);
+
+    if (architectureId !== null) {
+      return architectureId;
+    }
+  }
+
+  return null;
 }
 
 /**
