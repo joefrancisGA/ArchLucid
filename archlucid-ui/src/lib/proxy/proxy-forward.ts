@@ -64,7 +64,7 @@ async function forward(
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
 
-  const bffGuard = enforceProxyBffSessionGuard(request, method, correlationId);
+  const bffGuard = enforceProxyBffSessionGuard(request, method, correlationId, path);
 
   if (!bffGuard.allowed) {
     return bffGuard.response;

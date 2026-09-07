@@ -65,6 +65,32 @@ describe("proxy route anonymous marketing paths", () => {
     expect(headers.get("authorization")).toBeNull();
   });
 
+  it("forwards anonymous marketing early-access POST when BFF session is enabled", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
   it("forwards browser bearer on anonymous marketing paths when the visitor is signed in", async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 

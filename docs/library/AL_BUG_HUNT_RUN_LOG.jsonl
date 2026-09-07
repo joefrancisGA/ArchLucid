@@ -1334,3 +1334,4 @@
 {"at":"2026-09-07T05:52:30.4160963Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-07T06:01:32.2587963Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-07T06:12:09.8890506Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-09-07T06:16:30.5096377Z","zoneId":"ui-auth-proxy","outcome":"hit"}
