@@ -6,6 +6,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import {
   BUYER_MANIFEST_DOWNLOAD_PREPARING,
   BUYER_MANIFEST_NO_DELIVERABLES_YET,
@@ -13,11 +14,14 @@ import {
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { getBundleDownloadUrl } from "@/lib/api";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import type { ArtifactDescriptor } from "@/types/authority";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
 type ManifestDetailDeliverablesCardProps = {
   readonly manifestId: string;
+  readonly runId: string;
   readonly buyerPolishedLayout: boolean;
   readonly artifacts: ArtifactDescriptor[];
   readonly artifactsFailure: ManifestDetailPageSuccessModel["artifactsFailure"];
@@ -25,7 +29,15 @@ type ManifestDetailDeliverablesCardProps = {
 };
 
 export function ManifestDetailDeliverablesCard(props: ManifestDetailDeliverablesCardProps): React.JSX.Element {
-  const { manifestId, buyerPolishedLayout, artifacts, artifactsFailure, artifactsMalformed } = props;
+  const { manifestId, runId, buyerPolishedLayout, artifacts, artifactsFailure, artifactsMalformed } = props;
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId: runId.trim(),
+    manifestVersion: manifestId.trim(),
+  });
+  const bundleDownloadDisabledReason =
+    sealedManifestBlockedReason === null ? null : whyDisabledNeedsPrerequisite(sealedManifestBlockedReason);
+  const bundleDownloadBlockedHintId = "manifest-deliverables-bundle-download-blocked-hint";
+  const bundleDownloadDisabled = bundleDownloadDisabledReason !== null;
 
   return (
     <Card
@@ -46,10 +58,19 @@ export function ManifestDetailDeliverablesCard(props: ManifestDetailDeliverables
       </CardHeader>
       <CardContent className="space-y-4">
         {!buyerPolishedLayout ? (
-          <div>
-            <Button variant="outline" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
-            </Button>
+          <div className="space-y-2">
+            {bundleDownloadDisabledReason !== null ? (
+              <WhyDisabledCtaHint id={bundleDownloadBlockedHintId} reason={bundleDownloadDisabledReason} />
+            ) : null}
+            {bundleDownloadDisabled ? (
+              <Button variant="outline" size="sm" disabled aria-describedby={bundleDownloadBlockedHintId}>
+                Download bundle (ZIP)
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" asChild>
+                <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
+              </Button>
+            )}
           </div>
         ) : null}
 

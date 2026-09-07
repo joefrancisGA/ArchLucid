@@ -31,6 +31,7 @@ public sealed class RemediationInstancesController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<RemediationInstanceSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? cloudResourceId,
         [FromQuery] Guid? findingId,
@@ -38,10 +39,17 @@ public sealed class RemediationInstancesController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<RemediationInstanceSummary> instances =
-            await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
+        try
+        {
+            IReadOnlyList<RemediationInstanceSummary> instances =
+                await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
 
-        return Ok(instances);
+            return Ok(instances);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("{instanceId:guid}")]
