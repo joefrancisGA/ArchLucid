@@ -202,6 +202,7 @@ public sealed class FirstValueReportBuilder(
             careerExportHonesty,
             careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, run);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,
@@ -261,6 +262,7 @@ public sealed class FirstValueReportBuilder(
             PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 
 namespace ArchLucid.Decisioning.CareerArtifacts;
@@ -25,4 +26,5 @@ public sealed record CareerArtifactCompletenessInput(
     AgentOutputQualityGateMode HostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
     bool LegacySealedReExport = false,
-    bool BlockExternalSponsorDistribution = false);
+    bool BlockExternalSponsorDistribution = false,
+    FindingsSnapshot? FindingsSnapshot = null);

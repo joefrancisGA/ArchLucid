@@ -4,6 +4,7 @@ import {
 } from "@/lib/copy-finding-as-work-item";
 import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
+import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
@@ -91,9 +92,12 @@ export function buildQuickDecisionFindingsCsv(
 ): string {
   const { exportableFindings } = partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
-  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status,RecordStatus";
-  const lines = exportableFindings.map((finding) =>
-    [
+  const header =
+    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,Status,RecordStatus";
+  const lines = exportableFindings.map((finding) => {
+    const trustFields = findingTrustExportJsonFields(finding);
+
+    return [
       finding.findingId,
       runId,
       severityLabelFromQuickDecisionFinding(finding),
@@ -101,10 +105,12 @@ export function buildQuickDecisionFindingsCsv(
       escapeCsvCell(finding.recommendation),
       finding.confidenceLevel ?? "",
       finding.policyRuleId ?? "",
+      "trustLabel" in trustFields ? trustFields.trustLabel : "",
+      "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
       finding.isMuted ? "Muted" : "Open",
       escapeCsvCell(recordStatus),
-    ].join(","),
-  );
+    ].join(",");
+  });
 
   return [header, ...lines].join("\n");
 }

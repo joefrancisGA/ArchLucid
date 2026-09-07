@@ -77,10 +77,12 @@ public sealed class InsightDensityGateOptions
     } = 8;
 
     /// <summary>
-    ///     When true in Real execution mode with <see cref="EnableLlmJudge" /> and
-    ///     <see cref="EnableLlmJudgeForEngineFindings" />, engine judge-cap selection prefers EngineTypes with higher
-    ///     tenant novelty rates from <see cref="IFindingInsightSignalRepository.ListNoveltyRatesAsync" />.
-    ///     Internal ranking only — not a buyer claim or G-REAL-06 proof. Default false; Simulator ignores this flag.
+    ///     When true in Real execution mode, tenant novelty rates from
+    ///     <see cref="IFindingInsightSignalRepository.ListNoveltyRatesAsync" /> rank engine findings in the Premium
+    ///     judge-cap selector (requires <see cref="EnableLlmJudge" /> and
+    ///     <see cref="EnableLlmJudgeForEngineFindings" />) and in the insight generator sample when
+    ///     <see cref="EnableInsightGenerator" /> is also true. Internal ranking only — not a buyer claim or G-REAL-06
+    ///     proof. Default false; Simulator ignores this flag.
     /// </summary>
     public bool PreferHighNoveltyEngines
     {

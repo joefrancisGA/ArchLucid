@@ -97,6 +97,8 @@ describe("buildQuickDecisionFindingsCsv", () => {
         muteReason: null,
         enforcementTier: "PolicyViolation",
         confidenceLevel: "Low",
+        trustLabel: "DeterministicRule",
+        trustLabelReason: "Matched egress policy.",
       },
       {
         findingId: "checklist",
@@ -116,6 +118,8 @@ describe("buildQuickDecisionFindingsCsv", () => {
 
     expect(csv).toContain("f1");
     expect(csv).toContain("Open port");
+    expect(csv).toContain("TrustLabel");
+    expect(csv).toContain("DeterministicRule");
     expect(csv).not.toContain("checklist");
     expect(csv.split("\n")).toHaveLength(2);
   });

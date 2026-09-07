@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **47** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-47`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **50** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-50`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-47`)
+## Coverage map (`case-01` … `case-50`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -55,6 +55,9 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-45`** (hand-authored) | **DX-29** — second requirement RPO 5 min with ledger SQL lacking replica/failover. Exercises **`dr-rpo-topology`** (second fixture). See `tests/golden-corpus/decisioning/case-45/README.md`. |
 | **`case-46`** (hand-authored) | **DX-22** — six declaration public-network gaps on storage-shaped topology nodes. Feeds **`ChecklistClusterSynthesisGoldenCorpusTests`** (post-gate synthesis sibling). See `tests/golden-corpus/decisioning/case-46/README.md`. |
 | **`case-47`** (hand-authored) | **DX-36** — external actor path to SQL without trust-boundary hop. Exercises **`data-flow-trust-boundary`**. See `tests/golden-corpus/decisioning/case-47/README.md`. |
+| **`case-48`** (hand-authored) | **DX-40** — pinned Azure inventory with unattached managed disk and empty graph. Exercises **`orphaned-azure-resource`** (also **`azure-inventory-reconciliation`**). See `tests/golden-corpus/decisioning/case-48/README.md`. |
+| **`case-49`** (hand-authored) | **DX-40** — pinned Azure inventory with `allowBlobPublicAccess: true`. Exercises **`azure-inventory-security-baseline`**. See `tests/golden-corpus/decisioning/case-49/README.md`. |
+| **`case-50`** (hand-authored) | **DX-40** — graph references Key Vault secret; pinned inventory row stale 90+ days before harness clock. Exercises **`secrets-lifecycle`**. See `tests/golden-corpus/decisioning/case-50/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -88,7 +91,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-47` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-50` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
 
 ---
 

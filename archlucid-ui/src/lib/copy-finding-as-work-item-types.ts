@@ -72,6 +72,10 @@ export type TraceRowWorkItemInput = {
   siteOrigin: string;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  /** Pre-rendered honesty line for Working clipboard exports (FC-41). */
+  coverageHonestyLine?: string | null;
+  /** When false, omit coverage honesty even if populated (Guided paste). */
+  includeCoverageHonesty?: boolean;
   /** Active product shell for consumer-facing product labels (defaults to architecture). */
   productLineId?: ProductLineId;
 };

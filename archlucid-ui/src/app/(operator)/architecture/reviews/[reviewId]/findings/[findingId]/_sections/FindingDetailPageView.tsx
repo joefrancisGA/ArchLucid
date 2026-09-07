@@ -165,6 +165,7 @@ export function FindingDetailPageView(props: Props) {
     sponsorPlainEnglishInput,
     showBuyerPolishedBody,
     buyerHeroSubtitle,
+    transparencyTrail: model.transparencyTrail,
   };
 
   return (

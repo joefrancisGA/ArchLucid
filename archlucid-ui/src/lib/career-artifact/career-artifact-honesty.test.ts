@@ -93,6 +93,25 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.blockedReasons.join(" ")).toMatch(/no asserted intake recorded/i);
   });
 
+  it("blocks Working export when decision-grade provenance is missing", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      transparencyTrail: { asserted: [{ key: "businessOutcome", value: "Reduce triage time" }], inferred: [], skipped: [] },
+      findingsSnapshot: {
+        findings: [
+          {
+            findingId: "finding-1",
+            findingType: "PolicyViolation",
+            classification: "DecisionGradeFinding",
+          },
+        ],
+      },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons.join(" ")).toMatch(/typed-engine provenance/i);
+  });
+
   it("includes skipped must keys in headerLines for export", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
