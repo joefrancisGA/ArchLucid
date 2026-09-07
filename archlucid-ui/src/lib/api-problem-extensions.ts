@@ -27,7 +27,7 @@ export type ApiProblemDetails = {
   fieldErrors?: readonly ApiValidationFieldError[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
-  /** Finding identifiers that triggered the pre-commit governance gate (Problem Details extension). */
+  /** Finding identifiers that triggered the pre-commit approval gate (Problem Details extension). */
   blockingFindingIds?: readonly string[];
   /** Policy pack that enforced the pre-commit gate when applicable. */
   policyPackId?: string;

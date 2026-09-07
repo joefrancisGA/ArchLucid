@@ -1,9 +1,9 @@
 /**
  * TB-2239 — Policy packs ≠ Standards and rules vocabulary rail.
  *
- * Why two governance surfaces exist:
+ * Why two approval surfaces exist:
  * - Policy packs (`/governance/policy-packs`) assign and author the packs that
- *   contribute governance rules for a scope.
+ *   contribute policy rules for a scope.
  * - Standards and rules (`/governance/standards-and-rules`) show the *effective*
  *   resolved rules after pack precedence and conflict resolution.
  *

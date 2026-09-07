@@ -40,7 +40,7 @@ export interface GovernanceDryRunModalProps {
 }
 
 /**
- * Governance dry-run / what-if modal: lets an operator simulate proposed threshold changes
+ * Policy dry-run / what-if modal: lets an operator simulate proposed threshold changes
  * against a list of historic review ids without committing anything. The default page size is
  * fixed at 20 (owner Q38) and the API will clamp anything larger than 100 server-side.
  */

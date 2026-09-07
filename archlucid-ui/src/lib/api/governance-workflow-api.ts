@@ -1,4 +1,4 @@
-/** Governance workflow API surface (barrel). */
+/** Approval workflow API surface (barrel). */
 
 export * from "./governance-workflow-api-dashboard";
 export * from "./governance-workflow-api-approvals";

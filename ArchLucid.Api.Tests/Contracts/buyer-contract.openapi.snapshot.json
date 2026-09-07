@@ -15233,6 +15233,25 @@
         ],
         "type": "string"
       },
+      "FindingInsightSignalKind": {
+        "enum": [
+          "DidNotThinkOfThat",
+          "Expected",
+          "DismissAsChecklist"
+        ],
+        "type": "string"
+      },
+      "FindingInsightSignalStatusResponse": {
+        "properties": {
+          "kinds": {
+            "items": {
+              "$ref": "#/components/schemas/FindingInsightSignalKind"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "FindingInspectEvidenceItem": {
         "properties": {
           "artifactId": {
@@ -24784,6 +24803,9 @@
             },
             "type": "array"
           },
+          "preCommitGateEnabled": {
+            "type": "boolean"
+          },
           "readyToFinalize": {
             "type": "boolean"
           },
@@ -26819,6 +26841,14 @@
           "disposition",
           "findingId"
         ],
+        "type": "object"
+      },
+      "RecordFindingInsightSignalRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FindingInsightSignalKind"
+          }
+        },
         "type": "object"
       },
       "RecordGovernanceMutationCorrectionRequest": {
@@ -44535,6 +44565,9 @@
     },
     {
       "name": "FindingFeedback"
+    },
+    {
+      "name": "FindingInsightSignal"
     },
     {
       "name": "FindingInspect"

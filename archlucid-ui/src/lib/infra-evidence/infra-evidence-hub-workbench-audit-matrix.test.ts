@@ -58,6 +58,33 @@ describe("infra-evidence-scoped-workbench-href", () => {
     );
   });
 
+  it("forwards audit params on diagrams and diagram-reconcile workbench links", () => {
+    expect(
+      buildScopedInfraWorkbenchHref(
+        "diagrams",
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+        },
+        auditContext,
+      ),
+    ).toContain("assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    expect(
+      buildScopedInfraWorkbenchHref(
+        "diagram-reconcile",
+        {
+          cloudResourceId: "11111111-1111-1111-1111-111111111111",
+          snapshotId: "22222222-2222-2222-2222-222222222222",
+          runId: "run-1",
+          correspondenceId: "corr-1",
+        },
+        auditContext,
+      ),
+    ).toContain("assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  });
+
   it("forwards audit params on hub drift change deep links", () => {
     expect(
       buildScopedHubDriftChangeWorkbenchHref(

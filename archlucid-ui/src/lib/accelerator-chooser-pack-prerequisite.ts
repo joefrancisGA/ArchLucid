@@ -6,7 +6,7 @@ export const ACCELERATOR_GREENFIELD_PACK_ID = "greenfield-web-app" as const;
 /** Unified start CTA for every accelerator pack — first review or follow-up. */
 export const ACCELERATOR_PACK_START_LABEL = "Start with this pack" as const;
 
-/** Soft guidance on cost-governance packs — not a tenant gate. */
+/** Soft guidance on cost-policy packs — not a tenant gate. */
 export const ACCELERATOR_COST_BASELINE_RECOMMENDATION =
   "Recommended after a finalized review with cloud inventory or cost baseline evidence." as const;
 

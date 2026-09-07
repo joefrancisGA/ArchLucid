@@ -132,6 +132,51 @@ public sealed class FindingsOrchestratorTests
         snapshot.Findings.Should().ContainSingle();
         snapshot.EngineFailures.Should().ContainSingle()
             .Which.EngineType.Should().Be("bad");
+        snapshot.WithheldFindings.Should().BeEmpty("security engine failures block commit and are not advisory withheld rows");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_advisory_catalog_failure_surfaces_on_withheld_band()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding ok = new()
+        {
+            FindingType = "T",
+            Category = "Security",
+            EngineType = "security-baseline",
+            Title = "ok-title",
+            Rationale = "r",
+            Severity = FindingSeverity.Info,
+        };
+
+        Mock<IFindingEngine> badCost = new(MockBehavior.Strict);
+        badCost.Setup(x => x.EngineType).Returns("cost-constraint");
+        badCost.Setup(x => x.Category).Returns("Cost");
+        badCost.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        Mock<IFindingEngine> goodSecurity = CreateEngine("security-baseline", "Security", [ok]);
+
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
+            [badCost.Object, goodSecurity.Object],
+            validator.Object,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+
+        snapshot.Findings.Should().ContainSingle();
+        FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(snapshot.EngineFailures).Should().BeFalse();
+        snapshot.WithheldFindings.Should().ContainSingle();
+        snapshot.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.EngineFailureAdvisory);
+        snapshot.WithheldFindings[0].OriginEngineType.Should().Be("cost-constraint");
     }
 
     [Fact]

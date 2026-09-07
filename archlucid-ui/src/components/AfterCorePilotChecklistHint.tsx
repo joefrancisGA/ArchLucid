@@ -40,7 +40,7 @@ const suggestions: Suggestion[] = [
     sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
   },
   {
-    title: "Set up governance alerts",
+    title: "Set up approval alerts",
     href: "/governance/alert-rules",
     description: "Inbox, routing, and rules on one hu — une when architecture-risk signals need action.",
     sidebarNote:
@@ -49,7 +49,7 @@ const suggestions: Suggestion[] = [
   {
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
-    description: "Versions, effective content, and how governance rules attach to your scope.",
+    description: "Versions, effective content, and how policy rules attach to your scope.",
     sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];

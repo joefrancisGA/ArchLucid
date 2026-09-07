@@ -42,7 +42,7 @@ export function formatResourceHubWorkbenchPrimaryHubLabel(tab: ResourceHubTab): 
 }
 
 export function mergeInfrastructureAskAuditScope(
-  auditScope: InfraEvidenceWorkbenchAuditScope | null,
+  auditScope: InfraEvidenceWorkbenchAuditScope | null | undefined,
 ): {
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
@@ -57,6 +57,25 @@ export function mergeInfrastructureAskAuditScope(
     auditEvidenceSnapshotId: auditScope.auditEvidenceSnapshotId,
     controlId: auditScope.controlId,
   };
+}
+
+export function hasStaleInfraEvidenceAuditUrlParams(
+  searchParams: Pick<URLSearchParams, "get">,
+): boolean {
+  const auditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+  const assessmentId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM),
+  );
+  const auditEvidenceSnapshotId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
+  );
+  const controlId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const hasAnyAuditParam =
+    assessmentId.length > 0
+    || auditEvidenceSnapshotId.length > 0
+    || controlId.length > 0;
+
+  return hasAnyAuditParam && auditScope == null;
 }
 
 export function mergeWorkbenchHubScopePatch(

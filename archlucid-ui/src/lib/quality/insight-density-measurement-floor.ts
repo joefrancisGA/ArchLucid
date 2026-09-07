@@ -71,7 +71,14 @@ export function formatInsightDensityMeasurementFloorPresentation(
 
 export function formatInsightDensityMeasurementFloorBlockedReason(
   enginesSucceeded: number | null | undefined,
+  catalogAdvisoryEngineFailureCount: number = 0,
 ): string | null {
+  if (catalogAdvisoryEngineFailureCount > 0) {
+    return catalogAdvisoryEngineFailureCount === 1
+      ? "1 catalog engine failed or did not run — career export requires typed findings from every catalog engine that executed."
+      : `${catalogAdvisoryEngineFailureCount} catalog engines failed or did not run — career export requires complete typed-engine coverage for this package.`;
+  }
+
   const presentation = formatInsightDensityMeasurementFloorPresentation(enginesSucceeded);
 
   if (presentation.meetsCareerExportFloor) {

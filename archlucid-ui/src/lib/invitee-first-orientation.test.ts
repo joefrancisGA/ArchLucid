@@ -49,7 +49,7 @@ describe("invitee-first-orientation (TB-2182)", () => {
     expect(copy.findingsCtaHref).toContain("reviewTab=findings");
   });
 
-  it("builds home orientation copy pointing at the governance findings queue", () => {
+  it("builds home orientation copy pointing at the policy findings queue", () => {
     const copy = resolveInviteeHomeOrientationCopy();
 
     expect(copy.findingsCtaHref).toBe("/governance/findings");

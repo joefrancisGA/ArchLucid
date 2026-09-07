@@ -56,15 +56,15 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS_INTEGRATIONS: readonly PageContextu
     prefix: "/help/api-contracts",
     entry: {
       whatIsThisPage:
-        "Admin HTTP and OpenAPI contract reference for integrators — not the buyer governance approval FAQ.",
+        "Admin HTTP and OpenAPI contract reference for integrators — not the buyer approval FAQ.",
       whatToDoNext:
-        "Open CLI usage for tooling, or governance approval if you need buyer approval workflows.",
+        "Open CLI usage for tooling, or approval if you need buyer approval workflows.",
       whyEmpty: "Orientation and stripped contract reference always show when this Admin help topic loads.",
       whereToConfigurePrerequisite: "Admin access; treat OpenAPI as the contract of record when prose disagrees.",
       taskSteps: [
         "Read orientation for HTTP and OpenAPI scope.",
         "Open CLI usage when tooling setup is needed.",
-        "Open Governance approval help for buyer approval workflows.",
+        "Open Approval help for buyer approval workflows.",
       ],
     },
   },

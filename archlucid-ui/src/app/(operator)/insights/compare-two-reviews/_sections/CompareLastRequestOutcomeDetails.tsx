@@ -132,7 +132,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
           </dd>
         </dl>
         <p className={cn("mb-0 mt-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          AI explanation is not included her — se <strong>{summarizeCue}</strong> for that pair.
+          AI explanation is not included here — use <strong>{summarizeCue}</strong> for that pair.
         </p>
       </div>
     </details>

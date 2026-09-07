@@ -56,6 +56,12 @@ public static class GoldenCorpusHarnessEngineInventory
             ["gcp-inventory-security-baseline"] = "GCP inventory security baseline — needs inventory snapshot.",
             ["open-commitment"] = "Open-commitment engine reads disposition trail — not wired on golden corpus runs.",
             ["portfolio-recurrence"] = "Portfolio recurrence needs multi-run tenant history — not on golden corpus.",
+            ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
+            ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
+            ["secrets-lifecycle"] = "Secrets lifecycle needs extractor inventory with Key Vault / Secrets Manager timestamps — not on golden corpus.",
+            ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
+            ["insight-generator"] = "Insight generator requires Real-mode Premium LLM pass — not on golden corpus harness.",
+            ["declaration-inventory-contradiction"] = "Declaration-inventory contradiction needs scoped extractor inventory aligned to topology resource ids — not on golden corpus.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

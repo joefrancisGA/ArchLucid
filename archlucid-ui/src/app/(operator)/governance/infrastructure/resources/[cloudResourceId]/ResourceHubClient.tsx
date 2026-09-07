@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
+import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +43,10 @@ import {
 import { buildDiagramReconcileRemediationHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-scoped-workbench-href";
+import {
+  buildInfraEvidenceClearAuditScopeHref,
+} from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
+import { formatResourceHubTabLabelWithAuditScope } from "@/lib/infra-evidence/infra-evidence-hub-tab-audit-label";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import {
   fetchCloudResourceEvidenceHub,
@@ -109,6 +115,7 @@ function buildHubDriftChangeAskHref(
     cloudResourceId,
     snapshotId,
     diffId: change.diffId,
+    hubTab: "drift",
     ...auditContext,
   });
 }
@@ -123,6 +130,7 @@ function buildHubFindingAskHref(
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     findingId,
+    hubTab: "findings",
     ...auditContext,
   });
 }
@@ -137,6 +145,7 @@ function buildHubRemediationAskHref(
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     instanceId,
+    hubTab: "remediation",
     ...auditContext,
   });
 }
@@ -156,6 +165,7 @@ function buildHubAuditLineageAskHref(
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
+    hubTab: "audit",
   });
 }
 
@@ -177,43 +187,56 @@ function buildHubAuditLineageTabHref(
   });
 }
 
+function buildHubScopedTabHref(
+  cloudResourceId: string,
+  tab: ResourceHubTab,
+  snapshotId: string,
+  runId: string,
+  auditContext: InfrastructureAskAuditContext = {},
+): string {
+  return buildResourceHubWorkbenchHref({
+    cloudResourceId,
+    tab,
+    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
+    assessmentId: auditContext.assessmentId,
+    auditEvidenceSnapshotId: auditContext.auditEvidenceSnapshotId,
+    controlId: auditContext.controlId,
+  });
+}
+
 function buildHubDiagramTabHref(
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
+  auditContext: InfrastructureAskAuditContext = {},
 ): string {
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
-    tab: "diagram",
-    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
-    runId: runId.length > 0 ? runId : undefined,
-  });
+  return buildHubScopedTabHref(cloudResourceId, "diagram", snapshotId, runId, auditContext);
 }
 
 function buildHubOverviewTabHref(
   cloudResourceId: string,
   snapshotId: string,
   runId: string,
+  auditContext: InfrastructureAskAuditContext = {},
 ): string {
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
-    tab: "overview",
-    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
-    runId: runId.length > 0 ? runId : undefined,
-  });
+  return buildHubScopedTabHref(cloudResourceId, "overview", snapshotId, runId, auditContext);
 }
 
 type HubOverviewTabLinkProps = {
   readonly cloudResourceId: string;
   readonly resolvedSnapshotId: string;
   readonly runId: string;
+  readonly auditContext?: InfrastructureAskAuditContext;
   readonly testId: string;
 };
 
 function HubOverviewTabLink(props: HubOverviewTabLinkProps) {
-  const { cloudResourceId, resolvedSnapshotId, runId, testId } = props;
+  const { cloudResourceId, resolvedSnapshotId, runId, auditContext = {}, testId } = props;
 
   return (
     <Button asChild variant="outline" size="sm" data-testid={testId}>
-      <Link href={buildHubOverviewTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+      <Link href={buildHubOverviewTabHref(cloudResourceId, resolvedSnapshotId, runId, auditContext)}>
         View overview in hub
       </Link>
     </Button>
@@ -232,6 +255,7 @@ function buildHubDiagramCorrespondenceAskHref(
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId,
+    hubTab: "diagram",
     ...auditContext,
   });
 }
@@ -415,6 +439,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [askAuditContext],
   );
 
+  const hasStaleAuditUrlParams = useMemo(() => {
+    const hasAnyAuditParam =
+      assessmentId.length > 0
+      || auditEvidenceSnapshotId.length > 0
+      || controlId.length > 0;
+
+    return hasAnyAuditParam && workbenchLinkAuditContext == null;
+  }, [assessmentId, auditEvidenceSnapshotId, controlId, workbenchLinkAuditContext]);
+
+  const auditScopeActive = workbenchLinkAuditContext != null;
+
   const hubTabs = useMemo(() => {
     if (hub == null) {
       return HUB_TABS;
@@ -425,20 +460,48 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return HUB_TABS.map((tab) => {
       if (tab.id === "findings" && openFindingsCount > 0) {
-        return { ...tab, label: `Findings (${openFindingsCount})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Findings (${openFindingsCount})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
       }
 
       if (tab.id === "remediation" && hub.remediationInstances.totalCount > 0) {
-        return { ...tab, label: `Remediation (${hub.remediationInstances.totalCount})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Remediation (${hub.remediationInstances.totalCount})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
       }
 
       if (tab.id === "drift" && hub.recentChanges.length > 0) {
-        return { ...tab, label: `Drift (${hub.recentChanges.length})` };
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(
+            `Drift (${hub.recentChanges.length})`,
+            auditScopeActive,
+            tab.id,
+          ),
+        };
+      }
+
+      if (auditScopeActive) {
+        return {
+          ...tab,
+          label: formatResourceHubTabLabelWithAuditScope(tab.label, auditScopeActive, tab.id),
+        };
       }
 
       return tab;
     });
-  }, [hub]);
+  }, [auditScopeActive, hub]);
 
   const openFindingsCount = useMemo(() => {
     if (hub == null) {
@@ -514,10 +577,40 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {hub?.externalResourceId ?? cloudResourceId}
           </p>
         </div>
-        <Link className="text-sm text-al-link hover:underline" href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}>
-          Back to explorer
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
+          <Link className="text-sm text-al-link hover:underline" href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}>
+            Back to explorer
+          </Link>
+        </div>
       </div>
+
+      {workbenchLinkAuditContext != null ? (
+        <InfraEvidenceAuditScopeBar
+          cloudResourceId={cloudResourceId}
+          auditScope={{
+            assessmentId: workbenchLinkAuditContext.assessmentId ?? "",
+            auditEvidenceSnapshotId: workbenchLinkAuditContext.auditEvidenceSnapshotId ?? "",
+            controlId: workbenchLinkAuditContext.controlId ?? "",
+          }}
+          currentSearch={searchParams.toString()}
+          activeTab={activeTab}
+          snapshotId={resolvedSnapshotId}
+          runId={runId}
+          controlNumber={hub?.auditLineageLink.controlNumber}
+          controlTitle={hub?.auditLineageLink.controlTitle}
+          testId="infra-resource-hub-audit-scope-bar"
+        />
+      ) : null}
+
+      {hasStaleAuditUrlParams ? (
+        <InfraAuditLineageUnavailableBanner
+          degradedReason="Audit scope in the URL could not be resolved for this resource."
+          testId="infra-resource-hub-stale-audit-scope"
+          auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab: "audit" })}
+          clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(cloudResourceId, searchParams.toString(), activeTab)}
+        />
+      ) : null}
 
       {loadError != null ? (
         <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
@@ -558,6 +651,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     cloudResourceId,
                     snapshotId: resolvedSnapshotId,
                     runId,
+                    hubTab: "overview",
                     ...askAuditContext,
                   })}
                 >
@@ -616,11 +710,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {openFindingsCount > 0 ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-findings-tab">
                     <Link
-                      href={buildResourceHubWorkbenchHref({
-                        cloudResourceId,
-                        tab: "findings",
-                        snapshotId: resolvedSnapshotId,
-                      })}
+                      href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                     >
                       View findings in hub
                     </Link>
@@ -629,11 +719,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.recentChanges.length > 0 ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift-tab">
                     <Link
-                      href={buildResourceHubWorkbenchHref({
-                        cloudResourceId,
-                        tab: "drift",
-                        snapshotId: resolvedSnapshotId,
-                      })}
+                      href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                     >
                       View drift in hub
                     </Link>
@@ -642,11 +728,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {hub.remediationInstances.totalCount > 0 ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-tab">
                     <Link
-                      href={buildResourceHubWorkbenchHref({
-                        cloudResourceId,
-                        tab: "remediation",
-                        snapshotId: resolvedSnapshotId,
-                      })}
+                      href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                     >
                       View remediation in hub
                     </Link>
@@ -654,18 +736,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 ) : null}
                 {hub.diagramCorrespondence != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-diagram-tab">
-                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                       Open diagram correspondence
                     </Link>
                   </Button>
                 ) : null}
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-terraform-work">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "terraform",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     Open terraform mapping
                   </Link>
@@ -761,6 +839,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 cloudResourceId={cloudResourceId}
                 resolvedSnapshotId={resolvedSnapshotId}
                 runId={runId}
+                auditContext={workbenchLinkAuditContext}
                 testId="infra-resource-hub-drift-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
@@ -770,18 +849,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </Button>
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-terraform">
                 <Link
-                  href={buildResourceHubWorkbenchHref({
-                    cloudResourceId,
-                    tab: "terraform",
-                    snapshotId: resolvedSnapshotId,
-                  })}
+                  href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                 >
                   Open terraform mapping
                 </Link>
               </Button>
               {hub.diagramCorrespondence != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-diagram-tab">
-                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                     View diagram correspondence in hub
                   </Link>
                 </Button>
@@ -789,11 +864,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {openFindingsCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-findings-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "findings",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View findings in hub
                   </Link>
@@ -802,11 +873,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hub.remediationInstances.totalCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-remediation-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "remediation",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View remediation in hub
                   </Link>
@@ -876,6 +943,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 cloudResourceId={cloudResourceId}
                 resolvedSnapshotId={resolvedSnapshotId}
                 runId={runId}
+                auditContext={workbenchLinkAuditContext}
                 testId="infra-resource-hub-diagram-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm">
@@ -908,11 +976,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {openFindingsCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-findings-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "findings",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View findings in hub
                   </Link>
@@ -921,11 +985,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hub.recentChanges.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-drift-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "drift",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View drift in hub
                   </Link>
@@ -934,11 +994,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hub.remediationInstances.totalCount > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-remediation-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "remediation",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View remediation in hub
                   </Link>
@@ -952,11 +1008,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   data-testid="infra-resource-hub-diagram-open-terraform-tab"
                 >
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "terraform",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View terraform mapping in hub
                   </Link>
@@ -1041,6 +1093,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   cloudResourceId={cloudResourceId}
                   resolvedSnapshotId={resolvedSnapshotId}
                   runId={runId}
+                  auditContext={workbenchLinkAuditContext}
                   testId="infra-resource-hub-terraform-open-overview-tab"
                 />
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-workbench">
@@ -1063,11 +1116,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-drift-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "drift",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View drift in hub
                   </Link>
@@ -1075,11 +1124,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {openFindingsCount > 0 ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-findings-tab">
                     <Link
-                      href={buildResourceHubWorkbenchHref({
-                        cloudResourceId,
-                        tab: "findings",
-                        snapshotId: resolvedSnapshotId,
-                      })}
+                      href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                     >
                       View findings in hub
                     </Link>
@@ -1093,11 +1138,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     data-testid="infra-resource-hub-terraform-open-remediation-tab"
                   >
                     <Link
-                      href={buildResourceHubWorkbenchHref({
-                        cloudResourceId,
-                        tab: "remediation",
-                        snapshotId: resolvedSnapshotId,
-                      })}
+                      href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                     >
                       View remediation in hub
                     </Link>
@@ -1110,7 +1151,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     size="sm"
                     data-testid="infra-resource-hub-terraform-open-diagram-tab"
                   >
-                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                    <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                       View diagram correspondence in hub
                     </Link>
                   </Button>
@@ -1141,22 +1182,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 cloudResourceId={cloudResourceId}
                 resolvedSnapshotId={resolvedSnapshotId}
                 runId={runId}
+                auditContext={workbenchLinkAuditContext}
                 testId="infra-resource-hub-findings-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-remediation-tab">
                 <Link
-                  href={buildResourceHubWorkbenchHref({
-                    cloudResourceId,
-                    tab: "remediation",
-                    snapshotId: resolvedSnapshotId,
-                  })}
+                  href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                 >
                   View remediation in hub
                 </Link>
               </Button>
               {hub.diagramCorrespondence != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-diagram-tab">
-                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                     View diagram correspondence in hub
                   </Link>
                 </Button>
@@ -1177,11 +1215,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hub.recentChanges.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-drift-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "drift",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View drift in hub
                   </Link>
@@ -1190,11 +1224,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hasTerraformMapping ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-terraform-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "terraform",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View terraform mapping in hub
                   </Link>
@@ -1283,6 +1313,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 cloudResourceId={cloudResourceId}
                 resolvedSnapshotId={resolvedSnapshotId}
                 runId={runId}
+                auditContext={workbenchLinkAuditContext}
                 testId="infra-resource-hub-remediation-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
@@ -1292,18 +1323,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </Button>
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-findings-tab">
                 <Link
-                  href={buildResourceHubWorkbenchHref({
-                    cloudResourceId,
-                    tab: "findings",
-                    snapshotId: resolvedSnapshotId,
-                  })}
+                  href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                 >
                   View findings in hub
                 </Link>
               </Button>
               {hub.diagramCorrespondence != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-diagram-tab">
-                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                  <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                     View diagram correspondence in hub
                   </Link>
                 </Button>
@@ -1311,11 +1338,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {hub.recentChanges.length > 0 ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-drift-tab">
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "drift",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View drift in hub
                   </Link>
@@ -1329,11 +1352,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   data-testid="infra-resource-hub-remediation-open-terraform-tab"
                 >
                   <Link
-                    href={buildResourceHubWorkbenchHref({
-                      cloudResourceId,
-                      tab: "terraform",
-                      snapshotId: resolvedSnapshotId,
-                    })}
+                    href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                   >
                     View terraform mapping in hub
                   </Link>
@@ -1435,6 +1454,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     cloudResourceId={cloudResourceId}
                     resolvedSnapshotId={resolvedSnapshotId}
                     runId={runId}
+                    auditContext={workbenchLinkAuditContext}
                     testId="infra-resource-hub-audit-open-overview-tab"
                   />
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-lineage-link">
@@ -1462,11 +1482,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {openFindingsCount > 0 ? (
                     <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-findings-tab">
                       <Link
-                        href={buildResourceHubWorkbenchHref({
-                          cloudResourceId,
-                          tab: "findings",
-                          snapshotId: resolvedSnapshotId,
-                        })}
+                        href={buildHubScopedTabHref(cloudResourceId, "findings", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                       >
                         View findings in hub
                       </Link>
@@ -1474,7 +1490,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   ) : null}
                   {hub.diagramCorrespondence != null ? (
                     <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-diagram-tab">
-                      <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId)}>
+                      <Link href={buildHubDiagramTabHref(cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext)}>
                         View diagram correspondence in hub
                       </Link>
                     </Button>
@@ -1482,11 +1498,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {hasTerraformMapping ? (
                     <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-terraform-tab">
                       <Link
-                        href={buildResourceHubWorkbenchHref({
-                          cloudResourceId,
-                          tab: "terraform",
-                          snapshotId: resolvedSnapshotId,
-                        })}
+                        href={buildHubScopedTabHref(cloudResourceId, "terraform", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                       >
                         View terraform mapping in hub
                       </Link>
@@ -1495,11 +1507,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {hub.recentChanges.length > 0 ? (
                     <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-drift-tab">
                       <Link
-                        href={buildResourceHubWorkbenchHref({
-                          cloudResourceId,
-                          tab: "drift",
-                          snapshotId: resolvedSnapshotId,
-                        })}
+                        href={buildHubScopedTabHref(cloudResourceId, "drift", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                       >
                         View drift in hub
                       </Link>
@@ -1508,11 +1516,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   {hub.remediationInstances.totalCount > 0 ? (
                     <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-open-remediation-tab">
                       <Link
-                        href={buildResourceHubWorkbenchHref({
-                          cloudResourceId,
-                          tab: "remediation",
-                          snapshotId: resolvedSnapshotId,
-                        })}
+                        href={buildHubScopedTabHref(cloudResourceId, "remediation", resolvedSnapshotId, runId, workbenchLinkAuditContext)}
                       >
                         View remediation in hub
                       </Link>

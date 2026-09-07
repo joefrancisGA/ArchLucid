@@ -6,7 +6,7 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import {
-  OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA,
+  OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
   OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -56,7 +56,7 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
   if (linkedReviewId.length > 0) {
     return {
       href: reviewDetailPath(linkedReviewId),
-      ctaLabel: OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA,
+      ctaLabel: OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
       kind: "continue-review",
     };
   }

@@ -102,7 +102,7 @@ export function warnStaticDemoPayloadFallbackOutsidePackagedDeployOnce(): void {
 }
 
 /**
- * Governance approval/promotion seeding is limited to packaged demo deploys so UAT workspaces with
+ * Approval/promotion seeding is limited to packaged demo deploys so UAT workspaces with
  * transient API failures show empty states instead of example approval records (TB-507).
  * Buyer-polished diligence on known showcase reviews keeps request history aligned with completion messaging.
  */

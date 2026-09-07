@@ -5,7 +5,7 @@ export const DEMO_PREVIEW_EYEBROW = "Interactive sample";
 export const DEMO_PREVIEW_HERO_TITLE = "See a finalized architecture review";
 
 export const DEMO_PREVIEW_HERO_SUPPORTING =
-  "Explore how ArchLucid connects review conclusions to evidence, decisions, governance approval, audit history, and reusable deliverables.";
+  "Explore how ArchLucid connects review conclusions to evidence, decisions, approval, audit history, and reusable deliverables.";
 
 export const DEMO_PREVIEW_SAMPLE_TITLE = "Claims Intake Modernization";
 
@@ -103,9 +103,9 @@ export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_TITLE = "Evidence graph";
 
 export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_DESC = "Trace conclusions to supporting evidence.";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Governance approval";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Approval";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review governance approval and monitored conditions.";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review approval and monitored conditions.";
 
 export const DEMO_PREVIEW_ARTIFACT_AUDIT_TITLE = "Audit trail";
 

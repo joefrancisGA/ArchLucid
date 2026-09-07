@@ -1,5 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Feedback;
@@ -49,9 +51,10 @@ public sealed partial class RunsController
         }
 
         string trimmedFindingId = findingId.Trim();
-        bool found = list.Any(f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
+        Finding? matchedFinding = list.FirstOrDefault(
+            f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
 
-        if (!found)
+        if (matchedFinding is null)
         {
             return this.NotFoundProblem(
                 $"Finding '{trimmedFindingId}' was not found on run '{request.RunId}'.",
@@ -72,6 +75,16 @@ public sealed partial class RunsController
         };
 
         await findingFeedbackRepository.InsertAsync(submission, cancellationToken);
+
+        await findingInstrumentationAudit.LogFeedbackRecordedAsync(
+            scope,
+            actorContext.GetActor(),
+            request.RunId,
+            trimmedFindingId,
+            score,
+            matchedFinding.Classification,
+            submission.Comment,
+            cancellationToken);
 
         logger.LogInformation(
             "Finding feedback recorded for run {RunId} finding {FindingId} score {Score}.",

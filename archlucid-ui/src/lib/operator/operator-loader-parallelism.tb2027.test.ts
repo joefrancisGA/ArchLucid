@@ -33,7 +33,7 @@ describe("TB-2027 operator loader parallelism", () => {
   // The tenant settings loader used to parallelize trial + digest. The digest schedule editor moved to the
   // Digests hub, leaving a single fetch here, so there is no longer a parallelism invariant to guard.
 
-  it("loads governance setup guide signals from setup-guide-bundle", () => {
+  it("loads approval setup guide signals from setup-guide-bundle", () => {
     const source = readUiSource(
       "src/app/(operator)/governance/setup/_sections/resolve-governance-setup-status.ts",
     );

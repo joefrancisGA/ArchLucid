@@ -31,6 +31,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     architectureEditHref,
     findingCoverageSummary,
     withheldFindings,
+    catalogAdvisoryEngineFailureCount,
   } = presentation;
 
   const activePanelLeadEl = (
@@ -81,6 +82,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
       withheldFindingCount={withheldFindings.length}
+      catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
     />
   );
 

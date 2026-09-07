@@ -43,10 +43,11 @@ import {
   CLOUD_RESOURCE_EXPLORER_WORK_QUEUE_OPTIONS,
   formatResourceHubTabActionLabelFromExplorerWorkQueue,
   parseResourceExplorerWorkQueueFromSearch,
+  resolveResourceHubTabFromExplorerWorkQueue,
   type CloudResourceExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildCloudResourceExplorerWorkCountBadges } from "@/lib/infra-evidence/infra-evidence-explorer-work-counts";
-import type { CloudResourceSummary } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { CloudResourceSummary, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,12 @@ function formatResourceLabel(row: CloudResourceSummary): string {
   const segments = row.externalResourceId.split("/");
 
   return segments[segments.length - 1] ?? row.externalResourceId;
+}
+
+function resolveExplorerAskHubTab(
+  workQueue: CloudResourceExplorerWorkQueue,
+): ResourceHubTab | undefined {
+  return resolveResourceHubTabFromExplorerWorkQueue(workQueue) ?? undefined;
 }
 
 export function ResourcesExplorerClient() {
@@ -96,8 +103,8 @@ export function ResourcesExplorerClient() {
       return;
     }
 
-    router.replace(governanceInfrastructureResourceHubPath(urlCloudResourceId));
-  }, [router, urlCloudResourceId]);
+    router.replace(buildResourceHubExplorerHref(urlCloudResourceId, urlWorkQueue, urlSnapshotId));
+  }, [router, urlCloudResourceId, urlSnapshotId, urlWorkQueue]);
 
   useEffect(() => {
     setNamePrefix(urlNamePrefix);
@@ -332,7 +339,10 @@ export function ResourcesExplorerClient() {
                   {urlWorkQueue !== "all" ? (
                     <Button asChild size="sm" variant="outline">
                       <Link
-                        href={buildResourceHubOverviewHref(row.cloudResourceId, { snapshotId: urlSnapshotId })}
+                        href={buildResourceHubOverviewHref(row.cloudResourceId, {
+                          snapshotId: urlSnapshotId,
+                          workQueue: urlWorkQueue,
+                        })}
                         data-testid={`infra-resource-explorer-overview-${row.cloudResourceId}`}
                       >
                         Overview
@@ -355,6 +365,7 @@ export function ResourcesExplorerClient() {
                         cloudResourceId: row.cloudResourceId,
                         workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
                         snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,
+                        hubTab: resolveExplorerAskHubTab(urlWorkQueue),
                       })}
                       data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
                     >

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
 import { FindingIacStubPanel } from "@/components/findings/FindingIacStubPanel";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -113,6 +114,12 @@ export function FindingDetailActions({ presentation }: Props) {
     <>
       {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
+      ) : null}
+
+      {inspectPayload !== null && !buyerPolishedShell ? (
+        <div className="mt-2">
+          <FindingDidNotThinkOfThatButton runId={runId} findingId={decodedFindingId} />
+        </div>
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

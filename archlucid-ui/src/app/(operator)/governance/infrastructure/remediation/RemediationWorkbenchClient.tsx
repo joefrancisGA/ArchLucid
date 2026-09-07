@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
@@ -11,12 +11,17 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
-import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import { remediationWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-remediation-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
   fetchInfraEvidenceSnapshots,
@@ -90,6 +95,9 @@ function buildDiagramHubHref(context: {
   readonly cloudResourceId: string;
   readonly runId?: string | null;
   readonly snapshotId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string {
   const trimmedRunId = context.runId?.trim() ?? "";
   const trimmedSnapshotId = context.snapshotId?.trim() ?? "";
@@ -98,10 +106,16 @@ function buildDiagramHubHref(context: {
     tab: "diagram",
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
     runId: trimmedRunId.length > 0 ? trimmedRunId : undefined,
+    assessmentId: context.assessmentId?.trim().length ? context.assessmentId?.trim() : undefined,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId?.trim().length
+      ? context.auditEvidenceSnapshotId?.trim()
+      : undefined,
+    controlId: context.controlId?.trim().length ? context.controlId?.trim() : undefined,
   });
 }
 
 export function RemediationWorkbenchClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
@@ -158,11 +172,34 @@ export function RemediationWorkbenchClient() {
   }, [visibleInstances]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const remediationSnapshotId = urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : selectedSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(remediationSnapshotId, auditScope, urlReconcileRunId),
     [auditScope, remediationSnapshotId, urlReconcileRunId],
   );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    remediationSnapshotId,
+  );
+
+  const syncRemediationUrl = useCallback(
+    (patch: { readonly instanceId?: string | null }) => {
+      router.replace(remediationWorkbenchHrefFromSearch(searchParams, patch), { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const deepLinkedInstanceMissing = useMemo(() => {
+    if (urlInstanceId.length === 0 || loading) {
+      return false;
+    }
+
+    return !visibleInstances.some((instance) => instance.instanceId === urlInstanceId);
+  }, [loading, urlInstanceId, visibleInstances]);
 
   const remediationScopeExtraLinks = useMemo(() => {
     if (urlCorrespondenceId.length === 0) {
@@ -176,11 +213,14 @@ export function RemediationWorkbenchClient() {
           cloudResourceId: urlCloudResourceId,
           runId: urlReconcileRunId,
           snapshotId: urlReconcileSnapshotId,
+          assessmentId: auditScope?.assessmentId ?? null,
+          auditEvidenceSnapshotId: auditScope?.auditEvidenceSnapshotId ?? null,
+          controlId: auditScope?.controlId ?? null,
         }),
         label: "View diagram correspondence in hub",
       },
     ];
-  }, [urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
+  }, [auditScope, urlCloudResourceId, urlCorrespondenceId, urlReconcileRunId, urlReconcileSnapshotId]);
 
   const loadWorkbench = useCallback(async () => {
     setLoading(true);
@@ -407,9 +447,27 @@ export function RemediationWorkbenchClient() {
     urlReconcileSnapshotId,
   ]);
 
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedInstanceId == null || selectedInstanceId.length === 0) {
+      return null;
+    }
+
+    const selectedInstance = visibleInstances.find((instance) => instance.instanceId === selectedInstanceId);
+
+    if (selectedInstance == null) {
+      return `Showing remediation instance ${selectedInstanceId}.`;
+    }
+
+    return `Showing remediation instance ${selectedInstance.patternKey}.`;
+  }, [selectedInstanceId, visibleInstances]);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-remediation" />
+      <div className="flex justify-end">
+        <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (
         <section
@@ -420,10 +478,19 @@ export function RemediationWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {auditScope != null ? (
-            <div className="mt-2">
-              <WorkbenchAuditProvenance auditScope={auditScope} testId="infra-remediation-audit-provenance" />
-            </div>
+          {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={remediationSnapshotId}
+              runId={urlReconcileRunId}
+              activeTab="remediation"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              provenanceTestId="infra-remediation-audit-provenance"
+              unavailableTestId="infra-remediation-audit-unavailable"
+            />
           ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
@@ -463,6 +530,7 @@ export function RemediationWorkbenchClient() {
                   cloudResourceId: urlCloudResourceId,
                   tab: "findings",
                   snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                  ...workbenchHubScopePatch,
                 })}
                 data-testid="infra-remediation-finding-open-findings-hub"
               >
@@ -474,6 +542,7 @@ export function RemediationWorkbenchClient() {
                   cloudResourceId: urlCloudResourceId,
                   tab: "terraform",
                   snapshotId: urlReconcileSnapshotId.length > 0 ? urlReconcileSnapshotId : null,
+                  ...workbenchHubScopePatch,
                 })}
                 data-testid="infra-remediation-finding-open-terraform-hub"
               >
@@ -550,6 +619,17 @@ export function RemediationWorkbenchClient() {
         ) : null}
       </section>
 
+      {deepLinkedInstanceMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-remediation-instance-deep-link-missing"
+          role="status"
+        >
+          The linked remediation instance is not in the current factory scope
+          {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
+        </p>
+      ) : null}
+
       {loadError != null ? (
         <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
       ) : null}
@@ -574,7 +654,10 @@ export function RemediationWorkbenchClient() {
                         selectedInstanceId === instance.instanceId ? "bg-muted/50" : undefined,
                       )}
                       data-testid={`infra-remediation-card-${instance.instanceId}`}
-                      onClick={() => setSelectedInstanceId(instance.instanceId)}
+                      onClick={() => {
+                        setSelectedInstanceId(instance.instanceId);
+                        syncRemediationUrl({ instanceId: instance.instanceId });
+                      }}
                     >
                       <div className="font-medium">{instance.patternKey}</div>
                       <div className="text-xs text-muted-foreground">{instance.status}</div>
