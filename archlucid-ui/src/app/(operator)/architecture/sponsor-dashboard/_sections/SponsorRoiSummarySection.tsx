@@ -33,6 +33,12 @@ import { showError } from "@/lib/toast";
 import { verifyBoardPackRunLineage } from "@/lib/exports/traceability-bundle-download";
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
