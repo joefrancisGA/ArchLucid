@@ -98,6 +98,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "auth-bootstrap-cannot-complete",
     requiredMarkers: ["auth-bootstrap-cannot-complete", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "admin-support-bundle-download-failure",
+    requiredMarkers: ["admin-support-bundle-download-failure", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [

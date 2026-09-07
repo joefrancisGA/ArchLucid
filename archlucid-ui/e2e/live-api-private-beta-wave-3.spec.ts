@@ -1,11 +1,15 @@
 /**
- * Private-beta wave 3: diagnostics smoke, sign-in recovery, deep-link returnUrl, duplicate-invite idempotency.
+ * Private-beta wave 3+: diagnostics smoke, sign-in recovery, deep-link returnUrl,
+ * duplicate-invite idempotency, bootstrap UI accept path, email-OTP skip guard.
  */
 import { expect, test } from "@playwright/test";
 
 import {
   createAdminUserInvite,
+  createScimAdminToken,
   primeJwtBrowserSession,
+  provisionE2ePlatformUserPreAuth,
+  provisionScimDirectoryUser,
   requireLivePrivateBetaJwtEnv,
   stubEmptyArchitectureDraftListRoute,
   clearJwtBrowserSession,
@@ -13,6 +17,16 @@ import {
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
 
 const releaseGateTag = "@release-gate";
+
+const deepLinkTargets = [
+  { path: "/administration/users", fragment: "/administration/users" },
+  { path: "/help/authentication-sign-in", fragment: "/help/authentication-sign-in" },
+  { path: "/administration/scim-provisioning", fragment: "/administration/scim-provisioning" },
+  {
+    path: "/administration/identity-providers/diagnostics",
+    fragment: "/administration/identity-providers/diagnostics",
+  },
+] as const;
 
 test.describe(
   `live-api-private-beta-wave-3 (${releaseGateTag})`,
@@ -60,35 +74,24 @@ test.describe(
       await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 60_000 });
     });
 
-    test("signed-out deep-link preserves returnUrl for administration users and help topics", async ({
-      browser,
-    }) => {
-      test.setTimeout(120_000);
+    test("signed-out deep-link preserves returnUrl for admin and help destinations", async ({ browser }) => {
+      test.setTimeout(180_000);
 
       const signedOutContext = await browser.newContext();
       const signedOutPage = await signedOutContext.newPage();
 
       try {
-        await stubEmptyArchitectureDraftListRoute(signedOutPage);
+        for (const target of deepLinkTargets) {
+          await stubEmptyArchitectureDraftListRoute(signedOutPage);
+          await signedOutPage.goto(target.path, { waitUntil: "domcontentloaded" });
 
-        await signedOutPage.goto("/administration/users", { waitUntil: "domcontentloaded" });
+          await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
 
-        await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
+          const signInUrl = new URL(signedOutPage.url());
+          const returnUrl = signInUrl.searchParams.get("returnUrl") ?? "";
 
-        const usersSignInUrl = new URL(signedOutPage.url());
-        const usersReturnUrl = usersSignInUrl.searchParams.get("returnUrl") ?? "";
-
-        expect(decodeURIComponent(usersReturnUrl)).toContain("/administration/users");
-
-        await stubEmptyArchitectureDraftListRoute(signedOutPage);
-        await signedOutPage.goto("/help/authentication-sign-in", { waitUntil: "domcontentloaded" });
-
-        await expect(signedOutPage).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
-
-        const helpSignInUrl = new URL(signedOutPage.url());
-        const helpReturnUrl = helpSignInUrl.searchParams.get("returnUrl") ?? "";
-
-        expect(decodeURIComponent(helpReturnUrl)).toContain("/help/authentication-sign-in");
+          expect(decodeURIComponent(returnUrl)).toContain(target.fragment);
+        }
       } finally {
         await signedOutContext.close();
       }
@@ -105,6 +108,40 @@ test.describe(
 
       expect(secondInvite.id).toBe(firstInvite.id);
       expect(secondInvite.email).toBe(firstInvite.email);
+    });
+
+    test("invitee walks /auth/bootstrap invitation accept in the browser (TB-927 UI)", async ({
+      page,
+      request,
+    }) => {
+      test.setTimeout(180_000);
+
+      requireLivePrivateBetaJwtEnv();
+
+      const inviteeEmail = `e2e-bootstrap-ui-${Date.now()}@example.com`;
+      const invite = await createAdminUserInvite(request, inviteeEmail, { appRole: "Operator" });
+      const preAuth = await provisionE2ePlatformUserPreAuth(request, inviteeEmail);
+
+      await primeJwtBrowserSession(page, preAuth.preAuthAccessToken);
+      await page.goto(`/auth/invite?token=${encodeURIComponent(invite.invitationToken)}`, {
+        waitUntil: "domcontentloaded",
+      });
+
+      await page.goto("/auth/bootstrap", { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId("bootstrap-invitation-step")).toBeVisible({ timeout: 60_000 });
+
+      await page.getByTestId(`bootstrap-accept-invitation-${invite.id}`).click();
+
+      await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
+        timeout: 120_000,
+      });
+    });
+
+    test("email-OTP invite path requires dedicated CI lane (skipped in jwt-bearer push)", async () => {
+      test.skip(
+        true,
+        "Email-OTP invite E2E needs NEXT_PUBLIC_ARCHLUCID_EMAIL_OTP_ENABLED, Auth:EmailOtp:Enabled, and a challenge-code capture harness — not wired in private-beta-access-on-push.yml.",
+      );
     });
   },
 );
