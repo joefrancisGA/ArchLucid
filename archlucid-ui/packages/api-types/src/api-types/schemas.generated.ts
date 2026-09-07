@@ -5270,6 +5270,8 @@ export interface components {
             /** Format: int32 */
             demotedToChecklistCount?: number;
             /** Format: int32 */
+            judgeSkippedByCap?: number;
+            /** Format: int32 */
             retainedFindingCount?: number;
         };
         IntegrationEventBusStatusResponse: {

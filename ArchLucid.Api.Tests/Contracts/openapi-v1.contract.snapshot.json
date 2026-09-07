@@ -18207,6 +18207,10 @@
             "format": "int32",
             "type": "integer"
           },
+          "judgeSkippedByCap": {
+            "format": "int32",
+            "type": "integer"
+          },
           "retainedFindingCount": {
             "format": "int32",
             "type": "integer"
