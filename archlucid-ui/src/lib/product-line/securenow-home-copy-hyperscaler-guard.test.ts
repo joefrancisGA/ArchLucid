@@ -54,6 +54,15 @@ describe("SecureNow home copy hyperscaler guard", () => {
     }
   });
 
+  it("uses Teams instead of Microsoft Teams on the SecureNow security home row", () => {
+    const teamsRow = SECURENOW_SECURITY_HOME_ROWS.find((row) => row.href === "/integrations/teams");
+
+    expect(teamsRow?.label).toBe("Teams");
+    expect(teamsRow?.summary).toContain("Teams channels");
+    expect(teamsRow?.label).not.toContain("Microsoft Teams");
+    expect(teamsRow?.summary).not.toContain("Microsoft Teams");
+  });
+
   it("keeps AWS and GCP out of SecureNow cloud connection copy helpers", () => {
     for (const copy of secureNowCloudConnectionCopy) {
       expect(copy).not.toMatch(SECURENOW_EXCLUDED_HYPERSCALER_PATTERN);

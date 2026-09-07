@@ -164,7 +164,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                 conn={m.conn}
                 destinationName={destinationName}
                 status={m.connectionStatus}
-                lastTestMessage={m.lastTestMessage}
+                lastTestMessage={m.lastTestMessage === null ? null : localize(m.lastTestMessage)}
               />
             ) : null}
 
@@ -353,7 +353,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                   )}
                   data-testid="teams-form-test-feedback"
                 >
-                  {m.testMessage}
+                  {localize(m.testMessage)}
                 </p>
               ) : null}
             </section>

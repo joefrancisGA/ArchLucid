@@ -11,6 +11,7 @@ import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/p
 import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 /**
  * Short visible trigger text for headers whose title already names the help topic.
@@ -30,6 +31,7 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
   const pathname = usePathname() ?? "/";
   const { isWorkingMode } = useWorkspaceMode();
   const { productLine } = useProductLine();
+  const { localize } = useLocalizedProductCopy();
 
   if (pathnameIsInAppHelpTopic(pathname)) {
     return null;
@@ -59,7 +61,7 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
   return (
     <PageScopedContextualHelpPanel
       entry={contextualEntry}
-      triggerLabel={topic.label}
+      triggerLabel={localize(topic.label)}
       triggerText={props.triggerText}
       learnMoreHref={learnMoreHref}
       supplement={supplement}

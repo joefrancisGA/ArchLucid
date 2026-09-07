@@ -218,5 +218,22 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
   });
 
+  it("shortens Microsoft Teams to Teams in the SecureNow help title", () => {
+    if (entry === undefined) {
+      throw new Error("Expected teams-integration documentation entry.");
+    }
+
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "security");
+
+    render(<HelpTeamsIntegrationGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-teams-integration-page-title")).toHaveTextContent("Teams notifications");
+    expect(screen.getByTestId("help-teams-integration-page-title")).not.toHaveTextContent("Microsoft Teams");
+    expect(screen.getByTestId("help-teams-integration-overview")).not.toHaveTextContent("Microsoft Teams");
+
+    vi.unstubAllEnvs();
+    process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "architecture";
+  });
+
 });
 
