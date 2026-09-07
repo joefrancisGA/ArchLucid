@@ -6,6 +6,7 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { secureNowCloudInventoryEvidenceSummary } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
@@ -35,7 +36,7 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
   {
     href: CLOUD_CONNECTIONS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
-    summary: "Connect Azure, AWS, or GCP for read-only cloud inventory evidence collection.",
+    summary: secureNowCloudInventoryEvidenceSummary(),
   },
   {
     href: INTEGRATIONS_JIRA_PATH,
