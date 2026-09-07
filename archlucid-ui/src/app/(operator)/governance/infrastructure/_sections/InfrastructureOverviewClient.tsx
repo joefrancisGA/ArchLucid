@@ -10,7 +10,6 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -76,8 +75,6 @@ export function InfrastructureOverviewClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-overview" /> : null}
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID : undefined}
