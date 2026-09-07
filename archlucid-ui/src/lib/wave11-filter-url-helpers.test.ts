@@ -4720,6 +4720,96 @@ describe("wave61 filter url helpers", () => {
   });
 });
 
+describe("wave62 filter url helpers", () => {
+  it("help configuration reference catalog, troubleshooting advanced diagnostics, path chooser reference appendix, governance workflow environment releases, standards rules approval record details, first review guide technical identifiers, itsm oauth callback support details, ask review anchors, graph node technical appendix, operator connectivity technical details params", async () => {
+    const {
+      helpConfigurationReferenceCatalogDisclosureHrefFromSearch,
+      parseHelpConfigurationReferenceCatalogOpenFromSearch,
+    } = await import("@/lib/help/help-configuration-reference-catalog-disclosure-url");
+    const {
+      helpTroubleshootingAdvancedDiagnosticsDisclosureHrefFromSearch,
+      parseHelpTroubleshootingAdvancedDiagnosticsOpenFromSearch,
+    } = await import("@/lib/help/help-troubleshooting-advanced-diagnostics-disclosure-url");
+    const {
+      helpPathChooserReferenceAppendixDisclosureHrefFromSearch,
+      parseHelpPathChooserReferenceAppendixOpenFromSearch,
+    } = await import("@/lib/help/help-path-chooser-reference-appendix-disclosure-url");
+    const {
+      governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch,
+      parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch,
+    } = await import("@/lib/governance/governance-workflow-environment-releases-disclosure-url");
+    const {
+      parseStandardsRulesApprovalRecordDetailsOpenFromSearch,
+      standardsRulesApprovalRecordDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/standards-rules-approval-record-details-disclosure-url");
+    const {
+      firstReviewGuideTechnicalIdentifiersDisclosureHrefFromSearch,
+      parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch,
+    } = await import("@/lib/architecture/first-review-guide-technical-identifiers-disclosure-url");
+    const {
+      itsmOAuthCallbackSupportDetailsDisclosureHrefFromSearch,
+      parseItsmOAuthCallbackSupportDetailsOpenFromSearch,
+    } = await import("@/lib/integrations/itsm-oauth-callback-support-details-disclosure-url");
+    const {
+      askReviewAnchorsDisclosureHrefFromSearch,
+      parseAskReviewAnchorsOpenFromSearch,
+    } = await import("@/lib/insights/ask-review-anchors-disclosure-url");
+    const {
+      graphNodeTechnicalAppendixDisclosureHrefFromSearch,
+      parseGraphNodeTechnicalAppendixOpenFromSearch,
+    } = await import("@/lib/insights/graph-node-technical-appendix-disclosure-url");
+    const {
+      operatorConnectivityTechnicalDetailsDisclosureHrefFromSearch,
+      parseOperatorConnectivityTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/operator/operator-connectivity-technical-details-disclosure-url");
+
+    expect(parseHelpConfigurationReferenceCatalogOpenFromSearch("1")).toBe(true);
+    expect(helpConfigurationReferenceCatalogDisclosureHrefFromSearch("", true, "/help/configuration-reference")).toBe(
+      "/help/configuration-reference?helpConfigurationReferenceCatalogOpen=1",
+    );
+    expect(parseHelpTroubleshootingAdvancedDiagnosticsOpenFromSearch("true")).toBe(true);
+    expect(helpTroubleshootingAdvancedDiagnosticsDisclosureHrefFromSearch("", true, "/help/troubleshooting")).toBe(
+      "/help/troubleshooting?helpTroubleshootingAdvancedDiagnosticsOpen=1",
+    );
+    expect(parseHelpPathChooserReferenceAppendixOpenFromSearch("1")).toBe(true);
+    expect(helpPathChooserReferenceAppendixDisclosureHrefFromSearch("", true, "/help/path-chooser")).toBe(
+      "/help/path-chooser?helpPathChooserReferenceAppendixOpen=1",
+    );
+    expect(parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch("true")).toBe(true);
+    expect(
+      governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch("", true, "/governance/approval-queue"),
+    ).toBe("/governance/approval-queue?governanceWorkflowEnvironmentReleasesOpen=1");
+    expect(parseStandardsRulesApprovalRecordDetailsOpenFromSearch("1")).toBe(true);
+    expect(
+      standardsRulesApprovalRecordDetailsDisclosureHrefFromSearch("", true, "/governance/standards-and-rules"),
+    ).toBe("/governance/standards-and-rules?standardsRulesApprovalRecordDetailsOpen=1");
+    expect(parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch("true")).toBe(true);
+    expect(
+      firstReviewGuideTechnicalIdentifiersDisclosureHrefFromSearch("", true, "/architecture/first-review-guide"),
+    ).toBe("/architecture/first-review-guide?firstReviewGuideTechnicalIdentifiersOpen=1");
+    expect(parseItsmOAuthCallbackSupportDetailsOpenFromSearch("1")).toBe(true);
+    expect(
+      itsmOAuthCallbackSupportDetailsDisclosureHrefFromSearch(
+        "",
+        true,
+        "/integrations/itsm/oauth/callback",
+      ),
+    ).toBe("/integrations/itsm/oauth/callback?itsmOAuthCallbackSupportDetailsOpen=1");
+    expect(parseAskReviewAnchorsOpenFromSearch("true")).toBe(true);
+    expect(askReviewAnchorsDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askReviewAnchorsOpen=1",
+    );
+    expect(parseGraphNodeTechnicalAppendixOpenFromSearch("1")).toBe(true);
+    expect(graphNodeTechnicalAppendixDisclosureHrefFromSearch("", true, "/insights/evidence-graph/run-1")).toBe(
+      "/insights/evidence-graph/run-1?graphNodeTechnicalAppendixOpen=1",
+    );
+    expect(parseOperatorConnectivityTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(operatorConnectivityTechnicalDetailsDisclosureHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?operatorConnectivityTechnicalDetailsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
