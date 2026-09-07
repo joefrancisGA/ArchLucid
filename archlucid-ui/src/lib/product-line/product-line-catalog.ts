@@ -17,12 +17,17 @@ import type { ProductLineAssignment } from "@/lib/product-line/product-line-assi
  * Edit this file for committed defaults, or `/internal/product-line` for a browser-only overlay
  * (localStorage). Dual local start: Architecture :3000 + Security :3001 via `start-local-api-and-ui.ps1`.
  *
- * Security product spine: the `operate-infrastructure` group (`/governance/infrastructure/*`)
- * plus inventory intake (cloud connections / extract-upload) and OpSec factory pages that
- * already sit under Approval nav.
+ * Security product spine: the `operate-infrastructure` group (`/governance/infrastructure/*`),
+ * ARC-AMPE compliance posture under `operate-policy` and related Approval rows, inventory intake
+ * (cloud connections / extract-upload), and OpSec factory pages that already sit under Approval nav.
  */
 export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
   "/": "both",
+
+  // Compliance posture — ARC-AMPE pack assignment, effective rules, and cloud-evidence findings.
+  "/governance/policy-packs": "both",
+  "/governance/standards-and-rules": "both",
+  "/governance/findings": "both",
 
   // Infrastructure evidence workbenches (operate-infrastructure).
   "/governance/infrastructure": "both",
@@ -94,6 +99,9 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/governance/audit-evidence",
   "/governance/remediation-patterns",
   "/governance/remediation-factory",
+  "/governance/findings",
+  "/governance/policy-packs",
+  "/governance/standards-and-rules",
   "/integrations/cloud-connections",
   "/integrations/jira",
   "/integrations/azure-boards",
