@@ -7028,11 +7028,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — `ConflictFindingPattern` required singular `constraint` so plural conflict wording missed falsifiability
+- **last-bug:** 2026-09-07 — conflict falsifiability missed determiner phrasing; hyphenated tokens under-penalized duplication
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -7041,10 +7041,14 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 ### Hypotheses
 
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — plural `violates constraints` missed falsifiability and architecture-anchor routing — **hit 2026-09-07 hunt #1184 (seed→hit):** regex required singular `constraint`; insight-density gate skipped falsifiability bonus and under-specified/conflict anchor path for common plural phrasing; fixed with `violates? constraints?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `violates the constraint` with determiner between verb and noun may still miss falsifiability
-- [ ] (candidate) `InsightDensityTextSimilarity` — hyphenated resource tokens split into sub-3-char fragments and under-penalize near-duplicate findings
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `violates the constraint(s)` with determiner between verb and noun missed falsifiability — **hit 2026-09-07 hunt #1276:** regex required adjacent `violates constraint`; LLM conflict titles with `the`/`a`/`an` skipped `HasFalsifiabilitySignal` and falsifiability bonus; fixed with optional determiner group `(?:the |a |an )?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — hyphenated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-07 hunt #1276:** `prod-sql-db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `-`; regression in `Jaccard_similarity_treats_hyphenated_resource_tokens_as_space_separated_peers`
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — past-tense `violated the constraint` may still miss falsifiability
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — slash-separated ARM path segments may under-penalize near-duplicate findings when one message uses compact resource ids
 
 2026-09-07 seed hunt #1184 (hit): seeded zone from split catalog; proved plural constraint conflict wording missed falsifiability signal.
+
+2026-09-07 thorough hunt #1276 (hit): proved determiner-gap conflict phrasing and hyphenated-token duplication parity; 1673 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 ---
 ## Zone: core-requests-constraints

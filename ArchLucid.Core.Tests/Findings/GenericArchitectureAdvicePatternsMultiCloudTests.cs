@@ -14530,6 +14530,8 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [Theory]
     [InlineData("violates constraint on egress")]
     [InlineData("violates constraints on egress")]
+    [InlineData("violates the constraint on egress")]
+    [InlineData("violates the constraints on egress")]
     [InlineData("conflict with retention policy")]
     [InlineData("conflicts with retention policy")]
     public void HasFalsifiabilitySignal_recognizes_conflict_wording_variants(string message)
