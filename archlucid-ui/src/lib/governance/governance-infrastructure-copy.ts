@@ -121,6 +121,28 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot"
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureRemediation;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID = "infra-remediation-primary-content" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL = "Skip to remediation factory" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD =
+  "Track remediation instances and waves with advisory-only execute honesty — preflight, approve, execute, and verify against inventory snapshots." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE =
+  "Execute emits advisory guidance only — not original Terraform and must not be applied without human review and approval." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SCOPE_LABEL = "Scoped to resource" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_SCOPE_LABEL = "Linked from finding" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_LOAD_ERROR_TITLE = "Remediation factory unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_ID_LABEL = "Operational finding id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SNAPSHOT_LABEL = "Inventory snapshot" as const;
+
 export type InfrastructureWorkbenchRow = {
   readonly href: string;
   readonly label: string;

@@ -5,6 +5,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
@@ -76,6 +77,33 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES_INTRO =
   "Use these surfaces when buyers need inventory context, diagram exports, or remediation follow-up beyond correspondence rows.";
 
 /** Operator Sources for diagram reconciliation (GDI). */
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift context, diagram reconciliation, or grounded Ask beyond remediation instances.";
+
+/** Operator Sources for remediation factory (GRE). */
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope remediation to one cloud resource",
+  },
+  {
+    label: "Diagram reconciliation",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    when: "Return to the conflict row that created an operational finding",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots before approving execute on an instance",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same finding or instance scope",
+  },
+] as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
   "Use these surfaces when buyers need inventory diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
 
