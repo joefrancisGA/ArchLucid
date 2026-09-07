@@ -7,6 +7,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -273,17 +274,59 @@ public sealed class PremiumInsightFindingGeneratorTests
         };
     }
 
+    [Fact]
+    public async Task GenerateAsync_when_prefer_high_novelty_disabled_omits_novelty_prompt_lines()
+    {
+        GraphSnapshot graph = CreatePaymentsGraph();
+        CapturingCompletionClient capturingClient = new("""{"findings":[]}""");
+
+        PremiumInsightFindingGenerator generator = CreateGenerator(
+            capturingClient,
+            executionMode: DevAgentExecutionModeHeaderNames.Real,
+            enableInsightGenerator: true,
+            preferHighNoveltyEngines: false,
+            insightSignalRepository: new StubNoveltyRateRepository([("dangling-declaration-reference", 0.8)]));
+
+        await generator.GenerateAsync([], graph, null, CancellationToken.None);
+
+        capturingClient.LastUserPrompt.Should().NotBeNull();
+        capturingClient.LastUserPrompt!.Should().NotContain("Tenant novelty rates");
+    }
+
+    [Fact]
+    public async Task GenerateAsync_when_prefer_high_novelty_enabled_includes_novelty_prompt_lines()
+    {
+        GraphSnapshot graph = CreatePaymentsGraph();
+        CapturingCompletionClient capturingClient = new("""{"findings":[]}""");
+
+        PremiumInsightFindingGenerator generator = CreateGenerator(
+            capturingClient,
+            executionMode: DevAgentExecutionModeHeaderNames.Real,
+            enableInsightGenerator: true,
+            preferHighNoveltyEngines: true,
+            insightSignalRepository: new StubNoveltyRateRepository([("dangling-declaration-reference", 0.8)]));
+
+        await generator.GenerateAsync([], graph, null, CancellationToken.None);
+
+        capturingClient.LastUserPrompt.Should().Contain("Tenant novelty rates");
+        capturingClient.LastUserPrompt.Should().Contain("dangling-declaration-reference: 0.800");
+    }
+
     private static PremiumInsightFindingGenerator CreateGenerator(
         IAgentCompletionClient completionClient,
         string executionMode,
         bool enableInsightGenerator,
         bool enableCommunitySummarization = false,
-        IGraphCommunitySummaryLookup? communitySummaryLookup = null)
+        IGraphCommunitySummaryLookup? communitySummaryLookup = null,
+        bool preferHighNoveltyEngines = false,
+        IFindingInsightSignalRepository? insightSignalRepository = null,
+        IScopeContextProvider? scopeContextProvider = null)
     {
         StubAgentTierCompletionRouter router = new(completionClient);
         StubExecutionModeAccessor modeAccessor = new(executionMode);
-        StubGateOptionsResolver optionsResolver = new(enableInsightGenerator);
+        StubGateOptionsResolver optionsResolver = new(enableInsightGenerator, preferHighNoveltyEngines);
         IGraphCommunitySummaryLookup lookup = communitySummaryLookup ?? new StubCommunitySummaryLookup([]);
+        IScopeContextProvider scope = scopeContextProvider ?? new StubScopeContextProvider();
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { ["Llm:Deployments:Reasoning"] = "reasoning-deploy" })
@@ -304,7 +347,10 @@ public sealed class PremiumInsightFindingGeneratorTests
             lookup,
             new StubAdvancedRetrievalOptionsMonitor(retrievalOptions),
             configuration,
-            NullLogger<PremiumInsightFindingGenerator>.Instance);
+            NullLogger<PremiumInsightFindingGenerator>.Instance,
+            insightSignalRepository,
+            scope,
+            TimeProvider.System);
     }
 
     private sealed class StubTierOptionsMonitor(AgentModelTierOptions value) : IOptionsMonitor<AgentModelTierOptions>
@@ -334,13 +380,59 @@ public sealed class PremiumInsightFindingGeneratorTests
         public string GetEffectiveMode() => mode;
     }
 
-    private sealed class StubGateOptionsResolver(bool enableInsightGenerator) : IInsightDensityGateOptionsResolver
+    private sealed class StubGateOptionsResolver(bool enableInsightGenerator, bool preferHighNoveltyEngines = false)
+        : IInsightDensityGateOptionsResolver
     {
         public InsightDensityGateOptions Resolve(CancellationToken cancellationToken = default) => new()
         {
             EnableInsightGenerator = enableInsightGenerator,
+            PreferHighNoveltyEngines = preferHighNoveltyEngines,
             MaxGeneratedInsightFindingsPerSnapshot = 8,
         };
+    }
+
+    private sealed class StubScopeContextProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+    }
+
+    private sealed class StubNoveltyRateRepository(IReadOnlyList<(string EngineType, double Rate)> rows)
+        : IFindingInsightSignalRepository
+    {
+        public Task<FindingInsightSignalInsertResult> TryInsertAsync(
+            FindingInsightSignalSubmission submission,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<FindingInsightSignalKind>> ListKindsForUserAsync(
+            Guid tenantId,
+            Guid runId,
+            string findingId,
+            string userId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<EngineInsightNoveltyRateRow>> ListNoveltyRatesAsync(
+            ScopeContext scope,
+            DateTime fromUtc,
+            DateTime toUtcExclusive,
+            CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<EngineInsightNoveltyRateRow> result = rows
+                .Select(row => new EngineInsightNoveltyRateRow
+                {
+                    EngineType = row.EngineType,
+                    Rate = row.Rate,
+                })
+                .ToList();
+
+            return Task.FromResult(result);
+        }
     }
 
     private sealed class StubAdvancedRetrievalOptionsMonitor(AdvancedRetrievalOptions value)

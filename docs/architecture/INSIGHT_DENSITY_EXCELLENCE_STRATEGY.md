@@ -1,10 +1,10 @@
 > **Scope:** Internal engineering strategy for raising **Decision-Changing Insight Density** (assessment pillar 1, weight 13). Not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Pillar definition:** [`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) · **Gate behavior:** [`adrs/0070-insight-density-controls-typed-engines.md`](adrs/0070-insight-density-controls-typed-engines.md) · **Miss clause:** [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)
-> **Related prompts (shipped / ready):** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) (**DX-01–DX-16 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-17–DX-28 shipped** — do not re-run; DX-18/DX-19 held) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35 shipped** — do not re-run) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) · [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md)
+> **Related prompts (shipped / ready):** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) (**DX-01–DX-16 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-17–DX-28 shipped** — do not re-run; DX-18/DX-19 held) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41** — run these) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) · [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md)
 
 # Insight density — excellence strategy
 
-**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-28 shipped** (DX-18/DX-19 held). Next batches: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (one DX prompt per chat).
+**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-35 shipped** (2026-09-07) except **DX-18**/**DX-19** (held). Next batches: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (one DX prompt per chat).
 
 ## Executive summary
 
@@ -23,7 +23,7 @@ From [`ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md)
 | Pillar clause | Current mechanisms | Gap |
 |---------------|-------------------|-----|
 | **Miss** | ID-05/06/07 (open commitment, portfolio recurrence, premise conflict); partial via inventory/declaration when intake is complete | Most reviews never hit actor-dependent or inventory engines; no generative agent that may create findings |
-| **Dismiss** | Gate, Critic pruner, LLM judge (default off) | Category protection + loose evidence refs prevent demotion on engine rows |
+| **Dismiss** | Gate, Critic pruner, LLM judge (default off) | Resolvable package evidence prevents demotion; generic engine rows can still demote when evidence refs are absent |
 | **Operationalize** | Governance queue, ITSM export | Not density-gated; checklist rows can still clutter the desk |
 | **Package** | ADR 0070 classification, sealed snapshot | Policy packs change compliance; declaration moat still CIS-heavy (PP-01 remainder) |
 
@@ -38,7 +38,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 | Component | Role | Limit |
 |-----------|------|-------|
 | `DeterministicInsightDensityGate` | Penalties: generic (−35), no evidence (−25), no anchor (−15), duplication (−15/−30); demotion when score &lt; 50 and predicates fail | Does not create findings |
-| `InsightDensityAgentCategoryRules` | Category-protected categories skip demotion | Most engine categories (Security, Topology, Compliance, …) never demote |
+| `InsightDensityAgentCategoryRules` | Legacy helper; `IsDemotionEligibleCategory` always **true** and unused by gate | All categories demote when predicate fires; evidence refs block demotion |
 | `GenericArchitectureAdvicePatterns` | Phrase deny-list + anchor/evidence heuristics | `*UnderSpecified` titles score as architecture-specific; loose evidence fallback |
 | `CriticFindingObviousnessPruner` | Downgrades obvious Critic advice to Advisory | Does not remove; named-service generic advice can stay PolicyViolation |
 | `PremiumInsightDensityLlmJudge` | So What loop; **not to generate new findings** | `EnableLlmJudge` / `EnableLlmJudgeForEngineFindings` default **false**; cap 12/snapshot |
@@ -47,14 +47,14 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Component | Information source | Notes |
 |-----------|-------------------|-------|
-| 39 registered finding engines | Graph, declarations, inventory (when run), governance trail | Golden harness runs **16**; **24** product engines absent from distribution table |
+| 39 registered finding engines | Graph, declarations, inventory (when run), governance trail | Golden harness registers **38**; **28** product engines absent from distribution table on current corpus slice |
 | `OpenCommitmentFindingEngine` | Governance trail (effectful) | Shipped ID-05 |
 | `PortfolioRecurrenceFindingEngine` | Cross-run SQL (effectful) | Default **off** |
 | `DeclarationPremiseConflictFindingEngine` | Declaration vs baseline intent | Policy-gated via `DeclarationSignalPolicyKeyMap` |
 
 ### Production gate (ADR 0070)
 
-- Typed-engine findings use the **same demotion predicate** as agent findings (`score < DemotionThreshold && !anchor && !concrete evidence`, then category-protected undo).
+- Typed-engine findings use the **same demotion predicate** as agent findings: `(score < DemotionThreshold || genericWithoutEvidence || falsifiableWithoutEvidence) && !hasConcreteEvidence` (see `DeterministicInsightDensityGate`).
 - Rows **remain on the package** as `ChecklistCoverage` when demoted — not deleted.
 - Assessment text that cites `typed-engine-protected` Promote bypass at `DeterministicInsightDensityGate.cs:87` is **stale** post–ADR 0070; telemetry is now `typed-engine-scored`.
 
@@ -62,7 +62,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Instrument | Location | Limit |
 |------------|----------|-------|
-| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 16-engine golden slice; medians mostly 100 |
+| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 38-engine golden harness; medians mostly 60–100 on current slice |
 | Frontier delta | [`../quality/insight-density-frontier-delta.md`](../quality/insight-density-frontier-delta.md) | Three hand-authored scenarios — regression only, not moat proof |
 | Measurement floor UI | `InsightDensityMeasurementFloorPresenter`, SPA strips | Honesty; does not raise numerator |
 
@@ -70,9 +70,9 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 ## Why the gate cannot reach “excellent” alone
 
-### 1. Demotion is a triple-AND plus category veto
+### 1. Demotion is evidence-gated, not category-vetoed (DX-01)
 
-Demotion requires score &lt; 50 **and** no architecture anchor **and** no concrete evidence **and** demotion-eligible category (`Insight`, `General`, `Critic`, empty). Engine rows in Security, Topology, Compliance, Requirement, Cost are **category-protected**.
+Demotion fires when `(score < DemotionThreshold || genericAdviceWithoutEvidence || falsifiableWithoutEvidence) && !hasConcreteEvidence`. **Superseded 2026-09-07:** the pre–DX-01 triple-AND plus category veto (`Security` / `Topology` / `Compliance` protected) no longer applies — `IsDemotionEligibleCategory` always returns true and is unused. Architecture-specific anchors affect score penalties but **do not** alone prevent demotion without resolvable evidence refs.
 
 ### 2. “Concrete evidence” is nearly any ref
 
@@ -219,8 +219,9 @@ Replace synthetic [`insight-density-frontier-delta.md`](../quality/insight-densi
 | 8 | Community Graph-RAG + TB-885 ledger + ADR 0062 verification | Sustained excellence |
 | 9 | **DX-21–DX-28** (judge-cap priority, checklist synthesis, novelty rate, dangling refs, SKU/tier, counterfactual line, nested ingest, path-engine goldens) | Mixed — shipped; see DX-21 file |
 | 10 | **DX-29–DX-35** (golden depth, ingest slices 2–3, data-flow × trust-boundary, three-way pack contradiction, preferred-engine catch-up, optional novelty-rate sort) | **Shipped** (2026-09-07) — see DX-29 file |
+| 11 | **DX-36–DX-41** (harness data-flow/three-way, ARM templateLink, novelty→InsightGenerator, pack-gated graph/inventory security, inventory goldens, docs honesty) | Mixed — see DX-36 file |
 
-Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 are the product. Items 7–8 prove and sustain excellence. Item 9 shipped after DX-01–DX-16. Item 10 is the Cursor-ready follow-on after DX-21–DX-28.
+Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 are the product. Items 7–8 prove and sustain excellence. Item 9 shipped after DX-01–DX-16. Item 10 shipped after DX-21–DX-28. Item 11 is the Cursor-ready follow-on after DX-29–DX-35.
 
 ---
 
@@ -242,6 +243,7 @@ Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 ar
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) | **DX-01–DX-16** shipped — do not re-run |
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) | **DX-17–DX-28** shipped; **DX-18**/**DX-19** held |
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) | **DX-29–DX-35** shipped (2026-09-07) — do not re-run |
+| [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) | **DX-36–DX-41** Cursor-implementable batches (run these) |
 | [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) | Shipped ID-01–07; subtractive + first generative batch |
 | [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) | Shipped ID-08–10; ID-11 honesty |
 | [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) | PP-01 ready |

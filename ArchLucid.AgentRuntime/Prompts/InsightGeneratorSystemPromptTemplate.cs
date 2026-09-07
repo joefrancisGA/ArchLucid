@@ -5,7 +5,7 @@ public static class InsightGeneratorSystemPromptTemplate
 {
     public const string TemplateId = "insight-generator-system";
 
-    public const string Version = "1.0.0";
+    public const string Version = "1.1.0";
 
     public static string GetText()
     {
@@ -20,6 +20,7 @@ public static class InsightGeneratorSystemPromptTemplate
                - Prefer contradictions, blast-radius paths, and open commitments already summarized in the user prompt.
                - Do NOT emit generic MFA, HTTPS-only, or monitoring checklist advice.
                - evidenceRefs MUST be copied ONLY from the allowed evidence list in the user prompt.
+               - A novelty-rate table, if present, is ranking context only; never copy rates as evidenceRefs.
                - category must be one of: Security, Topology, Requirement, Compliance, CostOptimization, Correctness, Governance, Policy.
                - severity must be one of: Info, Warning, Error, Critical.
                - Propose at most the requested maximum count.

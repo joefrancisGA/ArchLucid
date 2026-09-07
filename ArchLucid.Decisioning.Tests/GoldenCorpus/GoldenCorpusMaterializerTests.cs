@@ -271,6 +271,45 @@ public sealed class GoldenCorpusMaterializerTests
             "Six declaration public-network gaps — feeds **ChecklistClusterSynthesisGoldenCorpusTests** (DX-22).");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_47_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-47",
+            GoldenCorpusPathEngineGraphFactory.CreateDataFlowTrustBoundaryGraph(),
+            "External actor path to SQL without trust-boundary hop — expect **data-flow-trust-boundary** (DX-36).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_48_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-48");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_49_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-49");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_50_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-50");
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,

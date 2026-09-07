@@ -39,6 +39,37 @@ function shapeNavLinksForProductLine(
   return [SECURITY_INFRASTRUCTURE_HOME_LINK, ...workbenchLinks];
 }
 
+/**
+ * SecureNow keeps one Administration cluster — vendor Internal destinations append after tenant admin links.
+ */
+export function mergeInternalNavUnderAdministration(
+  rows: readonly ProductLineNavGroupRow[],
+): ProductLineNavGroupRow[] {
+  const adminIndex = rows.findIndex((row) => row.group.id === "operator-admin");
+  const internalIndex = rows.findIndex((row) => row.group.id === "operator-system-admin");
+
+  if (adminIndex < 0 || internalIndex < 0) {
+    return [...rows];
+  }
+
+  const adminRow = rows[adminIndex];
+  const internalRow = rows[internalIndex];
+  const adminHrefs = new Set(adminRow.visibleLinks.map((link) => link.href));
+  const mergedLinks = [
+    ...adminRow.visibleLinks,
+    ...internalRow.visibleLinks.filter((link) => !adminHrefs.has(link.href)),
+  ];
+
+  const mergedAdminRow: ProductLineNavGroupRow = {
+    group: adminRow.group,
+    visibleLinks: mergedLinks,
+  };
+
+  return rows
+    .filter((row) => row.group.id !== "operator-system-admin")
+    .map((row) => (row.group.id === "operator-admin" ? mergedAdminRow : row));
+}
+
 function reorderNavGroupsForProductLine(
   rows: readonly ProductLineNavGroupRow[],
   productLine: ProductLineId,
@@ -87,7 +118,13 @@ export function filterNavGroupsForProductLine(
       visibleLinks: shapeNavLinksForProductLine(row.group, row.visibleLinks, productLine),
     }));
 
-  return reorderNavGroupsForProductLine(filtered, productLine);
+  const reordered = reorderNavGroupsForProductLine(filtered, productLine);
+
+  if (productLine === "security") {
+    return mergeInternalNavUnderAdministration(reordered);
+  }
+
+  return reordered;
 }
 
 export function productLineSkipsReviewLifecycleNavShaping(productLine: ProductLineId): boolean {

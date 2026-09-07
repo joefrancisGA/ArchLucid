@@ -175,7 +175,8 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.sentence).toContain("reasoned no");
     expect(next.sentence).not.toContain("finalize");
     expect(next.actionLabel).toBe("Export decision receipt");
-    expect(next.href).toContain("reviewTab=artifacts");
+    expect(next.href).toContain("reviewTab=evidence");
+    expect(next.href).toContain("artifacts-exports");
   });
 
   it("routes post-finalize blockers to findings review", () => {
