@@ -3,6 +3,7 @@ import type { ErrorRecoveryContractGuardedSurface } from "@/lib/error-recovery-c
 /**
  * Grandfathered eval-chrome call sites still using `isBuyerPolishedOperatorShellEnv()` directly.
  * WA-01: remove paths as they migrate to `useProductionEvalChrome` / `resolveProductionEvalChrome`.
+ * WS-04 shrink-only priority list: docs/architecture/WORKING_SEAT_EVAL_LEAK_INVENTORY.md
  * New production operator files must not call buyer-polish for eval chrome without going through the resolver.
  */
 export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
