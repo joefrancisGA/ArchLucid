@@ -218,8 +218,10 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new DrRpoTopologyFindingEngine(),
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
+            new DanglingDeclarationReferenceFindingEngine(),
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
+            new RequirementSkuTierFindingEngine(),
         ];
     }
 

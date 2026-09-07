@@ -1,0 +1,92 @@
+[
+  {
+    "findingId": "3c091d0d-af9d-df03-ba50-7ab68d8ad454",
+    "findingType": "DanglingDeclarationReferenceFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Resource \u0027checkout-func\u0027 references Key Vault URI \u0027KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection\u0027 that is not declared in this package",
+    "rationale": "Property \u0027appSettings\u0027 on \u0027checkout-func\u0027 references \u0027KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection\u0027, which is not present in this review package graph.",
+    "relatedNodeIds": [
+      "func-checkout"
+    ],
+    "payloadType": "DanglingDeclarationReferenceFindingPayload",
+    "rulesApplied": [
+      "dangling-declaration-reference"
+    ],
+    "decisionsTaken": [
+      "Referenced token is not resolvable to any node id, label, or resource id on this snapshot."
+    ]
+  },
+  {
+    "findingId": "b5c2bdef-57b8-6828-6b29-6b40a2f6f980",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "func-checkout"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "e004351e-4e71-3cb2-057a-0b8af5796e4b",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "func-checkout"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "688e08d6-0f6d-d944-9aeb-98a57edef6b2",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "checkout-func"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "764a6ba6-ce88-3fe9-1002-0ae45837b4c2",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "func-checkout"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

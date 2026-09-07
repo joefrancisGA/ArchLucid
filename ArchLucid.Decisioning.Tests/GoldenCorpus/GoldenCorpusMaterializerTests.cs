@@ -199,6 +199,30 @@ public sealed class GoldenCorpusMaterializerTests
             "Requirement RPO 15 min with SQL lacking replica/failover — expect **dr-rpo-topology**.");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_41_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-41",
+            GoldenCorpusDxEngineGraphFactory.CreateDanglingDeclarationReferenceGraph(),
+            "Function appSettings Key Vault URI with no vault node — expect **dangling-declaration-reference**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_42_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-42",
+            GoldenCorpusDxEngineGraphFactory.CreateRequirementSkuTierGraph(),
+            "Zone-redundant requirement with Standard_LRS SQL SKU — expect **requirement-sku-tier**.");
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,
