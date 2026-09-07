@@ -1,6 +1,5 @@
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /** Page chrome for `/architectures` — object-oriented architecture draft inventory. */
 export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
@@ -15,9 +14,9 @@ export function architecturesHubPageSubtitle(buyerPolishedShell: boolean): strin
   return buyerPolishedShell ? ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER : ARCHITECTURES_HUB_PAGE_SUBTITLE;
 }
 
-export const ARCHITECTURES_HUB_BREADCRUMB_PARENT_LABEL = OPERATOR_NAV_GROUP_LABELS.reviewWork;
+export const ARCHITECTURES_HUB_BREADCRUMB_PARENT_LABEL = OPERATOR_NAV_LINK_LABELS.home;
 
-export const ARCHITECTURES_HUB_BREADCRUMB_PARENT_HREF = REVIEWS_LIST_PATH;
+export const ARCHITECTURES_HUB_BREADCRUMB_PARENT_HREF = "/" as const;
 
 export const ARCHITECTURES_HUB_CLAIM_HEADING = "Draft inventory only";
 
