@@ -10627,6 +10627,18 @@
         },
         "type": "object"
       },
+      "CreateFindingVerificationReportRequest": {
+        "properties": {
+          "verificationFindingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CreateGovernanceActivationRequest": {
         "properties": {
           "environment": {
@@ -15863,6 +15875,78 @@
         "type": "object"
       },
       "FindingTreatment": {},
+      "FindingVerificationReportResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reportHash": {
+            "type": "string"
+          },
+          "reportId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/FindingVerificationResultResponse"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceManifestHash": {
+            "type": "string"
+          },
+          "verificationFindingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "createdUtc",
+          "reportHash",
+          "reportId",
+          "results",
+          "runId",
+          "sourceManifestHash"
+        ],
+        "type": "object"
+      },
+      "FindingVerificationResultResponse": {
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FindingVerificationStatus"
+          },
+          "traceText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "findingId",
+          "status",
+          "traceText"
+        ],
+        "type": "object"
+      },
+      "FindingVerificationStatus": {
+        "enum": [
+          "Materialized",
+          "Mitigated",
+          "NotObserved",
+          "NotVerifiable"
+        ],
+        "type": "string"
+      },
       "FindingsSnapshot": {
         "properties": {
           "checklistCoverage": {
@@ -44756,6 +44840,9 @@
     },
     {
       "name": "FindingRemediationAssignment"
+    },
+    {
+      "name": "FindingVerification"
     },
     {
       "name": "GcpTier2Connection"
