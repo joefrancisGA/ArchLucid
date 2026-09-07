@@ -36,8 +36,8 @@ public static class CustomerContentPromptDelimiters
 
         // Break the contiguous marker tokens (a suffix like "_LITERAL" would still contain the marker as a prefix).
         return value
-            .Replace(BeginMarker, "CUSTOMER_CONTENT_" + MarkerBreak + "BEGIN", StringComparison.Ordinal)
-            .Replace(EndMarker, "CUSTOMER_CONTENT_" + MarkerBreak + "END", StringComparison.Ordinal);
+            .Replace(BeginMarker, "CUSTOMER_CONTENT_" + MarkerBreak + "BEGIN", StringComparison.OrdinalIgnoreCase)
+            .Replace(EndMarker, "CUSTOMER_CONTENT_" + MarkerBreak + "END", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Appends framing + begin/end around a content block written by <paramref name="writeContent" />.</summary>

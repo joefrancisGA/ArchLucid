@@ -1678,11 +1678,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — case-variant untrusted_input tags bypass delimiter neutralization
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1694,6 +1694,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `StreamJsonAsync` yielded completion chunks before output content-safety scan — blocked output could reach streaming callers; fixed by buffering until `CheckOutputAsync` passes.
 - [x] (proven) Sanitizer wrapped only `evidence.Request` while `AgentUserPromptComposer` reads live `ArchitectureRequest` fields — untrusted-input wrapping bypassed for description/constraints; fixed by sanitizing both objects in `AgentEvidenceUntrustedInputSanitizer`.
 - [x] (proven) `SystemName` and `Environment` reached prompts with delimiter escape only — no `<untrusted_input>` wrap unlike description; fixed by extending sanitizer coverage to package scalars and architecture request identity fields.
+- [x] (proven) Case-variant `<untrusted_input>` / `</untrusted_input>` tags bypass delimiter neutralization — **hit 2026-09-07 (#1224):** `EscapeEmbeddedUntrustedTags` used case-sensitive `Replace`, so uppercase homoglyphs like `</UNTRUSTED_INPUT>` broke out of the outer wrapper; fixed with `OrdinalIgnoreCase` replacement; regressions in `EscapeEmbeddedUntrustedTags_neutralizes_case_variant_close_and_open_tags` and `SanitizeScalar_keeps_case_variant_tag_payload_inside_single_outer_wrapper`; parity hardening on `CustomerContentPromptDelimiters.EscapeEmbeddedMarkers`.
+
+2026-09-07 seed hunt #1224 (hit): proved case-variant untrusted delimiter bypass; hardened customer-content marker escape for ignore-case parity.
 
 ---
 
