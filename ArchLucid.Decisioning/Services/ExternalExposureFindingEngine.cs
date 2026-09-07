@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
@@ -26,7 +27,7 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
 
         foreach (GraphNode actor in actorNodes)
         {
-            if (!IsExternalFacingActor(actor))
+            if (!ActorOriginHeuristics.IsExternalFacingActor(actor))
                 continue;
 
             bool hasBoundary = trustBoundaryNodes.Any(boundary =>
@@ -73,14 +74,5 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
-    }
-
-    private static bool IsExternalFacingActor(GraphNode actor)
-    {
-        if (!actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin))
-            return false;
-
-        return string.Equals(trustOrigin, nameof(TrustOrigin.External), StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trustOrigin, nameof(TrustOrigin.PublicAnonymous), StringComparison.OrdinalIgnoreCase);
     }
 }

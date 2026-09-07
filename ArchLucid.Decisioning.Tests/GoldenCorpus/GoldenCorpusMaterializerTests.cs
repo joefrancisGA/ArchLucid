@@ -259,6 +259,18 @@ public sealed class GoldenCorpusMaterializerTests
             "Requirement RPO 5 min with ledger SQL lacking replica/failover — second **dr-rpo-topology** fixture.");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_46_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-46",
+            GoldenCorpusChecklistClusterGraphFactory.CreateSixHttpsDeclarationClusterGraph(),
+            "Six declaration public-network gaps — feeds **ChecklistClusterSynthesisGoldenCorpusTests** (DX-22).");
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,
