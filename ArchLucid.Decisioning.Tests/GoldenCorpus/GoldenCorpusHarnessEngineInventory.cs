@@ -28,6 +28,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
             ["checklist-cluster-synthesis"] = "Post-gate synthesis — see ChecklistClusterSynthesisGoldenCorpusTests; merge harness does not emit clustered rows without dismiss posture.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
+            ["data-flow-trust-boundary"] = "External actor→datastore path without trust-boundary hop — needs hand-authored path graph (DX-32 unit tests only until golden case).",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

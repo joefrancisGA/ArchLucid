@@ -37,6 +37,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["TrustBoundaryFindingEngine"] = "trust-boundary",
             ["PrivilegedAccessFindingEngine"] = "privileged-access",
             ["IdentityBlastRadiusFindingEngine"] = "identity-blast-radius",
+            ["DataFlowTrustBoundaryFindingEngine"] = "data-flow-trust-boundary",
             ["PolicyApplicabilityFindingEngine"] = "policy-applicability",
             ["PolicyCoverageFindingEngine"] = "policy-coverage",
             ["RequirementCoverageFindingEngine"] = "requirement-coverage",
