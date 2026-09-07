@@ -140,6 +140,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
             realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
             pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
           }}
+          careerArtifactHonesty={{
+            progressSummary: m.progressForPipelineUi,
+            manifestSummary: m.manifestSummaryForUi,
+            graphSnapshot: m.resolvedDetail.graphSnapshot,
+            enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+            isSample: m.usedStaticDemoRun,
+          }}
         />
       ) : null}
 

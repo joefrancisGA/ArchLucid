@@ -57,6 +57,11 @@ describe("career-export-mounted-ui-paths (FC-04 / PC-13)", () => {
       const absolutePath = join(SRC_ROOT, relativePath);
       const contents = readFileSync(absolutePath, "utf8");
 
+      if (relativePath === "lib/sealed-manifest-json-export.ts") {
+        expect(fileUsesCareerArtifactHonesty(contents), relativePath).toBe(true);
+        continue;
+      }
+
       expect(fileUsesCareerExportCoverageHonesty(contents), relativePath).toBe(true);
     }
   });
