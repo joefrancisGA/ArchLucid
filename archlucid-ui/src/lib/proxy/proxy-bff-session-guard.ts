@@ -124,6 +124,14 @@ export function enforceProxyBffSessionGuard(
   }
 
   if (Date.now() >= payload.exp) {
+    if (skipAnonymousMarketingMutationGuard) {
+      return {
+        allowed: true,
+        payload: null,
+        slideCookieHeaders: buildBffSessionClearCookieHeaders(),
+      };
+    }
+
     return {
       allowed: false,
       response: blockedMutationResponse(
@@ -137,6 +145,14 @@ export function enforceProxyBffSessionGuard(
   }
 
   if (isBffSessionIdleExpired(payload)) {
+    if (skipAnonymousMarketingMutationGuard) {
+      return {
+        allowed: true,
+        payload: null,
+        slideCookieHeaders: buildBffSessionClearCookieHeaders(),
+      };
+    }
+
     return {
       allowed: false,
       response: blockedMutationResponse(

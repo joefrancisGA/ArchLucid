@@ -2,6 +2,10 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GET, PATCH, POST } from "./[...path]/route";
+import {
+  BFF_SESSION_COOKIE_NAME,
+  createBffSessionCookieValue,
+} from "@/lib/proxy/bff-session-cookie";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
 describe("proxy route anonymous marketing paths", () => {
@@ -63,6 +67,41 @@ describe("proxy route anonymous marketing paths", () => {
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
     const headers = init.headers as Headers;
     expect(headers.get("authorization")).toBeNull();
+  });
+
+  it("forwards anonymous marketing early-access POST when BFF session cookie is expired", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "anonymous-marketing-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    vi.setSystemTime(new Date("2026-09-07T12:00:00.000Z"));
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/early-access", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "12",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+      },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "early-access"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 
   it("forwards anonymous marketing early-access POST when BFF session is enabled", async () => {
