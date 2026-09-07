@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="FsCheck" />
+    <PackageReference Include="FsCheck.Xunit" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
@@ -46,6 +48,10 @@
       <Link>schemas\integration-events\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ArchLucid.TestSupport\FsCheckV3GlobalUsings.cs" Link="FsCheckV3GlobalUsings.cs" />
   </ItemGroup>
 
   <ItemGroup>

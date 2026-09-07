@@ -20,7 +20,12 @@ BeforeAll {
         param(
             [string] $LedgerPath,
             [string] $Hint,
-            [switch] $Refresh
+            [switch] $Refresh,
+            [string] $RunLogPath,
+            [string] $EscapeLogPath,
+            [string] $AtUtc,
+            [string] $CoverageCobertura,
+            [hashtable] $ExtraArgs
         )
 
         $pickerArgs = @{
@@ -34,6 +39,28 @@ BeforeAll {
 
         if ($Refresh) {
             $pickerArgs.Refresh = $true
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($RunLogPath)) {
+            $pickerArgs.RunLogPath = $RunLogPath
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($EscapeLogPath)) {
+            $pickerArgs.EscapeLogPath = $EscapeLogPath
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($AtUtc)) {
+            $pickerArgs.AtUtc = $AtUtc
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($CoverageCobertura)) {
+            $pickerArgs.CoverageCobertura = $CoverageCobertura
+        }
+
+        if ($null -ne $ExtraArgs) {
+            foreach ($key in $ExtraArgs.Keys) {
+                $pickerArgs[$key] = $ExtraArgs[$key]
+            }
         }
 
         # 5.1 ConvertTo-Json may emit multiple lines; join before ConvertFrom-Json.
@@ -996,5 +1023,165 @@ Describe 'al-bug-pick-zone.ps1' {
         }
 
         { & $script:pickerScript @pickerArgs | Out-Null } | Should -Not -Throw
+    }
+
+    It 'marks defect class saturated after four hits across three files' {
+        [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
+        [string]$runLog = Join-Path $TestDrive 'class-saturation.jsonl'
+        $now = '2026-09-07T12:00:00Z'
+        $lines = @(
+            (@{ at = '2026-09-05T10:00:00Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/A.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-05T11:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/B.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T10:00:00Z'; zoneId = 'zone-a'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/C.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T11:00:00Z'; zoneId = 'zone-b'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/D.cs') } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now
+        @($result.saturatedClasses) | Should -Contain 'boolean-coercion'
+    }
+
+    It 'cools a zone whose only hunt-ready rows are a saturated class' {
+        $content = @"
+# fixture
+
+## Zone: zone-saturated
+
+- **id:** zone-saturated
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Saturated.cs
+- **test-filter:** FullyQualifiedName~SaturatedTests
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-01
+- **last-bug:** 2026-09-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) Another boolean copy [class:boolean-coercion]
+
+## Zone: zone-open
+
+- **id:** zone-open
+- **status:** unseeded
+- **impact:** medium
+- **paths:** ArchLucid.Core/Open.cs
+- **test-filter:** FullyQualifiedName~OpenTests
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) fresh lens
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'cool-class.jsonl'
+        $now = '2026-09-07T12:00:00Z'
+        $lines = @(
+            (@{ at = '2026-09-05T10:00:00Z'; zoneId = 'zone-saturated'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/A.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-05T11:00:00Z'; zoneId = 'zone-saturated'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/B.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T10:00:00Z'; zoneId = 'zone-open'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/C.cs') } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-06T11:00:00Z'; zoneId = 'zone-open'; outcome = 'hit'; defectClass = 'boolean-coercion'; paths = @('ArchLucid.Core/D.cs') } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now
+        $result.zoneId | Should -Be 'zone-open'
+    }
+
+    It 'applies escape penalty when escapes exist in 90d window' {
+        $content = Get-TwoZoneLedger -ZoneAChurn '0' -ZoneBChurn '0' -ZoneAHunts 5 -ZoneABugs 5 -ZoneBHunts 5 -ZoneBBugs 5
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'hunts.jsonl'
+        [string]$escapeLog = Join-Path $TestDrive 'escapes.jsonl'
+        $now = '2026-09-07T12:00:00Z'
+
+        $huntLines = @(
+            (@{ at = '2026-09-01T10:00:00Z'; zoneId = 'zone-a'; outcome = 'hit' } | ConvertTo-Json -Compress)
+            (@{ at = '2026-09-01T11:00:00Z'; zoneId = 'zone-b'; outcome = 'hit' } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $runLog -Value $huntLines -Encoding UTF8
+
+        $escapeLines = @(
+            (@{ at = '2026-09-02T10:00:00Z'; source = 'ci'; zoneId = 'zone-a'; paths = @('ArchLucid.Application/Foo.cs'); ref = 'ci-run'; huntedInPriorDays = 1 } | ConvertTo-Json -Compress)
+        )
+        Set-Content -LiteralPath $escapeLog -Value $escapeLines -Encoding UTF8
+
+        $withEscape = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath $escapeLog -AtUtc $now -Hint 'zone-a'
+        $withoutEscape = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -EscapeLogPath (Join-Path $TestDrive 'empty-escapes.jsonl') -AtUtc $now -Hint 'zone-a'
+
+        $withEscape.escapeCount90d | Should -Be 1
+        ($withEscape.score -lt $withoutEscape.score) | Should -Be $true
+    }
+
+    It 'ranks nominate gaps higher when coverage is zero in provided file' {
+        $content = Get-TwoZoneLedger
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$coverage = Join-Path $TestDrive 'coverage.json'
+        $coverageDoc = @{
+            assemblies = @(
+                @{
+                    classes = @(
+                        @{
+                            filename = 'ArchLucid.Application/AreaA/Foo.cs'
+                            summary  = @{ linecoverage = 0 }
+                        }
+                        @{
+                            filename = 'ArchLucid.Application/AreaB/Bar.cs'
+                            summary  = @{ linecoverage = 100 }
+                        }
+                    )
+                }
+            )
+        } | ConvertTo-Json -Depth 6
+        Set-Content -LiteralPath $coverage -Value $coverageDoc -Encoding UTF8
+
+        $pickerArgs = @{
+            LedgerPath        = $ledger
+            SkipGit           = $true
+            Nominate          = $true
+            NominatePaths     = @('ArchLucid.Application/AreaA/Foo.cs', 'ArchLucid.Application/AreaB/Bar.cs')
+            CoverageCobertura = $coverage
+        }
+
+        [string]$json = @(& $script:pickerScript @pickerArgs) -join "`n"
+        $report = $json | ConvertFrom-Json
+        $report.gaps[0].path | Should -Be 'ArchLucid.Application/AreaA'
+    }
+
+    It 'maps persistence zone paths to stryker mutation score' {
+        $content = @"
+# fixture
+
+## Zone: persistence-zone
+
+- **id:** persistence-zone
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Persistence/Stores/FooStore.cs
+- **test-filter:** FullyQualifiedName~FooStoreTests
+- **hunts:** 1
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-01
+- **last-bug:** 2026-09-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger -Hint 'persistence-zone'
+        $result.mutationScoreMissing | Should -Be $false
+        $result.strykerLabel | Should -Be 'Persistence'
+        $result.mutationScore | Should -Be 70.0
     }
 }

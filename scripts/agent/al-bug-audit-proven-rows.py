@@ -5,51 +5,23 @@ from __future__ import annotations
 
 import argparse
 import random
-import re
+import sys
 from collections import Counter
-from dataclasses import dataclass
 from pathlib import Path
 
+_AGENT_DIR = Path(__file__).resolve().parent
+if str(_AGENT_DIR) not in sys.path:
+    sys.path.insert(0, str(_AGENT_DIR))
+
+from al_bug_ledger import (
+    DEFAULT_LEDGER_PATH,
+    ProvenRow,
+    collect_proven_rows,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-LEDGER_PATH = REPO_ROOT / "docs/library/AL_BUG_HUNT_LEDGER.md"
+LEDGER_PATH = DEFAULT_LEDGER_PATH
 REPORT_PATH = REPO_ROOT / "docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md"
-
-ZONE_HEADER = re.compile(r"^## Zone:\s+(.+)$", re.MULTILINE)
-FIELD_ID = re.compile(r"^\s*-\s+\*\*id:\*\*\s+(.+?)\s*$", re.MULTILINE)
-PROVEN_LINE = re.compile(r"^\s*-\s+\[[xX]\]\s+(\(proven\)\s+)?(.+)$", re.MULTILINE)
-
-
-@dataclass(frozen=True)
-class ProvenRow:
-    zone_id: str
-    text: str
-
-
-def parse_zones(ledger_text: str) -> dict[str, str]:
-    zones: dict[str, str] = {}
-    parts = re.split(r"(?m)^## Zone:", ledger_text)
-    for part in parts:
-        if "**id:**" not in part:
-            continue
-        id_match = FIELD_ID.search(part)
-        if not id_match:
-            continue
-        zones[id_match.group(1).strip()] = part
-    return zones
-
-
-def collect_proven_rows(ledger_text: str) -> list[ProvenRow]:
-    zones = parse_zones(ledger_text)
-    rows: list[ProvenRow] = []
-    for zone_id, body in zones.items():
-        for match in PROVEN_LINE.finditer(body):
-            text = match.group(2).strip()
-            if "(proven)" in match.group(0).lower() or match.group(1):
-                rows.append(ProvenRow(zone_id=zone_id, text=text))
-            elif "(invalid)" not in text.lower() and "(valid-no-repro)" not in text.lower():
-                # Bare [x] counts as proven per ledger rules.
-                rows.append(ProvenRow(zone_id=zone_id, text=text))
-    return rows
 
 
 # Classification keys on the guard *symbol* a row targets rather than on the offending phrase.
