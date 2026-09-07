@@ -355,11 +355,8 @@ def main(argv: list[str] | None = None) -> int:
         client_text = client_path.read_text(encoding="utf-8", errors="replace")
         helper_text = helper_path.read_text(encoding="utf-8", errors="replace")
         _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
-<<<<<<< HEAD
         _require_private_beta_create_run_wiring(spec_text, client_text, errors)
-=======
         _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
->>>>>>> 7f42034139 (Add beta-readiness guards for AO-50, SN-07, and TB-927 wiring)
 
     if not ci_path.is_file():
         errors.append(f"missing {_CI_REL}")
