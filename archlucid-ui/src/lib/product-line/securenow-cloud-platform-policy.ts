@@ -89,6 +89,10 @@ export function secureNowCloudConnectionsSummary(): string {
   return "Connect Azure for read-only evidence collection and connector health checks in SecureNow.";
 }
 
+export function secureNowCloudInventoryEvidenceSummary(): string {
+  return "Connect Azure for read-only cloud inventory evidence collection.";
+}
+
 export function architectureCloudConnectionsSummary(): string {
   return "Connect Azure, AWS, or GCP for read-only evidence collection and connector health checks.";
 }
