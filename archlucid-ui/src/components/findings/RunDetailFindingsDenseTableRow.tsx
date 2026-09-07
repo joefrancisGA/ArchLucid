@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, ReactElement } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
@@ -15,6 +16,8 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,
@@ -35,7 +38,10 @@ export type RunDetailFindingsDenseTableRowProps = {
 
 export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTableRowProps): ReactElement {
   const { runId, finding, showDensityScore, isFocused, style, onOpenRow } = props;
+  const { isWorkingMode } = useWorkspaceMode();
   const href = getFindingDetailHref(runId, finding.findingId);
+  const showDecisionGradeHonesty =
+    isWorkingMode && finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE;
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(runId, finding);
@@ -74,6 +80,14 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         {finding.classification !== null && finding.classification !== undefined ? (
           <div className="mt-1">
             <FindingClassificationChip classification={finding.classification} findingId={finding.findingId} />
+            {showDecisionGradeHonesty ? (
+              <p
+                className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                data-testid={`run-detail-findings-density-honesty-${finding.findingId}`}
+              >
+                {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+              </p>
+            ) : null}
           </div>
         ) : null}
         <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
