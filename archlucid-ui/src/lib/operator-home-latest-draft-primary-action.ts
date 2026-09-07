@@ -2,11 +2,9 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { isArchitectureDraftInReviewIntake } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   architectureDraftPath,
-  reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import {
-  OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
   OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -54,11 +52,7 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
   const linkedReviewId = entry.linkedReviewId?.trim() ?? "";
 
   if (linkedReviewId.length > 0) {
-    return {
-      href: reviewDetailPath(linkedReviewId),
-      ctaLabel: OPERATOR_HOME_YOUR_WORK_CONTINUE_REVIEW_CTA,
-      kind: "continue-review",
-    };
+    return null;
   }
 
   if (entry.serverDraftStatus === "Submitted") {

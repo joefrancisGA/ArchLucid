@@ -22,6 +22,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["RequirementGapFindingEngine"] = "requirement-gap",
             ["RequirementCrossRunDiffFindingEngine"] = "requirement-cross-run-diff",
             ["DrRpoTopologyFindingEngine"] = "dr-rpo-topology",
+            ["RequirementSkuTierFindingEngine"] = "requirement-sku-tier",
             ["TopologyCoverageFindingEngine"] = "topology-coverage",
             ["TopologyStructureFindingEngine"] = "topology-structure",
             ["TopologyCrossRunDiffFindingEngine"] = "topology-cross-run-diff",

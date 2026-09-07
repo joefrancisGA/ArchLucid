@@ -209,6 +209,7 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
         <ArchitectureDraftWorkspaceHeaderChrome {...props} />
         <ArchitectureDraftHandoffPanel
           draftId={draftId}
+          parentArchitectureId={props.parentArchitectureId}
           workspaceHeading={workspaceHeading}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
