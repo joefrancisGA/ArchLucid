@@ -1,0 +1,89 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000043",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000043",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000043-0000-4000-8000-000000000043",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000043",
+    "runId": "20000000-0000-4000-8000-000000000043",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-storage-1",
+        "nodeType": "TopologyResource",
+        "label": "docs-1",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-storage-2",
+        "nodeType": "TopologyResource",
+        "label": "docs-2",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-storage-3",
+        "nodeType": "TopologyResource",
+        "label": "docs-3",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-storage-4",
+        "nodeType": "TopologyResource",
+        "label": "docs-4",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-storage-5",
+        "nodeType": "TopologyResource",
+        "label": "docs-5",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-storage-6",
+        "nodeType": "TopologyResource",
+        "label": "docs-6",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "tf.public_network_access": "enabled"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

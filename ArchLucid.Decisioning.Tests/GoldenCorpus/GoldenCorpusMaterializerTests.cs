@@ -223,6 +223,18 @@ public sealed class GoldenCorpusMaterializerTests
             "Zone-redundant requirement with Standard_LRS SQL SKU — expect **requirement-sku-tier**.");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_43_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-43",
+            GoldenCorpusChecklistClusterGraphFactory.CreateSixHttpsDeclarationClusterGraph(),
+            "Six declaration public-network gaps — feeds **ChecklistClusterSynthesisGoldenCorpusTests** (DX-22).");
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,
