@@ -109,6 +109,25 @@ public sealed class OutboundWebhookDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task ProbeWithBodyAsync_does_not_follow_redirect_to_loopback()
+    {
+        RedirectToLoopbackHandler handler = new(allowAutoRedirect: false);
+        using HttpClient http = new(handler);
+        OutboundWebhookDryRunService service = new(http);
+
+        OutboundWebhookDryRunResult result = await service.ProbeWithBodyAsync(
+            new Uri("https://example.com/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            CancellationToken.None);
+
+        result.TransportSucceeded.Should().BeTrue();
+        result.StatusCode.Should().Be(302);
+        handler.LoopbackHit.Should().BeFalse(
+            "SSRF guard validates the operator URL only; probe must not auto-follow redirects to private targets.");
+    }
+
+    [SkippableFact]
     public async Task ProbeWithBodyAsync_omits_signature_header_when_shared_secret_is_whitespace_only()
     {
         CapturingHandler handler = new();
@@ -225,6 +244,52 @@ public sealed class OutboundWebhookDryRunServiceTests
         public override void SetLength(long value) => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
+
+    /// <summary>Simulates redirect-to-loopback behavior of <see cref="SocketsHttpHandler.AllowAutoRedirect" />.</summary>
+    private sealed class RedirectToLoopbackHandler(bool allowAutoRedirect) : HttpMessageHandler
+    {
+        public bool LoopbackHit
+        {
+            get; private set;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            Uri uri = request.RequestUri!;
+
+            if (string.Equals(uri.Host, "127.0.0.1", StringComparison.Ordinal))
+            {
+                LoopbackHit = true;
+
+                return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                {
+                    Content = new StringContent("loopback")
+                });
+            }
+
+            if (string.Equals(uri.Host, "example.com", StringComparison.OrdinalIgnoreCase))
+            {
+                if (allowAutoRedirect)
+                {
+                    LoopbackHit = true;
+
+                    return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("redirected-to-loopback")
+                    });
+                }
+
+                HttpResponseMessage redirect = new(System.Net.HttpStatusCode.Redirect);
+                redirect.Headers.Location = new Uri("https://127.0.0.1/webhook");
+
+                return Task.FromResult(redirect);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.NotFound));
+        }
     }
 
     private sealed class CapturingHandler : HttpMessageHandler
