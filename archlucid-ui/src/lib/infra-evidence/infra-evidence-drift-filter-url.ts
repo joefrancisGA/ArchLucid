@@ -1,4 +1,10 @@
 import {
+  buildDriftTableFilterPatch,
+  driftTableFilterSearchParams,
+  parseDriftTableFilterState,
+  type DriftTableFilterState,
+} from "@/lib/infra-evidence/infra-evidence-drift-table-filter";
+import {
   buildDriftWorkbenchHref,
   DRIFT_WORKBENCH_CHANGE_ID_PARAM,
   DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM,
@@ -27,7 +33,7 @@ function readDriftWorkbenchParam(
 
 export function driftWorkbenchHrefFromSearch(
   searchParams: URLSearchParams,
-  patch: Partial<InfraEvidenceWorkbenchContext> = {},
+  patch: Partial<InfraEvidenceWorkbenchContext> & { readonly tableFilters?: Partial<DriftTableFilterState> } = {},
 ): string {
   const snapshotId = readDriftWorkbenchParam(searchParams, DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM, patch.snapshotId);
   const cloudResourceId = readDriftWorkbenchParam(searchParams, DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM, patch.cloudResourceId);
@@ -40,8 +46,7 @@ export function driftWorkbenchHrefFromSearch(
     patch.auditEvidenceSnapshotId,
   );
   const controlId = readDriftWorkbenchParam(searchParams, RESOURCE_HUB_CONTROL_ID_PARAM, patch.controlId);
-
-  return buildDriftWorkbenchHref({
+  const baseHref = buildDriftWorkbenchHref({
     snapshotId: snapshotId.length > 0 ? snapshotId : null,
     cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
     changeId: changeId.length > 0 ? changeId : null,
@@ -50,4 +55,16 @@ export function driftWorkbenchHrefFromSearch(
     auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
     controlId: controlId.length > 0 ? controlId : null,
   });
+  const tableFilterState = buildDriftTableFilterPatch(parseDriftTableFilterState(searchParams), patch.tableFilters ?? {});
+  const tableParams = driftTableFilterSearchParams(tableFilterState);
+  const [basePath, baseQuery = ""] = baseHref.split("?");
+  const merged = new URLSearchParams(baseQuery);
+
+  tableParams.forEach((value, key) => {
+    merged.set(key, value);
+  });
+
+  const query = merged.toString();
+
+  return query.length === 0 ? basePath : `${basePath}?${query}`;
 }
