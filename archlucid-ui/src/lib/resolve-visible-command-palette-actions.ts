@@ -12,6 +12,7 @@ import {
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { WORKING_MODE_SECONDARY_REPORTING_HREFS } from "@/lib/workspace-mode/working-mode-nav-filter";
+import { isWorkingPaletteNavigationHrefAllowed } from "@/lib/working-route-roles";
 
 export type VisibleCommandPaletteAction = CommandPaletteHrefAction | CommandPaletteHandlerAction;
 
@@ -30,6 +31,8 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingStartHref?: string;
   /** Sidebar-visible href set — Working palette nav rows must agree (SD-11). */
   readonly visibleNavHrefs?: ReadonlySet<string>;
+  /** Last-open architecture identity for bind-tool palette gates (AO-41). */
+  readonly lastOpenArchitectureId?: string | null;
 };
 
 const GUIDED_FIRST_SESSION_HIDDEN_HREFS = new Set<string>([
@@ -53,6 +56,8 @@ export function resolveVisibleCommandPaletteHrefActions(
     typeof input === "boolean" ? ARCHITECTURES_NEW_PATH : (input.workingStartHref ?? ARCHITECTURES_NEW_PATH);
   const visibleNavHrefs =
     typeof input === "boolean" ? undefined : input.visibleNavHrefs;
+  const lastOpenArchitectureId =
+    typeof input === "boolean" ? null : (input.lastOpenArchitectureId ?? null);
 
   let actions: readonly CommandPaletteHrefAction[] = workingMode
     ? COMMAND_PALETTE_ACTIONS.filter((action) => !WORKING_MODE_HIDDEN_ACTION_IDS.has(action.id)).map((action) =>
@@ -74,6 +79,10 @@ export function resolveVisibleCommandPaletteHrefActions(
   if (workingMode) {
     actions = actions.filter((action) => {
       if (WORKING_MODE_SECONDARY_REPORTING_HREFS.has(action.href)) {
+        return false;
+      }
+
+      if (!isWorkingPaletteNavigationHrefAllowed(action.href, lastOpenArchitectureId)) {
         return false;
       }
 

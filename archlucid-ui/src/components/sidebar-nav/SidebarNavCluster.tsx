@@ -30,6 +30,7 @@ import {
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
 import { resolveWorkingInsightsNavHref } from "@/lib/resolve-working-insights-nav-href";
+import { applyWorkingBindToolNavPresentation } from "@/lib/working-bind-tool-nav";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   parseSidebarNavMoreGroupFromSearch,
@@ -170,19 +171,34 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       : presented.href;
     const presentedWithHref =
       resolvedHref === presented.href ? presented : { ...presented, href: resolvedHref };
+    const presentedForRender = applyWorkingBindToolNavPresentation(
+      presentedWithHref,
+      readCachedLastOpenArchitectureId(),
+      workingMode,
+    );
 
     return (
-      <SidebarNavLink
-        key={presentedWithHref.href}
-        presented={presentedWithHref}
-        active={isNavLinkActive(props.pathname, presentedWithHref.href)}
-        advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedWithHref.href, demoOrBuyer)}
-        buyerPolishedShell={props.buyerPolishedShell}
-        navGroupId={group.id}
-        unlockPhase={props.effectiveOperateUnlockPhase}
-        onNavigate={props.onNavLinkNavigate}
-        afterLabel={sidebarNavLinkAfterLabel(presentedWithHref.href)}
-      />
+      <div key={presentedForRender.href} className="space-y-1">
+        <SidebarNavLink
+          presented={presentedForRender}
+          active={isNavLinkActive(props.pathname, presentedForRender.href)}
+          advancedDemo={isSidebarNavLinkAdvancedInDemo(presentedForRender.href, demoOrBuyer)}
+          buyerPolishedShell={props.buyerPolishedShell}
+          navGroupId={group.id}
+          unlockPhase={props.effectiveOperateUnlockPhase}
+          onNavigate={props.onNavLinkNavigate}
+          afterLabel={sidebarNavLinkAfterLabel(presentedForRender.href)}
+        />
+        {presentedForRender.navLinkDisabledVisibleHint !== undefined
+        && presentedForRender.navLinkDisabledVisibleHint.length > 0 ? (
+          <p
+            className={cn("m-0 px-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={`sidebar-bind-tool-hint-${presentedForRender.href.replace(/[^a-zA-Z0-9]+/g, "-")}`}
+          >
+            {presentedForRender.navLinkDisabledVisibleHint}
+          </p>
+        ) : null}
+      </div>
     );
   }
 

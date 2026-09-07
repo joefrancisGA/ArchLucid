@@ -35,6 +35,8 @@ export type NavLinkItem = {
   navLinkDisabled?: boolean;
   /** Tooltip for disabled nav rows. */
   navLinkDisabledTitle?: string;
+  /** Visible helper copy for disabled nav rows (AO-40 — not title-only). */
+  navLinkDisabledVisibleHint?: string;
 };
 
 /**
