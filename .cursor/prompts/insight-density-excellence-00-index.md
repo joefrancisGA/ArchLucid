@@ -3,12 +3,13 @@
      docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md
      Do not implement from this index. -->
 
-# Insight-density excellence — Composer prompt set (DX-01–DX-28)
+# Insight-density excellence — Composer prompt set (DX-01–DX-35)
 
 Canonical prompts (copy-paste blocks):
 
 - **DX-01–DX-16 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
-- **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-20** pending merge in PR #2002; **DX-18**/**DX-19** held)
+- **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-18**/**DX-19** held)
+- **DX-29–DX-35 (ready to run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -37,7 +38,9 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-15** | Measurement floor skipped engines | After DX-03 | DX-03 |
 | **DX-16** | Starter catalog mapped P0 ids | Yes | none |
 
-**DX-01–DX-16 are on `master` — do not re-run.** **DX-17–DX-28 shipped** (2026-09-07) except **DX-18**/**DX-19** (held) and **DX-20** (PR #2002). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+**DX-01–DX-16 are on `master` — do not re-run.**
+
+**DX-17–DX-28 shipped** (2026-09-07) except **DX-18**/**DX-19** (held). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|
@@ -54,10 +57,22 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-18** | TB-885 compounding ledger | **Held** | Owner unparks TB-885 |
 | **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 |
 
+**Next — run these:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+
+| Prompt | Title | Parallel? | Depends on |
+|--------|-------|-----------|------------|
+| **DX-29** | Golden fixture depth | Yes | DX-24, DX-25, DX-28 shipped |
+| **DX-30** | Helm / Kustomize / `.bicepparam` ingest | Yes | none |
+| **DX-31** | TF modules / OIDC / Front Door / private DNS ingest | Yes | none |
+| **DX-32** | Data-flow vs trust-boundary path | Yes | DX-03, DX-06 shipped |
+| **DX-33** | Three-way pack × declaration × inventory | Yes | DX-04 shipped |
+| **DX-34** | Preferred-engine list catch-up | Yes | DX-21 shipped |
+| **DX-35** | Novelty-rate judge-cap sort (default off) | After DX-34 | DX-21, DX-23 shipped |
+
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
-- Path/contradiction engines DX-06–DX-09 and follow-on DX-22 / DX-24 / DX-25 are authorized; coverage-only “node missing” engines are not.
+- Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not.
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
 - DX-18 (TB-885) and DX-19 (ADR 0062) stay held until the owner unparks those rows.

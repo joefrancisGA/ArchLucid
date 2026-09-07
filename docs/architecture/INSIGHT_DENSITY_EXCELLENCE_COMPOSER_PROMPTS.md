@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-01–DX-16)
 
-**Created:** 2026-09-06 · **Status:** **SHIPPED on `master` (2026-09-07).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-21–DX-28**).
+**Created:** 2026-09-06 · **Status:** **SHIPPED on `master` (2026-09-07).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35**). Archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-17–DX-28** shipped; DX-18/DX-19 held).
 
 These prompts turn the excellence strategy into Cursor-shippable batches. They raise **Decision-Changing Insight Density** by growing the **numerator** (new information sources) and making **dismiss** actually demote generic rows. Cost and calendar are not constraints; **false-hard (R5)** and **tenant isolation (ADR 0037)** still are.
 
@@ -768,24 +768,23 @@ Done when: every DeclarationSignalPolicyKeyMap id exists in the merged catalog; 
 
 ---
 
-## Later chats (DX-17–DX-28)
+## Later chats (DX-17–DX-35)
 
 **DX-01–DX-16 shipped on `master` (2026-09-07).** Do not re-run them.
 
-Copy-paste prompts for the next batches live in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md):
+**DX-17–DX-28 shipped** (except DX-18/DX-19 held). Copy-paste archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md).
+
+Next batches: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 
 | Prompt | Intent | Run now? |
 |--------|--------|----------|
-| **DX-21** | Judge cap prefers path/contradiction engines | Yes |
-| **DX-22** | Checklist-cluster synthesis | Yes |
-| **DX-23** | Novelty-signal → per-engine rate | Yes |
-| **DX-24** | Dangling declaration references | Yes |
-| **DX-25** | Requirement × SKU/tier contradiction | Yes |
-| **DX-26** | Deterministic path counterfactual line | Yes |
-| **DX-27** | Ingestion nested ARM / Bicep modules / TF for_each | Yes |
-| **DX-28** | Path-engine golden fixtures | Yes |
-| **DX-17** | Community summaries → InsightGenerator | After DX-21–28 if capacity remains |
-| **DX-20** | Live frontier capture schema (synthetic labeled) | After DX-21–28 if capacity remains |
+| **DX-29** | Golden fixture depth | Yes |
+| **DX-30** | Helm / Kustomize / `.bicepparam` ingest | Yes |
+| **DX-31** | TF modules / OIDC / Front Door / private DNS ingest | Yes |
+| **DX-32** | Data-flow vs trust-boundary path | Yes |
+| **DX-33** | Three-way pack × declaration × inventory | Yes |
+| **DX-34** | Preferred-engine list catch-up | Yes |
+| **DX-35** | Novelty-rate judge-cap sort (default off) | After DX-34 |
 | **DX-18** | TB-885 compounding ledger | **Held** until owner unparks TB-885 |
 | **DX-19** | ADR 0062 verification slice 1 | **Held** until owner unparks TB-2033 |
 
@@ -795,5 +794,6 @@ Copy-paste prompts for the next batches live in [`INSIGHT_DENSITY_EXCELLENCE_COM
 
 - Strategy: [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 - Follow-on **DX-17–DX-28:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+- Next **DX-29–DX-35:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
