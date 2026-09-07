@@ -38,6 +38,24 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:InternalCrossTenantAnalytics:PseudonymizationSalt"] = "dev-only-cross-tenant-analytics-salt",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:InternalCrossTenantAnalytics:PseudonymizationSalt",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_returns_scalar_when_not_sensitive()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
