@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { buildShareableOperatorUrl, copyShareableOperatorLink } from "@/lib/shareable-operator-link";
-import { showSuccess } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 
 export type CopyScopedOperatorLinkButtonProps = {
   readonly label?: string;
@@ -26,6 +26,9 @@ export function CopyScopedOperatorLinkButton(props: CopyScopedOperatorLinkButton
 
       if (ok) {
         showSuccess("Scoped link copied to clipboard.");
+      }
+      else {
+        showError("Could not copy scoped link", "Clipboard access is unavailable in this browser.");
       }
     }
     finally {

@@ -24,6 +24,17 @@ describe("infra-evidence-ask-citations", () => {
     });
   });
 
+  it("links CloudResourceId citations to findings hub tab when finding context is present", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "CloudResourceId", id: resourceId, label: "gateway-pip" },
+      { cloudResourceId: resourceId, findingId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/resources/${resourceId}?tab=findings`,
+    );
+  });
+
   it("links ChangeId citations with ask session drift context", () => {
     const link = resolveInfraEvidenceAskCitationLink(
       { kind: "ChangeId", id: changeId, label: "sku change" },

@@ -9,6 +9,9 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
@@ -185,6 +188,16 @@ export function RemediationWorkbenchClient() {
     urlCloudResourceId,
     remediationSnapshotId,
   );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(
+      remediationWorkbenchHrefFromSearch(searchParams, buildInfraEvidenceAuditControlScopePatch(match)),
+      { scroll: false },
+    );
+  }, [router, searchParams]);
 
   const syncRemediationUrl = useCallback(
     (patch: { readonly instanceId?: string | null }) => {
@@ -352,6 +365,10 @@ export function RemediationWorkbenchClient() {
         setSelectedInstanceId(result.instanceId);
       }
 
+      if (urlCloudResourceId.length > 0) {
+        invalidateInfraEvidenceResourceHubCacheForResource(urlCloudResourceId);
+      }
+
       await refreshAfterAction(result.instanceId);
     } catch (error: unknown) {
       setActionMessage(formatInfraEvidenceRemediationApiError(error));
@@ -488,6 +505,8 @@ export function RemediationWorkbenchClient() {
               runId={urlReconcileRunId}
               activeTab="remediation"
               hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
               provenanceTestId="infra-remediation-audit-provenance"
               unavailableTestId="infra-remediation-audit-unavailable"
             />
@@ -650,10 +669,11 @@ export function RemediationWorkbenchClient() {
                     <button
                       type="button"
                       className={cn(
-                        "w-full rounded border border-border px-2 py-2 text-left text-sm hover:bg-muted/40",
+                        "w-full rounded border border-border px-2 py-2 text-left text-sm hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
                         selectedInstanceId === instance.instanceId ? "bg-muted/50" : undefined,
                       )}
                       data-testid={`infra-remediation-card-${instance.instanceId}`}
+                      aria-selected={selectedInstanceId === instance.instanceId}
                       onClick={() => {
                         setSelectedInstanceId(instance.instanceId);
                         syncRemediationUrl({ instanceId: instance.instanceId });

@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { LayerHeader } from "@/components/LayerHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -19,6 +22,7 @@ import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-e
 import {
   parseResourceExplorerCloudResourceIdFromSearch,
   parseResourceHubQueryValueFromSearch,
+  buildInfrastructureAskHref,
   buildResourceHubOverviewHref,
   resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
@@ -47,6 +51,14 @@ import {
   resolveResourceHubTabFromExplorerWorkQueue,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildTerraformWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
+import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
+import {
+  hasStaleInfraEvidenceAuditUrlParams,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   buildDriftWorkbenchHref,
   buildRemediationWorkbenchHref,
@@ -64,6 +76,8 @@ type InfrastructureAskTurn = {
 };
 
 export function InfrastructureAskClient() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const cloudResourceId = parseResourceExplorerCloudResourceIdFromSearch(
     searchParams.get(RESOURCE_EXPLORER_CLOUD_RESOURCE_ID_PARAM),
@@ -85,6 +99,16 @@ export function InfrastructureAskClient() {
   const hubTabOrigin = parseAskHubTabOriginFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
+  const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(cloudResourceId, snapshotId);
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
 
   const [question, setQuestion] = useState("");
   const [useSimulator, setUseSimulator] = useState(true);
@@ -379,6 +403,50 @@ export function InfrastructureAskClient() {
     useSimulator,
   ]);
 
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    const nextHref = buildInfrastructureAskHref({
+      cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : undefined,
+      snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      diffId: diffId.length > 0 ? diffId : undefined,
+      findingId: findingId.length > 0 ? findingId : undefined,
+      instanceId: instanceId.length > 0 ? instanceId : undefined,
+      correspondenceId: correspondenceId.length > 0 ? correspondenceId : undefined,
+      hubTab: hubTabOrigin != null && hubTabOrigin.length > 0 ? hubTabOrigin : undefined,
+      workQueue: workQueue !== "all" ? workQueue : undefined,
+      assessmentId: match.assessmentId,
+      auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
+      controlId: match.controlId,
+    });
+    router.replace(nextHref);
+  }, [
+    cloudResourceId,
+    correspondenceId,
+    diffId,
+    findingId,
+    hubTabOrigin,
+    instanceId,
+    router,
+    runId,
+    snapshotId,
+    workQueue,
+  ]);
+
+  useEffect(() => {
+    if (contextSummary == null) {
+      return;
+    }
+
+    const href = searchParams.toString().length > 0
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+
+    recordInfraEvidenceRecentScope({
+      label: contextSummary,
+      href,
+    });
+  }, [contextSummary, pathname, searchParams]);
+
   useEffect(() => {
     setQuestion("");
     setHistory([]);
@@ -388,6 +456,35 @@ export function InfrastructureAskClient() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6">
       <LayerHeader pageKey="infrastructure-ask" />
+
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {auditScope == null ? (
+          <CopyScopedOperatorLinkButton testId="infra-ask-copy-scoped-link" />
+        ) : null}
+      </div>
+
+      {cloudResourceId.length > 0 && (
+        auditScope != null
+        || resourceHub?.auditLineageLink.available === false
+        || hasStaleAuditUrlParams
+      ) ? (
+        <WorkbenchAuditLineageStatus
+          auditScope={auditScope}
+          hub={resourceHub}
+          cloudResourceId={cloudResourceId}
+          currentSearch={searchParams.toString()}
+          snapshotId={snapshotId}
+          runId={runId}
+          hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+          auditControlOptions={auditControlOptions}
+          onAuditControlChange={onAuditControlChange}
+          provenanceTestId="infra-ask-audit-provenance"
+          unavailableTestId="infra-ask-audit-unavailable"
+          showCopyLink
+        />
+      ) : null}
+
+      <InfraEvidenceRecentScopeStrip testId="infra-ask-recent-scope-strip" />
 
       {contextSummary != null ? (
         <section
@@ -405,6 +502,7 @@ export function InfrastructureAskClient() {
                 tab: hubBackLinkTab,
                 snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
                 runId: runId.length > 0 ? runId : undefined,
+                workQueue: workQueue !== "all" ? workQueue : undefined,
                 assessmentId: assessmentId.length > 0 ? assessmentId : undefined,
                 auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : undefined,
                 controlId: controlId.length > 0 ? controlId : undefined,
@@ -431,6 +529,7 @@ export function InfrastructureAskClient() {
               href={buildResourceHubOverviewHref(cloudResourceId, {
                 snapshotId: snapshotId.length > 0 ? snapshotId : null,
                 runId: runId.length > 0 ? runId : null,
+                workQueue,
                 assessmentId: assessmentId.length > 0 ? assessmentId : null,
                 auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
                 controlId: controlId.length > 0 ? controlId : null,
