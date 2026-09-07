@@ -9139,8 +9139,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
 - **last-bug:** 2026-09-07 — SetAssignmentEnabled returned 404 when disabling org-required assignment
@@ -9157,10 +9157,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive — **disproved 2026-09-07 (#1205):** workflow guard `TryArchiveAssignmentWithOutcomeAsync` already returns not-found via `PolicyPackAssignmentScope.IsVisibleInScope`; added controller parity test `ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope`
 
 - [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `PolicyPackHttpFacade.SetAssignmentEnabledAsync` / `PolicyPackWorkflowFacade.TrySetAssignmentEnabledWithOutcomeAsync` — disabling an organization-required assignment returned HTTP 404 instead of 409 Conflict symmetric with `ArchiveAssignment` — **hit 2026-09-07 (#1206):** workflow now returns `OrganizationRequiredLock` and http facade maps to `PolicyPackHttpOutcome.Conflict`; controller surfaces 409 (`TrySetAssignmentEnabledWithOutcomeAsync_returns_organization_required_lock_when_disabling_org_required_assignment`, `SetAssignmentEnabled_returns_conflict_when_disabling_organization_required_assignment`)
-- [ ] (candidate) `PolicyPacksController.SetAssignmentOrganizationRequired` — missing controller parity test for out-of-scope assignment toggle (workflow scope guard exists; endpoint now requires `AdminAuthority`)
-- [ ] (candidate) `PolicyPacksController.ListVersions` / `ExplainPack` — missing controller parity tests for out-of-scope pack reads (workflow `IsPackVisibleInScope` guard exists)
-- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for organization-required archive conflict (workflow `OrganizationRequiredLock` maps to 409; only not-found controller test exists)
+- [x] (proven) `PolicyPackAssignmentScope.IsVisibleInScope` / assignment mutation workflow — tenant- and workspace-scoped assignments returned HTTP 404 from project caller scope because visibility required exact workspace/project row match — **hit 2026-09-07 (#1217):** align assignment visibility with `PolicyPackResolver.AppliesToScope` so tenant/workspace assignments are mutable from descendant scope; regression in `PolicyPackAssignmentScopeTests`, `TryArchiveAssignmentWithOutcomeAsync_returns_archived_for_tenant_scoped_assignment_from_project_caller`
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentOrganizationRequired` — missing controller parity test for out-of-scope assignment toggle — **cheap-disproof 2026-09-07 (#1217):** workflow `TrySetAssignmentOrganizationRequiredAsync` + `PolicyPackAssignmentScope` guard returns not-found; endpoint requires `AdminAuthority`
+- [x] (valid-no-repro) `PolicyPacksController.ListVersions` / `ExplainPack` — missing controller parity tests for out-of-scope pack reads — **cheap-disproof 2026-09-07 (#1217):** `TryListVersionsAsync` / `TryExplainPackMarkdownAsync` already gate on `IsPackVisibleInScope`
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for organization-required archive conflict — **cheap-disproof 2026-09-07 (#1217):** http facade maps `OrganizationRequiredLock` to 409; added `ArchiveAssignment_returns_conflict_when_assignment_is_organization_required`
 
+2026-09-07 thorough hunt #1217 (hit): proved tenant/workspace assignment mutations hidden as 404 from project scope; added org-required archive controller parity test.
 2026-09-07 seed hunt #1206 (hit): reseeded PolicyPacksController partials after #1205 authz fix; proved SetAssignmentEnabled org-required disable returned misleading 404.
 2026-09-07 hunt #1205 (hit): org-required assign/toggle required tenant admin; promote/archive scope parity tests added.
 

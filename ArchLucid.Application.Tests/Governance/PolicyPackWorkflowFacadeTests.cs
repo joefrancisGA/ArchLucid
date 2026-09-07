@@ -3,6 +3,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
@@ -282,6 +283,42 @@ public sealed class PolicyPackWorkflowFacadeTests
             await sut.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, false, CancellationToken.None);
 
         outcome.Should().Be(PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock);
+    }
+
+    [Fact]
+    public async Task TryArchiveAssignmentWithOutcomeAsync_returns_archived_for_tenant_scoped_assignment_from_project_caller()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    ScopeLevel = GovernanceScopeLevel.Tenant,
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                });
+
+        Mock<IPolicyPacksAppService> appService = new();
+        appService
+            .Setup(s => s.TryArchiveAssignmentAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: appService.Object);
+
+        PolicyPackArchiveAssignmentOutcome outcome =
+            await sut.TryArchiveAssignmentWithOutcomeAsync(assignmentId, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackArchiveAssignmentOutcome.Archived);
     }
 
     [Fact]
