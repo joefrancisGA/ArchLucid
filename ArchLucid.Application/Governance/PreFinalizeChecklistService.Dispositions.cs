@@ -36,6 +36,11 @@ public sealed partial class PreFinalizeChecklistService
                 .ListForFindingIdsSinceUtcAsync(scope.TenantId, findingIds, since, cancellationToken)
                 .ConfigureAwait(false);
 
-        return CrossReviewLatestDispositionMap.Build(events);
+        List<FindingReviewEventRecord> scopedEvents = events
+            .Where(reviewEvent =>
+                reviewEvent.WorkspaceId == scope.WorkspaceId && reviewEvent.ProjectId == scope.ProjectId)
+            .ToList();
+
+        return CrossReviewLatestDispositionMap.Build(scopedEvents);
     }
 }

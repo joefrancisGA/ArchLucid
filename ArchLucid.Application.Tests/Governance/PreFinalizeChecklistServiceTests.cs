@@ -398,6 +398,9 @@ public sealed class PreFinalizeChecklistServiceTests
                 new FindingReviewEventRecord
                 {
                     EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
                     FindingId = findingId,
                     Action = FindingReviewAction.RecordDisposition,
                     Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
@@ -416,6 +419,74 @@ public sealed class PreFinalizeChecklistServiceTests
             item.ItemId == "open-critical-findings"
             && item.Status == PreFinalizeChecklistItemStatus.Clear
             && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_does_not_clear_critical_findings_from_foreign_project_disposition()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-shared-id";
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        DateTimeOffset occurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z");
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = foreignProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = occurredAtUtc,
+                },
+            ]);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
     }
 
     [Fact]
