@@ -24,10 +24,12 @@ public sealed partial class PreFinalizeChecklistService(
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     PreFinalizeExecuteBaselineDriftEvaluator executeBaselineDriftEvaluator,
-    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
+    ISpecialistReviewService? specialistReviewService = null,
+    TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -95,8 +97,10 @@ public sealed partial class PreFinalizeChecklistService(
         items.Add(BuildAssumedTechnologyItem(assumedTechnologyCount));
 
         List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
-        int criticalCount = CountActiveFindings(findings, FindingSeverity.Critical);
-        int errorCount = CountActiveFindings(findings, FindingSeverity.Error);
+        IReadOnlyDictionary<string, ArchLucid.Contracts.Findings.FindingDisposition> latestDispositions =
+            await LoadLatestDispositionsAsync(scope, findings, cancellationToken).ConfigureAwait(false);
+        int criticalCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Critical, latestDispositions);
+        int errorCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Error, latestDispositions);
 
         items.Add(BuildSeverityItem(
             "open-critical-findings",
@@ -181,12 +185,6 @@ public sealed partial class PreFinalizeChecklistService(
 
         return await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
     }
-
-    private static int CountActiveFindings(IReadOnlyList<Finding> findings, FindingSeverity severity) =>
-        findings.Count(finding =>
-            !finding.IsMuted
-            && finding.Severity == severity
-            && finding.EnforcementTier != FindingEnforcementTier.Advisory);
 
     private static PreFinalizeChecklistResult EmptyResult(string runId) =>
         new()

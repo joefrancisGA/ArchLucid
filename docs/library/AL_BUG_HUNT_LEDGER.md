@@ -9174,13 +9174,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **status:** open
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
-- **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs
-- **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture
-- **hunts:** 2
-- **bugs-found:** 2
+- **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
+- **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — orphan ArchitectureRequestId fail-open skipped execute-baseline drift blocking on pre-finalize checklist
+- **last-bug:** 2026-09-07 — pre-finalize checklist counted remediated critical findings as blocking open-critical-findings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9193,7 +9193,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only checklist GET persists knowledge model via blocked-check projection — **cheap-disproof 2026-09-07 (#1207):** first GET projects blocked checks once; second GET is response-idempotent and does not re-save (`BuildAsync_does_not_repersist_blocked_checks_on_second_read`); persistence on first read is intentional projection sync after #1171 ordering fix
 - [x] (invalid) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity — **cheap-disproof 2026-09-07 (#1207):** ledger rows #133/#559/#752; static cron preview with no tenant-scoped persistence
 - [x] (invalid) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern — **cheap-disproof 2026-09-07 (#1207):** ledger row #7865; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents scope-filtered empty response
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreFinalizeActiveFindingCounter` — severity checklist counts ignored stickiness dispositions (`Remediated`, `RejectedAsNotApplicable`) — **hit 2026-09-07 (#1220):** remediated critical snapshot finding still blocked `open-critical-findings`; fixed by loading latest disposition trail via `IFindingReviewTrailRepository.ListForFindingIdsSinceUtcAsync` and excluding risk-register closed dispositions (`BuildAsync_marks_critical_findings_clear_after_remediated_disposition`)
+- [ ] (hunt-ready) `GovernanceStickinessFacade.RecordBulkDispositionAsync` — sequential `_findingDispositionService.RecordAsync` without transaction can persist partial bulk when mid-batch write fails — **seed 2026-09-07 (#1220):** scope/manifest preflight is all-or-nothing but write loop lacks batch CAS/transaction; fix needs `IFindingDispositionConcurrencyRepository.RecordBulkAsync` single-transaction parity with #281 preflight pattern
+- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — `IArchitectureRequestRepository.GetByIdAsync` has no tenant filter; reachability unproven for scoped runs referencing foreign request ids
 
+2026-09-07 seed hunt #1220 (hit): reseeded stickiness/checklist zone after hypothesis exhaustion; proved disposition-blind pre-finalize severity counts; seeded bulk-disposition atomicity hunt-ready row.
 2026-09-07 thorough hunt #1207 (hit): proved orphan ArchitectureRequest fail-open on pre-finalize execute-baseline drift; cheap-disproved checklist GET idempotency and two cross-zone parity candidates.
 2026-09-07 seed hunt #1171 (hit): reseeded governance stickiness/posture/checklist paths; proved provisional-synthesis checklist false clear from blocked-check projection ordering.
 
