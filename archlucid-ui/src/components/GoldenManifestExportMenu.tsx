@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,12 @@ import {
   resolveCareerExportBlockedReason,
   type CareerExportClassificationCounts,
 } from "@/lib/career-export-coverage-honesty";
+import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
+import {
+  formatRunExportLineageStatusLabel,
+  isRunExportLineageAttested,
+  verifyRunExportLineage,
+} from "@/lib/exports/run-export-lineage-verify";
 import {
   buildGoldenManifestMarkdownFilename,
   formatGoldenManifestMarkdown,
@@ -83,6 +90,10 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [exportVerifyStatus, setExportVerifyStatus] = useState<string | null>(null);
+  const [exportVerifyRecovery, setExportVerifyRecovery] = useState<ReturnType<
+    typeof exportVerifyBlockedRecovery
+  > | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canExport: boolean =
@@ -92,7 +103,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     return null;
   }
 
-  function downloadMarkdownSummary(): void {
+  async function downloadMarkdownSummary(): Promise<void> {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
       runId,
       manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
@@ -100,6 +111,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
     if (blockedReason !== null) {
       setExportError(blockedReason);
+      setExportVerifyRecovery(null);
       return;
     }
 
@@ -121,10 +133,35 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
 
     if (careerExportBlockedReason !== null) {
       setExportError(careerExportBlockedReason);
+      setExportVerifyRecovery(null);
       return;
     }
 
     setExportError(null);
+    setExportVerifyRecovery(null);
+    setExportVerifyStatus(null);
+
+    const skipVerify = props.progressSummary?.isSample === true;
+
+    if (workingDesk && !skipVerify) {
+      setExportVerifyStatus("Verifying export lineage…");
+
+      try {
+        const verifyResult = await verifyRunExportLineage(runId);
+
+        if (!isRunExportLineageAttested(verifyResult)) {
+          setExportVerifyStatus(`Not attested`);
+          setExportVerifyRecovery(exportVerifyBlockedRecovery(verifyResult));
+          return;
+        }
+
+        setExportVerifyStatus(formatRunExportLineageStatusLabel(verifyResult));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        setExportError(message);
+        return;
+      }
+    }
 
     const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
       runId,
@@ -156,6 +193,24 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const markdownOptionLabel =
     buyerPolishedShell === true ? "Download review summary" : EXPORT_FORMAT_MARKDOWN.label;
 
+  const exportStatusChrome =
+    exportVerifyStatus !== null ? (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="golden-manifest-export-verify-status"
+      >
+        Export lineage: {exportVerifyStatus}
+      </p>
+    ) : null;
+
+  const exportRecoveryChrome =
+    exportVerifyRecovery !== null ? (
+      <OperatorErrorRecoveryContract
+        presentation={exportVerifyRecovery}
+        testId="golden-manifest-export-verify-recovery"
+      />
+    ) : null;
+
   if (buyerMarkdownAsPrimaryButton === true) {
     return (
       <div className="flex max-w-xs flex-col gap-1">
@@ -166,12 +221,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           className="h-9"
           data-testid={markdownDownloadTestId}
           onClick={() => {
-            downloadMarkdownSummary();
+            void downloadMarkdownSummary();
           }}
         >
           {markdownOptionLabel}
         </Button>
         <ExportFormatWhenToUseHint format="markdown" />
+        {exportStatusChrome}
+        {exportRecoveryChrome}
         {exportError !== null ? (
           <p
             role="alert"
@@ -194,7 +251,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           return;
         }
 
-        downloadMarkdownSummary();
+        void downloadMarkdownSummary();
       }}
     >
       <SelectTrigger
@@ -222,6 +279,8 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         </SelectItem>
       </SelectContent>
     </Select>
+      {exportStatusChrome}
+      {exportRecoveryChrome}
       {exportError !== null ? (
         <p
           role="alert"

@@ -4278,6 +4278,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
             eventId?: string;
@@ -4405,8 +4406,12 @@ export interface components {
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            latestDispositionEventId?: null | string;
             /** Format: date-time */
             latestDispositionOccurredAtUtc?: null | string;
+            latestDispositionReviewerUserId?: null | string;
+            latestDispositionRowVersionBase64?: null | string;
             manifestVersion?: null | string;
             modelAlias?: null | string;
             modelDeploymentName?: null | string;
@@ -7881,6 +7886,7 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
             /** Format: date-time */

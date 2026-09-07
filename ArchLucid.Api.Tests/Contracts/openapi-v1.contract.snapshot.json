@@ -14850,6 +14850,12 @@
       },
       "FindingDispositionEventDto": {
         "properties": {
+          "currentDispositionRowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "disposition": {
             "$ref": "#/components/schemas/FindingDisposition"
           },
@@ -15380,8 +15386,27 @@
               }
             ]
           },
+          "latestDispositionEventId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "latestDispositionOccurredAtUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDispositionReviewerUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDispositionRowVersionBase64": {
             "type": [
               "null",
               "string"
@@ -26807,6 +26832,12 @@
               "string"
             ]
           },
+          "expectedCurrentDispositionRowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingId": {
             "type": "string"
           },
@@ -31855,6 +31886,12 @@
           },
           "isSample": {
             "type": "boolean"
+          },
+          "legacyRunStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "packageOrigin": {
             "type": [
@@ -133034,13 +133071,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
