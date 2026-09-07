@@ -78,4 +78,34 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.overallStatus).toBe("Archived");
     expect(row.primaryAction.label).toBe("View archived review");
   });
+
+  it("AO-26: uses nested review href in Working mode when parent architecture id is known", () => {
+    const row = toReviewsHubReviewRowDisplay(
+      {
+        runId: "run-001",
+        projectId: "default",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+      } satisfies RunSummary,
+      {
+        draftRegistryEntries: [
+          {
+            draftId: "draft-001",
+            displayName: "Payments",
+            customerStatus: "in-review",
+            ownerLabel: "You",
+            lastUpdatedUtc: "2026-01-15T12:00:00.000Z",
+            linkedReviewId: "run-001",
+            serverUpdatedUtc: "2026-01-15T12:00:00.000Z",
+            parentArchitectureId: "architecture-identity-001",
+          },
+        ],
+      },
+      [],
+      { isWorkingMode: true },
+    );
+
+    expect(row.reviewHref).toBe("/architecture/architectures/architecture-identity-001/reviews/run-001");
+    expect(row.architectureDeskHref).toBe("/architecture/architectures/architecture-identity-001");
+    expect(row.reviewHref).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+  });
 });
