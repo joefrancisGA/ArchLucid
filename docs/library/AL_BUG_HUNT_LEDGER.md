@@ -651,13 +651,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — FollowUpBatch omitted RevisitDueUtc from deferred disposition inspect read
+- **last-bug:** 2026-09-07 — corrupt PayloadJson returned null typedPayload indistinguishable from missing payload
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -674,8 +674,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — **hit 2026-09-07 hunt #1230:** inspect omitted `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId`; fixed with pointer-table join + mapper; regressions in `FollowUpBatch_scopes_latest_disposition_to_workspace_and_project` and `GetInspectAsync_surfaces_current_disposition_pointer_fields_from_FindingCurrentDispositions`
 - [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition join omits `RevisitDueUtc` from current pointer event — **hit 2026-09-07 hunt #1233 (seed→hit):** deferred disposition inspect returned null `RevisitDueUtc` at repository layer; fixed SQL projection + mapper; regressions in `FollowUpBatch_disposition_subquery_projects_revisit_due_from_current_pointer_event` and ADR 0076 integration test
 - [x] (valid-no-repro) `MainInspect*` `AND (r.ArchivedUtc IS NULL)` serves older active run when newest rerun is archived — **cheap-disproof 2026-09-07 hunt #1233:** intentional soft-archive parity with list/run surfaces; archived runs remain in DB but drop out of active inspect selection
-- [ ] (candidate) `TryParsePayloadJson` returns null on corrupt `PayloadJson` without surfacing parse failure — inspect 200 with `TypedPayload: null` indistinguishable from missing payload
-- [ ] (candidate) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — multi-finding runs may show first run-level rule id instead of finding-specific trace text (may match contract)
+- [x] (proven) Corrupt non-empty `PayloadJson` returned `TypedPayload: null` indistinguishable from a missing payload column — **hit 2026-09-07 hunt #1238:** `TryParsePayloadJson` swallowed `JsonException`; `FindingRecords.PayloadJson` has no ISJSON guard unlike `DecisioningTraces.AppliedRuleIdsJson`; fixed with `ResolveTypedPayloadForInspect` metadata fallback when the column is non-empty but invalid JSON; regressions in `ResolveTypedPayloadForInspect_falls_back_to_metadata_when_payload_json_is_corrupt` and related core tests.
+- [x] (invalid) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — **cheap-disproof 2026-09-07 hunt #1238:** `docs/library/EXPLAINABILITY.md` and #667 fix require first applied rule id from `DecisioningTraces` when present; per-finding trace text is the fallback when JSON is absent.
+
+2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
 
 2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
 2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.

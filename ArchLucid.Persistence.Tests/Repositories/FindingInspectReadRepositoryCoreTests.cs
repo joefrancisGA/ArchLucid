@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Persistence.Findings;
 
 using FluentAssertions;
@@ -67,5 +69,43 @@ public sealed class FindingInspectReadRepositoryCoreTests
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_when_payload_json_missing()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(null, "title", "rationale").Should().BeNull();
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect("  ", "title", "rationale").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_json_when_valid()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            """{"resourceId":"vm-1"}""",
+            "title",
+            "rationale");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_metadata_when_payload_json_is_corrupt()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_null_for_corrupt_json_without_metadata_fallback()
+    {
+        FindingInspectReadRepositoryCore.TryParsePayloadJson("{ not json").Should().BeNull();
     }
 }
