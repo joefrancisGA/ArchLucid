@@ -134,16 +134,16 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         string runId,
         CancellationToken cancellationToken)
     {
-        (int statusCode, bool containsRunId, string? correlationId) = await ScanRunListForForeignRunIdAsync(
-            alternateClient,
-            runId,
-            cancellationToken);
-        TenantIsolationNegativeTestVerdict verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, containsRunId);
+        (int statusCode, TenantIsolationNegativeTestRunListScanOutcome scanOutcome, string? correlationId) =
+            await ScanRunListForForeignRunIdAsync(alternateClient, runId, cancellationToken);
+        TenantIsolationNegativeTestVerdict verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, scanOutcome);
         string observedOutcome = statusCode >= 500
             ? $"HTTP {statusCode}; skipped server error"
-            : containsRunId
-                ? $"HTTP {statusCode}; foreign runId present"
-                : $"HTTP {statusCode}; foreign runId absent";
+            : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
+                ? $"HTTP {statusCode}; scan incomplete before run list exhausted"
+                : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
+                    ? $"HTTP {statusCode}; foreign runId present"
+                    : $"HTTP {statusCode}; foreign runId absent";
 
         return new TenantIsolationNegativeTestProbeResult
         {
@@ -158,7 +158,7 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         };
     }
 
-    private static async Task<(int StatusCode, bool ContainsRunId, string? CorrelationId)> ScanRunListForForeignRunIdAsync(
+    private static async Task<(int StatusCode, TenantIsolationNegativeTestRunListScanOutcome ScanOutcome, string? CorrelationId)> ScanRunListForForeignRunIdAsync(
         HttpClient alternateClient,
         string runId,
         CancellationToken cancellationToken)
@@ -180,24 +180,29 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
             lastCorrelationId = ReadCorrelationId(response);
 
             if (lastStatusCode >= 500)
-                return (lastStatusCode, false, lastCorrelationId);
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ServerError, lastCorrelationId);
 
             if (TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId))
-                return (lastStatusCode, true, lastCorrelationId);
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent, lastCorrelationId);
 
             if (!TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(body, out cursor))
-                return (lastStatusCode, false, lastCorrelationId);
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdAbsent, lastCorrelationId);
+
+            if (pageIndex == maxPages - 1)
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete, lastCorrelationId);
         }
 
-        return (lastStatusCode, false, lastCorrelationId);
+        return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdAbsent, lastCorrelationId);
     }
 
-    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
+    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(
+        int statusCode,
+        TenantIsolationNegativeTestRunListScanOutcome scanOutcome)
     {
-        if (statusCode >= 500)
+        if (statusCode >= 500 || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete)
             return TenantIsolationNegativeTestVerdict.Skip;
 
-        return foreignRunIdVisible
+        return scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
             ? TenantIsolationNegativeTestVerdict.Fail
             : TenantIsolationNegativeTestVerdict.Pass;
     }

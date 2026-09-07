@@ -933,11 +933,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — cross-tenant run-list probe scanned only the first `/v1/runs` page, so a leaked foreign run on a later cursor page false-passed
+- **last-bug:** 2026-09-07 — run-list probe false-passed when pagination cap hit before `hasMore` exhausted
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -954,6 +954,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Cross-tenant run-list probe scanned only the first `/v1/runs` page — **hit 2026-09-07 (#1181):** `take=200` is clamped to `RunPagination.MaxTake` (100) and the probe did not follow `nextCursor`; a foreign run visible only on page 2+ false-passed; fixed with cursor pagination at max take; regressions `RunLiveAsync_FailsRunListProbeWhenForeignRunIdAppearsOnSecondCursorPage` and updated full-page test.
 
 2026-09-07 seed hunt #1181 (hit): promoted run-list cursor pagination gap after `RunPagination.MaxTake` review; proved foreign run on second page false-passed.
+
+- [x] (proven) Cross-tenant run-list probe false-passed when the 50-page scan cap was reached while `hasMore` remained true — **hit 2026-09-07 hunt #1235 (seed→hit):** `ScanRunListForForeignRunIdAsync` returned absent after `maxPages` without treating an incomplete scan as unverified; a foreign run beyond page 50 could ship as PASS; fixed by emitting `ScanIncomplete` and mapping to SKIP like server errors; regression `RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList`.
+- [ ] (candidate) `TryFindRunIdInRunList` only reads camelCase `runId` items — a PascalCase `RunId` payload would miss a leaked id; reachability depends on API serializer policy (`ArchLucidApiJsonSerializerOptions` uses camelCase).
+- [x] (valid-no-repro) `EvaluateDenyStatus` treats HTTP 401 like 403/404 for deny-status probes — intentional: alternate-scope tokens may receive Unauthorized instead of Forbidden on cross-tenant reads; still counts as denied access, not leak.
+
+2026-09-07 seed hunt #1235 (hit): reseeded cli-tenant-isolation zone; proved run-list pagination cap false-pass; seeded PascalCase runId candidate; cheap-disproved 401-as-pass concern.
 
 ---
 
