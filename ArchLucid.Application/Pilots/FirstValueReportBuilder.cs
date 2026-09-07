@@ -202,6 +202,7 @@ public sealed class FirstValueReportBuilder(
             careerExportHonesty,
             careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, run);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,
