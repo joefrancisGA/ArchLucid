@@ -15,6 +15,7 @@ import {
   notificationPreferenceCenterPageSubtitle,
   pathMatchesNotificationPreferenceCenter,
   resolveNotificationChannelDeliveryStatus,
+  resolveNotificationPreferenceChannels,
   statusHintForNotificationChannel,
   type NotificationChannelDeliveryStatusInput,
 } from "@/lib/notification-preference-center";
@@ -52,6 +53,16 @@ describe("notification-preference-center (TB-2203)", () => {
     expect(notificationPreferenceCenterPageSubtitle(false)).toBe(NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE);
     expect(BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE.length).toBeLessThan(
       NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE.length,
+    );
+  });
+
+  it("resolves Teams channel title from product-line label without duplicate imports", () => {
+    const securityChannels = resolveNotificationPreferenceChannels("security");
+    const architectureChannels = resolveNotificationPreferenceChannels("architecture");
+
+    expect(securityChannels.find((channel) => channel.id === "teams")?.title).toBe("Teams");
+    expect(architectureChannels.find((channel) => channel.id === "teams")?.title).toBe(
+      "Microsoft Teams",
     );
   });
 
