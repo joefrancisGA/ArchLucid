@@ -7039,22 +7039,29 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — aggregate JSON count/citation parsing gaps on sponsor disposition path
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
-Split from retired `archlucid-core` (ABQ-08).
+Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Explanation/` hunts.
 
 ### Hypotheses
+
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — omitted `citations` property skipped zero-citation WARN gate — **hit 2026-09-07 hunt #1187 (seed→hit):** missing key left `CitationCount` null so `ResolveDisposition` returned PASS while `FromSummary` with empty citations returned WARN; fixed by treating omitted property as empty array; regression in `FromAggregateJson_treats_omitted_citations_as_empty_for_disposition`
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — object-shaped `citations` ignored — **hit 2026-09-07 hunt #1187 (seed→hit):** single-object citation payloads fell through shape handling with null count; fixed by mapping object token to one citation; regression in `FromAggregateJson_maps_object_citation_as_single_citation_count`
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — string-encoded numeric `confidence` / `schemaVersion` may bypass structured normalize path
+
+2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
 ---
 ## Zone: archlucid-contracts
