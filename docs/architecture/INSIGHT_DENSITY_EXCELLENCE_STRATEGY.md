@@ -23,7 +23,7 @@ From [`ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md)
 | Pillar clause | Current mechanisms | Gap |
 |---------------|-------------------|-----|
 | **Miss** | ID-05/06/07 (open commitment, portfolio recurrence, premise conflict); partial via inventory/declaration when intake is complete | Most reviews never hit actor-dependent or inventory engines; no generative agent that may create findings |
-| **Dismiss** | Gate, Critic pruner, LLM judge (default off) | Category protection + loose evidence refs prevent demotion on engine rows |
+| **Dismiss** | Gate, Critic pruner, LLM judge (default off) | Resolvable package evidence prevents demotion; generic engine rows can still demote when evidence refs are absent |
 | **Operationalize** | Governance queue, ITSM export | Not density-gated; checklist rows can still clutter the desk |
 | **Package** | ADR 0070 classification, sealed snapshot | Policy packs change compliance; declaration moat still CIS-heavy (PP-01 remainder) |
 
@@ -38,7 +38,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 | Component | Role | Limit |
 |-----------|------|-------|
 | `DeterministicInsightDensityGate` | Penalties: generic (−35), no evidence (−25), no anchor (−15), duplication (−15/−30); demotion when score &lt; 50 and predicates fail | Does not create findings |
-| `InsightDensityAgentCategoryRules` | Category-protected categories skip demotion | Most engine categories (Security, Topology, Compliance, …) never demote |
+| `InsightDensityAgentCategoryRules` | Legacy helper; `IsDemotionEligibleCategory` always **true** and unused by gate | All categories demote when predicate fires; evidence refs block demotion |
 | `GenericArchitectureAdvicePatterns` | Phrase deny-list + anchor/evidence heuristics | `*UnderSpecified` titles score as architecture-specific; loose evidence fallback |
 | `CriticFindingObviousnessPruner` | Downgrades obvious Critic advice to Advisory | Does not remove; named-service generic advice can stay PolicyViolation |
 | `PremiumInsightDensityLlmJudge` | So What loop; **not to generate new findings** | `EnableLlmJudge` / `EnableLlmJudgeForEngineFindings` default **false**; cap 12/snapshot |
@@ -47,14 +47,14 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Component | Information source | Notes |
 |-----------|-------------------|-------|
-| 39 registered finding engines | Graph, declarations, inventory (when run), governance trail | Golden harness runs **16**; **24** product engines absent from distribution table |
+| 39 registered finding engines | Graph, declarations, inventory (when run), governance trail | Golden harness registers **38**; **28** product engines absent from distribution table on current corpus slice |
 | `OpenCommitmentFindingEngine` | Governance trail (effectful) | Shipped ID-05 |
 | `PortfolioRecurrenceFindingEngine` | Cross-run SQL (effectful) | Default **off** |
 | `DeclarationPremiseConflictFindingEngine` | Declaration vs baseline intent | Policy-gated via `DeclarationSignalPolicyKeyMap` |
 
 ### Production gate (ADR 0070)
 
-- Typed-engine findings use the **same demotion predicate** as agent findings (`score < DemotionThreshold && !anchor && !concrete evidence`, then category-protected undo).
+- Typed-engine findings use the **same demotion predicate** as agent findings: `(score < DemotionThreshold || genericWithoutEvidence || falsifiableWithoutEvidence) && !hasConcreteEvidence` (see `DeterministicInsightDensityGate`).
 - Rows **remain on the package** as `ChecklistCoverage` when demoted — not deleted.
 - Assessment text that cites `typed-engine-protected` Promote bypass at `DeterministicInsightDensityGate.cs:87` is **stale** post–ADR 0070; telemetry is now `typed-engine-scored`.
 
@@ -62,7 +62,7 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 | Instrument | Location | Limit |
 |------------|----------|-------|
-| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 16-engine golden slice; medians mostly 100 |
+| Engine distribution | [`../quality/insight-density-engine-distribution.md`](../quality/insight-density-engine-distribution.md) | 38-engine golden harness; medians mostly 60–100 on current slice |
 | Frontier delta | [`../quality/insight-density-frontier-delta.md`](../quality/insight-density-frontier-delta.md) | Three hand-authored scenarios — regression only, not moat proof |
 | Measurement floor UI | `InsightDensityMeasurementFloorPresenter`, SPA strips | Honesty; does not raise numerator |
 
@@ -70,9 +70,9 @@ See [`INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md
 
 ## Why the gate cannot reach “excellent” alone
 
-### 1. Demotion is a triple-AND plus category veto
+### 1. Demotion is evidence-gated, not category-vetoed (DX-01)
 
-Demotion requires score &lt; 50 **and** no architecture anchor **and** no concrete evidence **and** demotion-eligible category (`Insight`, `General`, `Critic`, empty). Engine rows in Security, Topology, Compliance, Requirement, Cost are **category-protected**.
+Demotion fires when `(score < DemotionThreshold || genericAdviceWithoutEvidence || falsifiableWithoutEvidence) && !hasConcreteEvidence`. **Superseded 2026-09-07:** the pre–DX-01 triple-AND plus category veto (`Security` / `Topology` / `Compliance` protected) no longer applies — `IsDemotionEligibleCategory` always returns true and is unused. Architecture-specific anchors affect score penalties but **do not** alone prevent demotion without resolvable evidence refs.
 
 ### 2. “Concrete evidence” is nearly any ref
 
