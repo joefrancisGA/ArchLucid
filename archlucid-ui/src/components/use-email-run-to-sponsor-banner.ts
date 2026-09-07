@@ -26,6 +26,7 @@ import {
   evaluateCareerArtifactHonesty,
   type CareerArtifactHonestyInput,
 } from "@/lib/career-artifact/career-artifact-honesty";
+import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
 

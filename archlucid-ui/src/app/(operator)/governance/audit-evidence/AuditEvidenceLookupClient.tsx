@@ -43,10 +43,10 @@ import { AuditEvidenceBreadcrumb } from "./AuditEvidenceBreadcrumb";
 import { AuditEvidenceClaimOrientationStrip } from "./AuditEvidenceClaimOrientationStrip";
 
 type FieldErrors = {
-  readonly assessmentId?: string;
-  readonly snapshotId?: string;
-  readonly controlId?: string;
-  readonly lineageUrl?: string;
+  assessmentId?: string;
+  snapshotId?: string;
+  controlId?: string;
+  lineageUrl?: string;
 };
 
 function trimRequired(value: string): boolean {
