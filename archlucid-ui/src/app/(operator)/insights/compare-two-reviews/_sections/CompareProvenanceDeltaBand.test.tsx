@@ -15,6 +15,7 @@ const provenanceQueryMock = vi.hoisted(() => ({
         skipped: [{ questionKey: "data-residency", tier: "Must" }],
       },
       missingTrailDefect: false,
+      feasibilityVerdictKind: "Feasible",
     },
     target: {
       runId: "run-right",
@@ -24,6 +25,7 @@ const provenanceQueryMock = vi.hoisted(() => ({
         skipped: [],
       },
       missingTrailDefect: false,
+      feasibilityVerdictKind: "Feasible",
     },
   } as const,
 }));
@@ -53,7 +55,37 @@ describe("CompareProvenanceDeltaBand (WA-09)", () => {
 
     expect(screen.getByTestId("compare-provenance-delta-band")).toBeInTheDocument();
     expect(screen.getByText(/Assumption and provenance delta/i)).toBeInTheDocument();
-    expect(screen.getAllByTestId("transparency-trail-skipped-must")).toHaveLength(1);
+    expect(screen.getAllByTestId("transparency-trail-skipped-must")).toHaveLength(2);
+  });
+
+  it("renders feasibility verdict delta when kinds differ (FC-34)", () => {
+    workspaceModeMock.isWorkingMode = true;
+    provenanceQueryMock.data = {
+      baseline: {
+        runId: "run-left",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+      },
+      target: {
+        runId: "run-right",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "SoftInfeasible",
+      },
+    };
+
+    render(
+      <CompareProvenanceDeltaBand
+        baselineRunId="run-left"
+        targetRunId="run-right"
+        baselinePickedSummary={null}
+        targetPickedSummary={null}
+      />,
+    );
+
+    expect(screen.getByTestId("compare-feasibility-verdict-delta")).toBeInTheDocument();
+    expect(screen.getByText(/Feasibility verdict changed/i)).toBeInTheDocument();
   });
 
   it("renders nothing in Guided mode", () => {

@@ -119,6 +119,8 @@ function sentenceForPrimaryAction(
       return "Resolve or assign all open findings before you finalize or share this review.";
     case "finalize-package":
       return "Assessment finished — finalize this review to create a finalized review record.";
+    case "export-decision-receipt":
+      return "Assessment finished with a reasoned no — export the decision receipt for audit or sponsor handoff.";
     case "send-to-sponsor":
       return "This package is finalized — download or share the sponsor briefing export when you are ready.";
     case "open-governance-decision":

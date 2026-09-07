@@ -164,6 +164,20 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toBeNull();
   });
 
+  it("routes infeasible completed runs to decision receipt export instead of finalize (FC-33)", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      runCompleted: true,
+      feasibilityVerdictKind: "HardInfeasible",
+    });
+
+    expect(next.kind).toBe("export-decision-receipt");
+    expect(next.sentence).toContain("reasoned no");
+    expect(next.sentence).not.toContain("finalize");
+    expect(next.actionLabel).toBe("Export decision receipt");
+    expect(next.href).toContain("reviewTab=artifacts");
+  });
+
   it("routes post-finalize blockers to findings review", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,

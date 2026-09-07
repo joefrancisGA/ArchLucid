@@ -13,6 +13,7 @@ import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-arti
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import type { SponsorReviewCoverageHonestyInputs } from "@/lib/sponsor/sponsor-review-coverage-honesty";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export type CareerExportClassificationCounts = {
@@ -175,6 +176,14 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
 
   if (honesty.sponsorHonestyMarkdown.trim().length > 0) {
     sections.push(honesty.sponsorHonestyMarkdown.trim());
+  }
+
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    input.manifestSummary?.feasibilityVerdict ?? null,
+  );
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    sections.push(feasibilityVerdictMarkdown.trim());
   }
 
   if (honesty.blockedForWorkingCareerExport && honesty.measurementFloorBlockedReason !== null) {

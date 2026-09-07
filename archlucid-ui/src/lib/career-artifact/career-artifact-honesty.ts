@@ -13,6 +13,7 @@ import {
 } from "@/lib/feasibility/transparency-trail-completeness";
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
+import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type CareerArtifactKind = "finalize" | "export";
@@ -193,6 +194,14 @@ export function evaluateCareerArtifactHonesty(
       && coverageHonesty.measurementFloorBlockedReason !== null
     ) {
       blockedReasons.push(coverageHonesty.measurementFloorBlockedReason);
+    }
+
+    const hardCitationBlockedReason = resolveHardInfeasibleCitationExportBlockedReason(
+      input.manifestSummary?.feasibilityVerdict ?? null,
+    );
+
+    if (hardCitationBlockedReason !== null) {
+      blockedReasons.push(hardCitationBlockedReason);
     }
   }
 
