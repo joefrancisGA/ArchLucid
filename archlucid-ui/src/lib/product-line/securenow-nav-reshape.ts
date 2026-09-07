@@ -1,0 +1,142 @@
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import {
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_JIRA_PATH, INTEGRATIONS_SERVICENOW_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
+import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
+
+import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
+
+export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
+export const SECURENOW_SECURITY_NAV_GROUP_ID = "operate-security" as const;
+
+const SECURENOW_SOURCE_GROUP_IDS = new Set([
+  "operate-policy",
+  "operate-governance",
+  "operate-infrastructure",
+  "operate-integrations",
+]);
+
+/** SecureNow sidebar — compliance posture destinations in display order. */
+export const SECURENOW_COMPLIANCE_NAV_HREFS: readonly string[] = [
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
+];
+
+/** SecureNow sidebar — operational security and integration destinations in display order. */
+export const SECURENOW_SECURITY_NAV_HREFS: readonly string[] = [
+  "/governance/findings/assigned-to-me",
+  "/governance/remediation-factory",
+  "/governance/remediation-patterns",
+  CLOUD_CONNECTIONS_PATH,
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+  INTEGRATIONS_TEAMS_PATH,
+];
+
+function collectNavLinks(rows: readonly ProductLineNavGroupRow[]): Map<string, NavLinkItem> {
+  const linksByHref = new Map<string, NavLinkItem>();
+
+  for (const row of rows) {
+    for (const link of row.visibleLinks) {
+      linksByHref.set(link.href, link);
+    }
+  }
+
+  return linksByHref;
+}
+
+function pickNavLinks(
+  linksByHref: ReadonlyMap<string, NavLinkItem>,
+  hrefs: readonly string[],
+): NavLinkItem[] {
+  const links: NavLinkItem[] = [];
+
+  for (const href of hrefs) {
+    const link = linksByHref.get(href);
+
+    if (link !== undefined) {
+      links.push(link);
+    }
+  }
+
+  return links;
+}
+
+function buildSecureNowNavGroup(
+  id: typeof SECURENOW_COMPLIANCE_NAV_GROUP_ID | typeof SECURENOW_SECURITY_NAV_GROUP_ID,
+  label: string,
+  caption: string,
+  links: readonly NavLinkItem[],
+  sourceGroup: NavGroupConfig,
+): ProductLineNavGroupRow {
+  return {
+    group: {
+      id,
+      label,
+      surface: sourceGroup.surface,
+      caption,
+      links: [...links],
+    },
+    visibleLinks: [...links],
+  };
+}
+
+/**
+ * SecureNow shell — Compliance, Infrastructure, and Security sidebar clusters replace
+ * Policy, Approval, and Integrations groupings while preserving link metadata.
+ */
+export function reshapeNavGroupsForSecureNow(
+  rows: readonly ProductLineNavGroupRow[],
+): ProductLineNavGroupRow[] {
+  const linksByHref = collectNavLinks(rows);
+  const policyGroup = rows.find((row) => row.group.id === "operate-policy")?.group;
+  const governanceGroup = rows.find((row) => row.group.id === "operate-governance")?.group;
+  const infrastructureRow = rows.find((row) => row.group.id === "operate-infrastructure");
+  const integrationsGroup = rows.find((row) => row.group.id === "operate-integrations")?.group;
+  const sourceGroup = policyGroup ?? governanceGroup ?? integrationsGroup ?? infrastructureRow?.group;
+
+  if (sourceGroup === undefined || infrastructureRow === undefined) {
+    return [...rows];
+  }
+
+  const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
+  const securityLinks = pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS);
+
+  const reshaped: ProductLineNavGroupRow[] = [];
+
+  if (complianceLinks.length > 0) {
+    reshaped.push(
+      buildSecureNowNavGroup(
+        SECURENOW_COMPLIANCE_NAV_GROUP_ID,
+        OPERATOR_NAV_GROUP_LABELS.compliance,
+        "Assign ARC-AMPE packs, review effective rules, triage findings, and export audit control lineage.",
+        complianceLinks,
+        sourceGroup,
+      ),
+    );
+  }
+
+  reshaped.push(infrastructureRow);
+
+  if (securityLinks.length > 0) {
+    reshaped.push(
+      buildSecureNowNavGroup(
+        SECURENOW_SECURITY_NAV_GROUP_ID,
+        OPERATOR_NAV_GROUP_LABELS.security,
+        "Remediate assigned findings, run factory workflows, and connect cloud inventory and ticketing integrations.",
+        securityLinks,
+        sourceGroup,
+      ),
+    );
+  }
+
+  const tailRows = rows.filter((row) => !SECURENOW_SOURCE_GROUP_IDS.has(row.group.id));
+
+  return [...reshaped, ...tailRows];
+}

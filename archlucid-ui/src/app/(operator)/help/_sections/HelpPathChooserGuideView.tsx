@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpUrlSyncedLazyDetails } from "@/components/help/HelpUrlSyncedLazyDetails";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -43,6 +43,11 @@ import {
   HELP_PAGE_MIN_TOC_HEADINGS,
   resolveHelpPageContentGridClass,
 } from "@/lib/help/help-page-layout";
+import {
+  HELP_PATH_CHOOSER_REFERENCE_APPENDIX_OPEN_PARAM,
+  helpPathChooserReferenceAppendixDisclosureHrefFromSearch,
+  parseHelpPathChooserReferenceAppendixOpenFromSearch,
+} from "@/lib/help/help-path-chooser-reference-appendix-disclosure-url";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -206,7 +211,10 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             data-testid="help-path-chooser-content"
             id="reference-detail"
           >
-            <HelpLazyDetails
+            <HelpUrlSyncedLazyDetails
+              paramName={HELP_PATH_CHOOSER_REFERENCE_APPENDIX_OPEN_PARAM}
+              parseOpenFromSearch={parseHelpPathChooserReferenceAppendixOpenFromSearch}
+              disclosureHrefFromSearch={helpPathChooserReferenceAppendixDisclosureHrefFromSearch}
               className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
               data-testid="help-path-chooser-reference-appendix"
               summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
@@ -227,7 +235,7 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                 helpTopicSlug={entry.slug}
                 preparedMarkdownOverride={preparedMarkdown}
               />
-            </HelpLazyDetails>
+            </HelpUrlSyncedLazyDetails>
           </section>
         </div>
 

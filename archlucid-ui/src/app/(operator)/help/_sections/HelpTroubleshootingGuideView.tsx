@@ -4,7 +4,7 @@ import { HelpTroubleshootingClaimOrientationStrip } from "@/app/(operator)/help/
 import { HelpTroubleshootingHeaderActions } from "@/app/(operator)/help/_sections/HelpTroubleshootingHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpUrlSyncedLazyDetails } from "@/components/help/HelpUrlSyncedLazyDetails";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -22,6 +22,11 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import {
+  HELP_TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_OPEN_PARAM,
+  helpTroubleshootingAdvancedDiagnosticsDisclosureHrefFromSearch,
+  parseHelpTroubleshootingAdvancedDiagnosticsOpenFromSearch,
+} from "@/lib/help/help-troubleshooting-advanced-diagnostics-disclosure-url";
 import {
   inAppHelpHref,
   type ProductDocumentationEntry,
@@ -242,7 +247,10 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
               </p>
             </section>
 
-            <HelpLazyDetails
+            <HelpUrlSyncedLazyDetails
+              paramName={HELP_TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_OPEN_PARAM}
+              parseOpenFromSearch={parseHelpTroubleshootingAdvancedDiagnosticsOpenFromSearch}
+              disclosureHrefFromSearch={helpTroubleshootingAdvancedDiagnosticsDisclosureHrefFromSearch}
               id="advanced-diagnostics"
               className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
               data-testid="troubleshooting-advanced-diagnostics"
@@ -255,7 +263,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                 and decision tree above.
               </p>
               <HelpTroubleshootingAdvancedDiagnostics />
-            </HelpLazyDetails>
+            </HelpUrlSyncedLazyDetails>
 
             <EvidenceOrientationMetaLine
               testId="troubleshooting-help-freshness"

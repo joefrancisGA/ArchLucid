@@ -1,14 +1,15 @@
 "use client";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  parseSsoProtocolHelpOpenFromSearch,
-  ssoProtocolHelpDisclosureHrefFromSearch,
-} from "@/lib/administration/sso-protocol-help-disclosure-url";
+  parseSsoWizardProtocolHelpOpenFromSearch,
+  ssoWizardProtocolHelpDisclosureHrefFromSearch,
+} from "@/lib/administration/sso-wizard-protocol-help-disclosure-url";
 import {
   SSO_WIZARD_PROTOCOL_HELP_BODY,
   SSO_WIZARD_PROTOCOL_HELP_SUMMARY,
@@ -19,12 +20,12 @@ export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? SSO_WIZARD_CANONICAL_PATH;
   const searchParams = useSearchParams();
-  const ssoProtocolHelpOpenParam = searchParams.get("ssoProtocolHelpOpen");
-  const [open, setOpenState] = useState(() => parseSsoProtocolHelpOpenFromSearch(ssoProtocolHelpOpenParam));
+  const ssoWizardProtocolHelpOpenParam = searchParams.get("ssoWizardProtocolHelpOpen");
+  const [open, setOpenState] = useState(() => parseSsoWizardProtocolHelpOpenFromSearch(ssoWizardProtocolHelpOpenParam));
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(ssoProtocolHelpDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+      router.replace(ssoWizardProtocolHelpDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
         scroll: false,
       });
     },
@@ -40,8 +41,8 @@ export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setOpenState(parseSsoProtocolHelpOpenFromSearch(ssoProtocolHelpOpenParam));
-  }, [ssoProtocolHelpOpenParam]);
+    setOpenState(parseSsoWizardProtocolHelpOpenFromSearch(ssoWizardProtocolHelpOpenParam));
+  }, [ssoWizardProtocolHelpOpenParam]);
 
   return (
     <details

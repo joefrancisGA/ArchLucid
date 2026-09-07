@@ -322,6 +322,17 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-54");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_cases_55_57_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-55");
+        await RecordHandAuthoredCaseAsync("case-56");
+        await RecordHandAuthoredCaseAsync("case-57");
+    }
+
     private static async Task RecordPathEngineCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,

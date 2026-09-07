@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
@@ -29,6 +31,10 @@ import {
   FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
   isFirstReviewGuideProgressDeepLinkHash,
 } from "@/lib/first-review-guide-route";
+import {
+  firstReviewGuideTechnicalIdentifiersDisclosureHrefFromSearch,
+  parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch,
+} from "@/lib/architecture/first-review-guide-technical-identifiers-disclosure-url";
 import { useDeepLinkHashScroll } from "@/hooks/use-deep-link-hash-scroll";
 import {
   FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE,
@@ -124,8 +130,39 @@ function FirstReviewGuideSealedRecordProvenance(props: {
   readonly sealedReviewRecord: NonNullable<ReturnType<typeof useFirstReviewGuideState>["sealedReviewRecord"]>;
 }) {
   const { sealedReviewRecord } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const firstReviewGuideTechnicalIdentifiersOpenParam = searchParams.get("firstReviewGuideTechnicalIdentifiersOpen");
+  const [technicalIdentifiersOpen, setTechnicalIdentifiersOpenState] = useState(() =>
+    parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch(firstReviewGuideTechnicalIdentifiersOpenParam),
+  );
   const recordTitle = sealedReviewRecord.displayName ?? "Architecture review";
   const finalizedOn = sealedRecordFinalizedOnLabel(sealedReviewRecord.finalizedOnUtc);
+
+  const syncTechnicalIdentifiersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        firstReviewGuideTechnicalIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalIdentifiersOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalIdentifiersOpenState(open);
+      syncTechnicalIdentifiersOpenToUrl(open);
+    },
+    [syncTechnicalIdentifiersOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalIdentifiersOpenState(
+      parseFirstReviewGuideTechnicalIdentifiersOpenFromSearch(firstReviewGuideTechnicalIdentifiersOpenParam),
+    );
+  }, [firstReviewGuideTechnicalIdentifiersOpenParam]);
 
   return (
     <div className="space-y-1" data-testid="first-review-guide-sealed-record-provenance">
@@ -133,7 +170,13 @@ function FirstReviewGuideSealedRecordProvenance(props: {
         <span className="font-medium text-neutral-900 dark:text-neutral-100">{recordTitle}</span>
         {finalizedOn !== null ? ` — finalized ${finalizedOn}` : null}
       </p>
-      <details className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
+      <details
+        className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}
+        open={technicalIdentifiersOpen}
+        onToggle={(event) => {
+          setTechnicalIdentifiersOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
         <summary className={cn("cursor-pointer", OPERATOR_TYPOGRAPHY.helper)}>Technical identifiers</summary>
         <p className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper)}>Record ID: {sealedReviewRecord.runId}</p>
         {sealedReviewRecord.finalizedByUserId !== null ? (
