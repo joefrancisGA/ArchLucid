@@ -141,7 +141,12 @@ Describe 'al-bug-pick-zone.ps1' {
 
     It 'samples an untried zone ahead of a high-hypothesis sampled zone' {
         [string]$ledger = New-LedgerFixture -Content (Get-TwoZoneLedger)
-        $result = Invoke-Picker -LedgerPath $ledger
+        [string]$runLog = Join-Path $TestDrive 'zone-a-thorough.jsonl'
+        $lines = 1..12 | ForEach-Object {
+            '{"at":"2026-08-0' + ($_ % 9 + 1) + 'T00:00:00Z","zoneId":"zone-a","outcome":"dry"}'
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog
 
         $result.zoneId | Should -Be 'zone-b'
         $result.score | Should -Be 6
@@ -449,9 +454,14 @@ Describe 'al-bug-pick-zone.ps1' {
         $one = Get-TwoZoneLedger -ZoneBOpenCount 1
         $three = Get-TwoZoneLedger -ZoneBOpenCount 3
         [string]$ledgerOne = New-LedgerFixture -Content $one
-        $resultOne = Invoke-Picker -LedgerPath $ledgerOne
         [string]$ledgerThree = New-LedgerFixture -Content $three
-        $resultThree = Invoke-Picker -LedgerPath $ledgerThree
+        [string]$runLog = Join-Path $TestDrive 'zone-a-thorough-candidates.jsonl'
+        $lines = 1..12 | ForEach-Object {
+            '{"at":"2026-08-0' + ($_ % 9 + 1) + 'T00:00:00Z","zoneId":"zone-a","outcome":"hit"}'
+        }
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+        $resultOne = Invoke-Picker -LedgerPath $ledgerOne -RunLogPath $runLog
+        $resultThree = Invoke-Picker -LedgerPath $ledgerThree -RunLogPath $runLog
 
         $resultOne.zoneId | Should -Be 'zone-b'
         $resultThree.zoneId | Should -Be 'zone-b'
@@ -1263,5 +1273,66 @@ Describe 'al-bug-pick-zone.ps1' {
 
         $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2025-02-28T00:00:00Z' -Hint 'zone-a'
         $result.zoneId | Should -Be 'zone-a'
+    }
+
+    It 'does not shrink explore bonus for seed-only run-log activity' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Foo.cs
+- **hunts:** 10
+- **bugs-found:** 0
+- **last-hunt:** 2026-01-01
+- **test-filter:** ``FullyQualifiedName~Foo``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) repro target
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Core/Bar.cs
+- **hunts:** 0
+- **bugs-found:** 0
+- **last-hunt:** never
+- **test-filter:** ``FullyQualifiedName~Bar``
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) repro target
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'seed-only.jsonl'
+        $lines = @(
+            '{"at":"2026-09-06T12:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T13:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T14:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T15:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T16:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T17:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T18:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T19:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T20:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+            '{"at":"2026-09-06T21:00:00Z","zoneId":"zone-a","outcome":"seed-only"}'
+        )
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $seedOnly = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z' -Hint 'zone-a'
+        $thorough = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-09-07T00:00:00Z' -Hint 'zone-b'
+
+        $seedOnly.exploreBonus | Should -Be 1
+        $seedOnly.thoroughHunts | Should -Be 0
+        $seedOnly.seedOnly24h | Should -Be 10
+        $thorough.exploreBonus | Should -Be 1
     }
 }

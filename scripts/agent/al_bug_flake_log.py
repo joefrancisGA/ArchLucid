@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import re
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -128,3 +130,84 @@ def suggest_flake_zone(ledger_text: str, paths: list[str]) -> str:
     if not matches:
         return "unzoned"
     return matches[0]
+
+
+TRX_NS = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+
+
+def _trx_local(tag: str) -> str:
+    if "}" in tag:
+        return tag.rsplit("}", 1)[-1]
+    return tag
+
+
+def map_test_to_production_paths(test_name: str) -> list[str]:
+    if "ArchLucid.Application.Tests" in test_name:
+        return ["ArchLucid.Application/Runs/"]
+    if "ArchLucid.Api.Tests" in test_name:
+        return ["ArchLucid.Api/"]
+    if "ArchLucid.Core.Tests" in test_name:
+        return ["ArchLucid.Core/"]
+    if "ArchLucid.Persistence.Tests" in test_name:
+        return ["ArchLucid.Persistence/"]
+    return []
+
+
+def parse_trx_fail_then_pass(trx_path: Path) -> list[dict]:
+    """Return flake candidate dicts for tests that failed then passed in one TRX run."""
+    root = ET.parse(trx_path).getroot()
+    by_test: dict[str, list[str]] = {}
+    for unit_result in root.iter():
+        if _trx_local(unit_result.tag) != "UnitTestResult":
+            continue
+        test_name = unit_result.attrib.get("testName") or unit_result.attrib.get("name") or ""
+        if not test_name:
+            continue
+        outcome = unit_result.attrib.get("outcome", "").lower()
+        if not outcome:
+            continue
+        by_test.setdefault(test_name, []).append(outcome)
+
+    results: list[dict] = []
+    for test_name, outcomes in by_test.items():
+        failed = any(item == "failed" for item in outcomes)
+        passed = any(item == "passed" for item in outcomes)
+
+        if not (failed and passed):
+            continue
+
+        paths = map_test_to_production_paths(test_name)
+        results.append(
+            {
+                "test": test_name,
+                "job": "local-trx",
+                "ref": str(trx_path),
+                "paths": paths,
+                "attempts": max(2, len(outcomes)),
+            }
+        )
+    return results
+
+
+def preview_trx_candidates(
+    trx_path: Path,
+    ledger_text: str,
+    now_utc: datetime,
+    *,
+    job: str = "local-trx",
+) -> list[dict]:
+    lines: list[dict] = []
+    for item in parse_trx_fail_then_pass(trx_path):
+        zone_id = suggest_flake_zone(ledger_text, item["paths"]) if item["paths"] else "unzoned"
+        lines.append(
+            {
+                "at": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "test": item["test"],
+                "job": job,
+                "ref": item["ref"],
+                "paths": item["paths"],
+                "zoneId": zone_id,
+                "attempts": int(item["attempts"]),
+            }
+        )
+    return lines

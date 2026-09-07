@@ -7,10 +7,12 @@ import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWor
 import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickActions";
 import { OperatorInventoryRowMoreActions } from "@/components/operator/OperatorInventoryRowMoreActions";
 import { Button } from "@/components/ui/button";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
+import { resolveGovernanceQueueReturnLocator } from "@/lib/governance/governance-return-locator";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsQueueViewRecordCta } from "@/lib/governance/governance-assigned-to-me-queue-copy";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
@@ -45,6 +47,11 @@ export function GovernanceFindingsQueueOperationalActions(
   props: GovernanceFindingsQueueOperationalActionsProps,
 ): ReactElement {
   const { row, testIdPrefix, queueMode = "tenant" } = props;
+  const draftEntries = useArchitectureDraftRegistryEntries();
+  const returnLocator = resolveGovernanceQueueReturnLocator({
+    runId: row.runId,
+    draftRegistryEntries: draftEntries,
+  });
   const riskException = resolveGovernanceQueueRiskExceptionAction(row);
   const viewRecordCta = governanceFindingsQueueViewRecordCta(queueMode);
   const primaryAction = (
@@ -64,8 +71,13 @@ export function GovernanceFindingsQueueOperationalActions(
         primaryActions={primaryAction}
         overflowActions={
           <>
+            {returnLocator.architectureDeskHref !== null ? (
+              <Button asChild variant="outline" size="sm" className="h-8">
+                <Link href={returnLocator.architectureDeskHref}>Open architecture</Link>
+              </Button>
+            ) : null}
             <Button asChild variant="outline" size="sm" className="h-8">
-              <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
+              <Link href={returnLocator.reviewJobHref}>Open review job</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="h-8">
               <Link
@@ -108,8 +120,13 @@ export function GovernanceFindingsQueueOperationalActions(
       data-testid={testIdPrefix !== undefined ? `${testIdPrefix}-actions` : "governance-findings-queue-row-actions"}
     >
       {primaryAction}
+      {returnLocator.architectureDeskHref !== null ? (
+        <Button asChild variant="outline" size="sm" className="h-8">
+          <Link href={returnLocator.architectureDeskHref}>Open architecture</Link>
+        </Button>
+      ) : null}
       <Button asChild variant="outline" size="sm" className="h-8">
-        <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
+        <Link href={returnLocator.reviewJobHref}>Open review job</Link>
       </Button>
       <Button asChild variant="outline" size="sm" className="h-8">
         <Link

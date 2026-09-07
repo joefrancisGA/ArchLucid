@@ -37,26 +37,61 @@ DEFAULT_RUN_LOG = Path(__file__).resolve().parents[2] / "docs/library/AL_BUG_HUN
 DEFAULT_JOB_MAP = Path(__file__).resolve().parent / "al-bug-ci-test-to-paths.json"
 
 
-def load_job_map(path: Path | None) -> dict[str, list[str]]:
+def load_job_map(path: Path | None) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
     if path is None or not path.is_file():
-        return {}
+        return {}, {}
     payload = json.loads(path.read_text(encoding="utf-8"))
     mapped: dict[str, list[str]] = {}
+    prefixes: dict[str, list[str]] = {}
     for key, value in payload.items():
+        if key == "_prefixes" and isinstance(value, dict):
+            for prefix, paths in value.items():
+                if isinstance(paths, list):
+                    prefixes[str(prefix)] = [str(item) for item in paths]
+            continue
         if key.startswith("_"):
             continue
         if isinstance(value, list):
             mapped[key] = [str(item) for item in value]
-    return mapped
+    return mapped, prefixes
 
 
-def resolve_paths(explicit_paths: list[str], check_names: list[str], job_map: dict[str, list[str]]) -> list[str]:
+def resolve_paths(
+    explicit_paths: list[str],
+    check_names: list[str],
+    job_map: dict[str, list[str]],
+    prefix_map: dict[str, list[str]],
+) -> list[str]:
     if explicit_paths:
         return list(explicit_paths)
     resolved: list[str] = []
     for name in check_names:
-        resolved.extend(job_map.get(name, []))
+        if name in job_map:
+            resolved.extend(job_map[name])
+            continue
+        matched = False
+        for prefix, paths in prefix_map.items():
+            if name.startswith(prefix):
+                resolved.extend(paths)
+                matched = True
+                break
+        if matched:
+            continue
     return resolved
+
+
+def format_paste_lines(payloads: list[dict]) -> str:
+    if not payloads:
+        return ""
+    lines = [
+        "# Paste into docs/library/AL_BUG_ESCAPE_LOG.jsonl (one line per zone; source=ci is not a PD)",
+        "",
+    ]
+    for payload in payloads:
+        if payload.get("zoneId") in (None, "", "unzoned"):
+            continue
+        lines.append(json.dumps(payload, separators=(",", ":")))
+    return "\n".join(lines) + ("\n" if lines else "")
 
 
 def build_escape_payloads(
@@ -142,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-log", type=Path, default=DEFAULT_RUN_LOG)
     parser.add_argument("--output", type=Path, help="Write dry-run JSONL to this path (artifact).")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--paste", action="store_true", help="Print JSONL lines to paste when zoneId is mapped.")
     parser.add_argument("--at-utc", help="ISO-8601 UTC timestamp for tests.")
     args = parser.parse_args(argv)
 
@@ -151,8 +187,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         now_utc = datetime.now(timezone.utc)
 
-    job_map = load_job_map(args.job_map if args.job_map.is_file() else None)
-    paths = resolve_paths(args.paths, check_names, job_map)
+    job_map, prefix_map = load_job_map(args.job_map if args.job_map.is_file() else None)
+    paths = resolve_paths(args.paths, check_names, job_map, prefix_map)
     if not paths:
         print("skip: no production paths recovered (unknown job is not written as unzoned)", file=sys.stderr)
         return 0
@@ -171,10 +207,15 @@ def main(argv: list[str] | None = None) -> int:
         print("skip: paths did not match a hunt zone (not writing unzoned)", file=sys.stderr)
         return 0
 
-    written = append_or_print(payloads, args.escape_log, dry_run=args.dry_run)
+    written = append_or_print(payloads, args.escape_log, dry_run=args.dry_run or args.paste)
     text = "".join(json.dumps(item, separators=(",", ":")) + "\n" for item in written)
     if args.output is not None:
         args.output.write_text(text, encoding="utf-8")
+    if args.paste:
+        paste = format_paste_lines(written or payloads)
+        if paste:
+            sys.stdout.write(paste)
+        return 0
     if args.dry_run or written:
         sys.stdout.write(text)
     return 0

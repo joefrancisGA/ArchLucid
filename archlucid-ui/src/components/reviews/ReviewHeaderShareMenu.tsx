@@ -7,6 +7,7 @@ import { useCallback, useState, type ReactElement, type SetStateAction } from "r
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
+import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
 import { buildReviewMeetingPacketSteps } from "@/components/reviews/ReviewMeetingPacketButton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -25,6 +26,7 @@ export type ReviewHeaderShareMenuProps = {
   readonly isCommitted: boolean;
   readonly findingsQueueHref: string;
   readonly manifestVersion?: string | null;
+  readonly parentArchitectureId?: string | null;
   readonly canInviteReviewer?: boolean;
   readonly disabled?: boolean;
   readonly disabledReason?: WhyDisabledCtaReason | null;
@@ -130,6 +132,10 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
             runId={props.runId}
             isCommitted={props.isCommitted}
             manifestVersion={props.manifestVersion}
+          />
+          <WorkingReviewCopyLinkButton
+            runId={props.runId}
+            parentArchitectureId={props.parentArchitectureId}
           />
         </div>
         <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800" data-testid="review-header-share-menu-exports">

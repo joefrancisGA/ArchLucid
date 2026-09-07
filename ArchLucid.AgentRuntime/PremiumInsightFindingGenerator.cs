@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Retrieval;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,8 @@ public sealed class PremiumInsightFindingGenerator(
     IOptionsMonitor<AgentModelTierOptions> tierOptions,
     IInsightDensityGateOptionsResolver gateOptionsResolver,
     IEffectiveAgentExecutionModeAccessor executionModeAccessor,
+    IGraphCommunitySummaryLookup communitySummaryLookup,
+    IOptionsMonitor<AdvancedRetrievalOptions> advancedRetrievalOptions,
     IConfiguration configuration,
     ILogger<PremiumInsightFindingGenerator> logger) : IInsightFindingGenerator
 {
@@ -32,6 +35,12 @@ public sealed class PremiumInsightFindingGenerator(
 
     private readonly IEffectiveAgentExecutionModeAccessor _executionModeAccessor =
         executionModeAccessor ?? throw new ArgumentNullException(nameof(executionModeAccessor));
+
+    private readonly IGraphCommunitySummaryLookup _communitySummaryLookup =
+        communitySummaryLookup ?? throw new ArgumentNullException(nameof(communitySummaryLookup));
+
+    private readonly IOptionsMonitor<AdvancedRetrievalOptions> _advancedRetrievalOptions =
+        advancedRetrievalOptions ?? throw new ArgumentNullException(nameof(advancedRetrievalOptions));
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -61,9 +70,13 @@ public sealed class PremiumInsightFindingGenerator(
             return [];
         }
 
+        IReadOnlyList<InsightGeneratorCommunitySummary> communitySummaries =
+            await ResolveCommunitySummariesAsync(graphSnapshot, cancellationToken).ConfigureAwait(false);
+
         HashSet<string> allowedRefs = InsightGeneratorEvidenceSummary.CollectAllowedEvidenceRefs(
             engineFindings,
-            graphSnapshot);
+            graphSnapshot,
+            communitySummaries);
 
         if (allowedRefs.Count == 0)
         {
@@ -75,7 +88,8 @@ public sealed class PremiumInsightFindingGenerator(
             engineFindings,
             graphSnapshot,
             allowedRefs,
-            options.MaxGeneratedInsightFindingsPerSnapshot);
+            options.MaxGeneratedInsightFindingsPerSnapshot,
+            communitySummaries);
 
         (IAgentCompletionClient completionClient, _) = _tierCompletionRouter.ResolveForAgentTypeName(
             InsightDensityJudgeAgentTypeNames.Judge,
@@ -120,6 +134,20 @@ public sealed class PremiumInsightFindingGenerator(
 
             return [];
         }
+    }
+
+    private async Task<IReadOnlyList<InsightGeneratorCommunitySummary>> ResolveCommunitySummariesAsync(
+        GraphSnapshot graphSnapshot,
+        CancellationToken cancellationToken)
+    {
+        AdvancedRetrievalOptions retrievalOptions = _advancedRetrievalOptions.CurrentValue;
+
+        if (!retrievalOptions.Enabled || !retrievalOptions.EnableCommunitySummarization)
+            return [];
+
+        return await _communitySummaryLookup
+            .GetSummariesAsync(graphSnapshot, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private bool IsRealExecutionMode()

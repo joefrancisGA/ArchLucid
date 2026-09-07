@@ -6,6 +6,7 @@ import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architect
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
   OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
+  WORKING_REVIEWS_INBOX_NAV_LABEL,
   isReviewsListNavHref,
   resolveNavLinkPresentation,
   resolveNewReviewNavLinkLabel,
@@ -110,6 +111,19 @@ describe("operator-nav-labels", () => {
 
     expect(resolveNavLinkPresentation(source, false, false).label).toBe("Reviews");
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
+  });
+
+  it("AO-14: Working reviews list nav is labeled as inbox", () => {
+    const source = {
+      href: "/architecture/reviews",
+      label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
+      title: "Browse architecture reviews",
+    };
+
+    const working = resolveNavLinkPresentation(source, false, false, true);
+
+    expect(working.label).toBe(WORKING_REVIEWS_INBOX_NAV_LABEL);
+    expect(working.title).toContain("inbox");
   });
 
   it("TB-882: curated operator surfaces keep sidebar labels aligned with route titles", () => {

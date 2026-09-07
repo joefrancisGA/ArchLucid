@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURES_LIST_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import {
   sidebarMoreLinksCollapseLabel,
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
@@ -176,6 +182,66 @@ describe("splitSidebarLinksDailyVsMore", () => {
       "/internal/pricing-quote-aging",
     ]);
     expect(split.more.map((row) => row.href)).toEqual(["/internal/tenant-health", "/internal/tenants"]);
+  });
+
+  it("AO-14: Working pilot daily strip leads with architectures then review inbox", () => {
+    const links = [
+      link("/", "Home"),
+      link(ARCHITECTURES_LIST_PATH, "Architectures"),
+      link(REVIEWS_LIST_PATH, "Reviews"),
+      link(SIGNED_RECORDS_LIST_PATH, "Sealed records"),
+      link(SPONSOR_DASHBOARD_HREF, "Portfolio"),
+      link("/architecture/first-review-guide", "Getting started"),
+      link("/architecture/digests", "Digests"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("pilot", links, "/", true);
+
+    expect(split.daily.map((row) => row.href)).toEqual([
+      ARCHITECTURES_LIST_PATH,
+      REVIEWS_LIST_PATH,
+      "/",
+      SIGNED_RECORDS_LIST_PATH,
+      SPONSOR_DASHBOARD_HREF,
+    ]);
+    expect(split.more.map((row) => row.href)).toEqual([
+      "/architecture/first-review-guide",
+      "/architecture/digests",
+    ]);
+  });
+
+  it("AO-14: Working operate-analysis demotes insight tools to more", () => {
+    const links = [
+      link("/insights/evidence-graph", "Evidence graph"),
+      link("/insights/ask-review-questions", "Ask review questions"),
+      link("/insights/search-review-evidence", "Search review evidence"),
+      link("/insights/sponsor-report", "Sponsor report"),
+      link("/insights/compare-two-reviews", "Compare two reviews"),
+    ];
+    const split = splitSidebarLinksDailyVsMore("operate-analysis", links, "/", true);
+
+    expect(split.daily).toEqual([]);
+    expect(split.more.map((row) => row.href)).toEqual([
+      "/insights/evidence-graph",
+      "/insights/ask-review-questions",
+      "/insights/search-review-evidence",
+      "/insights/sponsor-report",
+      "/insights/compare-two-reviews",
+    ]);
+  });
+
+  it("AO-14: Guided operate-analysis keeps insight tools in the daily strip", () => {
+    const links = [
+      link("/insights/evidence-graph", "Evidence graph"),
+      link("/insights/ask-review-questions", "Ask review questions"),
+      link("/insights/compare-two-reviews", "Compare two reviews"),
+      link("/insights/patterns", "Pattern library"),
+    ];
+    const guided = splitSidebarLinksDailyVsMore("operate-analysis", links, "/", false);
+    const working = splitSidebarLinksDailyVsMore("operate-analysis", links, "/", true);
+
+    expect(guided.daily.map((row) => row.href)[0]).toBe("/insights/evidence-graph");
+    expect(working.daily).toEqual([]);
+    expect(working.more.length).toBe(links.length);
   });
 });
 

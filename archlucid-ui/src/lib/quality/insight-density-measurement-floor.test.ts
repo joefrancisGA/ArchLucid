@@ -13,7 +13,7 @@ describe("insight-density-measurement-floor (PC-01 / DX-15)", () => {
 
     const presentation = formatInsightDensityMeasurementFloorPresentation(23);
 
-    expect(presentation.catalogEngineCount).toBe(47);
+    expect(presentation.catalogEngineCount).toBe(48);
     expect(presentation.harnessEngineCount).toBe(32);
     expect(presentation.measuredThisRunEngineCount).toBe(23);
   });
@@ -21,7 +21,7 @@ describe("insight-density-measurement-floor (PC-01 / DX-15)", () => {
   it("names partial coverage without claiming full catalog measurement", () => {
     const presentation = formatInsightDensityMeasurementFloorPresentation(10);
 
-    expect(presentation.line).toContain("10 of 47");
+    expect(presentation.line).toContain("10 of 48");
     expect(presentation.line).toContain("analytically incomplete");
     expect(presentation.meetsCareerExportFloor).toBe(false);
     expect(presentation.line).not.toMatch(/all engines (were )?scored/i);

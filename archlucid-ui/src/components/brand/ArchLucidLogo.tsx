@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 
 import { ArchLucidMark } from "@/components/brand/ArchLucidMark";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
+import { PRODUCT_LINE_DISPLAY_NAME } from "@/lib/product-line/product-line-display-name";
 
 /**
  * Layout variants:
@@ -25,12 +26,14 @@ export type ArchLucidLogoProps = {
   className?: string;
   /** Extra classes for the wordmark text (ignored by the `mark` variant). */
   wordmarkClassName?: string;
+  /** Visible wordmark text. Defaults to the Architecture product name. */
+  wordmarkText?: string;
   navyColor?: string;
   tealColor?: string;
 };
 
-const WORDMARK_TEXT = "ArchLucid";
-const DEFAULT_ACCESSIBLE_NAME = "ArchLucid";
+const DEFAULT_WORDMARK_TEXT = PRODUCT_LINE_DISPLAY_NAME.architecture;
+const DEFAULT_ACCESSIBLE_NAME = PRODUCT_LINE_DISPLAY_NAME.architecture;
 
 /** Per-variant defaults kept in one place so callers rarely pass `size`. */
 type VariantLayout = {
@@ -81,6 +84,7 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
       size,
       className,
       wordmarkClassName,
+      wordmarkText = DEFAULT_WORDMARK_TEXT,
       navyColor = ARCHLUCID_BRAND.navy,
       tealColor = ARCHLUCID_BRAND.teal,
     },
@@ -129,7 +133,7 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
           )}
           style={{ color: navyColor }}
         >
-          {WORDMARK_TEXT}
+          {wordmarkText}
         </span>
       </span>
     );

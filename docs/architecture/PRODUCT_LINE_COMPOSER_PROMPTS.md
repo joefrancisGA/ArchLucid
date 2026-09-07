@@ -11,6 +11,8 @@ One Next.js app and **one** `ArchLucid.Api`. Local loop: `.\scripts\start-local-
 
 Paste **one** `.cursor/prompts/product-line-NN-*.md` file per Composer session. **Do not implement from this document’s tables.**
 
+Related (do not mix into a PL session): Security **display name** SecureNow is **SN-01–SN-08** — [`SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md`](SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md). **SN-01** replaces PL-02’s `ArchLucid Security` wordmark with **SecureNow**.
+
 ## Diagnosis → prompt
 
 | Class | Prompt | Residual |

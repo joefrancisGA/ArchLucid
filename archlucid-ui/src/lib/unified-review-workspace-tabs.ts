@@ -1,4 +1,5 @@
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { FROM_GENERATION_QUERY_KEY } from "@/lib/review-generation-handoff";
 import {
@@ -79,6 +80,8 @@ export type BuildReviewWorkspaceTabHrefOptions = {
   /** Opt in when a deep link must mount create-home chrome (TB-1833). */
   readonly includeCreateIntent?: boolean;
   readonly hash?: string | null;
+  /** Working nested review workspace base when architecture id is known (AO-33). */
+  readonly architectureId?: string | null;
 };
 
 function appendHashToHref(href: string, hash: string | null | undefined): string {
@@ -105,12 +108,15 @@ export function buildReviewWorkspaceTabHref(
       [FROM_GENERATION_QUERY_KEY]: "1",
       intent: CREATE_ARCHITECTURE_INTENT,
     });
-    const base = `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
+    const base = `${resolveArchitectureReviewHref(runId.trim(), options?.architectureId)}?${params.toString()}`;
 
     return appendHashToHref(base, options.hash);
   }
 
-  return buildReviewDetailTabHref(runId, tab, { hash: options?.hash });
+  return buildReviewDetailTabHref(runId, tab, {
+    hash: options?.hash,
+    architectureId: options?.architectureId,
+  });
 }
 
 /** Create-home deep link from legacy archTab ids — emits `reviewTab` + create intent (TB-2363). */

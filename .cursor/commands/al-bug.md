@@ -14,7 +14,7 @@ Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`
 
 | Kind | When | What you must do |
 | --- | --- | --- |
-| **Seed hunt** | Picker JSON `seedHunt` is `true`, or zone `status` is `unseeded` | Say **This /al-bug run is a seed hunt** (zone id). Reseed hypotheses from the zone files (Phase 1.1a). If you promote a hunt-ready row, prove it in this same run. If nothing is hunt-ready, stop as **seed-only** and say so in the result table. |
+| **Seed hunt** | Picker JSON `seedHunt` is `true`, or zone `status` is `unseeded` | Say **This /al-bug run is a seed hunt** (zone id). Reseed hypotheses from the zone files (Phase 1.1a). Seed-only does **not** satisfy a queued thorough hunt. If you promote a hunt-ready row, prove it in this same run. If nothing is hunt-ready, stop as **seed-only** and say so in the result table. |
 | **Thorough hunt** | Otherwise | Say **This /al-bug run is a thorough defect hunt** (zone id). Complete cheap-disproof **and** failing-repro attempts on remaining hunt-ready rows. Ship a **hit** or a **dry** — never a file-skim exit. |
 
 Queued `/al-bug` messages, cloud follow-up queues, and “defer slow testing while queued” **do not** change the kind or shorten it.
@@ -164,9 +164,11 @@ Optional: after reading zone files, run `.\scripts\agent\al-bug-seed-from-analyz
 
 Optional: when a scheduled Stryker `mutation-report.json` is already on disk, run `.\scripts\agent\al-bug-seed-from-surviving-mutants.ps1 -ZoneId '<id>' -ReportPath <mutation-report.json> -Preview` and paste `(candidate)` rows only. Surviving mutants are **not** hunt-ready. Cheap-disproof 1.1c: unreachable or equivalent mutant → leave candidate or `(invalid)`. Do **not** run `dotnet stryker`.
 
-Optional: `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` for tests that flaked ≥ 3 times in 30 days. Flakes are not hunt-ready (slow ≠ racy).
+Optional: `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` for tests that flaked ≥ 3 times in 30 days. When a TRX is already on disk: `--trx <path> --preview` (stdout only). Flakes are not hunt-ready (slow ≠ racy).
 
-Optional: for API zones, run `dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~SchemaAuthz`. Paste catalog failures as `(candidate) [class:authz-scope]` — still not hunt-ready without reachability. This is a contract catalog, not a pen test.
+If you run more than one seeder, merge previews through `.\scripts\agent\al-bug-seed-preview.ps1` (cap 15; cross-source dedup) — do not paste three raw dumps.
+
+Optional: for API zones, run `dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter FullyQualifiedName~SchemaAuthz`. Paste catalog failures as `(candidate) [class:authz-scope]` — still not hunt-ready without reachability. The ABQ-39 host probe is Slow/SQL skip; not a pen test.
 
 ### 1.1b Hunt-ready quality bar
 
@@ -257,7 +259,7 @@ Exit code **2** → stop; tell the user which paths are blocked.
 3. The fix must close a **class** of inputs, not one instance. Forbidden as the entire fix: appending one string to a keyword/phrase/allowlist so a single new theory case passes. If the mechanism is substring or phrase matching, change the mechanism (see ABQ tokenizer/redaction patterns) or close the row `(valid-no-repro)` — do not ship an instance-list diff.
 4. If picker JSON lists `escalatedFiles` containing the implicated production file, **do not ship** another allowlist/phrase-list patch to that file. Record the hunt as `dry`/`invalid` and cite ABQ-01–04 or a design fix instead.
 5. Keep the regression test in the permanent test file (delete temporary repro-only files).
-6. The shipped test must **fail** if the production hunk alone is reverted (revert-to-fail honesty). Owners may batch-check with `python3 scripts/agent/al-bug-verify-proven-revert.py`. New unguarded `(proven)` rows fail the ABQ-34 ratchet vs `scripts/ci/al-bug-unguarded-proven-baseline.json` (`--fail-on-new-unguarded`); do not mass-retick historical rows.
+6. The shipped test must **fail** if the production hunk alone is reverted (revert-to-fail honesty). Owners may batch-check with `python3 scripts/agent/al-bug-verify-proven-revert.py`. New unguarded `(proven)` rows fail the ABQ-34/36 ratchet vs `scripts/ci/al-bug-unguarded-proven-baseline.json` (`--fail-on-new-unguarded`); new `no-test-cited` / `could-not-run` rows fail ABQ-45 vs `scripts/ci/al-bug-uncheckable-proven-baseline.json`. `could-not-run` is not a pass. Do not mass-retick historical rows.
 7. Do **not** run `dotnet stryker` during `/al-bug`. Mutation score in picker preview is display-only from scheduled baselines.
 8. Run scoped tests again — all relevant tests must pass.
 9. Optional **one** scoped compile check when .NET production code changed:
@@ -367,7 +369,7 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 
 ## Canonical files
 
-- `docs/architecture/AL_BUG_QUALITY_COMPOSER_PROMPTS.md` — Composer set **ABQ-01–10** (hunt-quality; paste one `.cursor/prompts/al-bug-quality-NN-*.md` per session; do not implement quality reforms by running `/al-bug`)
+- `docs/architecture/AL_BUG_QUALITY_COMPOSER_PROMPTS.md` — Composer set **ABQ-01–45** (01–35 shipped; paste **36–45** one `.cursor/prompts/al-bug-quality-NN-*.md` per session; do not implement quality reforms by running `/al-bug`)
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
@@ -379,7 +381,7 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 
 ## Related commands
 
-- **ABQ-01–35** — hunt-quality Composer prompts (`.cursor/prompts/al-bug-quality-00-index.md`)
+- **ABQ-01–45** — hunt-quality Composer prompts (`.cursor/prompts/al-bug-quality-00-index.md`; **36–45** ready to run; **01–35** shipped)
 - `/al-defect` — production defect intake (`PD-###`) from operator reports
 - Seeded-defect drills (`scripts/agent/al-bug-seeded-defect-drill.py`) are offline; they do not count as hunts and must not push `bugsmash`.
 - `/al-bug-api` — same hunt workflow via Cloud Agent API (default `bugsmash`)

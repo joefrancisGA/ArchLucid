@@ -13,6 +13,8 @@ One Next.js app and **one** `ArchLucid.Api`. Product line is **UI composition**:
 
 Copy-paste docs index: [`docs/architecture/PRODUCT_LINE_COMPOSER_PROMPTS.md`](../../docs/architecture/PRODUCT_LINE_COMPOSER_PROMPTS.md).
 
+Consumer brand follow-on (separate sessions): [`.cursor/prompts/securenow-brand-00-index.md`](securenow-brand-00-index.md) (**SN-01–SN-08**). Security chrome display name is **SecureNow**; do not fold that rename into PL-02.
+
 ## Diagnosis → prompt
 
 | # | Concern | Prompt | What moves |

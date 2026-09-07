@@ -57,7 +57,7 @@ Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean 
 effective_bugs     = min(bugs-found, hunts) when hunts > 0
 mean_hunts_per_bug = hunts / max(1, effective_bugs) when hunts > 0, else hunts + 2 (prior)
 speed              = min(1, 1 / mean_hunts_per_bug)
-explore            = 1 / sqrt(hunts + 1)
+explore            = 1 / sqrt(thoroughHunts + 1)   # thorough = run-log hit|dry only (not seed-only)
 precision          = proven / (proven + invalid) when that sum >= 2, else omitted
                      (valid-no-repro is not in the denominator)
 
@@ -75,6 +75,8 @@ score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.6
 ```
 
 Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+
+**Seed-only:** Stanza `hunts` still increments on seed-only runs (audit trail). Seed-only does **not** count toward `thoroughHunts` for explore and does not satisfy a queued thorough hunt.
 
 **Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
 

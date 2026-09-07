@@ -32,6 +32,9 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/governance/policy-packs");
     expect(hrefs).toContain("/governance/infrastructure");
     expect(hrefs).toContain("/administration/workspace-settings/recycle-bin");
+    expect(hrefs).toContain("/integrations/azure-boards");
+    expect(hrefs).toContain("/integrations/slack");
+    expect(hrefs).toContain("/integrations/webhooks");
   });
 
   it("shows infrastructure workbenches and hides architecture reviews in the Security shell", () => {
@@ -48,8 +51,14 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/governance/infrastructure");
     expect(hrefs).toContain("/governance/infrastructure/drift");
     expect(hrefs).toContain("/integrations/cloud-connections");
+    expect(hrefs).toContain("/integrations/jira");
+    expect(hrefs).toContain("/integrations/servicenow");
+    expect(hrefs).toContain("/integrations/teams");
     expect(hrefs).toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
+    expect(hrefs).not.toContain("/integrations/azure-boards");
+    expect(hrefs).not.toContain("/integrations/slack");
+    expect(hrefs).not.toContain("/integrations/webhooks");
     expect(hrefs).not.toContain("/architecture/reviews");
     expect(hrefs).not.toContain("/architecture/architectures");
     expect(hrefs).not.toContain("/insights/evidence-graph");
@@ -93,6 +102,9 @@ describe("product-line catalog", () => {
 
     expect(hrefs).toContain("/governance/infrastructure");
     expect(hrefs).toContain("/integrations/cloud-connections");
+    expect(hrefs).not.toContain("/integrations/azure-boards");
+    expect(hrefs).not.toContain("/integrations/slack");
+    expect(hrefs).not.toContain("/integrations/webhooks");
     expect(hrefs).not.toContain("/architecture/reviews");
   });
 
@@ -108,6 +120,10 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/auth-domains", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/integrations/azure-boards", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/integrations/slack", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/integrations/webhooks", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/integrations/azure-boards", "architecture")).toBe(true);
   });
 
   it("lets an override move a destination into Security without editing the catalog file", () => {
@@ -120,6 +136,15 @@ describe("product-line catalog", () => {
         "security",
       ),
     ).toBe(true);
+  });
+
+  it("keeps recycle bin architecture-only even though workspace-settings is both", () => {
+    expect(resolveProductLineAssignmentForPath("/administration/workspace-settings")).toBe("both");
+    expect(resolveProductLineAssignmentForPath("/administration/workspace-settings/recycle-bin")).toBe("architecture");
+    expect(
+      isPathAllowedForProductLine("/administration/workspace-settings/recycle-bin", "security"),
+    ).toBe(false);
+    expect(isPathAllowedForProductLine("/administration/workspace-settings", "security")).toBe(true);
   });
 
   it("assigns every catalog key that is a live nav href", () => {

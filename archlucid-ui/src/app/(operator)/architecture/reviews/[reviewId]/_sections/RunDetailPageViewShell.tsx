@@ -120,7 +120,11 @@ export function resolveRunDetailPageViewChrome(
   );
 
   const sectionNavEl = (
-    <RunDetailSectionNavDeferred runId={m.resolvedDetail.run.runId} sections={m.runDetailNavSections} />
+    <RunDetailSectionNavDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      sections={m.runDetailNavSections}
+    />
   );
 
   const governanceCtaEl = showGovernanceCta ? (
@@ -270,6 +274,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                   <>
                     <RunDetailWorkspaceHeaderDeferred
                       runId={m.resolvedDetail.run.runId}
+                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
                       h1Title={reviewHeaderPresentation.h1Title}
                       eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
                       reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
