@@ -1,7 +1,10 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -122,6 +125,94 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
 
         ClosedLoopReasoningResult publish = await orchestrator.RunAsync(publishRequest);
         publish.CacheHit.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunAsync_concurrent_distinct_client_run_ids_both_persist_models()
+    {
+        TaskCompletionSource leaderCanFinish = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IClosedLoopExtractionStage> extractionStage = new();
+
+        extractionStage
+            .Setup(stage => stage.ExecuteAsync(It.IsAny<ClosedLoopStageContext>(), It.IsAny<CancellationToken>()))
+            .Returns(async (ClosedLoopStageContext context, CancellationToken cancellationToken) =>
+            {
+                context.Model = new ArchitectureKnowledgeModel
+                {
+                    ModelId = $"model-{context.RunId}",
+                    RunId = context.RunId,
+                    TenantId = context.TenantId,
+                    Elements =
+                    [
+                        new ArchitectureModelElement
+                        {
+                            ElementId = $"el-{context.RunId}",
+                            Name = "API",
+                            Kind = ArchitectureElementKind.Component,
+                        },
+                    ],
+                };
+
+                await leaderCanFinish.Task.WaitAsync(cancellationToken);
+            });
+
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<IClosedLoopExtractionStage>();
+        services.AddSingleton(extractionStage.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+        IArchitectureIntelligencePersistence persistence =
+            provider.GetRequiredService<IArchitectureIntelligencePersistence>();
+
+        ClosedLoopReasoningSourceText source = new()
+        {
+            FileName = "architecture.md",
+            ContentType = "text/markdown",
+            Content = "Public API exposes customer records without authentication.",
+        };
+
+        Task<ClosedLoopReasoningResult> leader = orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-coalesce-run-id",
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            DeclaredPriorities = ["Security"],
+            SourceTexts = [source],
+        });
+
+        await Task.Delay(50);
+
+        Task<ClosedLoopReasoningResult> follower = orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-coalesce-run-id",
+            RunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            DeclaredPriorities = ["Security"],
+            SourceTexts = [source],
+        });
+
+        leaderCanFinish.SetResult();
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult followerResult = await follower;
+
+        leaderResult.RunId.Should().Be("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        followerResult.RunId.Should().Be("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+        ArchitectureKnowledgeModel? leaderModel = await persistence.GetModelByRunIdAsync(
+            "tenant-coalesce-run-id",
+            leaderResult.RunId,
+            CancellationToken.None);
+        ArchitectureKnowledgeModel? followerModel = await persistence.GetModelByRunIdAsync(
+            "tenant-coalesce-run-id",
+            followerResult.RunId,
+            CancellationToken.None);
+
+        leaderModel.Should().NotBeNull();
+        followerModel.Should().NotBeNull();
     }
 
     [Fact]

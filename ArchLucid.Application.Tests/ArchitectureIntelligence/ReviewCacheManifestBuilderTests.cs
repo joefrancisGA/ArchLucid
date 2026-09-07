@@ -233,6 +233,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources()
+    {
+        ClosedLoopReasoningRequest runA = CreateRequest("Architecture note.");
+        runA.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ClosedLoopReasoningRequest runB = CreateRequest("Architecture note.");
+        runB.RunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+        ReviewCacheManifestBuilder.Build(runA).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(runB).ContentHash);
+    }
+
+    [Fact]
     public void BuildWithResolvedRunId_emits_model_fingerprint_for_assigned_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
