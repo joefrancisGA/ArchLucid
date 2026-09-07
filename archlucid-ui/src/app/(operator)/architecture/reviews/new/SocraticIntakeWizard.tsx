@@ -12,7 +12,7 @@ import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveSt
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
-import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -211,7 +211,7 @@ export function SocraticIntakeWizard() {
           </span>{" "}
           This review evaluates{" "}
           <Link
-            href={architectureDraftPath(sourceArchitectureId)}
+            href={architectureIdentityPath(sourceArchitectureId)}
             className="font-medium underline"
             title={`Architecture id ${sourceArchitectureId}`}
           >

@@ -33,4 +33,19 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "app/(operator)/architecture/reviews/_sections/reviews-hub-page-copy-resolver.test.ts",
     marker: "AO-26",
   },
+  {
+    id: "AO-22",
+    relativeTestPath: "lib/architecture/architecture-nested-start-review-routes.test.ts",
+    marker: "AO-22",
+  },
+  {
+    id: "AO-09",
+    relativeTestPath: "lib/architecture/working-share-href.test.ts",
+    marker: "AO-09",
+  },
+  {
+    id: "AO-27",
+    relativeTestPath: "lib/governance/governance-return-locator.test.ts",
+    marker: "AO-27",
+  },
 ];

@@ -102,6 +102,39 @@ export function startReviewFromArchitectureHref(architectureId: string): string 
   return `${REVIEWS_NEW_PATH}?${qs.toString()}`;
 }
 
+/** Working nested start-review path — parent architecture id is in the URL (AO-22). */
+export function architectureNestedStartReviewPath(architectureId: string): string {
+  return `${architectureIdentityPath(architectureId.trim())}/reviews/new`;
+}
+
+/** Working desk Start review — nested job under the architecture identity (AO-22). */
+export function startReviewFromArchitectureNestedHref(architectureId: string): string {
+  const qs = new URLSearchParams({
+    path: "guided-intake",
+  });
+
+  const query = qs.toString();
+
+  return query.length > 0
+    ? `${architectureNestedStartReviewPath(architectureId)}?${query}`
+    : architectureNestedStartReviewPath(architectureId);
+}
+
+/** Parses `/architecture/architectures/{id}/reviews/new` for nested start-review intake. */
+export function parseArchitectureNestedStartReviewArchitectureId(pathname: string): string | null {
+  const path = pathname.split("?")[0] ?? "";
+  const prefix = `${ARCHITECTURES_LIST_PATH}/`;
+  const suffix = "/reviews/new";
+
+  if (!path.startsWith(prefix) || !path.endsWith(suffix)) {
+    return null;
+  }
+
+  const architectureId = path.slice(prefix.length, path.length - suffix.length).trim();
+
+  return architectureId.length > 0 ? architectureId : null;
+}
+
 /** Resolves durable ArchitectureId for guided-intake `sourceArchitectureId` (AO-08 / CA-16). */
 export function resolveStartReviewSourceArchitectureId(input: {
   readonly parentArchitectureId?: string | null;

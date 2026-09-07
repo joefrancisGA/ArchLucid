@@ -47,6 +47,7 @@ type ReviewMetadataField = {
 
 export type RunDetailWorkspaceHeaderProps = {
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly h1Title: string;
   readonly eyebrowLabel: string;
   readonly reviewIdentifierLabel: string;
@@ -246,6 +247,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 runId={props.runId}
                 isCommitted={props.signedReviewRecordId !== null}
                 manifestVersion={props.signedReviewRecordId}
+                parentArchitectureId={props.parentArchitectureId}
                 findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
                 disabled={reviewPipelineIncomplete}
                 disabledReason={headerActionDisabledReason}
