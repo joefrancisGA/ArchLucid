@@ -110,6 +110,18 @@ export function usingProductTitle(productLineId: ProductLineId): string {
   return `Using ${productLineDisplayName(productLineId)}`;
 }
 
+export function productLineMicrosoftTeamsLabel(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return "Teams";
+  }
+
+  return "Microsoft Teams";
+}
+
+export function productLineTeamsNotificationsPageTitle(productLineId: ProductLineId): string {
+  return `${productLineMicrosoftTeamsLabel(productLineId)} notifications`;
+}
+
 /**
  * Rewrites architecture product name in consumer copy for the active product line.
  * Preserves `{…}` script placeholders (for example `{ArchLucid tenant ID}`) so copied runbooks keep working.
@@ -128,7 +140,9 @@ export function localizeProductCopy(productLineId: ProductLineId, text: string):
         return part;
       }
 
-      return part.replaceAll("ArchLucid", productName);
+      return part
+        .replaceAll("ArchLucid", productName)
+        .replaceAll("Microsoft Teams", "Teams");
     })
     .join("");
 }

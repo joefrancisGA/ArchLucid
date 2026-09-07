@@ -83,6 +83,29 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.sentence).not.toContain("start a new review");
   });
 
+  it("does not surface workspace AI settings as a secondary CTA for admin viewers", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      canConfigureWorkspaceAi: true,
+      legacyRunStatus: "Failed",
+      pipelineDiagnosticContext: { legacyRunStatus: "Failed" },
+      pipelineSummary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+      lastFailureSummary: {
+        failureClass: "invalidOperation",
+        reasonCode: "NoScheduledAgentTasks",
+      },
+    });
+
+    expect(next.kind).toBe("rerun-review");
+    expect(next.secondaryAction).toBeNull();
+  });
+
   it("builds a rerun href when correctionHref is absent on terminal failure", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
@@ -139,6 +162,21 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.kind).toBe("finalize-package");
     expect(next.sentence).toContain("finalize");
     expect(next.href).toBeNull();
+  });
+
+  it("routes infeasible completed runs to decision receipt export instead of finalize (FC-33)", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      runCompleted: true,
+      feasibilityVerdictKind: "HardInfeasible",
+    });
+
+    expect(next.kind).toBe("export-decision-receipt");
+    expect(next.sentence).toContain("reasoned no");
+    expect(next.sentence).not.toContain("finalize");
+    expect(next.actionLabel).toBe("Export decision receipt");
+    expect(next.href).toContain("reviewTab=evidence");
+    expect(next.href).toContain("artifacts-exports");
   });
 
   it("routes post-finalize blockers to findings review", () => {

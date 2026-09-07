@@ -222,6 +222,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),
+            new DataFlowTrustBoundaryFindingEngine(),
         ];
     }
 

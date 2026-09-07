@@ -10,6 +10,7 @@ import {
   isWorkspaceSwitcherTeachingDismissed,
   type WorkspaceSwitcherTeachingModel,
 } from "@/lib/workspace-switcher-teaching";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 
 export type WorkspaceSwitcherFirstOpenCoachProps = {
@@ -27,7 +28,8 @@ export type WorkspaceSwitcherFirstOpenCoachProps = {
 export function WorkspaceSwitcherFirstOpenCoach(
   props: WorkspaceSwitcherFirstOpenCoachProps,
 ): JSX.Element | null {
-  const model = props.model ?? buildWorkspaceSwitcherTeaching();
+  const { productLine } = useProductLine();
+  const model = props.model ?? buildWorkspaceSwitcherTeaching(productLine);
   const [ready, setReady] = useState(false);
   const [dismissed, setDismissed] = useState(true);
 

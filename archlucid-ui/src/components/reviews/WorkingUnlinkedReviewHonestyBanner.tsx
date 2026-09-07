@@ -1,14 +1,16 @@
 "use client";
 
 import type { ReactElement } from "react";
+import Link from "next/link";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   WORKING_UNLINKED_REVIEW_HONESTY_COPY,
+  WORKING_UNLINKED_REVIEW_HONESTY_LINK,
   WORKING_UNLINKED_REVIEW_HONESTY_TITLE,
   isUnlinkedArchitectureReviewJob,
 } from "@/lib/architecture/working-unlinked-review-honesty";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type WorkingUnlinkedReviewHonestyBannerProps = {
@@ -36,7 +38,11 @@ export function WorkingUnlinkedReviewHonestyBanner(
         {WORKING_UNLINKED_REVIEW_HONESTY_TITLE}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {WORKING_UNLINKED_REVIEW_HONESTY_COPY}
+        {WORKING_UNLINKED_REVIEW_HONESTY_COPY}{" "}
+        <Link href={WORKING_UNLINKED_REVIEW_HONESTY_LINK.href} className={OPERATOR_LINK.inline}>
+          {WORKING_UNLINKED_REVIEW_HONESTY_LINK.label}
+        </Link>
+        .
       </p>
     </div>
   );

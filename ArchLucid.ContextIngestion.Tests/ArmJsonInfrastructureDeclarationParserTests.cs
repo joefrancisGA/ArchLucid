@@ -575,4 +575,161 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         result.Should().HaveCount(2);
         result.Select(o => o.Name).Should().BeEquivalentTo(["hub-vnet", "subnet-a"]);
     }
+
+    [Fact]
+    public async Task ParseAsync_FederatedIdentityCredentials_PromotesIssuerAndSubject()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "oidc.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-oidc",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Graph/applications/federatedIdentityCredentials",
+                            "name": "github-main",
+                            "properties": {
+                              "issuer": "https://token.actions.githubusercontent.com",
+                              "subject": "repo:org/repo:ref:refs/heads/main",
+                              "audiences": ["api://AzureADTokenExchange"]
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["issuer"].Should().Be("https://token.actions.githubusercontent.com");
+        result[0].Properties["subject"].Should().Be("repo:org/repo:ref:refs/heads/main");
+        result[0].Properties["audience"].Should().Be("[\"api://azureadtokenexchange\"]");
+        result[0].Properties["federatedCredentialName"].Should().Be("github-main");
+    }
+
+    [Fact]
+    public async Task ParseAsync_FederatedIdentityCredentialsWithoutIssuerSubject_LeavesStableKeysAbsent()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "oidc-empty.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-oidc-empty",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Graph/applications/federatedIdentityCredentials",
+                            "name": "github-main",
+                            "properties": {
+                              "description": "placeholder"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties.Should().NotContainKey("issuer");
+        result[0].Properties.Should().NotContainKey("subject");
+        result[0].Properties.Should().NotContainKey("audience");
+        result[0].Properties["federatedCredentialName"].Should().Be("github-main");
+    }
+
+    [Fact]
+    public async Task ParseAsync_FrontDoorRouteHostName_PromotesStableKey()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "frontdoor.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-frontdoor",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/frontDoors",
+                            "name": "fd-prod",
+                            "properties": {
+                              "routeHostName": "api.contoso.com"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["routeHostName"].Should().Be("api.contoso.com");
+    }
+
+    [Fact]
+    public async Task ParseAsync_PrivateDnsVirtualNetworkLink_PromotesStableKey()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "dns.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-dns-link",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                            "name": "link1",
+                            "properties": {
+                              "virtualNetworkLink": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["virtualNetworkLink"]
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet1");
+    }
+
+    [Fact]
+    public async Task ParseAsync_UnknownStorageType_DoesNotAddDnsTopologyKeys()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "storage.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-storage",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "docs",
+                            "properties": {
+                              "publicNetworkAccess": "Enabled"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties.Should().NotContainKey("routeHostName");
+        result[0].Properties.Should().NotContainKey("privateDnsZone");
+        result[0].Properties.Should().NotContainKey("virtualNetworkLink");
+    }
 }
