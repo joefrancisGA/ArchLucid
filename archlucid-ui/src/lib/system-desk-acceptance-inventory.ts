@@ -163,4 +163,19 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     relativeTestPath: "lib/working-review-detail-path-import-guard.test.ts",
     marker: "SY-77",
   },
+  {
+    id: "SY-61",
+    relativeTestPath: "lib/architecture/working-architecture-document-title.test.ts",
+    marker: "SY-61",
+  },
+  {
+    id: "SY-87",
+    relativeTestPath: "lib/getting-started-help-working-examples.test.ts",
+    marker: "SY-87",
+  },
+  {
+    id: "SY-92",
+    relativeTestPath: "lib/signed-records-working-desk-guard.test.ts",
+    marker: "SY-92",
+  },
 ];
