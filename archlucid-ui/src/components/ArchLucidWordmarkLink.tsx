@@ -11,6 +11,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   productLineDisplayName,
   productLineShowsArchLucidMark,
+  PRODUCT_LINE_DISPLAY_NAME,
 } from "@/lib/product-line/product-line-display-name";
 
 export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
@@ -96,7 +97,9 @@ export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWord
   ) {
     const { productLine } = useProductLine();
     const layout = resolveLogoLayout(variant, logoVariant);
-    const resolvedWordmarkText = wordmarkText ?? productLineDisplayName(productLine);
+    const resolvedWordmarkText =
+      wordmarkText
+      ?? (variant === "operator" ? productLineDisplayName(productLine) : PRODUCT_LINE_DISPLAY_NAME.architecture);
     const showMark = productLineShowsArchLucidMark(productLine);
 
     return (
