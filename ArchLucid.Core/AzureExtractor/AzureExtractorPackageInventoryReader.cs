@@ -55,7 +55,7 @@ public static class AzureExtractorPackageInventoryReader
         using JsonDocument document = JsonDocument.Parse(stream);
 
         if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            return [];
+            throw new JsonException("resources.json root must be a JSON array.");
 
         List<AzureExtractorExtendedResourceRow> rows = [];
 
@@ -164,8 +164,15 @@ public static class AzureExtractorPackageInventoryReader
 
         foreach (JsonProperty property in dictionary.EnumerateObject())
         {
-            if (property.Value.ValueKind is JsonValueKind.String)
-                values[property.Name] = property.Value.GetString() ?? string.Empty;
+            if (property.Value.ValueKind is not JsonValueKind.String)
+                continue;
+
+            string value = property.Value.GetString() ?? string.Empty;
+
+            if (AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
+                value = AzureExtractorSensitivePropertyRedactor.RedactValue(value);
+
+            values[property.Name] = value;
         }
 
         return values;
@@ -187,10 +194,16 @@ public static class AzureExtractorPackageInventoryReader
                 JsonValueKind.True => "true",
                 JsonValueKind.False => "false",
                 JsonValueKind.Null => string.Empty,
+                JsonValueKind.Object or JsonValueKind.Array =>
+                    AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(property.Value),
                 _ => property.Value.GetRawText(),
             };
 
-            if (AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
+            if (property.Value.ValueKind is JsonValueKind.String
+                    or JsonValueKind.Number
+                    or JsonValueKind.True
+                    or JsonValueKind.False
+                && AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
                 serialized = AzureExtractorSensitivePropertyRedactor.RedactValue(serialized);
 
             if (serialized.Length > 4000)

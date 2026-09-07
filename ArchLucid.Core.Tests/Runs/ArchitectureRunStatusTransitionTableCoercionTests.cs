@@ -33,4 +33,13 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
 
         ok.Should().BeFalse();
     }
+
+    [Fact]
+    public void TryParseStatus_parses_numeric_ordinal_for_failed_partial()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("10", out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.FailedPartial);
+    }
 }

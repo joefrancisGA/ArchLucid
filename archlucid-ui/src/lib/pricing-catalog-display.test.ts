@@ -108,6 +108,25 @@ describe("pricing-catalog-display", () => {
     expect(lines.some((line) => line.label === "Workspace platform")).toBe(false);
   });
 
+  it("exposes hosted AI spend guard as an add-on line when catalog fields are present", () => {
+    const addonLines = buildOperatorBillingAddonLines(pricing, {
+      id: "team",
+      title: "Team",
+      summary: "Team",
+      overageReviewUsd: 10,
+      seatMonthlyUsd: 79,
+      maxArchitectSeats: 10,
+      workspaceMonthlyUsd: 199,
+      llmIncludedUsdPerUtcMonth: 50,
+      llmHardCutoffUsdPerUtcMonth: 75,
+    });
+
+    expect(addonLines.map((line) => line.label)).toContain("Hosted AI spend guard");
+    expect(addonLines.find((line) => line.label === "Hosted AI spend guard")?.value).toBe(
+      "$50 included / $75 hard stop / UTC month",
+    );
+  });
+
   it("keeps add-on charges in a separate collapsed-friendly list", () => {
     const addonLines = buildOperatorBillingAddonLines(pricing, {
       id: "team",

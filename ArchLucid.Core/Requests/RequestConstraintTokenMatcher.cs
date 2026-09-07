@@ -165,11 +165,6 @@ internal static class RequestConstraintTokenMatcher
         return EnglishNegationTokenizer.ContainsNegation(before);
     }
 
-    private static bool ContainsMidSentenceNegation(ReadOnlySpan<char> before)
-    {
-        return EnglishNegationTokenizer.ContainsNegation(before);
-    }
-
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
     {
         return haystack.IndexOf(phrase.AsSpan(), StringComparison.OrdinalIgnoreCase) >= 0;
@@ -223,7 +218,10 @@ internal static class RequestConstraintTokenMatcher
             || after.StartsWith("need not", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return ContainsPhrase(after, " need not ");
+        if (ContainsPhrase(after, " need not "))
+            return true;
+
+        return EnglishNegationTokenizer.ContainsNegation(after);
     }
 
     private static string? NormalizeNegationText(string? haystack)

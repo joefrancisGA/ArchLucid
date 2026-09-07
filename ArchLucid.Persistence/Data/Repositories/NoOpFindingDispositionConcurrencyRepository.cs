@@ -21,4 +21,38 @@ public sealed class NoOpFindingDispositionConcurrencyRepository(IFindingReviewTr
             NewCurrentRowVersion = [],
         };
     }
+
+    public async Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
+        IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reviewEvents);
+
+        if (reviewEvents.Count == 0)
+            throw new ArgumentException("At least one review event is required.", nameof(reviewEvents));
+
+        List<byte[]> rowVersions = new(reviewEvents.Count);
+
+        foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+        {
+            FindingDispositionRecordResult result = await RecordAsync(reviewEvent, expectedCurrentRowVersion: null, cancellationToken);
+
+            if (result.Status == FindingDispositionRecordStatus.Conflict)
+            {
+                return new FindingDispositionBulkRecordResult
+                {
+                    Status = FindingDispositionRecordStatus.Conflict,
+                    Conflict = result.Conflict,
+                };
+            }
+
+            rowVersions.Add(result.NewCurrentRowVersion ?? []);
+        }
+
+        return new FindingDispositionBulkRecordResult
+        {
+            Status = FindingDispositionRecordStatus.Recorded,
+            NewCurrentRowVersions = rowVersions,
+        };
+    }
 }

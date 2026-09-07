@@ -116,6 +116,21 @@ export const REPORT_PROBLEM_MAILTO_DRIFT_SCAN_ROOTS = [
   "src/components/operator/OperatorAccessDeniedPageClient.tsx",
 ] as const;
 
+/** Intentional contact/help surfaces — mailto is expected without Report Problem nearby (TB-791). */
+export const REPORT_PROBLEM_MAILTO_DRIFT_EXCLUDED_RELATIVE_PATHS = [
+  "src/app/(operator)/administration/support/_sections/AdminSupportPageView.tsx",
+  "src/app/(operator)/administration/security-trust/_sections/OperatorSecurityTrustPageView.tsx",
+  "src/app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesClient.tsx",
+  "src/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient.tsx",
+  "src/app/(operator)/internal/pricing-quote-aging/_sections/PricingQuoteAgingPageView.tsx",
+] as const;
+
+const reportProblemMailtoDriftExcludedPathSet = new Set<string>(
+  REPORT_PROBLEM_MAILTO_DRIFT_EXCLUDED_RELATIVE_PATHS,
+);
+
+const REPORT_PROBLEM_MAILTO_DRIFT_EXCLUDED_SUFFIXES = [".test.tsx", ".test.ts"] as const;
+
 export function collectTsxSourceFiles(absoluteRoot: string): string[] {
   if (!existsSync(absoluteRoot)) {
     return [];
@@ -233,6 +248,14 @@ export function findReportProblemMailtoDriftFindings(uiRoot: string): ReportProb
     for (const filePath of collectTsxSourceFiles(absoluteRoot)) {
       const source = readFileSync(filePath, "utf8");
       const relativePath = filePath.slice(uiRoot.length + 1).replace(/\\/g, "/");
+
+      if (REPORT_PROBLEM_MAILTO_DRIFT_EXCLUDED_SUFFIXES.some((suffix) => relativePath.endsWith(suffix))) {
+        continue;
+      }
+
+      if (reportProblemMailtoDriftExcludedPathSet.has(relativePath)) {
+        continue;
+      }
 
       if (!source.includes("mailto:")) {
         continue;

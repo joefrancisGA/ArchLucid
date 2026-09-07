@@ -3,12 +3,16 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -19,6 +23,34 @@ namespace ArchLucid.Application.Tests.Exports;
 /// </summary>
 internal static class SealedExportReceiptTestSupport
 {
+    internal static ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository CreateEmptyAgentExecutionTraceRepository()
+    {
+        Mock<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchLucid.Contracts.Agents.AgentExecutionTrace>());
+
+        return traces.Object;
+    }
+
+    internal static IConfiguration CreateCareerExportHonestyConfiguration()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "false",
+            [$"{AgentOutputQualityGateOptions.SectionPath}:{nameof(AgentOutputQualityGateOptions.Mode)}"] =
+                AgentOutputQualityGateMode.WarnOnly.ToString(),
+            ["AgentExecution:Mode"] = "Simulator",
+        };
+
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(values)
+            .Build();
+    }
+
     internal static IAuthorityQueryService CreateAuthorityQueryService(Guid runId, IManifestHashService manifestHashService)
     {
         Mock<IAuthorityQueryService> authority = new();

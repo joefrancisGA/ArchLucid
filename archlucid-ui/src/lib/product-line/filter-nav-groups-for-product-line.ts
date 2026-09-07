@@ -1,8 +1,5 @@
-import { Home } from "lucide-react";
-
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { productLineAssignmentIncludes, type ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import { resolveProductLineAssignmentForPath } from "@/lib/product-line/product-line-path-access";
 import { reshapeNavGroupsForSecureNow } from "@/lib/product-line/securenow-nav-reshape";
@@ -17,15 +14,6 @@ export type FilterNavGroupsForProductLineOptions = {
   readonly assignmentOverrides?: Readonly<Record<string, ProductLineAssignment>>;
 };
 
-const SECURITY_INFRASTRUCTURE_HOME_LINK: NavLinkItem = {
-  href: "/",
-  label: OPERATOR_NAV_LINK_LABELS.home,
-  title: "Infrastructure evidence overview and workbench directory",
-  icon: Home,
-  tier: "extended",
-  requiredAuthority: "ReadAuthority",
-};
-
 function shapeNavLinksForProductLine(
   group: NavGroupConfig,
   links: readonly NavLinkItem[],
@@ -35,9 +23,7 @@ function shapeNavLinksForProductLine(
     return [...links];
   }
 
-  const workbenchLinks = links.filter((link) => link.href !== GOVERNANCE_INFRASTRUCTURE_PATH);
-
-  return [SECURITY_INFRASTRUCTURE_HOME_LINK, ...workbenchLinks];
+  return links.filter((link) => link.href !== GOVERNANCE_INFRASTRUCTURE_PATH);
 }
 
 /**
