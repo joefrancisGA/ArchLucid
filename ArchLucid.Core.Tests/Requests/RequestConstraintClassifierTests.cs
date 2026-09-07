@@ -119,6 +119,30 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["email-openai-gateway integration only"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["field-encryption-module integration only"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSearchCapability_does_not_false_positive_on_hyphenated_product_name_embedding_search_token()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["enterprise-search-gateway integration only"]);
+
+        RequestConstraintClassifier.RequiresSearchCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_ai_token()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["email-ai-gateway integration only"]);

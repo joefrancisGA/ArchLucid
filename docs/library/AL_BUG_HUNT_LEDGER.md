@@ -7069,11 +7069,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — hyphenated compound identifiers false-positive standalone capability tokens
+- **last-bug:** 2026-09-07 — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7085,8 +7085,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — trailing-clause negation on unrelated requirement heads over-suppressed leading affirmative constraint mentions — **hit 2026-09-07 hunt #1277:** suffix negation scanned full trailing text so `encryption for tenants that do not require isolation` and `encryption that does not require customer-managed keys` missed `HasEncryptionConstraint`; fixed by scoping suffix negation to immediate text before subordinate introducers and treating object-style `that does not require` relative clauses separately from antecedent negation; regressions in `HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement`, `HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing`
 - [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhrasePrefix` — mid-sentence `, not ` comma negation may still false-positive on trailing affirmative constraint tokens — **thorough hunt #1278:** comma-contrast and leading-exclusion inputs preserve affirmative encryption detection; regressions in `HasEncryptionConstraint_returns_true_when_comma_contrast_negates_later_scope_only`, `HasEncryptionConstraint_returns_true_when_leading_exclusion_clause_precedes_affirmative_encryption`
 - [x] (proven) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — capability tokens embedded inside longer product names may false-positive `RequiresAiCapability` — **hit 2026-09-07 hunt #1278:** hyphen/underscore compound segments like `email-ai-gateway` treated `ai` as standalone because connectors are non-letters; fixed via `IsEmbeddedInCompoundIdentifier` requiring alphanumeric segments on both sides of the token; regression in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_ai_token`
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`) — **hit 2026-09-07 seed hunt #1288:** `#1278` guarded standalone tokens only; `ContainsAffirmativePhrase` still matched `email-openai-gateway` and `field-encryption-module`; fixed by reusing `IsEmbeddedInCompoundIdentifier` on phrase hits; regressions in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token`, `HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token`
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — PascalCase/camelCase embedded tokens without hyphen connectors (e.g. `FieldEncryptionModule`) may still false-positive phrase constraints
 
-2026-09-07 seed hunt #1185 (hit): seeded zone from split catalog; proved keyword-leading modal negation missed when constraint token precedes prohibitive suffix text.
+2026-09-07 seed hunt #1288 (hit): reseeded core-requests-constraints; proved phrase-level compound-identifier false positives for `openai` and `encryption`; seeded camelCase embedding candidate; 824 scoped RequestConstraint tests passed.
 
 2026-09-07 thorough hunt #1277 (hit): proved trailing-clause negation over-suppressed leading constraint mentions; 818 scoped RequestConstraint tests passed.
 

@@ -24,7 +24,8 @@ internal static class RequestConstraintTokenMatcher
                 return false;
 
             if (!IsNegatedPhrasePrefix(haystack, index)
-                && !IsNegatedPhraseSuffix(haystack, index, phrase.Length))
+                && !IsNegatedPhraseSuffix(haystack, index, phrase.Length)
+                && !IsEmbeddedInCompoundIdentifier(haystack, index, phrase.Length))
                 return true;
 
             index++;
