@@ -3,12 +3,14 @@
      synthetic-hit treadmill (redaction allowlists, schemaVersion leniency,
      English-negation phrase lists, mega-zone picker lock).
      Wave 3 (ABQ-14–18): leftover work after ABQ-01–13 shipped in code.
-     Wave 4 (ABQ-19–25): seed quality, fix honesty, and ungameable metrics.
+     Wave 4 (ABQ-19–25): seed quality, fix honesty, and ungameable metrics (shipped).
+     Wave 5 (ABQ-26–35): surviving-mutant seeds, CI/flake ingest, class bans,
+     concurrency/authz/clock probes, drills, ratchets. Prompts only until implemented.
      Do not implement from this index. -->
 
-# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-25)
+# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-35)
 
-**Status:** **ABQ-01–25 shipped in code** (wave 4 merged on `cursor/al-bug-quality-prompts-wave4-3c5e`). Prompt files remain for reference; do **not** re-implement from them unless starting a new wave.
+**Status:** **ABQ-01–25 shipped in code** (wave 4 on `cursor/al-bug-quality-prompts-wave4-3c5e`). **ABQ-26–35 are ready to run** (one prompt file per session). Do **not** re-implement 01–25 from their files.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -43,10 +45,22 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Blind seed hunts** | Hypotheses only from file reading; analyzer diagnostics unused | ABQ-23 *(shipped)* |
 | **Churn-only nominate** | `-Nominate` cannot tell an untested orchestrator from a constants file | ABQ-24 *(shipped)* |
 | **Ignored mutation scores** | Scheduled Stryker exists; picker does not show kill rate | ABQ-25 *(shipped)* |
+| **Score without loci** | Mutation % shown; surviving mutants not seeded | ABQ-26 |
+| **Single-thread seeds** | Commit/persist races never constructed | ABQ-27 |
+| **Hand-picked authz routes** | New OpenAPI paths skip cross-tenant cases | ABQ-28 |
+| **Local DateTime windows** | JSONL ISO parsed as local; DST/Kind skew | ABQ-29 |
+| **Manual escape log** | CI red on production paths never recorded | ABQ-30 |
+| **Forgotten flakes** | Retry-then-green hides races | ABQ-31 |
+| **Class cooldown only** | Sibling copies of retired helpers still compile | ABQ-32 |
+| **Self-reported sensitivity** | Loop never measured against a known injected defect | ABQ-33 |
+| **Warn-only revert verifier** | New unguarded `(proven)` rows still merge | ABQ-34 |
+| **Unearned high impact** | Multiplier accepts “scary file” as user-visible harm | ABQ-35 |
 
 ## Run order
 
 **01–25 are done** (do not paste those files to re-do the work).
+
+**26–35 recommended order:** cheap compounding first (**26, 30, 32**), then **31**, **29**, **28**, **27**, **33**, then ratchets (**34** last, after an unguarded baseline exists). **35** can run anytime as a docs/audit script (no product-code dependency).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
@@ -75,6 +89,16 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **23** | `al-bug-quality-23-analyzer-seeded-hypotheses.md` | Analyzer/SARIF seeds as `(candidate)` only |
 | **24** | `al-bug-quality-24-coverage-churn-nominate.md` | `-Nominate` rank = churn × (1−coverage) × size |
 | **25** | `al-bug-quality-25-stryker-zone-quality.md` | Map scheduled Stryker baselines onto zones |
+| **26** | `al-bug-quality-26-surviving-mutant-seeds.md` | Surviving mutants → `(candidate)` only |
+| **27** | `al-bug-quality-27-concurrency-idempotency-probes.md` | Double-submit / crash-retry / two-caller commit probes |
+| **28** | `al-bug-quality-28-schema-authz-fuzz.md` | OpenAPI-derived wrong-tenant 403/404 matrix |
+| **29** | `al-bug-quality-29-clock-skew-properties.md` | UTC/Kind/DST properties for 24h/7d/90d windows |
+| **30** | `al-bug-quality-30-ci-escape-ingest.md` | Default-branch CI failure → escape-log `source: ci` |
+| **31** | `al-bug-quality-31-flake-ledger.md` | Retry-then-pass JSONL → race candidates |
+| **32** | `al-bug-quality-32-retired-class-bans.md` | CI ban new copies of retired treadmill helpers |
+| **33** | `al-bug-quality-33-seeded-defect-drills.md` | Inject known defect; measure picker/seed hit (no `/al-bug`) |
+| **34** | `al-bug-quality-34-revert-verifier-ratchet.md` | Fail CI on **new** unguarded proven rows vs baseline |
+| **35** | `al-bug-quality-35-severity-calibration-audit.md` | Sample high-impact rows for named 1.1b harm |
 
 ## Already shipped — do not re-open as this set’s job
 
@@ -96,13 +120,32 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Boolean reader + identity reject (15) | `ArchLucid.Core/Json/JsonBooleanStringReader.cs`; `StrictSchemaVersionReader` on CloudInventory manifest |
 | Honest ledger counters (16) | `effectiveBugs` in picker; `al-bug-lint-ledger-counters.py` in CI |
 | Cloud pwsh setup (18) | `AGENTS.md` § Cursor Cloud specific instructions |
+| Escape log + picker penalty (19) | `docs/library/AL_BUG_ESCAPE_LOG.jsonl`; `escapeCount90d` / `−1` |
+| Revert verifier warn-only (20) | `scripts/agent/al-bug-verify-proven-revert.py`; CI `--limit 5`, no `--fail-on-unguarded` |
+| Defect-class cooldown (21) | Closed enum + picker `saturatedClasses` |
+| Parser properties (22) | FsCheck on `StrictSchemaVersionReader` / `JsonBooleanStringReader` / numeric readers |
+| Analyzer seeds (23) | `scripts/agent/al-bug-seed-from-analyzers.ps1` `(candidate)` only |
+| Coverage×churn nominate (24) | `-Nominate -CoverageCobertura` |
+| Stryker zone map (25) | `al-bug-stryker-zone-map.json`; unmapped `mutationScore` is `null`, not `0` |
 
 ### Footnotes for stale 01–10 prompt text
 
-- ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 19–25 must not recreate it.
+- ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 19–35 must not recreate it.
 - ABQ-10 asked for a **sample**; ABQ-12 classified the **full** proven-row population. Do not revert to sampling.
 - ABQ-03 + ABQ-15 consolidated boolean parsing into `JsonBooleanStringReader`; identity fields use whole-number/enum readers only.
 - ABQ-09 `-Nominate` **exists** in `al-bug-pick-zone.ps1`. Wave 4 prompt 24 **extends** it; do not re-implement Nominate from the stale 09 file.
+- ABQ-20 CI is warn-only on purpose. **ABQ-34** is the ratchet (new unguarded vs baseline). Do not flip `--fail-on-unguarded` in a 26–33 session.
+- ABQ-25 is display-only scores. **ABQ-26** seeds surviving mutants from an **existing** `mutation-report.json`; still do not run Stryker inside `/al-bug`.
+- ABQ-19 escape ingest is manual. **ABQ-30** adds CI `source: ci` (artifact/dry-run unless a bot-commit path already exists). Do not invent `PD-###`.
+
+### Footnotes for 26–35 implementers
+
+- Shared ledger parser is `scripts/agent/al_bug_ledger.py` (`parse_zones`, `collect_proven_rows`, `ProvenRow`). Import it; do not fork.
+- Closed defect-class enum (ABQ-21) stays: `fail-open-validation`, `boolean-coercion`, `strictmode-script`, `state-machine-gap`, `null-deref`, `off-by-one`, `authz-scope`, `other`. Do **not** grow it in 26–35.
+- Default hunt push target remains **`bugsmash`**. Drills (33) must not push there.
+- Picker param for Stryker files is **`StrykerBaselinesPath`** (not `StrykerBaselines` — hashtable clash).
+- `ConvertTo-RunLogUtcDateTime` already accepts ISO strings **and** `[datetime]` (ABQ-29 locks Kind/DST, does not re-litigate the JSON parser).
+- Pester **5** only (`Invoke-Pester -Strict -EnableExit`). Do not recreate deleted `_al-bug-pick-zone.ps1`.
 
 ## Won’t do (explicitly not prompted)
 
@@ -111,7 +154,11 @@ Do **not** create implementation prompts or engineering batches for:
 - Driving the validity audit’s remaining **unclassified** share down with more English-phrase signals (diminishing returns / misclassification). The audit is guard-symbol based on purpose. ABQ-21’s class tags are **opt-in on new rows**, not a retroactive regex pass.
 - Splitting `GenericArchitectureAdvicePatternsMultiCloudTests.cs` (~9.8k lines, ~38 `InlineData` blocks). That file is not treadmill residue.
 - Running Stryker inside `/al-bug` or adding coverlet collect to PR `dotnet-fast-core` (ABQ-24/25 are offline/scheduled inputs only).
-- Creating `PD-###` / `TB-###` ids from hunt-quality work (ABQ-19 maps existing defects; `/al-defect` remains the only PD intake).
+- Creating `PD-###` / `TB-###` ids from hunt-quality work (ABQ-19 maps existing defects; `/al-defect` remains the only PD intake; ABQ-30 `source: ci` is not a PD).
+- Running `/al-bug` to implement 26–35 (especially 33 — drills measure the loop offline).
+- Treating ABQ-28 or ABQ-33 as G-ASSURANCE-02 / a published third-party pen test.
+- Auto-pushing escape/flake JSONL from CI unless a bot-commit pattern already exists (30/31 default to artifact + dry-run).
+- Mass-reticking historical `(proven)` to `(invalid)` when ratcheting ABQ-34.
 
 ## Global constraints (every prompt)
 
@@ -126,3 +173,5 @@ Do **not** create implementation prompts or engineering batches for:
 ## After each prompt
 
 Summarize: files changed, tests run, whether fictional allowlists/phrase lists shrank, residual risk, and which later ABQ prompt still owns leftovers. Do not mark `/al-bug` itself as retired.
+
+Wave 5 leftovers (do not steal another prompt’s job): 26 does not ratchet Stryker; 30 does not create PDs; 32 does not rewrite historical parsers; 33 does not invoke `/al-bug`; 34 does not fail all historical unguarded; 35 does not rewrite `bugs-found`.
