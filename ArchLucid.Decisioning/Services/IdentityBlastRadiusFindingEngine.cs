@@ -30,12 +30,12 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 
-        List<Finding> findings = paths.Select(BuildFinding).ToList();
+        List<Finding> findings = paths.Select(path => BuildFinding(graphSnapshot, path)).ToList();
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding BuildFinding(IdentityBlastRadiusPath path)
+    private static Finding BuildFinding(GraphSnapshot graphSnapshot, IdentityBlastRadiusPath path)
     {
         List<string> relatedNodeIds = path.PathNodeIds
             .Where(static nodeId => !string.IsNullOrWhiteSpace(nodeId))
@@ -57,6 +57,8 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
             traceNotes.Add(counterfactualNote);
         }
 
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -71,6 +73,7 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
             DecisionConsequence =
                 "Restrict role assignment scope, enforce private networking on the datastore, or document an approved exception before approval.",
             RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(IdentityBlastRadiusFindingPayload),
             Payload = new IdentityBlastRadiusFindingPayload
             {
