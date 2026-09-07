@@ -964,6 +964,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-07 seed hunt #1283 (hit): reseeded architecture-recommendation zone; proved trade-off attachment order bug; disproved hypothesis-tier must-change gap; seeded trust-boundary alternative mismatch candidate.
 
+---
+
 ## Zone: extraction-router
 
 - **id:** extraction-router
@@ -7763,11 +7765,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 8
-- **bugs-found:** 13
+- **hunts:** 9
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — Mermaid label escaping, DOCX table/bullet sanitization, unresolved-issue diagram parity
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — Cost.Notes omitted from reference-architecture markdown and architecture narrative
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7793,7 +7795,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DocxExportService.Sections.AppendRunExplanation` / `AppendComparisonExplanation` — sponsor narrative bullet lists bypass `SanitizeArtifactText` — **hit 2026-09-05 (#890):** `KeyDrivers`/`RiskImplications`/etc. reached DOCX with control chars while prose blocks were sanitized; fixed with per-bullet sanitization (`ExportAsync_strips_control_chars_from_run_explanation_bullet_lists`).
 - [x] (proven) `MermaidDiagramArtifactGenerator.GenerateAsync` — omits `manifest.UnresolvedIssues` nodes present in sibling `DiagramAstGenerator` — **hit 2026-09-05 (#890):** `diagram-ast.json` included `issue-{i}` nodes but `architecture.mmd` was decision-only; fixed with issue nodes/flags edges (`GenerateAsync_includes_unresolved_issue_nodes_for_diagram_ast_parity`).
 
-2026-09-05 thorough hunt #890 (hit): proved Mermaid label bracket/newline escaping, DOCX posture-table and explanation-bullet sanitization gaps, and unresolved-issue Mermaid diagram parity.
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — Decisions three-column table bypasses `SanitizeArtifactText` — raw `Category`/`Title`/`SelectedOption` reach `WordDocumentBuilder.AddThreeColumnTable` while posture tables sanitize per cell (#890 partial coverage).
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — Unresolved Issues table bypasses `LlmArtifactFreeTextSanitizer` — `AddIssuesTable` uses newline-only `Sanitize()` on `Title`/`Description` while markdown generators sanitize full document text.
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `manifest.Cost.Notes` present in DOCX export and `cost-summary.json` — **hit 2026-09-07 (#1284):** Cost section emitted risks only; fixed with `- Note:` / `- Cost Note:` lines (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_cost_notes`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_cost_notes`).
+- [ ] (candidate) `MermaidDiagramRenderer.EscapeLabel` — pipe `|` in edge labels breaks `-->|"label"|` Mermaid syntax — bracket/newline escaping fixed in #890; pipe delimiter not handled.
+- [ ] (candidate) `MermaidDiagramArtifactExtractor.TryGetDiagramSource` — blind 48k-char truncation can corrupt mid-line Mermaid source embedded in DOCX fallback.
+- [ ] (candidate) `DocxExportService.AppendManifestComparison` — comparison summary/delta strings bypass `SanitizeArtifactText`.
+
+2026-09-07 seed hunt #1284 (hit): reseeded artifact-synthesis; proved Cost.Notes markdown parity gap vs DOCX/cost-summary; seeded DOCX decisions/issues sanitization, Mermaid pipe escaping, diagram truncation, and manifest-comparison sanitization candidates.
 
 2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
