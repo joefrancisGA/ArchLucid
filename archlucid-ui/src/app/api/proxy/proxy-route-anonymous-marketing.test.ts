@@ -115,6 +115,29 @@ describe("proxy route anonymous marketing paths", () => {
     expect(headers.get("authorization")).toBe("Bearer visitor-jwt");
   });
 
+  it("does not attach server bearer for marketing showcase GET", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/showcase/contoso-baseline",
+    );
+
+    await GET(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "showcase", "contoso-baseline"],
+      }),
+    });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+  });
+
   it("does not attach server bearer for marketing why-archlucid pack PDF download", async () => {
     fetchMock.mockResolvedValue(
       new Response("pdf-bytes", {

@@ -1626,11 +1626,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 11
-- **bugs-found:** 10
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — BFF session guard blocked anonymous marketing proxy mutations
+- **last-bug:** 2026-09-07 — marketing showcase proxy path attached server bearer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1650,7 +1650,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (candidate) `resolveShowcasePageRenderPlan` fetches `v1/marketing/showcase/{runKey}` directly against API base — invalid: SSR uses anonymous server `fetch` with no `Authorization` or `X-Api-Key`; `GET /v1/marketing/showcase/{runKey}` is `[AllowAnonymous]` and does not need proxy bearer stripping
 - [x] (candidate) Browser-supplied `Authorization` on anonymous marketing proxy paths still forwards upstream — invalid: by design; `buildProxyUpstreamHeaders` strips only the configured server bearer on allowlisted marketing paths while preserving a signed-in visitor's bearer
 - [x] (proven) `enforceProxyBffSessionGuard` blocks anonymous marketing proxy mutations when BFF session is enabled — **hit 2026-09-07 (#1177 seed→hit):** LK-07 guard returned 401 for POST `/api/proxy/v1/marketing/early-access` with no HttpOnly cookie or browser bearer once `ARCHLUCID_BFF_SESSION_SIGNING_SECRET` is set; fixed by skipping the no-session mutation gate on `isAnonymousMarketingProxyPath`; regression in `forwards anonymous marketing early-access POST when BFF session is enabled`
-- [ ] (candidate) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/showcase/{runKey}` — SSR fetches showcase directly (`showcase-page-server-resolution.ts`); a browser-side `/api/proxy/v1/marketing/showcase/{runKey}` call would still attach server bearer unlike other public marketing GETs
+- [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/showcase/{runKey}` — **hit 2026-09-07 (#1250):** `/api/proxy/v1/marketing/showcase/{runKey}` attached `ARCHLUCID_PROXY_BEARER_TOKEN` unlike other anonymous marketing GETs; extended allowlist with `startsWith("v1/marketing/showcase/")`; regression `does not attach server bearer for marketing showcase GET`.
+
+2026-09-07 thorough hunt #1250 (hit): proved showcase proxy allowlist gap; extended anonymous marketing bearer stripping parity.
 
 2026-09-07 seed hunt #1177 (hit): reseeded after LK-07 BFF guard landed; proved anonymous marketing POST blocked when BFF enabled; seeded showcase proxy allowlist gap candidate.
 
