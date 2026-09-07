@@ -7013,22 +7013,28 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-safety-network
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
+- [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token
+- [ ] (candidate) `IContentSafetyGuard` — Safety zone has interface-only surface; outbound URL SSRF guards live under `ArchLucid.Core/Security/` and should stay aligned on DNS-resolve parity
+
+2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
 
 ---
 ## Zone: core-costing
