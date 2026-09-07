@@ -8,6 +8,7 @@ import {
 import type { CareerExportCoverageHonestyInput } from "@/lib/career-export-coverage-honesty";
 import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
@@ -208,6 +209,14 @@ function formatManifestSummaryFallback(
   }
 
   const trail = summary.feasibilityVerdict?.transparencyTrail ?? null;
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    summary.feasibilityVerdict ?? null,
+  );
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    lines.push(feasibilityVerdictMarkdown.trim());
+    lines.push("");
+  }
 
   if (honestyInput === null && trail !== null && trail !== undefined) {
     lines.push(formatTransparencyTrailMarkdownSection(trail));
