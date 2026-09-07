@@ -77,6 +77,33 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES_INTRO =
   "Use these surfaces when buyers need inventory context, diagram exports, or remediation follow-up beyond correspondence rows.";
 
 /** Operator Sources for diagram reconciliation (GDI). */
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift comparison, remediation tracking, or grounded Ask beyond the resource list.";
+
+/** Operator Sources for resource explorer (NRE). */
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams, drift, or remediation",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots after opening a resource hub drift tab",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Track remediation factory instances linked from resource findings",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions scoped to a cloud resource from the hub or explorer",
+  },
+] as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES_INTRO =
   "Use these surfaces when buyers need drift context, diagram reconciliation, or grounded Ask beyond remediation instances.";
 
