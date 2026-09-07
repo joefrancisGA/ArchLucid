@@ -115,8 +115,6 @@ public sealed partial class PreFinalizeChecklistService(
 
         items.Add(BuildEvidenceLinkageItem(runId, findings));
 
-        items.Add(await BuildProvisionalSynthesisItemAsync(scope, runId, cancellationToken).ConfigureAwait(false));
-
         PreCommitGateResult gateResult =
             await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);
 
@@ -126,6 +124,8 @@ public sealed partial class PreFinalizeChecklistService(
                 .ProjectBlockedChecksAsync(scope, runId, gateResult, cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        items.Add(await BuildProvisionalSynthesisItemAsync(scope, runId, cancellationToken).ConfigureAwait(false));
 
         bool preCommitGateEnabled = _preCommitGovernanceGateOptions.Value.PreCommitGateEnabled;
         items.Add(BuildPreCommitGateItem(gateResult, preCommitGateEnabled));

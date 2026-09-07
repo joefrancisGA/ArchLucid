@@ -204,6 +204,53 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = TestScope.TenantId.ToString("D"),
+            RunId = runId,
+            IsProvisionalSynthesis = false,
+            Elements = [],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(model);
+        knowledgeModelAccess
+            .Setup(k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate
+            .Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Policy pack thresholds would block finalize.",
+                BlockingFindingIds = ["finding-blocked-1"],
+            });
+
+        BlockedReviewCheckProjector projector = new(knowledgeModelAccess.Object);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            gate: gate.Object,
+            knowledgeModelAccess: knowledgeModelAccess.Object,
+            blockedReviewCheckProjector: projector);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "provisional-synthesis"
+            && item.Status == PreFinalizeChecklistItemStatus.Advisory
+            && item.Count == 1);
+    }
+
+    [Fact]
     public async Task BuildAsync_marks_not_ready_when_pre_commit_gate_is_disabled()
     {
         Guid runKey = Guid.NewGuid();
@@ -236,7 +283,8 @@ public sealed class PreFinalizeChecklistServiceTests
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
         IPreCommitGovernanceGate? gate = null,
         IOptions<PreCommitGovernanceGateOptions>? gateOptions = null,
-        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null)
+        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
+        IBlockedReviewCheckProjector? blockedReviewCheckProjector = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -278,6 +326,7 @@ public sealed class PreFinalizeChecklistServiceTests
                 Mock.Of<IPolicyPackAssignmentRepository>(),
                 Mock.Of<IPolicyPackRepository>(),
                 Mock.Of<IPolicyPackVersionRepository>()),
-            knowledgeModelAccess);
+            knowledgeModelAccess,
+            blockedReviewCheckProjector: blockedReviewCheckProjector);
     }
 }
