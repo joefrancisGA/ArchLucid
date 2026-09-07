@@ -10016,11 +10016,16 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — run-scoped saved view load merged stale URL params instead of rebuilding from saved filters — **hit 2026-09-07 hunt #1279 (seed→hit):** run-scoped branch delegated to `onPickReviewForTriage`, which only set `runId` on the current query string so stale `filter` / `architectureId` survived after `setRegisterFilter`; fixed with `governanceFindingsRunScopedSavedViewHref`; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
 - [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation restored stale register/facet params after state clears — **hit 2026-09-07 hunt #1280:** `clearAllFilters` ended with `governanceFindingsSearchHrefFromSearch`, which only cleared `q` and rebuilt from the render-scoped query string so `filter` / `findingJobView` / NL facet params survived; review/architecture scope preservation is intentional (`Clear review scope` is separate); fixed with `governanceFindingsClearAllFiltersHref`; regressions in `governance-findings-clear-all-filters-url.test.ts` and `use-governance-findings-queue-saved-views.test.ts`
 
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review merged stale `architectureId` so run scope intersected architecture run-set and could hide all triage rows — **hit 2026-09-07 seed hunt #1290 (seed→hit):** `URLSearchParams` merge only set `runId` while `governanceFindingsRunScopedSavedViewHref` already clears architecture scope; fixed with `governanceFindingsPickReviewForTriageHref`; regressions in `governance-findings-pick-review-url.test.ts`.
+- [ ] (candidate) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run (needs reachability proof from scope-section UX).
+
 2026-09-07 seed hunt #1188 (hit): seeded zone from ABQ-09 churn hotspot; proved saved-view scope leak on workspace-wide load.
 
 2026-09-07 seed hunt #1279 (hit): reseeded run-scoped saved-view URL merge hypothesis from `onLoadFindingsSavedView` + `onPickReviewForTriage`; 5 scoped saved-view unit tests passed.
 
 2026-09-07 thorough hunt #1280 (hit): proved clear-all-filters stale URL restore; 5 scoped clear-all / saved-view unit tests passed.
+
+2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
 
 ---
 

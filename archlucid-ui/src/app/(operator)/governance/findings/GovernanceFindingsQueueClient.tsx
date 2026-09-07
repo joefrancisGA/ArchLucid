@@ -36,6 +36,7 @@ import {
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { governanceFindingsClearAllFiltersHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
+import { governanceFindingsPickReviewForTriageHref } from "@/lib/governance/governance-findings-pick-review-url";
 import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/governance-findings-architecture-scope";
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
@@ -167,15 +168,10 @@ export default function GovernanceFindingsQueueClient({
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
-      const trimmed = reviewId.trim();
-
-      if (trimmed.length === 0) {
-        return;
-      }
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("runId", trimmed);
-      router.replace(`${navHref}?${params.toString()}`, { scroll: false });
+      router.replace(
+        governanceFindingsPickReviewForTriageHref(searchParams.toString(), navHref, reviewId),
+        { scroll: false },
+      );
     },
     [navHref, router, searchParams],
   );
