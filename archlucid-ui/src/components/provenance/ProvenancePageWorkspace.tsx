@@ -12,7 +12,7 @@ import { ProvenancePageWorkspaceFilters } from "@/components/provenance/Provenan
 import { ProvenancePageWorkspaceHeader } from "@/components/provenance/ProvenancePageWorkspaceHeader";
 import { ProvenancePageWorkspaceTimeline } from "@/components/provenance/ProvenancePageWorkspaceTimeline";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   PROVENANCE_BUYER_START_HERE_HELPER,
@@ -38,7 +38,7 @@ export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./pr
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
   const router = useRouter();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const {
     runId,
     provenanceTraceId,

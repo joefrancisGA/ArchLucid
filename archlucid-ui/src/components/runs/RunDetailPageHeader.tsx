@@ -14,7 +14,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
@@ -248,7 +248,7 @@ export function RunDetailPageHeader({
   demoteFinalizeButton = false,
   transparencyTrail = null,
 }: RunDetailPageHeaderProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
   const approvalStatusLabel = streamlinedPilotPath

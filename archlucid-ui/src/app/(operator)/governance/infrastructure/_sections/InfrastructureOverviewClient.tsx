@@ -15,7 +15,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD,
@@ -50,7 +50,7 @@ export type InfrastructureOverviewClientProps = {
 
 /** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
 export function InfrastructureOverviewClient(props: InfrastructureOverviewClientProps = {}) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const { productLine } = useProductLine();
   const showSecureNowGroupedHomeSections = productLine === "security";
   const secureNowHome = props.secureNowHome === true;

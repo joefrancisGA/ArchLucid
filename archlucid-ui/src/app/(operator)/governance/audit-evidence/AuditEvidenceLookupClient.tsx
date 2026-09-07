@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildAuditEvidenceControlLineagePath,
@@ -55,7 +55,7 @@ function trimRequired(value: string): boolean {
 
 export function AuditEvidenceLookupClient() {
   const router = useRouter();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const [assessmentId, setAssessmentId] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
   const [controlId, setControlId] = useState("");

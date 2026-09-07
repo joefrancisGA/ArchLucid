@@ -8,6 +8,7 @@ import {
   findProductionDeskChromeEvalMigratedSurfaceViolations,
 } from "@/lib/production-desk-chrome-eval-guard";
 import { PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS } from "@/lib/production-desk-chrome-eval-inventory";
+import { WORKING_SEAT_EVAL_LEAK_INVENTORY_DOC_PATH } from "@/lib/working-seat-eval-leak-inventory";
 
 const UI_ROOT = process.cwd();
 
@@ -31,9 +32,16 @@ describe("production-desk-chrome eval guard (WA-01)", () => {
         source.includes("useProductionEvalChrome") ||
         source.includes("useProductionDeskChrome") ||
         source.includes("resolveProductionEvalChrome") ||
-        source.includes("resolveProductionDeskChrome");
+        source.includes("resolveProductionDeskChrome") ||
+        source.includes("resolveProductionEvalChromeFromStorage");
 
       expect(inGrandfather || usesResolver).toBe(true);
     }
+  });
+
+  it("references the WS-04 shrink-only inventory doc for architecture-priority leaks", () => {
+    expect(WORKING_SEAT_EVAL_LEAK_INVENTORY_DOC_PATH).toBe(
+      "docs/architecture/WORKING_SEAT_EVAL_LEAK_INVENTORY.md",
+    );
   });
 });
