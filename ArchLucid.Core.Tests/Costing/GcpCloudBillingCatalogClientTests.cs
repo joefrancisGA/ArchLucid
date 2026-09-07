@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Costing;
 
@@ -1031,6 +1032,120 @@ public sealed class GcpCloudBillingCatalogClientTests
                 Content = new StringContent(pageOneJson),
             };
         });
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
+    [Fact]
+    public async Task TryGetCatalogMonthlyUsdAsync_prefers_matching_region_over_first_catalog_sku()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "description": "Compute Engine n1-standard-1 in europe-west1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "20000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        InfrastructureCostQueryNode node = new(
+            "Service",
+            "api",
+            RuntimePlatform.ComputeEngine,
+            "europe-west1",
+            "n1-standard-1",
+            1);
+
+        decimal? monthly = await client.TryGetCatalogMonthlyUsdAsync(node, CancellationToken.None);
+
+        monthly.Should().Be(14.60m);
+    }
+
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Preemptible Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "5000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 

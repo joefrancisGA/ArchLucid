@@ -7146,11 +7146,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — GCP billing catalog pagination ignored
+- **last-bug:** 2026-09-07 — GCP catalog region-blind and preemptible SKU selection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7159,12 +7159,14 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ### Hypotheses
 
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — `nextPageToken` pagination ignored — **hit 2026-09-07 hunt #1186 (seed→hit):** single-page SKU list fetch returned null when the matching machine type lived on a later catalog page; live GCP probe fell back to illustrative pricing; fixed with `pageToken` loop until match or exhaustion; regression in `TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token`
-- [ ] (hunt-ready) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — region-blind first machine-type match may price europe-west1 nodes with us-central1 SKUs
-- [ ] (hunt-ready) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — preemptible SKU returned before on-demand when array order lists preemptible first
+- [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — region-blind first machine-type match may price europe-west1 nodes with us-central1 SKUs — **hit 2026-09-07 hunt #1260:** catalog probe ignored `InfrastructureCostQueryNode.ArmRegion` and returned the first matching machine-type SKU; fixed with `DescriptionMatchesRegion` filtering, full-page scan when region is required, and region-aware cache keys; regression `TryGetCatalogMonthlyUsdAsync_prefers_matching_region_over_first_catalog_sku`; wired through `GcpCloudBillingCatalogStructuredLookup`.
+- [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — preemptible SKU returned before on-demand when array order lists preemptible first — **hit 2026-09-07 hunt #1260:** on-demand sizing used the first hourly SKU including preemptible descriptions; fixed by rejecting preemptible descriptions in `GcpSkuPricingParser`; regression `TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later`.
 - [ ] (candidate) `AzureRetailPricesCatalogClient.IsHourMeter` — standalone `Hour` / `hours` UOM may be rejected while quantity-prefixed forms pass
 - [ ] (candidate) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
+
+2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
 
 ---
 ## Zone: core-explanation-json

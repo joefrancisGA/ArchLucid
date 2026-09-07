@@ -23,7 +23,11 @@ internal sealed class GcpCatalogHttpClient
         _logger = logger;
     }
 
-    public async Task<decimal?> TryFetchComputeHourlyUsdAsync(string apiKey, string machineType, CancellationToken ct)
+    public async Task<decimal?> TryFetchComputeHourlyUsdAsync(
+        string apiKey,
+        string machineType,
+        string? regionCode,
+        CancellationToken ct)
     {
         HttpClient http = _httpFactory();
 
@@ -32,6 +36,8 @@ internal sealed class GcpCatalogHttpClient
 
         string needle = machineType.Trim();
         string? pageToken = null;
+        bool requireRegionMatch = !string.IsNullOrWhiteSpace(regionCode);
+        decimal? matchedHourly = null;
 
         try
         {
@@ -48,15 +54,20 @@ internal sealed class GcpCatalogHttpClient
 
                 foreach (JsonElement sku in skus.EnumerateArray())
                 {
-                    if (GcpSkuPricingParser.TryReadHourlyUsdFromSku(sku, needle, out decimal hourly))
+                    if (!GcpSkuPricingParser.TryReadHourlyUsdFromSku(sku, needle, regionCode, out decimal hourly))
+                        continue;
+
+                    if (requireRegionMatch)
                         return hourly;
+
+                    matchedHourly ??= hourly;
                 }
 
                 pageToken = TryReadNextPageToken(document.RootElement);
             }
             while (!string.IsNullOrWhiteSpace(pageToken));
 
-            return null;
+            return matchedHourly;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
