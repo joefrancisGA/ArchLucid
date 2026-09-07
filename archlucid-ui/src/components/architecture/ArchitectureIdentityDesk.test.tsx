@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -233,5 +236,14 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/review-2?reviewTab=activity",
     );
+  });
+
+  it("AO-43: wires architecture desk keyboard shortcuts on the identity desk", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "src/components/architecture/ArchitectureIdentityDesk.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("useArchitectureDeskShortcuts");
   });
 });

@@ -63,6 +63,23 @@ describe("ReviewsNewRouteBody (AO-22)", () => {
     });
   });
 
+  it("Working Start does not mount reviews-new-job-chooser-section on bare /architecture/reviews/new (AO-45)", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams());
+    useProductionDeskChrome.mockReturnValue(true);
+    useProductionEvalChrome.mockReturnValue(false);
+    replace.mockClear();
+
+    render(<ReviewsNewRouteBody />);
+
+    expect(screen.getByTestId("reviews-new-working-redirect")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-switcher-stub")).toBeNull();
+    expect(screen.queryByTestId("reviews-new-job-chooser-section")).toBeNull();
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalledWith("/architecture/architectures/arch-1");
+    });
+  });
+
   it("shows architecture picker when Working guided-intake has no source architecture", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
 

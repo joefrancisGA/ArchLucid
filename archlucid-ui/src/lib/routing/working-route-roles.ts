@@ -160,4 +160,3 @@ export function isWorkingPaletteNavRole(role: WorkingRouteRole, pathname: string
 
   return false;
 }
-

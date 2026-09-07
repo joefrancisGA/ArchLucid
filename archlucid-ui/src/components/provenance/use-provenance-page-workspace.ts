@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ProvenanceSection } from "@/components/provenance/ProvenanceSectionNav";
 import type { ProvenanceViewMode } from "@/components/provenance/ProvenanceViewModeSwitcher";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import {
   parseProvenanceCategoryFromSearch,
   parseProvenanceViewModeFromSearch,
@@ -380,7 +381,8 @@ export function useProvenancePageWorkspace(props: ProvenancePageWorkspaceProps) 
   }, []);
 
   const reviewTitle = reviewContext?.reviewTitle?.trim() ?? "";
-  const reviewHref = reviewDetailPath(runId);
+  const workingBackLocator = useWorkingBackLocator({ reviewId: runId });
+  const reviewHref = workingBackLocator.reviewJobHref;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {

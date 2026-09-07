@@ -117,6 +117,7 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     runExecutionFootnote: null,
     statedConstraintContext: null,
     nextFindingInReview: null,
+    parentArchitectureId: null,
     ...overrides,
   };
 }

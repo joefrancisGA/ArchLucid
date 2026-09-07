@@ -2,93 +2,84 @@ import {
   architectureIdentityPath,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import {
+  resolveArchitectureReviewTabHref,
+  resolveReviewWorkspaceArchitectureId,
+} from "@/lib/architecture/working-architecture-review-routes";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import { lookupArchitectureDraftParentArchitectureId } from "@/lib/review-package-validation-picker";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
-export type WorkingBackHrefTarget = {
-  readonly reviewJobHref: string;
-  readonly architectureDeskHref: string | null;
+export type ResolveWorkingBackLocatorInput = {
+  readonly reviewId: string;
+  readonly architectureId?: string | null;
+  readonly pathname?: string | null;
+  readonly reviewTab?: ReviewDetailTabId | null;
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
 };
 
-function trimmedArchitectureId(architectureId: string | null | undefined): string | null {
-  const trimmed = architectureId?.trim() ?? "";
+export type WorkingBackLocator = {
+  readonly architectureDeskHref: string | null;
+  readonly reviewJobHref: string;
+};
 
-  return trimmed.length > 0 ? trimmed : null;
-}
+function resolveWorkingBackArchitectureId(input: ResolveWorkingBackLocatorInput): string | null {
+  const explicit = input.architectureId?.trim() ?? "";
 
-/** AO-44: nested review job URL for Working deep-page back links. */
-export function resolveWorkingReviewJobBackHref(
-  reviewId: string,
-  architectureId?: string | null,
-  reviewTab?: ReviewDetailTabId,
-): string {
-  const base = resolveArchitectureReviewHref(reviewId, architectureId);
-
-  if (reviewTab === undefined) {
-    return base;
+  if (explicit.length > 0) {
+    return explicit;
   }
 
-  const architecture = trimmedArchitectureId(architectureId);
-  const tabParamName = architecture !== null ? "reviewTab" : "tab";
-  const params = new URLSearchParams({ [tabParamName]: reviewTab });
+  const fromPathname = resolveReviewWorkspaceArchitectureId(null, input.pathname);
 
-  return `${base}?${params.toString()}`;
+  if (fromPathname !== null) {
+    return fromPathname;
+  }
+
+  const path = input.pathname?.split("?")[0] ?? "";
+  const nestedArchitectureId = parseArchitectureNestedRoute(path)?.architectureId?.trim() ?? "";
+
+  if (nestedArchitectureId.length > 0) {
+    return nestedArchitectureId;
+  }
+
+  return lookupArchitectureDraftParentArchitectureId(
+    input.reviewId,
+    input.draftRegistryEntries,
+  );
 }
 
-/** Review job + architecture desk targets for governance-style return links (AO-44). */
-export function resolveWorkingBackHrefTarget(
-  reviewId: string,
-  architectureId?: string | null,
-): WorkingBackHrefTarget {
-  const architecture = trimmedArchitectureId(architectureId);
+/** Working deep pages: child → nested review job → architecture desk (AO-44 / ADR 0077). */
+export function resolveWorkingBackLocator(
+  input: ResolveWorkingBackLocatorInput,
+): WorkingBackLocator {
+  const architectureId = resolveWorkingBackArchitectureId(input);
+  const reviewTab = input.reviewTab ?? null;
+  const reviewJobHref =
+    reviewTab !== null
+      ? resolveArchitectureReviewTabHref(input.reviewId, reviewTab, architectureId)
+      : resolveArchitectureReviewHref(input.reviewId, architectureId);
 
   return {
-    reviewJobHref: resolveArchitectureReviewHref(reviewId, architecture),
-    architectureDeskHref: architecture !== null ? architectureIdentityPath(architecture) : null,
+    architectureDeskHref: architectureId !== null ? architectureIdentityPath(architectureId) : null,
+    reviewJobHref,
   };
 }
 
-/** Finding detail deep link — nested when architecture id is known (AO-44). */
-export function resolveWorkingFindingDetailHref(
-  reviewId: string,
-  findingId: string,
-  architectureId?: string | null,
-  findingsQueueRunId?: string | null,
-): string {
-  const nestedReview = resolveArchitectureReviewHref(reviewId, architectureId);
-  const encFinding = encodeURIComponent(findingId.trim());
-  const base = `${nestedReview}/findings/${encFinding}`;
-  const queueRunId = (findingsQueueRunId ?? "").trim();
-
-  if (queueRunId.length === 0) {
-    return base;
-  }
-
-  return `${base}?runId=${encodeURIComponent(queueRunId)}`;
+/** Convenience when callers only need the nested review job (or peer fallback) href. */
+export function resolveWorkingBackHref(input: ResolveWorkingBackLocatorInput): string {
+  return resolveWorkingBackLocator(input).reviewJobHref;
 }
 
-/** Evidence-trace deep link — nested when architecture id is known (AO-44). */
-export function resolveWorkingFindingEvidenceTraceHref(
-  reviewId: string,
-  findingId: string,
-  architectureId?: string | null,
-  findingsQueueRunId?: string | null,
+export function resolveWorkingReviewFindingsBackHref(
+  input: Omit<ResolveWorkingBackLocatorInput, "reviewTab">,
 ): string {
-  const nestedReview = resolveArchitectureReviewHref(reviewId, architectureId);
-  const encFinding = encodeURIComponent(findingId.trim());
-  const base = `${nestedReview}/findings/${encFinding}/evidence-trace`;
-  const queueRunId = (findingsQueueRunId ?? "").trim();
-
-  if (queueRunId.length === 0) {
-    return base;
-  }
-
-  return `${base}?runId=${encodeURIComponent(queueRunId)}`;
+  return resolveWorkingBackHref({ ...input, reviewTab: "findings" });
 }
 
-/** Print view back link — nested review package tab when architecture id is known (AO-44). */
-export function resolveWorkingPrintBackHref(
-  reviewId: string,
-  architectureId?: string | null,
+export function resolveWorkingReviewPackageBackHref(
+  input: Omit<ResolveWorkingBackLocatorInput, "reviewTab">,
 ): string {
-  return resolveWorkingReviewJobBackHref(reviewId, architectureId, "review-package");
+  return resolveWorkingBackHref({ ...input, reviewTab: "review-package" });
 }
