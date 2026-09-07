@@ -3,7 +3,9 @@ import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 
@@ -66,5 +68,32 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES: readonly EvidenceSourceLinkW
     label: "Cloud connections help",
     href: inAppHelpHref("cloud-connections"),
     when: "Confirm inventory connectors before trusting Ask citations",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES_INTRO =
+  "Use these surfaces when buyers need inventory context, diagram exports, or remediation follow-up beyond correspondence rows.";
+
+/** Operator Sources for diagram reconciliation (GDI). */
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Inventory diagrams",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    when: "Export or inspect diagram views before uploading Mermaid for reconciliation",
+  },
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope reconciliation to one cloud resource",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift, Ask, or remediation",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Open the factory after creating operational findings from conflict rows",
   },
 ] as const;
