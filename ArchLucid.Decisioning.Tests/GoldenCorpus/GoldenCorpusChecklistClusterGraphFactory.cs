@@ -27,7 +27,7 @@ internal static class GoldenCorpusChecklistClusterGraphFactory
                 });
         }
 
-        return WrapCaseGraph(caseNumber: 43, nodes, edges);
+        return WrapCaseGraph(caseNumber: 46, nodes, edges);
     }
 
     private static GraphSnapshot WrapCaseGraph(

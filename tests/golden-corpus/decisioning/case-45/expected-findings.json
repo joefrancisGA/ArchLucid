@@ -1,0 +1,119 @@
+[
+  {
+    "findingId": "897950ed-9137-d4a3-7404-81ff2a6ebdde",
+    "findingType": "DrRpoTopologyFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Requirement \u0027Ledger DR\u0027 declares RPO 5 min but datastore \u0027sql-ledger-prod\u0027 lacks replica or failover properties",
+    "rationale": "Linked datastore \u0027sql-ledger-prod\u0027 does not declare geo-replica, failover group, or equivalent recovery topology for RPO 5 min.",
+    "relatedNodeIds": [
+      "req-dr-2",
+      "sql-ledger-prod"
+    ],
+    "payloadType": "DrRpoTopologyFindingPayload",
+    "rulesApplied": [
+      "dr-rpo-topology",
+      "replica-property-heuristic"
+    ],
+    "decisionsTaken": [
+      "Parsed recovery objective on requirement without matching replica declaration on linked datastore."
+    ]
+  },
+  {
+    "findingId": "73d2ff27-e37e-e265-5d88-7ce188178597",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "req-dr-2",
+      "sql-ledger-prod",
+      "svc-ledger"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "97de9db8-5ddf-3356-e913-30b7071c43d5",
+    "findingType": "RequirementFinding",
+    "category": "Requirement",
+    "severity": "Info",
+    "title": "Requirement detected: Ledger DR",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "relatedNodeIds": [
+      "req-dr-2",
+      "svc-ledger"
+    ],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "requirement-surface"
+    ],
+    "decisionsTaken": [
+      "Linked requirement to the sole in-scope topology resource (single-topology fallback)."
+    ]
+  },
+  {
+    "findingId": "7f661df9-a607-3861-f7f5-f84a509cea66",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "req-dr-2",
+      "sql-ledger-prod",
+      "svc-ledger"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "45917d3d-009f-fc5d-ff7d-ddf941a3c58b",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "ledger-api",
+      "sql-ledger-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "a3d4d4df-1104-d083-5502-291724940d2b",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "sql-ledger-prod",
+      "svc-ledger"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

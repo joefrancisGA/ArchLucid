@@ -20,7 +20,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
-            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-43.",
+            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-46.",
             ["security-baseline-expectation"] = "Expectation engine needs declaration fixtures beyond default graphs.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
@@ -28,6 +28,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
             ["checklist-cluster-synthesis"] = "Post-gate synthesis — see ChecklistClusterSynthesisGoldenCorpusTests; merge harness does not emit clustered rows without dismiss posture.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
+            ["data-flow-trust-boundary"] = "External actor→datastore path without trust-boundary hop — needs hand-authored path graph (DX-32 unit tests only until golden case).",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

@@ -6,6 +6,7 @@ import {
   GLOBAL_FIND_PAGE_SEARCH,
   evidenceTrailSearchQuickActionLabel,
   askReviewQuestionsQuickActionLabel,
+  askReviewQuestionsQuickActionDetail,
 } from "@/lib/search-surface-disambiguation";
 import {
   GLOBAL_SEARCH_ARIA_LABEL,
@@ -63,5 +64,10 @@ describe("search-surface-disambiguation (TB-2196)", () => {
   it("uses Ask questions in SecureNow global search quick actions", () => {
     expect(askReviewQuestionsQuickActionLabel("security")).toBe("Ask questions");
     expect(askReviewQuestionsQuickActionLabel("architecture")).toBe("Ask review questions");
+  });
+
+  it("uses Scoped Q&A helper copy in SecureNow global search quick actions", () => {
+    expect(askReviewQuestionsQuickActionDetail("security")).toBe("Scoped Q&A");
+    expect(askReviewQuestionsQuickActionDetail("architecture")).toBe("Scoped Q&A over review evidence");
   });
 });

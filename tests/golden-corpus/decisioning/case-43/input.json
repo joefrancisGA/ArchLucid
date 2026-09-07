@@ -9,79 +9,69 @@
     "createdUtc": "2026-01-15T12:00:00Z",
     "nodes": [
       {
-        "nodeId": "obj-storage-1",
-        "nodeType": "TopologyResource",
-        "label": "docs-1",
+        "nodeId": "actor-billing",
+        "nodeType": "Actor",
+        "label": "billing-func",
         "category": null,
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "tf.public_network_access": "enabled"
+          "kind": "Machine",
+          "trustOrigin": "Internal"
         },
         "reasoningTrace": null
       },
       {
-        "nodeId": "obj-storage-2",
+        "nodeId": "role-contrib-sa",
         "nodeType": "TopologyResource",
-        "label": "docs-2",
+        "label": "billing-contributor-sa",
         "category": null,
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "tf.public_network_access": "enabled"
+          "terraformType": "azurerm_role_assignment",
+          "roleName": "Contributor"
         },
         "reasoningTrace": null
       },
       {
-        "nodeId": "obj-storage-3",
+        "nodeId": "sa-audit-prod",
         "nodeType": "TopologyResource",
-        "label": "docs-3",
+        "label": "sa-audit-prod",
         "category": null,
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "tf.public_network_access": "enabled"
-        },
-        "reasoningTrace": null
-      },
-      {
-        "nodeId": "obj-storage-4",
-        "nodeType": "TopologyResource",
-        "label": "docs-4",
-        "category": null,
-        "sourceType": null,
-        "sourceId": null,
-        "properties": {
-          "tf.public_network_access": "enabled"
-        },
-        "reasoningTrace": null
-      },
-      {
-        "nodeId": "obj-storage-5",
-        "nodeType": "TopologyResource",
-        "label": "docs-5",
-        "category": null,
-        "sourceType": null,
-        "sourceId": null,
-        "properties": {
-          "tf.public_network_access": "enabled"
-        },
-        "reasoningTrace": null
-      },
-      {
-        "nodeId": "obj-storage-6",
-        "nodeType": "TopologyResource",
-        "label": "docs-6",
-        "category": null,
-        "sourceType": null,
-        "sourceId": null,
-        "properties": {
-          "tf.public_network_access": "enabled"
+          "category": "storage",
+          "topologySensitivity": "data-bearing"
         },
         "reasoningTrace": null
       }
     ],
-    "edges": [],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "actor-billing",
+        "toNodeId": "role-contrib-sa",
+        "edgeType": "RELATES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "role-contrib-sa",
+        "toNodeId": "sa-audit-prod",
+        "edgeType": "APPLIES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
     "warnings": []
   },
   "merge": null,

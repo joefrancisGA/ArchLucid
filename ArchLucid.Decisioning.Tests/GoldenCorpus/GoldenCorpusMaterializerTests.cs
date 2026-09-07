@@ -231,6 +231,42 @@ public sealed class GoldenCorpusMaterializerTests
 
         await RecordPathEngineCaseAsync(
             "case-43",
+            GoldenCorpusPathEngineGraphFactory.CreateIdentityBlastRadiusGraphSecond(),
+            "Billing machine actor Contributor path to audit storage account — second **identity-blast-radius** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_44_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-44",
+            GoldenCorpusPathEngineGraphFactory.CreateSegmentationSemanticsGraphSecond(),
+            "Internet-exposed RDP (3389) to subnet with HR SQL path — second **segmentation-semantics** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_45_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-45",
+            GoldenCorpusPathEngineGraphFactory.CreateDrRpoTopologyGraphSecond(),
+            "Requirement RPO 5 min with ledger SQL lacking replica/failover — second **dr-rpo-topology** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_46_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-46",
             GoldenCorpusChecklistClusterGraphFactory.CreateSixHttpsDeclarationClusterGraph(),
             "Six declaration public-network gaps — feeds **ChecklistClusterSynthesisGoldenCorpusTests** (DX-22).");
     }

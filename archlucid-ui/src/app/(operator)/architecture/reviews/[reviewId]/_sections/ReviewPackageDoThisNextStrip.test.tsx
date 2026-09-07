@@ -304,8 +304,9 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
     expect(screen.queryByTestId("review-package-failure-support-hint")).toBeNull();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
-    expect(screen.getByTestId("review-package-failure-foot-action")).toHaveTextContent("Re-run review");
-    expect(screen.getByTestId("review-package-failure-review-id")).toHaveTextContent("run-1");
+    expect(screen.queryByTestId("review-package-failure-foot-action")).toBeNull();
+    expect(screen.getByTestId("review-package-failure-review-id")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-failure-review-id")).not.toHaveTextContent("run-1");
   });
 
   it("renders in-place rerun button when live AI is ready", () => {
@@ -338,7 +339,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(2);
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(1);
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
@@ -388,10 +390,11 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.getAllByTestId("review-package-do-this-next-disabled-action")).toHaveLength(2);
+    expect(screen.getAllByTestId("review-package-do-this-next-disabled-action")).toHaveLength(1);
     screen.getAllByTestId("review-package-do-this-next-disabled-action").forEach((button) => {
       expect(button).toBeDisabled();
     });
+    expect(screen.queryByTestId("review-package-re-run-review-foot")).toBeNull();
     expect(screen.getByTestId("review-package-rerun-disabled-hint")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
@@ -418,9 +421,11 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
-    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(2);
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(1);
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
     expect(screen.getByTestId("review-package-failure-foot-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
   });
 
   it("hides stale failure recovery copy while a re-run attempt is in flight", () => {
