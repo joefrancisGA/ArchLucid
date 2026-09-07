@@ -1397,3 +1397,4 @@
 {"at":"2026-09-07T17:54:59.2107222Z","zoneId":"agent-runtime-safety","outcome":"hit"}
 {"at":"2026-09-07T18:02:45.2186524Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-09-07T18:10:05.0463375Z","zoneId":"tenant-settings-sql","outcome":"hit"}
+{"at":"2026-09-07T18:19:27.5271149Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
