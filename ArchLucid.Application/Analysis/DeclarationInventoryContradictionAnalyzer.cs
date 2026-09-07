@@ -18,6 +18,10 @@ public static class DeclarationInventoryContradictionAnalyzer
         DeclarationSecurityPropertyLogicalNames.HttpsOnly,
         DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
         DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled,
+        DeclarationSecurityPropertyLogicalNames.StorageEncrypted,
+        DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction,
+        DeclarationSecurityPropertyLogicalNames.K8sPrivileged,
+        DeclarationSecurityPropertyLogicalNames.K8sHostNetwork,
     ];
 
     public static IReadOnlyList<DeclarationInventoryContradictionMismatch> Analyze(
@@ -74,6 +78,11 @@ public static class DeclarationInventoryContradictionAnalyzer
                 if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(declarationValue, inventoryValue))
                     continue;
 
+                if (!DeclarationInventorySecurityPropertyInventoryReader.TryResolveSecurityTheme(
+                        logicalName,
+                        out string securityTheme))
+                    continue;
+
                 mismatches.Add(
                     new DeclarationInventoryContradictionMismatch(
                         node.NodeId,
@@ -83,7 +92,7 @@ public static class DeclarationInventoryContradictionAnalyzer
                         declarationValue,
                         inventoryValue,
                         cloudLabel,
-                        DeclarationInventorySecurityPropertyInventoryReader.ResolveSecurityTheme(logicalName)));
+                        securityTheme));
             }
         }
 
