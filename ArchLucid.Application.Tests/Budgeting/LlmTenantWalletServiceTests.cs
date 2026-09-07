@@ -368,12 +368,19 @@ public sealed class LlmTenantWalletServiceTests
             RowVersion = rowVersion,
         };
 
+        decimal creditUsd =
+            LlmTenantWalletDefaults.ApplyOverageMarkup(40m) - LlmTenantWalletDefaults.ApplyOverageMarkup(25m);
         Mock<ILlmTenantWalletRepository> repository = new();
         repository
             .Setup(r => r.GetOrCreateAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(state);
         repository
-            .Setup(r => r.TryCreditAdjustmentAsync(tenantId, 15m, It.IsAny<Guid>(), rowVersion, It.IsAny<CancellationToken>()))
+            .Setup(r => r.TryCreditAdjustmentAsync(
+                tenantId,
+                creditUsd,
+                It.IsAny<Guid>(),
+                rowVersion,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(LlmTenantWalletCreditResult.Conflict());
 
         LlmWalletSettlementQueue queue = new();
