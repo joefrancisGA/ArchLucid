@@ -44,3 +44,17 @@ export function evidenceTrailSearchQuickActionLabel(productLineId: ProductLineId
 
   return EVIDENCE_TRAIL_SEARCH.title;
 }
+
+/** Global search quick-action label for Ask review questions. */
+export const ASK_REVIEW_QUESTIONS_QUICK_ACTION = {
+  title: "Ask review questions",
+  shortLabel: "Ask questions",
+} as const;
+
+export function askReviewQuestionsQuickActionLabel(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return ASK_REVIEW_QUESTIONS_QUICK_ACTION.shortLabel;
+  }
+
+  return ASK_REVIEW_QUESTIONS_QUICK_ACTION.title;
+}

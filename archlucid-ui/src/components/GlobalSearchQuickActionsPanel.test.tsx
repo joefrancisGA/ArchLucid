@@ -27,4 +27,22 @@ describe("GlobalSearchQuickActionsPanel", () => {
     expect(screen.getByRole("link", { name: /Search evidence/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Search review evidence/i })).not.toBeInTheDocument();
   });
+
+  it("labels ask action Ask review questions in the Architecture shell", () => {
+    productLineMock.productLine = "architecture";
+
+    render(<GlobalSearchQuickActionsPanel inputId="search-input" onClose={vi.fn()} />);
+
+    expect(screen.getByRole("link", { name: /Ask review questions/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Ask questions/i })).not.toBeInTheDocument();
+  });
+
+  it("labels ask action Ask questions in the SecureNow shell", () => {
+    productLineMock.productLine = "security";
+
+    render(<GlobalSearchQuickActionsPanel inputId="search-input" onClose={vi.fn()} />);
+
+    expect(screen.getByRole("link", { name: /Ask questions/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Ask review questions/i })).not.toBeInTheDocument();
+  });
 });
