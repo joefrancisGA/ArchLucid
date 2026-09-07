@@ -90,6 +90,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "auth-invitation-accept-validation-failure",
     requiredMarkers: ["auth-invitation-accept-validation-failure", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "auth-callback-cannot-complete",
+    requiredMarkers: ["auth-callback-cannot-complete", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [
