@@ -18,6 +18,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID,
@@ -121,7 +122,14 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
               </Button>
             </div>
           </section>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO}
+            {showSecureNowGroupedHomeSections
+              ? " Security, compliance, and infrastructure destinations are grouped below."
+              : null}
+          </p>
+        )}
 
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
