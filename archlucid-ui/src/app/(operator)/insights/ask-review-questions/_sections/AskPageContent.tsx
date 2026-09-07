@@ -74,8 +74,16 @@ function AskFirstViewportBand(props: {
   return null;
 }
 
-export function AskPageContent() {
-  const ask = useAskPage();
+export type AskPageContentProps = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function AskPageContent(props: AskPageContentProps = {}) {
+  const ask = useAskPage({
+    basePathname: props.basePathname,
+    pinnedArchitectureId: props.pinnedArchitectureId,
+  });
   const buyerPolishedShell = ask.buyerPolishedShell;
 
   return (

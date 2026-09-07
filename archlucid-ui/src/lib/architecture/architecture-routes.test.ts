@@ -8,7 +8,9 @@ import {
   architectureDraftPath,
   architectureIdentityDraftHref,
   architectureNestedDraftPath,
+  architectureNestedAskPath,
   architectureNestedReviewPath,
+  parseArchitectureNestedAskArchitectureId,
   ARCHITECTURES_NEW_PATH,
   isArchitectureNewDraftSegment,
   resolveArchitectureReviewHref,
@@ -41,17 +43,13 @@ describe("architecture-routes", () => {
         parentArchitectureId: "architecture-identity-001",
         legacyDraftId: "draft-001",
       }),
-    ).toBe(
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
-    );
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake");
     expect(
       startReviewFromDraftContextHref({
         draftArchitectureId: "architecture-identity-002",
         legacyDraftId: "draft-legacy",
       }),
-    ).toBe(
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-002",
-    );
+    ).toBe("/architecture/architectures/architecture-identity-002/reviews/new?path=guided-intake");
   });
 
   it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {
@@ -70,6 +68,17 @@ describe("architecture-routes", () => {
     expect(resolveArchitectureReviewHref("run-001", "architecture-identity-001")).toBe(
       architectureNestedReviewPath("architecture-identity-001", "run-001"),
     );
+  });
+
+  it("SY-36: builds nested Ask path under architecture identity", () => {
+    expect(architectureNestedAskPath("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/ask",
+    );
+    expect(
+      parseArchitectureNestedAskArchitectureId(
+        "/architecture/architectures/architecture-identity-001/ask",
+      ),
+    ).toBe("architecture-identity-001");
   });
 
   it("CA-48: keeps draft segment path param honest and separate from identity desk paths", () => {

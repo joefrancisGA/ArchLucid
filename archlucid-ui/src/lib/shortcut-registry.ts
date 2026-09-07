@@ -133,6 +133,10 @@ export function resolveShortcutDescription(
     return workingMode ? WORKING_ALT_N_SHORTCUT_DESCRIPTION : GUIDED_ALT_N_SHORTCUT_DESCRIPTION;
   }
 
+  if (normalizeCombo(entry.key) === "alt+r" && workingMode) {
+    return "Open architecture desk — last architecture or portfolio (not the reviews inbox)";
+  }
+
   if (normalizeCombo(entry.key) === "alt+c" && workingMode) {
     return onReviewPage
       ? "Compare two reviews — uses this review as the base run"
