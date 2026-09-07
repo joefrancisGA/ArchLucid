@@ -27,9 +27,21 @@ describe("architecture-routes", () => {
     );
   });
 
-  it("pins identity desk child draft href for post-create navigation (CA-24)", () => {
+  it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {
     expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
-      "/architecture/architectures/architecture-identity-001?draft=draft-001",
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+    );
+  });
+
+  it("builds nested Working job paths (AO-02)", () => {
+    expect(architectureNestedReviewPath("architecture-identity-001", "run-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
+    expect(architectureNestedDraftPath("architecture-identity-001", "draft-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+    );
+    expect(resolveArchitectureReviewHref("run-001", "architecture-identity-001")).toBe(
+      architectureNestedReviewPath("architecture-identity-001", "run-001"),
     );
   });
 

@@ -66,15 +66,11 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
     });
   });
 
-  it("routes linked reviews to review detail", () => {
+  it("returns null when a linked review exists — Working Home defers to architecture desk (AO-13)", () => {
     const action = resolveOperatorHomeLatestDraftPrimaryAction(
       entry({ linkedReviewId: "run-001", serverDraftStatus: "RunSpawned" }),
     );
 
-    expect(action).toEqual({
-      href: "/architecture/reviews/run-001",
-      ctaLabel: "Continue review",
-      kind: "continue-review",
-    });
+    expect(action).toBeNull();
   });
 });

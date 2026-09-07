@@ -75,7 +75,11 @@ export function resolveNewReviewPrimaryNavTitle(): string {
   return resolveStartReviewPrimaryNavTitle();
 }
 
-/** Matches `/architecture/reviews` list routes (with optional query), not `/new` or `/{id}`. */
+/** Working sidebar label for `/architecture/reviews` — inbox, not Monday morning (AO-14). */
+export const WORKING_REVIEWS_INBOX_NAV_LABEL = "Review inbox" as const;
+
+const WORKING_REVIEWS_INBOX_NAV_TITLE =
+  "Cross-architecture review inbox — all jobs in this workspace, not your architecture desk";
 export function isReviewsListNavHref(href: string): boolean {
   const path = href.split("?")[0] ?? href;
 
@@ -147,6 +151,14 @@ export function resolveNavLinkPresentation(
   }
 
   if (isReviewsListNavHref(link.href)) {
+    if (workingMode) {
+      return applyBuyerNavVocabulary({
+        href: link.href,
+        label: WORKING_REVIEWS_INBOX_NAV_LABEL,
+        title: WORKING_REVIEWS_INBOX_NAV_TITLE,
+      });
+    }
+
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveReviewsListNavLinkLabel(isGovernanceModeEnabled),
