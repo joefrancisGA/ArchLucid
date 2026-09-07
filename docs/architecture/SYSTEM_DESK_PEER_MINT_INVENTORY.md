@@ -7,18 +7,18 @@
 | File | Audience | SY owner | Notes |
 |------|----------|----------|-------|
 | `lib/architecture/architecture-routes.ts` | Shared | — | Canonical legacy peer builder; keep |
-| `lib/architecture/architecture-draft-intake-mode.ts` | Working | SY-25 | Intake fallback when architecture unknown |
+| `lib/architecture/architecture-draft-intake-mode.ts` | Working | SY-25 | **Done** — Guided peer fallback; Working uses nested |
 | `lib/architecture/working-architecture-review-routes.ts` | Working | — | Redirect helper; not a mint |
-| `lib/architecture/working-share-href.ts` | Working | SY-20 | Unlinked review fallback |
+| `lib/architecture/working-share-href.ts` | Working | SY-20 | **Done** — nested primary; peer only when unlinked |
 | `lib/buyer/buyer-safe-review-navigation.ts` | Buyer/Guided | SY-19 | Buyer nav split |
-| `lib/first-review-guide-status.ts` | Working | SY-18 | Guide still mints peer URLs |
-| `lib/reviews/review-room-elicitation-url.ts` | Working | SY-21 | Room elicitation when architecture missing |
-| `lib/reviews/review-pin-run-url.ts` | Working | SY-22 | Pin/compare empty fallback |
+| `lib/first-review-guide-status.ts` | Working | SY-18 | **Done** — nested when architecture id known |
+| `lib/reviews/review-room-elicitation-url.ts` | Working | SY-21 | **Done** — nested when architecture id known |
+| `lib/reviews/review-pin-run-url.ts` | Working | SY-22 | **Done** — nested when architecture id known |
 | `components/architecture/ArchitectureFindingsDualPane.tsx` | Working | SY-27 | Pathname fallback |
 | `components/provenance/use-provenance-page-workspace.ts` | Working | SY-44 | Pathname fallback |
-| `app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout.tsx` | Guided | SY-06 exempt | Guided teaching |
-| `app/(operator)/administration/users/_sections/SettingsRolesInvitePanel.tsx` | Shared | SY-23 | Invite return |
-| `app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx` | Shared | SY-23 | Invite return |
+| `app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout.tsx` | Guided | SY-25 | **Done** — Working nested; Guided peer |
+| `app/(operator)/administration/users/_sections/SettingsRolesInvitePanel.tsx` | Shared | SY-24 | **Done** — nested success link on Working |
+| `app/(operator)/administration/users/_sections/InviteReviewerPageView.tsx` | Shared | SY-23 | **Done** — nested back/share on Working |
 
 ## `startReviewFromArchitectureHref(` — production call sites
 

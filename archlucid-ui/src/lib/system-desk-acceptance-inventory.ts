@@ -88,4 +88,34 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     relativeTestPath: "lib/architecture/architecture-draft-intake-mode.test.ts",
     marker: "SY-25",
   },
+  {
+    id: "SY-26",
+    relativeTestPath: "lib/architecture/working-back-href.test.ts",
+    marker: "AO-44",
+  },
+  {
+    id: "SY-27",
+    relativeTestPath: "components/architecture/ArchitectureFindingsDualPane.test.tsx",
+    marker: "SY-27",
+  },
+  {
+    id: "SY-28",
+    relativeTestPath: "lib/resolve-audit-trail-review-href.test.ts",
+    marker: "SY-28",
+  },
+  {
+    id: "SY-33",
+    relativeTestPath: "lib/resolve-working-evidence-parent-link.test.ts",
+    marker: "SY-33",
+  },
+  {
+    id: "SY-34",
+    relativeTestPath: "lib/decision-register-empty-teaching.test.ts",
+    marker: "SY-34",
+  },
+  {
+    id: "SY-35",
+    relativeTestPath: "lib/usability/usability-consolidation.test.ts",
+    marker: "SY-35",
+  },
 ];
