@@ -12,7 +12,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Approval";
+export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Resolve outcomes";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";

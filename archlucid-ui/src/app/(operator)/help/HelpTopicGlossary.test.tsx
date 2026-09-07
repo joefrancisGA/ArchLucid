@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
@@ -17,7 +17,26 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
+vi.mock("next/navigation", () => {
+  const navigation = {
+    params: new URLSearchParams(),
+    replace: vi.fn((href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      navigation.params = new URLSearchParams(queryIndex === -1 ? "" : href.slice(queryIndex + 1));
+    }),
+  };
+
+  return {
+    usePathname: () => "/help/glossary",
+    useRouter: () => ({ replace: navigation.replace, push: vi.fn() }),
+    useSearchParams: () => navigation.params,
+    __navigation: navigation,
+  };
+});
+
 import { HelpGlossaryPageView } from "@/app/(operator)/help/_sections/HelpGlossaryPageView";
+import * as NextNavigation from "next/navigation";
 import {
   CUSTOMER_GLOSSARY_EMPTY_STATE,
   CUSTOMER_GLOSSARY_FEATURED_TERMS_LABEL,
@@ -64,6 +83,11 @@ function collectInPageAnchorIds(container: HTMLElement): string[] {
 
 describe("HelpGlossaryPageView", () => {
   const entry = getProductDocumentationEntry("glossary");
+
+  beforeEach(() => {
+    const navigation = (NextNavigation as typeof NextNavigation & { __navigation: { params: URLSearchParams } }).__navigation;
+    navigation.params = new URLSearchParams();
+  });
 
   it("registers the glossary help entry", () => {
     expect(entry?.slug).toBe("glossary");
@@ -142,7 +166,10 @@ describe("HelpGlossaryPageView", () => {
       throw new Error("Expected glossary documentation entry.");
     }
 
-    render(<HelpGlossaryPageView entry={entry} />);
+    const navigation = (NextNavigation as typeof NextNavigation & { __navigation: { params: URLSearchParams; replace: ReturnType<typeof vi.fn> } }).__navigation;
+    navigation.params = new URLSearchParams();
+
+    const view = render(<HelpGlossaryPageView entry={entry} />);
 
     expect(screen.getByTestId("glossary-term-finding")).toBeInTheDocument();
     expect(screen.getByTestId("glossary-term-review")).toBeInTheDocument();
@@ -152,7 +179,9 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.getByTestId("glossary-empty-state")).toHaveTextContent(CUSTOMER_GLOSSARY_EMPTY_STATE);
 
     fireEvent.change(screen.getByTestId("glossary-search-input"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    fireEvent.click(within(screen.getByTestId("glossary-category-filters")).getByRole("link", { name: "Evidence" }));
+    navigation.params = new URLSearchParams("category=evidence");
+    view.rerender(<HelpGlossaryPageView entry={entry} />);
 
     expect(screen.getByTestId("glossary-term-evidence-trail")).toBeInTheDocument();
     expect(screen.queryByTestId("glossary-term-finding")).toBeNull();
@@ -181,12 +210,19 @@ describe("HelpGlossaryPageView", () => {
       throw new Error("Expected glossary documentation entry.");
     }
 
-    render(<HelpGlossaryPageView entry={entry} />);
+    const navigation = (NextNavigation as typeof NextNavigation & { __navigation: { params: URLSearchParams; replace: ReturnType<typeof vi.fn> } }).__navigation;
+    navigation.params = new URLSearchParams();
 
-    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    const view = render(<HelpGlossaryPageView entry={entry} />);
+
+    fireEvent.click(within(screen.getByTestId("glossary-category-filters")).getByRole("link", { name: "Evidence" }));
+    navigation.params = new URLSearchParams("category=evidence");
+    view.rerender(<HelpGlossaryPageView entry={entry} />);
     expect(screen.queryByTestId("glossary-term-finding")).toBeNull();
 
     fireEvent.click(within(screen.getByTestId("glossary-featured-terms")).getByRole("button", { name: "Finding" }));
+    navigation.params = new URLSearchParams();
+    view.rerender(<HelpGlossaryPageView entry={entry} />);
 
     expect(screen.getByTestId("glossary-term-finding")).toBeInTheDocument();
     expect(document.getElementById("term-finding")).not.toBeNull();
@@ -197,9 +233,10 @@ describe("HelpGlossaryPageView", () => {
       throw new Error("Expected glossary documentation entry.");
     }
 
-    render(<HelpGlossaryPageView entry={entry} />);
+    const navigation = (NextNavigation as typeof NextNavigation & { __navigation: { params: URLSearchParams; replace: ReturnType<typeof vi.fn> } }).__navigation;
+    navigation.params = new URLSearchParams("category=evidence");
 
-    fireEvent.click(screen.getByRole("button", { name: "Evidence" }));
+    render(<HelpGlossaryPageView entry={entry} />);
 
     const primary = screen.getByTestId("help-glossary-primary");
     const toc = screen.queryByTestId("help-topic-toc") ?? screen.queryByTestId("help-topic-toc-mobile");

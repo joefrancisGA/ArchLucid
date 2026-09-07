@@ -8,7 +8,10 @@ import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/govern
 
 import { GOVERNANCE_APPROVAL_HELP_PATH } from "@/lib/governance/governance-approval-help-route";
 
-import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance/governance-approval-help-guide-content";
+import {
+  GOVERNANCE_APPROVAL_HELP_PAGE_TITLE,
+  GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS,
+} from "@/lib/governance/governance-approval-help-guide-content";
 
 import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
 
@@ -70,7 +73,7 @@ describe("governance-approval-help-route (GO)", () => {
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
 
-    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe("Approval");
+    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe(GOVERNANCE_APPROVAL_HELP_PAGE_TITLE);
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.description?.toLowerCase()).toContain("submission");
 
