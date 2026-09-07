@@ -19,7 +19,7 @@ export function ProductLineHomeSwitch(props: { readonly architectureHome?: React
   const { productLine } = useProductLine();
 
   if (productLine === "security") {
-    return <InfrastructureOverviewClient />;
+    return <InfrastructureOverviewClient secureNowHome />;
   }
 
   if (props.architectureHome !== undefined) {
