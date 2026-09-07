@@ -287,6 +287,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new TopologyStructureFindingEngine(),
             new SecurityBaselineFindingEngine(),
             new SecurityBaselineCompletenessFindingEngine(analyzer),
+            new SecurityBaselineExpectationFindingEngine(analyzer),
             new SecurityGapFindingEngine(),
             new SecurityCoverageFindingEngine(analyzer),
             new ExternalExposureFindingEngine(complianceProvider),
@@ -301,6 +302,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),
+            new RequiredCapabilityCoverageFindingEngine(new RequiredCapabilityCoverageAnalyzer()),
             new DataFlowTrustBoundaryFindingEngine(),
             new TopologyAntiPatternFindingEngine(),
         ];

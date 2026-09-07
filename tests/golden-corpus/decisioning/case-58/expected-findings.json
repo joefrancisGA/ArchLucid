@@ -55,6 +55,24 @@
     ]
   },
   {
+    "findingId": "1a47918e-8c26-6424-50a6-521c84b19e06",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-4025d687cca52f630c571b2eb2403d31"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
     "findingId": "20c1d1ff-e55f-4b18-41df-e9e2c119a913",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",

@@ -40,6 +40,26 @@
     ]
   },
   {
+    "findingId": "7320f5bc-48a3-2e4b-8a1d-e7ef944d5bee",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "nsg-db",
+      "sql-hr",
+      "subnet-db"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
     "findingId": "17720de2-3b77-f966-e953-76a677bd2409",
     "findingType": "SecurityControlFinding",
     "category": "Security",

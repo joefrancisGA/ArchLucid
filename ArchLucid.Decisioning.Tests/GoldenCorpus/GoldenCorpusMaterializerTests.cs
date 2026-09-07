@@ -358,6 +358,28 @@ public sealed class GoldenCorpusMaterializerTests
             "CDK synth Lambda node (format cdk-synth) with external actor path overlay — expect **data-flow-trust-boundary** (DX-48).");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-61",
+            GoldenCorpusDx49GraphFactory.CreateTopologyAntiPatternGraph(),
+            "Compute + datastore topology nodes with no CONNECTS_TO/DEPENDS_ON — expect **topology-anti-pattern** (DX-49).");
+
+        await RecordPathEngineCaseAsync(
+            "case-62",
+            GoldenCorpusDx49GraphFactory.CreateSecurityBaselineExpectationGraph(),
+            "Compute topology node with no security baseline PROTECTS edge — expect **security-baseline-expectation** (DX-49).");
+
+        await RecordPathEngineCaseAsync(
+            "case-63",
+            GoldenCorpusDx49GraphFactory.CreateRequiredCapabilityCoverageGraph(),
+            "Context snapshot requires encryption-at-rest with no matching graph evidence — expect **required-capability-coverage** (DX-49).");
+    }
+
     private static async Task RecordIngestDeclarationCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,
