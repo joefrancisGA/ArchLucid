@@ -8,7 +8,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { resolveWorkingInsightsNavHref } from "./resolve-working-insights-nav-href";
 
-describe("resolveWorkingInsightsNavHref (LS-05 / SY-45)", () => {
+describe("resolveWorkingInsightsNavHref (LS-05 / SY-45 / AO-31)", () => {
   const architectureId = "architecture-identity-001";
 
   it("scopes Ask to nested architecture desk when last-open architecture is known", () => {
@@ -33,7 +33,7 @@ describe("resolveWorkingInsightsNavHref (LS-05 / SY-45)", () => {
     ).toBe(`${architectureNestedComparePath(architectureId)}?priorRunId=run-last&architectureId=${architectureId}`);
   });
 
-  it("scopes Evidence graph to nested architecture desk", () => {
+  it("AO-31: scopes Evidence graph to nested architecture desk with path-bound run", () => {
     expect(
       resolveWorkingInsightsNavHref({
         href: "/insights/evidence-graph",

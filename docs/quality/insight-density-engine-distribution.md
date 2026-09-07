@@ -1,6 +1,7 @@
 # Insight-density engine distribution
 
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
+typed-engine-protected findings use advisory measurement only; the gate cannot raise density above the demotion predicate.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
 (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
 The golden corpus harness registers **41** engines; **39** appear in this table (≥1 finding across case-01..case-63). **11** built-in product engines are absent from this corpus-derived slice.
@@ -33,7 +34,13 @@ Low medians on typed engines signal output quality — demotion to checklist is 
 | trust-boundary | 1 | 60 | 60 | 60 | 0 |
 | declaration-security-baseline | 1 | 65 | 65 | 65 | 0 |
 | security-baseline | 14 | 60 | 65 | 65 | 0 |
+| dangling-declaration-reference | 1 | 75 | 75 | 75 | 0 |
+| dr-rpo-topology | 2 | 75 | 75 | 75 | 0 |
+| requirement-sku-tier | 1 | 75 | 75 | 75 | 0 |
+| data-flow-trust-boundary | 2 | 80 | 80 | 80 | 0 |
 | declaration-premise-conflict | 1 | 80 | 80 | 80 | 0 |
+| identity-blast-radius | 3 | 80 | 80 | 80 | 0 |
+| segmentation-semantics | 2 | 80 | 80 | 80 | 0 |
 | aws-inventory-reconciliation | 1 | 85 | 85 | 85 | 0 |
 | azure-inventory-reconciliation | 3 | 85 | 85 | 85 | 0 |
 | azure-inventory-security-baseline | 1 | 85 | 85 | 85 | 0 |
@@ -44,10 +51,4 @@ Low medians on typed engines signal output quality — demotion to checklist is 
 | orphaned-azure-resource | 1 | 85 | 85 | 85 | 0 |
 | orphaned-gcp-resource | 1 | 85 | 85 | 85 | 0 |
 | secrets-lifecycle | 1 | 85 | 85 | 85 | 0 |
-| dangling-declaration-reference | 1 | 100 | 100 | 100 | 0 |
-| data-flow-trust-boundary | 2 | 100 | 100 | 100 | 0 |
-| dr-rpo-topology | 2 | 100 | 100 | 100 | 0 |
-| identity-blast-radius | 3 | 100 | 100 | 100 | 0 |
-| requirement-sku-tier | 1 | 100 | 100 | 100 | 0 |
-| segmentation-semantics | 2 | 100 | 100 | 100 | 0 |
 

@@ -158,6 +158,27 @@ describe("splitSidebarLinksDailyVsMore", () => {
     ]);
   });
 
+  it("lists every Administration destination on Administration routes", () => {
+    const links = [
+      link("/administration", "All settings"),
+      link("/administration/users", "Users & roles"),
+      link("/administration/billing", "Billing & plans"),
+      link("/administration/system-health", "System health"),
+      link("/administration/support", "Support"),
+      link("/administration/notifications", "Notifications"),
+      link("/administration/workspace-settings", "Workspace settings"),
+      link("/administration/baseline", "Baseline settings"),
+    ];
+    const split = splitSidebarLinksDailyVsMore(
+      "operator-admin",
+      links,
+      "/administration/workspace-settings",
+    );
+
+    expect(split.daily).toEqual(links);
+    expect(split.more).toEqual([]);
+  });
+
   it("splits Insights into daily vs more and preserves daily order", () => {
     const links = [
       link("/insights/patterns", "Pattern library"),

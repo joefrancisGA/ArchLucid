@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-42–DX-46)
 
-**Created:** 2026-09-07 · **Status:** Shipped on `master` (2026-09-07). Do not re-run. Successor: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md).
+**Created:** 2026-09-07 · **Status:** Shipped on `master` (2026-09-07). Do not re-run. Successor [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md) (**DX-47–DX-50**) also shipped.
 
 DX-01–DX-41 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). Latest golden case is **`case-50`**. Harness registers **38** engines; catalog has **50**; **12** absent-with-reason. This set closes the **remaining Cursor-implementable** density holes: Pulumi/CloudFormation/CDK **in-batch** ingest (workstream 1G remainder), three-way contradiction across all five `DeclarationSignalPolicyKeyMap` themes, AWS/GCP inventory goldens, honest `EvidenceRefs` on engines that already know an ARM id / ARN / policy rule, and Advisor/cloud cost-recommendation goldens.
 
