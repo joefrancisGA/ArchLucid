@@ -89,11 +89,24 @@ test.describe(
     }
   });
 
-  test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
+    test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
     requireLivePrivateBetaJwtEnv();
 
     await assertJwtScopeBindingRejectsForgedTenantHeader(request);
   });
+
+    test("signed-in /403 access-denied surfaces recovery CTAs (missing role / wrong tenant)", async ({ page }) => {
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
+
+    const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+    await primeJwtBrowserSession(page, accessToken);
+    await page.goto("/403", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByTestId("operator-access-denied-heading")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("operator-access-denied-return-sign-in")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("operator-access-denied-use-different-account")).toBeVisible({ timeout: 30_000 });
+    });
 
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
