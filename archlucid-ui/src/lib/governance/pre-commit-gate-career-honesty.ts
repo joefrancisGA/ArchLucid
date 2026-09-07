@@ -1,5 +1,8 @@
+export const PRE_COMMIT_GATE_DISABLED_TITLE =
+  "Finalize will not be blocked by policy";
+
 export const PRE_COMMIT_GATE_DISABLED_CAREER_COPY =
-  "Pre-finalize governance gate is off — this seal is not career-complete";
+  "Serious findings can still be sealed here. This is not a fully governed review record.";
 
 export function formatPreCommitGateDisabledCareerBlockedReason(
   preCommitGateEnabled: boolean | null | undefined,

@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
 
@@ -61,7 +62,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
         CareerExportCoverageHonesty honesty = CareerExportCoverageHonestyComposer.Resolve(input);
 
         honesty.BlockedForWorkingCareerExport.Should().BeTrue();
-        honesty.MeasurementFloorBlockedReason.Should().Contain("Pre-finalize governance gate is off");
+        honesty.MeasurementFloorBlockedReason.Should().Contain("not a fully governed review record");
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
     public void Resolve_allows_pilot_strict_real_mode_when_gate_passes()
     {
         CareerExportCoverageHonestyInput input = CreateInput(
-            enginesSucceeded: 16,
+            enginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines,
             workingDesk: true,
             structuralExecutionMode: StructuralExecutionMode.Real,
             hostAgentExecutionMode: "Real",
