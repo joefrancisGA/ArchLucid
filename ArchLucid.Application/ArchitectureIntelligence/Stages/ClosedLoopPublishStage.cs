@@ -186,7 +186,8 @@ public sealed class ClosedLoopPublishStage(
 
             ArchitectureKnowledgeModel baselineModelForCacheManifest = context.Model;
 
-            if (resolvedStorageKind == ReviewCacheStorageKind.ContinueFromExistingRun)
+            if (resolvedStorageKind == ReviewCacheStorageKind.ContinueFromExistingRun
+                || (!persistModel && !string.IsNullOrWhiteSpace(effectiveRequest.RunId)))
             {
                 ArchitectureKnowledgeModel? persistedBaselineModel =
                     await _persistenceHelper.TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
@@ -208,7 +209,7 @@ public sealed class ClosedLoopPublishStage(
                         : ReviewCacheManifestBuilder.BuildWithResolvedRunId(
                             effectiveRequest,
                             runId,
-                            context.Model,
+                            baselineModelForCacheManifest,
                             ledgerEntriesForCache);
 
             using IReviewResultCachePinScope storagePinScope = _reviewResultCache.PinScope(storageManifest);

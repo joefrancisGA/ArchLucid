@@ -246,4 +246,78 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
         result.Model.Elements.Should().BeEmpty();
         result.SpecialistReviews.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, AlwaysBlockedTrustPublishGate>();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+        IArchitectureIntelligencePersistence persistence =
+            provider.GetRequiredService<IArchitectureIntelligencePersistence>();
+
+        const string tenantId = "tenant-cache-blocked-rerun";
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+        await persistence.SaveModelAsync(
+            new ArchitectureKnowledgeModel
+            {
+                ModelId = "seeded-model",
+                TenantId = tenantId,
+                RunId = runId,
+                Elements =
+                [
+                    new ArchitectureModelElement
+                    {
+                        ElementId = "seed-el",
+                        Name = "Seeded API",
+                        Kind = ArchitectureElementKind.Component,
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = tenantId,
+            RunId = runId,
+            DeclaredPriorities = ["Security"],
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure customer onboarding",
+                ["system-boundary"] = "Public API and billing worker",
+                ["fixed-decisions"] = "Azure is the cloud provider",
+                ["critical-quality-attributes"] = "Security and reliability",
+                ["unacceptable-failures"] = "Data breach",
+                ["architecture-kind"] = "Greenfield integration",
+            },
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = """
+                        Public API exposes customer records without authentication.
+                        Billing worker is an unowned component.
+                        """,
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
+        first.CacheHit.Should().BeFalse();
+        first.PublishBlocked.Should().BeTrue();
+
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
+        second.CacheHit.Should().BeTrue();
+        second.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+    }
 }

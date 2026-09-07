@@ -9613,11 +9613,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — continue-from-existing analysis runs skipped review-cache storage / used post-pipeline model fingerprint
+- **last-bug:** 2026-09-07 — blocked full reruns with existing run id stored review cache under in-memory model fingerprint
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9630,6 +9630,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cap can skip invalidation while entry remains pinned under improve-loop pressure — retired: `MaxDistinctPinnedStorageKeys` (64) prevents a 65th pinned invalidation target; when cap blocks a new pin the entry is removed directly without needing a tombstone slot (`AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`)
 - [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` / `ClosedLoopPublishStage` — identical continue requests missed review cache — **hit 2026-09-07 (#1195):** publish stage gated cache `Set` on `persistModel`, which is false for continue runs when publish is blocked and a model already exists; storage manifest also used post-pipeline `context.Model` fingerprint while lookup uses persisted baseline, so keys diverged when framing mutations were not saved; fixed by storing analysis-only continue results using persisted baseline fingerprint; regression in `RunAsync_second_identical_continue_request_is_cache_hit`
 
+- [x] (proven) `ClosedLoopPublishStage` / full-run cache storage — blocked reruns with pre-existing run id stored analysis cache under post-pipeline `context.Model` fingerprint while lookup/`PinScope` use persisted baseline — **hit 2026-09-07 (#1197):** identical analysis reruns missed cache when publish blocked and model not persisted; fixed by aligning storage manifest baseline with persisted model when `persistModel` is false (`RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`)
+- [ ] (candidate) `ReviewResultCache.Set` — returns without inserting when cache is at `MaxEntries` and every entry is pinned, leaving coalesce leader results uncached until capacity frees
+- [ ] (candidate) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun=1` content-hash prefix applies only to `Build()` while continue coalesce uses `BuildContinueFromExistingRunCoalesceManifest`; accidental full-run cache path for continue requests would partition keys incorrectly
+
+2026-09-07 seed hunt #1197 (hit): reseeded publish-stage storage manifest paths; proved blocked full reruns with existing run id missed review cache due to baseline fingerprint mismatch.
 2026-09-07 thorough hunt #1195 (hit): proved continue-from-existing review-cache skip and manifest baseline mismatch.
 
 2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
