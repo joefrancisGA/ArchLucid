@@ -139,6 +139,25 @@ internal static class TenantIsolationNegativeTestAggregator
             return false;
         }
     }
+
+    internal static bool RunListClaimsMorePages(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+
+            return root.TryGetProperty("hasMore", out JsonElement hasMoreElement)
+                && hasMoreElement.ValueKind == JsonValueKind.True;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 }
 
 internal static class TenantIsolationNegativeTestProbeCatalog

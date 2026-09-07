@@ -191,7 +191,12 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent, lastCorrelationId);
 
             if (!TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(body, out cursor))
+            {
+                if (TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(body))
+                    return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete, lastCorrelationId);
+
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdAbsent, lastCorrelationId);
+            }
 
             if (pageIndex == maxPages - 1)
                 return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete, lastCorrelationId);

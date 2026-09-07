@@ -954,11 +954,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run-list exclude-run-id probe false-passed on HTTP 401 when list scan was unavailable
+- **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -984,6 +984,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1235 (hit): reseeded cli-tenant-isolation zone; proved run-list pagination cap false-pass; seeded PascalCase runId candidate; cheap-disproved 401-as-pass concern.
 
 2026-09-07 thorough hunt #1241 (hit): proved run-list exclude probe false-pass on HTTP 401; cheap-disproof PascalCase `RunId` candidate against `ArchLucidApiJsonSerializerOptions` camelCase policy.
+
+- [x] (proven) Cross-tenant run-list exclude probe false-passed when `/v1/runs` returned `hasMore: true` without `nextCursor` — **hit 2026-09-07 seed hunt #1245:** `AuthorityReadsController` omits `nextCursor` when `HasMore` is true but the page is empty; probe treated the truncated scan as foreign runId absent; fixed with `RunListClaimsMorePages` → `ScanIncomplete` → SKIP; regressions in `RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing` and `RunLiveAsync_SkipsRunListProbeWhenHasMoreTrueWithoutNextCursor`.
+- [ ] (candidate) Offline manifest replay cannot express run-list scan truncation (`hasMore` without cursor or pagination cap) — `EvaluateExcludeRunIdProbeVerdict` only reads status code + `foreignRunIdVisible`; no failing repro in zone yet.
+
+2026-09-07 seed hunt #1245 (hit): reseeded cli-tenant-isolation zone; proved hasMore-without-cursor false-pass; seeded offline scan-truncation manifest candidate.
 
 ---
 
