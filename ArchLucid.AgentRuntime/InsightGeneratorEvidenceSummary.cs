@@ -103,7 +103,8 @@ public static class InsightGeneratorEvidenceSummary
         GraphSnapshot graphSnapshot,
         IReadOnlySet<string> allowedEvidenceRefs,
         int maxFindings,
-        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries = null)
+        IReadOnlyList<InsightGeneratorCommunitySummary>? communitySummaries = null,
+        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null)
     {
         ArgumentNullException.ThrowIfNull(engineFindings);
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -123,11 +124,12 @@ public static class InsightGeneratorEvidenceSummary
 
         builder.AppendLine();
         AppendCommunitySummariesSection(builder, communitySummaries);
+        AppendNoveltyRatesSection(builder, noveltyRatesByEngineType);
         builder.AppendLine("Graph labels (sample):");
         AppendGraphLabels(builder, graphSnapshot);
         builder.AppendLine();
         builder.AppendLine("Existing high-signal engine findings (sample):");
-        AppendPreferredFindings(builder, engineFindings);
+        AppendPreferredFindings(builder, engineFindings, noveltyRatesByEngineType);
 
         return builder.ToString();
     }
@@ -155,6 +157,31 @@ public static class InsightGeneratorEvidenceSummary
         builder.AppendLine();
     }
 
+    public static void AppendNoveltyRatesSection(
+        StringBuilder builder,
+        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        if (noveltyRatesByEngineType is null || noveltyRatesByEngineType.Count == 0)
+            return;
+
+        builder.AppendLine(InsightDensityNoveltyRateLookup.InsightGeneratorClaimBoundary);
+        builder.AppendLine("Tenant novelty rates (internal ranking, not evidence — do not copy these as evidenceRefs):");
+
+        foreach (KeyValuePair<string, double> entry in noveltyRatesByEngineType
+                     .OrderByDescending(static pair => pair.Value)
+                     .ThenBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            builder.Append("  - ");
+            builder.Append(entry.Key);
+            builder.Append(": ");
+            builder.AppendLine(entry.Value.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        builder.AppendLine();
+    }
+
     private static void AppendGraphLabels(StringBuilder builder, GraphSnapshot graphSnapshot)
     {
         if (graphSnapshot.Nodes is null || graphSnapshot.Nodes.Count == 0)
@@ -176,13 +203,27 @@ public static class InsightGeneratorEvidenceSummary
         }
     }
 
-    private static void AppendPreferredFindings(StringBuilder builder, IReadOnlyList<Finding> engineFindings)
+    private static void AppendPreferredFindings(
+        StringBuilder builder,
+        IReadOnlyList<Finding> engineFindings,
+        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType)
     {
-        IEnumerable<Finding> preferred = engineFindings
-            .Where(finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType))
-            .Take(20);
+        IEnumerable<Finding> ordered = engineFindings;
 
-        List<Finding> sample = preferred.ToList();
+        if (noveltyRatesByEngineType is not null)
+        {
+            ordered = ordered
+                .OrderByDescending(static finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType))
+                .ThenByDescending(finding =>
+                    InsightDensityNoveltyRateLookup.ResolveNoveltyRate(finding.EngineType, noveltyRatesByEngineType))
+                .ThenBy(static finding => finding.FindingId, StringComparer.Ordinal);
+        }
+        else
+        {
+            ordered = ordered.Where(finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType));
+        }
+
+        List<Finding> sample = ordered.Take(20).ToList();
 
         if (sample.Count == 0)
         {

@@ -1326,4 +1326,48 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         storageAccount.Properties["mode"].Should().Be("managed");
         storageAccount.Properties["tf.name"].Should().Be("stacct");
     }
+
+    [Fact]
+    public async Task ParseAsync_ModuleTraversal_ExpandsNestedLocalChildModules()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-module-traversal",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "address": "module.network",
+                                "child_modules": [
+                                  {
+                                    "address": "module.network.module.kv",
+                                    "resources": [
+                                      {
+                                        "address": "module.network.module.kv.azurerm_key_vault.shared",
+                                        "type": "azurerm_key_vault",
+                                        "name": "shared",
+                                        "values": { "name": "kv-prod" }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle(o =>
+            o.Name == "module.network.module.kv.azurerm_key_vault.shared"
+            && o.ObjectType == "SecurityBaseline");
+    }
 }

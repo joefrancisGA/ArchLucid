@@ -46,3 +46,5 @@ When the kill-switch skips a real-LLM step (MTD ≥ 95% of $15), CI emits **`::w
 - [`GOLDEN_COHORT_BUDGET.md`](GOLDEN_COHORT_BUDGET.md) — warn/kill thresholds
 - [`BUILD.md`](../engineering/BUILD.md) — local live evidence path
 - [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) — session record template
+- [`THREE_REAL_MODE_PROOF_RUNS.md`](THREE_REAL_MODE_PROOF_RUNS.md) — **G-REAL-06** three-run matrix, scenario briefs, capture scripts inventory, and `Run-GReal06ProofRuns.ps1` orchestrator (owner executes; agents prepare only)
+- [`CLAIM_READINESS_STATUS.md#proof-packet-run-log`](../go-to-market/CLAIM_READINESS_STATUS.md#proof-packet-run-log) — G4 log (canonical; do not label Simulator as Real)

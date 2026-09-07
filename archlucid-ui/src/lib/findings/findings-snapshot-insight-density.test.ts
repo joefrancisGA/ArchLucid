@@ -53,6 +53,17 @@ describe("findings-snapshot-insight-density", () => {
     expect(message).toContain("moved 3");
   });
 
+  it("formatInsightDensityCurationMessage does not imply demotion when only findings were retained (FC-26)", () => {
+    const message = formatInsightDensityCurationMessage({
+      demotedToChecklistCount: 0,
+      retainedFindingCount: 2,
+    });
+
+    expect(message).toContain("retained 2 decision-grade findings");
+    expect(message).not.toContain("insight-density gate demotes");
+    expect(message).toContain("without hiding checklist coverage");
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is false when there is nothing to disclose", () => {
     expect(hasFindingsSnapshotInsightDensityContent({ checklistCoverage: [], curation: null })).toBe(false);
     expect(

@@ -18,6 +18,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -192,6 +193,14 @@ public sealed class FirstValueReportBuilder(
             workingDesk: true,
             _configuration,
             cancellationToken);
+        TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
+        CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
+            careerExportHonesty,
+            transparencyTrail,
+            blockExternalSponsorDistribution: deltas.IsDemoTenant);
+        CareerArtifactExportBlock? careerArtifactBlock = CareerArtifactExportCompletenessGate.ResolveBlock(
+            careerExportHonesty,
+            careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
@@ -285,7 +294,9 @@ public sealed class FirstValueReportBuilder(
             evidenceCompleteness,
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
             tenantBranding,
-            proofCompleteness);
+            proofCompleteness,
+            careerArtifactBlock?.Message,
+            careerArtifactBlock?.Code);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

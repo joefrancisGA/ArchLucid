@@ -37,6 +37,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
       );
     case "review-findings":
     case "add-evidence":
+    case "export-decision-receipt":
     case "send-to-sponsor":
     case "open-governance-decision": {
       if (action.href === null) {

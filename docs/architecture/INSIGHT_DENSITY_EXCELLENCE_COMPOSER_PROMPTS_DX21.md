@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-17–DX-28)
 
-**Created:** 2026-09-07 · **Status:** **DX-17–DX-28 shipped on `master`** (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 hold). Do not re-run shipped prompts. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md).
+**Created:** 2026-09-07 · **Status:** **DX-17–DX-28 shipped on `master`** (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 hold). Do not re-run shipped prompts. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41**). Archive: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35** shipped).
 
 These prompts grow the **numerator** (new information sources, synthesis of demoted rows, richer ingest) and close measurement loops DX-13/DX-15 opened. They do **not** add coverage-only “node type X is missing” engines.
 
@@ -37,7 +37,7 @@ These prompts grow the **numerator** (new information sources, synthesis of demo
 | **DX-18** | TB-885 compounding ledger | **Held** | Owner unparks TB-885 | Packaging |
 | **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 | Sustains excellence |
 
-**DX-21–DX-28, DX-17, and DX-20 shipped.** Do **not** start **DX-18** or **DX-19** unless the owner explicitly unparks the matching TB row. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md).
+**DX-21–DX-28, DX-17, and DX-20 shipped.** Do **not** start **DX-18** or **DX-19** unless the owner explicitly unparks the matching TB row. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41**).
 
 > **2026-09-07 closure:** DX-17–DX-28 landed on `master` except **DX-18** / **DX-19** (held until owner unparks TB-885 / TB-2033).
 
@@ -595,6 +595,7 @@ Done when: POST writes a report artifact; sealed package unchanged; 404 cross-te
 
 - Strategy: [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 - DX-01–DX-16: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
-- Next **DX-29–DX-35:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- **DX-29–DX-35** (shipped): [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
+- Next **DX-36–DX-41:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)

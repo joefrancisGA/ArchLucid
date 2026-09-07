@@ -35,6 +35,7 @@ import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { finalizeSecurityTrustHelpPresentation } from "@/lib/security-trust-help-presentation";
 
 import { applyHelpProductBrandRewrite } from "./help-product-brand-rewrite";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
 export type PrepareHelpMarkdownPresentationOptions = {
   /** Engineering runbooks keep documentation governance lines (Last reviewed, etc.). */
@@ -153,5 +154,5 @@ export function prepareHelpMarkdownForPresentation(
     finalBody = finalizeSecurityTrustHelpPresentation(finalBody);
   }
 
-  return applyHelpProductBrandRewrite(finalBody, options?.productLineId ?? "architecture");
+  return applyHelpProductBrandRewrite(finalBody, options?.productLineId ?? resolveProductLineIdFromEnv());
 }

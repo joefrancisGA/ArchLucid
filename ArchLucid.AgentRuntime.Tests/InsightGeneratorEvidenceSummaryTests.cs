@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -79,6 +81,72 @@ public sealed class InsightGeneratorEvidenceSummaryTests
         allowedRefs.Should().Contain("community:community-0");
         allowedRefs.Should().Contain("community:community-1");
         allowedRefs.Should().NotContain("community:other");
+    }
+
+    [Fact]
+    public void BuildUserPrompt_when_novelty_rates_present_includes_ranking_section()
+    {
+        GraphSnapshot graph = CreateGraph();
+        HashSet<string> allowedRefs = ["graph-node:sql-node"];
+        Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["dangling-declaration-reference"] = 0.8,
+            ["topology-coverage"] = 0.0,
+        };
+
+        string prompt = InsightGeneratorEvidenceSummary.BuildUserPrompt(
+            [],
+            graph,
+            allowedRefs,
+            maxFindings: 8,
+            communitySummaries: null,
+            noveltyRatesByEngineType: rates);
+
+        prompt.Should().Contain("Tenant novelty rates");
+        prompt.Should().Contain("dangling-declaration-reference: 0.800");
+        prompt.Should().Contain("topology-coverage: 0.000");
+        prompt.Should().Contain(InsightDensityNoveltyRateLookup.InsightGeneratorClaimBoundary);
+    }
+
+    [Fact]
+    public void AppendPreferredFindings_orders_by_novelty_rate_when_rates_present()
+    {
+        List<Finding> findings =
+        [
+            CreateSampleFinding("topology-coverage", "Topology gap", FindingSeverity.Warning),
+            CreateSampleFinding("dangling-declaration-reference", "Dangling ref", FindingSeverity.Warning),
+        ];
+
+        Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["dangling-declaration-reference"] = 0.8,
+            ["topology-coverage"] = 0.0,
+        };
+
+        string prompt = InsightGeneratorEvidenceSummary.BuildUserPrompt(
+            findings,
+            CreateGraph(),
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "graph-node:sql-node" },
+            maxFindings: 8,
+            noveltyRatesByEngineType: rates);
+
+        prompt.IndexOf("Dangling ref", StringComparison.Ordinal)
+            .Should()
+            .BeLessThan(prompt.IndexOf("Topology gap", StringComparison.Ordinal));
+    }
+
+    private static Finding CreateSampleFinding(string engineType, string title, FindingSeverity severity)
+    {
+        return new Finding
+        {
+            FindingType = "SampleFinding",
+            Category = "Security",
+            EngineType = engineType,
+            Severity = severity,
+            Title = title,
+            Rationale = "Sample rationale.",
+            FindingId = Guid.NewGuid().ToString("d"),
+        };
     }
 
     private static GraphSnapshot CreateGraph()

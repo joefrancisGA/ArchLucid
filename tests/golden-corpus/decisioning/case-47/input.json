@@ -1,0 +1,76 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000047",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000047",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000047-0000-4000-8000-000000000047",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000047",
+    "runId": "20000000-0000-4000-8000-000000000047",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "actor-external-lb",
+        "nodeType": "Actor",
+        "label": "external-ingress-lb",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "trustOrigin": "External"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "app-orders-api",
+        "nodeType": "TopologyResource",
+        "label": "orders-api",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "compute"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-orders-prod",
+        "nodeType": "TopologyResource",
+        "label": "sql-orders-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "data"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "actor-external-lb",
+        "toNodeId": "app-orders-api",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "app-orders-api",
+        "toNodeId": "sql-orders-prod",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

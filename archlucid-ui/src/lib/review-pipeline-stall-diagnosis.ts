@@ -128,7 +128,7 @@ export function deriveReviewPipelineTerminalFailureDiagnosis(input: {
   if (legacyStatus === "Failed" && completedStages === 0) {
     return {
       severity: "error",
-      headline: "Execution failed before the first pipeline stage",
+      headline: "Execution failed before the first assessment stage",
       detail:
         lastFailureReason.length > 0
           ? lastFailureReason
@@ -179,7 +179,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
     if (legacyStatus === "Failed") {
       return {
         severity: "error",
-        headline: "Execution failed before the first pipeline stage",
+        headline: "Execution failed before the first assessment stage",
         detail:
           lastFailureReason.length > 0
             ? `The review stopped before processing began. ${lastFailureReason}`
@@ -189,7 +189,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
 
     return {
       severity: "warning",
-      headline: "No pipeline stage has started yet",
+      headline: "No assessment stage has started yet",
       detail:
         "This usually means deferred AuthorityPipelineWork is queued but the background worker is not processing, " +
         "or execute never advanced past run creation. Confirm the API host runs AuthorityPipelineWorkHostedService " +
@@ -220,9 +220,9 @@ export function deriveReviewPipelineStallDiagnosis(input: {
   if (completedStages > 0 && completedStages < 4 && input.elapsedMinutes >= 45) {
     return {
       severity: "warning",
-      headline: "Pipeline started but is progressing slowly",
+      headline: "Assessment started but is progressing slowly",
       detail:
-        `Only ${completedStages} of 4 stages are complete after ${input.elapsedMinutes}+ minutes. Large evidence bundles, ` +
+        `Only ${completedStages} of 4 assessment stages are complete after ${input.elapsedMinutes}+ minutes. Large evidence bundles, ` +
         "cold-start infrastructure, or tenant concurrency gates can extend stage time.",
     };
   }

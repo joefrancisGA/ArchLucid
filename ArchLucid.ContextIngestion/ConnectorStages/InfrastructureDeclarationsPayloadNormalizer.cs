@@ -15,16 +15,49 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         ArgumentNullException.ThrowIfNull(payload);
 
         NormalizedContextBatch batch = new();
+        IReadOnlyList<InfrastructureDeclarationReference> declarations = payload.InfrastructureDeclarations;
         Dictionary<string, InfrastructureDeclarationReference> bicepBatchByPath =
-            BicepDeclarationBatchIndex.Build(payload.InfrastructureDeclarations);
+            BicepDeclarationBatchIndex.Build(declarations);
+        Dictionary<string, InfrastructureDeclarationReference> batchByPath =
+            InfrastructureDeclarationBatchPathIndex.Build(declarations);
+        Dictionary<string, IReadOnlyDictionary<string, string>> bicepParamByBicepPath =
+            BicepParamBatchIndex.Build(declarations, batchByPath);
+        Dictionary<string, InfrastructureDeclarationReference> terraformBatchByPath =
+            SimpleTerraformModuleBatchIndex.Build(declarations);
 
         HashSet<string> referencedBicepModulePaths = BicepDeclarationBatchIndex.CollectReferencedModulePaths(
-            payload.InfrastructureDeclarations,
+            declarations,
             bicepBatchByPath);
+        HashSet<string> referencedTerraformModulePaths = SimpleTerraformModuleBatchIndex.CollectReferencedModulePaths(
+            declarations,
+            terraformBatchByPath,
+            batchByPath);
+        HashSet<string> consumedHelmTemplatePaths =
+            HelmChartInfrastructureDeclarationParser.CollectConsumedTemplatePaths(declarations);
+        HashSet<string> consumedKustomizeResourcePaths =
+            KustomizeOverlayInfrastructureDeclarationParser.CollectConsumedResourcePaths(declarations, batchByPath);
+        HashSet<string> referencedArmTemplateLinkPaths = ArmJsonLinkedTemplateBatchIndex.CollectReferencedTemplateLinkPaths(
+            declarations,
+            batchByPath);
 
-        foreach (InfrastructureDeclarationReference declaration in payload.InfrastructureDeclarations)
+        foreach (InfrastructureDeclarationReference declaration in declarations)
         {
             if (ShouldSkipReferencedBicepModule(declaration, referencedBicepModulePaths))
+                continue;
+
+            if (ShouldSkipReferencedTerraformModule(declaration, referencedTerraformModulePaths))
+                continue;
+
+            if (ShouldSkipReferencedArmTemplateLink(declaration, referencedArmTemplateLinkPaths))
+                continue;
+
+            if (ShouldSkipBicepParamDeclaration(declaration))
+                continue;
+
+            if (ShouldSkipConsumedHelmTemplate(declaration, consumedHelmTemplatePaths))
+                continue;
+
+            if (ShouldSkipConsumedKustomizeResource(declaration, consumedKustomizeResourcePaths))
                 continue;
 
             IInfrastructureDeclarationParser? parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
@@ -36,14 +69,53 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
                 continue;
             }
 
-            IReadOnlyList<CanonicalObject> objects = parser is BicepInfrastructureDeclarationParser bicepParser
-                ? await bicepParser.ParseAsync(declaration, bicepBatchByPath, ct)
-                : await parser.ParseAsync(declaration, ct);
+            IReadOnlyList<CanonicalObject> objects = await ParseDeclarationAsync(
+                parser,
+                declaration,
+                declarations,
+                bicepBatchByPath,
+                batchByPath,
+                bicepParamByBicepPath,
+                terraformBatchByPath,
+                ct);
 
             batch.CanonicalObjects.AddRange(objects);
         }
 
         return batch;
+    }
+
+    private static async Task<IReadOnlyList<CanonicalObject>> ParseDeclarationAsync(
+        IInfrastructureDeclarationParser parser,
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyList<InfrastructureDeclarationReference> batchDeclarations,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference> bicepBatchByPath,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference> batchByPath,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> bicepParamByBicepPath,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference> terraformBatchByPath,
+        CancellationToken ct)
+    {
+        if (parser is BicepInfrastructureDeclarationParser bicepParser)
+        {
+            string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+            bicepParamByBicepPath.TryGetValue(normalizedName, out IReadOnlyDictionary<string, string>? parameterValues);
+
+            return await bicepParser.ParseAsync(declaration, bicepBatchByPath, parameterValues, ct);
+        }
+
+        if (parser is SimpleTerraformDeclarationParser terraformParser)
+            return await terraformParser.ParseAsync(declaration, terraformBatchByPath, batchByPath, ct);
+
+        if (parser is HelmChartInfrastructureDeclarationParser helmParser)
+            return await helmParser.ParseAsync(declaration, batchDeclarations, ct);
+
+        if (parser is KustomizeOverlayInfrastructureDeclarationParser kustomizeParser)
+            return await kustomizeParser.ParseAsync(declaration, batchByPath, ct);
+
+        if (parser is ArmJsonInfrastructureDeclarationParser armParser)
+            return await armParser.ParseAsync(declaration, batchByPath, ct);
+
+        return await parser.ParseAsync(declaration, ct);
     }
 
     private static bool ShouldSkipReferencedBicepModule(
@@ -56,5 +128,61 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         string normalizedName = BicepDeclarationBatchIndex.NormalizeLookupKey(declaration.Name);
 
         return referencedBicepModulePaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipReferencedTerraformModule(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> referencedTerraformModulePaths)
+    {
+        if (!string.Equals(declaration.Format?.Trim(), "simple-terraform", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return referencedTerraformModulePaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipReferencedArmTemplateLink(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> referencedArmTemplateLinkPaths)
+    {
+        if (!ArmJsonLinkedTemplateBatchIndex.IsArmJson(declaration))
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return referencedArmTemplateLinkPaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipBicepParamDeclaration(InfrastructureDeclarationReference declaration)
+    {
+        return string.Equals(declaration.Format?.Trim(), "bicep-param", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool ShouldSkipConsumedHelmTemplate(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> consumedHelmTemplatePaths)
+    {
+        if (consumedHelmTemplatePaths.Count == 0)
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return consumedHelmTemplatePaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipConsumedKustomizeResource(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> consumedKustomizeResourcePaths)
+    {
+        if (consumedKustomizeResourcePaths.Count == 0)
+            return false;
+
+        if (string.Equals(declaration.Format?.Trim(), "kustomize", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return consumedKustomizeResourcePaths.Contains(normalizedName);
     }
 }
