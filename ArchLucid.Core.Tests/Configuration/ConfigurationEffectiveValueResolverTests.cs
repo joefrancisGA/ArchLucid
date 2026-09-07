@@ -141,6 +141,25 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("Billing:Stripe:WebhookSigningSecret")]
+    [InlineData("Billing:Stripe:CheckoutSecretKey")]
+    [InlineData("Billing:Stripe:SubscriptionWebhookSigningSecret")]
+    [InlineData("Billing:Stripe:WalletWebhookSigningSecret")]
+    public void Resolve_redacts_compound_stripe_secret_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Fact]
     public void Resolve_redacts_sync_access_key_config_path()
     {

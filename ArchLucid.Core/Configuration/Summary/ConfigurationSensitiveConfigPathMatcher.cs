@@ -39,6 +39,7 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         if (normalized.Equals("PrivateKey", StringComparison.OrdinalIgnoreCase)
             || IsPrivateKeyCredentialSegment(normalized)
             || IsKeyMaterialCredentialSegment(normalized)
+            || IsCompoundSecretCredentialSegment(normalized)
             || IsExplicitCredentialConfigSegment(normalized))
             return true;
 
@@ -894,6 +895,10 @@ internal static class ConfigurationSensitiveConfigPathMatcher
     private static bool IsKeyMaterialCredentialSegment(ReadOnlySpan<char> segment) =>
         segment.EndsWith("Salt", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("Pepper", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsCompoundSecretCredentialSegment(ReadOnlySpan<char> segment) =>
+        segment.EndsWith("SigningSecret", StringComparison.OrdinalIgnoreCase)
+        || segment.EndsWith("SecretKey", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsEmbeddedSensitiveFragment(ReadOnlySpan<char> segment, int fragmentIndex)
     {

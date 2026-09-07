@@ -6868,11 +6868,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — Email OTP production-like guardrails skipped SaaS and ARCHLUCID_ENVIRONMENT hosts
+- **last-bug:** 2026-09-07 — compound Stripe signing secrets leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6884,12 +6884,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — **disproved 2026-09-07 (#1201):** `ConfigurationSensitiveConfigPathMatcher` treats embedded `Token` in `ReplacementToken` as non-sensitive; catalog default `[REDACTED]` is the configured value, not summary redaction; regression `Resolve_preserves_llm_prompt_redaction_replacement_token`
 - [x] (proven) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — **hit 2026-09-07 (#1201):** provider only checked ASP.NET `Production`/`Staging` while `QuickScanSafetyOptionsValidator` also treats `SaaS` and `ARCHLUCID_ENVIRONMENT=Production|Staging` as production-like; store failures left anonymous Quick Scan enabled on those hosts; fixed via shared `QuickScanSafetyProductionLikeHostClassification` and provider `IConfiguration` wiring; regressions `GetSnapshotAsync_store_failure_in_saas_environment_fails_closed`, `GetSnapshotAsync_store_failure_when_archlucid_environment_is_production_fails_closed`
 - [x] (proven) `EmailOtpAuthOptionsValidator.IsProductionLike` omits `SaaS` and `ARCHLUCID_ENVIRONMENT` unlike Quick Scan validator — **hit 2026-09-07 (#1214):** validator only checked ASP.NET `Production`/`Staging` and bypassed all checks on `IsDevelopment()` even when `ARCHLUCID_ENVIRONMENT=Production`; hosted SaaS or archlucid-prod dev hosts could start with Email OTP enabled and short/missing `HashPepper`; fixed by reusing `QuickScanSafetyProductionLikeHostClassification` with `IConfiguration`; regressions `Validate_saas_environment_requires_hash_pepper_when_enabled`, `Validate_archlucid_environment_production_requires_hash_pepper_when_enabled`
+- [x] (proven) Compound Stripe webhook signing secrets bypass embedded-`Secret` fragment matching — **hit 2026-09-07 (#1223):** catalog paths `Billing:Stripe:*SigningSecret` and `CheckoutSecretKey` leaked raw values because `IsEmbeddedSensitiveFragment` skipped mid-segment `Secret`; fixed with `IsCompoundSecretCredentialSegment` suffix rules; regression in `Resolve_redacts_compound_stripe_secret_config_paths`
+- [x] (valid-no-repro) `Auth:EmailOtp:HashPepper` and `Auth:EmailOtp:BotChallenge:SecretKey` catalog-adjacent paths — already redacted via `Pepper` suffix and standalone `SecretKey` segment matching
 
 2026-09-07 seed hunt #1167 (hit): proved pseudonymization salt leaked through config summary redaction.
 
 2026-09-07 thorough hunt #1201 (hit): disproved ReplacementToken over-redaction; proved Quick Scan operational fail-closed scope drift from validator production-like classification.
 
 2026-09-07 thorough hunt #1214 (hit): proved Email OTP validator production-like scope drift from Quick Scan shared classification on SaaS and ARCHLUCID_ENVIRONMENT hosts.
+
+2026-09-07 seed hunt #1223 (hit): proved compound Stripe signing secrets leaked through config summary redaction; cheap-disproof on Email OTP HashPepper/BotChallenge paths.
 
 ---
 ## Zone: core-findings-advice
