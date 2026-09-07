@@ -503,7 +503,7 @@ export function DiagramsWorkbenchClient() {
                   undefined,
                   undefined,
                   urlCloudResourceId,
-                  auditScope ?? undefined,
+                  mergeInfrastructureAskAuditScope(auditScope),
                 ),
                 label: "Open diagram reconciliation",
               },
