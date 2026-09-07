@@ -74,4 +74,14 @@ This inventory lists **priority** leaks on architecture / review / desk surfaces
 1. **Do not grow** `PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS` — migrate to `useProductionEvalChrome` and remove the row (WS-08).
 2. **Priority** fixes target architecture / review / desk rows above before admin/help churn.
 3. **`/al-ui-rate`** must not add buyer-walkthrough remediations onto Working production modules (WS-07).
-4. Ratchet: `working-seat-eval-leak-inventory.test.ts` + `system-desk-acceptance-guard.test.ts` reference this file.
+4. Ratchet: `production-desk-chrome-eval-guard.test.ts` (WS-08 shrink) + `working-seat-eval-leak-inventory.test.ts` reference this file.
+
+### Admin exception (grandfather growth only)
+
+Architecture / review paths are **never** eligible. For a new **admin / help / governance** row that still needs temporary grandfather:
+
+1. Add a row to **Grandfathered — admin / help** above with rationale and owner prompt.
+2. Append the path to `PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS` in `production-desk-chrome-eval-inventory.ts`.
+3. Do **not** bump `PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_COUNT_BASELINE` — documented exceptions extend the allowed max by their count only.
+
+Prefer migration to `useProductionEvalChrome` over documenting an exception.
