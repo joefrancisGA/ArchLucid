@@ -49,11 +49,6 @@ export function architectureNestedDraftPath(architectureId: string, draftId: str
   return `${architectureIdentityPath(architectureId)}/drafts/${encodeURIComponent(draftId.trim())}`;
 }
 
-/** Working nested draft job — ADR 0077 / AO-02. Prefer over legacy {@link architectureDraftPath} on Working. */
-export function architectureNestedDraftPath(architectureId: string, draftId: string): string {
-  return `${architectureIdentityPath(architectureId)}/drafts/${encodeURIComponent(draftId.trim())}`;
-}
-
 /** Draft editor path — segment is a {@link DraftRequestResponse.draftId}, not an architecture identity id. */
 export function architectureDraftPath(draftId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(draftId)}`;

@@ -13,10 +13,20 @@ import {
 import { PRODUCT_LINE_IDS } from "@/lib/product-line/product-line-id";
 import {
   PRODUCT_LINE_LABELS,
+  PRODUCT_LINE_PLAYGROUND_DUAL_START_NOTE,
   PRODUCT_LINE_PLAYGROUND_SUBTITLE,
   PRODUCT_LINE_PLAYGROUND_TITLE,
 } from "@/lib/product-line/product-line-copy";
 import { resolveProductLineAssignmentForPath } from "@/lib/product-line/product-line-path-access";
+import {
+  buildProductLinePlaygroundEnvSummary,
+  formatProductLinePlaygroundActiveShellLabel,
+  formatProductLinePlaygroundBuildEnvLabel,
+  formatProductLinePlaygroundCookieLabel,
+  formatProductLinePlaygroundOverrideCountLabel,
+} from "@/lib/product-line/product-line-playground-summary";
+import { readProductLineCookie } from "@/lib/product-line/product-line-storage";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
 function catalogDefaultForHref(href: string): ProductLineAssignment {
   return resolveProductLineAssignmentForPath(href);
@@ -32,6 +42,14 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
     resetAllAssignments,
   } = useProductLine();
   const links = flattenNavLinks();
+  const buildEnvProductLine = resolveProductLineIdFromEnv();
+  const cookieProductLine = readProductLineCookie();
+  const envSummary = buildProductLinePlaygroundEnvSummary({
+    buildEnvProductLine,
+    cookieProductLine,
+    activeProductLine: productLine,
+    assignmentOverrides,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="product-line-playground">
@@ -40,6 +58,20 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
         subtitle={PRODUCT_LINE_PLAYGROUND_SUBTITLE}
         headingLevel="h2"
       />
+
+      <section
+        className="flex flex-col gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
+        data-testid="product-line-playground-env-summary"
+        aria-label="Product line environment"
+      >
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{formatProductLinePlaygroundBuildEnvLabel(envSummary.buildEnvProductLine)}</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{formatProductLinePlaygroundCookieLabel(envSummary.cookieProductLine)}</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{formatProductLinePlaygroundActiveShellLabel(envSummary.activeProductLine)}</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
+          {formatProductLinePlaygroundOverrideCountLabel(envSummary.assignmentOverrideCount)}
+        </p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>{PRODUCT_LINE_PLAYGROUND_DUAL_START_NOTE}</p>
+      </section>
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Active product shell">
         {PRODUCT_LINE_IDS.map((id) => {
