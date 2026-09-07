@@ -69,7 +69,9 @@ type FirstReviewGuideHrefScope = {
   readonly architectureId: string | null;
 };
 
-function resolveGuideHrefScope(input: FirstReviewGuideStateInput): FirstReviewGuideHrefScope {
+function resolveGuideHrefScope(
+  input: Pick<FirstReviewGuideStateInput, "workingMode" | "architectureId">,
+): FirstReviewGuideHrefScope {
   const architectureId = input.architectureId?.trim() ?? "";
 
   return {
