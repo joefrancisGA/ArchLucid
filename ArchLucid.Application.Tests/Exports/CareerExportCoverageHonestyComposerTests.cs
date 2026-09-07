@@ -122,6 +122,20 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void FormatMarkdown_includes_skipped_actor_engines_for_iac_only_graphs()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 12,
+            workingDesk: true,
+            actorNodeCount: 0);
+
+        string markdown = CareerExportCoverageHonestyComposer.FormatMarkdown(input);
+
+        markdown.Should().Contain("external-exposure");
+        markdown.Should().Contain("no Actor nodes");
+    }
+
+    [Fact]
     public void FormatMarkdown_includes_measurement_floor_and_classification_bands()
     {
         CareerExportCoverageHonestyInput input = CreateInput(
@@ -189,13 +203,15 @@ public sealed class CareerExportCoverageHonestyComposerTests
         bool isSampleRun = false,
         string? hostAgentExecutionMode = null,
         AgentOutputQualityGateMode hostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
-        AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null)
+        AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null,
+        int actorNodeCount = 1,
+        int? judgeSkippedByCap = null)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
             Verdict: null,
             AnalysisStagesComplete: true,
-            ActorNodeCount: 1);
+            ActorNodeCount: actorNodeCount);
 
         return new CareerExportCoverageHonestyInput(
             coverageContext,
@@ -209,6 +225,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
             hostAgentExecutionMode,
             hostQualityGateMode,
             null,
-            aggregateQualityGateOutcome);
+            aggregateQualityGateOutcome,
+            judgeSkippedByCap);
     }
 }

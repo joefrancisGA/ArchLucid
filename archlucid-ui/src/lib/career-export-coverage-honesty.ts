@@ -1,8 +1,11 @@
 import {
   formatInsightDensityMeasurementFloorBlockedReason,
   formatInsightDensityMeasurementFloorPresentation,
+  type InsightDensityMeasurementFloorOptions,
   type InsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
+import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { formatQualityGateCareerExportBlockedReason } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
@@ -25,6 +28,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly hostAgentExecutionMode?: string | null;
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
+  readonly judgeSkippedByCap?: number | null;
 };
 
 export type CareerExportCoverageHonesty = {
@@ -38,7 +42,11 @@ export type CareerExportCoverageHonesty = {
 export function resolveCareerExportCoverageHonesty(
   input: CareerExportCoverageHonestyInput,
 ): CareerExportCoverageHonesty {
-  const measurementFloor = formatInsightDensityMeasurementFloorPresentation(input.enginesSucceeded ?? null);
+  const measurementFloorOptions = resolveMeasurementFloorOptions(input);
+  const measurementFloor = formatInsightDensityMeasurementFloorPresentation(
+    input.enginesSucceeded ?? null,
+    measurementFloorOptions,
+  );
   const measurementFloorBlockedReason = formatInsightDensityMeasurementFloorBlockedReason(
     input.enginesSucceeded ?? null,
     input.catalogAdvisoryEngineFailureCount ?? 0,
@@ -70,10 +78,21 @@ export function resolveCareerExportCoverageHonesty(
 
 export function formatCareerExportMeasurementFloorMarkdown(
   enginesSucceeded: number | null | undefined,
+  options: InsightDensityMeasurementFloorOptions = {},
 ): string {
-  const presentation = formatInsightDensityMeasurementFloorPresentation(enginesSucceeded);
+  const presentation = formatInsightDensityMeasurementFloorPresentation(enginesSucceeded, options);
 
   return `## Measurement floor\n\n${presentation.line}\n`;
+}
+
+function resolveMeasurementFloorOptions(
+  input: CareerExportCoverageHonestyInput,
+): InsightDensityMeasurementFloorOptions {
+  return {
+    actorNodeCount: countActorNodesInGraphSnapshot(input.graphSnapshot),
+    analysisStagesComplete: analysisStagesCompleteOnSummary(input.progressSummary ?? null),
+    judgeSkippedByCap: input.judgeSkippedByCap ?? null,
+  };
 }
 
 export function formatCareerExportClassificationBandMarkdown(
@@ -109,7 +128,10 @@ export function formatCareerExportClassificationBandLine(
 /** Shared markdown honesty block for sponsor PDF, ADR, print, and manifest exports (PC-13). */
 export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHonestyInput): string {
   const honesty = resolveCareerExportCoverageHonesty(input);
-  const sections: string[] = [formatCareerExportMeasurementFloorMarkdown(input.enginesSucceeded ?? null).trim()];
+  const measurementFloorOptions = resolveMeasurementFloorOptions(input);
+  const sections: string[] = [
+    formatCareerExportMeasurementFloorMarkdown(input.enginesSucceeded ?? null, measurementFloorOptions).trim(),
+  ];
 
   const classificationMarkdown = formatCareerExportClassificationBandMarkdown(input.classificationCounts);
 

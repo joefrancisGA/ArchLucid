@@ -17,8 +17,9 @@ public static class CareerExportCoverageHonestyComposer
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(input.CoverageContext);
 
+        InsightDensityMeasurementFloorContext measurementFloorContext = BuildMeasurementFloorContext(input);
         InsightDensityMeasurementFloorPresentation measurementFloor =
-            InsightDensityMeasurementFloorPresenter.Present(input.EnginesSucceeded);
+            InsightDensityMeasurementFloorPresenter.Present(input.EnginesSucceeded, measurementFloorContext);
         string? measurementFloorBlockedReason =
             InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(
                 input.EnginesSucceeded,
@@ -77,7 +78,7 @@ public static class CareerExportCoverageHonestyComposer
         ArgumentNullException.ThrowIfNull(input);
 
         CareerExportCoverageHonesty honesty = Resolve(input);
-        List<string> sections = [FormatMeasurementFloorMarkdown(input.EnginesSucceeded).Trim()];
+        List<string> sections = [FormatMeasurementFloorMarkdown(input).Trim()];
 
         string classificationMarkdown = FormatClassificationBandMarkdown(input.ClassificationCounts).Trim();
 
@@ -181,6 +182,32 @@ public static class CareerExportCoverageHonestyComposer
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
+    }
+
+    public static string FormatMeasurementFloorMarkdown(CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(
+                input.EnginesSucceeded,
+                BuildMeasurementFloorContext(input));
+
+        return $"## Measurement floor\n\n{presentation.Sentence}\n";
+    }
+
+    private static InsightDensityMeasurementFloorContext BuildMeasurementFloorContext(
+        CareerExportCoverageHonestyInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(input.CoverageContext);
+
+        return new InsightDensityMeasurementFloorContext
+        {
+            ActorNodeCount = input.CoverageContext.ActorNodeCount,
+            AnalysisStagesComplete = input.CoverageContext.AnalysisStagesComplete,
+            JudgeSkippedByCap = input.JudgeSkippedByCap,
+        };
     }
 
     public static string FormatMeasurementFloorMarkdown(int? enginesSucceeded)

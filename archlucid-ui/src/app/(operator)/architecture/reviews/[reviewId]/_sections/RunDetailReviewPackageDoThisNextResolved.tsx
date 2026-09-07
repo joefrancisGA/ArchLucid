@@ -48,6 +48,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly enginesSucceeded?: number | null;
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -224,6 +225,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         quickDecisionFindings={props.quickDecisionFindings}
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        judgeSkippedByCap={props.judgeSkippedByCap}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={
