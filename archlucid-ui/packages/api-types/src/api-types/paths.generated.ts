@@ -110131,7 +110131,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    async?: boolean;
+                };
                 header?: never;
                 path: {
                     runId: string;
@@ -110146,6 +110148,17 @@ export interface paths {
                 };
             };
             responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FindingVerificationReportResponse"];
+                        "text/json": components["schemas"]["FindingVerificationReportResponse"];
+                        "text/plain": components["schemas"]["FindingVerificationReportResponse"];
+                    };
+                };
                 /** @description Created */
                 201: {
                     headers: {
@@ -110155,6 +110168,17 @@ export interface paths {
                         "application/json": components["schemas"]["FindingVerificationReportResponse"];
                         "text/json": components["schemas"]["FindingVerificationReportResponse"];
                         "text/plain": components["schemas"]["FindingVerificationReportResponse"];
+                    };
+                };
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AsyncJobResponse"];
+                        "text/json": components["schemas"]["AsyncJobResponse"];
+                        "text/plain": components["schemas"]["AsyncJobResponse"];
                     };
                 };
                 /** @description Bad Request (validation or malformed input). */
