@@ -6899,22 +6899,28 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-authority-runs
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — terminal failure statuses masked as InProgress on list/summary surfaces
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` treated any non-empty `ContextSnapshotId` / `GoldenManifestId` as `InProgress` before checking terminal `LegacyRunStatus` — **hit 2026-09-07 (#1168):** `Failed`, `FailedPartial`, and `ExecutionCompletedQualityRejected` rows with progress markers surfaced as in-progress; fixed via `TryResolveTerminalFailurePhase` before progress-marker checks (`ResolveFromRunHeader_failed_with_context_snapshot_returns_failed_not_in_progress`, `ResolveFromRunHeader_failed_without_progress_markers_returns_failed_not_not_started`, `ResolveFromRunHeader_quality_rejected_with_context_snapshot_returns_failed_not_in_progress`)
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection` may miss dead-letter classification for unsupported `schemaVersion` payloads in `LastFailureReason`
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable` agent-results derivation asymmetry — terminal failure statuses may diverge between list resolver and export/detail surfaces
+
+2026-09-07 seed hunt #1168 (hit): proved terminal failure runs masked as in-progress on authority list/summary lifecycle phase resolution.
 
 ---
 ## Zone: core-tenancy-commercial
