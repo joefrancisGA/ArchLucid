@@ -894,13 +894,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — dry-run returned 500 after probe when audit logging failed
+- **last-bug:** 2026-09-07 — webhook dry-run HttpClient followed redirects past SSRF guard
 - **related-pd-tb:** none
-- **code-changed-since:** 6
+- **code-changed-since:** 7
 
 ### Hypotheses
 
@@ -915,8 +915,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` validates `body.TargetUrl.ToString()` but probes `body.TargetUrl` — **thorough hunt #1268:** `ToString()` round-trip preserves `IdnHost` and SSRF guard decision for representative absolute HTTPS URLs; regression `DryRunAsync_target_url_to_string_round_trip_matches_ssrf_guard_decision`.
 - [x] (proven) Dry-run audit omits `responseBodyTruncated` when probe returns truncated preview — API response exposes `ResponseBodyTruncated` but audit JSON lacked the flag — **hit 2026-09-07 hunt #1268:** audit now records `responseBodyTruncated`; regression `DryRunAsync_audit_records_response_body_truncated_when_preview_truncated`.
 - [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` runs probe before audit — when `IAuditService.LogAsync` throws after a successful probe, exception escapes and operator gets 5xx despite subscriber already receiving the POST (retry risk) — **hit 2026-09-07 seed hunt #1269:** audit after probe is best-effort; regression `DryRunAsync_returns_probe_outcome_when_audit_logging_fails`.
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` uses injected `HttpClient` with default redirect following — SSRF guard validates initial URL only; redirect to private targets may bypass guard via handler config outside zone paths; no failing repro in zone yet.
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` swallows body preview read failures with empty preview and `ResponseBodyTruncated=false` — operator cannot distinguish empty subscriber body from unreadable body; no failing repro in zone yet.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` uses injected `HttpClient` with default redirect following — SSRF guard validates initial URL only; auto-followed redirect can POST to loopback/private targets — **hit 2026-09-07 thorough hunt #1270:** typed probe client sets `AllowAutoRedirect=false`; regression `ProbeWithBodyAsync_does_not_follow_redirect_to_loopback`.
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` swallows body preview read failures with empty preview and `ResponseBodyTruncated=false` — **thorough hunt #1270:** intentional best-effort preview after headers (same class as #1267 no-content/502 body read); empty preview with preserved status is the contract.
+
+2026-09-07 thorough hunt #1270 (hit): disabled redirect following on webhook dry-run HttpClient; closed silent preview-read row as intentional; 18 scoped unit tests passed.
 
 2026-09-07 seed hunt #1269 (hit): reseeded zone; proved audit failure masked successful probe; seeded redirect SSRF and silent preview-read candidates.
 
