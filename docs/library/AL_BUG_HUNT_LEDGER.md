@@ -121,13 +121,13 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-24
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-07
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
 
@@ -144,9 +144,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Duplicate node-id collision when overlay and inventoried node share SourceId but different labels — `TryClaimService` blocks materialization when terraform id already indexed
 - [x] (valid-no-repro) Gate vs merge disagreement after structural post-processor strips a relationship — post-processor defers undeclared endpoints to gate; strip branch unreachable when both declared
 - [x] (valid-no-repro) Relationship-only follow-up when rename overlay is in a different agent result filtered out by inventory — cross-result follow-up passes when rename `ServiceId` matches inventoried node; correctly rejects undeclared rename labels
-- [ ] (hunt-ready) `AgentTopologyProposalMergeGate.FilterValidatedProposals` with a Cost/Compliance agent whose `SanitizeProposal` strips every service/datastore/relationship but leaves `RequiredControls` — agent row vanishes from `validatedResults` when `ProposalIsEmpty` is false for controls-only yet the result id was never stored because an earlier empty-sanitize `continue` dropped the whole `AgentResult` (findings/claims lost at commit).
-- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` (`TryAdd` first-wins) with two agents mapping the same relationship endpoint key to different node ids in one batch — second agent's `MapRelationships` resolves to the first alias while `DropDanglingEdges` drops edges whose resolved ids are absent from `graph.Nodes` union `added`.
-- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge` topology pass with `materializeNodes == true` and claimed services skip `AddDeclaredManifestServiceEndpointAliases` — a relationship referencing only a pre-registered merge-gate key not mirrored in node `Label`/`NodeId`/`svc-{name}` produces zero edges after `TopologyProposalRelationshipEdgeMapper.MapRelationships`.
+- [x] (valid-no-repro) `FilterValidatedProposals` drops Cost/Compliance agent when `SanitizeProposal` strips topology but leaves `RequiredControls` — **disproved 2026-09-07 (#1199):** `ProposalIsEmpty` treats non-empty `RequiredControls` as non-empty; `continue` only runs when all topology and controls are empty; existing regression `FilterValidatedProposals_WhenInventoryExists_AllowsRequiredControlsOnlyComplianceProposal`; `validatedResults` gates graph merge only, not manifest merge.
+- [x] (valid-no-repro) `MergeEndpointAliasesInto` first-wins with two agents mapping the same endpoint key to different node ids drops second agent edges — **disproved 2026-09-07 (#1199):** validated non-topology services on inventoried graphs always take resolved-alias path (`TryClaim` fails on pre-seeded keys); conflicting declared-alias input fails `FilterValidatedProposals`; greenfield materializes nodes instead of bare declared aliases (hunt #50).
+- [x] (valid-no-repro) Claimed topology services with `materializeNodes == true` skip `AddDeclaredManifestServiceEndpointAliases` and drop gate-kept relationships — **disproved 2026-09-07 (#1199):** materialized nodes index `NodeId`, `Label`, and terraform synthetic keys via `AddGraphNodeResolutionKeys`; case-insensitive ARM normalization closes ServiceId/label mismatches; existing merge regressions cover gate/merge alias parity on non-materialize path.
+- [ ] (candidate) `ProposalIsEmpty` ignores `Warnings` — warnings-only Cost/Compliance proposal is dropped from `validatedResults` when topology and controls are empty but `Warnings` carry actionable context; hunt when a caller persists warnings-only proposals that must survive graph merge.
+- [ ] (candidate) `AgentTopologyProposalGraphMergeReference` materializes nodes only for `AgentType.Topology` while production also sets `materializeNodes` on `greenfieldGraph` — property/reference oracle may miss greenfield non-topology edge regressions not exercised by `AgentTopologyProposalGraphMergePropertyTests`.
+
+2026-09-07 thorough hunt #1199 (dry): cheap-disproved three hunt-ready rows (controls-only gate drop, alias first-wins cross-agent conflict, claimed-service alias skip); 403 scoped tests passed; seeded warnings-only and reference-oracle greenfield candidates.
 
 ---
 
