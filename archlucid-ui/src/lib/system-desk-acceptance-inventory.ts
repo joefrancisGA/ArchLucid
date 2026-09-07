@@ -174,8 +174,18 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     marker: "SY-87",
   },
   {
+    id: "SY-87",
+    relativeTestPath: "lib/contextual-help/contextual-help-working-href-guard.test.ts",
+    marker: "SY-87",
+  },
+  {
     id: "SY-92",
     relativeTestPath: "lib/signed-records-working-desk-guard.test.ts",
     marker: "SY-92",
+  },
+  {
+    id: "SY-98",
+    relativeTestPath: "lib/working-desk-e2e-landing-guard.test.ts",
+    marker: "SY-98",
   },
 ];

@@ -37,22 +37,28 @@
 | `lib/first-review-guide-status.ts` | Working | SY-18 | — |
 | `lib/governance/*-evidence-copy.ts` | Shared | SY-31 | **Done** — Working portfolio parent on Ask/graph/findings |
 | `lib/reviews-hub-evidence-copy.ts` | Working | SY-55 | **Done** — portfolio parent on Working hub |
-| `lib/contextual-help/*.ts` | Working | SY-87 | Help topic hrefs |
+| `lib/contextual-help/*.ts` | Working | SY-87 | **Done** — `resolve-working-contextual-help-entry.ts` |
 | `lib/sidebar-nav-daily-links.ts` | Working | SY-56 | Inbox row (keep; label Inbox) |
 | `lib/reviews-hub-unfinished-work-href.ts` | Working | SY-54 | **Done** — desk or nested job |
 | `lib/pilot-scorecard-present.ts` | Working | SY-70 | **Done** — architecture desk primary drill-down |
 | `components/reviews/ReviewDetailSiblingInFlightQueue.tsx` | Working | SY-64 | **Done** — architectures empty-state link |
-| `components/reviews/ReviewArchiveControl.tsx` | Working | SY-92 | Archive return |
-| `shortcut-registry.ts` (`alt+r` registry default) | Guided | SY-07 | Working resolver overrides in listener |
+| `components/reviews/ReviewArchiveControl.tsx` | Working | SY-92 | **Done** — archive returns to portfolio |
+| `resolve-working-insights-nav-href.ts` | Working | SY-45 | **Done** — sidebar scopes to nested desk tools |
 
 ## Bare `/insights/*` keyboard and Home targets
 
 | Surface | Path | SY owner | Notes |
 |---------|------|----------|-------|
-| `shortcut-registry.ts` `alt+c` | `/insights/compare-two-reviews` | SY-08, SY-38 | Working listener scopes run; nested route pending |
-| `shortcut-registry.ts` `alt+a` | `/insights/ask-review-questions` | SY-09, SY-36–37 | Nested Ask + peer redirect shipped SY-36–37 |
-| `shortcut-registry.ts` `alt+y` | `/insights/evidence-graph` | SY-10, SY-40 | Nested graph pending |
-| `resolve-working-insights-nav-href.ts` | Peer bind-by-query | SY-45 | Sidebar still peer until nested routes |
+| `shortcut-registry.ts` `alt+c` | `/insights/compare-two-reviews` | SY-08, SY-38 | **Done** — Working listener + nested compare |
+| `shortcut-registry.ts` `alt+a` | `/insights/ask-review-questions` | SY-09, SY-36–37 | **Done** — nested Ask + peer redirect |
+| `shortcut-registry.ts` `alt+y` | `/insights/evidence-graph` | SY-10, SY-40 | **Done** — nested graph + peer redirect |
+| `shortcut-registry.ts` (`alt+r` registry default) | Guided | SY-07 | Working resolver overrides in listener |
+
+## Remaining honest fallbacks (not mint bugs)
+
+- `reviewDetailPath` when `architectureId` / `requestId` / registry parentage is unknown — unlinked jobs only.
+- Guided exemptions below — do not sweep.
+- Tenant-wide Insights (`/insights/search-review-evidence`, ROI, sponsor report) — not desk Home targets.
 
 ## Guided exemptions (do not sweep)
 
@@ -60,9 +66,6 @@
 - Guided `alt+n` → `/architecture/reviews/new`
 - Demo / trial peer URLs per SY-06
 
-## Next mint-sweep order
+## Mint sweep status
 
-1. SY-18 first-review guide
-2. SY-20–SY-23 share / room / pin / invite
-3. SY-32 architectures hub breadcrumb
-4. SY-77 grep ratchet once call sites are converted
+Wave SY engineering mint sweep **complete** (2026-09-07). Re-grep only when new `reviewDetailPath(` call sites land on Working surfaces.

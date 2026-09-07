@@ -34,7 +34,8 @@ Monday morning on the architecture desk is a **durable architecture identity**, 
 | Browser tab title uses architecture display name | SY-61 / SY-85 | `working-architecture-document-title.test.ts` |
 | Getting-started Working examples use nested URLs | SY-87 | `getting-started-help-working-examples.test.ts` |
 | Sealed records are children, not Working Home | SY-92 | `signed-records-working-desk-guard.test.ts` |
-| E2E core path starts at architectures portfolio | SY-98 | `e2e/smoke.spec.ts` (`@smoke-core-path`) |
+| E2E core path starts at architectures portfolio | SY-98 | `e2e/smoke.spec.ts` (`@smoke-core-path`), `e2e/working-desk-landing.spec.ts`, `working-desk-e2e-landing-guard.test.ts` |
+| Contextual help Working href remapping | SY-87 | `contextual-help-working-href-guard.test.ts` |
 
 ## Shipped invariants (SY-80 green)
 
@@ -44,13 +45,15 @@ Monday morning on the architecture desk is a **durable architecture identity**, 
 - Nested review layouts set `document.title` from the architecture display name (optional ` · Review` / tool suffix).
 - Signed-records list rows link to nested review desks when `requestId` is known; Working Start never targets sealed-records.
 
-## Residuals (not wave blockers)
+## Residuals (closed or exempt)
 
-- **Guided mode** keeps peer `/insights/*` and `/architecture/reviews/{id}` URLs (SY-06 exempt).
-- **Unlinked reviews** without `architectureId` still use peer fallbacks until the mint sweep in `SYSTEM_DESK_PEER_MINT_INVENTORY.md` completes.
-- **Contextual-help topic hrefs** outside getting-started may still cite peer URLs until SY-87 follow-up rows land.
-- **E2E suite:** only `@smoke-core-path` was updated to architectures landing; other specs that intentionally open the inbox remain unchanged.
-- **Later livelihood issues** outside ADR 0079 scope (insight density engines, FC career-export honesty, dual buyer skin, batch what-if pricing, live presence) remain on assessment / GTM backlogs — **not claimed closed** by this wave.
+| Item | Status |
+|------|--------|
+| Guided mode peer `/insights/*` and `/architecture/reviews/{id}` URLs | **Exempt** (SY-06) — intentional Guided behavior |
+| Unlinked reviews without `architectureId` | **Honest fallback** — `resolveWorkingRunReviewLocator` keeps peer URL when parent unknown |
+| Contextual-help topic hrefs | **Closed** — `resolve-working-contextual-help-entry.ts` + `contextual-help-working-href-guard.test.ts` |
+| E2E Working landing | **Closed** — `@smoke-core-path` + `@working-desk-landing`; inbox-specific specs (`demo-readiness`, `pilot-nav-profile`, sponsor redirect) intentionally keep `/architecture/reviews` |
+| Insight density / FC / dual skin / what-if / live presence | **Out of scope** — assessment / GTM backlogs |
 
 ## Explicitly not in scope
 

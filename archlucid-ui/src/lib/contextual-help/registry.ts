@@ -18,6 +18,7 @@ import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
 import { CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/cloud-connections-integration-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS, resolveArchitectureContextualHelpEntry } from "@/lib/contextual-help/architecture-rows";
+import { resolveWorkingContextualHelpEntry } from "@/lib/contextual-help/resolve-working-contextual-help-entry";
 import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-lineage-rows";
 import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
@@ -214,7 +215,15 @@ export function contextualHelpForPathname(
   const architectureOverride = resolveArchitectureContextualHelpEntry(row.prefix, workingMode);
 
   if (architectureOverride !== null) {
+    if (workingMode) {
+      return resolveWorkingContextualHelpEntry(row.prefix, architectureOverride);
+    }
+
     return architectureOverride;
+  }
+
+  if (workingMode) {
+    return resolveWorkingContextualHelpEntry(row.prefix, row.entry);
   }
 
   if (path === CLOUD_CONNECTIONS_CANONICAL_PATH || path.startsWith(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/`)) {
