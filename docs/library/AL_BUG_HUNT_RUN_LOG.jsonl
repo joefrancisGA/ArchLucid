@@ -1322,4 +1322,5 @@
 {"at":"2026-09-07T03:31:29.8994908Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T03:35:35.7035693Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T04:13:50.0927462Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
-{"at":"2026-09-07T04:18:23.5954000Z","zoneId":"alert-simulation","outcome":"hit"}
+{"at":"2026-09-07T04:18:23.5954Z","zoneId":"alert-simulation","outcome":"hit"}
+{"at":"2026-09-07T04:25:26.2994986Z","zoneId":"core-azure-extractor","outcome":"hit"}
