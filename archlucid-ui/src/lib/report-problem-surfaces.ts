@@ -132,6 +132,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     componentPath: "app/(operator)/auth/invite/InvitationAcceptPageClient.tsx",
     description: "Invitation accept validation failed, token missing, or invite expired — invite-wave recovery surface.",
   },
+  {
+    id: "auth-callback-cannot-complete",
+    kind: "auth-session-break",
+    routePattern: "/auth/callback",
+    componentPath: "app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx",
+    description: "OIDC authorization callback failed or returned incomplete parameters — invite-wave recovery surface.",
+  },
 ] as const;
 
 /** Static App Router siblings that must not satisfy `[reviewId]`-style dynamic segments. */

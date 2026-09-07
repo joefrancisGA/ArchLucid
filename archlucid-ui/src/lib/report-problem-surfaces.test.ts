@@ -87,6 +87,7 @@ describe("report-problem-surfaces (TB-782)", () => {
   it("maps auth recovery routes to invite-wave Report Problem surfaces (TB-782 / #1792)", () => {
     const signInSurfaces = reportProblemSurfacesForPathname("/auth/signin").map((surface) => surface.id);
     const inviteSurfaces = reportProblemSurfacesForPathname("/auth/invite").map((surface) => surface.id);
+    const callbackSurfaces = reportProblemSurfacesForPathname("/auth/callback").map((surface) => surface.id);
     const sessionExpiredSurfaces = reportProblemSurfacesForPathname("/auth/session-expired").map(
       (surface) => surface.id,
     );
@@ -94,6 +95,7 @@ describe("report-problem-surfaces (TB-782)", () => {
 
     expect(signInSurfaces).toContain("auth-signin-cannot-proceed");
     expect(inviteSurfaces).toContain("auth-invitation-accept-validation-failure");
+    expect(callbackSurfaces).toContain("auth-callback-cannot-complete");
     expect(sessionExpiredSurfaces).toContain("session-expired-sign-in-failure");
     expect(accessDeniedSurfaces).toContain("access-denied-wrong-tenant");
     expect(accessDeniedSurfaces).toContain("auth-jwt-insufficient-scope");
