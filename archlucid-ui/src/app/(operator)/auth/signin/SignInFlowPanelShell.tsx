@@ -9,8 +9,10 @@ import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrom
 import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { AUTH_SIGNIN_FATAL_ERROR_TITLE } from "@/lib/auth/auth-signin-page-copy";
+import { shouldOfferSignInStepReportProblem } from "@/lib/auth/sign-in-step-error-recovery";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 
+import { SignInStepErrorRecovery } from "./SignInStepErrorRecovery";
 import type { SignInFlowState } from "./use-sign-in-flow-state";
 
 export type SignInFlowPanelShellProps = SignInFlowState;
@@ -113,6 +115,9 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
           onBack={resetEmailOtpFlow}
           onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
         />
+        {shouldOfferSignInStepReportProblem(emailError) ? (
+          <SignInStepErrorRecovery errorCode="auth-signin-email-step-failure" />
+        ) : null}
       </SignInBuyerChrome>
     );
   }
@@ -149,6 +154,9 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
         onDifferentEmail={handleDifferentEmail}
         onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
       />
+      {shouldOfferSignInStepReportProblem(codeError) ? (
+        <SignInStepErrorRecovery errorCode="auth-signin-code-step-failure" />
+      ) : null}
     </SignInBuyerChrome>
   );
 }
