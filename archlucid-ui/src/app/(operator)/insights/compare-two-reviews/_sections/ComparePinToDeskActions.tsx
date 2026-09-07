@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+
 import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -13,6 +15,8 @@ export type ComparePinToDeskActionsProps = {
 /** DR-11 — open review desk with one compare side pinned beside the other. */
 export function ComparePinToDeskActions(props: ComparePinToDeskActionsProps): React.JSX.Element {
   const { isWorkingMode } = useWorkspaceMode();
+  const searchParams = useSearchParams();
+  const architectureId = searchParams.get("architectureId")?.trim() ?? "";
 
   if (!isWorkingMode) {
     return <></>;
@@ -41,12 +45,14 @@ export function ComparePinToDeskActions(props: ComparePinToDeskActionsProps): Re
         <PinReviewToDeskButton
           pinRunId={baseline}
           primaryRunId={updated}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
           label="Pin baseline on updated desk"
           testId="compare-pin-baseline-on-updated"
         />
         <PinReviewToDeskButton
           pinRunId={updated}
           primaryRunId={baseline}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
           label="Pin updated on baseline desk"
           testId="compare-pin-updated-on-baseline"
         />
