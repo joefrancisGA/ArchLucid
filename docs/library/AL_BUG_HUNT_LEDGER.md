@@ -7077,11 +7077,11 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — forward-compatible `LastFailureReason` schemaVersion rejected dead-letter classification
+- **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7096,6 +7096,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver` treats non-empty `GoldenManifestId` as InProgress when `RunRepositoryCore.IsCommittedRun` would be true — **disproved 2026-09-07 (#1203):** list Complete requires `Committed`+manifest by design; finalize writes both atomically (`ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete`)
 - [x] (invalid) `RunAuthorityPipelineDeadLetterDetection` rejects UTF-8 BOM-prefixed `LastFailureReason` JSON — **disproved 2026-09-07 (#1203):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter marker emit BOM-free JSON; no reachable writer (`IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace`)
 - [x] (valid-no-repro) `FailedPartial` / numeric-ordinal terminal statuses masked as InProgress when progress markers precede terminal resolution — **disproved 2026-09-07 (#1203):** #1168 ordering already resolves terminal failures before progress markers (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, `TryParseStatus_parses_numeric_ordinal_for_failed_partial`)
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with active `LegacyRunStatus` (`WaitingForResults`, `TasksGenerated`, `ReadyForCommit`, `Retrying`) but no progress markers returned `NotStarted` — **hit 2026-09-07 seed hunt #1271:** list/export/replay surfaces diverged from operation projector Running/Pending semantics; fixed via `TryResolveInProgressLegacyStatus` (`ResolveFromRunHeader_waiting_for_results_without_progress_markers_returns_in_progress_not_not_started`)
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with `PartiallyCompleted` legacy status but no progress markers returned `NotStarted` instead of `Failed` — **hit 2026-09-07 seed hunt #1271:** TB-937 partial-run terminal treated as not-started on authority list; fixed by extending `TryResolveTerminalFailurePhase` (`ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started`)
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` ignores JSON array payloads (`[...]`) even when elements carry `failureClass: PipelineDeadLetter` — writers persist object-shaped summaries only; no failing repro in zone yet.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — empty fixture divergence only; no operator-facing wrong outcome reproduced in zone yet.
+
+2026-09-07 seed hunt #1271 (hit): reseeded zone; proved active/partial legacy statuses without progress markers misclassified on list/export lifecycle phase; seeded array-root dead-letter and blank-status divergence candidates.
 
 2026-09-07 seed hunt #1168 (hit): proved terminal failure runs masked as in-progress on authority list/summary lifecycle phase resolution.
 
