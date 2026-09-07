@@ -3867,6 +3867,22 @@ export interface components {
             format?: string;
             summary?: string;
         };
+        EngineInsightNoveltyRateRow: {
+            /** Format: int32 */
+            decisionGradeCount?: number;
+            /** Format: int32 */
+            didNotThinkOfThatCount?: number;
+            engineType?: string;
+            /** Format: double */
+            rate?: null | number | string;
+        };
+        EngineInsightNoveltyRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineInsightNoveltyRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
         EntityTagHeaderValue: {
             isWeak?: boolean;
             tag?: components["schemas"]["StringSegment"];
@@ -5269,6 +5285,8 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            /** Format: int32 */
+            judgeSkippedByCap?: number;
             /** Format: int32 */
             retainedFindingCount?: number;
         };
