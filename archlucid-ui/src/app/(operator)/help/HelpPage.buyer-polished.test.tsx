@@ -41,6 +41,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
+}));
+
 import { HelpPageView } from "@/app/(operator)/help/HelpPageView";
 
 describe("HelpPageView buyer-polished shell (HEL)", () => {

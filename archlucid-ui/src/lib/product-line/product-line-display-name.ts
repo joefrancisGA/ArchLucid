@@ -97,6 +97,14 @@ export function productLineManagedIdentityObjectIdLabel(productLineId: ProductLi
   return `${productLineDisplayName(productLineId)} managed identity object ID`;
 }
 
+export function howProductWorksTitle(productLineId: ProductLineId): string {
+  return `How ${productLineDisplayName(productLineId)} works`;
+}
+
+export function usingProductTitle(productLineId: ProductLineId): string {
+  return `Using ${productLineDisplayName(productLineId)}`;
+}
+
 /**
  * Rewrites architecture product name in consumer copy for the active product line.
  * Preserves `{…}` script placeholders (for example `{ArchLucid tenant ID}`) so copied runbooks keep working.
