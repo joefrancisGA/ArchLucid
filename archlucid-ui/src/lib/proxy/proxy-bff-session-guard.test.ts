@@ -60,6 +60,31 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     vi.useRealTimers();
   });
 
+  it("allows pre-auth sign-in routing when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-expired-routing",
+      "v1/auth/routing/evaluate",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.payload).toBeNull();
+    }
+  });
+
   it("allows anonymous marketing mutations when the BFF session cookie is expired", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
