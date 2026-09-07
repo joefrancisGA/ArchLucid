@@ -9541,20 +9541,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/QuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — orchestrator leaked concurrency lease on budget-stage early return
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None`; if SQL abandon stalls during shutdown, the row remains Waiting until `QueueExpiresUtc` and consumes effective queue capacity.
-- [ ] (hunt-ready) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` releases its lease without an execution or shutdown token; a host drain during disposal can leave the lease active until expiry and reject otherwise admissible scans.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
+- [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (`QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`); `DisposeAsync` still uses default non-cancellable release for intentional cleanup
 
----
+2026-09-07 thorough hunt #1193 (hit): cheap-disproved cancel+abandon token hypothesis; proved orchestrator finally scope omitted budget-stage early returns and leaked anonymous concurrency slots.
 
 ## Zone: run-execute-ownership
 
