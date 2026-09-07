@@ -58,3 +58,17 @@ export function askReviewQuestionsQuickActionLabel(productLineId: ProductLineId)
 
   return ASK_REVIEW_QUESTIONS_QUICK_ACTION.title;
 }
+
+/** Global search quick-action helper under Ask review questions. */
+export const ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL = {
+  title: "Scoped Q&A over review evidence",
+  shortLabel: "Scoped Q&A",
+} as const;
+
+export function askReviewQuestionsQuickActionDetail(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL.shortLabel;
+  }
+
+  return ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL.title;
+}
