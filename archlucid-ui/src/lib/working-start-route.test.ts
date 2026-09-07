@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { resolveWorkingStartHref } from "@/lib/working-start-route";
 
 describe("resolveWorkingStartHref (ADR 0077 / AO-15)", () => {
@@ -29,6 +30,19 @@ describe("resolveWorkingStartHref (ADR 0077 / AO-15)", () => {
     });
 
     expect(result.href).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+  });
+
+  it("AO-25: never opens the sealed-records gallery from Working Start", () => {
+    const cases = [
+      resolveWorkingStartHref({ lastOpenArchitectureId: "arch-identity-1" }),
+      resolveWorkingStartHref({ inFlightParentArchitectureId: "arch-in-flight" }),
+      resolveWorkingStartHref({}),
+    ];
+
+    for (const result of cases) {
+      expect(result.href).not.toBe(SIGNED_RECORDS_LIST_PATH);
+      expect(result.href).not.toMatch(/^\/governance\/sealed-records/);
+    }
   });
 
   it("falls back to new architecture bootstrap when workspace is empty", () => {
