@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { SecurityProductHome } from "@/components/product-line/SecurityProductHome";
+import { InfrastructureOverviewClient } from "@/app/(operator)/governance/infrastructure/_sections/InfrastructureOverviewClient";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
@@ -19,7 +19,7 @@ export function ProductLineHomeSwitch(props: { readonly architectureHome?: React
   const { productLine } = useProductLine();
 
   if (productLine === "security") {
-    return <SecurityProductHome />;
+    return <InfrastructureOverviewClient />;
   }
 
   if (props.architectureHome !== undefined) {
