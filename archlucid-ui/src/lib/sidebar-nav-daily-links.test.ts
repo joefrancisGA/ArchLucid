@@ -11,6 +11,7 @@ import {
   sidebarMoreLinksLabel,
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
+import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 
 function link(href: string, label: string): NavLinkItem {
@@ -46,6 +47,14 @@ describe("splitSidebarLinksDailyVsMore", () => {
     const split = splitSidebarLinksDailyVsMore("operate-governance", links, "/");
 
     expect(split.daily).toEqual(links);
+    expect(split.more).toEqual([]);
+  });
+
+  it("shows every configured Approval nav link without a more disclosure", () => {
+    const governanceLinks = NAV_GROUPS.find((group) => group.id === "operate-governance")?.links ?? [];
+    const split = splitSidebarLinksDailyVsMore("operate-governance", governanceLinks, "/");
+
+    expect(split.daily).toEqual(governanceLinks);
     expect(split.more).toEqual([]);
   });
 
