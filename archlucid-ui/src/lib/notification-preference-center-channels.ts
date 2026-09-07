@@ -1,12 +1,9 @@
-import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
-import { DEFAULT_PRODUCT_LINE_ID } from "@/lib/product-line/product-line-id";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
-import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 
 import type { NotificationPreferenceStatusHintKey } from "./notification-preference-center-copy";
 import { NOTIFICATION_PREFERENCE_STATUS_HINTS } from "./notification-preference-center-copy";
