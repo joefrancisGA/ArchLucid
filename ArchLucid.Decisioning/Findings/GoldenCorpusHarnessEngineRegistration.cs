@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class GoldenCorpusHarnessEngineRegistration
 {
-    public const int LatestGoldenCorpusCaseNumber = 54;
+    public const int LatestGoldenCorpusCaseNumber = 57;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
@@ -47,6 +47,7 @@ public static class GoldenCorpusHarnessEngineRegistration
         "secrets-lifecycle",
         "portfolio-recurrence",
         "data-flow-trust-boundary",
+        "topology-anti-pattern",
     ];
 
     public static int RegisteredEngineCount => RegisteredEngineTypeIds.Count;

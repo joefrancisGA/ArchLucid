@@ -17,6 +17,9 @@ public static class CareerArtifactCompletenessInputMapper
     {
         ArgumentNullException.ThrowIfNull(input);
 
+        bool resolvedLegacySealedReExport =
+            legacySealedReExport || LegacySealedReExportHonestyResolver.Resolve(transparencyTrail);
+
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Export,
             TransparencyTrail: transparencyTrail,
@@ -29,7 +32,7 @@ public static class CareerArtifactCompletenessInputMapper
             HostAgentExecutionMode: input.HostAgentExecutionMode,
             HostQualityGateMode: input.HostQualityGateMode,
             AggregateQualityGateOutcome: input.AggregateQualityGateOutcome,
-            LegacySealedReExport: legacySealedReExport,
+            LegacySealedReExport: resolvedLegacySealedReExport,
             BlockExternalSponsorDistribution: blockExternalSponsorDistribution,
             FindingsSnapshot: input.FindingsSnapshot);
     }

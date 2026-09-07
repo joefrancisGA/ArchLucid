@@ -88,10 +88,10 @@ describe("CompareProvenanceDeltaBand (WA-09)", () => {
     expect(screen.getByText(/Feasibility verdict changed/i)).toBeInTheDocument();
   });
 
-  it("renders nothing in Guided mode", () => {
+  it("renders compact provenance band in Guided mode when skipped MUST counts differ", () => {
     workspaceModeMock.isWorkingMode = false;
 
-    const { container } = render(
+    render(
       <CompareProvenanceDeltaBand
         baselineRunId="run-left"
         targetRunId="run-right"
@@ -100,6 +100,9 @@ describe("CompareProvenanceDeltaBand (WA-09)", () => {
       />,
     );
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId("compare-provenance-delta-band")).toBeInTheDocument();
+    expect(screen.getByText(/Assumption and provenance delta/i)).toBeInTheDocument();
+    expect(screen.getByText(/skipped MUST 1/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("transparency-trail-skipped-must")).not.toBeInTheDocument();
   });
 });

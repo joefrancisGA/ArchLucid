@@ -16,7 +16,13 @@ import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
+  GOVERNANCE_ADVISORY_SCANS_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_SETUP_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -46,6 +52,9 @@ function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
   return currentPath.startsWith(`${linkPath}/`);
 }
 
+/** Minimum sidebar links shown before the “Show N more …” disclosure in any nav cluster. */
+export const SIDEBAR_MIN_DAILY_VISIBLE_COUNT = 3;
+
 /**
  * Daily destinations shown first in dense sidebar groups; the rest sit behind “N more”.
  * Keep lists short (≈5) so the first viewport stays scannable.
@@ -58,9 +67,23 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     SPONSOR_REPORT_PATH,
     COMPARE_TWO_REVIEWS_PATH,
   ],
+  "operate-governance": [
+    GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+    GOVERNANCE_APPROVAL_QUEUE_PATH,
+    GOVERNANCE_SETUP_PATH,
+    GOVERNANCE_FINDINGS_PATH,
+    GOVERNANCE_ADVISORY_SCANS_PATH,
+    GOVERNANCE_ALERTS_PATH,
+  ],
   "operate-policy": [
     GOVERNANCE_POLICY_PACKS_PATH,
     GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  ],
+  "operate-compliance": [
+    GOVERNANCE_POLICY_PACKS_PATH,
+    GOVERNANCE_STANDARDS_AND_RULES_PATH,
+    "/governance/findings",
+    "/governance/audit-evidence",
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
@@ -116,6 +139,27 @@ export type SidebarDailyLinkSplit = {
   readonly more: NavLinkItem[];
 };
 
+function enforceSidebarMinDailyVisibleCount(split: SidebarDailyLinkSplit): SidebarDailyLinkSplit {
+  if (split.more.length === 0 || split.daily.length >= SIDEBAR_MIN_DAILY_VISIBLE_COUNT) {
+    return split;
+  }
+
+  const daily: NavLinkItem[] = [...split.daily];
+  const more: NavLinkItem[] = [...split.more];
+
+  while (daily.length < SIDEBAR_MIN_DAILY_VISIBLE_COUNT && more.length > 0) {
+    const next = more.shift();
+
+    if (next === undefined) {
+      break;
+    }
+
+    daily.push(next);
+  }
+
+  return { daily, more };
+}
+
 /**
  * Splits a cluster’s visible links into daily vs secondary. When the active path is in
  * `more`, that link is promoted into `daily` so the user never loses “you are here”.
@@ -129,20 +173,20 @@ export function splitSidebarLinksDailyVsMore(
   const dailyHrefs = resolveSidebarDailyHrefs(groupId, workingMode);
 
   if (dailyHrefs === undefined) {
-    return { daily: [...links], more: [] };
+    return enforceSidebarMinDailyVisibleCount({ daily: [...links], more: [] });
   }
 
   if (dailyHrefs.length === 0) {
     const activeInMore = links.find((link) => sidebarLinkMatchesPathname(pathname, link.href));
 
     if (activeInMore !== undefined) {
-      return {
+      return enforceSidebarMinDailyVisibleCount({
         daily: [activeInMore],
         more: links.filter((link) => link.href !== activeInMore.href),
-      };
+      });
     }
 
-    return { daily: [], more: [...links] };
+    return enforceSidebarMinDailyVisibleCount({ daily: [], more: [...links] });
   }
 
   const dailyHrefSet = new Set(dailyHrefs);
@@ -163,13 +207,13 @@ export function splitSidebarLinksDailyVsMore(
   const activeInMore = more.find((link) => sidebarLinkMatchesPathname(pathname, link.href));
 
   if (activeInMore !== undefined) {
-    return {
+    return enforceSidebarMinDailyVisibleCount({
       daily: [...daily, activeInMore],
       more: more.filter((link) => link.href !== activeInMore.href),
-    };
+    });
   }
 
-  return { daily, more };
+  return enforceSidebarMinDailyVisibleCount({ daily, more });
 }
 
 /** Secondary nav rows under a group heading — name what the disclosure reveals. */
@@ -177,7 +221,9 @@ const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>
   "operate-analysis": "Insights",
   "operate-governance": "Approval",
   "operate-policy": "Policy",
+  "operate-compliance": "Compliance",
   "operate-infrastructure": "Infrastructure",
+  "operate-security": "Security",
   "operator-admin": "Administration",
   "operator-system-admin": "Internal",
 };

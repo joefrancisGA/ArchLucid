@@ -62,8 +62,13 @@ export function buildSealedManifestExportJson(
     ?? extractTransparencyTrail(parsed);
 
   if (input.workingDesk) {
+    const careerArtifactHonesty = input.careerArtifactHonesty;
+
     const verdict = evaluateCareerArtifactHonesty({
-      ...input.careerArtifactHonesty,
+      progressSummary: careerArtifactHonesty?.progressSummary ?? null,
+      manifestSummary: careerArtifactHonesty?.manifestSummary ?? null,
+      graphSnapshot: careerArtifactHonesty?.graphSnapshot ?? null,
+      ...careerArtifactHonesty,
       artifactKind: "export",
       runId: input.runId,
       workingDesk: true,

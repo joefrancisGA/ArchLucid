@@ -30,12 +30,12 @@ public sealed class DataFlowTrustBoundaryFindingEngine : IFindingEngine
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 
-        List<Finding> findings = paths.Select(BuildFinding).ToList();
+        List<Finding> findings = paths.Select(path => BuildFinding(graphSnapshot, path)).ToList();
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding BuildFinding(DataFlowTrustBoundaryPath path)
+    private static Finding BuildFinding(GraphSnapshot graphSnapshot, DataFlowTrustBoundaryPath path)
     {
         List<string> relatedNodeIds = path.PathNodeIds
             .Where(static nodeId => !string.IsNullOrWhiteSpace(nodeId))
@@ -46,6 +46,8 @@ public sealed class DataFlowTrustBoundaryFindingEngine : IFindingEngine
         List<string> traceNotes = relatedNodeIds
             .Select(static nodeId => $"evidence:graph-node:{nodeId}")
             .ToList();
+
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
 
         return new Finding
         {
@@ -61,6 +63,7 @@ public sealed class DataFlowTrustBoundaryFindingEngine : IFindingEngine
             DecisionConsequence =
                 "Insert a trust-boundary control on the path, enable a private endpoint on the datastore, or document an approved exception before approval.",
             RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(DataFlowTrustBoundaryFindingPayload),
             Payload = new DataFlowTrustBoundaryFindingPayload
             {

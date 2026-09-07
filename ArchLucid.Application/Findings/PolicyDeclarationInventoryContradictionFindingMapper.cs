@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 
@@ -14,6 +15,10 @@ internal static class PolicyDeclarationInventoryContradictionFindingMapper
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(policyRuleId);
 
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, mismatch.InventoryResourceId);
+        FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, policyRuleId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -26,6 +31,7 @@ internal static class PolicyDeclarationInventoryContradictionFindingMapper
             Rationale =
                 "The tenant's assigned policy pack requires this control, the declaration claims one posture, and scoped live inventory reports the opposite.",
             RelatedNodeIds = [mismatch.GraphNodeId],
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(PolicyDeclarationInventoryContradictionFindingPayload),
             Payload = new PolicyDeclarationInventoryContradictionFindingPayload
             {

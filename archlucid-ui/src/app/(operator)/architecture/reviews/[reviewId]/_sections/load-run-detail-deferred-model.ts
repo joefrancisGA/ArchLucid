@@ -97,10 +97,25 @@ async function loadChangesSinceLastReviewBanner(
     const workspaceContext = await loadRunDetailWorkspaceContextBundleCached(context.routeRunId);
 
     if (
-      workspaceContext.priorCommittedRunComparison === null
-      || workspaceContext.priorCommittedRunId === null
+      workspaceContext.priorCommittedRunId === null
       || workspaceContext.priorCommittedRunCreatedUtc === null
     ) {
+      return null;
+    }
+
+    const blockedReason = workspaceContext.priorCommittedRunComparisonBlockedReason?.trim() ?? "";
+
+    if (blockedReason.length > 0) {
+      return {
+        priorReviewDateLabel: formatInstantForLocale(workspaceContext.priorCommittedRunCreatedUtc),
+        priorRunId: workspaceContext.priorCommittedRunId,
+        currentRunId: context.resolvedDetail.run.runId,
+        copy: null,
+        blockedReason,
+      };
+    }
+
+    if (workspaceContext.priorCommittedRunComparison === null) {
       return null;
     }
 
@@ -121,6 +136,7 @@ async function loadChangesSinceLastReviewBanner(
       priorRunId: workspaceContext.priorCommittedRunId,
       currentRunId: context.resolvedDetail.run.runId,
       copy,
+      blockedReason: null,
     };
   } catch {
     return null;

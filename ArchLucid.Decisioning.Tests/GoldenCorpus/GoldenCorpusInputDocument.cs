@@ -64,6 +64,26 @@ public sealed class GoldenCorpusInventoryFixtureDocument
     {
         get; set;
     } = "[]";
+
+    /// <summary>Optional additional ZIP entries (e.g. <c>advisor-cost.json</c>) beside <c>resources.json</c>.</summary>
+    public List<GoldenCorpusInventoryZipEntryDocument> ExtraZipEntries
+    {
+        get; set;
+    } = [];
+}
+
+/// <summary>Named JSON file bundled into a golden inventory ZIP alongside <c>resources.json</c>.</summary>
+public sealed class GoldenCorpusInventoryZipEntryDocument
+{
+    public string FileName
+    {
+        get; set;
+    } = string.Empty;
+
+    public string JsonBody
+    {
+        get; set;
+    } = string.Empty;
 }
 
 /// <summary>JSON-friendly merge payload (lists deserialize cleanly).</summary>

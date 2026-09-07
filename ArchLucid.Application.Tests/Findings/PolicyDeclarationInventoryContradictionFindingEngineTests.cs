@@ -73,6 +73,8 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
         finding.Trace.Notes.Should().Contain($"evidence:inventory:{StorageArmId}");
         finding.Trace.Notes.Should().Contain("evidence:graph-node:storage-1");
         finding.Trace.Notes.Should().Contain("evidence:policy:cis-az-006");
+        finding.EvidenceRefs.Should().Contain("policy-rule:cis-az-006");
+        finding.EvidenceRefs.Should().Contain(StorageArmId);
 
         PolicyDeclarationInventoryContradictionFindingPayload payload =
             finding.Payload.Should().BeOfType<PolicyDeclarationInventoryContradictionFindingPayload>().Subject;

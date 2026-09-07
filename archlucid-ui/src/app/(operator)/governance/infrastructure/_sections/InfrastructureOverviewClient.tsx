@@ -10,7 +10,6 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -36,6 +35,8 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
+import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
+import { SecureNowSecurityHomeSection } from "@/components/product-line/SecureNowSecurityHomeSection";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
@@ -45,7 +46,7 @@ import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOve
 export function InfrastructureOverviewClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { productLine } = useProductLine();
-  const showSecureNowComplianceSection = productLine === "security";
+  const showSecureNowGroupedHomeSections = productLine === "security";
 
   return (
     <OperatorPageContainer
@@ -76,8 +77,6 @@ export function InfrastructureOverviewClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-overview" /> : null}
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID : undefined}
@@ -117,62 +116,68 @@ export function InfrastructureOverviewClient() {
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
             instances. All six destinations are available from this hub.
-            {showSecureNowComplianceSection
-              ? " Compliance posture destinations for ARC-AMPE pack assignment and cloud-evidence findings are listed below."
+            {showSecureNowGroupedHomeSections
+              ? " Compliance, infrastructure, and security destinations are grouped below."
               : null}
           </p>
         )}
 
-        {showSecureNowComplianceSection ? <SecureNowComplianceHomeSection /> : null}
-
-        <section aria-labelledby="governance-infrastructure-workbenches-heading">
-          <h2
-            id="governance-infrastructure-workbenches-heading"
-            className={cn("m-0", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.cardTitle : "sr-only")}
-          >
-            {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING}
-          </h2>
-          <EnterpriseTable
-            ariaLabel="Infrastructure evidence workbenches"
-            className={buyerPolishedShell ? "mt-3" : undefined}
-          >
-            <EnterpriseTableHead>
-              <EnterpriseTableRow>
-                <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
-                {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
-              </EnterpriseTableRow>
-            </EnterpriseTableHead>
-            <EnterpriseTableBody>
-              {INFRASTRUCTURE_WORKBENCH_ROWS.map((row) => (
-                <EnterpriseTableRow key={row.href}>
-                  <EnterpriseTableCell>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        className={cn("font-medium", OPERATOR_LINK.inline)}
-                        href={row.href}
-                        data-testid={`governance-infrastructure-workbench-link-${row.href}`}
-                      >
-                        {row.label}
-                      </Link>
-                      {buyerPolishedShell && row.recommendedFirst === true ? (
-                        <StatusTag kind="neutral" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
-                      ) : null}
-                    </div>
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
-                  {buyerPolishedShell ? (
-                    <EnterpriseTableCell>
-                      <Link className={OPERATOR_LINK.inline} href={row.href}>
-                        Open
-                      </Link>
-                    </EnterpriseTableCell>
-                  ) : null}
+        {showSecureNowGroupedHomeSections ? (
+          <>
+            <SecureNowComplianceHomeSection />
+            <SecureNowInfrastructureHomeSection />
+            <SecureNowSecurityHomeSection />
+          </>
+        ) : (
+          <section aria-labelledby="governance-infrastructure-workbenches-heading">
+            <h2
+              id="governance-infrastructure-workbenches-heading"
+              className={cn("m-0", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.cardTitle : "sr-only")}
+            >
+              {GOVERNANCE_INFRASTRUCTURE_OVERVIEW_WORKBENCHES_HEADING}
+            </h2>
+            <EnterpriseTable
+              ariaLabel="Infrastructure evidence workbenches"
+              className={buyerPolishedShell ? "mt-3" : undefined}
+            >
+              <EnterpriseTableHead>
+                <EnterpriseTableRow>
+                  <EnterpriseTableHeaderCell>Workbench</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+                  {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
                 </EnterpriseTableRow>
-              ))}
-            </EnterpriseTableBody>
-          </EnterpriseTable>
-        </section>
+              </EnterpriseTableHead>
+              <EnterpriseTableBody>
+                {INFRASTRUCTURE_WORKBENCH_ROWS.map((row) => (
+                  <EnterpriseTableRow key={row.href}>
+                    <EnterpriseTableCell>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          className={cn("font-medium", OPERATOR_LINK.inline)}
+                          href={row.href}
+                          data-testid={`governance-infrastructure-workbench-link-${row.href}`}
+                        >
+                          {row.label}
+                        </Link>
+                        {buyerPolishedShell && row.recommendedFirst === true ? (
+                          <StatusTag kind="neutral" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
+                        ) : null}
+                      </div>
+                    </EnterpriseTableCell>
+                    <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
+                    {buyerPolishedShell ? (
+                      <EnterpriseTableCell>
+                        <Link className={OPERATOR_LINK.inline} href={row.href}>
+                          Open
+                        </Link>
+                      </EnterpriseTableCell>
+                    ) : null}
+                  </EnterpriseTableRow>
+                ))}
+              </EnterpriseTableBody>
+            </EnterpriseTable>
+          </section>
+        )}
 
         {buyerPolishedShell ? <InfrastructureOverviewClaimOrientationStrip /> : null}
       </main>

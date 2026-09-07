@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -57,7 +58,7 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
 
             foreach (SegmentationRiskyRule riskyRule in riskyRules)
             {
-                findings.Add(BuildFinding(node, riskyRule, targetNode, hopCount));
+                findings.Add(BuildFinding(graphSnapshot, node, riskyRule, targetNode, hopCount));
 
                 if (findings.Count >= MaxFindings)
                 {
@@ -70,6 +71,7 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
     }
 
     private static Finding BuildFinding(
+        GraphSnapshot graphSnapshot,
         GraphNode segmentationNode,
         SegmentationRiskyRule riskyRule,
         GraphNode? targetNode,
@@ -96,6 +98,8 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
             traceNotes.Add($"evidence:graph-node:{targetNode.NodeId.Trim()}");
         }
 
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -109,6 +113,7 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
             DecisionConsequence =
                 "Restrict inbound admin ports to trusted CIDR ranges or place the target behind private networking before approval.",
             RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(SegmentationSemanticsFindingPayload),
             Payload = new SegmentationSemanticsFindingPayload
             {

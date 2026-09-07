@@ -2,8 +2,10 @@ using ArchLucid.Application;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
@@ -61,17 +63,37 @@ public sealed class RunSummaryOnePagerExportServiceTests
                     TrialStatus = TrialLifecycleStatus.Active
                 });
 
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        IAuthorityQueryService authorityQuery = Mock.Of<IAuthorityQueryService>();
+
+        if (SealedExportReceiptTestSupport.TryParseRunGuid(runId, out Guid runGuid))
+        {
+            authorityQuery = SealedExportReceiptTestSupport.CreateAuthorityQueryService(runGuid, manifestHashService);
+        }
+
+        Mock<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository> agentTraces = new();
+        agentTraces
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "false",
+            })
+            .Build();
+
         RunSummaryOnePagerExportService sut = new(
             runDetails.Object,
             completion.Object,
             options.Object,
             scope.Object,
             tenants.Object,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            authorityQuery,
+            manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
-            Mock.Of<IConfiguration>());
+            agentTraces.Object,
+            configuration);
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);

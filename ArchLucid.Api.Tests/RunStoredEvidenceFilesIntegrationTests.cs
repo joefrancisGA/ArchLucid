@@ -154,13 +154,14 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
         files.Should().NotBeNull();
         files!.Should().HaveCount(2);
         files.Select(static file => file.OriginalFileName).Should().BeEquivalentTo(["diagram.png", "brief.docx"]);
-        files.Should().OnlyContain(static file => uploadBody.EvidenceItemIds.Contains(file.EvidenceItemId));
+        files.Should().OnlyContain(file => uploadBody.EvidenceItemIds.Contains(file.EvidenceItemId));
         files.Should().Contain(static file => file.ContentType == "image/png");
         files.Should().Contain(static file =>
             file.ContentType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
     }
 
     [SkippableFact]
+    public async Task DownloadStoredEvidenceFile_ReturnsAttachmentBytes()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",

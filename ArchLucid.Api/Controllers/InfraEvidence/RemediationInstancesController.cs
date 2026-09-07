@@ -31,6 +31,7 @@ public sealed class RemediationInstancesController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<RemediationInstanceSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? cloudResourceId,
         [FromQuery] Guid? findingId,
@@ -38,10 +39,17 @@ public sealed class RemediationInstancesController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<RemediationInstanceSummary> instances =
-            await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
+        try
+        {
+            IReadOnlyList<RemediationInstanceSummary> instances =
+                await queryService.ListInstancesAsync(scope, cloudResourceId, findingId, cancellationToken);
 
-        return Ok(instances);
+            return Ok(instances);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("{instanceId:guid}")]
@@ -93,6 +101,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/preflight")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation preflight delegates to RemediationInstanceService.")]
@@ -120,6 +129,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/approve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation approval delegates to RemediationInstanceService.")]
@@ -140,6 +150,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/assign-wave")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation wave assignment delegates to RemediationInstanceService.")]
@@ -167,6 +178,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation execute emits advisory artifacts only; no terraform apply.")]
@@ -199,6 +211,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/verify")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation verification delegates to RemediationInstanceService.")]
@@ -226,6 +239,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/close")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation close delegates to RemediationInstanceService.")]
