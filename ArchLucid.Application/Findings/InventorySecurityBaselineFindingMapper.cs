@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Findings;
@@ -20,6 +21,10 @@ internal static class InventorySecurityBaselineFindingMapper
             ? [$"{engineType}-classifier"]
             : [policyRuleId, gap.ControlFamily, $"{engineType}-classifier"];
 
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, gap.ResourceId);
+        FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, policyRuleId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -31,6 +36,7 @@ internal static class InventorySecurityBaselineFindingMapper
             Rationale =
                 $"{cloudLabel} inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
             RelatedNodeIds = topologyNodes.Resolve(gap.ResourceId).ToList(),
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {
