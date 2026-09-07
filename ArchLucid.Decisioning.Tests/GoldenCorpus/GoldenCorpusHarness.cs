@@ -300,6 +300,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),
             new DataFlowTrustBoundaryFindingEngine(),
+            new TopologyAntiPatternFindingEngine(),
         ];
     }
 

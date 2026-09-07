@@ -8,10 +8,9 @@ on:
     branches: [main, master]
 
 concurrency:
-  # One running + one pending per ref group: cancel-in-progress protects only the running job,
-  # so queued runs are evicted on every new push. Per-commit groups let each push complete.
-  group: ui-typecheck-push-${{ github.sha }}
-  cancel-in-progress: false
+  # One push corset per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.
+  group: ui-typecheck-push-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

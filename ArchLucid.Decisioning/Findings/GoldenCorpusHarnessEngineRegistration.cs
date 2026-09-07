@@ -47,6 +47,7 @@ public static class GoldenCorpusHarnessEngineRegistration
         "secrets-lifecycle",
         "portfolio-recurrence",
         "data-flow-trust-boundary",
+        "topology-anti-pattern",
     ];
 
     public static int RegisteredEngineCount => RegisteredEngineTypeIds.Count;

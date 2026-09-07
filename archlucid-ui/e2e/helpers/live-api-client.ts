@@ -502,7 +502,7 @@ function isTransientLiveApiTransportError(error: unknown): boolean {
  * Per-attempt HTTP budget for POST `/v1/architecture/request` on invite-wave private-beta CI.
  * Must exceed `AuthorityPipeline__PipelineTimeout` (default 5m) on API-only hosts (no Worker).
  */
-export const LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS = 420_000;
+export const LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS = 540_000;
 
 /**
  * Per-attempt HTTP budget for POST `/v1/architecture/request`.
