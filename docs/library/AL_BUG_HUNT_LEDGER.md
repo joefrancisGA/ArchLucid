@@ -9404,11 +9404,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — trial lifecycle hard purge ignored active legal hold on non-offboarded tenants
+- **last-bug:** 2026-09-07 — trial conversion rejected lowercase `active` trial status
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9428,6 +9428,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` left tenant suspended without active migration when `InsertAsync` failed after scope-freeze suspend — **hit 2026-09-07 (#1164):** suspend ran before insert with no compensating unsuspend; fixed by rolling back scope-freeze suspend when insert throws while preserving admin-pre-suspended tenants (`StartAsync_unsuspends_when_migration_insert_fails_after_scope_freeze_suspend`, `StartAsync_preserves_admin_suspend_when_migration_insert_fails`).
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` ignored active `LegalHoldUntilUtc` when tenant is not offboarded — **hit 2026-09-07 (#1247):** platform admin `AdminTenantsController` sets legal hold with `requireErasureQuarantine: false`; scheduler still advanced `ExportOnly` → `Deleted` and invoked hard purge; fixed by skipping automation when `LegalHoldUntilUtc > utcNow`; regression `TryAdvanceTenantAsync_when_active_legal_hold_skips_export_only_to_deleted_purge`.
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` fail-opens to allow delete when stored boolean is malformed — **cheap-disproof 2026-09-07 (#1247):** only `SetAllowCreatorDeleteOwnedWorkAsync` writes the key via `TenantSettingBooleanParser.Format`; malformed stored values require out-of-band DB tampering, not tenant-controlled input; default-allow on missing setting is documented product behavior.
+
+- [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` rejected lowercase `active` trial status — **hit 2026-09-07 (#1248):** Ordinal `TrialStatus` compare left post-#808 lifecycle tenants unable to convert; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `ConvertTrialAsync_when_trial_status_is_lowercase_active_succeeds`.
+- [ ] (candidate) `TrialLimitGate` uses Ordinal `TrialStatus` compares — may block or allow trial limits incorrectly for padded/lowercase lifecycle labels; same class as #808/#1248 but mutating-path reachability unverified in this folder alone
+- [ ] (candidate) `TenantUsageStatusService` treats trial only when `TrialStatus` equals `Active` ordinally — usage snapshot may omit trial counters for non-canonical casing
+- [ ] (candidate) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — lowercase `converted` retry may duplicate conversion audit
+
+2026-09-07 seed hunt #1248 (hit): reseeded trial conversion/limit paths; proved lowercase `active` blocked `ConvertTrialAsync`; seeded Ordinal-compare candidates in `TrialLimitGate`, `TenantUsageStatusService`, and `TenantTrialFacade`.
 
 2026-09-07 thorough hunt #1247 (hit): proved trial lifecycle purge bypassed active legal hold on non-offboarded tenants; cheap-disproved malformed creator-delete policy fail-open (no reachable writer path).
 
