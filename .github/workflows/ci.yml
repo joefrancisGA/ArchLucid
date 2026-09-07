@@ -2253,13 +2253,21 @@ jobs:
       - name: al-bug-lint-ledger-counters.py
         run: python3 scripts/agent/al-bug-lint-ledger-counters.py
 
+      - name: al-bug-lint-zone-paths.py (warn-only ghosts)
+        continue-on-error: true
+        run: python3 scripts/agent/al-bug-lint-zone-paths.py --warn
+
       - name: al-bug-lint-escape-log.py
         continue-on-error: true
         run: python3 scripts/agent/al-bug-lint-escape-log.py
 
-      - name: al-bug verify proven revert (warn-only sample + new-unguarded ratchet)
+      - name: al-bug verify proven revert (blocking sample + new ratchets)
+        run: python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5 --since 2026-08-01 --fail-on-new-unguarded --baseline scripts/ci/al-bug-unguarded-proven-baseline.json --fail-on-new-uncheckable --uncheckable-baseline scripts/ci/al-bug-uncheckable-proven-baseline.json
+
+      - name: al-bug-lint-high-impact-proven.py (PR warn-only)
+        if: github.event_name == 'pull_request'
         continue-on-error: true
-        run: python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5 --since 2026-08-01 --fail-on-new-unguarded --baseline scripts/ci/al-bug-unguarded-proven-baseline.json
+        run: python3 scripts/agent/al-bug-lint-high-impact-proven.py
 
       - name: AlBugSeedFromAnalyzers.Tests.ps1
         shell: pwsh
@@ -2267,6 +2275,15 @@ jobs:
 
       - name: test_al_bug_verify_proven_revert.py
         run: python3 scripts/tests/test_al_bug_verify_proven_revert.py
+
+      - name: test_al_bug_lint_zone_paths.py
+        run: python3 scripts/tests/test_al_bug_lint_zone_paths.py
+
+      - name: test_al_bug_lint_high_impact_proven.py
+        run: python3 scripts/tests/test_al_bug_lint_high_impact_proven.py
+
+      - name: test_al_bug_seed_preview_merge.py
+        run: python3 scripts/tests/test_al_bug_seed_preview_merge.py
 
       - name: test_al_bug_escape_log.py
         run: python3 scripts/tests/test_al_bug_escape_log.py
