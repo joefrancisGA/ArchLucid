@@ -36,7 +36,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
-            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-35.",
+            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-36.",
             ["security-baseline-expectation"] = "Expectation engine needs declaration fixtures beyond default graphs.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
@@ -56,6 +56,12 @@ public static class GoldenCorpusHarnessEngineInventory
             ["gcp-inventory-security-baseline"] = "GCP inventory security baseline — needs inventory snapshot.",
             ["open-commitment"] = "Open-commitment engine reads disposition trail — not wired on golden corpus runs.",
             ["portfolio-recurrence"] = "Portfolio recurrence needs multi-run tenant history — not on golden corpus.",
+            ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
+            ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
+            ["secrets-lifecycle"] = "Secrets lifecycle needs extractor inventory with Key Vault / Secrets Manager timestamps — not on golden corpus.",
+            ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
+            ["insight-generator"] = "Insight generator requires Real-mode Premium LLM pass — not on golden corpus harness.",
+            ["declaration-inventory-contradiction"] = "Declaration-inventory contradiction needs scoped extractor inventory aligned to topology resource ids — not on golden corpus.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

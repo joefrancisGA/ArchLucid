@@ -2228,6 +2228,89 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/start-local-api-and-ui.Tests.ps1'
 
+      - name: ArchLucid.CostManagement.helpers.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
+
+      - name: ApiIntegrationTestShardSupport.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/ApiIntegrationTestShardSupport.Tests.ps1'
+
+      # /al-bug hunt tooling: these were Pester 3 syntax and ungated until ABQ-11, which hid
+      # four StrictMode/scoring defects in the picker, escalation, and sequential runner.
+      - name: AlBugPickZone.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugPickZone.Tests.ps1'
+
+      - name: AlBugRollingStats.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugRollingStats.Tests.ps1'
+
+      - name: AlBugEscalation.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/AlBugEscalation.Tests.ps1'
+
+      - name: al-bug-lint-ledger-counters.py
+        run: python3 scripts/agent/al-bug-lint-ledger-counters.py
+
+  first-pilot-pester:
+    name: "First pilot: proof and drill Pester suites"
+    needs:
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          $gallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
+          if ($gallery) {
+            Set-PSRepository PSGallery -InstallationPolicy Trusted
+          }
+          else {
+            try {
+              Register-PSRepository -Default -InstallationPolicy Trusted
+            }
+            catch {
+              if ($_.Exception.Message -notmatch 'already exists') {
+                throw
+              }
+            }
+          }
+
+          Install-Module Pester -Force -Scope CurrentUser -MinimumVersion 5.0.0 -MaximumVersion 5.99.99 -Repository PSGallery
+
+      - name: FirstPilotCommandCenter.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotCommandCenter.Tests.ps1'
+
+      - name: FirstPilotCommercialCloseout.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotCommercialCloseout.Tests.ps1'
+
+      - name: FirstPilotCommercialNextStep.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotCommercialNextStep.Tests.ps1'
+
+      - name: FirstPilotDataConsistencyProof.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotDataConsistencyProof.Tests.ps1'
+
+      - name: FirstPilotSupportNextStep.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotSupportNextStep.Tests.ps1'
+
+      - name: V1IntegrationCorrectnessDrill.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/V1IntegrationCorrectnessDrill.Tests.ps1'
+
+      - name: collect-first-pilot-proof.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/collect-first-pilot-proof.Tests.ps1'
+
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
     # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that

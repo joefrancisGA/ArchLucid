@@ -39,6 +39,10 @@ export type RunSummaryWireExtensions = {
   otelTraceId?: string | null;
   /** List/detail merge: finalization timestamp when the API returns it for ordering committed runs. */
   completedUtc?: string | null;
+  /** List/detail merge: coordinator legacy status for terminal execute badge honesty (DR-06). */
+  legacyRunStatus?: string | null;
+  /** List/detail merge: last-modified timestamp when the API returns it for recency ordering. */
+  lastModifiedUtc?: string | null;
 };
 
 /**

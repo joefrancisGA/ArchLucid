@@ -2,17 +2,18 @@
      Origin: 2026-09-06 owner follow-up after /al-bug degenerated into a
      synthetic-hit treadmill (redaction allowlists, schemaVersion leniency,
      English-negation phrase lists, mega-zone picker lock).
+     Wave 3 (ABQ-14–18): leftover work after ABQ-01–13 shipped in code.
      Do not implement from this index. -->
 
-# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-10)
+# `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-18)
 
-**Status:** **Ready to run.** Paste one `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session.
+**Status:** **ABQ-01–18 shipped in code** on `cursor/al-bug-quality-prompts-3c5e`. Do **not** re-implement from these prompt files (several early prompts are stale vs shipped code; see footnotes).
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
 **Do not implement from this index.**
 
-**Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-135** / **TB-136**). **TB-645** vocabulary stays. Do not create `PD-###` rows. Do not run `/al-bug` to implement these prompts.
+**Do not treat this set as a V1 assessment scorecard.** Do not add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or closed assurance programs (**TB-135** / **TB-136**). Owner GTM rows **G-REAL-05** (SOC 2 CPA) and **G-ASSURANCE-02** (third-party pen test) stay on the GTM backlog — do not resurface as engineering batches. **TB-645** vocabulary stays. Do not create `PD-###` rows. Do not run `/al-bug` to implement these prompts.
 
 ## What this set does *not* change
 
@@ -24,17 +25,20 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 
 | Class | Failure | Prompts |
 |-------|---------|---------|
-| **Fail-open redaction** | `IsEmbeddedSensitiveFragment` + per-word allowlist; real camelCase secrets leak | ABQ-01, ABQ-02 |
-| **Leniency treadmill** | Boolean / `"on"` / `null` accepted as `schemaVersion`; sibling “parity” hunts | ABQ-03 |
-| **Phrase-list treadmill** | Open-class English phrases (`mightn't configure to`) instead of closed-class negation tokens | ABQ-04 |
-| **Weak hunt bar** | Concrete-but-unreachable inputs count as hunt-ready; instance-list diffs count as fixes | ABQ-05 |
-| **Picker Goodhart** | `bugs-found / hunts` unbounded; no cooldown; sequential auto-push | ABQ-06, ABQ-07 |
-| **Catalog shape** | Project-wide zones; `-Nominate` documented but missing; recent churn unzoned | ABQ-08, ABQ-09 |
-| **Inflated yield** | Ledger `(proven)` count treated as product quality | ABQ-10 |
+| **Fail-open redaction** | `IsEmbeddedSensitiveFragment` + per-word allowlist; real camelCase secrets leak | ABQ-01, ABQ-02 *(shipped)* |
+| **Leniency treadmill** | Boolean / `"on"` / `null` accepted as `schemaVersion`; sibling “parity” hunts | ABQ-03, ABQ-15 *(shipped)* |
+| **Phrase-list treadmill** | Open-class English phrases (`mightn't configure to`) instead of closed-class negation tokens | ABQ-04, ABQ-13 *(shipped)* |
+| **Weak hunt bar** | Concrete-but-unreachable inputs count as hunt-ready; instance-list diffs count as fixes | ABQ-05 *(shipped)* |
+| **Picker Goodhart** | `bugs-found / hunts` unbounded; no cooldown; sequential auto-push | ABQ-06, ABQ-07 *(shipped)* |
+| **Catalog shape** | Project-wide zones; `-Nominate` documented but missing; recent churn unzoned | ABQ-08, ABQ-09 *(shipped)* |
+| **Inflated yield** | Ledger `(proven)` count treated as product quality | ABQ-10, ABQ-16 *(shipped)* |
+| **Silent tests** | Pester 3 syntax + ungated suites hid StrictMode defects | ABQ-11, ABQ-12, ABQ-17 *(shipped)* |
+| **Stale wire fixtures** | `enforcementTier` required in converter; fixtures omit it | ABQ-14 *(shipped)* |
+| **Cloud Agent image** | Linux image has no `pwsh`; prompts assume it | ABQ-18 *(shipped)* |
 
 ## Run order
 
-**01 first** (extractor secrets on disk / hashes). **02** after 01 (reuse the shared tokenizer). **03** and **04** may run in parallel with 01 (different files) but must not add more accepted tokens or phrases. **05** is docs-only and may run in parallel with 01. **06** after 05 preferred. **07** after 06. **08** after 06 preferred. **09** after 08. **10** after 01–04 preferred so the sample can label treadmill rows those prompts retire.
+**01–18 are done** (do not paste those files to re-do the work).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|
@@ -48,6 +52,14 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | 08 | `al-bug-quality-08-split-mega-zones.md` | `archlucid-core` / controller-tree zones |
 | 09 | `al-bug-quality-09-churn-nominate-new-zones.md` | Unzoned recent functionality; implement `-Nominate` |
 | 10 | `al-bug-quality-10-proven-row-audit.md` | Unaudited `(proven)` totals |
+| 11 | *(no prompt file — shipped in code)* | Al-bug Pester 3→5; four StrictMode/scoring defects |
+| 12 | *(no prompt file — shipped in code)* | Structural proven-row classification; CI gates AlBug* suites; deleted stale `_al-bug-pick-zone.ps1` |
+| 13 | *(no prompt file — shipped in code)* | Tokenizer `EndsWithWordToken` compares characters; complete contraction class |
+| 14 | *(no prompt file — shipped in code)* | Required `enforcementTier` fixtures; `JsonException` on missing |
+| 15 | *(no prompt file — shipped in code)* | `JsonBooleanStringReader`; identity fields reject boolean/`on` |
+| 16 | *(no prompt file — shipped in code)* | `effective-bugs` picker + `al-bug-lint-ledger-counters.py` |
+| 17 | *(no prompt file — shipped in code)* | Nine Pester 3 suites migrated; `first-pilot-pester` CI job |
+| 18 | *(no prompt file — shipped in code)* | Cloud `AGENTS.md` pwsh/Pester setup |
 
 ## Already shipped — do not re-open as this set’s job
 
@@ -56,14 +68,40 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | Hunt ledger + picker | `docs/library/AL_BUG_HUNT_LEDGER.md`, `scripts/agent/al-bug-pick-zone.ps1` |
 | Seed vs thorough kinds | `.cursor/commands/al-bug.md` Phase 0 / 1.1a |
 | Rolling 24h log | `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl`, `scripts/agent/al-bug-rolling-stats.ps1` |
-| Candidate vs hunt-ready tags | Ledger § Hypothesis tags (keep; ABQ-05 *adds* Reachability) |
+| Candidate vs hunt-ready tags | Ledger § Hypothesis tags (keep; ABQ-05 *added* Reachability) |
+| Token redaction (01/02) | ARM + config-path token redactors |
+| Strict schemaVersion (03) | `ArchLucid.Core/Json/StrictSchemaVersionReader.cs` |
+| Negation tokenizer (04/13) | `ArchLucid.Core/Text/EnglishNegationTokenizer.cs` + `EnglishNegationTokenizerTests.cs` |
+| Hunt-ready bar (05) | Reachability + no instance-list-only fixes |
+| Picker scoring (06/11) | Capped speed; impact; cooldown; forfeit speed when `bugs > hunts` or zero yield |
+| Escalation (07/11) | `scripts/agent/al-bug-escalation.ps1`; sequential runner calls `Get-CurrentEscalatedFiles` (never `-EscalatedFiles @()`) |
+| Mega-zone split + nominate (08/09) | Retired `archlucid-core`; `-Nominate` |
+| Validity audit (10/12) | `scripts/agent/al-bug-audit-proven-rows.py` classifies **all** proven rows by guard symbol; CI + `python3 scripts/tests/test_al_bug_audit_proven_rows.py` |
+| Al-bug Pester 5 + CI (11/12/17) | `AlBugPickZone` / `RollingStats` / `Escalation` + `first-pilot-pester` job |
+| Boolean reader + identity reject (15) | `ArchLucid.Core/Json/JsonBooleanStringReader.cs`; `StrictSchemaVersionReader` on CloudInventory manifest |
+| Honest ledger counters (16) | `effectiveBugs` in picker; `al-bug-lint-ledger-counters.py` in CI |
+| Cloud pwsh setup (18) | `AGENTS.md` § Cursor Cloud specific instructions |
+
+### Footnotes for stale 01–10 prompt text
+
+- ABQ-06 still says “Pester 3.4 only” and “do not edit `.cursor/_al-bug-pick-zone.ps1`”. **Pester 5 is required now.** The stale `_al-bug-pick-zone.ps1` file was **deleted** in ABQ-12. Implementers of 14–18 must not recreate it.
+- ABQ-10 asked for a **sample**; ABQ-12 classified the **full** proven-row population. Do not revert to sampling.
+- ABQ-03 + ABQ-15 consolidated boolean parsing into `JsonBooleanStringReader`; identity fields use whole-number/enum readers only.
+
+## Won’t do (explicitly not prompted)
+
+Do **not** create implementation prompts or engineering batches for:
+
+- Driving the validity audit’s remaining **unclassified** share down with more English-phrase signals (diminishing returns / misclassification). The audit is guard-symbol based on purpose.
+- Splitting `GenericArchitectureAdvicePatternsMultiCloudTests.cs` (~9.8k lines, ~38 `InlineData` blocks). That file is not treadmill residue.
 
 ## Global constraints (every prompt)
 
-- Working-tree safety: `.\scripts\agent\check-working-tree-path.ps1 -Path <file>` before editing a tracked file. Exit 2 → skip and report.
+- Working-tree safety: `.\scripts\agent\check-working-tree-path.ps1 -Path <file>` before editing a tracked file. Exit 2 → skip and report. On Cursor Cloud, use `pwsh -File` after ABQ-18’s install.
 - Stage only paths this prompt changes. No `git add -A`.
 - Each class in its own file. Prefer LINQ. Prefer concrete types over `var`. Blank line before `if` / `foreach` unless first in method. Check nulls. No `ConfigureAwait(false)` in tests.
 - Verification: scoped `dotnet test` / Pester named in the prompt. No full-solution builds. No `/al-bug` invocation. No `/fix-ci`.
+- Pester for **new** script tests is **Pester 5**: `Invoke-Pester -Strict -EnableExit`, `Should -Be`, `BeforeAll`.
 - Do **not** hide desktop review workspace tabs (`.cursor/rules/no-collapse-workspace-tabs.mdc`).
 - Claim discipline: `docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`. Do not imply CPA SOC 2 or third-party pen-test publication.
 

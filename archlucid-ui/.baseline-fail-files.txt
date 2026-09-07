@@ -1,3 +1,2 @@
 src/app/(operator)/authority-shaped-layout-regression.test.tsx
 src/app/(operator)/operate-authority-ui-shaping.test.tsx
-src/app/(operator)/operator-client-pages-render-gate.test.tsx

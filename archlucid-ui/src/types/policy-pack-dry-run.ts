@@ -39,7 +39,7 @@ export type PolicyPackDryRunResponse = Omit<PolicyPackDryRunResponseSchema, "del
 export type PolicyPackDryRunRequest = components["schemas"]["PolicyPackDryRunRequest"];
 
 /**
- * Default page size for the governance dry-run modal. Owner Q38 (2026-04-23) fixed
+ * Default page size for the policy dry-run modal. Owner Q38 (2026-04-23) fixed
  * the default at 20 with a server-side cap of 100. Vitest asserts this constant so a
  * silent regression to a different default is caught at lint/test time.
  */

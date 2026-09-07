@@ -17,11 +17,11 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE =
   "Run closed-loop architecture reasoning or repeatable baseline evaluation against a product review or free-form description.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW =
-  "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a governed follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
+  "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a formal follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
 
-/** Help Start here card — governed follow-up guidance beside the primary action. */
+/** Help Start here card — formal follow-up guidance beside the primary action. */
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE =
-  "Submitting descriptions, running closed-loop reasoning, and publishing findings are governed follow-ups.";
+  "Submitting descriptions, running closed-loop reasoning, and publishing findings are formal follow-ups.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE = "Start here";
 

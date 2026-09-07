@@ -37,6 +37,53 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(honesty.measurementFloorBlockedReason).toContain("measurement floor");
   });
 
+  it("blocks Working career export when a catalog advisory engine failed", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      catalogAdvisoryEngineFailureCount: 1,
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toContain("catalog engine failed");
+  });
+
+  it("blocks Working career export when pre-finalize governance gate is disabled", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      preCommitGateEnabled: false,
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toContain("Pre-finalize governance gate is off");
+  });
+
+  it("blocks Working career export when quality gate is WarnOnly on real-mode", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      structuralExecutionMode: "Real",
+      hostAgentExecutionMode: "Real",
+      hostQualityGateMode: "WarnOnly",
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toContain("Quality gate is WarnOnly");
+  });
+
   it("allows Guided sample exports without Working floor enforcement", () => {
     const honesty = resolveCareerExportCoverageHonesty({
       runId: "run-1",

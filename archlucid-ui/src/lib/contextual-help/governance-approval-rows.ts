@@ -36,7 +36,7 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
     prefix: GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH,
     entry: {
       whatIsThisPage:
-        `Governance approval — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across submit, review, and finalize for architects.`,
+        `Approval — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across submit, review, and finalize for architects.`,
       whatToDoNext:
         "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
       whyEmpty: "This guide is always available; live approval queues appear after reviews enter approval.",

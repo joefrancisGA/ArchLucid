@@ -15233,6 +15233,25 @@
         ],
         "type": "string"
       },
+      "FindingInsightSignalKind": {
+        "enum": [
+          "DidNotThinkOfThat",
+          "Expected",
+          "DismissAsChecklist"
+        ],
+        "type": "string"
+      },
+      "FindingInsightSignalStatusResponse": {
+        "properties": {
+          "kinds": {
+            "items": {
+              "$ref": "#/components/schemas/FindingInsightSignalKind"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "FindingInspectEvidenceItem": {
         "properties": {
           "artifactId": {
@@ -15809,6 +15828,12 @@
               "number",
               "string"
             ]
+          },
+          "withheldFindings": {
+            "items": {
+              "$ref": "#/components/schemas/WithheldFindingSummary"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -24778,6 +24803,9 @@
             },
             "type": "array"
           },
+          "preCommitGateEnabled": {
+            "type": "boolean"
+          },
           "readyToFinalize": {
             "type": "boolean"
           },
@@ -26813,6 +26841,14 @@
           "disposition",
           "findingId"
         ],
+        "type": "object"
+      },
+      "RecordFindingInsightSignalRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FindingInsightSignalKind"
+          }
+        },
         "type": "object"
       },
       "RecordGovernanceMutationCorrectionRequest": {
@@ -37921,6 +37957,41 @@
         },
         "type": "object"
       },
+      "WithheldFindingSummary": {
+        "properties": {
+          "conflictFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "originAgentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "originEngineType": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "traceTargetId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "withheldFindingId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "WizardIntakeDraftResponse": {
         "properties": {
           "stateJson": {
@@ -44494,6 +44565,9 @@
     },
     {
       "name": "FindingFeedback"
+    },
+    {
+      "name": "FindingInsightSignal"
     },
     {
       "name": "FindingInspect"

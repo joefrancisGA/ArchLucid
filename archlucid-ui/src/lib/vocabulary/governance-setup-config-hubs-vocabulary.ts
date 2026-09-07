@@ -1,8 +1,8 @@
 /**
- * TB-2297 — Governance setup guide ≠ live config hubs vocabulary rail.
+ * TB-2297 — Approval setup guide ≠ live config hubs vocabulary rail.
  *
  * Why the guide and hubs stay separate:
- * - Governance setup (`/governance/setup`) is a readiness checklist that deep-links
+ * - Approval setup (`/governance/setup`) is a readiness checklist that deep-links
  *   configuration areas.
  * - Alert rules, Policy packs, and Standards & rules are the *live* configuration
  *   hubs where changes are made and audited.

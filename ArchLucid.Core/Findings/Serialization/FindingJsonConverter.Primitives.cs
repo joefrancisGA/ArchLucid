@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Json;
 
 namespace ArchLucid.Core.Findings.Serialization;
 
@@ -73,7 +74,7 @@ public sealed partial class FindingJsonConverter
         FindingJsonNumericReaders.TryReadDecimal(element, out value);
 
     private static bool TryParseBooleanString(string? raw, out bool value) =>
-        FindingJsonStringReaders.TryParseBooleanString(raw, out value);
+        JsonBooleanStringReader.TryParseBooleanString(raw, out value);
 
     private static bool TryReadReviewedAtUtc(JsonElement element, out DateTimeOffset value) =>
         FindingJsonDateReaders.TryReadReviewedAtUtc(element, out value);

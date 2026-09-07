@@ -12,6 +12,23 @@ internal static class FindingMergeConflictPresenter
     internal const string PolicyRuleId = "finding-merge-conflict";
 
     public static IReadOnlyList<Finding> PresentAsFindings(
+        IReadOnlyList<FindingSnapshotMergeConflict> conflicts,
+        TimeProvider clock)
+    {
+        ArgumentNullException.ThrowIfNull(conflicts);
+        ArgumentNullException.ThrowIfNull(clock);
+
+        List<Finding> rows = [];
+
+        foreach (FindingSnapshotMergeConflict conflict in conflicts)
+        {
+            rows.Add(MapConflict(conflict.Failure, clock, conflict.ConflictFindingId));
+        }
+
+        return rows;
+    }
+
+    public static IReadOnlyList<Finding> PresentAsFindings(
         IReadOnlyList<FindingEngineFailure> conflicts,
         TimeProvider clock)
     {
@@ -36,7 +53,10 @@ internal static class FindingMergeConflictPresenter
         return rows;
     }
 
-    private static Finding MapConflict(FindingEngineFailure conflict, TimeProvider clock)
+    private static Finding MapConflict(
+        FindingEngineFailure conflict,
+        TimeProvider clock,
+        string? findingId = null)
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
@@ -48,7 +68,7 @@ internal static class FindingMergeConflictPresenter
 
         return new Finding
         {
-            FindingId = Guid.NewGuid().ToString("N"),
+            FindingId = string.IsNullOrWhiteSpace(findingId) ? Guid.NewGuid().ToString("N") : findingId,
             FindingType = FindingType,
             Category = conflict.Category ?? string.Empty,
             PolicyRuleId = PolicyRuleId,

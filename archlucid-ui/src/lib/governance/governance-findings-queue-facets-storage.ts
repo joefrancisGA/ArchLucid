@@ -15,7 +15,7 @@ import {
 } from "@/lib/findings/findings-natural-language-filter";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
-/** localStorage key for last-used governance findings queue facets (TB-2228). */
+/** localStorage key for last-used policy findings queue facets (TB-2228). */
 export const GOVERNANCE_FINDINGS_QUEUE_FACETS_STORAGE_KEY =
   "archlucid.governance.findingsQueueFacets.v1";
 

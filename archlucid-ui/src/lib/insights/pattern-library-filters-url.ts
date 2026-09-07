@@ -59,7 +59,7 @@ const PATTERN_ADOPTION_IDS = new Set<string>(["All adoption", "Common", "Emergin
 const PATTERN_TIME_IDS = new Set<string>(["All time", "Last 90 days", "Last 12 months"]);
 
 const PATTERN_GOVERNANCE_IDS = new Set<string>([
-  "All governance",
+  "All policy areas",
   "Usually approved",
   "Often requires exception",
   "Needs evidence",
@@ -300,18 +300,18 @@ export function patternLibraryTimeRangeHrefFromSearch(
 
 export function parsePatternLibraryGovernanceFromSearch(
   raw: string | null | undefined,
-): PatternGovernanceSignal | "All governance" {
+): PatternGovernanceSignal | "All policy areas" {
   if (raw === null || raw === undefined) {
-    return "All governance";
+    return "All policy areas";
   }
 
   const trimmed = raw.trim();
 
   if (!PATTERN_GOVERNANCE_IDS.has(trimmed)) {
-    return "All governance";
+    return "All policy areas";
   }
 
-  return trimmed as PatternGovernanceSignal | "All governance";
+  return trimmed as PatternGovernanceSignal | "All policy areas";
 }
 
 export function parsePatternLibraryDataSourceFromSearch(raw: string | null | undefined): PatternDataSourceFilter {
@@ -330,12 +330,12 @@ export function parsePatternLibraryDataSourceFromSearch(raw: string | null | und
 
 export function patternLibraryGovernanceHrefFromSearch(
   currentSearch: string,
-  governance: PatternGovernanceSignal | "All governance",
+  governance: PatternGovernanceSignal | "All policy areas",
   pathname: string = PATTERN_LIBRARY_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
 
-  if (governance === "All governance") {
+  if (governance === "All policy areas") {
     params.delete(PATTERN_LIBRARY_GOVERNANCE_PARAM);
   } else {
     params.set(PATTERN_LIBRARY_GOVERNANCE_PARAM, governance);

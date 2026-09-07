@@ -4374,6 +4374,11 @@ export interface components {
         };
         /** @enum {string} */
         FindingHumanReviewStatus: "NotRequired" | "Pending" | "Approved" | "Rejected" | "Overridden";
+        /** @enum {string} */
+        FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
+        FindingInsightSignalStatusResponse: {
+            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+        };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
             excerpt?: null | string;
@@ -4518,6 +4523,7 @@ export interface components {
             schemaVersion?: number;
             /** Format: double */
             totalEstimatedSavings?: number | string;
+            withheldFindings?: components["schemas"]["WithheldFindingSummary"][];
         };
         /** @enum {string} */
         FindingsSnapshotGenerationStatus: "Generating" | "Complete" | "PartiallyComplete" | "Failed";
@@ -7258,6 +7264,7 @@ export interface components {
             /** Format: int32 */
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
+            preCommitGateEnabled?: boolean;
             readyToFinalize?: boolean;
             runId?: string;
         };
@@ -7881,6 +7888,9 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordFindingInsightSignalRequest: {
+            kind?: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;
@@ -9288,6 +9298,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            legacyRunStatus?: null | string;
             packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;
@@ -11056,6 +11067,15 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WithheldFindingSummary: {
+            conflictFindingId?: null | string;
+            originAgentType?: null | string;
+            originEngineType?: string;
+            reason?: string;
+            title?: string;
+            traceTargetId?: null | string;
+            withheldFindingId?: string;
         };
         WizardIntakeDraftResponse: {
             stateJson?: string;

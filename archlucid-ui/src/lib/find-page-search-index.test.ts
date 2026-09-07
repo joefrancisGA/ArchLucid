@@ -36,7 +36,7 @@ describe("find-page-search-index (TB-2364)", () => {
   });
 
   it("surfaces the same top static match for header and palette consumers", () => {
-    const query = "governance approval";
+    const query = "approval";
     const headerMatch = searchFindPageIndex(query, { limit: 1 })[0];
     const paletteMatch = searchFindPageIndex(query, { limit: 1 })[0];
 

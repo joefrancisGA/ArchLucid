@@ -20,14 +20,6 @@ public sealed partial class FindingJsonConverter
             return (FindingSeverity)numeric;
         }
 
-        if (TryReadBooleanOrdinal(severityElement, out int booleanOrdinal))
-        {
-            if (!Enum.IsDefined(typeof(FindingSeverity), booleanOrdinal))
-                throw new JsonException($"Unknown finding severity value '{booleanOrdinal}'.");
-
-            return (FindingSeverity)booleanOrdinal;
-        }
-
         if (severityElement.ValueKind != JsonValueKind.String)
             throw new JsonException("Expected string or number for finding severity.");
 
@@ -35,14 +27,6 @@ public sealed partial class FindingJsonConverter
 
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
-
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingSeverity), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding severity value '{raw}'.");
-
-            return (FindingSeverity)booleanOrdinalFromString;
-        }
 
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
             || TryParseWholeNumberString(raw, out numericFromString))

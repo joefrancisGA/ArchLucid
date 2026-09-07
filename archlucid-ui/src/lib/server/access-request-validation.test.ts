@@ -10,7 +10,7 @@ describe("parseAccessRequestBody", () => {
       company: "Contoso",
       roleTitle: "Principal architect",
       cloudPlatformFocus: "Azure",
-      note: "Piloting governance reviews",
+      note: "Piloting approval reviews",
       websiteUrl: "",
     });
 

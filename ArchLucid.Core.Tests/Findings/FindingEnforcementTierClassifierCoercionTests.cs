@@ -33,7 +33,7 @@ public sealed class FindingEnforcementTierClassifierCoercionTests
     }
 
     [Fact]
-    public void ClassifyFinding_honors_string_encoded_boolean_enforcement_tier_property()
+    public void ClassifyFinding_ignores_string_encoded_boolean_enforcement_tier_property()
     {
         Finding finding = new()
         {
@@ -52,11 +52,11 @@ public sealed class FindingEnforcementTierClassifierCoercionTests
 
         FindingEnforcementTierClassifier.ClassifyFinding(finding)
             .Should()
-            .Be(FindingEnforcementTier.Advisory);
+            .Be(FindingEnforcementTier.PolicyViolation);
     }
 
     [Fact]
-    public void ClassifyFinding_honors_string_encoded_false_boolean_over_standard_baseline_advisory()
+    public void ClassifyFinding_ignores_string_encoded_false_boolean_over_standard_baseline_advisory()
     {
         Finding finding = new()
         {
@@ -76,11 +76,11 @@ public sealed class FindingEnforcementTierClassifierCoercionTests
 
         FindingEnforcementTierClassifier.ClassifyFinding(finding)
             .Should()
-            .Be(FindingEnforcementTier.PolicyViolation);
+            .Be(FindingEnforcementTier.Advisory);
     }
 
     [Fact]
-    public void ClassifyFinding_honors_on_synonym_enforcement_tier_property()
+    public void ClassifyFinding_ignores_on_synonym_enforcement_tier_property()
     {
         Finding finding = new()
         {
@@ -99,6 +99,6 @@ public sealed class FindingEnforcementTierClassifierCoercionTests
 
         FindingEnforcementTierClassifier.ClassifyFinding(finding)
             .Should()
-            .Be(FindingEnforcementTier.Advisory);
+            .Be(FindingEnforcementTier.PolicyViolation);
     }
 }

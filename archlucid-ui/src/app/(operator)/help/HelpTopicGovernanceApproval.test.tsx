@@ -77,7 +77,7 @@ function collectPageLinkHrefs(options?: { excludeOrientationStrip?: boolean }): 
 describe("HelpGovernanceApprovalGuideView", () => {
   const entry = getProductDocumentationEntry("governance-approval");
 
-  it("registers the governance approval help guide entry", () => {
+  it("registers the approval help guide entry", () => {
     expect(entry?.slug).toBe("governance-approval");
     expect(entry?.title).toBe(GOVERNANCE_APPROVAL_HELP_PAGE_TITLE);
     expect(entry?.summary).toBe(GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE);
@@ -138,7 +138,7 @@ describe("HelpGovernanceApprovalGuideView", () => {
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { name: "Overview" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Governance approval workflow" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Approval workflow" })).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY)).toBeInTheDocument();
 
     const diagramHost = screen.getByTestId("help-governance-approval-state-diagram");

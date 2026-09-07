@@ -323,7 +323,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
 
       <section className="space-y-2" aria-labelledby="policy-pack-governance-heading">
         <h3 id="policy-pack-governance-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Governance approval workflow
+          Approval workflow
         </h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW}</p>
       </section>
