@@ -13,7 +13,7 @@ import {
   resolveArchitectureDraftAutosaveSentence,
   resolveArchitectureDraftRefineGuidanceSentence,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
@@ -28,6 +28,7 @@ type ArchitectureDraftWorkspaceHeaderChromeProps = Pick<
   | "workspaceLead"
   | "reviewReadiness"
   | "linkedReviewId"
+  | "parentArchitectureId"
   | "draft"
 >;
 
@@ -43,6 +44,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
     workspaceLead,
     reviewReadiness,
     linkedReviewId,
+    parentArchitectureId,
     draft,
   } = props;
 
@@ -86,7 +88,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
             ) : null}
             {linkedReviewId !== null ? (
               <Link
-                href={reviewDetailPath(linkedReviewId)}
+                href={resolveArchitectureReviewHref(linkedReviewId, parentArchitectureId)}
                 className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
               >
                 Open linked review

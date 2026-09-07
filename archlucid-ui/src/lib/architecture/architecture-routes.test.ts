@@ -7,8 +7,11 @@ import {
   ARCHITECTURE_NEW_DRAFT_SEGMENT,
   architectureDraftPath,
   architectureIdentityDraftHref,
+  architectureNestedDraftPath,
+  architectureNestedReviewPath,
   ARCHITECTURES_NEW_PATH,
   isArchitectureNewDraftSegment,
+  resolveArchitectureReviewHref,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 
@@ -19,14 +22,26 @@ describe("architecture-routes", () => {
     expect(isArchitectureNewDraftSegment("new")).toBe(true);
     expect(isArchitectureNewDraftSegment("draft-1")).toBe(false);
     expect(architectureDraftPath("draft-1")).toBe("/architecture/architectures/draft-1");
-    expect(startReviewFromArchitectureHref("draft-1")).toBe(
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-1",
+    expect(startReviewFromArchitectureHref("architecture-identity-001")).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
     );
   });
 
   it("pins identity desk child draft href for post-create navigation (CA-24)", () => {
     expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
       "/architecture/architectures/architecture-identity-001?draft=draft-001",
+    );
+  });
+
+  it("builds nested Working job paths (AO-02)", () => {
+    expect(architectureNestedReviewPath("architecture-identity-001", "run-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
+    expect(architectureNestedDraftPath("architecture-identity-001", "draft-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+    );
+    expect(resolveArchitectureReviewHref("run-001", "architecture-identity-001")).toBe(
+      architectureNestedReviewPath("architecture-identity-001", "run-001"),
     );
   });
 
