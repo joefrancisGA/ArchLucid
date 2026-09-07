@@ -19,6 +19,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
@@ -274,6 +275,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

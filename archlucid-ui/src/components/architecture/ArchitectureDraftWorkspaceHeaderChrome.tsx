@@ -98,7 +98,10 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
           </div>
           <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <ArchitectureDraftRoomHeaderButton linkedReviewId={linkedReviewId} />
+              <ArchitectureDraftRoomHeaderButton
+                linkedReviewId={linkedReviewId}
+                parentArchitectureId={parentArchitectureId}
+              />
               <PageContextualHelpButton />
             </div>
             <ArchitectureDraftDeleteControl

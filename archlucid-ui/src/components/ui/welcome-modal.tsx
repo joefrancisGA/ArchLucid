@@ -10,6 +10,11 @@ import { useEffect, useState } from "react";
 
 import { ArchLucidLogo } from "@/components/brand/ArchLucidLogo";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  productLineDisplayName,
+  productLineShowsArchLucidMark,
+} from "@/lib/product-line/product-line-display-name";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -90,6 +95,8 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
 export function WelcomeModal(props: WelcomeModalProps) {
   const { open, onDismiss, onStartTour, buyerShell = false } = props;
   const router = useRouter();
+  const { productLine } = useProductLine();
+  const showArchLucidMark = productLineShowsArchLucidMark(productLine);
   const [stepIndex, setStepIndex] = useState(0);
   const steps = buyerShell ? BUYER_WELCOME_STEPS : OPERATOR_WELCOME_STEPS;
   const operatorFirstRun = !buyerShell && onStartTour !== undefined;
@@ -152,14 +159,19 @@ export function WelcomeModal(props: WelcomeModalProps) {
           <div className="pointer-events-none absolute -top-4 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-[#00AEEF]/15 blur-2xl" />
 
           <div
-            className="relative mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-sm"
+            className={cn(
+              "relative mb-3 flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-sm",
+              operatorFirstRun && !showArchLucidMark ? "h-10 px-3" : "h-14 w-14",
+            )}
             data-testid={operatorFirstRun ? "welcome-modal-brand-mark" : undefined}
           >
             {operatorFirstRun ? (
               <ArchLucidLogo
-                variant="mark"
+                variant={showArchLucidMark ? "mark" : "compact"}
                 size={36}
                 title=""
+                showMark={showArchLucidMark}
+                wordmarkText={productLineDisplayName(productLine)}
                 navyColor="#FFFFFF"
                 tealColor={ARCHLUCID_BRAND.teal}
               />

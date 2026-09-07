@@ -180,7 +180,7 @@ public sealed class FindingsOrchestratorTests
     }
 
     [Fact]
-    public async Task GenerateFindingsSnapshotAsync_retains_generic_typed_engine_findings()
+    public async Task GenerateFindingsSnapshotAsync_demotes_low_density_typed_engine_findings_to_checklist()
     {
         GraphSnapshot graph = EmptyGraph();
         Finding generic = new()
@@ -206,10 +206,12 @@ public sealed class FindingsOrchestratorTests
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
-        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
-        finding.Treatment.Should().Be(FindingTreatment.Promote);
-        finding.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
-        snapshot.ChecklistCoverage.Should().BeEmpty();
+        snapshot.Findings.Should().BeEmpty();
+        Finding finding = snapshot.ChecklistCoverage.Should().ContainSingle().Subject;
+        finding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        finding.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        finding.EngineType.Should().Be("requirement");
+        finding.InsightDensityScore.Should().BeLessThan(50);
     }
 
     [Fact]
@@ -432,8 +434,8 @@ public sealed class FindingsOrchestratorTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Single(f => f.FindingId == "sec-1").QualityDimension.Should().Be("Security");
-        snapshot.Findings.Single(f => f.FindingId == "top-1").QualityDimension.Should().BeNull();
+        snapshot.ChecklistCoverage.Single(f => f.FindingId == "sec-1").QualityDimension.Should().Be("Security");
+        snapshot.ChecklistCoverage.Single(f => f.FindingId == "top-1").QualityDimension.Should().BeNull();
     }
 
     [Fact]
@@ -626,7 +628,7 @@ public sealed class FindingsOrchestratorTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Select(static f => f.FindingId).Should().BeEquivalentTo(["finding-left", "finding-right"]);
+        snapshot.ChecklistCoverage.Select(static f => f.FindingId).Should().BeEquivalentTo(["finding-left", "finding-right"]);
         snapshot.EngineFailures.Should().BeEmpty();
     }
 

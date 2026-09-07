@@ -9,6 +9,7 @@ import { buildPinReviewToDeskHref } from "@/lib/reviews/review-pin-run-url";
 export type PinReviewToDeskButtonProps = {
   readonly pinRunId: string;
   readonly primaryRunId?: string | null;
+  readonly architectureId?: string | null;
   readonly label?: string;
   readonly testId?: string;
   readonly size?: "sm" | "default";
@@ -25,6 +26,7 @@ export function PinReviewToDeskButton(props: PinReviewToDeskButtonProps): React.
   const href = buildPinReviewToDeskHref({
     pinRunId: props.pinRunId,
     primaryRunId: props.primaryRunId,
+    architectureId: props.architectureId,
   });
 
   return (
