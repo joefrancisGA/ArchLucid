@@ -142,19 +142,67 @@ function Get-LocalApiWindowCommand {
     return ($lines -join '; ')
 }
 
+function Get-LocalUiSiteSpecs {
+    param(
+        [ValidateRange(1, 65535)]
+        [int] $ArchitecturePort = 3000,
+
+        [ValidateRange(1, 65535)]
+        [int] $SecurityPort = 3001,
+
+        [bool] $IncludeSecurity = $true
+    )
+
+    if ($IncludeSecurity -and $ArchitecturePort -eq $SecurityPort) {
+        throw 'Architecture and Security UI ports must differ.'
+    }
+
+    [System.Collections.Generic.List[object]] $sites = [System.Collections.Generic.List[object]]::new()
+    $sites.Add([pscustomobject]@{
+            Name           = 'Architecture'
+            ProductLine    = 'architecture'
+            Port           = $ArchitecturePort
+            RootUrl        = ('http://127.0.0.1:{0}/' -f $ArchitecturePort)
+            ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $ArchitecturePort)
+        })
+
+    if ($IncludeSecurity) {
+        $sites.Add([pscustomobject]@{
+                Name           = 'Security'
+                ProductLine    = 'security'
+                Port           = $SecurityPort
+                RootUrl        = ('http://127.0.0.1:{0}/' -f $SecurityPort)
+                ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $SecurityPort)
+            })
+    }
+
+    return $sites
+}
+
 function Get-LocalUiWindowCommand {
     param(
         [Parameter(Mandatory = $true)]
-        [string] $UiRoot
+        [string] $UiRoot,
+
+        [ValidateSet('architecture', 'security')]
+        [string] $ProductLine = 'architecture',
+
+        [ValidateRange(1, 65535)]
+        [int] $Port = 3000
     )
 
     [string] $quotedRoot = ConvertTo-PowerShellSingleQuotedLiteral -Value $UiRoot
     [System.Collections.Generic.List[string]] $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add("Set-Location -LiteralPath $quotedRoot")
     # Engineer-local shell: show Internal nav (operator-system-admin) even when .env.local follows pilot API posture.
+    $productEnvLine = '$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''{0}''' -f $ProductLine
+    $lines.Add($productEnvLine)
     $lines.Add('$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true''')
     $lines.Add('$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator''')
-    $lines.Add('npm run dev')
+    $lines.Add(('Write-Host ''Starting {0} UI on port {1}...''' -f $ProductLine, $Port))
+    # Set product + port in this window. Do not use `npm run dev:security` here — that script
+    # prefixes a Unix env assignment which Windows powershell.exe does not apply.
+    $lines.Add(('npx --no-install next dev --webpack -p {0}' -f $Port))
 
     return ($lines -join '; ')
 }
