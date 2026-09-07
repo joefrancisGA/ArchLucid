@@ -104,7 +104,7 @@ describe("ArchitectureIdentityDesk (DA-04 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-reviews-empty")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
       "href",
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=architecture-identity-001",
+      "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
     );
   });
 

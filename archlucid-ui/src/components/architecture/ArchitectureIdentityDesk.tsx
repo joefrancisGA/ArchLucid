@@ -19,6 +19,7 @@ import {
   architectureIdentityPath,
   resolveArchitectureReviewHref,
   startReviewFromArchitectureHref,
+  startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
@@ -57,7 +58,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
     );
   }
 
-  const startReviewHref = startReviewFromArchitectureHref(identity.architectureId);
+  const startReviewHref = startReviewFromArchitectureNestedHref(identity.architectureId);
   const latestSealedManifestId = identity.latestSealedManifestId?.trim() ?? "";
   const deskTitle = headingOverride ?? identity.displayName;
 

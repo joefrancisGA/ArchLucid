@@ -270,6 +270,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                   <>
                     <RunDetailWorkspaceHeaderDeferred
                       runId={m.resolvedDetail.run.runId}
+                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
                       h1Title={reviewHeaderPresentation.h1Title}
                       eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
                       reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
