@@ -16,6 +16,8 @@ import { ArchitectureIdentityRenameForm } from "@/components/architecture/Archit
 import { Button } from "@/components/ui/button";
 import {
   architectureIdentityPath,
+  resolveArchitectureReviewHref,
+  startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
@@ -25,7 +27,6 @@ import {
   architectureIdentityDeskHeadingClass,
   architectureIdentityDeskPageTitle,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
@@ -55,13 +56,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
     );
   }
 
-  const currentDraftId = identity.currentDraftId?.trim() ?? "";
-  const startReviewDraftId =
-    currentDraftId.length > 0
-      ? currentDraftId
-      : identity.drafts[0]?.draftId?.trim() ?? "";
-  const startReviewHref =
-    startReviewDraftId.length > 0 ? startReviewFromArchitectureHref(startReviewDraftId) : null;
+  const startReviewHref = startReviewFromArchitectureHref(identity.architectureId);
   const latestSealedManifestId = identity.latestSealedManifestId?.trim() ?? "";
   const deskTitle = headingOverride ?? identity.displayName;
 
@@ -108,7 +103,7 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
           <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
           {" "}
           <Link
-            href={reviewDetailPath(identity.latestReviewId)}
+            href={resolveArchitectureReviewHref(identity.latestReviewId, identity.architectureId)}
             className={OPERATOR_LINK.nav}
             data-testid="architecture-identity-latest-seal-link"
           >
@@ -119,7 +114,10 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
 
       <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />
 
-      <ArchitectureIdentityDeskVersionsSection versions={identity.versions ?? []} />
+      <ArchitectureIdentityDeskVersionsSection
+        architectureId={identity.architectureId}
+        versions={identity.versions ?? []}
+      />
 
       <section aria-labelledby="architecture-identity-reviews-heading">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

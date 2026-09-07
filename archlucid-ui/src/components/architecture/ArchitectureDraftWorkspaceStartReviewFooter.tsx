@@ -16,7 +16,7 @@ import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStar
 import {
   ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
 } from "@/lib/architecture/architecture-draft-intake-mode";
-import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
@@ -39,6 +39,7 @@ type ArchitectureDraftWorkspaceStartReviewFooterProps = Pick<
   | "setExitPending"
   | "intakeModeActive"
   | "effectiveDraftId"
+  | "parentArchitectureId"
   | "canStartReview"
   | "reviewStartProgress"
   | "handleStartReview"
@@ -77,6 +78,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
     setExitPending,
     intakeModeActive,
     effectiveDraftId,
+    parentArchitectureId,
     canStartReview,
     reviewStartProgress,
     handleStartReview,
@@ -93,6 +95,8 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
     handleContinueWithoutQualityAttributes,
     nextDraft,
   } = props;
+
+  const startReviewArchitectureId = parentArchitectureId?.trim() ?? effectiveDraftId;
 
   return (
     <>
@@ -142,13 +146,13 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         >
           {intakeModeActive && linkedReviewId === null ? (
             <Button type="button" variant="primary" size="sm" asChild>
-              <Link href={startReviewFromArchitectureHref(effectiveDraftId)}>
+              <Link href={startReviewFromArchitectureHref(startReviewArchitectureId)}>
                 {ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}
               </Link>
             </Button>
           ) : linkedReviewId !== null ? (
             <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
-              <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
+              <Link href={resolveArchitectureReviewHref(linkedReviewId, parentArchitectureId)}>Continue in review</Link>
             </Button>
           ) : (
             <ReviewStartLoadingButton
@@ -178,7 +182,7 @@ export function ArchitectureDraftWorkspaceStartReviewFooter(
         ) : null}
         {reviewStartProgress.stalled ? (
           <ReviewStartNavigationStallNotice
-            href={startReviewFromArchitectureHref(effectiveDraftId)}
+            href={startReviewFromArchitectureHref(startReviewArchitectureId)}
             testId="architecture-start-review-stall"
           />
         ) : null}

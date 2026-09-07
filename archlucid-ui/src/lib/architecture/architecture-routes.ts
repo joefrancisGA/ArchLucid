@@ -48,6 +48,11 @@ export function architectureIdentityDraftHref(architectureId: string, draftId: s
   return `${architectureIdentityPath(architectureId)}?${params.toString()}`;
 }
 
+/** Working nested draft job — ADR 0077 / AO-02. Prefer over legacy {@link architectureDraftPath} on Working. */
+export function architectureNestedDraftPath(architectureId: string, draftId: string): string {
+  return `${architectureIdentityPath(architectureId)}/drafts/${encodeURIComponent(draftId.trim())}`;
+}
+
 /** Draft editor path — segment is a {@link DraftRequestResponse.draftId}, not an architecture identity id. */
 export function architectureDraftPath(draftId: string): string {
   return `${ARCHITECTURES_LIST_PATH}/${encodeURIComponent(draftId)}`;
@@ -57,8 +62,31 @@ export function isArchitectureNewDraftSegment(draftId: string): boolean {
   return draftId.trim() === ARCHITECTURE_NEW_DRAFT_SEGMENT;
 }
 
+/** Legacy / Guided peer review URL — do not add new Working call sites (ADR 0077 / AO-02). */
 export function reviewDetailPath(reviewId: string): string {
   return `${REVIEWS_LIST_PATH}/${encodeURIComponent(reviewId)}`;
+}
+
+/** Working nested review job — ADR 0077 / AO-02. */
+export function architectureNestedReviewPath(architectureId: string, reviewId: string): string {
+  return `${architectureIdentityPath(architectureId)}/reviews/${encodeURIComponent(reviewId.trim())}`;
+}
+
+/**
+ * Working uses nested review paths when `architectureId` is known; Guided and unlinked reviews keep the peer URL.
+ */
+export function resolveArchitectureReviewHref(
+  reviewId: string,
+  architectureId?: string | null,
+): string {
+  const trimmedReviewId = reviewId.trim();
+  const trimmedArchitectureId = architectureId?.trim() ?? "";
+
+  if (trimmedArchitectureId.length > 0) {
+    return architectureNestedReviewPath(trimmedArchitectureId, trimmedReviewId);
+  }
+
+  return reviewDetailPath(trimmedReviewId);
 }
 
 export function isReviewsListPath(pathname: string): boolean {
@@ -69,10 +97,10 @@ export function isReviewsPath(pathname: string): boolean {
   return pathname === REVIEWS_LIST_PATH || pathname.startsWith(`${REVIEWS_LIST_PATH}/`);
 }
 
-export function startReviewFromArchitectureHref(draftId: string): string {
+export function startReviewFromArchitectureHref(architectureId: string): string {
   const qs = new URLSearchParams({
     path: "guided-intake",
-    [SOURCE_ARCHITECTURE_QUERY_PARAM]: draftId,
+    [SOURCE_ARCHITECTURE_QUERY_PARAM]: architectureId.trim(),
   });
 
   return `${REVIEWS_NEW_PATH}?${qs.toString()}`;
