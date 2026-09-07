@@ -16,6 +16,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string PreCommitGateCode = "pre_commit_gate_disabled";
     public const string QualityGateCode = "quality_gate_incomplete";
     public const string DemoSampleCode = "demo_sample_external_block";
+    public const string AssertedEmptyCode = "asserted_trail_empty";
 
     public const string FinalizeTrailMissingMessage =
         "Finalize requires a transparency trail with asserted, inferred, and skipped sections. Complete intake provenance or reload the package before sealing.";
@@ -29,6 +30,9 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string LegacySealedTrailWarning =
         "This sealed record was finalized before transparency trail sections were required — treat exports as incomplete for career use.";
 
+    public const string AssertedTrailEmptyCareerClaimMessage =
+        "No asserted intake recorded — do not present this package as evidence-backed.";
+
     public CareerArtifactCompletenessResult Evaluate(CareerArtifactCompletenessInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -39,6 +43,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
 
         EvaluateTransparencyTrail(input, blockReasons, warnings);
         EvaluateSkippedMust(input, blockReasons);
+        EvaluateAssertedEmpty(input, blockReasons, warnings);
         EvaluateMeasurementFloor(input, blockReasons);
         EvaluatePreCommitGate(input, blockReasons);
         EvaluateQualityGate(input, blockReasons);
@@ -105,6 +110,33 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
             : "Required intake questions are unanswered — resolve skipped MUST questions before sealing.";
 
         blockReasons.Add(new CareerArtifactBlockReason(SkippedMustCode, message));
+    }
+
+    private static void EvaluateAssertedEmpty(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons,
+        List<string> warnings)
+    {
+        if (!input.WorkingDesk || input.TransparencyTrail is null)
+        {
+            return;
+        }
+
+        if (input.TransparencyTrail.Asserted.Count > 0)
+        {
+            return;
+        }
+
+        if (input.ArtifactKind == CareerArtifactKind.Export)
+        {
+            blockReasons.Add(new CareerArtifactBlockReason(
+                AssertedEmptyCode,
+                AssertedTrailEmptyCareerClaimMessage));
+        }
+        else if (input.ArtifactKind == CareerArtifactKind.Finalize)
+        {
+            warnings.Add(AssertedTrailEmptyCareerClaimMessage);
+        }
     }
 
     private static void EvaluateMeasurementFloor(
