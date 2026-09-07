@@ -37,6 +37,8 @@ export type NavLinkItem = {
   navLinkDisabledTitle?: string;
   /** Visible adjacent copy for disabled nav rows (AO-40 / LS-11). */
   navLinkDisabledReason?: string;
+  /** Visible helper copy for disabled nav rows (AO-40 — not title-only). */
+  navLinkDisabledVisibleHint?: string;
 };
 
 /**

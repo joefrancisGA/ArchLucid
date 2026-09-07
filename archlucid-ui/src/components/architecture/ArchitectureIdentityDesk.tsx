@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import { useArchitectureDeskShortcuts } from "@/hooks/useArchitectureDeskShortcuts";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
@@ -41,6 +42,15 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
   useRehydrateInFlightOperationsFromArchitecture(props.architectureId);
   const identity = query.data;
   const [headingOverride, setHeadingOverride] = useState<string | null>(null);
+  const startReviewHref =
+    identity !== undefined
+      ? startReviewFromArchitectureNestedHref(identity.architectureId)
+      : "";
+
+  useArchitectureDeskShortcuts({
+    startReviewHref,
+    enabled: identity !== undefined,
+  });
 
   if (query.isLoading) {
     return <ArchitectureIdentityDeskSkeleton />;
@@ -57,7 +67,6 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
     );
   }
 
-  const startReviewHref = startReviewFromArchitectureNestedHref(identity.architectureId);
   const latestSealedManifestId = identity.latestSealedManifestId?.trim() ?? "";
   const deskTitle = headingOverride ?? identity.displayName;
 

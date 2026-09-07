@@ -103,11 +103,13 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
           {FINDING_DETAIL_SKIP_LINK_LABEL}
         </a>
       ) : null}
-      <FindingDetailWayfinding
-        reviewPackageHref={reviewPackageHref}
-        reviewFindingsHref={reviewFindingsHref}
-        currentPageLabel={pageTitle}
-      />
+      {isWorkingMode && !buyerPolishedShell ? (
+        <FindingDetailWayfinding
+          reviewPackageHref={reviewPackageHref}
+          reviewFindingsHref={reviewFindingsHref}
+          currentPageLabel={pageTitle}
+        />
+      ) : null}
       <FindingCrossReviewLifecycleHint
         runId={runId}
         findingId={decodedFindingId}

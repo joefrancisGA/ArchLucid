@@ -14,6 +14,7 @@ import {
   getLiveJwtTokenFromEnvSync,
   isLiveJwtTokenConfigured,
 } from "./jwt-token-provider";
+import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
@@ -216,6 +217,30 @@ export async function fetchAuthMeViaProxy(
   return JSON.parse(result.text) as LiveAuthMeProxyBody;
 }
 
+/** Direct API `GET /api/auth/me` — validates JWT role claims without the UI BFF proxy (TB-927). */
+export async function fetchAuthMeWithBearer(
+  request: APIRequestContext,
+  accessToken: string,
+): Promise<LiveAuthMeProxyBody> {
+  const trimmedToken = accessToken.trim();
+
+  if (trimmedToken.length === 0) {
+    throw new Error("fetchAuthMeWithBearer requires a non-empty access token.");
+  }
+
+  const res = await request.get(`${liveApiBase}/api/auth/me`, {
+    headers: liveJsonHeaders(null, trimmedToken),
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`GET /api/auth/me failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  return (await res.json()) as LiveAuthMeProxyBody;
+}
+
 export type LiveAdminInviteResult = {
   id: string;
   email: string;
@@ -380,21 +405,7 @@ export async function acceptInvitationAsPlatformUser(
 export function readRoleClaims(
   claims: ReadonlyArray<{ type: string; value: string }> | undefined,
 ): string[] {
-  if (claims === undefined) {
-    return [];
-  }
-
-  const roles: string[] = [];
-
-  for (const claim of claims) {
-    if (claim.type !== "roles" || claim.value.trim().length === 0) {
-      continue;
-    }
-
-    roles.push(claim.value.trim());
-  }
-
-  return roles;
+  return collectArchLucidRoleClaimValues(claims ?? []);
 }
 
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {

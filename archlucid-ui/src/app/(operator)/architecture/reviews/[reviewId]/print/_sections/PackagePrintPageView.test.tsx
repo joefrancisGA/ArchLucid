@@ -16,6 +16,14 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => false,
 }));
 
+vi.mock("@/hooks/use-working-back-locator", () => ({
+  useWorkingBackLocator: () => ({
+    reviewJobHref:
+      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
+    architectureDeskHref: null,
+  }),
+}));
+
 describe("PackagePrintPageView (TB-2205)", () => {
   it("renders title, status, findings, and sponsor synopsis", () => {
     render(
@@ -44,7 +52,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.getByTestId("package-print-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("package-print-back")).toHaveAttribute(
       "href",
-      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?tab=review-package",
+      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
     );
   });
 

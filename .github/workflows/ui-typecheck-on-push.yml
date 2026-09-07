@@ -174,4 +174,4 @@ jobs:
           python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
-          npm run build
+          npm run build:live-e2e

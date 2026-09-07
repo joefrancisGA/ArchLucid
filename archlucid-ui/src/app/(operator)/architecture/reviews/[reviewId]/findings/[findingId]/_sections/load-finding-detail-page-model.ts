@@ -60,6 +60,8 @@ export async function loadFindingDetailPageModel(
     criticalBundle?.data.buyerSummary !== undefined && criticalBundle.data.buyerSummary !== null
       ? resolveNextFindingInReviewForRunDetail(criticalBundle.data.buyerSummary, decodedFindingId)
       : null;
+  const parentArchitectureId =
+    criticalBundle?.data.buyerSummary?.run?.architectureId?.trim() ?? "";
 
   const model: FindingDetailPageModel = {
     runId,
@@ -74,6 +76,7 @@ export async function loadFindingDetailPageModel(
     runExecutionFootnote,
     statedConstraintContext,
     nextFindingInReview,
+    parentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
   };
 
   return { kind: "success", model };
