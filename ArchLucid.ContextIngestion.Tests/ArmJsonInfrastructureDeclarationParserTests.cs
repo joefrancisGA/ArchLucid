@@ -543,6 +543,149 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_DeploymentTemplateLinkInBatch_MapsLinkedStorageAccount()
+    {
+        InfrastructureDeclarationReference linked = new()
+        {
+            Name = "linked.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-linked-child",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "linkeddocs",
+                            "properties": {
+                              "publicNetworkAccess": "Enabled"
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference parent = new()
+        {
+            Name = "main.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-linked-parent",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "linked-deploy",
+                            "properties": {
+                              "templateLink": {
+                                "uri": "./linked.json"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        Dictionary<string, InfrastructureDeclarationReference> batchByPath =
+            InfrastructureDeclarationBatchPathIndex.Build([parent, linked]);
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(parent, batchByPath, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "linkeddocs");
+        result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_DeploymentTemplateLinkMissingFromBatch_SkipsSilently()
+    {
+        InfrastructureDeclarationReference parent = new()
+        {
+            Name = "main.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-missing-link",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "linked-deploy",
+                            "properties": {
+                              "templateLink": {
+                                "uri": "./missing.json"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        Dictionary<string, InfrastructureDeclarationReference> batchByPath =
+            InfrastructureDeclarationBatchPathIndex.Build([parent]);
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(parent, batchByPath, CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ParseAsync_DeploymentTemplateLinkCycle_StopsAtRecursionCap()
+    {
+        InfrastructureDeclarationReference first = new()
+        {
+            Name = "a.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-cycle-a",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "to-b",
+                            "properties": {
+                              "templateLink": { "uri": "b.json" }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference second = new()
+        {
+            Name = "b.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-cycle-b",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "to-a",
+                            "properties": {
+                              "templateLink": { "uri": "a.json" }
+                            }
+                          },
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "cycle-store",
+                            "properties": { "publicNetworkAccess": "Enabled" }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        Dictionary<string, InfrastructureDeclarationReference> batchByPath =
+            InfrastructureDeclarationBatchPathIndex.Build([first, second]);
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(first, batchByPath, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "cycle-store");
+    }
+
+    [Fact]
     public async Task ParseAsync_VnetNestedSubnets_MapsChildResources()
     {
         InfrastructureDeclarationReference declaration = new()

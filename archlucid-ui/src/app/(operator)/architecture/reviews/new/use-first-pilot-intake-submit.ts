@@ -23,7 +23,8 @@ import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeo
 import { buildIntakeContextDocumentsFromEvidenceFiles } from "@/lib/intake-context-documents-from-files";
 import { describeCoveragePackOverrideBlocker } from "@/lib/wizard-form-create-run-submit";
 import { persistSessionRunCoverageAcknowledgement } from "@/lib/persist-run-coverage-acknowledgement";
-import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
+import { uploadWizardPendingDocumentEvidence, WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE } from "@/lib/wizard-pending-evidence-upload";
+import { showError } from "@/lib/toast";
 
 /** Create + multipart evidence upload can exceed the default soft-fail budget on slow links. */
 const FIRST_PILOT_WITH_UPLOAD_TIMEOUT_MS =
@@ -145,12 +146,10 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
         const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
 
         if (!uploadResult.ok) {
-          creationProgress.fail(uploadResult.message);
-
-          return;
+          showError("Evidence upload", WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE, { type: "warning" });
+        } else {
+          setEvidenceFiles([]);
         }
-
-        setEvidenceFiles([]);
       }
 
       recordFirstTenantFunnelEvent("first_run_started");

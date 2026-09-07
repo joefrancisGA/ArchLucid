@@ -138,7 +138,36 @@ export function mergeCapturedEvidenceUploadOutcomes(
 export function reconcileCapturedEvidenceInventory(
   serverItems: readonly RunDetailCreateHomeCapturedEvidenceItem[],
   sessionItems: readonly RunDetailCreateHomeCapturedEvidenceItem[],
+  options?: { readonly catalogAuthoritative?: boolean },
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
+  const catalogAuthoritative = options?.catalogAuthoritative ?? false;
+
+  if (catalogAuthoritative && serverItems.length > 0) {
+    const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
+
+    for (const item of sessionItems) {
+      if ((item.evidenceItemId ?? "").length === 0) {
+        continue;
+      }
+
+      const lookupKey = item.fileName.toLowerCase();
+      const existing = map.get(lookupKey);
+
+      if (existing === undefined) {
+        map.set(lookupKey, item);
+        continue;
+      }
+
+      if ((existing.evidenceItemId ?? "").length === 0 && (item.evidenceItemId ?? "").length > 0) {
+        map.set(lookupKey, item);
+      }
+    }
+
+    return [...map.values()].sort((left, right) =>
+      left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }),
+    );
+  }
+
   const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
 
   for (const item of sessionItems) {

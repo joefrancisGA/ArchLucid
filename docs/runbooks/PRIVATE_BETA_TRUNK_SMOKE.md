@@ -20,6 +20,15 @@
 5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`
 6. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts` (browser install completes **before** shell warm)
 
+## Trunk hygiene during corset outages
+
+When `ui-typecheck-on-push.yml` is red on `master`, **pause feature merges** until push corset is green again. Burst merges bury the failing job name in the Actions queue and delay the first post-fix `private-beta-access-on-push` run. After a typecheck hotfix lands, wait for **both**:
+
+1. `Operator UI: typecheck (blocking)` **success** on `master`
+2. `Operator UI: private-beta access-path (JwtBearer)` to finish (success or actionable Playwright failure)
+
+Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh master`) or widen required ruleset checks.
+
 ## Trunk milestones (2026-09-06)
 
 | Milestone | Run / PR | Evidence |

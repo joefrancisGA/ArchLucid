@@ -16,7 +16,7 @@ export const PRODUCT_LINE_WORDMARK_ARIA_LABEL: Record<ProductLineId, string> = {
 export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure overview";
 
 export const SECURITY_PRODUCT_HOME_SUBTITLE =
-  "Cloud inventory, drift, diagrams, grounded Ask, and remediation.";
+  "Cloud inventory evidence, ARC-AMPE compliance posture, drift, diagrams, grounded Ask, and remediation.";
 
 export const PRODUCT_LINE_PLAYGROUND_TITLE = "Product line";
 

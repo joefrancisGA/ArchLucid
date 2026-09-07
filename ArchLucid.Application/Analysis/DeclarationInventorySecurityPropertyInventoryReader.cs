@@ -28,16 +28,34 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
         return false;
     }
 
-    internal static string ResolveSecurityTheme(string logicalName) =>
-        logicalName switch
+    internal static bool TryResolveSecurityTheme(string logicalName, out string theme)
+    {
+        switch (logicalName)
         {
-            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess
-                or DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess => "data-protection",
-            DeclarationSecurityPropertyLogicalNames.HttpsOnly
-                or DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion
-                or DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => "transport-security",
-            _ => "data-protection",
-        };
+            case DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess:
+            case DeclarationSecurityPropertyLogicalNames.AllowBlobPublicAccess:
+                theme = "data-protection";
+                return true;
+            case DeclarationSecurityPropertyLogicalNames.HttpsOnly:
+            case DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion:
+            case DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled:
+                theme = "transport-security";
+                return true;
+            case DeclarationSecurityPropertyLogicalNames.StorageEncrypted:
+                theme = "encryption";
+                return true;
+            case DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction:
+                theme = "network-isolation";
+                return true;
+            case DeclarationSecurityPropertyLogicalNames.K8sPrivileged:
+            case DeclarationSecurityPropertyLogicalNames.K8sHostNetwork:
+                theme = "workload-isolation";
+                return true;
+            default:
+                theme = string.Empty;
+                return false;
+        }
+    }
 
     private static IReadOnlyList<string> ResolveInventoryPropertyKeys(
         InventoryTopologyCloudProvider cloudProvider,
@@ -60,6 +78,10 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["httpsOnly", "supportsHttpsTrafficOnly"],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["minimalTlsVersion", "minimumTlsVersion"],
             DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled"],
+            DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["encryptionEnabled", "storageEncrypted"],
+            DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction => ["defaultAction"],
+            DeclarationSecurityPropertyLogicalNames.K8sPrivileged => ["privileged"],
+            DeclarationSecurityPropertyLogicalNames.K8sHostNetwork => ["hostNetwork"],
             _ => [],
         };
 
@@ -69,7 +91,11 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess => ["publiclyAccessible"],
             DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["supportsHttpsOnly"],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["minimumTlsVersion"],
-            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["storageEncrypted"],
+            DeclarationSecurityPropertyLogicalNames.SslEnforcementEnabled => ["sslEnforcementEnabled"],
+            DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["storageEncrypted"],
+            DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction => ["defaultAction"],
+            DeclarationSecurityPropertyLogicalNames.K8sPrivileged => ["privileged"],
+            DeclarationSecurityPropertyLogicalNames.K8sHostNetwork => ["hostNetwork"],
             _ => [],
         };
 
@@ -79,6 +105,10 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess => ["ipv4Enabled", "enablePublicAccess"],
             DeclarationSecurityPropertyLogicalNames.HttpsOnly => ["requireSsl"],
             DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion => ["sslMode"],
+            DeclarationSecurityPropertyLogicalNames.StorageEncrypted => ["storageEncrypted"],
+            DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction => ["defaultAction"],
+            DeclarationSecurityPropertyLogicalNames.K8sPrivileged => ["privileged"],
+            DeclarationSecurityPropertyLogicalNames.K8sHostNetwork => ["hostNetwork"],
             _ => [],
         };
 

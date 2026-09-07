@@ -67,7 +67,9 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/architecture/architectures");
     expect(hrefs).not.toContain("/insights/evidence-graph");
     expect(hrefs).not.toContain("/governance/approval-queue");
-    expect(hrefs).not.toContain("/governance/policy-packs");
+    expect(hrefs).toContain("/governance/policy-packs");
+    expect(hrefs).toContain("/governance/standards-and-rules");
+    expect(hrefs).toContain("/governance/findings");
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
   });
@@ -85,10 +87,11 @@ describe("product-line catalog", () => {
     );
     const hrefs = rows.flatMap((row) => row.visibleLinks.map((link) => link.href));
 
+    expect(rows.some((row) => row.group.id === "operator-system-admin")).toBe(false);
     expect(hrefs).toContain("/internal/health");
     expect(hrefs).toContain("/internal/configuration");
     expect(hrefs).toContain("/internal/tenants");
-    expect(hrefs).toContain("/internal/product-line");
+    expect(hrefs).not.toContain("/internal/product-line");
     expect(hrefs).not.toContain("/internal/deployment-status");
     expect(hrefs).not.toContain("/internal/trial-funnel");
     expect(hrefs).not.toContain("/internal/pricing-quote-aging");
@@ -127,6 +130,7 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/auth-domains", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/governance/findings/assigned-to-me", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/azure-boards", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/slack", "security")).toBe(false);
@@ -151,6 +155,12 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/internal/deployment-status", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/internal/deployment-status", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/internal/health", "security")).toBe(true);
+  });
+
+  it("keeps the product-line playground architecture-only", () => {
+    expect(resolveProductLineAssignmentForPath("/internal/product-line")).toBe("architecture");
+    expect(isPathAllowedForProductLine("/internal/product-line", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/internal/product-line", "architecture")).toBe(true);
   });
 
   it("keeps recycle bin architecture-only even though workspace-settings is both", () => {

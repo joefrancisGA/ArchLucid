@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useRef, useState, type ReactElement, type RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -156,6 +156,7 @@ export type StoredEvidenceFileCellsProps = {
   readonly fileName: string;
   readonly contentType?: string;
   readonly handlers: StoredEvidenceFileActionHandlers;
+  readonly openButtonRef?: RefObject<HTMLElement | null>;
 };
 
 export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): ReactElement {
@@ -171,13 +172,17 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
           className={cn(
             "font-medium text-al-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-al-focus",
           )}
-          onClick={() =>
+          onClick={(event) => {
+            if (props.openButtonRef !== undefined) {
+              props.openButtonRef.current = event.currentTarget;
+            }
+
             props.handlers.onOpen({
               evidenceItemId: props.evidenceItemId,
               fileName: props.fileName,
               contentType,
-            })
-          }
+            });
+          }}
         >
           {props.fileName}
         </button>
@@ -207,8 +212,10 @@ export function useStoredEvidenceFileActions(runId: string): {
   readonly preview: RunStoredEvidencePreviewState | null;
   readonly closePreview: () => void;
   readonly handlers: StoredEvidenceFileActionHandlers;
+  readonly openButtonRef: RefObject<HTMLElement | null>;
 } {
   const [preview, setPreview] = useState<RunStoredEvidencePreviewState | null>(null);
+  const openButtonRef = useRef<HTMLElement | null>(null);
 
   const closePreview = useCallback(() => {
     setPreview((current) => {
@@ -217,6 +224,10 @@ export function useStoredEvidenceFileActions(runId: string): {
       }
 
       return null;
+    });
+
+    queueMicrotask(() => {
+      openButtonRef.current?.focus();
     });
   }, []);
 
@@ -266,5 +277,5 @@ export function useStoredEvidenceFileActions(runId: string): {
     },
   };
 
-  return { preview, closePreview, handlers };
+  return { preview, closePreview, handlers, openButtonRef };
 }

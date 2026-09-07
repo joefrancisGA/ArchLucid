@@ -63,6 +63,7 @@ function renderSourceCell(
   runId: string,
   catalogContentType: string | undefined,
   handlers: ReturnType<typeof useStoredEvidenceFileActions>["handlers"],
+  openButtonRef: ReturnType<typeof useStoredEvidenceFileActions>["openButtonRef"],
 ): ReactElement {
   if (item.inventoryKind === "stored-file" && item.evidenceItemId !== null) {
     return (
@@ -72,6 +73,7 @@ function renderSourceCell(
         fileName={item.sourceName}
         contentType={catalogContentType}
         handlers={handlers}
+        openButtonRef={openButtonRef}
       />
     );
   }
@@ -92,7 +94,7 @@ function renderSourceCell(
 
 export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInventorySectionProps): ReactElement {
   const { catalog } = useRunStoredEvidenceCatalogQuery(props.runId);
-  const { preview, closePreview, handlers } = useStoredEvidenceFileActions(props.runId);
+  const { preview, closePreview, handlers, openButtonRef } = useStoredEvidenceFileActions(props.runId);
   const displayItems = useMemo(
     () => enrichRunDetailEvidenceInventoryWithCatalog(props.items, catalog),
     [catalog, props.items],
@@ -148,6 +150,7 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
                       props.runId,
                       resolveCatalogContentType(item, catalog),
                       handlers,
+                      openButtonRef,
                     )}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="text-al-text-secondary">{item.kind}</EnterpriseTableCell>

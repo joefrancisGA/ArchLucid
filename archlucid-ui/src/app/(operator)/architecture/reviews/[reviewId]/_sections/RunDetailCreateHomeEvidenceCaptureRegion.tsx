@@ -1,12 +1,16 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailCreateHomeCapturedEvidenceInventory } from "@/components/runs/RunDetailCreateHomeCapturedEvidenceInventory";
 import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
-import { useRunStoredEvidenceCatalogQuery } from "@/hooks/use-run-stored-evidence-catalog-query";
+import {
+  runStoredEvidenceCatalogQueryKey,
+  useRunStoredEvidenceCatalogQuery,
+} from "@/hooks/use-run-stored-evidence-catalog-query";
 import {
   deriveCapturedEvidenceFromArtifacts,
   deriveCapturedEvidenceFromCatalog,
@@ -27,7 +31,9 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
   props: RunDetailCreateHomeEvidenceCaptureRegionProps,
 ): ReactElement {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { catalog, isLoading: catalogLoading } = useRunStoredEvidenceCatalogQuery(props.runId);
+  const catalogAuthoritative = !catalogLoading && catalog.length > 0;
   const catalogItems = useMemo(
     () =>
       deriveCapturedEvidenceFromCatalog(
@@ -35,20 +41,27 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
           evidenceItemId: entry.evidenceItemId,
           originalFileName: entry.originalFileName,
           contentType: entry.contentType,
+          createdUtc: entry.createdUtc,
         })),
       ),
     [catalog],
   );
-  const initialCaptured = useMemo(
-    () =>
-      reconcileCapturedEvidenceInventory(
-        catalogItems.length > 0
-          ? catalogItems
-          : deriveCapturedEvidenceFromArtifacts(props.artifacts),
-        readPersistedCapturedEvidenceInventory(props.runId),
-      ),
-    [catalogItems, props.artifacts, props.runId],
-  );
+  const initialCaptured = useMemo(() => {
+    const serverItems =
+      catalogAuthoritative
+        ? catalogItems
+        : catalogLoading
+          ? deriveCapturedEvidenceFromArtifacts(props.artifacts)
+          : catalogItems.length > 0
+            ? catalogItems
+            : deriveCapturedEvidenceFromArtifacts(props.artifacts);
+
+    return reconcileCapturedEvidenceInventory(
+      serverItems,
+      readPersistedCapturedEvidenceInventory(props.runId),
+      { catalogAuthoritative },
+    );
+  }, [catalogAuthoritative, catalogItems, catalogLoading, props.artifacts, props.runId]);
   const [capturedItems, setCapturedItems] = useState<readonly RunDetailCreateHomeCapturedEvidenceItem[]>(initialCaptured);
   const trackedRunIdRef = useRef(props.runId);
 
@@ -63,13 +76,13 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
     }
 
     setCapturedItems((current) => {
-      const next = reconcileCapturedEvidenceInventory(initialCaptured, current);
+      const next = reconcileCapturedEvidenceInventory(initialCaptured, current, { catalogAuthoritative });
 
       writePersistedCapturedEvidenceInventory(props.runId, next);
 
       return next;
     });
-  }, [initialCaptured, props.runId]);
+  }, [catalogAuthoritative, initialCaptured, props.runId]);
 
   const handleUploadSummary = useCallback(
     (summary: BulkEvidenceUploadSummary) => {
@@ -89,9 +102,10 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
 
         return next;
       });
+      void queryClient.invalidateQueries({ queryKey: runStoredEvidenceCatalogQueryKey(props.runId) });
       router.refresh();
     },
-    [props.runId, router],
+    [props.runId, queryClient, router],
   );
 
   return (

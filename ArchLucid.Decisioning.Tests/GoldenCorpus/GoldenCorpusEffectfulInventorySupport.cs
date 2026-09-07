@@ -19,16 +19,43 @@ internal static class GoldenCorpusEffectfulInventorySupport
         Guid packageId,
         DateTime collectionUtc)
     {
+        return CreatePinnedContext(
+            runId,
+            contextSnapshotId,
+            [
+                new EvidencePackagePin
+                {
+                    Provider = RunEvidencePackagePinService.AzureProvider,
+                    PackageId = packageId,
+                    CollectionUtc = collectionUtc,
+                },
+            ]);
+    }
+
+    internal static FindingAnalysisContext CreateMultiProviderPinnedContext(
+        Guid runId,
+        Guid contextSnapshotId,
+        IReadOnlyList<EvidencePackagePin> evidencePins)
+    {
+        return CreatePinnedContext(runId, contextSnapshotId, evidencePins);
+    }
+
+    private static FindingAnalysisContext CreatePinnedContext(
+        Guid runId,
+        Guid contextSnapshotId,
+        IReadOnlyList<EvidencePackagePin> evidencePins)
+    {
+        ArgumentNullException.ThrowIfNull(evidencePins);
+
+        if (evidencePins.Count == 0)
+            throw new InvalidOperationException("At least one evidence pin is required.");
+
         return new FindingAnalysisContext
         {
             RunId = runId,
             ContextSnapshotId = contextSnapshotId,
-            EvidencePin = new EvidencePackagePin
-            {
-                Provider = RunEvidencePackagePinService.AzureProvider,
-                PackageId = packageId,
-                CollectionUtc = collectionUtc,
-            },
+            EvidencePin = evidencePins[0],
+            EvidencePins = evidencePins,
         };
     }
 
