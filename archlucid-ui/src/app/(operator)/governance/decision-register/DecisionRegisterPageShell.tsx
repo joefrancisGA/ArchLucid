@@ -24,6 +24,7 @@ import { DecisionRegisterLoadingSkeleton } from "./_sections/DecisionRegisterLoa
 import { DecisionRegisterDecisionCard } from "./DecisionRegisterDecisionCard";
 import { DecisionRegisterContinueLastViewedRow } from "./DecisionRegisterContinueLastViewedRow";
 import { DecisionRegisterViewEmptyShell } from "./DecisionRegisterViewEmptyShell";
+import { DecisionRegisterExportButton } from "./DecisionRegisterExportButton";
 import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher } from "./DecisionRegisterViewSwitcher";
@@ -95,6 +96,7 @@ export function DecisionRegisterPageShell(props: DecisionRegisterPageShellProps)
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton />
+            <DecisionRegisterExportButton decisions={filteredDecisions} disabled={loading || loadError !== null} />
             <DecisionRegisterViewSwitcher viewMode={viewMode} currentSearch={currentSearch} />
           </div>
         }

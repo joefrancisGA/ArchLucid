@@ -40,6 +40,9 @@ export type CareerArtifactHonestyVerdict = {
 const DEMO_SAMPLE_EXTERNAL_BLOCK_REASON =
   "Demo or sample data cannot be emailed as production proof without explicit waiver copy.";
 
+const SAMPLE_WORKING_EXPORT_BLOCK_REASON =
+  "Sample workspace — career export is blocked until you run a production review.";
+
 const SKIPPED_MUST_FINALIZE_BLOCK_REASON =
   "Required intake questions are unanswered — resolve skipped MUST questions before sealing.";
 
@@ -237,7 +240,12 @@ export function evaluateCareerArtifactHonesty(
   }
 
   if (input.isSample === true && input.artifactKind === "export") {
-    warnings.push("Sample workspace — not production customer evidence.");
+
+    if (input.workingDesk === true) {
+      blockedReasons.push(SAMPLE_WORKING_EXPORT_BLOCK_REASON);
+    } else {
+      warnings.push("Sample workspace — not production customer evidence.");
+    }
   }
 
   const headerLines = buildHeaderLines(input);

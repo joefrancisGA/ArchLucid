@@ -72,6 +72,17 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.blockedReasons.join(" ")).toMatch(/demo or sample/i);
   });
 
+  it("blocks Working sample exports instead of warning only (FC-74)", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      isSample: true,
+      transparencyTrail: { asserted: [{ key: "businessOutcome", value: "Reduce triage time" }], inferred: [], skipped: [] },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons.join(" ")).toMatch(/sample workspace/i);
+  });
+
   it("warns on legacy sealed re-export with incomplete trail instead of blocking export", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,

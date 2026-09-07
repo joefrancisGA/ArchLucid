@@ -1,9 +1,10 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { resolveEnterpriseStatusKind } from "@/lib/enterprise-status-kind-resolver";
-import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
+import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
 import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pipeline-status-labels";
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
 import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pipeline-legacy-terminal-label";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -14,6 +15,7 @@ export type RunPipelineStatusPresentationInput = {
   readonly hostAgentExecutionMode?: string | null;
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
+  readonly transparencyTrail?: TransparencyTrail | null;
 };
 
 /**
@@ -35,13 +37,14 @@ export function deriveRunListPipelineLabel(
 
   if (run.hasFindingsSnapshot === true) {
     if (
-      shouldSuppressReadyToFinalizeForQualityGateHonesty({
+      shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: qualityGateHonesty?.workingDesk,
         structuralExecutionMode: run.structuralExecutionMode,
         isSample: run.isSample,
         hostAgentExecutionMode: qualityGateHonesty?.hostAgentExecutionMode,
         hostQualityGateMode: qualityGateHonesty?.hostQualityGateMode,
         aggregateQualityGateOutcome: qualityGateHonesty?.aggregateQualityGateOutcome,
+        transparencyTrail: qualityGateHonesty?.transparencyTrail,
       })
     ) {
       return PIPELINE_STATUS_LABELS.inPipeline;
