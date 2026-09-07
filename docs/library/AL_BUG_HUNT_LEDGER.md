@@ -9130,11 +9130,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — org-required assign/toggle reachable by project admin without tenant admin
+- **last-bug:** 2026-09-07 — SetAssignmentEnabled returned 404 when disabling org-required assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9147,8 +9147,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPacksController.PromoteCatalogEntry` — foreign-tenant `sourcePolicyPackId` controller scope test gap — **disproved 2026-09-07 (#1205):** `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` binds pack `(tenant, workspace, project)` to caller scope before promotion; added controller parity test `PromoteCatalogEntry_returns_not_found_when_source_pack_is_out_of_scope`
 - [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive — **disproved 2026-09-07 (#1205):** workflow guard `TryArchiveAssignmentWithOutcomeAsync` already returns not-found via `PolicyPackAssignmentScope.IsVisibleInScope`; added controller parity test `ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope`
 
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `PolicyPackHttpFacade.SetAssignmentEnabledAsync` / `PolicyPackWorkflowFacade.TrySetAssignmentEnabledWithOutcomeAsync` — disabling an organization-required assignment returned HTTP 404 instead of 409 Conflict symmetric with `ArchiveAssignment` — **hit 2026-09-07 (#1206):** workflow now returns `OrganizationRequiredLock` and http facade maps to `PolicyPackHttpOutcome.Conflict`; controller surfaces 409 (`TrySetAssignmentEnabledWithOutcomeAsync_returns_organization_required_lock_when_disabling_org_required_assignment`, `SetAssignmentEnabled_returns_conflict_when_disabling_organization_required_assignment`)
+- [ ] (candidate) `PolicyPacksController.SetAssignmentOrganizationRequired` — missing controller parity test for out-of-scope assignment toggle (workflow scope guard exists; endpoint now requires `AdminAuthority`)
+- [ ] (candidate) `PolicyPacksController.ListVersions` / `ExplainPack` — missing controller parity tests for out-of-scope pack reads (workflow `IsPackVisibleInScope` guard exists)
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for organization-required archive conflict (workflow `OrganizationRequiredLock` maps to 409; only not-found controller test exists)
+
+2026-09-07 seed hunt #1206 (hit): reseeded PolicyPacksController partials after #1205 authz fix; proved SetAssignmentEnabled org-required disable returned misleading 404.
 2026-09-07 hunt #1205 (hit): org-required assign/toggle required tenant admin; promote/archive scope parity tests added.
-2026-09-07 seed hunt #1170 (hit): reseeded PolicyPacksController partials; proved catalog demote missing source-pack scope binding symmetric with promote.
 
 ---
 ## Zone: api-governance-stickiness

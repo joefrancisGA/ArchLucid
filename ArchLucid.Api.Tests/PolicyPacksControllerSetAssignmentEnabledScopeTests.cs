@@ -34,6 +34,29 @@ public sealed class PolicyPacksControllerSetAssignmentEnabledScopeTests
     }
 
     [Fact]
+    public async Task SetAssignmentEnabled_returns_conflict_when_disabling_organization_required_assignment()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SetAssignmentEnabledAsync(assignmentId, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be disabled. Clear organization-required first.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        SetPolicyPackAssignmentEnabledRequest request = new() { IsEnabled = false };
+
+        IActionResult result = await sut.SetAssignmentEnabled(assignmentId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope()
     {
         Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

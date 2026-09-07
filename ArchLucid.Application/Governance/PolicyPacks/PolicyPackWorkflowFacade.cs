@@ -220,16 +220,28 @@ public sealed partial class PolicyPackWorkflowFacade(
     }
 
     /// <inheritdoc />
-    public async Task<bool> TrySetAssignmentEnabledAsync(Guid assignmentId, bool isEnabled, CancellationToken ct)
+    public async Task<bool> TrySetAssignmentEnabledAsync(Guid assignmentId, bool isEnabled, CancellationToken ct) =>
+        await TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct) ==
+        PolicyPackSetAssignmentEnabledOutcome.Updated;
+
+    /// <inheritdoc />
+    public async Task<PolicyPackSetAssignmentEnabledOutcome> TrySetAssignmentEnabledWithOutcomeAsync(
+        Guid assignmentId,
+        bool isEnabled,
+        CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         PolicyPackAssignment? existing =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
-        bool valueUnchanged = existing is not null
-            && PolicyPackAssignmentScope.IsVisibleInScope(existing, scope)
-            && existing.IsEnabled == isEnabled;
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(existing, scope))
+            return PolicyPackSetAssignmentEnabledOutcome.NotFound;
+
+        if (!isEnabled && PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(existing))
+            return PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock;
+
+        bool valueUnchanged = existing!.IsEnabled == isEnabled;
 
         bool ok = await _workspaceSelectionService.TrySetAssignmentEnabledAsync(
             scope,
@@ -238,7 +250,7 @@ public sealed partial class PolicyPackWorkflowFacade(
             ct);
 
         if (!ok)
-            return false;
+            return PolicyPackSetAssignmentEnabledOutcome.NotFound;
 
         if (!valueUnchanged)
         {
@@ -251,7 +263,7 @@ public sealed partial class PolicyPackWorkflowFacade(
                 ct);
         }
 
-        return true;
+        return PolicyPackSetAssignmentEnabledOutcome.Updated;
     }
 
     /// <inheritdoc />

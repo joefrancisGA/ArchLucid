@@ -253,6 +253,38 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TrySetAssignmentEnabledWithOutcomeAsync_returns_organization_required_lock_when_disabling_org_required_assignment()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new(MockBehavior.Strict);
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                    IsEnabled = true,
+                    IsOrganizationRequired = true,
+                });
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: Mock.Of<IPolicyPacksAppService>(MockBehavior.Strict));
+
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await sut.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, false, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock);
+    }
+
+    [Fact]
     public async Task TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -153,11 +153,19 @@ public sealed partial class PolicyPackHttpFacade
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<bool>.ScopeNotFound();
 
-        bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
 
-        return ok
-            ? PolicyPackHttpResult<bool>.Success(true)
-            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+        return outcome switch
+        {
+            PolicyPackSetAssignmentEnabledOutcome.Updated => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be disabled. Clear organization-required first.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
     }
 
     /// <inheritdoc />
