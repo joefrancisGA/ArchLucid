@@ -19,6 +19,10 @@ import {
   architectureIdentityPath,
   resolveArchitectureReviewHref,
 } from "@/lib/architecture/architecture-routes";
+import {
+  WORKING_UNLINKED_REVIEW_INBOX_LABEL,
+  isUnlinkedArchitectureReviewJob,
+} from "@/lib/architecture/working-unlinked-review-honesty";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -99,6 +103,18 @@ function resolveReviewsHubReviewHref(
   }
 
   return resolveArchitectureReviewHref(run.runId, architectureId);
+}
+
+function resolveReviewsHubArchitectureDisplayName(
+  run: RunSummary,
+  architectureId: string | null,
+  isWorkingMode: boolean,
+): string {
+  if (isWorkingMode && isUnlinkedArchitectureReviewJob(architectureId)) {
+    return WORKING_UNLINKED_REVIEW_INBOX_LABEL;
+  }
+
+  return reviewPackageArchitectureName(run);
 }
 
 function finiteCount(value: number | null | undefined): number {
@@ -266,7 +282,11 @@ export function toReviewsHubReviewRowDisplay(
     reviewTitle,
     reviewTitlePrimary,
     reviewTitleKindLabel: titleParts.kindLabel,
-    architectureName: reviewPackageArchitectureName(run),
+    architectureName: resolveReviewsHubArchitectureDisplayName(
+      run,
+      architectureId,
+      options.isWorkingMode === true,
+    ),
     overallStatus: reviewsHubOverallStatus(run),
     lifecycleStage: reviewsHubLifecycleStage(run),
     ownerLabel: reviewPackageOwnerLabel(run, ownerContext),

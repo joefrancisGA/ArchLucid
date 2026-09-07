@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { BUYER_NEW_REVIEW_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import {
   ALERTS_PAGE_SHORTCUTS,
+  ARCHITECTURE_DESK_PAGE_SHORTCUTS,
   GUIDED_ALT_N_SHORTCUT_DESCRIPTION,
   SHELL_COMMAND_SHORTCUTS,
   SHORTCUTS,
@@ -89,6 +90,12 @@ describe("shortcut-registry", () => {
     expect(help?.label).toBe("Find help (Ctrl+K)");
 
     expect(findShortcutByKey("not-a-real-combo")).toBeUndefined();
+  });
+
+  it("AO-43: documents architecture desk work shortcuts before nested job shortcuts", () => {
+    expect(ARCHITECTURE_DESK_PAGE_SHORTCUTS.length).toBeGreaterThan(0);
+    expect(ARCHITECTURE_DESK_PAGE_SHORTCUTS[0]?.key).toBe("alt+n");
+    expect(ARCHITECTURE_DESK_PAGE_SHORTCUTS[0]?.description).toBe(WORKING_ALT_N_SHORTCUT_DESCRIPTION);
   });
 
   it("LI-06: Alt+N descriptions distinguish Working draft editor from Guided wizard", () => {

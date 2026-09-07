@@ -10,6 +10,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   ALERTS_PAGE_SHORTCUTS,
+  ARCHITECTURE_DESK_PAGE_SHORTCUTS,
   FINDINGS_PAGE_SHORTCUTS,
   REVIEW_DETAIL_PAGE_SHORTCUTS,
   SHELL_COMMAND_SHORTCUTS,
@@ -178,7 +179,10 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
       {/* Uncollapsed and first: the palette reaches every page, so it is the shortcut worth learning. */}
       <ShortcutTable entries={SHELL_COMMAND_SHORTCUTS} caption="Command palette" />
       {isWorkingMode ? (
-        <ShortcutTable entries={workingDeskWorkShortcuts} caption="Desk work (Working)" />
+        <ShortcutTable entries={ARCHITECTURE_DESK_PAGE_SHORTCUTS} caption="Architecture desk (Working)" />
+      ) : null}
+      {isWorkingMode ? (
+        <ShortcutTable entries={workingDeskWorkShortcuts} caption="Nested job work (Working)" />
       ) : null}
       <ShortcutTable entries={common} caption="Common" />
       {rest.length > 0 ? (

@@ -23,6 +23,8 @@ const showcaseFindingEnc = encodeURIComponent(SCREENSHOT_FINDING_ID);
 
 /** Persona-mapped operator/buyer shell routes — one PNG per slug in buyer and operator modes. */
 export const UX_AUDIT_OPERATOR_BUYER_ROUTES: readonly UxAuditRouteEntry[] = [
+  { slug: "shell-home", href: "/", persona: "all-personas" },
+  { slug: "shell-architectures-list", href: "/architecture/architectures", persona: "all-personas" },
   { slug: "shell-reviews-list", href: "/architecture/reviews", persona: "all-personas" },
   { slug: "wizard-new-review", href: "/architecture/reviews/new", persona: "enterprise-architect" },
   { slug: "run-detail", href: `/architecture/reviews/${showcaseRunEnc}`, persona: "enterprise-architect" },

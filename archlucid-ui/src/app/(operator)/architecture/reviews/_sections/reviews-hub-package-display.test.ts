@@ -108,4 +108,20 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.architectureDeskHref).toBe("/architecture/architectures/architecture-identity-001");
     expect(row.reviewHref).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
   });
+
+  it("labels unlinked jobs honestly in Working inbox rows (AO-49)", () => {
+    const row = toReviewsHubReviewRowDisplay(
+      {
+        runId: "run-unlinked",
+        projectId: "Payments",
+        createdUtc: "2026-01-20T12:00:00.000Z",
+      } satisfies RunSummary,
+      {},
+      [],
+      { isWorkingMode: true },
+    );
+
+    expect(row.architectureName).toBe("Unlinked review");
+    expect(row.architectureDeskHref).toBeNull();
+  });
 });

@@ -12,6 +12,7 @@ public sealed class DeskContinuityValuesTests
     {
         DeskContinuityDto continuity = new()
         {
+            LastOpenArchitectureId = "arch-locator-1",
             LastOpenReviewId = "run-42",
             LastOpenDraftId = "arch-9",
             LastVisitWatermarkUtc = "2026-09-05T12:00:00Z",
@@ -21,7 +22,8 @@ public sealed class DeskContinuityValuesTests
         DeskContinuityDto? parsed = DeskContinuityValues.TryParse(json);
 
         parsed.Should().NotBeNull();
-        parsed!.LastOpenReviewId.Should().Be("run-42");
+        parsed!.LastOpenArchitectureId.Should().Be("arch-locator-1");
+        parsed.LastOpenReviewId.Should().Be("run-42");
         parsed.LastOpenDraftId.Should().Be("arch-9");
         parsed.LastVisitWatermarkUtc.Should().Be("2026-09-05T12:00:00Z");
     }
@@ -37,6 +39,7 @@ public sealed class DeskContinuityValuesTests
     {
         DeskContinuityDto continuity = DeskContinuityValues.NormalizeOrDefault(null);
 
+        continuity.LastOpenArchitectureId.Should().BeNull();
         continuity.LastOpenReviewId.Should().BeNull();
         continuity.LastOpenDraftId.Should().BeNull();
         continuity.LastVisitWatermarkUtc.Should().BeNull();

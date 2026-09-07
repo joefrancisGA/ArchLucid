@@ -123,7 +123,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
+          <Link href={buildPackagePrintBackHref(runId, summaryQuery.data?.architectureId ?? null)} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>
@@ -135,6 +135,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
+      parentArchitectureId={summaryQuery.data.architectureId ?? null}
     />
   );
 }
