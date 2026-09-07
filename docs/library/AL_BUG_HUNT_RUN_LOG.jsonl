@@ -1325,3 +1325,4 @@
 {"at":"2026-09-07T04:18:23.5954Z","zoneId":"alert-simulation","outcome":"hit"}
 {"at":"2026-09-07T04:25:26.2994986Z","zoneId":"core-azure-extractor","outcome":"hit"}
 {"at":"2026-09-07T04:32:44.9355061Z","zoneId":"core-configuration-summary","outcome":"hit"}
+{"at":"2026-09-07T04:47:24.1836225Z","zoneId":"core-authority-runs","outcome":"hit"}
