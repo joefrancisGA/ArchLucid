@@ -105,7 +105,6 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 - ABQ-10 asked for a **sample**; ABQ-12 classified the **full** proven-row population. Do not revert to sampling.
 - ABQ-03 + ABQ-15 consolidated boolean parsing into `JsonBooleanStringReader`; identity fields use whole-number/enum readers only.
 - ABQ-09 `-Nominate` **exists** in `al-bug-pick-zone.ps1`. Wave 4 prompt 24 **extends** it; do not re-implement Nominate from the stale 09 file.
-- Implementers of 19–25 must not recreate `_al-bug-pick-zone.ps1` (deleted in ABQ-12). **Pester 5 is required.**
 
 ## Won’t do (explicitly not prompted)
 
