@@ -154,6 +154,11 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     marker: "AO-44",
   },
   {
+    id: "AO-45",
+    relativeTestPath: "lib/guided-two-door-working-mode-guard.test.tsx",
+    marker: "AO-45",
+  },
+  {
     id: "AO-47",
     relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
     marker: "AO-47",
