@@ -770,11 +770,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — empty FindingsSnapshot.RunId bypassed run binding guard
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -784,6 +784,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
 - [x] Missing workspace still returns 200 with another workspace's rules — (valid-no-repro): `RunMatchesCallerScope` rejects foreign-workspace run detail; `StampSimulationScope` overwrites embedded rule scope before `SimulateAsync`; covered by `GetContextsAsync_when_authority_returns_foreign_workspace_run_returns_empty`
 - [x] (proven) Findings snapshot with empty `RunId` bypasses run binding and simulates unscoped findings — **hit 2026-08-24:** guard only rejected mismatched ids when `findings.RunId != Guid.Empty`; empty id skipped check; fixed by requiring `findings.RunId == runId` and matching golden-manifest run ids before compare
+- [x] (proven) `BuildContextAsync` accepted findings whose snapshot anchor ids did not match the golden manifest — **hit 2026-09-07 (#1165):** only `RunId` was checked; cross-linked `FindingsSnapshotId`/`ContextSnapshotId`/`GraphSnapshotId` could simulate foreign findings; fixed via `FindingsSnapshotMatchesGoldenManifest` (`GetContextsAsync_when_findings_snapshot_id_mismatches_golden_manifest_returns_empty`)
+- [ ] (candidate) Compared-to run path builds manifest comparison without validating compared findings snapshot anchors — comparison uses manifests only; reachability unverified for findings leakage via advisor inputs
+- [ ] (candidate) Batch recent-run replay silently drops runs with sealed-hash failures while single-run mode throws — intentional degrade; verify operator visibility
+
+2026-09-07 seed hunt #1165 (hit): proved findings snapshot anchor mismatch bypassed golden manifest binding.
 
 ---
 
