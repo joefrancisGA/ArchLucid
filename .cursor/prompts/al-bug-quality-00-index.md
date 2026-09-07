@@ -10,7 +10,7 @@
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-35)
 
-**Status:** **ABQ-01–25 shipped in code** (wave 4 on `cursor/al-bug-quality-prompts-wave4-3c5e`). **ABQ-26–35 are ready to run** (one prompt file per session). Do **not** re-implement 01–25 from their files.
+**Status:** **ABQ-01–25 shipped in code** (wave 4 merged as #1957). **ABQ-26–35 are ready to run** (one prompt file per session). Do **not** re-implement 01–25 from their files.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
