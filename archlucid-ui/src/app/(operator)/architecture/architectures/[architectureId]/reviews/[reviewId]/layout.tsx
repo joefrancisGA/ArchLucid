@@ -14,12 +14,12 @@ export default async function NestedArchitectureReviewLayout({
 }: {
   children: ReactNode;
   params: Promise<{ architectureId: string; reviewId: string }>;
-}): Promise<React.JSX.Element> {
+}) {
   const { architectureId, reviewId } = await params;
 
   if (isInvalidGuidOrSlugRouteToken(architectureId) || isInvalidGuidOrSlugRouteToken(reviewId)) {
     notFound();
   }
 
-  return <>{children}</>;
+  return children;
 }
