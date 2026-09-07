@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { scheduleScrollToReviewDetailSection, scheduleScrollToReviewDetailHashFromLocation } from "@/lib/review-detail-section-scroll";
@@ -37,7 +37,8 @@ export function RunDetailSectionNav({ runId, parentArchitectureId, sections }: R
   const pathname = usePathname();
   const architectureId = resolveReviewWorkspaceArchitectureId(parentArchitectureId, pathname);
   const { isGovernanceModeEnabled, vocabulary } = useGovernanceMode();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const evalChromeShell = useProductionEvalChrome();
+  const buyerPolishedShell = evalChromeShell;
   const activeReviewTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
 
   const normalizedSections = useMemo(() => {
@@ -136,7 +137,7 @@ export function RunDetailSectionNav({ runId, parentArchitectureId, sections }: R
     return null;
   }
 
-  const buyerStickyChrome = isBuyerPolishedOperatorShellEnv();
+  const buyerStickyChrome = evalChromeShell;
 
   return (
     <nav

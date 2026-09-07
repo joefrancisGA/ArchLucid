@@ -8,7 +8,7 @@ import { ItsmOutboundQuickActions } from "@/components/itsm/ItsmOutboundQuickAct
 import { ItsmOutboundTriadClarityStrip } from "@/components/itsm/ItsmOutboundTriadClarityStrip";
 import { ITSM_TICKET_LINKAGE_CREATE_INTRO, ITSM_TICKET_LINKAGE_DUPLICATE_BLOCKED } from "@/lib/vocabulary/finding-correlation-vocabulary";
 import { FINDING_ITSM_HUMAN_REVIEW_STATUS_CAPTION } from "@/lib/findings/finding-human-review-display";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,7 +23,7 @@ export function FindingInspectItsmWorkflowPanel({
   humanReviewStatusLabel = null,
 }: FindingInspectItsmWorkflowPanelProps) {
   const nativeCreateEnabled = useItsmNativeCreateEnabled();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
 
   if (!nativeCreateEnabled && !humanReviewStatusLabel) {
     return (

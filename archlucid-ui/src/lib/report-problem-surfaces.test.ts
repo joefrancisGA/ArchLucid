@@ -81,6 +81,7 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(isReportProblemEnabledForSurface("reviews-hub-unexpected-response")).toBe(true);
     expect(isReportProblemEnabledForSurface("auth-signin-cannot-proceed")).toBe(true);
     expect(isReportProblemEnabledForSurface("auth-invitation-accept-validation-failure")).toBe(true);
+    expect(isReportProblemEnabledForSurface("admin-support-bundle-download-failure")).toBe(true);
     expect(isReportProblemEnabledForSurface("unknown-surface")).toBe(false);
   });
 
@@ -93,6 +94,9 @@ describe("report-problem-surfaces (TB-782)", () => {
       (surface) => surface.id,
     );
     const accessDeniedSurfaces = reportProblemSurfacesForPathname("/403").map((surface) => surface.id);
+    const supportSurfaces = reportProblemSurfacesForPathname("/administration/support").map(
+      (surface) => surface.id,
+    );
 
     expect(signInSurfaces).toContain("auth-signin-cannot-proceed");
     expect(inviteSurfaces).toContain("auth-invitation-accept-validation-failure");
@@ -102,6 +106,7 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(accessDeniedSurfaces).toContain("access-denied-wrong-tenant");
     expect(accessDeniedSurfaces).toContain("auth-jwt-insufficient-scope");
     expect(accessDeniedSurfaces).toContain("operator-role-gate-session-break");
+    expect(supportSurfaces).toContain("admin-support-bundle-download-failure");
   });
 });
 

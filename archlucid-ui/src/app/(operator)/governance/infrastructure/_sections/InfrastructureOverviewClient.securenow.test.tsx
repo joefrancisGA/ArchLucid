@@ -9,14 +9,10 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "security" }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
-  };
-});
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
@@ -72,6 +68,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       "/integrations/cloud-connections",
     );
+    expect(screen.queryByText(/\bAWS\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\bGCP\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Google Cloud/i)).not.toBeInTheDocument();
   });
 
   it("lists all six infrastructure workbench destinations in the hub intro", () => {

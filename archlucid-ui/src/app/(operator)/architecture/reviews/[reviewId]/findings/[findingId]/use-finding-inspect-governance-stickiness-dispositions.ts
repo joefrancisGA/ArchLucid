@@ -12,7 +12,7 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
@@ -81,7 +81,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   setBusyAction,
   resolveMutationError,
 }: UseFindingInspectGovernanceStickinessDispositionsInput) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [disposition, setDisposition] = useState<FindingDispositionKind>("Accepted");
   const [rationale, setRationale] = useState("");

@@ -564,3 +564,82 @@ export async function assertJwtScopeBindingRejectsForgedTenantHeader(
     );
   }
 }
+
+export type LiveScimAdminToken = {
+  id: string;
+  plaintextToken: string;
+};
+
+/** Mints a SCIM provisioning token for directory-user seeding in live E2E. */
+export async function createScimAdminToken(request: APIRequestContext): Promise<LiveScimAdminToken> {
+  const res = await request.post(`${liveApiBase}/v1/admin/scim/tokens`, {
+    headers: liveJsonHeaders(),
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  const created = (await res.json()) as { id?: string; plaintextToken?: string };
+
+  if (!created.id || !created.plaintextToken) {
+    throw new Error("SCIM token response missing id or plaintextToken.");
+  }
+
+  return { id: created.id, plaintextToken: created.plaintextToken };
+}
+
+/** Provisions a directory user via SCIM so invite-to-existing-email returns 409. */
+export async function provisionScimDirectoryUser(
+  request: APIRequestContext,
+  email: string,
+  scimBearerToken: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/scim/v2/Users`, {
+    headers: {
+      Authorization: `Bearer ${scimBearerToken}`,
+      "Content-Type": "application/scim+json",
+      Accept: "application/scim+json",
+    },
+    data: {
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+      userName: email,
+      active: true,
+    },
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /scim/v2/Users failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+}
+
+async function openInviteForm(page: import("@playwright/test").Page): Promise<void> {
+  const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
+  const inviteSection = page.getByTestId("settings-roles-invite-section");
+
+  if (await invitePrimaryRegion.isVisible().catch(() => false)) {
+    await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else {
+    await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
+    await inviteSection.locator("summary").click();
+  }
+
+  await page.getByTestId("settings-roles-invite-form").waitFor({ state: "visible", timeout: 60_000 });
+}
+
+/** Submits an admin invite from the Users settings UI. */
+export async function submitAdminInviteFromUsersUi(
+  page: import("@playwright/test").Page,
+  email: string,
+  roleLabel: string = "Reader",
+): Promise<void> {
+  await openInviteForm(page);
+  await page.getByTestId("settings-roles-invite-email").fill(email);
+  await page.getByTestId("settings-roles-invite-role").click();
+  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+  await page.getByTestId("settings-roles-invite-submit").click();
+}
