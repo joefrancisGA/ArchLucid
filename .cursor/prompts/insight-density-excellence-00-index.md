@@ -8,7 +8,7 @@
 Canonical prompts (copy-paste blocks):
 
 - **DX-01–DX-16 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md)
-- **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-18** shipped; **DX-19** held)
+- **DX-17–DX-28 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-18** and **DX-19** shipped 2026-09-07)
 - **DX-29–DX-35 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 - **DX-36–DX-41 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 - **DX-42–DX-46 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md)
@@ -43,7 +43,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 
 **DX-01–DX-16 are on `master` — do not re-run.**
 
-**DX-17–DX-28 shipped** (2026-09-07) except **DX-19** (held). **DX-18** (TB-885) shipped 2026-09-07. Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
+**DX-17–DX-28 shipped** (2026-09-07), including **DX-18** (TB-885) and **DX-19** (TB-2033). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|
@@ -58,7 +58,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-17** | Community summaries → InsightGenerator | After DX-21–28 | DX-10 shipped |
 | **DX-20** | Frontier capture schema | After DX-21–28 | DX-13 preferred |
 | **DX-18** | TB-885 compounding ledger | **Shipped** (2026-09-07) | — |
-| **DX-19** | ADR 0062 verification slice 1 | **Held** | Owner unparks TB-2033 |
+| **DX-19** | ADR 0062 verification slice 1 | **Shipped** (2026-09-07) | TB-2033 / ADR 0062 |
 
 **DX-29–DX-35 shipped** (2026-09-07). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md)
 
@@ -102,7 +102,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-49** | Golden harness for two absent engines + topology-anti-pattern golden | After DX-48 preferred | engines shipped |
 | **DX-50** | Tighten HasConcreteEvidenceCitation (Workstream 2) | After DX-47 | DX-47 shipped |
 
-**No further Cursor-implementable DX batches remain** in the excellence prompt set. Next density work is owner-gated: **DX-18**/**DX-19**, live frontier corpus (**G-REAL-06**), Real-mode judge default-on, Graph-RAG live ablation (**TB-883**).
+**No further Cursor-implementable DX batches remain** in the excellence prompt set. Next density work is owner-gated: live frontier corpus (**G-REAL-06**), Real-mode judge default-on, Graph-RAG live ablation (**TB-883**), TB-2034+ verification scoring/export.
 
 ## Constraints (same as architecture file)
 
@@ -111,4 +111,4 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 - **DX-47–DX-50 shipped** — do not re-run.
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
-- DX-19 (ADR 0062 / TB-2033) stays held until the owner unparks that row.
+- **DX-19** (ADR 0062 / TB-2033) shipped 2026-09-07 — do not re-run.

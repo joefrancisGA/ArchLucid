@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:429 -->
+<!-- audit-core-const-count:431 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -479,6 +479,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `FindingFeedbackRecorded` | `FindingFeedbackRecorded` | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) |
 | `FindingInsightSignalRecorded` | `FindingInsightSignalRecorded` | `FindingInsightSignalController` (`POST /v1/runs/{runId}/findings/{findingId}/insight-signal`) |
+| `FindingVerificationStarted` | `FindingVerificationStarted` | `FindingVerificationService.CreateReportAsync` (`POST /v1/runs/{runId}/finding-verification`) |
+| `FindingVerificationCompleted` | `FindingVerificationCompleted` | `FindingVerificationService.CreateReportAsync` (`POST /v1/runs/{runId}/finding-verification`) |
 | `FindingAskConversationPersisted` | `FindingAskConversationPersisted` | `IAskService.AskAboutFindingAsync` (`POST /v1/architecture/finding/{findingId}/ask`) |
 | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentUpdated` | `FindingRemediationAssignmentController` (`PUT /v1/findings/{findingId}/remediation-assignment`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
