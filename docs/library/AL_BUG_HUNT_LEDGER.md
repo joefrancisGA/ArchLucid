@@ -10072,11 +10072,11 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — audit-trail-help omitted TOC claim anchor after header fold
+- **last-bug:** 2026-09-07 — sponsor dashboard help duplicated claim band and TOC anchor lived on orientation strip only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10085,9 +10085,11 @@ ABQ-09 churn hotspot.
 ### Hypotheses
 
 - [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `resolveGuideHeadingsForStrip` — `audit-trail-help` missing from omit set while buyer-polished header folds claim into `PageHeaderClaimDiscipline` — **hit 2026-09-07 hunt #1191 (seed→hit):** TOC kept `#help-audit-trail-claim-discipline-heading` with no matching anchor and operator shell duplicated claim via orientation strip; fixed by omitting `audit-trail-help` and making `AuditTrailHelpEvidenceOrientationStrip` sources-only
-- [ ] (candidate) `digests-subscriptions` — sibling digest slugs omitted but subscriptions slug absent from omit set (sources-only strip today; inconsistent if header fold lands)
-- [ ] (candidate) `policy-packs-help` registry slug vs `help-policy-packs` page slug — legacy strip slug still passes claim while live guide uses omitted `help-policy-packs`
-- [ ] (candidate) `help-sponsor-dashboard` — guide TOC lists claim heading id but claim strip renders aside without matching anchor
-- [ ] (candidate) `help-data-handling` — strip passes claim while specialty guide may fold negation into header on buyer-polished shell
+- [x] (proven) `help-sponsor-dashboard` — guide TOC lists claim heading id but header claim strip rendered aside without matching anchor while orientation strip duplicated claim — **hit 2026-09-07 hunt #1282:** `SponsorDashboardHelpClaimDisciplineStrip` lacked `#help-sponsor-dashboard-claim-discipline-heading` while `SponsorDashboardHelpEvidenceOrientationStrip` repeated the negation band; fixed by anchoring the header strip, omitting `help-sponsor-dashboard`, and making the orientation strip sources-only; regressions in `SponsorDashboardHelpEvidenceOrientationStrip.test.tsx`, `HelpSponsorDashboardGuideView.test.tsx`, and `claim-discipline-policy.test.ts`
+- [x] (invalid) `digests-subscriptions` — sibling digest slugs omitted but subscriptions slug absent from omit set — **invalid 2026-09-07 hunt #1282:** strip is sources-only (no claim prop) and digests hub header does not fold claim discipline today; omit-set parity is defensive only
+- [x] (invalid) `policy-packs-help` registry slug vs `help-policy-packs` page slug — **invalid 2026-09-07 hunt #1282:** legacy `PolicyPacksHelpEvidenceOrientationStrip` is unused; live `/help/policy-packs` uses `help-policy-packs` slug (omitted) via `HelpPolicyPacksClaimOrientationStrip` and header claim fold
+- [x] (invalid) `help-data-handling` — strip passes claim while specialty guide may fold negation into header on buyer-polished shell — **invalid 2026-09-07 hunt #1282:** buyer shell renders claim once via orientation strip; operator shell uses `HelpDataHandlingTenantIsolationClaimDiscipline` without a conflicting markdown TOC claim heading
 
 2026-09-07 seed hunt #1191 (hit): seeded zone from ABQ-09 churn hotspot; proved audit-trail-help omit gap broke TOC scroll targets after header claim fold.
+
+2026-09-07 thorough hunt #1282 (hit): proved sponsor-dashboard help duplicate claim + missing header-strip TOC anchor; disproved three sibling slug hypotheses; 14 scoped unit tests passed.

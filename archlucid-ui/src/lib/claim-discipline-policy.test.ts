@@ -7,6 +7,7 @@ import {
   resolveGuideHeadingsForStrip,
   shouldOmitClaimDisciplineBand,
 } from "@/lib/claim-discipline-policy";
+import { SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE } from "@/lib/sponsor-dashboard-help-evidence-copy";
 
 describe("claim-discipline-policy", () => {
   it("omits low-risk operational slugs", () => {
@@ -136,6 +137,11 @@ describe("claim-discipline-policy", () => {
         "help-audit-trail-claim-discipline-heading",
       ),
     ).toEqual([auditTrailHeadings[0], auditTrailHeadings[2]]);
+  });
+
+  it("omits help-sponsor-dashboard when claim discipline lives on the header info strip", () => {
+    expect(shouldOmitClaimDisciplineBand("help-sponsor-dashboard")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("help-sponsor-dashboard", SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE)).toBeUndefined();
   });
 
   it("omits audit-trail-help when claim discipline is folded into the page header", () => {
