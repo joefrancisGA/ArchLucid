@@ -95,7 +95,48 @@ internal static class RequestConstraintTokenMatcher
 
         bool okAfter = afterToken >= haystack.Length || !char.IsLetter(haystack[afterToken]);
 
-        return okBefore && okAfter;
+        if (!okBefore || !okAfter)
+            return false;
+
+        if (IsEmbeddedInCompoundIdentifier(haystack, tokenIndex, tokenLength))
+            return false;
+
+        return true;
+    }
+
+    private static bool IsEmbeddedInCompoundIdentifier(string haystack, int tokenIndex, int tokenLength)
+    {
+        bool precededByConnector = HasAlphanumericBeforeConnector(haystack, tokenIndex);
+        int afterToken = tokenIndex + tokenLength;
+        bool followedByConnector = HasAlphanumericAfterConnector(haystack, afterToken);
+
+        return precededByConnector && followedByConnector;
+    }
+
+    private static bool HasAlphanumericBeforeConnector(string haystack, int tokenIndex)
+    {
+        if (tokenIndex < 2)
+            return false;
+
+        char connector = haystack[tokenIndex - 1];
+
+        if (connector != '-' && connector != '_')
+            return false;
+
+        return char.IsLetterOrDigit(haystack[tokenIndex - 2]);
+    }
+
+    private static bool HasAlphanumericAfterConnector(string haystack, int afterToken)
+    {
+        if (afterToken + 1 >= haystack.Length)
+            return false;
+
+        char connector = haystack[afterToken];
+
+        if (connector != '-' && connector != '_')
+            return false;
+
+        return char.IsLetterOrDigit(haystack[afterToken + 1]);
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
