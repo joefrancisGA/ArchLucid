@@ -39,6 +39,8 @@ import { cn } from "@/lib/utils";
 import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
 import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
 import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFooterClient";
+import { PackagePrintTransparencyTrailSection } from "./PackagePrintTransparencyTrailSection";
+import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
 
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
@@ -230,6 +232,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           </section>
         ) : null}
 
+        {presentation.transparencyTrail !== undefined ? (
+          <PackagePrintTransparencyTrailSection trail={presentation.transparencyTrail ?? null} />
+        ) : null}
+
+        {presentation.showQuietEnginesHint === true ? (
+          <div data-testid="package-print-quiet-engines-hint">
+            <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          </div>
+        ) : null}
+
         {!buyerPolishedShell ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -238,6 +250,13 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             {presentation.coverageHonestyLine?.trim().length
               ? presentation.coverageHonestyLine
               : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          </p>
+        ) : presentation.coverageHonestyLine?.trim().length ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="package-print-coverage-honesty"
+          >
+            {presentation.coverageHonestyLine}
           </p>
         ) : null}
       </DocumentLayout>
