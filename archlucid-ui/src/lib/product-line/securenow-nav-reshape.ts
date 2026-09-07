@@ -1,3 +1,5 @@
+import { Home } from "lucide-react";
+
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
   GOVERNANCE_FINDINGS_PATH,
@@ -5,7 +7,7 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_JIRA_PATH, INTEGRATIONS_SERVICENOW_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
-import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
@@ -13,6 +15,16 @@ import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securen
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
 export const SECURENOW_SECURITY_NAV_GROUP_ID = "operate-security" as const;
+
+/** SecureNow Security shell — pilot Home is filtered out before reshape, so inject it here. */
+export const SECURENOW_SECURITY_HOME_LINK: NavLinkItem = {
+  href: "/",
+  label: OPERATOR_NAV_LINK_LABELS.home,
+  title: "Workspace home",
+  icon: Home,
+  tier: "extended",
+  requiredAuthority: "ReadAuthority",
+};
 
 const SECURENOW_SOURCE_GROUP_IDS = new Set([
   "operate-policy",
@@ -107,7 +119,7 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
-  const securityLinks = pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS);
+  const securityLinks = [SECURENOW_SECURITY_HOME_LINK, ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS)];
 
   const reshaped: ProductLineNavGroupRow[] = [];
 
