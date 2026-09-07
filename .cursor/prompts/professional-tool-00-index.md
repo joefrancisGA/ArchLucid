@@ -15,7 +15,9 @@
      Wave 11: career-record-00-index.md (CR-01–12).
      Wave 12: livelihood-kernel-00-index.md (LK-01–15).
      Wave 13: durable-architecture-00-index.md (DA-01–12) — do not paste after CA.
-     Wave 14: customer-architecture-00-index.md (CA-01–50). -->
+     Wave 14: customer-architecture-00-index.md (CA-01–50).
+     Wave 17: architecture-object-00-index.md (AO-01–50).
+     Wave 18: system-desk-00-index.md (SY-01–SY-100). -->
 
 # Professional-tool mitigations — Composer prompt set
 

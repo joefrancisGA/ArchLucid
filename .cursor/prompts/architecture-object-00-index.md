@@ -5,13 +5,16 @@
      defensible-record-00-index.md (DR-01–16) and customer-architecture-00-index.md
      (CA-01–50). Load-bearing bet: Architecture identity is the Working locator;
      review is a nested job. Do not merge DraftRequests and Runs.
+     Successor (wave 18): system-desk-00-index.md (SY-01–SY-100) — do not add AO-51.
      Do not implement from this index. -->
 
 # Architecture-object mitigations — Composer prompt set (AO-01–AO-50)
 
 ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` R4 / R13; ADR 0052). People will sit in it much of the day; livelihoods may depend on the sealed record.
 
-**This set is wave 17. It owns only issue #1:** the paying desk still treats a **review / run** as Monday morning. CA-01–50 productized `dbo.Architectures` as a named parent. ADR 0072 still makes the **review URL** canonical after spawn. ADR 0069 Start still prefers **`reviewDetailPath(inFlightReviewId)`**. `startReviewFromArchitectureHref` still passes a **draft id** as `sourceArchitectureId`. The SPA still has **142** peer routes.
+**Successor (wave 18):** [`system-desk-00-index.md`](system-desk-00-index.md) (**SY-01–SY-100**) — locator leftovers (Alt+R, peer Insights, remaining `reviewDetailPath`). **Do not add AO-51.**
+
+**This set is wave 17. It owns only issue #1 (locator):** the paying desk still treats a **review / run** as Monday morning. CA-01–50 productized `dbo.Architectures` as a named parent. ADR 0072 still makes the **review URL** canonical after spawn. ADR 0069 Start still prefers **`reviewDetailPath(inFlightReviewId)`**. `startReviewFromArchitectureHref` still passes a **draft id** as `sourceArchitectureId`. The SPA still has **142** peer routes.
 
 Later livelihood issues (insight generation, dual buyer/Working skin, batch-priced what-if, in-memory undo, collaboration ACL) are **out of this wave**. Do not smuggle them in.
 
