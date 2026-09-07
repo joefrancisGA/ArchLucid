@@ -5,6 +5,8 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const PROVENANCE_CLAIM_DISCIPLINE =
   "This provenance graph and timeline show linkage for one review — not a complete audit export by itself. Open the Evidence trail or review workspace before briefing sponsors.";
 
+export const PROVENANCE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const PROVENANCE_SOURCES_INTRO =
   "Use these follow-ups when provenance nodes need a fuller evidence trail, search, or review context.";
 
