@@ -96,10 +96,10 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
   const expiresAtMs = Date.now() + 3_600_000;
 
   await page.addInitScript(
-    ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
+    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
       sessionStorage.setItem(displayKey, "e2e-user");
-      void fetch(bffPath, {
+      await fetch(bffPath, {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
@@ -191,6 +191,13 @@ export async function fetchAuthMeViaProxy(
   page: Page,
   accessToken?: string | null,
 ): Promise<LiveAuthMeProxyBody> {
+  const trimmedToken = accessToken?.trim() ?? "";
+
+  if (trimmedToken.length > 0) {
+    // TB-927 invitee flows pass the post-accept JWT explicitly; do not rely on a stale BFF cookie from the CI admin principal.
+    await writeJwtBrowserSession(page, trimmedToken);
+  }
+
   const result = await page.evaluate(async () => {
     const res = await fetch("/api/proxy/api/auth/me", {
       credentials: "same-origin",

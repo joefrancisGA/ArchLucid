@@ -36,7 +36,7 @@ export type LayerHeaderProps = {
  *
  * @see `LayerHeader.test.tsx`
  * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Advanced operations vs Governance footnote contract.
- * @see `operate-authority-ui-shaping.test.tsx` — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
+ * @see `operate-authority-ui-shaping-*.test.tsx` shards — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
  */
 export function LayerHeader({
   pageKey,

@@ -351,6 +351,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             CreateSealedManifestHashMock(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

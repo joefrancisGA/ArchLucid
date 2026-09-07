@@ -9,6 +9,11 @@ export function productLineDisplayName(productLineId: ProductLineId): string {
   return PRODUCT_LINE_DISPLAY_NAME[productLineId];
 }
 
+/** SecureNow is text-only — do not render the ArchLucid SVG mark in that shell. */
+export function productLineShowsArchLucidMark(productLineId: ProductLineId): boolean {
+  return productLineId !== "security";
+}
+
 export function productLinePoweredByLine(productLineId: ProductLineId): string {
   return `Powered by ${productLineDisplayName(productLineId)}`;
 }
@@ -127,3 +132,4 @@ export function localizeProductCopy(productLineId: ProductLineId, text: string):
     })
     .join("");
 }
+

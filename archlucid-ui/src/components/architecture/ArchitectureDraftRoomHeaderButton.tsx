@@ -11,13 +11,13 @@ import {
   deriveRunDetailWorkspaceStatus,
   isReviewPipelineIncomplete,
 } from "@/lib/run-detail-workspace-derive";
-import type { DeriveRunDetailWorkspaceStatusInput } from "@/lib/run-detail-workspace-derive/types";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { reviewDetailRoomElicitationHref } from "@/lib/reviews/review-room-elicitation-url";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureDraftRoomHeaderButtonProps = {
   readonly linkedReviewId: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Architecture draft desk Room entry — hands off to linked review elicitation (DR-16). */
@@ -37,7 +37,7 @@ export function ArchitectureDraftRoomHeaderButton(
     }
 
     const workspaceStatus = deriveRunDetailWorkspaceStatus({
-      run: runSummaryQuery.data as DeriveRunDetailWorkspaceStatusInput["run"],
+      run: runSummaryQuery.data,
       manifestId: runSummaryQuery.data.goldenManifestId ?? runSummaryQuery.data.currentManifestVersion ?? null,
       manifestStatus: null,
       showProgressTracker: false,
@@ -83,7 +83,7 @@ export function ArchitectureDraftRoomHeaderButton(
       size="sm"
       data-testid="review-room-enter"
       onClick={() => {
-        router.push(reviewDetailRoomElicitationHref(linkedReviewId));
+        router.push(reviewDetailRoomElicitationHref(linkedReviewId, props.parentArchitectureId));
       }}
     >
       Room

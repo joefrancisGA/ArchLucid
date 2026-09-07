@@ -86,6 +86,7 @@ export function useGlobalSearchBar() {
   const searchResults = useGlobalSearchResults(query, routeLocalSearchMode, {
     packageRunId: packageSearchScope.packageRunId,
     searchScope: packageSearchScope.searchScope,
+    architectureScopedRunIds: packageSearchScope.architectureScopedRunIds,
   });
 
   const searchPlaceholder =

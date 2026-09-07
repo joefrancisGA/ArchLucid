@@ -65,7 +65,9 @@ import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewAc
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
+import { filterWorkingPaletteVisibleHrefs } from "@/lib/working-route-roles";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   commandPaletteOverlayHrefFromSearch,
   parseCommandPaletteOpenFromSearch,
@@ -194,6 +196,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     showVendorInternalNav,
     workingMode,
   ]);
+
+  const paletteVisibleHrefs = useMemo(() => {
+    if (!workingMode) {
+      return visibleHrefs;
+    }
+
+    return filterWorkingPaletteVisibleHrefs(visibleHrefs, readCachedLastOpenArchitectureId());
+  }, [visibleHrefs, workingMode]);
 
   const syncCommandPaletteToUrl = useCallback(
     (nextOpen: boolean, nextQuery: string) => {
@@ -374,11 +384,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
+          <CommandPaletteFindPageSearch visibleHrefs={paletteVisibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
-            visibleHrefs={visibleHrefs}
+            visibleHrefs={paletteVisibleHrefs}
             buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}
             onNavigate={navigate}
