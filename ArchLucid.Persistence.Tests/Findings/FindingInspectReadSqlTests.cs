@@ -14,12 +14,14 @@ public sealed class FindingInspectReadSqlTests
     [Fact]
     public void FollowUpBatch_scopes_latest_disposition_to_workspace_and_project()
     {
-        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingReviewEvents");
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
 
         dispositionSql.Should().Contain("TenantId = @TenantId");
         dispositionSql.Should().Contain("WorkspaceId = @WorkspaceId");
         dispositionSql.Should().Contain("ProjectId = @ScopeProjectId");
         dispositionSql.Should().Contain("FindingId = @FindingId");
+        dispositionSql.Should().Contain("INNER JOIN dbo.FindingReviewEvents");
+        dispositionSql.Should().Contain("CurrentEventId = e.EventId");
     }
 
     [Fact]

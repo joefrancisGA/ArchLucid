@@ -1387,3 +1387,4 @@
 {"at":"2026-09-07T16:32:01.6543644Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-07T16:39:46.2234394Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-07T16:48:15.3346059Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-09-07T16:57:07.3791553Z","zoneId":"finding-inspect-sql","outcome":"hit"}

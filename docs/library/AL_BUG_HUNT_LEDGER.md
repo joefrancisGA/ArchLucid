@@ -651,11 +651,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — ResolveRuleFields ignored later AppliedRuleIdsJson entries after null/blank prefix
+- **last-bug:** 2026-09-07 — FollowUpBatch omitted ADR 0076 disposition pointer fields on inspect read
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -671,9 +671,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BuildMetadataTypedPayload` duplicates `rationale` into `whyThisMatters` for metadata-only inspect — intentional slim first-paint payload; UI `findingWhyThisMattersText` already falls back to rationale
 - [x] (proven) `ResolveRuleFields` with `AppliedRuleIdsJson` containing a null first element — **hit 2026-09-03:** `ids[0].Trim()` threw `NullReferenceException` on `[null]` instead of falling back to `firstRuleText`; fixed with null/whitespace guard; consolidated regressions in `FindingInspectReadRepositoryCoreTests` (removed stale reflection tests on moved helper)
 - [x] (proven) `ResolveRuleFields` with null/blank prefix in `AppliedRuleIdsJson` drops later rule ids — **hit 2026-09-07 (#1179 seed→hit):** `[null, "cost-guardrail"]` returned `(null, null)` after the #603 null guard because only `ids[0]` was considered; fixed by selecting the first non-blank id in the array; regression in `ResolveRuleFields_when_first_applied_rule_id_is_null_uses_next_non_blank_id`
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — inspect response fields `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId` stay null despite ADR 0076 pointer table (migration 370)
+- [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — **hit 2026-09-07 hunt #1230:** inspect omitted `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId`; fixed with pointer-table join + mapper; regressions in `FollowUpBatch_scopes_latest_disposition_to_workspace_and_project` and `GetInspectAsync_surfaces_current_disposition_pointer_fields_from_FindingCurrentDispositions`
 
-2026-09-07 seed hunt #1179 (hit): reseeded inspect read path; proved AppliedRuleIdsJson null-prefix dropped later rule ids; seeded FindingCurrentDispositions inspect join candidate.
+2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.
 
 ---
 

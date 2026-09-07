@@ -57,6 +57,11 @@ public sealed partial class DapperFindingInspectReadRepository
                 ? null
                 : FindingInspectReadModelMapper.ParseDisposition(joinResult.DispositionRow.Disposition),
             LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
+            LatestDispositionEventId = joinResult.DispositionRow?.EventId,
+            LatestDispositionRowVersionBase64 = joinResult.DispositionRow?.RowVersionStamp is null
+                ? null
+                : Convert.ToBase64String(joinResult.DispositionRow.RowVersionStamp),
+            LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
             HasActiveWaiver = joinResult.ActiveWaiverCount > 0,
             AssignedToUserId = row.AssignedToUserId,
             RemediationDueUtc = row.RemediationDueUtc is null
@@ -227,5 +232,23 @@ public sealed partial class DapperFindingInspectReadRepository
             get;
             init;
         }
+
+        public Guid EventId
+        {
+            get;
+            init;
+        }
+
+        public string? ReviewerUserId
+        {
+            get;
+            init;
+        }
+
+        public byte[] RowVersionStamp
+        {
+            get;
+            init;
+        } = [];
     }
 }
