@@ -52,7 +52,10 @@ import {
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
@@ -199,6 +202,29 @@ export function DiagramsWorkbenchClient() {
     urlCloudResourceId,
     scopedSnapshotId,
   );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), buildInfraEvidenceAuditControlScopePatch(match), pathname), {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams]);
+  const deepLinkedSnapshotMissing = useMemo(() => {
+    if (urlSnapshotId.length === 0 || loadingSnapshots || snapshots.length === 0) {
+      return false;
+    }
+
+    return !snapshots.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
+  }, [loadingSnapshots, snapshots, urlSnapshotId]);
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedSnapshotId.length === 0) {
+      return null;
+    }
+
+    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedMode}.`;
+  }, [selectedMode, selectedSnapshotId]);
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
@@ -417,6 +443,17 @@ export function DiagramsWorkbenchClient() {
         </p>
         <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
       </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
+
+      {deepLinkedSnapshotMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagrams-snapshot-deep-link-missing"
+          role="status"
+        >
+          The linked snapshot is not available in the diagrams workbench scope.
+        </p>
+      ) : null}
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -440,6 +477,8 @@ export function DiagramsWorkbenchClient() {
               snapshotId={scopedSnapshotId}
               activeTab="diagram"
               hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
               provenanceTestId="infra-diagrams-audit-provenance"
               unavailableTestId="infra-diagrams-audit-unavailable"
             />

@@ -2,16 +2,8 @@ import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-typ
 
 export function formatResourceHubTabLabelWithAuditScope(
   baseLabel: string,
-  auditScopeActive: boolean,
-  tabId?: ResourceHubTab,
+  _auditScopeActive: boolean,
+  _tabId?: ResourceHubTab,
 ): string {
-  if (!auditScopeActive) {
-    return baseLabel;
-  }
-
-  if (tabId === "audit") {
-    return `${baseLabel} (scoped)`;
-  }
-
-  return `${baseLabel} · audit`;
+  return baseLabel;
 }

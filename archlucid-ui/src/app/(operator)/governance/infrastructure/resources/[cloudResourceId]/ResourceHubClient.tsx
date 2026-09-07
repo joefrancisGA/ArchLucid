@@ -48,10 +48,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
 import { formatResourceHubTabLabelWithAuditScope } from "@/lib/infra-evidence/infra-evidence-hub-tab-audit-label";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
-import {
-  fetchCloudResourceEvidenceHub,
-  formatInfraEvidenceHubApiError,
-} from "@/lib/infra-evidence/infra-evidence-hub-api";
+import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import {
   createRemediationInstance,
   formatInfraEvidenceRemediationApiError,
@@ -62,9 +59,11 @@ import {
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
   resolveInfrastructureAskAuditContext,
+  resourceExplorerFilterHrefFromSearch,
   resourceHubFilterHrefFromSearch,
   toWorkbenchLinkAuditContext,
   type InfrastructureAskAuditContext,
+  RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
@@ -72,6 +71,16 @@ import {
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_TAB_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  formatCloudResourceExplorerWorkQueueLabel,
+  parseResourceExplorerWorkQueueFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
+import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
+import {
+  fetchCachedInfraEvidenceResourceHub,
+  invalidateInfraEvidenceResourceHubCacheForResource,
+} from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 import type {
   CloudResourceAuditLineageMatch,
   CloudResourceEvidenceHubResponse,
@@ -272,6 +281,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
+  const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
 
   const [hub, setHub] = useState<CloudResourceEvidenceHubResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -292,7 +303,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     setLoadError(null);
 
     try {
-      const response = await fetchCloudResourceEvidenceHub(cloudResourceId, {
+      const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
         runId,
         snapshotId,
         assessmentId,
@@ -367,41 +378,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     };
   }, [assessmentId, auditEvidenceSnapshotId, controlId, hub]);
 
-  const auditControlOptions = useMemo((): CloudResourceAuditLineageMatch[] => {
-    if (hub?.auditLineageLink.available !== true) {
-      return [];
-    }
-
-    const seenControlIds = new Set<string>();
-    const options: CloudResourceAuditLineageMatch[] = [];
-
-    for (const match of hub.auditLineageLink.matches) {
-      if (seenControlIds.has(match.controlId)) {
-        continue;
-      }
-
-      seenControlIds.add(match.controlId);
-      options.push(match);
-    }
-
-    if (
-      hub.auditLineageLink.assessmentId != null
-      && hub.auditLineageLink.auditEvidenceSnapshotId != null
-      && hub.auditLineageLink.controlId != null
-      && !seenControlIds.has(hub.auditLineageLink.controlId)
-    ) {
-      options.unshift({
-        assessmentId: hub.auditLineageLink.assessmentId,
-        auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId,
-        controlId: hub.auditLineageLink.controlId,
-        controlNumber: hub.auditLineageLink.controlNumber ?? "",
-        controlTitle: hub.auditLineageLink.controlTitle ?? "",
-        snapshotCreatedUtc: "",
-      });
-    }
-
-    return options;
-  }, [hub]);
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(hub),
+    [hub],
+  );
 
   const switchActiveAuditControl = useCallback((match: CloudResourceAuditLineageMatch) => {
     const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
@@ -558,6 +538,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         setFindingActionMessage(`Remediation instance ${result.instanceId} created.`);
       }
 
+      invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceId);
       await loadHub();
     } catch (error: unknown) {
       setFindingActionMessage(formatInfraEvidenceRemediationApiError(error));
@@ -578,9 +559,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
-          <Link className="text-sm text-al-link hover:underline" href={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}>
-            Back to explorer
+          {workbenchLinkAuditContext == null ? (
+            <CopyScopedOperatorLinkButton testId="infra-resource-hub-copy-scoped-link" />
+          ) : null}
+          <Link
+            className="text-sm text-al-link hover:underline"
+            href={workQueue !== "all"
+              ? resourceExplorerFilterHrefFromSearch("", { workQueue })
+              : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}
+            data-testid={workQueue !== "all" ? "infra-resource-hub-explorer-work-queue-back-link" : undefined}
+          >
+            {workQueue !== "all" ? `Back to explorer (${workQueueLabel})` : "Back to explorer"}
           </Link>
         </div>
       </div>
@@ -599,7 +588,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           runId={runId}
           controlNumber={hub?.auditLineageLink.controlNumber}
           controlTitle={hub?.auditLineageLink.controlTitle}
+          auditControlOptions={auditControlOptions}
+          onAuditControlChange={switchActiveAuditControl}
           testId="infra-resource-hub-audit-scope-bar"
+          showCopyLink
         />
       ) : null}
 
@@ -610,6 +602,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           auditTabHref={resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), { tab: "audit" })}
           clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(cloudResourceId, searchParams.toString(), activeTab)}
         />
+      ) : null}
+
+      {workQueue !== "all" ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-resource-hub-work-queue-banner"
+        >
+          Explorer work queue: {workQueueLabel}
+        </p>
       ) : null}
 
       {loadError != null ? (
@@ -625,13 +626,21 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       {!loading && hub != null ? (
         <EnterpriseTabs value={activeTab} onValueChange={(value) => setActiveTab(value as ResourceHubTab)}>
-          <EnterpriseTabsList aria-label="Resource evidence hub sections" data-testid="infra-resource-hub-tabs">
-            {hubTabs.map((tab) => (
-              <EnterpriseTabsTrigger key={tab.id} value={tab.id} data-testid={`infra-resource-hub-tab-${tab.id}`}>
-                {tab.label}
-              </EnterpriseTabsTrigger>
-            ))}
-          </EnterpriseTabsList>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <EnterpriseTabsList aria-label="Resource evidence hub sections" data-testid="infra-resource-hub-tabs">
+              {hubTabs.map((tab) => (
+                <EnterpriseTabsTrigger key={tab.id} value={tab.id} data-testid={`infra-resource-hub-tab-${tab.id}`}>
+                  {tab.label}
+                </EnterpriseTabsTrigger>
+              ))}
+            </EnterpriseTabsList>
+            {auditScopeActive ? (
+              <InfraEvidenceAuditScopeChip
+                controlLabel={resolvedAuditLineage?.label}
+                testId="infra-resource-hub-audit-scope-chip"
+              />
+            ) : null}
+          </div>
 
           <EnterpriseTabsContent value="overview" className="mt-4 space-y-4">
             {hub.auditLineageLink.available !== true ? (

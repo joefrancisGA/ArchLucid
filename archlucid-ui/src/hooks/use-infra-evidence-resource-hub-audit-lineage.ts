@@ -3,15 +3,10 @@
 import { useEffect, useState } from "react";
 
 import {
-  fetchCloudResourceEvidenceHub,
-  formatInfraEvidenceHubApiError,
-} from "@/lib/infra-evidence/infra-evidence-hub-api";
-import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import {
-  buildInfraEvidenceResourceHubCacheKey,
-  readCachedInfraEvidenceResourceHub,
-  writeCachedInfraEvidenceResourceHub,
+  fetchCachedInfraEvidenceResourceHub,
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
+import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
 
 export function useInfraEvidenceResourceHubAuditLineage(
   cloudResourceId: string,
@@ -34,17 +29,6 @@ export function useInfraEvidenceResourceHubAuditLineage(
       return;
     }
 
-    const cacheKey = buildInfraEvidenceResourceHubCacheKey(cloudResourceId, snapshotId);
-    const cachedHub = readCachedInfraEvidenceResourceHub(cacheKey);
-
-    if (cachedHub != null) {
-      setHub(cachedHub);
-      setLoadError(null);
-      setLoading(false);
-
-      return;
-    }
-
     let cancelled = false;
 
     async function loadHub() {
@@ -52,12 +36,11 @@ export function useInfraEvidenceResourceHubAuditLineage(
       setLoadError(null);
 
       try {
-        const response = await fetchCloudResourceEvidenceHub(cloudResourceId, {
+        const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
           snapshotId: snapshotId != null && snapshotId.trim().length > 0 ? snapshotId.trim() : undefined,
         });
 
         if (!cancelled) {
-          writeCachedInfraEvidenceResourceHub(cacheKey, response);
           setHub(response);
         }
       } catch (error: unknown) {

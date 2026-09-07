@@ -52,7 +52,10 @@ import {
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
@@ -224,6 +227,16 @@ export function DiagramReconcileWorkbenchClient() {
     urlCloudResourceId,
     scopedSnapshotId,
   );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(
+      diagramReconcileFilterHrefFromSearch(searchParams.toString(), buildInfraEvidenceAuditControlScopePatch(match), pathname),
+      { scroll: false },
+    );
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     if (urlCorrespondenceId.length === 0 || selectedCorrespondenceId !== urlCorrespondenceId) {
@@ -452,6 +465,10 @@ export function DiagramReconcileWorkbenchClient() {
           }));
         }
 
+        if (row.cloudResourceId != null && row.cloudResourceId.trim().length > 0) {
+          invalidateInfraEvidenceResourceHubCacheForResource(row.cloudResourceId);
+        }
+
         showSuccess(
           findingId.length > 0
             ? `Operational finding submitted — outcome: ${outcome}. Open remediation factory to match and create an instance.`
@@ -532,6 +549,8 @@ export function DiagramReconcileWorkbenchClient() {
               runId={runId}
               activeTab="diagram"
               hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
               provenanceTestId="infra-diagram-reconcile-audit-provenance"
               unavailableTestId="infra-diagram-reconcile-audit-unavailable"
             />

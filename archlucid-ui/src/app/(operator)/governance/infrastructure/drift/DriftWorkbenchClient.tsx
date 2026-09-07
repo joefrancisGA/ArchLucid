@@ -28,6 +28,8 @@ import type {
   InfraEvidenceDiffSummary,
   InfraEvidenceSnapshotSummary,
 } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   mergeInfrastructureAskAuditScope,
@@ -119,6 +121,16 @@ export function DriftWorkbenchClient() {
     urlCloudResourceId,
     scopedSnapshotId,
   );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(
+      driftWorkbenchHrefFromSearch(searchParams, buildInfraEvidenceAuditControlScopePatch(match)),
+      { scroll: false },
+    );
+  }, [router, searchParams]);
 
   const syncDriftUrl = useCallback(
     (patch: {
@@ -337,6 +349,8 @@ export function DriftWorkbenchClient() {
               snapshotId={scopedSnapshotId}
               activeTab="drift"
               hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
               provenanceTestId="infra-drift-audit-provenance"
               unavailableTestId="infra-drift-audit-unavailable"
             />

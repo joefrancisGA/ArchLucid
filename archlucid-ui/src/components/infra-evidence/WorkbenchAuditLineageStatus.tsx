@@ -1,7 +1,6 @@
 import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
 import { InfraEvidenceAuditScopeBar } from "@/components/infra-evidence/InfraEvidenceAuditScopeBar";
-import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
-import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { CloudResourceAuditLineageMatch, CloudResourceEvidenceHubResponse, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   buildInfraEvidenceClearAuditScopeHref,
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
@@ -21,6 +20,9 @@ type WorkbenchAuditLineageStatusProps = {
   readonly runId?: string | null;
   readonly activeTab?: ResourceHubTab;
   readonly hasStaleAuditUrlParams?: boolean;
+  readonly auditControlOptions?: readonly CloudResourceAuditLineageMatch[];
+  readonly onAuditControlChange?: (match: CloudResourceAuditLineageMatch) => void;
+  readonly showCopyLink?: boolean;
 };
 
 export function WorkbenchAuditLineageStatus(
@@ -39,6 +41,9 @@ export function WorkbenchAuditLineageStatus(
     runId,
     activeTab,
     hasStaleAuditUrlParams = false,
+    auditControlOptions,
+    onAuditControlChange,
+    showCopyLink = false,
   } = props;
 
   const trimmedCloudResourceId = cloudResourceId?.trim() ?? "";
@@ -65,7 +70,10 @@ export function WorkbenchAuditLineageStatus(
           runId={runId}
           controlNumber={controlNumber ?? hub?.auditLineageLink.controlNumber}
           controlTitle={controlTitle ?? hub?.auditLineageLink.controlTitle}
+          auditControlOptions={auditControlOptions}
+          onAuditControlChange={onAuditControlChange}
           testId={provenanceTestId}
+          showCopyLink={showCopyLink}
         />
       </div>
     );

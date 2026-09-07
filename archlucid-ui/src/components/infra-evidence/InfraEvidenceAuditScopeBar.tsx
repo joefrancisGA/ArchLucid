@@ -10,7 +10,7 @@ import {
   buildInfraEvidenceAuditScopeBarAuditTabHref,
   buildInfraEvidenceClearAuditScopeHref,
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
-import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import type { CloudResourceAuditLineageMatch, ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { InfraEvidenceWorkbenchAuditScope } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,8 @@ type InfraEvidenceAuditScopeBarProps = {
   readonly runId?: string | null;
   readonly controlNumber?: string | null;
   readonly controlTitle?: string | null;
+  readonly auditControlOptions?: readonly CloudResourceAuditLineageMatch[];
+  readonly onAuditControlChange?: (match: CloudResourceAuditLineageMatch) => void;
   readonly testId?: string;
   readonly showCopyLink?: boolean;
 };
@@ -42,6 +44,16 @@ function formatAuditControlLabel(
   return auditScope.controlId;
 }
 
+function formatAuditControlOptionLabel(match: CloudResourceAuditLineageMatch): string {
+  const labelParts = [match.controlNumber, match.controlTitle].filter((part) => part.trim().length > 0);
+
+  if (labelParts.length > 0) {
+    return labelParts.join(" · ");
+  }
+
+  return match.controlId;
+}
+
 export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProps): React.JSX.Element {
   const {
     cloudResourceId,
@@ -52,6 +64,8 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
     runId,
     controlNumber,
     controlTitle,
+    auditControlOptions = [],
+    onAuditControlChange,
     testId = "infra-evidence-audit-scope-bar",
     showCopyLink = true,
   } = props;
@@ -64,6 +78,7 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
     runId,
   );
   const clearScopeHref = buildInfraEvidenceClearAuditScopeHref(cloudResourceId, currentSearch, activeTab);
+  const hasInlineControlPicker = auditControlOptions.length > 1 && onAuditControlChange != null;
 
   return (
     <div
@@ -86,10 +101,34 @@ export function InfraEvidenceAuditScopeBar(props: InfraEvidenceAuditScopeBarProp
           {controlLabel}
         </Link>
       </p>
-      <div className="flex flex-wrap gap-2">
-        <Button asChild variant="outline" size="sm" data-testid={`${testId}-change-control`}>
-          <Link href={auditTabHref}>Change control</Link>
-        </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        {hasInlineControlPicker ? (
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Control</span>
+            <select
+              className="rounded border border-border bg-background px-2 py-1 text-sm"
+              data-testid={`${testId}-control-picker`}
+              value={auditScope.controlId}
+              onChange={(event) => {
+                const nextMatch = auditControlOptions.find((match) => match.controlId === event.target.value);
+
+                if (nextMatch != null) {
+                  onAuditControlChange(nextMatch);
+                }
+              }}
+            >
+              {auditControlOptions.map((match) => (
+                <option key={match.controlId} value={match.controlId}>
+                  {formatAuditControlOptionLabel(match)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <Button asChild variant="outline" size="sm" data-testid={`${testId}-change-control`}>
+            <Link href={auditTabHref}>Change control</Link>
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
