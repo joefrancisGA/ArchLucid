@@ -88,4 +88,79 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     relativeTestPath: "lib/architecture/architecture-draft-intake-mode.test.ts",
     marker: "SY-25",
   },
+  {
+    id: "SY-26",
+    relativeTestPath: "lib/architecture/working-back-href.test.ts",
+    marker: "AO-44",
+  },
+  {
+    id: "SY-27",
+    relativeTestPath: "components/architecture/ArchitectureFindingsDualPane.test.tsx",
+    marker: "SY-27",
+  },
+  {
+    id: "SY-28",
+    relativeTestPath: "lib/resolve-audit-trail-review-href.test.ts",
+    marker: "SY-28",
+  },
+  {
+    id: "SY-33",
+    relativeTestPath: "lib/resolve-working-evidence-parent-link.test.ts",
+    marker: "SY-33",
+  },
+  {
+    id: "SY-34",
+    relativeTestPath: "lib/decision-register-empty-teaching.test.ts",
+    marker: "SY-34",
+  },
+  {
+    id: "SY-35",
+    relativeTestPath: "lib/usability/usability-consolidation.test.ts",
+    marker: "SY-35",
+  },
+  {
+    id: "SY-31",
+    relativeTestPath: "lib/system-desk-evidence-copy-parent.test.ts",
+    marker: "SY-31",
+  },
+  {
+    id: "SY-51",
+    relativeTestPath: "lib/system-desk-acceptance-guard.test.ts",
+    marker: "SY-51",
+  },
+  {
+    id: "SY-52",
+    relativeTestPath: "app/(operator)/architecture/reviews/_sections/reviews-hub-page-copy-resolver.test.ts",
+    marker: "AO-26",
+  },
+  {
+    id: "SY-54",
+    relativeTestPath: "lib/reviews-hub-unfinished-work-href.test.ts",
+    marker: "SY-54",
+  },
+  {
+    id: "SY-55",
+    relativeTestPath: "lib/reviews-hub-evidence-copy.test.ts",
+    marker: "SY-55",
+  },
+  {
+    id: "SY-64",
+    relativeTestPath: "lib/resolve-continue-last-review-package.test.ts",
+    marker: "SY-64",
+  },
+  {
+    id: "SY-70",
+    relativeTestPath: "lib/pilot-scorecard-present.test.ts",
+    marker: "SY-70",
+  },
+  {
+    id: "SY-71",
+    relativeTestPath: "lib/contextual-help/contextual-help-working-desk-copy-guard.test.ts",
+    marker: "SY-71",
+  },
+  {
+    id: "SY-77",
+    relativeTestPath: "lib/working-review-detail-path-import-guard.test.ts",
+    marker: "SY-77",
+  },
 ];

@@ -95,4 +95,21 @@ describe("system-desk acceptance guard (SY-80 / ADR 0079)", () => {
 
     expect(source).not.toContain("reviewDetailPath");
   });
+
+  it("SY-51: Working Home modules do not use REVIEWS_LIST_PATH as a primary CTA", () => {
+    const homeModulePaths = [
+      "components/operator-home/OperatorHomeWorkingPrimaryCta.tsx",
+      "components/operator-home/UnfinishedWorkRail.tsx",
+      "lib/compose-operator-home-sections.ts",
+      "lib/operator-home-latest-draft-primary-action.ts",
+    ];
+
+    for (const relativePath of homeModulePaths) {
+      const source = readFileSync(join(UI_SRC_ROOT, relativePath), "utf8");
+
+      expect(source, relativePath).not.toMatch(
+        /href:\s*REVIEWS_LIST_PATH|href=\{REVIEWS_LIST_PATH\}/,
+      );
+    }
+  });
 });

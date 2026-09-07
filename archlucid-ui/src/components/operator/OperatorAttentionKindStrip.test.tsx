@@ -4,6 +4,15 @@ import { describe, expect, it, vi } from "vitest";
 import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { OPERATOR_ATTENTION_KIND_DESTINATIONS } from "@/lib/operator/operator-attention-kind-destinations";
 import { OPERATOR_ATTENTION_KIND_LABELS } from "@/lib/operator/operator-attention-taxonomy";
+import { REVIEWS_HUB_UNFINISHED_WORK_HREF } from "@/lib/reviews-hub-unfinished-work-href";
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: false }),
+}));
+
+vi.mock("@/hooks/use-reviews-hub-unfinished-work-href", () => ({
+  useReviewsHubUnfinishedWorkHref: () => REVIEWS_HUB_UNFINISHED_WORK_HREF,
+}));
 
 vi.mock("@/hooks/use-operator-attention-summary", () => ({
   useOperatorAttentionSummary: () => ({
@@ -54,7 +63,11 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
       }
 
       const chip = screen.getByTestId(`operator-attention-kind-chip-${kind}`);
-      expect(chip).toHaveAttribute("href", OPERATOR_ATTENTION_KIND_DESTINATIONS[kind].href);
+      const expectedHref =
+        kind === "unfinished-work"
+          ? REVIEWS_HUB_UNFINISHED_WORK_HREF
+          : OPERATOR_ATTENTION_KIND_DESTINATIONS[kind].href;
+      expect(chip).toHaveAttribute("href", expectedHref);
       expect(chip.textContent).toContain(OPERATOR_ATTENTION_KIND_LABELS[kind]);
     }
 
