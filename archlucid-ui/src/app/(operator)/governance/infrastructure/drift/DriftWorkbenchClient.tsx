@@ -6,7 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -48,13 +53,37 @@ import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLin
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
 import { showError } from "@/lib/toast";
+
+import { DriftBreadcrumb } from "./DriftBreadcrumb";
+import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
+
+const cnCard =
+  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+
+const cnField =
+  "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
@@ -71,6 +100,7 @@ function formatDiffLabel(diff: InfraEvidenceDiffSummary, selectedSnapshotId: str
 }
 
 export function DriftWorkbenchClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
@@ -320,26 +350,87 @@ export function DriftWorkbenchClient() {
   }, [selectedChange]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-drift-workbench">
-      <LayerHeader pageKey="infrastructure-drift" />
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-drift-workbench"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
+        title={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_LEAD}
+        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="infra-drift-claim-discipline"
+        titleTestId="infra-drift-page-title"
+        breadcrumb={buyerPolishedShell ? <DriftBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {!buyerPolishedShell ? (
+              <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
+            ) : null}
+          </div>
+        }
+      />
+
+      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-drift" /> : null}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          buyerPolishedShell ? "scroll-mt-24" : undefined,
+        )}
+        data-testid="infra-drift-primary-content"
+      >
+      {buyerPolishedShell ? (
+        <div className="flex justify-end">
+          <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
+        </div>
+      ) : null}
+
+      {!buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Compare inventory snapshots, inspect semantic drift rows, and export advisory Terraform reconstructed from snapshot
           evidence. This is not original Terraform and must not be applied without human review.
         </p>
-        <CopyScopedOperatorLinkButton testId="infra-drift-copy-scoped-link" />
-      </div>
+      ) : null}
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-drift-resource-scope-banner"
           aria-label="Drift workbench resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+            {GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL}
+            {!buyerPolishedShell ? (
+              <> <span className="font-mono text-xs">{urlCloudResourceId}</span>.</>
+            ) : (
+              "."
+            )}
           </p>
+          {buyerPolishedShell ? (
+            <CollapsibleSection
+              title="Resource id"
+              sectionTestId="infra-drift-resource-id-disclosure"
+              summaryLine="Cloud resource UUID from the scoped link"
+            >
+              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {urlCloudResourceId}
+              </p>
+            </CollapsibleSection>
+          ) : null}
           {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -373,7 +464,7 @@ export function DriftWorkbenchClient() {
 
       {deepLinkedChangeMissing ? (
         <p
-          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-drift-change-deep-link-missing"
           role="status"
         >
@@ -383,56 +474,120 @@ export function DriftWorkbenchClient() {
       ) : null}
 
       {loadError != null ? (
-        <StatusTag kind="needs-attention" label={loadError} />
+        buyerPolishedShell ? (
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-drift-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
+                Reload page
+              </Button>
+            }
+          />
+        ) : (
+          <StatusTag kind="needs-attention" label={loadError} />
+        )
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2" aria-label="Snapshot and diff selection">
-        <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Current snapshot</span>
-          <select
-            className="rounded border border-border bg-background px-3 py-2"
-            data-testid="infra-drift-snapshot-picker"
-            disabled={loadingSnapshots || snapshots.length === 0}
-            value={selectedSnapshotId}
-            onChange={(event) => {
-              const nextSnapshotId = event.target.value;
-              setSelectedSnapshotId(nextSnapshotId);
-              syncDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "" });
-            }}
-          >
-            {snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
-            {snapshots.map((snapshot) => (
-              <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                {formatSnapshotLabel(snapshot)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Diff vs other snapshot</span>
-          <select
-            className="rounded border border-border bg-background px-3 py-2"
-            data-testid="infra-drift-diff-picker"
-            disabled={loadingDiffs || diffs.length === 0}
-            value={selectedDiffId}
-            onChange={(event) => {
-              const nextDiffId = event.target.value;
-              setSelectedDiffId(nextDiffId);
-              syncDriftUrl({ diffId: nextDiffId, changeId: "" });
-            }}
-          >
-            {diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
-            {diffs.map((diff) => (
-              <option key={diff.diffId} value={diff.diffId}>
-                {formatDiffLabel(diff, selectedSnapshotId)}
-              </option>
-            ))}
-          </select>
-        </label>
+      <section className={cn("grid gap-4 md:grid-cols-2", cnCard)} aria-label="Snapshot and diff selection">
+        {buyerPolishedShell ? (
+          <>
+            <div className="grid gap-2">
+              <Label htmlFor="infra-drift-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL}</Label>
+              <select
+                id="infra-drift-snapshot-picker"
+                className={cnField}
+                data-testid="infra-drift-snapshot-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSnapshotId}
+                onChange={(event) => {
+                  const nextSnapshotId = event.target.value;
+                  setSelectedSnapshotId(nextSnapshotId);
+                  syncDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "" });
+                }}
+              >
+                {snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
+                {snapshots.map((snapshot) => (
+                  <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                    {formatSnapshotLabel(snapshot)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
+              <select
+                id="infra-drift-diff-picker"
+                className={cnField}
+                data-testid="infra-drift-diff-picker"
+                disabled={loadingDiffs || diffs.length === 0}
+                value={selectedDiffId}
+                onChange={(event) => {
+                  const nextDiffId = event.target.value;
+                  setSelectedDiffId(nextDiffId);
+                  syncDriftUrl({ diffId: nextDiffId, changeId: "" });
+                }}
+              >
+                {diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
+                {diffs.map((diff) => (
+                  <option key={diff.diffId} value={diff.diffId}>
+                    {formatDiffLabel(diff, selectedSnapshotId)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : (
+          <>
+            <label className="flex flex-col gap-1">
+              <span className={OPERATOR_TYPOGRAPHY.helper}>Current snapshot</span>
+              <select
+                className={cnField}
+                data-testid="infra-drift-snapshot-picker"
+                disabled={loadingSnapshots || snapshots.length === 0}
+                value={selectedSnapshotId}
+                onChange={(event) => {
+                  const nextSnapshotId = event.target.value;
+                  setSelectedSnapshotId(nextSnapshotId);
+                  syncDriftUrl({ snapshotId: nextSnapshotId, diffId: "", changeId: "" });
+                }}
+              >
+                {snapshots.length === 0 ? <option value="">No snapshots in scope</option> : null}
+                {snapshots.map((snapshot) => (
+                  <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                    {formatSnapshotLabel(snapshot)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className={OPERATOR_TYPOGRAPHY.helper}>Diff vs other snapshot</span>
+              <select
+                className={cnField}
+                data-testid="infra-drift-diff-picker"
+                disabled={loadingDiffs || diffs.length === 0}
+                value={selectedDiffId}
+                onChange={(event) => {
+                  const nextDiffId = event.target.value;
+                  setSelectedDiffId(nextDiffId);
+                  syncDriftUrl({ diffId: nextDiffId, changeId: "" });
+                }}
+              >
+                {diffs.length === 0 ? <option value="">No diffs for this snapshot</option> : null}
+                {diffs.map((diff) => (
+                  <option key={diff.diffId} value={diff.diffId}>
+                    {formatDiffLabel(diff, selectedSnapshotId)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
       </section>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <section className={cn("flex flex-wrap items-center gap-3", cnCard)} aria-label="Drift export actions">
         <Button
           type="button"
           variant="outline"
@@ -468,7 +623,7 @@ export function DriftWorkbenchClient() {
         <p className={cn("m-0 max-w-2xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}
         </p>
-      </div>
+      </section>
 
       <EnterpriseTable ariaLabel="Inventory drift changes">
         <EnterpriseTableHead>
@@ -500,7 +655,7 @@ export function DriftWorkbenchClient() {
               data-testid={`infra-drift-change-row-${row.changeId}`}
               className={cn(
                 "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                selectedChangeId === row.changeId ? "bg-muted/40" : undefined,
+                selectedChangeId === row.changeId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
               )}
               role="button"
               tabIndex={0}
@@ -530,7 +685,7 @@ export function DriftWorkbenchClient() {
 
       {selectedChange != null ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           aria-label="Selected change details"
           data-testid="infra-drift-change-drawer"
         >
@@ -564,6 +719,9 @@ export function DriftWorkbenchClient() {
           ) : null}
         </section>
       ) : null}
-    </div>
+
+        {buyerPolishedShell ? <DriftClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
   );
 }

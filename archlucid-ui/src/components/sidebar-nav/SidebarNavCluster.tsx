@@ -9,6 +9,7 @@ import { AlertsOutstandingNavBadge } from "@/components/alerts/AlertsOutstanding
 import { GovernanceAssignedToMeFindingsNavBadge } from "@/components/governance/findings/GovernanceAssignedToMeFindingsNavBadge";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -76,6 +77,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const { mode } = useWorkspaceMode();
+  const { productLine } = useProductLine();
   const workingMode = isWorkingWorkspaceMode(mode);
   const sidebarMoreGroupParam = searchParams.get("sidebarMoreGroup");
   const { group, visibleLinks } = props.row;
@@ -161,6 +163,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
       group.surface,
       props.isGovernanceModeEnabled,
       workingMode,
+      productLine,
     );
     const resolvedHref = workingMode
       ? resolveWorkingInsightsNavHref({

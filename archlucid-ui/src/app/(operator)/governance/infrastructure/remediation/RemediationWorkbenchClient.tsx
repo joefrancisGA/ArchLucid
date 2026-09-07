@@ -6,8 +6,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
@@ -24,8 +31,23 @@ import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/Inf
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { remediationWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-remediation-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+import {
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_ID_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SNAPSHOT_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -75,6 +97,15 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import { RemediationBreadcrumb } from "./RemediationBreadcrumb";
+import { RemediationClaimOrientationStrip } from "./RemediationClaimOrientationStrip";
+
+const cnCard =
+  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+
+const cnField =
+  "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
+
 function buildDiagramReconcileHref(context: {
   readonly correspondenceId: string | null;
   readonly runId?: string | null;
@@ -118,6 +149,7 @@ function buildDiagramHubHref(context: {
 }
 
 export function RemediationWorkbenchClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
@@ -479,22 +511,82 @@ export function RemediationWorkbenchClient() {
   }, [selectedInstanceId, visibleInstances]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6">
-      <LayerHeader pageKey="infrastructure-remediation" />
-      <div className="flex justify-end">
-        <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
-      </div>
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-remediation-workbench"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH}
+        title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD}
+        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="infra-remediation-claim-discipline"
+        titleTestId="infra-remediation-page-title"
+        breadcrumb={buyerPolishedShell ? <RemediationBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {!buyerPolishedShell ? (
+              <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
+            ) : null}
+          </div>
+        }
+      />
+
+      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-remediation" /> : null}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          buyerPolishedShell ? "scroll-mt-24" : undefined,
+        )}
+        data-testid="infra-remediation-primary-content"
+      >
+      {buyerPolishedShell ? (
+        <div className="flex justify-end">
+          <CopyScopedOperatorLinkButton testId="infra-remediation-copy-scoped-link" />
+        </div>
+      ) : null}
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-remediation-selection-announcer" />
 
       {urlCloudResourceId.length > 0 ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-remediation-resource-scope-banner"
           aria-label="Remediation factory resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+            {buyerPolishedShell ? (
+              GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SCOPE_LABEL
+            ) : (
+              <>
+                Showing remediation instances for resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+              </>
+            )}
+            {buyerPolishedShell ? "." : null}
           </p>
+          {buyerPolishedShell ? (
+            <CollapsibleSection
+              title="Resource id"
+              sectionTestId="infra-remediation-resource-id-disclosure"
+              summaryLine="Cloud resource UUID from the scoped link"
+            >
+              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {urlCloudResourceId}
+              </p>
+            </CollapsibleSection>
+          ) : null}
           {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -531,16 +623,35 @@ export function RemediationWorkbenchClient() {
 
       {urlFindingId.length > 0 ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-remediation-finding-scope-banner"
           aria-label="Remediation factory finding scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Linked from finding <span className="font-mono text-xs">{urlFindingId}</span>.
+            {buyerPolishedShell ? (
+              <>
+                {GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_SCOPE_LABEL}.
+              </>
+            ) : (
+              <>
+                Linked from finding <span className="font-mono text-xs">{urlFindingId}</span>.
+              </>
+            )}
             {findingScopedInstance == null
               ? " No remediation instance exists yet — use Match + create below."
               : " Matching remediation instance is selected on the board."}
           </p>
+          {buyerPolishedShell ? (
+            <CollapsibleSection
+              title="Finding id"
+              sectionTestId="infra-remediation-finding-id-disclosure"
+              summaryLine="Operational finding UUID from the scoped link"
+            >
+              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {urlFindingId}
+              </p>
+            </CollapsibleSection>
+          ) : null}
           {urlCloudResourceId.length > 0 ? (
             <>
               <Link
@@ -573,15 +684,15 @@ export function RemediationWorkbenchClient() {
       ) : null}
 
       <section className="grid gap-3 md:grid-cols-3" aria-label="Remediation factory metrics">
-        <div className="rounded border border-border bg-card p-4">
+        <div className={cnCard}>
           <p className={OPERATOR_TYPOGRAPHY.helper}>Open findings</p>
           <p className={OPERATOR_TYPOGRAPHY.sectionTitle}>{summaryOpenFindings}</p>
         </div>
-        <div className="rounded border border-border bg-card p-4">
+        <div className={cnCard}>
           <p className={OPERATOR_TYPOGRAPHY.helper}>Remediated this week</p>
           <p className={OPERATOR_TYPOGRAPHY.sectionTitle}>{summaryRemediatedWeek}</p>
         </div>
-        <div className="rounded border border-border bg-card p-4">
+        <div className={cnCard}>
           <p className={OPERATOR_TYPOGRAPHY.helper}>Preflight blocked</p>
           <p className={OPERATOR_TYPOGRAPHY.sectionTitle}>{summaryBlocked}</p>
         </div>
@@ -601,16 +712,29 @@ export function RemediationWorkbenchClient() {
         </Button>
       ) : null}
 
-      <section className="grid gap-3 rounded border border-border bg-card p-4" aria-label="Create remediation instance">
+      <section className={cn("grid gap-3", cnCard)} aria-label="Create remediation instance">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Create from finding</h2>
         <div className="flex flex-wrap gap-2">
-          <input
-            className="min-w-[280px] flex-1 rounded border border-input bg-background px-3 py-2 text-sm"
-            data-testid="infra-remediation-finding-id"
-            value={findingIdInput}
-            onChange={(event) => setFindingIdInput(event.target.value)}
-            placeholder="Operational finding id"
-          />
+          {buyerPolishedShell ? (
+            <div className="grid min-w-[280px] flex-1 gap-2">
+              <Label htmlFor="infra-remediation-finding-id">{GOVERNANCE_INFRASTRUCTURE_REMEDIATION_FINDING_ID_LABEL}</Label>
+              <Input
+                id="infra-remediation-finding-id"
+                data-testid="infra-remediation-finding-id"
+                value={findingIdInput}
+                onChange={(event) => setFindingIdInput(event.target.value)}
+                placeholder="00000000-0000-0000-0000-000000000000"
+              />
+            </div>
+          ) : (
+            <input
+              className={cn("min-w-[280px] flex-1 text-sm", cnField)}
+              data-testid="infra-remediation-finding-id"
+              value={findingIdInput}
+              onChange={(event) => setFindingIdInput(event.target.value)}
+              placeholder="Operational finding id"
+            />
+          )}
           <Button
             type="button"
             size="sm"
@@ -640,7 +764,7 @@ export function RemediationWorkbenchClient() {
 
       {deepLinkedInstanceMissing ? (
         <p
-          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-remediation-instance-deep-link-missing"
           role="status"
         >
@@ -650,7 +774,21 @@ export function RemediationWorkbenchClient() {
       ) : null}
 
       {loadError != null ? (
-        <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
+        buyerPolishedShell ? (
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-remediation-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => void loadWorkbench()}>
+                Retry load
+              </Button>
+            }
+          />
+        ) : (
+          <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
+        )
       ) : null}
 
       {loading ? (
@@ -661,7 +799,7 @@ export function RemediationWorkbenchClient() {
       ) : (
         <section className="grid gap-3 xl:grid-cols-6" aria-label="Remediation instance lifecycle board" data-testid="infra-remediation-board">
           {REMEDIATION_WORKBENCH_COLUMNS.map((column) => (
-            <div key={column.id} className="rounded border border-border bg-card p-3" data-testid={`infra-remediation-column-${column.id}`}>
+            <div key={column.id} className={cn("p-3", cnCard)} data-testid={`infra-remediation-column-${column.id}`}>
               <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{column.label}</h3>
               <ul className="m-0 grid gap-2 p-0">
                 {(groupedInstances.get(column.id) ?? []).map((instance) => (
@@ -669,8 +807,8 @@ export function RemediationWorkbenchClient() {
                     <button
                       type="button"
                       className={cn(
-                        "w-full rounded border border-border px-2 py-2 text-left text-sm hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
-                        selectedInstanceId === instance.instanceId ? "bg-muted/50" : undefined,
+                        "w-full rounded-md border border-neutral-200 px-2 py-2 text-left text-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] dark:border-neutral-800 dark:hover:bg-neutral-900",
+                        selectedInstanceId === instance.instanceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
                       )}
                       data-testid={`infra-remediation-card-${instance.instanceId}`}
                       aria-selected={selectedInstanceId === instance.instanceId}
@@ -680,7 +818,7 @@ export function RemediationWorkbenchClient() {
                       }}
                     >
                       <div className="font-medium">{instance.patternKey}</div>
-                      <div className="text-xs text-muted-foreground">{instance.status}</div>
+                      <div className="text-xs text-al-text-secondary">{instance.status}</div>
                     </button>
                   </li>
                 ))}
@@ -691,7 +829,7 @@ export function RemediationWorkbenchClient() {
       )}
 
       {selectedInstanceId.length > 0 ? (
-        <section className="grid gap-4 rounded border border-border bg-card p-4" aria-label="Remediation instance detail" data-testid="infra-remediation-detail">
+        <section className={cn("grid gap-4", cnCard)} aria-label="Remediation instance detail" data-testid="infra-remediation-detail">
           {detailLoading || detail == null ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading instance detail…</p>
           ) : (
@@ -737,27 +875,59 @@ export function RemediationWorkbenchClient() {
                 </p>
               ) : null}
 
-              <label className="grid max-w-md gap-1 text-sm">
-                <span className="font-medium">Inventory snapshot</span>
-                <select
-                  className="rounded border border-input bg-background px-3 py-2"
-                  data-testid="infra-remediation-snapshot-picker"
-                  value={selectedSnapshotId}
-                  onChange={(event) => setSelectedSnapshotId(event.target.value)}
-                >
-                  {snapshotOptions.map((snapshot) => (
-                    <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {buyerPolishedShell ? (
+                <div className="grid max-w-md gap-2">
+                  <Label htmlFor="infra-remediation-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SNAPSHOT_LABEL}</Label>
+                  <select
+                    id="infra-remediation-snapshot-picker"
+                    className={cnField}
+                    data-testid="infra-remediation-snapshot-picker"
+                    value={selectedSnapshotId}
+                    onChange={(event) => setSelectedSnapshotId(event.target.value)}
+                  >
+                    {snapshotOptions.map((snapshot) => (
+                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <label className="grid max-w-md gap-1 text-sm">
+                  <span className="font-medium">Inventory snapshot</span>
+                  <select
+                    className={cnField}
+                    data-testid="infra-remediation-snapshot-picker"
+                    value={selectedSnapshotId}
+                    onChange={(event) => setSelectedSnapshotId(event.target.value)}
+                  >
+                    {snapshotOptions.map((snapshot) => (
+                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
+                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               {selectedStatus === "Executed" && executionSnapshotId != null ? (
-                <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
-                  Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
-                  snapshot is excluded from the picker.
-                </p>
+                buyerPolishedShell ? (
+                  <CollapsibleSection
+                    title="Verify snapshot hint"
+                    sectionTestId="infra-remediation-verify-hint-disclosure"
+                    summaryLine="Execution snapshot excluded from verify picker"
+                  >
+                    <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
+                      Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
+                      snapshot is excluded from the picker.
+                    </p>
+                  </CollapsibleSection>
+                ) : (
+                  <p className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
+                    Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
+                    snapshot is excluded from the picker.
+                  </p>
+                )
               ) : null}
 
               <div className="flex flex-wrap gap-2">
@@ -785,7 +955,7 @@ export function RemediationWorkbenchClient() {
                 <label className="inline-flex items-center gap-2 text-sm">
                   <span>Wave</span>
                   <select
-                    className="rounded border border-input bg-background px-2 py-1"
+                    className={cn("px-2 py-1", cnField)}
                     value={selectedWaveId}
                     onChange={(event) => setSelectedWaveId(event.target.value)}
                   >
@@ -842,7 +1012,7 @@ export function RemediationWorkbenchClient() {
                 </Button>
               </div>
 
-              <p className={cn("m-0 rounded bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-execute-disclaimer">
+              <p className={cn("m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-execute-disclaimer">
                 {REMEDIATION_EXECUTE_DISCLAIMER}
               </p>
 
@@ -852,7 +1022,7 @@ export function RemediationWorkbenchClient() {
                   {detail.evidence.map((item) => (
                     <pre
                       key={item.evidenceId}
-                      className="overflow-x-auto rounded border border-border bg-muted/20 p-2 text-xs"
+                      className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 p-2 text-xs dark:border-neutral-800 dark:bg-neutral-900/40"
                       data-testid={`infra-remediation-evidence-${item.phase}`}
                     >
                       {item.payloadJson}
@@ -865,7 +1035,7 @@ export function RemediationWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className="rounded border border-border bg-card p-4" aria-label="Wave planner read-only">
+      <section className={cnCard} aria-label="Wave planner read-only">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Wave planner (read-only)</h2>
         {wavePlanner.length === 0 ? (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No remediation waves yet.</p>
@@ -882,8 +1052,11 @@ export function RemediationWorkbenchClient() {
       </section>
 
       {actionMessage != null ? (
-        <p className="m-0 text-sm text-muted-foreground" role="status">{actionMessage}</p>
+        <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">{actionMessage}</p>
       ) : null}
-    </div>
+
+        {buyerPolishedShell ? <RemediationClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
   );
 }

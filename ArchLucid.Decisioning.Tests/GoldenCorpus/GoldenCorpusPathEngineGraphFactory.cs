@@ -357,6 +357,62 @@ internal static class GoldenCorpusPathEngineGraphFactory
             ]);
     }
 
+    internal static GraphSnapshot CreateDataFlowTrustBoundaryGraph()
+    {
+        return WrapCaseGraph(
+            caseNumber: 47,
+            nodes:
+            [
+                new GraphNode
+                {
+                    NodeId = "actor-external-lb",
+                    NodeType = GraphNodeTypes.Actor,
+                    Label = "external-ingress-lb",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["trustOrigin"] = nameof(TrustOrigin.External),
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "app-orders-api",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "orders-api",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Compute,
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "sql-orders-prod",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sql-orders-prod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = GraphTopologyCategories.Data,
+                    },
+                },
+            ],
+            edges:
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "actor-external-lb",
+                    ToNodeId = "app-orders-api",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 1.0,
+                },
+                new GraphEdge
+                {
+                    FromNodeId = "app-orders-api",
+                    ToNodeId = "sql-orders-prod",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 1.0,
+                },
+            ]);
+    }
+
     private static GraphSnapshot WrapCaseGraph(
         int caseNumber,
         IReadOnlyList<GraphNode> nodes,

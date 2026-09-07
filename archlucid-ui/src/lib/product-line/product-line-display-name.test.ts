@@ -12,6 +12,8 @@ import {
   productLineDocumentTitle,
   productLineEvaluationSignupLead,
   productLineGeneratedByLine,
+  productLineMicrosoftTeamsLabel,
+  productLineTeamsNotificationsPageTitle,
   howProductWorksTitle,
   usingProductTitle,
   productLineManagedIdentityObjectIdLabel,
@@ -109,6 +111,14 @@ describe("localizeProductCopy", () => {
     expect(localizeProductCopy("security", template)).toBe(
       "Replace {ArchLucid tenant ID} and {ArchLucid managed identity object ID} for SecureNow federation.",
     );
+  });
+
+  it("shortens Microsoft Teams to Teams in SecureNow copy", () => {
+    expect(productLineMicrosoftTeamsLabel("security")).toBe("Teams");
+    expect(productLineMicrosoftTeamsLabel("architecture")).toBe("Microsoft Teams");
+    expect(productLineTeamsNotificationsPageTitle("security")).toBe("Teams notifications");
+    expect(localizeProductCopy("security", "Microsoft Teams notifications")).toBe("Teams notifications");
+    expect(localizeProductCopy("architecture", "Microsoft Teams notifications")).toBe("Microsoft Teams notifications");
   });
 
   it("exposes SecureNow federation field labels", () => {

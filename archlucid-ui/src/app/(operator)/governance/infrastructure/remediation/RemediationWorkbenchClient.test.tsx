@@ -7,6 +7,8 @@ import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-r
 let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/remediation",
   useSearchParams: () => searchParams,
 }));
 

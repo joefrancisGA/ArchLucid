@@ -8,6 +8,8 @@ let searchParams = new URLSearchParams(
 );
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/drift",
   useSearchParams: () => searchParams,
 }));
 
@@ -149,7 +151,7 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-drift-change-drawer")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveClass("bg-muted/40");
+    expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveClass("bg-neutral-100");
   });
 
   it("links Ask with diff and resource scope when a diff is selected", async () => {

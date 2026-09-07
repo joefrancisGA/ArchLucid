@@ -95,7 +95,9 @@ describe("resolveReviewPackagePrimaryAction", () => {
 
     expect(action.kind).toBe("export-decision-receipt");
     expect(action.label).toBe("Export decision receipt");
-    expect(action.href).toBe("/architecture/reviews/run-abc?reviewTab=artifacts");
+    expect(action.href).toBe(
+      "/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports",
+    );
     expect(action.label).not.toContain("Finalize");
   });
 
