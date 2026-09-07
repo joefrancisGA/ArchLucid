@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "archlucid.insight-density-frontier-capture.v1",
+  "title": "Insight-density frontier capture fixture",
+  "description": "Records a sealed run capture for offline frontier-delta measurement. Not a named-model benchmark transcript.",
+  "type": "object",
+  "required": [
+    "schema",
+    "architecturePackageSha256",
+    "findingsSnapshotId",
+    "capturedUtc",
+    "label",
+    "decisionGradeFindingTitles",
+    "archlucidFindings",
+    "frontierBaseline",
+    "expectedNoveltyPercentage"
+  ],
+  "properties": {
+    "schema": {
+      "const": "archlucid.insight-density-frontier-capture.v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "architecturePackageSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
+    },
+    "findingsSnapshotId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "capturedUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "label": {
+      "type": "string",
+      "enum": ["synthetic", "pilot-pending"]
+    },
+    "decisionGradeFindingTitles": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "noveltyFindingIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "archlucidFindings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/archlucidFinding" }
+    },
+    "frontierBaseline": {
+      "type": "object",
+      "required": ["findings"],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/baselineFinding" }
+        }
+      }
+    },
+    "expectedNoveltyPercentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    }
+  },
+  "$defs": {
+    "archlucidFinding": {
+      "type": "object",
+      "required": [
+        "findingId",
+        "engineType",
+        "category",
+        "title",
+        "classification"
+      ],
+      "properties": {
+        "findingId": { "type": "string", "minLength": 1 },
+        "engineType": { "type": "string", "minLength": 1 },
+        "category": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "policyRuleId": { "type": ["string", "null"] },
+        "classification": {
+          "type": "string",
+          "enum": ["DecisionGradeFinding", "ChecklistCoverage"]
+        }
+      }
+    },
+    "baselineFinding": {
+      "type": "object",
+      "required": ["category", "title"],
+      "properties": {
+        "category": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "ruleId": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

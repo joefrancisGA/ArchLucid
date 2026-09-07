@@ -56,11 +56,11 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
 }
 
 /**
- * One buyer-facing sentence synthesizing finalized state, disposition posture, governance gate, findings, and warnings.
+ * One buyer-facing sentence synthesizing finalized state, disposition posture, approval gate, findings, and warnings.
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {
   if (!input.hasGoldenManifest) {
-    return "Finalize the review to lock findings, monitored risks, and governance approval signals for this review.";
+    return "Finalize the review to lock findings, monitored risks, and approval signals for this review.";
   }
 
   const findings = clampNonNegativeInt(input.findingCountDisplay);
@@ -93,7 +93,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
       ? `Approved for implementation planning with ${warnings ?? 1} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
       : posture !== null
         ? `Finalized package — ${posture}.`
-        : "Finalized package — governance approval complete.";
+        : "Finalized package — approval complete.";
 
   return `${lead} ${findingPhrase}${warningPhrase}`;
 }

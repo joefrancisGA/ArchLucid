@@ -9,6 +9,7 @@ import {
   COMMAND_PALETTE_FINDING_PREVIOUS_EVENT,
   COMMAND_PALETTE_FINDING_REJECT_EVENT,
   COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
+  COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
   COMMAND_PALETTE_SAVE_DRAFT_EVENT,
   COMMAND_PALETTE_UNDO_MUTATION_EVENT,
 } from "@/lib/command-palette-handler-actions";
@@ -16,6 +17,7 @@ import {
   queryVisibleArchitectureDraftSaveControl,
   queryVisibleFinalizeReviewControl,
   queryVisibleReviewDetailSaveControl,
+  queryVisibleReviewRoomEnterControl,
 } from "@/lib/command-palette-work-action-dom";
 import {
   dispatchFocusedFindingDispositionShortcut,
@@ -55,6 +57,10 @@ function clickVisibleFinalizeReviewControl(): void {
   queryVisibleFinalizeReviewControl()?.click();
 }
 
+function clickVisibleRoomElicitationControl(): void {
+  queryVisibleReviewRoomEnterControl()?.click();
+}
+
 function isFindingKeyboardTriageHostMounted(): boolean {
   return document.querySelector("[data-finding-keyboard-triage-host]") !== null;
 }
@@ -68,6 +74,10 @@ export function CommandPaletteWorkActionBridge(): null {
 
     const onFinalizeReview = () => {
       clickVisibleFinalizeReviewControl();
+    };
+
+    const onRoomElicitation = () => {
+      clickVisibleRoomElicitationControl();
     };
 
     const onUndoMutation = () => {
@@ -116,6 +126,7 @@ export function CommandPaletteWorkActionBridge(): null {
 
     window.addEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
     window.addEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
+    window.addEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
     window.addEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
     window.addEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
     window.addEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);
@@ -126,6 +137,7 @@ export function CommandPaletteWorkActionBridge(): null {
     return () => {
       window.removeEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
       window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
+      window.removeEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
       window.removeEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
       window.removeEventListener(COMMAND_PALETTE_FINDING_NEXT_EVENT, onFindingNext);
       window.removeEventListener(COMMAND_PALETTE_FINDING_PREVIOUS_EVENT, onFindingPrevious);

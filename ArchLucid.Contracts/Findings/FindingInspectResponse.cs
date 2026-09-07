@@ -187,6 +187,27 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>Event id of the current disposition pointer when ADR 0076 CAS is in use.</summary>
+    public Guid? LatestDispositionEventId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Row version of the current disposition pointer for optimistic concurrency (ADR 0076).</summary>
+    public string? LatestDispositionRowVersionBase64
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Reviewer who recorded the current disposition event.</summary>
+    public string? LatestDispositionReviewerUserId
+    {
+        get;
+        init;
+    }
+
     /// <summary><see langword="true" /> when an active time-bounded waiver covers this finding.</summary>
     public bool HasActiveWaiver
     {

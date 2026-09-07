@@ -244,7 +244,7 @@ describe("wave14 filter url helpers", () => {
     );
   });
 
-  it("governance findings group-by and audit date range params", async () => {
+  it("policy findings group-by and audit date range params", async () => {
     const { parseGovernanceFindingsGroupByResourceFromSearch, governanceFindingsGroupByHrefFromSearch } =
       await import("@/lib/governance/governance-findings-group-by-url");
     const { parseAuditTrailDateRangePresetFromSearch, auditTrailDateRangePresetHrefFromSearch } = await import(
@@ -1124,7 +1124,7 @@ describe("wave24 filter url helpers", () => {
 });
 
 describe("wave25 filter url helpers", () => {
-  it("governance approval review, alert simulate rule, and settings users invite", async () => {
+  it("approval review, alert simulate rule, and settings users invite", async () => {
     const {
       governanceApprovalReviewHrefFromSearch,
       parseGovernanceApprovalIdFromSearch,
@@ -2103,7 +2103,7 @@ describe("wave32 filter url helpers", () => {
 });
 
 describe("wave33 filter url helpers", () => {
-  it("governance findings preset remove, advisory disposition, run governance disposition, and policy pack toggle", async () => {
+  it("policy findings preset remove, advisory disposition, run approval disposition, and policy pack toggle", async () => {
     const {
       governanceAssignedToMePresetRemoveConfirmHrefFromSearch,
       governanceFindingsPresetRemoveConfirmHrefFromSearch,
@@ -3106,7 +3106,7 @@ describe("wave42 filter url helpers", () => {
 });
 
 describe("wave43 filter url helpers", () => {
-  it("related surfaces, governance findings queues, more filters, and last failure tech params", async () => {
+  it("related surfaces, policy findings queues, more filters, and last failure tech params", async () => {
     const {
       parseRelatedSurfacesOpenFromSearch,
       relatedSurfacesDisclosureHrefFromSearch,
@@ -4100,6 +4100,92 @@ describe("wave53 filter url helpers", () => {
   });
 });
 
+describe("wave54 filter url helpers", () => {
+  it("architecture sponsor sharing, webhooks delivery contract, cloud connections hub vocabulary, notification preference center relations, identity providers technical details, sso protocol help, identity providers role mapping examples, architecture draft guidance, persistent workspace first review steps, impact preview how it works params", async () => {
+    const {
+      architectureSponsorSharingDisclosureHrefFromSearch,
+      parseArchitectureSponsorSharingOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-sponsor-sharing-disclosure-url");
+    const {
+      parseWebhooksDeliveryContractOpenFromSearch,
+      webhooksDeliveryContractDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/webhooks-delivery-contract-disclosure-url");
+    const {
+      cloudConnectionsHubVocabularyDisclosureHrefFromSearch,
+      parseCloudConnectionsHubVocabularyOpenFromSearch,
+    } = await import("@/lib/integrations/cloud-connections-hub-vocabulary-disclosure-url");
+    const {
+      notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
+      parseNotificationPreferenceCenterRelationsOpenFromSearch,
+    } = await import("@/lib/administration/notification-preference-center-relations-disclosure-url");
+    const {
+      identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
+      parseIdentityProvidersTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-technical-details-disclosure-url");
+    const {
+      parseSsoProtocolHelpOpenFromSearch,
+      ssoProtocolHelpDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/sso-protocol-help-disclosure-url");
+    const {
+      identityProvidersRoleMappingExamplesDisclosureHrefFromSearch,
+      parseIdentityProvidersRoleMappingExamplesOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-role-mapping-examples-disclosure-url");
+    const {
+      architectureDraftGuidanceDisclosureHrefFromSearch,
+      parseArchitectureDraftGuidanceOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-guidance-disclosure-url");
+    const {
+      parsePersistentWorkspaceFirstReviewStepsOpenFromSearch,
+      persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/persistent-workspace-first-review-steps-disclosure-url");
+    const {
+      impactPreviewHowItWorksDisclosureHrefFromSearch,
+      parseImpactPreviewHowItWorksOpenFromSearch,
+    } = await import("@/lib/insights/impact-preview-how-it-works-disclosure-url");
+
+    expect(parseArchitectureSponsorSharingOpenFromSearch("1")).toBe(true);
+    expect(architectureSponsorSharingDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&architectureSponsorSharingOpen=1",
+    );
+    expect(parseWebhooksDeliveryContractOpenFromSearch("true")).toBe(true);
+    expect(webhooksDeliveryContractDisclosureHrefFromSearch("", true, "/integrations/webhooks")).toBe(
+      "/integrations/webhooks?webhooksDeliveryContractOpen=1",
+    );
+    expect(parseCloudConnectionsHubVocabularyOpenFromSearch("1")).toBe(true);
+    expect(cloudConnectionsHubVocabularyDisclosureHrefFromSearch("", true, "/integrations/cloud-connections")).toBe(
+      "/integrations/cloud-connections?cloudConnectionsHubVocabularyOpen=1",
+    );
+    expect(parseNotificationPreferenceCenterRelationsOpenFromSearch("true")).toBe(true);
+    expect(notificationPreferenceCenterRelationsDisclosureHrefFromSearch("", true, "/administration/notifications")).toBe(
+      "/administration/notifications?notificationPreferenceCenterRelationsOpen=1",
+    );
+    expect(parseIdentityProvidersTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(identityProvidersTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics")).toBe(
+      "/administration/identity-providers/diagnostics?identityProvidersTechnicalDetailsOpen=1",
+    );
+    expect(parseSsoProtocolHelpOpenFromSearch("true")).toBe(true);
+    expect(ssoProtocolHelpDisclosureHrefFromSearch("", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?ssoProtocolHelpOpen=1",
+    );
+    expect(parseIdentityProvidersRoleMappingExamplesOpenFromSearch("1")).toBe(true);
+    expect(identityProvidersRoleMappingExamplesDisclosureHrefFromSearch("", true, "/administration/identity-providers/role-mapping")).toBe(
+      "/administration/identity-providers/role-mapping?identityProvidersRoleMappingExamplesOpen=1",
+    );
+    expect(parseArchitectureDraftGuidanceOpenFromSearch("true")).toBe(true);
+    expect(architectureDraftGuidanceDisclosureHrefFromSearch("", true, "/architecture/architectures/draft-1")).toBe(
+      "/architecture/architectures/draft-1?architectureDraftGuidanceOpen=1",
+    );
+    expect(parsePersistentWorkspaceFirstReviewStepsOpenFromSearch("1")).toBe(true);
+    expect(persistentWorkspaceFirstReviewStepsDisclosureHrefFromSearch("sort=updatedAt", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?sort=updatedAt&persistentWorkspaceFirstReviewStepsOpen=1",
+    );
+    expect(parseImpactPreviewHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(impactPreviewHowItWorksDisclosureHrefFromSearch("", true, "/insights/impact-preview")).toBe(
+      "/insights/impact-preview?impactPreviewHowItWorksOpen=1",
+    );
+  });
+});
+
 describe("wave55 filter url helpers", () => {
   it("settings destination meta, generated by model alias, cloud security preflight, ai usage cost scope help, audit buyer utilities details, audit timeline technical details, standards rules resolution details, review failure technical metadata, jira connection test collapsed, azure boards default behavior collapsed params", async () => {
     const {
@@ -4187,7 +4273,7 @@ describe("wave55 filter url helpers", () => {
 });
 
 describe("wave56 filter url helpers", () => {
-  it("cloud security preflight technical details, audit buyer verification appendix, audit operator table event json, audit timeline data json, provenance review identifier, governance overview blocking breakdown, model governance profile mapping, draft intake reason follow up, quick decision supporting detail, try cli demo params", async () => {
+  it("cloud security preflight technical details, audit buyer verification appendix, audit operator table event json, audit timeline data json, provenance review identifier, governance overview blocking breakdown, model policy profile mapping, draft intake reason follow up, quick decision supporting detail, try cli demo params", async () => {
     const {
       cloudSecurityPreflightTechnicalDetailsDisclosureHrefFromSearch,
       parseCloudSecurityPreflightTechnicalDetailsOpenFromSearch,
@@ -4856,7 +4942,7 @@ describe("wave16 filter url helpers", () => {
     expect(auditTrailSearchHrefFromSearch("runId=r1", "phi")).toBe("/governance/audit?runId=r1&q=phi");
   });
 
-  it("governance findings nl severity/status and assigned-to-me sort params", async () => {
+  it("policy findings nl severity/status and assigned-to-me sort params", async () => {
     const {
       parseGovernanceFindingsNlSeverityFromSearch,
       governanceFindingsNlSeverityHrefFromSearch,

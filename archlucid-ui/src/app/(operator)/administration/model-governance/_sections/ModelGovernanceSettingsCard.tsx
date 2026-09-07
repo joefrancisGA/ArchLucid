@@ -80,7 +80,7 @@ export function ModelGovernanceSettingsCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         {state.status === "loading" || state.status === "idle" ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading model governance catalog…</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading model policy catalog…</p>
         ) : null}
 
         {state.status === "blocked" ? (

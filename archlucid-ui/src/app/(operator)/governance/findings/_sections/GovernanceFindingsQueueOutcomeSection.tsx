@@ -112,7 +112,7 @@ export function GovernanceFindingsQueueOutcomeSection(
                     {
                       label: props.buyerPolishedShell
                         ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION
-                        : "Open governance approval",
+                        : "Open approval",
                       href: "/governance/approval-queue",
                       variant: "outline",
                     },

@@ -36,6 +36,20 @@ export type WorkspaceAiAvailabilityPanelProps = {
 
 const PROBE_DEBUG_HEADER_KEYS = new Set(["probeDeploymentName", "probeModelId"]);
 
+const PROBE_CHECK_BUYER_LABELS: Record<string, string> = {
+  azure_openai_live_completion_probe: "Live completion check",
+  customer_connection_live_probe: "Customer connection check",
+  azure_openai_configuration: "Azure OpenAI configuration",
+  customer_connection_configuration: "Customer AI connection configuration",
+  simulator_mode: "Simulator mode",
+};
+
+function buyerLabelForProbeCheckName(name: string): string {
+  const key = name.trim();
+
+  return PROBE_CHECK_BUYER_LABELS[key] ?? "Availability check";
+}
+
 function resolveProbeDeploymentName(debug: Readonly<Record<string, string>>): string | null {
   const deployment = debug.probeDeploymentName?.trim();
 
@@ -91,18 +105,18 @@ function formatProbeFreshnessLabel(asOfUtc: string): string | null {
 
 function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, compact: boolean): string {
   if (compact) {
-    return "Probe details";
+    return "AI availability details";
   }
 
   const checkCount = result.checks.length;
   const validatedAt = formatProbeFreshnessLabel(result.asOfUtc);
-  const checkLabel = `${checkCount} probe check${checkCount === 1 ? "" : "s"}`;
+  const checkLabel = `${checkCount} availability check${checkCount === 1 ? "" : "s"}`;
 
   if (validatedAt !== null) {
-    return `Probe details — ${checkLabel}, validated ${validatedAt}`;
+    return `AI availability details — ${checkLabel}, validated ${validatedAt}`;
   }
 
-  return `Probe details — ${checkLabel}`;
+  return `AI availability details — ${checkLabel}`;
 }
 
 function resolveProbeProvenanceCopy(aiSource: string): string {
@@ -127,7 +141,7 @@ function statusTagKind(
   probeAvailable: boolean,
 ): "ready" | "needs-attention" | "blocked" | "in-progress" {
   if (reviewTerminalFailure && probeAvailable) {
-    return "needs-attention";
+    return "ready";
   }
 
   if (state.status === "loading") {
@@ -230,11 +244,11 @@ function WorkspaceAiProbeDiagnostics(props: {
       />
 
       <div>
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Availability checks</p>
         <ul className={cn("m-0 mt-1 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {result.checks.map((row) => (
             <li key={`${row.name}:${row.status}`}>
-              <span className="font-medium text-al-text-primary">{row.name}</span>
+              <span className="font-medium text-al-text-primary">{buyerLabelForProbeCheckName(row.name)}</span>
               {" — "}
               <span>{row.status}</span>
               {row.detail.trim().length > 0 ? `: ${row.detail}` : null}
@@ -292,10 +306,14 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   const probeLoaded = state.status === "loaded";
   const probeAvailable = probeLoaded && state.result.isAvailable;
   const neutralProbeOnTerminalFailure = reviewTerminalFailure && probeAvailable;
+  const terminalFailureScopingCopy =
+    neutralProbeOnTerminalFailure
+      ? "Live AI is available for this session — it was not the cause of this review failure."
+      : null;
   const probeValidatedAt =
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
-    probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "Probe details";
+    probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -341,7 +359,15 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
           {scopingLabel}
         </p>
       ) : null}
-      {probeAvailable && !neutralProbeOnTerminalFailure ? (
+      {terminalFailureScopingCopy !== null ? (
+        <p
+          className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-package-workspace-ai-terminal-failure-scope"
+        >
+          {terminalFailureScopingCopy}
+        </p>
+      ) : null}
+      {probeAvailable ? (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <StatusTag kind={statusTagKind(state, reviewTerminalFailure, probeAvailable)} label={label} />
@@ -354,17 +380,16 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               </span>
             ) : null}
           </div>
-          <button
+          <Button
             type="button"
-            className={cn(
-              "shrink-0 text-al-link underline-offset-2 hover:underline",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
+            variant="outline"
+            size="sm"
+            className="shrink-0 min-h-6"
             onClick={() => void checkAvailability({ force: true })}
             data-testid="review-package-recheck-ai-availability-link"
           >
             Re-check
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -412,14 +437,14 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       )}
 
       {probeLoaded ? (
-        probeAvailable && !neutralProbeOnTerminalFailure ? (
+        probeAvailable ? (
           <AdvancedOptionsAccordion
             triggerLabel={probeTriggerLabel}
             open={probeDiagnosticsOpen}
             onOpenChange={setProbeDiagnosticsOpen}
             className="mt-2"
           >
-            <WorkspaceAiProbeDiagnostics result={state.result} compact />
+            <WorkspaceAiProbeDiagnostics result={state.result} compact={!neutralProbeOnTerminalFailure} />
           </AdvancedOptionsAccordion>
         ) : (
           <div className="mt-2">

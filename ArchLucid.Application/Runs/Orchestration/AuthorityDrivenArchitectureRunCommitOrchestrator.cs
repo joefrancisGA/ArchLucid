@@ -23,6 +23,9 @@ using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
+using ArchLucid.Application.Exports;
+using ArchLucid.Decisioning.CareerArtifacts;
+
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref = "IArchitectureRunCommitOrchestrator"/>
@@ -324,19 +327,22 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        PreCommitGateResult? skippedMustGate = AuthorityCommitSkippedMustGate.Evaluate(request.IntakeTransparencyTrail);
+        CareerArtifactCompletenessInput finalizeArtifactInput = CareerArtifactCompletenessInputMapper.MapForFinalize(
+            request.IntakeTransparencyTrail,
+            enginesSucceeded: null,
+            workingDesk: false,
+            preCommitGateEnabled: true);
+        CareerArtifactCompletenessResult finalizeArtifactResult =
+            new CareerArtifactCompletenessValidator().Evaluate(finalizeArtifactInput);
 
-        if (skippedMustGate is not null)
+        if (!finalizeArtifactResult.CanRender)
         {
-            throw new PreCommitGovernanceBlockedException(skippedMustGate);
-        }
-
-        PreCommitGateResult? trailCompletenessGate =
-            AuthorityCommitTransparencyTrailCompletenessGate.Evaluate(request.IntakeTransparencyTrail);
-
-        if (trailCompletenessGate is not null)
-        {
-            throw new PreCommitGovernanceBlockedException(trailCompletenessGate);
+            CareerArtifactBlockReason primaryReason = finalizeArtifactResult.BlockReasons[0];
+            throw new PreCommitGovernanceBlockedException(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = primaryReason.Message,
+            });
         }
 
         AuthorityCommitDecisionMaterializationResult materialization;

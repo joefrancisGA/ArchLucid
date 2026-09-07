@@ -58,7 +58,7 @@ export type GovernanceFindingsQueueTableRowProps = {
   readonly onOpenRow?: () => void;
 };
 
-/** Single governance findings queue row (flat list; supports virtualization). */
+/** Single policy findings queue row (flat list; supports virtualization). */
 export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTableRowProps): ReactElement {
   const {
     row,

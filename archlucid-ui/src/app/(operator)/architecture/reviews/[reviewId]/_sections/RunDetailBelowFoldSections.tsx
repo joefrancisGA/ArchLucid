@@ -181,7 +181,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!hasSealedRecord ? (
+      {!hasSealedRecord && !terminalFailure ? (
         <RunDetailPreFinalizedEmptyState
           runId={m.routeRunId}
           terminalFailure={terminalFailure}
@@ -237,6 +237,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
           progressSummary={m.resolvedDetail.run}
           graphSnapshot={m.resolvedDetail.graphSnapshot}
+          findingsSnapshot={m.resolvedDetail.findingsSnapshot}
           pagePrimaryOwnedElsewhere
         />
       ) : null}

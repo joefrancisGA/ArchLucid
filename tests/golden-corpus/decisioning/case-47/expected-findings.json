@@ -1,0 +1,116 @@
+[
+  {
+    "findingId": "475c81fe-cf47-d393-28ed-46f9b43a87b3",
+    "findingType": "DataFlowTrustBoundaryFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "External actor \u0027external-ingress-lb\u0027 reaches sensitive datastore \u0027sql-orders-prod\u0027 in 2 hop(s) without crossing a trust boundary",
+    "rationale": "An external-facing actor can reach datastore \u0027sql-orders-prod\u0027 in 2 graph hop(s) without traversing a TrustBoundary node or private-endpoint hop.",
+    "relatedNodeIds": [
+      "actor-external-lb",
+      "app-orders-api",
+      "sql-orders-prod"
+    ],
+    "payloadType": "DataFlowTrustBoundaryFindingPayload",
+    "rulesApplied": [
+      "data-flow-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External actor path to sensitive datastore without trust-boundary or private-endpoint hop."
+    ]
+  },
+  {
+    "findingId": "79c0f6aa-017f-c1ad-7701-185588f691c3",
+    "findingType": "ExternalExposureFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "External actor \u0027external-ingress-lb\u0027 lacks an explicit trust boundary",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "relatedNodeIds": [
+      "actor-external-lb"
+    ],
+    "payloadType": "ExternalExposureFindingPayload",
+    "rulesApplied": [
+      "external-exposure-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External-facing actor present without matching TrustBoundary node."
+    ]
+  },
+  {
+    "findingId": "3c788f8b-3875-2279-c502-b8128602eee7",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "app-orders-api",
+      "sql-orders-prod"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "c24775ec-9709-2043-82a8-5445e436fdd6",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "app-orders-api",
+      "sql-orders-prod"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "184c8601-981d-aa04-b80b-6afe8be69e21",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "orders-api",
+      "sql-orders-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "913e0ac0-dd53-4e41-7bdb-e216d17acdff",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "app-orders-api",
+      "sql-orders-prod"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

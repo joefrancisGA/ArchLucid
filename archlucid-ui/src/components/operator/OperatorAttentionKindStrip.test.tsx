@@ -93,6 +93,20 @@ describe("OperatorAttentionKindStrip (TB-2353)", () => {
     );
   });
 
+  it("returns null when every non-zero kind is suppressed", () => {
+    usePathname.mockReturnValue("/");
+    useSearchParams.mockReturnValue(new URLSearchParams());
+
+    const { container } = render(
+      <OperatorAttentionKindStrip
+        variant="compact"
+        suppressKinds={["unfinished-work", "assigned-to-me", "awaiting-approval"]}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("hides zero-count attention chips", () => {
     usePathname.mockReturnValue("/");
     useSearchParams.mockReturnValue(new URLSearchParams());

@@ -86,14 +86,43 @@ public sealed class InsightDensityGateCandidate
 
     internal static List<string> ExtractEvidenceRefs(Finding finding)
     {
-        List<string> evidenceRefs = finding.Trace.Notes
-            .Where(static note => note.StartsWith("evidence:", StringComparison.OrdinalIgnoreCase))
-            .Select(static note => note["evidence:".Length..])
-            .ToList();
+        List<string> evidenceRefs = [];
 
-        if (evidenceRefs.Count == 0 && finding.RelatedNodeIds.Count > 0)
+        foreach (string reference in finding.EvidenceRefs)
         {
-            evidenceRefs.AddRange(finding.RelatedNodeIds);
+            if (string.IsNullOrWhiteSpace(reference))
+                continue;
+
+            string trimmed = reference.Trim();
+
+            if (evidenceRefs.Any(existing => existing.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            evidenceRefs.Add(trimmed);
+        }
+
+        foreach (string note in finding.Trace.Notes)
+        {
+            if (!note.StartsWith("evidence:", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string trimmed = note["evidence:".Length..].Trim();
+
+            if (string.IsNullOrWhiteSpace(trimmed))
+                continue;
+
+            if (evidenceRefs.Any(existing => existing.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            evidenceRefs.Add(trimmed);
+        }
+
+        if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId))
+        {
+            string policyRuleRef = $"policy-rule:{finding.PolicyRuleId.Trim()}";
+
+            if (!evidenceRefs.Any(existing => existing.Equals(policyRuleRef, StringComparison.OrdinalIgnoreCase)))
+                evidenceRefs.Add(policyRuleRef);
         }
 
         return evidenceRefs;

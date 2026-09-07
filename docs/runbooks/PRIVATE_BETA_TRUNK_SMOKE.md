@@ -20,6 +20,15 @@
 5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`
 6. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts` (browser install completes **before** shell warm)
 
+## Trunk hygiene during corset outages
+
+When `ui-typecheck-on-push.yml` is red on `master`, **pause feature merges** until push corset is green again. Burst merges bury the failing job name in the Actions queue and delay the first post-fix `private-beta-access-on-push` run. After a typecheck hotfix lands, wait for **both**:
+
+1. `Operator UI: typecheck (blocking)` **success** on `master`
+2. `Operator UI: private-beta access-path (JwtBearer)` to finish (success or actionable Playwright failure)
+
+Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh master`) or widen required ruleset checks.
+
 ## Trunk milestones (2026-09-06)
 
 | Milestone | Run / PR | Evidence |
@@ -50,7 +59,7 @@
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
-| Actions queue backlog | Many trunk merges enqueue parallel corset/private-beta runs | Workflow uses **branch concurrency** (`cancel-in-progress: true`) — verify the **latest** `master` SHA run; ignore cancelled superseded runs. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
+| Actions queue backlog | Many trunk merges enqueue parallel private-beta runs on different SHAs | Workflow uses **ref-level concurrency** (`private-beta-access-on-push-${{ github.ref }}`, `cancel-in-progress: true`) — only the latest `master` push runs; superseded SHAs cancel mid-flight. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
 | Superseded run `cancelled` mid-Playwright | New trunk push cancelled an older SHA smoke | Expected with branch concurrency; triage only the newest run for the SHA you care about |
 
 **Re-trigger after cancellation:** from a clone with `gh` authenticated:

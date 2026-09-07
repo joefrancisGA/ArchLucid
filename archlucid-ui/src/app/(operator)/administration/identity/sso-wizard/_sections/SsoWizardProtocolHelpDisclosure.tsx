@@ -14,10 +14,11 @@ import {
   SSO_WIZARD_PROTOCOL_HELP_BODY,
   SSO_WIZARD_PROTOCOL_HELP_SUMMARY,
 } from "@/lib/sso-wizard-copy";
+import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 
 export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? "/";
+  const pathname = usePathname() ?? SSO_WIZARD_CANONICAL_PATH;
   const searchParams = useSearchParams();
   const ssoWizardProtocolHelpOpenParam = searchParams.get("ssoWizardProtocolHelpOpen");
   const [open, setOpenState] = useState(() => parseSsoWizardProtocolHelpOpenFromSearch(ssoWizardProtocolHelpOpenParam));

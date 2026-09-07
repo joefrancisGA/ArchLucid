@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Json;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Core.Runs;
@@ -99,45 +100,13 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return true;
         }
 
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        if (!StrictSchemaVersionReader.TryReadSchemaVersion(element, out schemaVersion))
         {
-            schemaVersion = element.ValueKind == JsonValueKind.True ? SupportedSchemaVersion : 0;
+            schemaVersion = default;
 
-            return schemaVersion == SupportedSchemaVersion;
+            return false;
         }
 
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            string? raw = element.GetString();
-
-            if (RunExplanationAggregateJsonReader.TryParseWholeNumberString(raw, out schemaVersion))
-            {
-                return schemaVersion == SupportedSchemaVersion;
-            }
-
-            if (RunExplanationAggregateJsonReader.TryParseBooleanString(raw, out bool booleanSchema))
-            {
-                schemaVersion = booleanSchema ? SupportedSchemaVersion : 0;
-
-                return schemaVersion == SupportedSchemaVersion;
-            }
-        }
-
-        if (element.ValueKind == JsonValueKind.Number
-            && RunExplanationAggregateJsonReader.TryReadWholeNumber(element, out schemaVersion))
-        {
-            return schemaVersion == SupportedSchemaVersion;
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            schemaVersion = element.ValueKind == JsonValueKind.True ? SupportedSchemaVersion : 0;
-
-            return schemaVersion == SupportedSchemaVersion;
-        }
-
-        schemaVersion = default;
-
-        return false;
+        return schemaVersion == SupportedSchemaVersion;
     }
 }

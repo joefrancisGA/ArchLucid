@@ -47,7 +47,7 @@ public sealed class InsightDensityGateOptions
     {
         get;
         set;
-    } = 12;
+    } = 40;
 
     /// <summary>
     ///     When true with <see cref="EnableLlmJudge" /> and a Premium deployment, deterministic engine findings may
@@ -58,4 +58,42 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = false;
+
+    /// <summary>
+    ///     When true in Real execution mode with a Premium deployment, proposes up to
+    ///     <see cref="MaxGeneratedInsightFindingsPerSnapshot" /> novel findings from bounded package evidence.
+    /// </summary>
+    public bool EnableInsightGenerator
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>Hard ceiling on Premium-tier insight-generator completions per findings snapshot.</summary>
+    public int MaxGeneratedInsightFindingsPerSnapshot
+    {
+        get;
+        set;
+    } = 8;
+
+    /// <summary>
+    ///     When true in Real execution mode, tenant novelty rates from
+    ///     <see cref="IFindingInsightSignalRepository.ListNoveltyRatesAsync" /> rank engine findings in the Premium
+    ///     judge-cap selector (requires <see cref="EnableLlmJudge" /> and
+    ///     <see cref="EnableLlmJudgeForEngineFindings" />) and in the insight generator sample when
+    ///     <see cref="EnableInsightGenerator" /> is also true. Internal ranking only — not a buyer claim or G-REAL-06
+    ///     proof. Default false; Simulator ignores this flag.
+    /// </summary>
+    public bool PreferHighNoveltyEngines
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>Trailing window for <see cref="PreferHighNoveltyEngines" /> rate lookup. Default 90 days.</summary>
+    public int NoveltyRateWindowDays
+    {
+        get;
+        set;
+    } = 90;
 }

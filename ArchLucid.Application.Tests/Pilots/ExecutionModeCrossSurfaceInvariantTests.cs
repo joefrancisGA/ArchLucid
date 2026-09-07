@@ -8,6 +8,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Trust;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -88,6 +89,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain(expectedLabel);
+        markdown.Should().Contain("## Execution mode");
 
         if (mode == StructuralExecutionMode.Fallback)
         {
@@ -335,6 +337,11 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PilotBaselineRecord?)null);
 
+        Mock<IAgentExecutionTraceRepository> agentTraces = new();
+        agentTraces
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -350,6 +357,8 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
             CreateSealedManifestAuthorityMock(),
             CreateSealedManifestHashMock(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            agentTraces.Object,
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

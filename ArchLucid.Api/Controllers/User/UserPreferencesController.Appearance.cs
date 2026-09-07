@@ -83,6 +83,7 @@ public sealed partial class UserPreferencesController
         bool findingsShowLowConfidenceEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowLowConfidenceStored);
         bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
         DeskContinuityDto deskContinuity = DeskContinuityValues.NormalizeOrDefault(deskContinuityStored);
+        deskContinuity = await EnrichDeskContinuityFromReviewAsync(deskContinuity, cancellationToken);
 
         return Ok(new UserPreferencesResponse
         {

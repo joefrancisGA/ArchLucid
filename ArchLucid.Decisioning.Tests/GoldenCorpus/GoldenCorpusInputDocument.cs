@@ -28,6 +28,42 @@ public sealed class GoldenCorpusInputDocument
     {
         get; set;
     }
+
+    /// <summary>Optional scoped Azure inventory fixture for effectful engines (case-37).</summary>
+    public GoldenCorpusInventoryFixtureDocument? InventoryFixture
+    {
+        get; set;
+    }
+}
+
+/// <summary>Pinned Azure and/or AWS/GCP cloud inventory packages for golden corpus inventory-backed engines.</summary>
+public sealed class GoldenCorpusInventoryFixtureDocument
+{
+    public Guid AzurePackageId
+    {
+        get; set;
+    }
+
+    public string ResourcesJson
+    {
+        get; set;
+    } = "[]";
+
+    /// <summary>When set (<c>Aws</c> or <c>Gcp</c>), pins a scoped cloud inventory ZIP for effectful engines.</summary>
+    public string? CloudProvider
+    {
+        get; set;
+    }
+
+    public Guid CloudPackageId
+    {
+        get; set;
+    }
+
+    public string CloudResourcesJson
+    {
+        get; set;
+    } = "[]";
 }
 
 /// <summary>JSON-friendly merge payload (lists deserialize cleanly).</summary>

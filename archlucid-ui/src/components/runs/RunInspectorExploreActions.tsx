@@ -90,7 +90,7 @@ export function RunInspectorExploreActions({
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>

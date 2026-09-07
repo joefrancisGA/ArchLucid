@@ -226,6 +226,13 @@ export function resolveRunDetailTabbedWorkspace(
                 realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
                 pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
               }}
+              careerArtifactHonesty={{
+                progressSummary: m.progressForPipelineUi,
+                manifestSummary: m.manifestSummaryForUi,
+                graphSnapshot: m.resolvedDetail.graphSnapshot,
+                enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+                isSample: m.usedStaticDemoRun,
+              }}
             />
           ) : null}
           <RunDetailManifestSummaryAlertsDeferred
@@ -258,6 +265,10 @@ export function resolveRunDetailTabbedWorkspace(
               usedStaticDemoRun={m.usedStaticDemoRun}
               showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
               lowExtractionConfidenceCount={lowExtractionConfidenceCount}
+              enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+              progressSummary={m.resolvedDetail.run}
+              graphSnapshot={m.resolvedDetail.graphSnapshot}
+              findingsSnapshot={m.resolvedDetail.findingsSnapshot}
             />
           ) : null}
           <RunDetailReviewPackageSectionDeferred
@@ -293,6 +304,9 @@ export function resolveRunDetailTabbedWorkspace(
                 input={m.adrGeneratorInput}
                 totalFindingCount={m.careerExportEligibleFindingCount}
                 enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+                graphSnapshot={m.resolvedDetail.graphSnapshot}
+                progressSummary={m.progressForPipelineUi}
+                findingsSnapshot={m.resolvedDetail.findingsSnapshot}
                 buyerPolished={false}
               />
             </div>

@@ -33,6 +33,8 @@ function postureBadge(
 export type ResolveSponsorArtifactTrustPostureInput = {
   readonly isDemoTenant?: boolean;
   readonly proofPackageCompleteness?: ProofPackageCompletenessJson | null;
+  /** When true, avoid "Evidence-backed" sponsor copy (FC-13). */
+  readonly assertedTrailEmpty?: boolean;
 };
 
 /** Buyer-safe trust posture labels for sponsor exports (not legal attestations). */
@@ -70,6 +72,14 @@ export function resolveSponsorArtifactTrustPostures(
         "estimate",
         "Estimate",
         "Projected dollar claims are not export-ready — use qualitative ROI or capture buyer-provided baselines first.",
+      ),
+    );
+  } else if (input.assertedTrailEmpty === true) {
+    badges.push(
+      postureBadge(
+        "deferred",
+        "Governed",
+        "No asserted intake recorded — do not present this package as evidence-backed.",
       ),
     );
   } else {

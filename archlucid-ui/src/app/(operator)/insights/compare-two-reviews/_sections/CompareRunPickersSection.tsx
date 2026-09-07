@@ -52,6 +52,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const architectureId = searchParams?.get("architectureId")?.trim() ?? "";
   const compareChangeReviewsOpenParam = searchParams.get("compareChangeReviewsOpen");
   const compareManualReviewIdsOpenParam = searchParams.get("compareManualReviewIdsOpen");
   const [changeReviewsOpen, setChangeReviewsOpenState] = useState(() =>
@@ -155,6 +156,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           committedOnly={useBuyerFacingRunLabels}
           onRunPicked={onLeftRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
         />
         {leftFootnote !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -172,6 +174,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           committedOnly={useBuyerFacingRunLabels}
           onRunPicked={onRightRunPicked}
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
+          architectureId={architectureId.length > 0 ? architectureId : undefined}
         />
         {rightFootnote !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

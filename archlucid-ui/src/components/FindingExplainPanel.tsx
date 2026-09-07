@@ -271,7 +271,7 @@ export function FindingExplainPanel({
                   id="finding-audit-system"
                   className={cn("m-0 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}
                 >
-                  System prompt (redacted) Â· trace {audit.traceId}
+                  System prompt (redacted) · trace {audit.traceId}
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
                   {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}

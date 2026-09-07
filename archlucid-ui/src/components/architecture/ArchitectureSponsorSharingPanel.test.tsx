@@ -31,6 +31,14 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/architecture/reviews/run-1",
+  });
+});
+
 const incompleteArchitecture = {
   runId: "run-1",
   manifestVersion: "manifest-1",

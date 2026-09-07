@@ -14,6 +14,10 @@ vi.mock("@/components/ExportTrackedAnchor", () => ({
   ),
 }));
 
+vi.mock("@/lib/exports/traceability-bundle-download", () => ({
+  downloadTraceabilityBundleWithWorkingGate: vi.fn(async () => ({ ok: true })),
+}));
+
 vi.mock("@/components/GenerateSponsorValueReportButton", () => ({
   GenerateSponsorValueReportButton: () => null,
 }));
@@ -28,6 +32,7 @@ vi.mock("@/components/runs/RunDetailRunGovernanceDispositionActions", () => ({
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => true,
+  useProductionDeskChrome: () => false,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -53,7 +58,7 @@ describe("RunDetailRunActionsSection", () => {
     expect(screen.queryByText(/optional detail for operators troubleshooting pipeline steps/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Deliverables & exports/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/scorecard generation/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download evidence bundle (ZIP)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download evidence bundle (ZIP)" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /traceability bundle/i })).not.toBeInTheDocument();
   });
 });

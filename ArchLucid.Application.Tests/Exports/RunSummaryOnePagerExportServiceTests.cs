@@ -15,6 +15,7 @@ using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -68,7 +69,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             tenants.Object,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            Mock.Of<IGraphSnapshotRepository>());
+            Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IConfiguration>());
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
@@ -110,7 +113,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<ITenantRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            Mock.Of<IGraphSnapshotRepository>());
+            Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IConfiguration>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 

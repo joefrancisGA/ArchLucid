@@ -14,6 +14,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { formatElapsedSincePreviousPrefix } from "@/lib/format-elapsed-compact";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import {
@@ -83,14 +84,7 @@ function formatElapsedSincePreviousInline(prevIso: string | undefined, curIso: s
     return null;
   }
 
-  if (sec < 60) {
-    return `+${sec}s`;
-  }
-
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-
-  return `+${m}m ${s}s`;
+  return formatElapsedSincePreviousPrefix(sec);
 }
 
 function renderTechnicalDetails(row: PipelineTimelineItem, eventLabel: string): ReactNode {

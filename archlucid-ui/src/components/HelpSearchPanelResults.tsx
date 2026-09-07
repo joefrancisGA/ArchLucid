@@ -10,7 +10,6 @@ import {
   HELP_SEARCH_PANEL_EMPTY_HINT,
   HELP_SEARCH_PANEL_EMPTY_TITLE,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
-  HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY,
   type HelpSearchPanelTopic,
 } from "@/lib/help/help-search-panel-catalog";
 import type { HelpDocSearchRecord } from "@/lib/help/help-index";
@@ -20,6 +19,8 @@ import { helpRecordSelectionValue } from "@/components/help-search-panel-hrefs";
 import { cn } from "@/lib/utils";
 
 import { HELP_SEARCH_PANEL_START_HERE_GROUP_ID } from "./help-search-panel-presentation";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { newToProductHelpCollapsedSummary } from "@/lib/help/help-product-copy";
 
 export type HelpSearchPanelResultsProps = {
   readonly isSearching: boolean;
@@ -64,6 +65,9 @@ export function HelpSearchPanelResults({
   onOpenChange,
   onOpenGuidesTab,
 }: HelpSearchPanelResultsProps) {
+  const { productLine } = useLocalizedProductCopy();
+  const startHereCollapsedSummary = newToProductHelpCollapsedSummary(productLine);
+
   return (
     <>
       <div
@@ -244,7 +248,7 @@ export function HelpSearchPanelResults({
                             OPERATOR_TYPOGRAPHY.helper,
                           )}
                         >
-                          {HELP_SEARCH_PANEL_START_HERE_COLLAPSED_SUMMARY}
+                          {startHereCollapsedSummary}
                         </span>
                       </summary>
                       {rows}
