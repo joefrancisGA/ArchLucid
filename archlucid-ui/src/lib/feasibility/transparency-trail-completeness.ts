@@ -57,6 +57,10 @@ export const ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON =
 export function isAssertedTransparencyTrailEmpty(
   trail: TransparencyTrail | null | undefined,
 ): boolean {
+  if (trail === null || trail === undefined) {
+    return false;
+  }
+
   if (!isTransparencyTrailComplete(trail)) {
     return false;
   }
