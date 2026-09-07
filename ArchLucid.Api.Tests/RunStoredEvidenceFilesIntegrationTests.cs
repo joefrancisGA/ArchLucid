@@ -149,6 +149,40 @@ public sealed class RunStoredEvidenceFilesIntegrationTests(ArchLucidApiFactory f
         downloadResponse.Content.Headers.ContentDisposition?.FileName.Should().Be("hello.txt");
     }
 
+    [SkippableFact]
+    public async Task DownloadStoredEvidenceFile_WithInlineDisposition_ReturnsInlineContentDisposition()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-STORED-INLINE-001")));
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
+
+        byte[] payload = "preview text"u8.ToArray();
+        using MultipartFormDataContent content = new();
+        ByteArrayContent fileContent = new(payload);
+        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
+        content.Add(fileContent, "files", "hello.txt");
+
+        HttpResponseMessage uploadResponse =
+            await Client.PostAsync($"/v1/architecture/review/{runId}/evidence/bulk", content);
+        await uploadResponse.EnsureSuccessForTestAsync();
+
+        BulkUploadResponseDto? uploadBody =
+            await uploadResponse.Content.ReadFromJsonAsync<BulkUploadResponseDto>(JsonOptions);
+        string evidenceItemId = uploadBody!.EvidenceItemIds[0];
+
+        HttpResponseMessage inlineResponse = await Client.GetAsync(
+            $"/v1/architecture/review/{runId}/evidence/files/{evidenceItemId}?disposition=inline");
+        await inlineResponse.EnsureSuccessForTestAsync();
+
+        byte[] downloaded = await inlineResponse.Content.ReadAsByteArrayAsync();
+        downloaded.Should().Equal(payload);
+        inlineResponse.Content.Headers.ContentDisposition?.DispositionType.Should().Be("inline");
+        inlineResponse.Content.Headers.ContentDisposition?.FileName.Should().Be("hello.txt");
+    }
+
     private sealed class BulkUploadResponseDto
     {
         public IReadOnlyList<string> EvidenceItemIds

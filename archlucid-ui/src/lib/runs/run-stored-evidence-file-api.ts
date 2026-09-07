@@ -12,6 +12,7 @@ export function mapRunStoredEvidenceCatalogEntry(
     evidenceItemId: dto.evidenceItemId ?? "",
     originalFileName: dto.originalFileName ?? "",
     contentType: dto.contentType ?? undefined,
+    createdUtc: dto.createdUtc ?? undefined,
   };
 }
 

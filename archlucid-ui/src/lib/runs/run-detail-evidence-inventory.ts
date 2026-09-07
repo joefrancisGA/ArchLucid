@@ -8,6 +8,7 @@ export type RunStoredEvidenceCatalogEntry = {
   readonly evidenceItemId: string;
   readonly originalFileName: string;
   readonly contentType?: string;
+  readonly createdUtc?: string;
 };
 
 export type RunDetailEvidenceInventoryItem = {
