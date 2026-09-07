@@ -5,7 +5,29 @@ import {
   resolveArchitectureReviewHref,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
+
+/** Resolves architecture id from explicit run metadata or nested pathname (AO-33). */
+export function resolveReviewWorkspaceArchitectureId(
+  explicitArchitectureId?: string | null,
+  pathname?: string | null,
+): string | null {
+  const explicit = explicitArchitectureId?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  const path = pathname?.split("?")[0] ?? "";
+  const nested = parseArchitectureNestedRoute(path);
+
+  if (nested?.childKind === "reviews" && (nested.architectureId?.trim() ?? "").length > 0) {
+    return nested.architectureId.trim();
+  }
+
+  return null;
+}
 
 /**
  * Redirects legacy Working peer review URLs to nested architecture job URLs (ADR 0077 / AO-06).

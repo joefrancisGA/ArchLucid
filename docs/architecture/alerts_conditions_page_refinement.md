@@ -55,7 +55,7 @@ When `isBuyerPolishedOperatorShellEnv()` and not full architect workspace: read-
 - `archlucid-ui/src/components/alerts/AlertRuleLivePreviewPanel.tsx`
 - `archlucid-ui/src/components/alerts/AlertRuleNotificationReadinessPanel.tsx`
 - `archlucid-ui/src/app/(operator)/governance/alert-rules/AlertRulesHubClient.tsx`
-- Tests: `AlertRulesContent.test.tsx`, `AlertRulesContent.sample-mode.test.tsx`, `operate-authority-ui-shaping.test.tsx`
+- Tests: `AlertRulesContent.test.tsx`, `AlertRulesContent.sample-mode.test.tsx`, `operate-authority-ui-shaping-alerts-rules.test.tsx`
 
 ## Remaining engine limitations (not in scope)
 
@@ -66,4 +66,4 @@ When `isBuyerPolishedOperatorShellEnv()` and not full architect workspace: read-
 ## Tests run
 
 - `npx vitest run src/lib/alert-rule-conditions.test.ts src/components/alerts/AlertRulesContent.test.tsx src/components/alerts/AlertRulesContent.sample-mode.test.tsx`
-- Updated `operate-authority-ui-shaping.test.tsx` alert-rules cases
+- Updated `operate-authority-ui-shaping-alerts-rules.test.tsx` alert-rules cases

@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
+import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
+import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -57,6 +59,8 @@ export type CommitRunButtonProps = {
   commitBlockedReason?: string | null;
   /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
   buttonVariant?: "primary" | "outline";
+  /** Parent architecture identity for Working finalize return navigation (AO-35). */
+  parentArchitectureId?: string | null;
 };
 
 /**
@@ -67,10 +71,12 @@ export function CommitRunButton({
   disabled,
   commitBlockedReason = null,
   buttonVariant = "primary",
+  parentArchitectureId = null,
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
+  const resolvedArchitectureId = resolveReviewWorkspaceArchitectureId(parentArchitectureId, pathname);
   const searchParams = useSearchParams();
   const urlFinalizeConfirm = parseReviewFinalizeConfirmOpenFromSearch(searchParams.get("finalizeConfirm"));
   const urlFinalizeSuccess = parseReviewFinalizeSuccessOpenFromSearch(searchParams.get("finalizeSuccess"));
@@ -141,7 +147,13 @@ export function CommitRunButton({
       syncArchitectureDraftRegistryForFinalizedReview(runId);
       await Promise.all([invalidateOperatorHomeRunsCaches(), invalidateTenantTrialStatusCache()]);
       setDialogOpen(false);
-      
+
+      if (isWorkingMode && resolvedArchitectureId !== null) {
+        router.push(resolveFinalizeSuccessDeskHref(resolvedArchitectureId, runId));
+
+        return;
+      }
+
       try {
         const summary = await getRunSummary(runId);
         setFindingsCount(summary.findingCount ?? null);
