@@ -73,7 +73,7 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
           <div className="flex flex-wrap items-start justify-between gap-2">
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{destination.title}</CardTitle>
             {destination.highImpact === true ? (
-              <SeverityTag kind="high" label="High impact" />
+              <SeverityTag severity="high" kind="high" label="High impact" />
             ) : null}
           </div>
         </CardHeader>
@@ -81,7 +81,7 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
         <CardHeader className="space-y-2 pb-0">
           {destination.highImpact === true ? (
             <div className="flex justify-end">
-              <SeverityTag kind="high" label="High impact" />
+              <SeverityTag severity="high" kind="high" label="High impact" />
             </div>
           ) : null}
         </CardHeader>

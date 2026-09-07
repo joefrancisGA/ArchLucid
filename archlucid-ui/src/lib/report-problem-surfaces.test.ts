@@ -90,10 +90,14 @@ describe("report-problem-surfaces (TB-782)", () => {
     const sessionExpiredSurfaces = reportProblemSurfacesForPathname("/auth/session-expired").map(
       (surface) => surface.id,
     );
+    const accessDeniedSurfaces = reportProblemSurfacesForPathname("/403").map((surface) => surface.id);
 
     expect(signInSurfaces).toContain("auth-signin-cannot-proceed");
     expect(inviteSurfaces).toContain("auth-invitation-accept-validation-failure");
     expect(sessionExpiredSurfaces).toContain("session-expired-sign-in-failure");
+    expect(accessDeniedSurfaces).toContain("access-denied-wrong-tenant");
+    expect(accessDeniedSurfaces).toContain("auth-jwt-insufficient-scope");
+    expect(accessDeniedSurfaces).toContain("operator-role-gate-session-break");
   });
 });
 

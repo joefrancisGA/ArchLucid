@@ -4246,6 +4246,7 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             /** Format: uuid */
             evidencePackageId?: null | string;
+            evidenceRefs?: string[];
             findingId?: string;
             /** Format: int32 */
             findingSchemaVersion?: number;
@@ -8890,6 +8891,7 @@ export interface components {
         };
         RunDetailWorkspaceContextBundleResponse: {
             priorCommittedRunComparison?: null | components["schemas"]["RunComparisonResponse"];
+            priorCommittedRunComparisonBlockedReason?: null | string;
             /** Format: date-time */
             priorCommittedRunCreatedUtc?: null | string;
             /** Format: uuid */

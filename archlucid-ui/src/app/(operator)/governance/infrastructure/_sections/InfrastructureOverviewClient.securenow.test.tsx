@@ -28,6 +28,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SECURENOW_COMPLIANCE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-compliance-home-copy";
 import { SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-infrastructure-home-copy";
 import { SECURENOW_SECURITY_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-security-home-copy";
@@ -35,8 +36,11 @@ import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   it("renders Compliance, Infrastructure, and Security sections on the Security home", () => {
-    render(<InfrastructureOverviewClient />);
+    render(<InfrastructureOverviewClient secureNowHome />);
 
+    expect(screen.getByTestId("governance-infrastructure-overview-page-title")).toHaveTextContent(
+      OPERATOR_NAV_LINK_LABELS.home,
+    );
     expect(screen.getByTestId("securenow-compliance-home-section")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-infrastructure-home-section")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-security-home-section")).toBeInTheDocument();

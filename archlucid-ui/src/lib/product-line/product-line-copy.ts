@@ -1,3 +1,4 @@
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { productLineWordmarkAriaLabel } from "@/lib/product-line/product-line-display-name";
 
@@ -13,7 +14,7 @@ export const PRODUCT_LINE_WORDMARK_ARIA_LABEL: Record<ProductLineId, string> = {
   security: productLineWordmarkAriaLabel("security"),
 };
 
-export const SECURITY_PRODUCT_HOME_TITLE = "Infrastructure overview";
+export const SECURITY_PRODUCT_HOME_TITLE = OPERATOR_NAV_LINK_LABELS.home;
 
 export const SECURITY_PRODUCT_HOME_SUBTITLE =
   "Cloud inventory evidence, ARC-AMPE compliance posture, drift, diagrams, grounded Ask, and remediation.";
