@@ -46,6 +46,29 @@ export function mergeDeskContinuity(
   };
 }
 
+/** Read-model backfill when legacy prefs stored only a review id (AO-48). */
+export function applyReadBackfillDeskContinuity(
+  continuity: DeskContinuityDto,
+  architectureIdFromReviewLookup: string | null | undefined,
+): DeskContinuityDto {
+  const existingArchitectureId = normalizeOptionalId(continuity.lastOpenArchitectureId);
+
+  if (existingArchitectureId !== null) {
+    return continuity;
+  }
+
+  const backfilledArchitectureId = normalizeOptionalId(architectureIdFromReviewLookup);
+
+  if (backfilledArchitectureId === null) {
+    return continuity;
+  }
+
+  return {
+    ...continuity,
+    lastOpenArchitectureId: backfilledArchitectureId,
+  };
+}
+
 export function readCachedDeskContinuity(): DeskContinuityDto {
   const prefs = readCachedUserPreferencesForMutators();
 

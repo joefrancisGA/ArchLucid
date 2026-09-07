@@ -65,6 +65,37 @@ public static class DeskContinuityValues
         return JsonSerializer.Serialize(normalized, JsonOptions);
     }
 
+    /// <summary>
+    ///     Read-model backfill: when legacy prefs stored only a review id, promote a resolved architecture id
+    ///     without dropping the child review pointer (AO-48).
+    /// </summary>
+    public static DeskContinuityDto ApplyReadBackfill(
+        DeskContinuityDto continuity,
+        string? architectureIdFromReviewLookup)
+    {
+        ArgumentNullException.ThrowIfNull(continuity);
+
+        if (NormalizeOptionalId(continuity.LastOpenArchitectureId) is not null)
+        {
+            return continuity;
+        }
+
+        string? backfilledArchitectureId = NormalizeOptionalId(architectureIdFromReviewLookup);
+
+        if (backfilledArchitectureId is null)
+        {
+            return continuity;
+        }
+
+        return new DeskContinuityDto
+        {
+            LastOpenArchitectureId = backfilledArchitectureId,
+            LastOpenReviewId = continuity.LastOpenReviewId,
+            LastOpenDraftId = continuity.LastOpenDraftId,
+            LastVisitWatermarkUtc = continuity.LastVisitWatermarkUtc,
+        };
+    }
+
     private static string? NormalizeOptionalId(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))

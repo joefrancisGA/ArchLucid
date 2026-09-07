@@ -10,7 +10,7 @@ public sealed class DeskContinuityDto
         set;
     }
 
-    /// <summary>Last opened architecture review package id.</summary>
+    /// <summary>Last opened architecture review package id (child pointer under the locator).</summary>
     public string? LastOpenReviewId
     {
         get;
