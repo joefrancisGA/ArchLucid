@@ -10,6 +10,8 @@ import {
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
 import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
+import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export function CommandPaletteAdminNavGroups({
   callerAuthorityRank,
@@ -19,6 +21,8 @@ export function CommandPaletteAdminNavGroups({
   roleNavDensityPersona,
   roleNavDensityShowFullNav,
   showVendorInternalNav,
+  productLine,
+  productLineAssignmentOverrides,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -28,6 +32,8 @@ export function CommandPaletteAdminNavGroups({
   roleNavDensityPersona: ReturnType<typeof resolveRoleNavDensityPersona>;
   roleNavDensityShowFullNav: boolean;
   showVendorInternalNav: boolean;
+  productLine: ProductLineId;
+  productLineAssignmentOverrides: Readonly<Record<string, ProductLineAssignment>>;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -46,7 +52,11 @@ export function CommandPaletteAdminNavGroups({
           "platform-admin",
           hasCommittedArchitectureReview,
           false,
-          { showVendorInternalNav },
+          {
+            showVendorInternalNav,
+            productLine,
+            productLineAssignmentOverrides,
+          },
         ),
         auditRunId,
       ),
@@ -64,7 +74,11 @@ export function CommandPaletteAdminNavGroups({
           "system-admin",
           hasCommittedArchitectureReview,
           false,
-          { showVendorInternalNav },
+          {
+            showVendorInternalNav,
+            productLine,
+            productLineAssignmentOverrides,
+          },
         )
       : [],
     roleNavDensityPersona,

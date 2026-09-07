@@ -1,5 +1,8 @@
-const RECENT_SCOPE_STORAGE_KEY = "archlucid.infra-evidence.recent-scopes";
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+
 const RECENT_SCOPE_LIMIT = 5;
+
+export const INFRA_EVIDENCE_RECENT_SCOPE_CHANGED_EVENT = "archlucid:infra-evidence-recent-scope-changed";
 
 export type InfraEvidenceRecentScopeEntry = {
   readonly label: string;
@@ -7,13 +10,19 @@ export type InfraEvidenceRecentScopeEntry = {
   readonly savedAtMs: number;
 };
 
+function resolveRecentScopeStorageKey(): string {
+  const tenantId = readOperatorScopeFromStorage()?.tenantId?.trim() ?? "unknown";
+
+  return `archlucid.infra-evidence.recent-scopes.${tenantId}`;
+}
+
 function readRecentScopeEntries(): InfraEvidenceRecentScopeEntry[] {
   if (typeof window === "undefined") {
     return [];
   }
 
   try {
-    const raw = window.sessionStorage.getItem(RECENT_SCOPE_STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(resolveRecentScopeStorageKey());
 
     if (raw == null || raw.trim().length === 0) {
       return [];
@@ -43,7 +52,13 @@ function writeRecentScopeEntries(entries: readonly InfraEvidenceRecentScopeEntry
     return;
   }
 
-  window.sessionStorage.setItem(RECENT_SCOPE_STORAGE_KEY, JSON.stringify(entries));
+  try {
+    window.sessionStorage.setItem(resolveRecentScopeStorageKey(), JSON.stringify(entries));
+    window.dispatchEvent(new CustomEvent(INFRA_EVIDENCE_RECENT_SCOPE_CHANGED_EVENT));
+  }
+  catch {
+    // sessionStorage may be unavailable or quota-exhausted in private mode.
+  }
 }
 
 export function recordInfraEvidenceRecentScope(entry: {
@@ -57,9 +72,6 @@ export function recordInfraEvidenceRecentScope(entry: {
     return;
   }
 
-  const currentHref = typeof window !== "undefined"
-    ? `${window.location.pathname}${window.location.search}`
-    : trimmedHref;
   const nextEntry: InfraEvidenceRecentScopeEntry = {
     label: trimmedLabel,
     href: trimmedHref,

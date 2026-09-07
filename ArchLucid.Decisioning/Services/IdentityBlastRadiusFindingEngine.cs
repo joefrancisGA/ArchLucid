@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -44,6 +45,17 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
         List<string> traceNotes = relatedNodeIds
             .Select(static nodeId => $"evidence:graph-node:{nodeId}")
             .ToList();
+
+        string? counterfactualNote = IdentityBlastRadiusCounterfactualFormatter.FormatTraceNote(
+            path.ActorLabel,
+            path.RoleName,
+            path.DatastoreLabel,
+            path.HopCount);
+
+        if (counterfactualNote is not null)
+        {
+            traceNotes.Add(counterfactualNote);
+        }
 
         return new Finding
         {

@@ -254,6 +254,12 @@ export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
     label: "Save architecture draft",
     description: "Save the architecture draft from the review workbench when a draft editor is open",
   },
+  {
+    key: "alt+m",
+    label: "Toggle room elicitation",
+    description:
+      "Start or stop room elicitation on a completed review without entering projector presenter mode",
+  },
 ];
 
 /**

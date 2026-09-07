@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
@@ -46,7 +46,6 @@ import { buildScopedHubDriftChangeWorkbenchHref } from "@/lib/infra-evidence/inf
 import {
   buildInfraEvidenceClearAuditScopeHref,
 } from "@/lib/infra-evidence/infra-evidence-audit-scope-url";
-import { formatResourceHubTabLabelWithAuditScope } from "@/lib/infra-evidence/infra-evidence-hub-tab-audit-label";
 import { sanitizeResourceHubQueryForTab } from "@/lib/infra-evidence/infra-evidence-hub-tab-query";
 import { formatInfraEvidenceHubApiError } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import {
@@ -77,6 +76,9 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
+import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
+import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
+import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
   fetchCachedInfraEvidenceResourceHub,
   invalidateInfraEvidenceResourceHubCacheForResource,
@@ -272,6 +274,7 @@ function buildHubDiagramCorrespondenceAskHref(
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const activeTab = parseResourceHubTabFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const runId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_RUN_ID_PARAM));
@@ -430,6 +433,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
   const auditScopeActive = workbenchLinkAuditContext != null;
 
+  const auditScopeChipHref = useMemo(() => {
+    if (!auditScopeActive) {
+      return null;
+    }
+
+    return resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+      tab: "audit",
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+      runId: runId.length > 0 ? runId : undefined,
+      assessmentId: workbenchLinkAuditContext?.assessmentId,
+      auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId,
+      controlId: workbenchLinkAuditContext?.controlId,
+      workQueue: workQueue !== "all" ? workQueue : undefined,
+    });
+  }, [
+    auditScopeActive,
+    cloudResourceId,
+    resolvedSnapshotId,
+    runId,
+    searchParams,
+    workQueue,
+    workbenchLinkAuditContext,
+  ]);
+
   const hubTabs = useMemo(() => {
     if (hub == null) {
       return HUB_TABS;
@@ -442,46 +469,68 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       if (tab.id === "findings" && openFindingsCount > 0) {
         return {
           ...tab,
-          label: formatResourceHubTabLabelWithAuditScope(
-            `Findings (${openFindingsCount})`,
-            auditScopeActive,
-            tab.id,
-          ),
+          label: `Findings (${openFindingsCount})`,
         };
       }
 
       if (tab.id === "remediation" && hub.remediationInstances.totalCount > 0) {
         return {
           ...tab,
-          label: formatResourceHubTabLabelWithAuditScope(
-            `Remediation (${hub.remediationInstances.totalCount})`,
-            auditScopeActive,
-            tab.id,
-          ),
+          label: `Remediation (${hub.remediationInstances.totalCount})`,
         };
       }
 
       if (tab.id === "drift" && hub.recentChanges.length > 0) {
         return {
           ...tab,
-          label: formatResourceHubTabLabelWithAuditScope(
-            `Drift (${hub.recentChanges.length})`,
-            auditScopeActive,
-            tab.id,
-          ),
-        };
-      }
-
-      if (auditScopeActive) {
-        return {
-          ...tab,
-          label: formatResourceHubTabLabelWithAuditScope(tab.label, auditScopeActive, tab.id),
+          label: `Drift (${hub.recentChanges.length})`,
         };
       }
 
       return tab;
     });
-  }, [auditScopeActive, hub]);
+  }, [hub]);
+
+  useEffect(() => {
+    if (loading || hub == null) {
+      return;
+    }
+
+    const href = searchParams.toString().length > 0
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    const recentScopeLabel = formatInfraEvidenceRecentScopeLabel({
+      surface: "hub",
+      cloudResourceId,
+      resourceDisplayName: resourceTitle,
+      externalResourceId: hub.externalResourceId,
+      snapshotId: resolvedSnapshotId,
+      controlNumber: hub.auditLineageLink.controlNumber,
+      controlTitle: hub.auditLineageLink.controlTitle,
+      controlId: workbenchLinkAuditContext?.controlId ?? hub.auditLineageLink.controlId,
+      workQueueLabel: workQueue !== "all" ? workQueueLabel : null,
+    });
+
+    if (recentScopeLabel == null) {
+      return;
+    }
+
+    recordInfraEvidenceRecentScope({
+      label: recentScopeLabel,
+      href,
+    });
+  }, [
+    cloudResourceId,
+    hub,
+    loading,
+    pathname,
+    resolvedSnapshotId,
+    resourceTitle,
+    searchParams,
+    workQueue,
+    workQueueLabel,
+    workbenchLinkAuditContext,
+  ]);
 
   const openFindingsCount = useMemo(() => {
     if (hub == null) {
@@ -613,6 +662,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         </p>
       ) : null}
 
+      <InfraEvidenceRecentScopeStrip testId="infra-resource-hub-recent-scope-strip" />
+
       {loadError != null ? (
         <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
       ) : null}
@@ -637,6 +688,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {auditScopeActive ? (
               <InfraEvidenceAuditScopeChip
                 controlLabel={resolvedAuditLineage?.label}
+                href={auditScopeChipHref}
                 testId="infra-resource-hub-audit-scope-chip"
               />
             ) : null}
@@ -1432,29 +1484,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           <EnterpriseTabsContent value="audit" className="mt-4 space-y-3">
             {resolvedAuditLineage != null ? (
               <>
-                {auditControlOptions.length > 1 ? (
-                  <label className="grid max-w-xl gap-1 text-sm">
-                    <span className="font-medium">Active audit control</span>
-                    <select
-                      className="rounded border border-border bg-background px-3 py-2"
-                      data-testid="infra-resource-hub-audit-control-picker"
-                      value={resolvedAuditLineage.controlId}
-                      onChange={(event) => {
-                        const nextMatch = auditControlOptions.find((match) => match.controlId === event.target.value);
-
-                        if (nextMatch != null) {
-                          switchActiveAuditControl(nextMatch);
-                        }
-                      }}
-                    >
-                      {auditControlOptions.map((match) => (
-                        <option key={match.controlId} value={match.controlId}>
-                          {match.controlNumber} · {match.controlTitle}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : null}
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   AE-10 chain of custody for {resolvedAuditLineage.label}.
                 </p>

@@ -57,6 +57,24 @@ Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `
 
 **Shell filter:** `listNavGroupsVisibleInOperatorShell(..., surfaceFilter)` can target **`review-workflow`** vs **`platform-admin`** so buyer-first chrome (sidebar, palette) can separate review work from administration without duplicating hrefs.
 
+## Product line (Architecture vs Security)
+
+One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|security` (default **architecture**) plus cookie `archlucid_product_line_v1` selects the shell. Assignments live in **`src/lib/product-line/product-line-catalog.ts`**:
+
+| Assignment | Effect |
+|---|---|
+| `both` | Visible in Architecture and Security |
+| `architecture` (default for unlisted hrefs) | Architecture shell only |
+| `security` | Security shell only |
+
+**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, billing, trust, health, support — not AI usage / model governance / baseline / recycle bin), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+
+The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations in that catalog file or at **`/internal/product-line`** (localStorage overlay).
+
+**Local start:** `.\scripts\start-local-api-and-ui.ps1` starts **one** `ArchLucid.Api` plus **two** Next.js windows against `archlucid-ui/.env.local` — Architecture on **3000**, Security on **3001**. Pass `-SkipSecurityUi` to keep the old one-UI loop. Windows spawn sets `$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT` in each window; Security also sets `$env:NEXT_DIST_DIR = '.next-security'` so Next.js 16's per-directory dev lock does not block the second shell. Do not rely on `npm run dev:security` there (Unix `VAR=value` prefixes do not apply in `powershell.exe`). On Unix-like shells, `npm run dev:security` still boots Security on **3001**.
+
+Do **not** split hosts, migrations, or git branches for this. Product line is UI composition on the shared platform.
+
 ## Drift guard (contributors)
 
 When adding or moving a route, follow the **ordered checklist** in **`docs/library/PRODUCT_PACKAGING.md`** §3 *Contributor drift guard* (API policy → nav config → `layer-guidance` / `LayerHeader` → **`useOperateCapability`** → packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.

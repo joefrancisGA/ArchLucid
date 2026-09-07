@@ -53,6 +53,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCrossRunDiffFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DrRpoTopologyFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementSkuTierFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DanglingDeclarationReferenceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
@@ -65,6 +67,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.ExternalExposureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SegmentationSemanticsFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.InsightGeneratorFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.ChecklistClusterSynthesisFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
@@ -122,6 +125,8 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Decisioning.Services.Findings.FindingsInsightGeneratorStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
             ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsChecklistClusterStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsChecklistClusterStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsSnapshotEmitStage,
             ArchLucid.Decisioning.Services.Findings.FindingsSnapshotEmitStage>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator, Ds.FindingsOrchestrator>();

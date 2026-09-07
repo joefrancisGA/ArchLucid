@@ -21,5 +21,5 @@ export default async function NestedArchitectureReviewLayout({
     notFound();
   }
 
-  return children;
+  return <>{children}</>;
 }

@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Findings;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.AgentRuntime;
@@ -9,17 +10,6 @@ namespace ArchLucid.AgentRuntime;
 /// <summary>Builds bounded evidence summaries and allow-lists for the insight generator (DX-10).</summary>
 public static class InsightGeneratorEvidenceSummary
 {
-    private static readonly string[] PreferredEngineTypes =
-    [
-        "open-commitment",
-        "declaration-premise-conflict",
-        "declaration-inventory-contradiction",
-        "identity-blast-radius",
-        "segmentation-semantics",
-        "secrets-lifecycle",
-        "dr-rpo-topology",
-    ];
-
     public static HashSet<string> CollectAllowedEvidenceRefs(
         IReadOnlyList<Finding> engineFindings,
         GraphSnapshot graphSnapshot)
@@ -138,7 +128,7 @@ public static class InsightGeneratorEvidenceSummary
     private static void AppendPreferredFindings(StringBuilder builder, IReadOnlyList<Finding> engineFindings)
     {
         IEnumerable<Finding> preferred = engineFindings
-            .Where(finding => PreferredEngineTypes.Contains(finding.EngineType, StringComparer.OrdinalIgnoreCase))
+            .Where(finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType))
             .Take(20);
 
         List<Finding> sample = preferred.ToList();

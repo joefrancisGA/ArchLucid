@@ -13,7 +13,7 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 [Trait("Suite", "Core")]
 public sealed class GoldenCorpusRegressionTests
 {
-    private const int ExpectedCaseCount = 37;
+    private const int ExpectedCaseCount = 40;
 
     [Fact]
     public void Corpus_contains_expected_case_directories()

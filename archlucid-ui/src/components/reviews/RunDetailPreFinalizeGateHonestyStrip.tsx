@@ -4,7 +4,10 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
-import { PRE_COMMIT_GATE_DISABLED_CAREER_COPY } from "@/lib/governance/pre-commit-gate-career-honesty";
+import {
+  PRE_COMMIT_GATE_DISABLED_CAREER_COPY,
+  PRE_COMMIT_GATE_DISABLED_TITLE,
+} from "@/lib/governance/pre-commit-gate-career-honesty";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +34,7 @@ export function RunDetailPreFinalizeGateHonestyStrip(
       role="status"
     >
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Pre-finalize governance gate is off
+        {PRE_COMMIT_GATE_DISABLED_TITLE}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {PRE_COMMIT_GATE_DISABLED_CAREER_COPY}

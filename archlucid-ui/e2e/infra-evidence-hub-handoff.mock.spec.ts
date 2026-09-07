@@ -10,6 +10,7 @@ const snapshotId = "22222222-2222-2222-2222-222222222222";
 const assessmentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 const auditSnapshotId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 const controlId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+const controlIdAlt = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
 const hubFixture = {
   cloudResourceId,
@@ -451,5 +452,88 @@ test.describe(`infra-evidence-hub-handoff (${releaseGateTag})`, { tag: [releaseG
     await page.goto(askUrl);
     await expect(page.getByTestId("infra-ask-copy-scoped-link")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("infra-ask-context-banner")).toBeVisible();
+  });
+
+  test("hub audit scope bar control picker updates audit scope in the URL", async ({ page }) => {
+    await page.route("**/api/proxy/v1/infra-evidence/cloud-resources**", async (route) => {
+      const url = route.request().url();
+
+      if (url.includes("/hub")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...hubFixture,
+            auditLineageLink: {
+              ...hubFixture.auditLineageLink,
+              matches: [
+                ...hubFixture.auditLineageLink.matches,
+                {
+                  assessmentId,
+                  auditEvidenceSnapshotId: auditSnapshotId,
+                  controlId: controlIdAlt,
+                  controlNumber: "AC-3",
+                  controlTitle: "Access enforcement",
+                  snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+                },
+              ],
+            },
+          }),
+        });
+
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(explorerRowsFixture),
+      });
+    });
+
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=drift&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    const picker = page.getByTestId("infra-resource-hub-audit-scope-bar-control-picker");
+    await expect(picker).toBeVisible({ timeout: 60_000 });
+    await picker.selectOption(controlIdAlt);
+    await expect(page).toHaveURL(new RegExp(`controlId=${controlIdAlt}`));
+  });
+
+  test("recent scope strip surfaces prior ask scope", async ({ page }) => {
+    const firstAskUrl = `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&snapshotId=${snapshotId}`;
+    const secondAskUrl = `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&findingId=finding-1`;
+
+    await page.goto(firstAskUrl);
+    await page.waitForResponse(
+      (response) => response.url().includes("/hub") && response.status() === 200,
+      { timeout: 60_000 },
+    );
+    await expect(page.getByTestId("infra-ask-context-banner")).toBeVisible({ timeout: 60_000 });
+    await page.goto(secondAskUrl);
+    await expect(page.getByTestId("infra-ask-recent-scope-strip-entry")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("infra-ask-recent-scope-strip-entry")).toContainText("gateway");
+  });
+
+  test("ask audit scope bar exposes copy scoped link when audit scope is active", async ({ page }) => {
+    const askUrl =
+      `/governance/infrastructure/ask?cloudResourceId=${cloudResourceId}&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(askUrl);
+    await expect(page.getByTestId("infra-ask-audit-provenance-copy-link")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("infra-ask-copy-scoped-link")).toHaveCount(0);
+  });
+
+  test("hub audit scope chip opens audit lineage tab", async ({ page }) => {
+    const hubUrl =
+      `/governance/infrastructure/resources/${cloudResourceId}?tab=drift&snapshotId=${snapshotId}&assessmentId=${assessmentId}&auditEvidenceSnapshotId=${auditSnapshotId}&controlId=${controlId}`;
+
+    await page.goto(hubUrl);
+    const chip = page.getByRole("link", { name: /Audit scoped/i });
+    await expect(chip).toBeVisible({ timeout: 60_000 });
+    await expect(chip).toHaveAttribute("href", /tab=audit/);
+    await chip.click();
+    await page.waitForURL(/tab=audit/, { timeout: 60_000 });
   });
 });
