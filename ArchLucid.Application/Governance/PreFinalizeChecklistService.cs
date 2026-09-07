@@ -229,7 +229,23 @@ public sealed partial class PreFinalizeChecklistService(
                 .ConfigureAwait(false);
 
         if (request is null)
-            return [];
+        {
+            if (string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+                return [];
+
+            return
+            [
+                new PreFinalizeChecklistItem
+                {
+                    ItemId = "architecture-request-missing",
+                    Title = "Architecture request available for execute-baseline review",
+                    Detail =
+                        "Run references an architecture request that could not be loaded. Re-run execute or remediate data consistency before finalize.",
+                    Status = PreFinalizeChecklistItemStatus.Blocking,
+                    Count = 1,
+                },
+            ];
+        }
 
         return await _executeBaselineDriftEvaluator
             .EvaluateAsync(scope, request, run.GovernanceScopeJson, cancellationToken)

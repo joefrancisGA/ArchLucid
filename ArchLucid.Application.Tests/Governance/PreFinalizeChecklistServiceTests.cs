@@ -1,9 +1,13 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
@@ -251,6 +255,106 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_blocks_finalize_when_architecture_request_is_missing_with_execute_baseline()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        string requestId = "req-orphan-1";
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            Description = "Design the order service.",
+            PolicyReferences = [],
+        };
+
+        string governanceScopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(
+            new ExecutedEffectiveGovernanceSnapshotDescriptor
+            {
+                GeneratedUtc = DateTime.UtcNow,
+                CloudProvider = request.CloudProvider.ToString(),
+                RequestFingerprintHex = Convert.ToHexString(
+                    ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                ArchitectureRequestId = requestId,
+                GovernanceScopeJson = governanceScopeJson,
+            });
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync(requestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRequest?)null);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            architectureRequestRepository: requests.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "architecture-request-missing"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task BuildAsync_does_not_repersist_blocked_checks_on_second_read()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = TestScope.TenantId.ToString("D"),
+            RunId = runId,
+            IsProvisionalSynthesis = false,
+            Elements = [],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(model);
+        knowledgeModelAccess
+            .Setup(k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate
+            .Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Policy pack thresholds would block finalize.",
+                BlockingFindingIds = ["finding-blocked-1"],
+            });
+
+        BlockedReviewCheckProjector projector = new(knowledgeModelAccess.Object);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            gate: gate.Object,
+            knowledgeModelAccess: knowledgeModelAccess.Object,
+            blockedReviewCheckProjector: projector);
+
+        PreFinalizeChecklistResult first = await sut.BuildAsync(runId, CancellationToken.None);
+        PreFinalizeChecklistResult second = await sut.BuildAsync(runId, CancellationToken.None);
+
+        first.ReadyToFinalize.Should().Be(second.ReadyToFinalize);
+        first.Items.Should().BeEquivalentTo(second.Items, options => options.WithStrictOrdering());
+
+        knowledgeModelAccess.Verify(
+            k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task BuildAsync_marks_not_ready_when_pre_commit_gate_is_disabled()
     {
         Guid runKey = Guid.NewGuid();
@@ -278,6 +382,7 @@ public sealed class PreFinalizeChecklistServiceTests
 
     private static PreFinalizeChecklistService CreateSut(
         IRunRepository? runRepository = null,
+        IArchitectureRequestRepository? architectureRequestRepository = null,
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
         ITechnologyLedgerRepository? ledger = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
@@ -313,7 +418,7 @@ public sealed class PreFinalizeChecklistServiceTests
         return new PreFinalizeChecklistService(
             scopeProvider.Object,
             runRepository ?? runMock.Object,
-            Mock.Of<IArchitectureRequestRepository>(),
+            architectureRequestRepository ?? Mock.Of<IArchitectureRequestRepository>(),
             findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             ledger ?? ledgerMock.Object,
             linkageEngine ?? linkageMock.Object,

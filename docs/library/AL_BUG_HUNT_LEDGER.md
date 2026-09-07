@@ -9165,11 +9165,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — pre-finalize checklist provisional-synthesis false clear before blocked-check projection
+- **last-bug:** 2026-09-07 — orphan ArchitectureRequestId fail-open skipped execute-baseline drift blocking on pre-finalize checklist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9178,11 +9178,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` — `provisional-synthesis` item built before `BlockedReviewCheckProjector` mutates knowledge model — **hit 2026-09-07 (#1171):** blocked pre-commit gate projected `UnresolvedQuestion` elements and set `IsProvisionalSynthesis=true` after checklist item materialized as Clear; fixed by evaluating gate + projecting blocked checks before `BuildProvisionalSynthesisItemAsync` (`BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection`)
-- [ ] (candidate) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — null `ArchitectureRequest` for non-empty `ArchitectureRequestId` fail-open skips execute-baseline drift blocking items
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only checklist GET persists knowledge model via blocked-check projection (non-idempotent first vs second GET)
-- [ ] (candidate) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity (ledger invalid elsewhere)
-- [ ] (candidate) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern (ledger invalid elsewhere)
+- [x] (proven) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — null `ArchitectureRequest` for non-empty `ArchitectureRequestId` fail-open skipped execute-baseline drift blocking items — **hit 2026-09-07 (#1207):** orphan run with persisted execute-baseline `GovernanceScopeJson` returned `ReadyToFinalize=true`; fixed by emitting blocking `architecture-request-missing` item when request lookup fails but execute snapshot exists (`BuildAsync_blocks_finalize_when_architecture_request_is_missing_with_execute_baseline`)
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only checklist GET persists knowledge model via blocked-check projection — **cheap-disproof 2026-09-07 (#1207):** first GET projects blocked checks once; second GET is response-idempotent and does not re-save (`BuildAsync_does_not_repersist_blocked_checks_on_second_read`); persistence on first read is intentional projection sync after #1171 ordering fix
+- [x] (invalid) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity — **cheap-disproof 2026-09-07 (#1207):** ledger rows #133/#559/#752; static cron preview with no tenant-scoped persistence
+- [x] (invalid) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern — **cheap-disproof 2026-09-07 (#1207):** ledger row #7865; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents scope-filtered empty response
 
+2026-09-07 thorough hunt #1207 (hit): proved orphan ArchitectureRequest fail-open on pre-finalize execute-baseline drift; cheap-disproved checklist GET idempotency and two cross-zone parity candidates.
 2026-09-07 seed hunt #1171 (hit): reseeded governance stickiness/posture/checklist paths; proved provisional-synthesis checklist false clear from blocked-check projection ordering.
 
 ---
