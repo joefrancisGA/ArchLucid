@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   architectureNestedStartReviewPath,
   parseArchitectureNestedStartReviewArchitectureId,
+  startReviewFromArchitectureNestedGuidedHref,
   startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 
@@ -12,6 +13,12 @@ describe("architecture nested start review routes (AO-22)", () => {
       "/architecture/architectures/architecture-identity-001/reviews/new",
     );
     expect(startReviewFromArchitectureNestedHref("architecture-identity-001")).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/new",
+    );
+  });
+
+  it("WS-11: nested Guided opt-in keeps explicit guided-intake query", () => {
+    expect(startReviewFromArchitectureNestedGuidedHref("architecture-identity-001")).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
     );
   });

@@ -59,7 +59,7 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
         architectureId={architectureId}
         reviews={reviews}
         reviewCount={reviews.length}
-        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake"
+        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new"
       />,
     );
 
@@ -75,13 +75,13 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
       <ArchitectureIdentityDeskReviewsTable
         architectureId={architectureId}
         reviews={[]}
-        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake"
+        startReviewHref="/architecture/architectures/architecture-identity-001/reviews/new"
       />,
     );
 
     expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
       "href",
-      "/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake",
+      "/architecture/architectures/architecture-identity-001/reviews/new",
     );
     expect(screen.queryByRole("link", { name: /reviews hub/i })).toBeNull();
   });

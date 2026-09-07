@@ -184,17 +184,18 @@ export function architectureNestedStartReviewPath(architectureId: string): strin
   return `${architectureIdentityPath(architectureId.trim())}/reviews/new`;
 }
 
-/** Working desk Start review — nested job under the architecture identity (AO-22). */
+/** Working desk Start review — nested expert intake (WS-11). Guided opt-in: {@link startReviewFromArchitectureNestedGuidedHref}. */
 export function startReviewFromArchitectureNestedHref(architectureId: string): string {
+  return architectureNestedStartReviewPath(architectureId);
+}
+
+/** Explicit Guided questions opt-in on nested start-review (WS-11). */
+export function startReviewFromArchitectureNestedGuidedHref(architectureId: string): string {
   const qs = new URLSearchParams({
     path: "guided-intake",
   });
 
-  const query = qs.toString();
-
-  return query.length > 0
-    ? `${architectureNestedStartReviewPath(architectureId)}?${query}`
-    : architectureNestedStartReviewPath(architectureId);
+  return `${architectureNestedStartReviewPath(architectureId)}?${qs.toString()}`;
 }
 
 /** Parses `/architecture/architectures/{id}/reviews/new` for nested start-review intake. */
