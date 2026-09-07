@@ -9605,13 +9605,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **status:** open
 - **impact:** high
 - **aliases:** run execute lease; execute ownership; orchestration ownership
-- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/Orchestration/RunExecuteOwnershipLeaseService.cs
+- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 1
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-25
-- **last-bug:** never
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — execute ownership release ran before renewal scope cancellation, allowing heartbeat renew to recreate lease row
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -9619,8 +9619,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
+- [x] (proven) `ArchitectureRunExecuteOrchestrator` / `RunExecuteOwnershipLeaseRenewalScope` — `await using` renewal scope disposed after `finally` release; in-flight `RenewAsync` could recreate SQL lease row after intentional release — **hit 2026-09-07 (#1211):** dispose renewal scope before release; await renewal task on scope dispose (`RunExecuteOwnershipLeaseReleaseOrderingTests`)
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — renewal failure is warning-only; long execute continues without ownership until TTL expiry
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator` — non-Guid `runId` skips ownership acquire/release entirely (`TryParseRunGuid` guard)
 
----
+2026-09-07 seed hunt #1211 (hit): reseeded execute ownership orchestrator/renewal paths; proved release-before-renewal-dispose ghost lease recreation.
+2026-08-25 thorough hunt #1 (dry): cheap-disproved cancel token and background-path hypotheses.
 
 ## Zone: chatops-delivery
 
