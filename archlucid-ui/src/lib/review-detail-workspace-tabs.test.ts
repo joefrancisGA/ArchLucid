@@ -7,6 +7,7 @@ import {
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
+  resolveReviewDetailTabFromLocation,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -62,6 +63,11 @@ describe("review-detail-workspace-tabs", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview#run-explanation");
 
     expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
+  });
+
+  it("maps legacy archTab params when reviewTab is absent", () => {
+    expect(resolveReviewDetailTabFromLocation(null, "diagram")).toBe("architecture");
+    expect(resolveReviewDetailTabFromLocation(null, "governance")).toBe("policies");
   });
 });
 

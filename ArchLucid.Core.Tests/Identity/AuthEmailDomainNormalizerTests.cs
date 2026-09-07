@@ -30,4 +30,30 @@ public sealed class AuthEmailDomainNormalizerTests
 
         Assert.False(ok);
     }
+
+    [Fact]
+    public void TryNormalize_extracts_domain_from_email_shaped_admin_input()
+    {
+        bool ok = AuthEmailDomainNormalizer.TryNormalize(
+            "admin@host.contoso.com",
+            out string normalized,
+            out string display);
+
+        Assert.True(ok);
+        Assert.Equal("host.contoso.com", normalized);
+        Assert.Equal("host.contoso.com", display);
+    }
+
+    [Fact]
+    public void TryNormalize_uses_suffix_after_last_at_for_multi_at_malformed_input()
+    {
+        bool ok = AuthEmailDomainNormalizer.TryNormalize(
+            "user@host@contoso.com",
+            out string normalized,
+            out string display);
+
+        Assert.True(ok);
+        Assert.Equal("contoso.com", normalized);
+        Assert.Equal("contoso.com", display);
+    }
 }

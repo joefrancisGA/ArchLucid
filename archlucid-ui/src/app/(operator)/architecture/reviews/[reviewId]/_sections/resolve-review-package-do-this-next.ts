@@ -327,7 +327,7 @@ export function resolveReviewPackageDoThisNext(
     };
   }
 
-  if (input.showProgressTracker && input.manifestId === null) {
+  if (input.showProgressTracker && input.manifestId === null && !input.runCompleted) {
     return {
       kind: "view-assessment-progress",
       sentence: "Assessment is running — follow progress or add evidence while you wait.",

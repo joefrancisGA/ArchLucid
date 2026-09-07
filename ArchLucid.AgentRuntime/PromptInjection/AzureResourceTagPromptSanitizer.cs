@@ -62,8 +62,8 @@ public static class AzureResourceTagPromptSanitizer
             return string.Empty;
 
         return value
-            .Replace(UntrustedOpen, "<untrusted" + TagBreak + "_input>", StringComparison.Ordinal)
-            .Replace(UntrustedClose, "</untrusted" + TagBreak + "_input>", StringComparison.Ordinal);
+            .Replace(UntrustedOpen, "<untrusted" + TagBreak + "_input>", StringComparison.OrdinalIgnoreCase)
+            .Replace(UntrustedClose, "</untrusted" + TagBreak + "_input>", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string StripControlChars(string value)

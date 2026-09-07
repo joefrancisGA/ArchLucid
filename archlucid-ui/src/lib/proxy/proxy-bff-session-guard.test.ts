@@ -60,6 +60,83 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     vi.useRealTimers();
   });
 
+  it("allows pre-auth sign-in routing when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-expired-routing",
+      "v1/auth/routing/evaluate",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.payload).toBeNull();
+    }
+  });
+
+  it("allows anonymous marketing mutations when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-expired-marketing",
+      "v1/marketing/early-access",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.payload).toBeNull();
+    }
+  });
+
+  it("allows anonymous marketing mutations when the BFF session cookie is idle-expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      lastActivityAtMs: Date.now() - SESSION_IDLE_WORKING_TIMEOUT_MS,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-idle-marketing",
+      "v1/marketing/early-access",
+    );
+
+    expect(result.allowed).toBe(true);
+
+    if (result.allowed) {
+      expect(result.payload).toBeNull();
+      expect(result.slideCookieHeaders.length).toBeGreaterThan(0);
+    }
+  });
+
   it("rejects mutating proxy calls without a BFF session cookie", () => {
     const result = enforceProxyBffSessionGuard(mockNextRequest({ method: "POST" }), "POST", "corr-1");
 
@@ -117,6 +194,27 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     if (!result.allowed) {
       expect(result.response.status).toBe(403);
     }
+  });
+
+  it("allows anonymous marketing mutations with a valid BFF session and no CSRF token", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-marketing-valid-session",
+      "v1/marketing/early-access",
+    );
+
+    expect(result.allowed).toBe(true);
   });
 
   it("allows same-origin mutations with a valid session and CSRF token", () => {

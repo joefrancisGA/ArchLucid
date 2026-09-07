@@ -50,6 +50,16 @@ describe("resolveReviewDetailTabLifecycleStage", () => {
     ).toBe("pre-commit-complete");
   });
 
+  it("returns pre-commit-complete when run completed even if showProgressTracker is true", () => {
+    expect(
+      resolveReviewDetailTabLifecycleStage({
+        manifestId: null,
+        showProgressTracker: true,
+        runCompleted: true,
+      }),
+    ).toBe("pre-commit-complete");
+  });
+
   it("returns draft otherwise", () => {
     expect(
       resolveReviewDetailTabLifecycleStage({
