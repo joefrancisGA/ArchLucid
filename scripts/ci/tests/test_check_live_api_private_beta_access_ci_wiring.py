@@ -99,6 +99,26 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_tb927_invitee_role_wiring_requires_direct_me_helper(self) -> None:
+        helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
+        spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+
+        self.assertEqual(errors, [])
+
+    def test_tb927_invitee_role_wiring_rejects_missing_bearer_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_tb927_invitee_role_wiring(
+            "fetchAuthMeWithBearer(request, token)",
+            "export async function fetchAuthMeViaProxy() {}",
+            errors,
+        )
+
+        self.assertTrue(any("fetchAuthMeWithBearer" in error for error in errors))
+
     def test_sandbox_mock_json_import_attribute_required(self) -> None:
         errors: list[str] = []
 
