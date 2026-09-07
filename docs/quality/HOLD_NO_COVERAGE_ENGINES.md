@@ -25,13 +25,14 @@ Adding engines that re-read `GraphSnapshot` grows the insight-density denominato
 
 ## Exception — insight-density excellence set (2026-09-06)
 
-Owner strategy [`../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md) authorizes **path and contradiction** engines in [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) **DX-06–DX-09** (identity blast-radius, segmentation **rules**, DR/RPO vs replica, secrets lifecycle vs inventory). Those engines must still fail closed when properties/inventory are missing — they must **not** emit “node type X is absent.”
+Owner strategy [`../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md) authorizes **path and contradiction** engines in [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) **DX-06–DX-09** (identity blast-radius, segmentation **rules**, DR/RPO vs replica, secrets lifecycle vs inventory) and follow-on [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) **DX-22** (checklist-cluster synthesis), **DX-24** (dangling declaration refs), **DX-25** (requirement × SKU/tier). Those engines must still fail closed when properties/inventory are missing — they must **not** emit “node type X is absent.”
 
 Coverage-shaped engines (resilience/DR *presence*, IAM *depth as node-exists*, observability completeness, capacity planning) remain held.
 
 ## Related
 
 - [`INSIGHT_DENSITY_MISS_CLAUSE.md`](INSIGHT_DENSITY_MISS_CLAUSE.md)
-- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) — **DX-01–DX-16** (path engines DX-06–DX-09 authorized)
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) — **DX-01–DX-16** shipped (path engines DX-06–DX-09 authorized)
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) — **DX-22 / DX-24 / DX-25** authorized as synthesis/contradiction, not coverage
 - [`../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md) — ID-01–07 archive; do not re-run
 - [`../go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — **G-REAL-06**
