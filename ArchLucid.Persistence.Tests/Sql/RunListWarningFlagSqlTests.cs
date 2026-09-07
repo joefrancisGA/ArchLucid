@@ -37,4 +37,32 @@ public sealed class RunListWarningFlagSqlTests
         joins.Should().Contain("UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))");
         joins.Should().Contain("UPPER(LTRIM(RTRIM(ar.RequestId)))");
     }
+
+    [Fact]
+    public void SelectRunColumns_coalesces_persisted_package_origin_with_request_json_fallback()
+    {
+        const string columns = RunListWarningFlagSql.SelectRunColumns;
+
+        columns.Should().Contain("COALESCE(");
+        columns.Should().Contain("r.PackageOrigin");
+        columns.Should().Contain("JSON_VALUE(ar.RequestJson, '$.workflowIntent')");
+        columns.Should().Contain("THEN N'Created'");
+        columns.Should().Contain("ELSE N'Reviewed'");
+    }
+
+    [Fact]
+    public void SelectRunColumns_workflow_intent_fallback_uses_case_sensitive_json_compare()
+    {
+        RunListWarningFlagSql.SelectRunColumns.Should()
+            .Contain("JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'");
+    }
+
+    [Fact]
+    public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
+            .Contain(RunListWarningFlagSql.LeftJoinAggregates.Trim());
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
+            .Contain("JSON_VALUE(ar.RequestJson");
+    }
 }

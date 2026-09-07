@@ -275,6 +275,14 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Run_detail_read_reads_persisted_package_origin_without_request_json_fallback()
+    {
+        RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
+        RunRepositorySql.SelectByScopedId.Should().NotContain("JSON_VALUE(");
+        RunRepositorySql.SelectByScopedIdIncludingArchived.Should().NotContain("JSON_VALUE(");
+    }
+
+    [SkippableFact]
     public void Findings_snapshot_write_shapes_cover_header_and_finding_insert()
     {
         FindingsSnapshotWriteSql.InsertHeader.Should().Contain("INSERT INTO dbo.FindingsSnapshots");
