@@ -105,6 +105,40 @@ internal static class TenantIsolationNegativeTestAggregator
 
         return false;
     }
+
+    internal static bool TryParseRunListContinuation(string json, out string? nextCursor)
+    {
+        nextCursor = null;
+
+        if (string.IsNullOrWhiteSpace(json))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
+
+            if (!root.TryGetProperty("hasMore", out JsonElement hasMoreElement)
+                || hasMoreElement.ValueKind != JsonValueKind.True)
+            {
+                return false;
+            }
+
+            if (!root.TryGetProperty("nextCursor", out JsonElement nextCursorElement)
+                || nextCursorElement.ValueKind != JsonValueKind.String)
+            {
+                return false;
+            }
+
+            nextCursor = nextCursorElement.GetString();
+
+            return !string.IsNullOrWhiteSpace(nextCursor);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 }
 
 internal static class TenantIsolationNegativeTestProbeCatalog
@@ -142,9 +176,9 @@ internal static class TenantIsolationNegativeTestProbeCatalog
                 "Cross-tenant GET run export must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-list",
-                "/v1/runs?take=200",
+                "/v1/runs",
                 "exclude-run-id",
-                "Cross-tenant run list must not include the foreign runId."),
+                "Cross-tenant run list must not include the foreign runId on any cursor page."),
         ];
     }
 }

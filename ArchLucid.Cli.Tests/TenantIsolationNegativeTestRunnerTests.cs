@@ -99,6 +99,23 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void TryParseRunListContinuation_ReturnsCursorWhenHasMore()
+    {
+        string json = """
+                      {
+                        "items": [],
+                        "hasMore": true,
+                        "nextCursor": "opaque-cursor-token"
+                      }
+                      """;
+
+        TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(json, out string? nextCursor)
+            .Should()
+            .BeTrue();
+        nextCursor.Should().Be("opaque-cursor-token");
+    }
+
+    [Fact]
     public async Task RunLiveAsync_FailsRunListProbeWhenForeignRunIdOnlyVisibleWithFullTakePage()
     {
         StubHandler handler = new()
@@ -115,21 +132,88 @@ public sealed class TenantIsolationNegativeTestRunnerTests
                 {
                     if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
                     {
-                        int take = ParseTakeQueryValue(query) ?? RunPagination.DefaultTake;
-
-                        if (take >= 200)
+                        if (query.Contains("cursor=page-2", StringComparison.OrdinalIgnoreCase))
                         {
                             return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                             {
                                 items = new[] { new { runId = "aaaaaaaa111111111111111111111111" } },
+                                hasMore = false,
                             }));
                         }
 
                         return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                         {
-                            items = Enumerable.Range(0, take)
+                            items = Enumerable.Range(0, RunPagination.MaxTake)
                                 .Select(static i => new { runId = $"bbbbbbbb2222222222222222222222{i:00}" })
                                 .ToArray(),
+                            hasMore = true,
+                            nextCursor = "page-2",
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Fail);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_FailsRunListProbeWhenForeignRunIdAppearsOnSecondCursorPage()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string query = req.RequestUri.Query;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        if (query.Contains("cursor=older-page", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                            {
+                                items = new[] { new { runId = "aaaaaaaa111111111111111111111111" } },
+                                hasMore = false,
+                            }));
+                        }
+
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = Enumerable.Range(0, RunPagination.MaxTake)
+                                .Select(static i => new { runId = $"cccccccc3333333333333333333333{i:00}" })
+                                .ToArray(),
+                            hasMore = true,
+                            nextCursor = "older-page",
                         }));
                     }
 

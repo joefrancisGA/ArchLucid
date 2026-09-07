@@ -914,11 +914,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — cross-tenant run-list probe used `limit` on `/v1/runs`, which only honors `take`, so leaks beyond the default page could false-pass
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — cross-tenant run-list probe scanned only the first `/v1/runs` page, so a leaked foreign run on a later cursor page false-passed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -932,6 +932,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Run-list probe missed foreign run ids when the API returned compact `N` guids but the CLI `--run-id` used dashed formatting — **hit 2026-08-24:** `TryFindRunIdInRunList` compared raw strings, so a leaked compact id was treated as absent and the cross-tenant list probe falsely passed; fixed by normalizing both sides to canonical `N` before comparison.
 - [x] (proven) Cross-tenant artifacts probe targeted a non-canonical route — **hit 2026-08-24:** live probes called `GET /v1/artifacts/runs/{runId}` (export-only prefix) instead of `GET /v1/architecture/runs/{runId}/artifacts`, so a 404 on the wrong path reported PASS without exercising artifact isolation; fixed probe path to the product route.
 - [x] (proven) Cross-tenant run-list probe used `limit=200` on canonical `GET /v1/runs`, which ignores `limit` and defaults `take` to 25 — a leaked foreign run beyond the first page could false-pass; fixed probe to `take=200` (`RunLiveAsync_FailsRunListProbeWhenForeignRunIdOnlyVisibleWithFullTakePage`).
+- [x] (proven) Cross-tenant run-list probe scanned only the first `/v1/runs` page — **hit 2026-09-07 (#1181):** `take=200` is clamped to `RunPagination.MaxTake` (100) and the probe did not follow `nextCursor`; a foreign run visible only on page 2+ false-passed; fixed with cursor pagination at max take; regressions `RunLiveAsync_FailsRunListProbeWhenForeignRunIdAppearsOnSecondCursorPage` and updated full-page test.
+
+2026-09-07 seed hunt #1181 (hit): promoted run-list cursor pagination gap after `RunPagination.MaxTake` review; proved foreign run on second page false-passed.
 
 ---
 
