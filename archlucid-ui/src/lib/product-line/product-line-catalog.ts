@@ -32,11 +32,11 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   // Inventory collection and outbound remediation bridges.
   "/integrations/cloud-connections": "both",
   "/integrations/jira": "both",
-  "/integrations/azure-boards": "both",
+  "/integrations/azure-boards": "architecture",
   "/integrations/servicenow": "both",
   "/integrations/teams": "both",
-  "/integrations/slack": "both",
-  "/integrations/webhooks": "both",
+  "/integrations/slack": "architecture",
+  "/integrations/webhooks": "architecture",
 
   // Shared tenant administration.
   "/administration": "both",
