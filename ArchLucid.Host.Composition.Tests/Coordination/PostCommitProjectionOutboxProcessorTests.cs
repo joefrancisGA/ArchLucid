@@ -4,6 +4,7 @@ using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Projection;
@@ -57,12 +58,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -113,12 +119,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -247,12 +258,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         int scopeCreates = 0;
@@ -310,6 +326,7 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => materializer.Object);
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(

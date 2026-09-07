@@ -27,7 +27,7 @@ public sealed class TenantUsageStatusService(
         if (tenant is null)
             return null;
 
-        bool isTrial = string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal);
+        bool isTrial = TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active);
         IReadOnlyList<TenantWorkspaceListItem> workspaces =
             await _tenantRepository.ListWorkspacesAsync(tenantId, cancellationToken);
         int workspacesUsed = workspaces.Count;

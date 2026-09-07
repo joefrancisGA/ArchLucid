@@ -34,6 +34,7 @@ import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { governanceFindingsWorkspaceSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/governance-findings-architecture-scope";
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
@@ -197,9 +198,12 @@ export default function GovernanceFindingsQueueClient({
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
         onPickReviewForTriage(applied.scopedRunId);
+        return;
       }
+
+      router.replace(governanceFindingsWorkspaceSavedViewHref(applied, navHref), { scroll: false });
     },
-    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
+    [applyGroupByResource, navHref, onPickReviewForTriage, router, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (

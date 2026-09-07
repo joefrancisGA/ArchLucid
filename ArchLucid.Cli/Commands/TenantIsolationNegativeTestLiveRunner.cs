@@ -1,3 +1,5 @@
+using ArchLucid.Core.Pagination;
+
 namespace ArchLucid.Cli.Commands;
 
 internal sealed class TenantIsolationNegativeTestLiveRunner
@@ -103,27 +105,15 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         string runId,
         CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await alternateClient.GetAsync(definition.Path, cancellationToken);
-        string body = await response.Content.ReadAsStringAsync(cancellationToken);
-        TenantIsolationNegativeTestVerdict verdict;
-        string observedOutcome;
-
         if (string.Equals(definition.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
         {
-            int statusCode = (int)response.StatusCode;
-            bool containsRunId = TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId);
-            verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, containsRunId);
-            observedOutcome = statusCode >= 500
-                ? $"HTTP {statusCode}; skipped server error"
-                : containsRunId
-                    ? $"HTTP {statusCode}; foreign runId present"
-                    : $"HTTP {statusCode}; foreign runId absent";
+            return await ExecuteExcludeRunIdProbeAsync(alternateClient, definition, runId, cancellationToken);
         }
-        else
-        {
-            verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus((int)response.StatusCode);
-            observedOutcome = $"HTTP {(int)response.StatusCode}";
-        }
+
+        using HttpResponseMessage response = await alternateClient.GetAsync(definition.Path, cancellationToken);
+        TenantIsolationNegativeTestVerdict verdict =
+            TenantIsolationNegativeTestAggregator.EvaluateDenyStatus((int)response.StatusCode);
+        string observedOutcome = $"HTTP {(int)response.StatusCode}";
 
         return new TenantIsolationNegativeTestProbeResult
         {
@@ -138,12 +128,93 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         };
     }
 
-    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
+    private static async Task<TenantIsolationNegativeTestProbeResult> ExecuteExcludeRunIdProbeAsync(
+        HttpClient alternateClient,
+        TenantIsolationNegativeTestProbeDefinition definition,
+        string runId,
+        CancellationToken cancellationToken)
     {
-        if (statusCode >= 500)
+        (int statusCode, TenantIsolationNegativeTestRunListScanOutcome scanOutcome, string? correlationId) =
+            await ScanRunListForForeignRunIdAsync(alternateClient, runId, cancellationToken);
+        TenantIsolationNegativeTestVerdict verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, scanOutcome);
+        string observedOutcome = statusCode >= 500
+            ? $"HTTP {statusCode}; skipped server error"
+            : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable
+                ? $"HTTP {statusCode}; run list unavailable"
+                : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
+                ? $"HTTP {statusCode}; scan incomplete before run list exhausted"
+                : scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
+                    ? $"HTTP {statusCode}; foreign runId present"
+                    : $"HTTP {statusCode}; foreign runId absent";
+
+        return new TenantIsolationNegativeTestProbeResult
+        {
+            Name = definition.Name,
+            Path = definition.Path,
+            ExpectedOutcome = definition.ExpectedOutcome,
+            ObservedOutcome = observedOutcome,
+            ObservedStatusCode = statusCode,
+            CorrelationId = correlationId,
+            Verdict = verdict,
+            Evidence = definition.Description,
+        };
+    }
+
+    private static async Task<(int StatusCode, TenantIsolationNegativeTestRunListScanOutcome ScanOutcome, string? CorrelationId)> ScanRunListForForeignRunIdAsync(
+        HttpClient alternateClient,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        const int maxPages = 50;
+        string? cursor = null;
+        int lastStatusCode = 0;
+        string? lastCorrelationId = null;
+
+        for (int pageIndex = 0; pageIndex < maxPages; pageIndex++)
+        {
+            string path = cursor is null
+                ? $"/v1/runs?take={RunPagination.MaxTake}"
+                : $"/v1/runs?take={RunPagination.MaxTake}&cursor={Uri.EscapeDataString(cursor)}";
+
+            using HttpResponseMessage response = await alternateClient.GetAsync(path, cancellationToken);
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+            lastStatusCode = (int)response.StatusCode;
+            lastCorrelationId = ReadCorrelationId(response);
+
+            if (lastStatusCode >= 500)
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ServerError, lastCorrelationId);
+
+            if (lastStatusCode is < 200 or >= 300)
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable, lastCorrelationId);
+
+            if (TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId))
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent, lastCorrelationId);
+
+            if (!TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(body, out cursor))
+            {
+                if (TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(body))
+                    return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete, lastCorrelationId);
+
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdAbsent, lastCorrelationId);
+            }
+
+            if (pageIndex == maxPages - 1)
+                return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete, lastCorrelationId);
+        }
+
+        return (lastStatusCode, TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdAbsent, lastCorrelationId);
+    }
+
+    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(
+        int statusCode,
+        TenantIsolationNegativeTestRunListScanOutcome scanOutcome)
+    {
+        if (statusCode >= 500
+            || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ScanIncomplete
+            || scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ListUnavailable)
             return TenantIsolationNegativeTestVerdict.Skip;
 
-        return foreignRunIdVisible
+        return scanOutcome == TenantIsolationNegativeTestRunListScanOutcome.ForeignRunIdPresent
             ? TenantIsolationNegativeTestVerdict.Fail
             : TenantIsolationNegativeTestVerdict.Pass;
     }

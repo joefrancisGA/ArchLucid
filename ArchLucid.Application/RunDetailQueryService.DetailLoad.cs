@@ -123,7 +123,7 @@ public sealed partial class RunDetailQueryService
                 TokenCounts = new ArchLucid.Contracts.Runs.RunLlmTokenCountsDto
                 {
                     Prompt = costSummary.PromptTokens,
-                    Completion = costSummary.CompletionTokens
+                    Completion = costSummary.CombinedOutputTokens
                 },
                 Model = costSummary.ModelLabel,
                 CostEstimationBasis = costSummary.CostEstimationBasis

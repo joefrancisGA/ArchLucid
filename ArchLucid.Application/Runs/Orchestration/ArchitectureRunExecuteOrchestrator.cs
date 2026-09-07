@@ -100,7 +100,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             {
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
-                await using IAsyncDisposable renewalScope =
+                IAsyncDisposable renewalScope =
                     _runExecuteOwnershipLeaseService.BeginRenewalScope(runGuid, cancellationToken);
 
                 try
@@ -109,6 +109,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 }
                 finally
                 {
+                    await renewalScope.DisposeAsync().ConfigureAwait(false);
+
                     await _runExecuteOwnershipLeaseService
                         .ReleaseAsync(runGuid, CancellationToken.None)
                         .ConfigureAwait(false);

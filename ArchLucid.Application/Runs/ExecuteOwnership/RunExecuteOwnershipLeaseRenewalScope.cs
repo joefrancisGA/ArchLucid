@@ -55,12 +55,19 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
             logger);
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        _linkedCts.Cancel();
-        _linkedCts.Dispose();
+        await _linkedCts.CancelAsync().ConfigureAwait(false);
 
-        return ValueTask.CompletedTask;
+        try
+        {
+            await _renewalTask.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+
+        _linkedCts.Dispose();
     }
 
     private async Task RunRenewalLoopAsync(int renewIntervalSeconds, CancellationToken cancellationToken)

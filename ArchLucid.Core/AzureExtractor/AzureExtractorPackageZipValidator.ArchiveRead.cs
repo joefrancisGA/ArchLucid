@@ -89,6 +89,19 @@ public static partial class AzureExtractorPackageZipValidator
                 };
             }
 
+            string? resourcesError = TryReadResourcesSchemaError(resourcesEntry);
+
+            if (resourcesError is not null)
+            {
+                return new AzureExtractorZipValidationResult
+                {
+                    IsValid = false,
+                    ErrorDetail = resourcesError,
+                    IsSchemaRejection = true,
+                    FileEntryCount = fileEntryCount,
+                };
+            }
+
             return new AzureExtractorZipValidationResult
             {
                 IsValid = true,

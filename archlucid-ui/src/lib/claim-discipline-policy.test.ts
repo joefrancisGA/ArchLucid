@@ -122,5 +122,24 @@ describe("claim-discipline-policy", () => {
     expect(
       resolveGuideHeadingsForStrip("help-evidence-graph", headings, "help-preferences-claim-discipline-heading"),
     ).toEqual([headings[0], headings[2]]);
+
+    const auditTrailHeadings = [
+      { id: "overview", title: "Overview" },
+      { id: "help-audit-trail-claim-discipline-heading", title: "Claim discipline" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ] as const;
+
+    expect(
+      resolveGuideHeadingsForStrip(
+        "audit-trail-help",
+        auditTrailHeadings,
+        "help-audit-trail-claim-discipline-heading",
+      ),
+    ).toEqual([auditTrailHeadings[0], auditTrailHeadings[2]]);
+  });
+
+  it("omits audit-trail-help when claim discipline is folded into the page header", () => {
+    expect(shouldOmitClaimDisciplineBand("audit-trail-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("audit-trail-help", "Not a diligence package.")).toBeUndefined();
   });
 });

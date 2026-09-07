@@ -18,6 +18,16 @@ public static class MarketplaceQuantityReader
         if (!TryGetPropertyCaseInsensitive(root, "quantity", out JsonElement q))
             return false;
 
+        if (q.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            if (!q.GetBoolean())
+                return false;
+
+            quantity = 1;
+
+            return true;
+        }
+
         if (q.ValueKind == JsonValueKind.Number && TryReadWholeNumberInt32(q, out int wholeNumber))
         {
             if (wholeNumber < 1)

@@ -68,4 +68,15 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingDisposition.Accepted);
     }
+
+    [Theory]
+    [InlineData("999")]
+    [InlineData("-1")]
+    [InlineData("bogus")]
+    public void ParseDisposition_returns_null_for_undefined_or_unrecognized_values(string raw)
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition(raw);
+
+        actual.Should().BeNull();
+    }
 }

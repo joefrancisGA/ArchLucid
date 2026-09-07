@@ -181,13 +181,21 @@ export function useGuidedIntakeWizard() {
 
   const handleSessionRestore = useCallback(
     (snapshot: { stepIndex: number; state: GuidedIntakeSessionState }) => {
-      setStep(snapshot.stepIndex);
       form.setFreeTextIntent(snapshot.state.freeTextIntent);
       form.setBusinessOutcome(snapshot.state.businessOutcome);
       form.setSystemName(snapshot.state.systemName);
       form.setActorSet(snapshot.state.actorSet);
       workflow.setAnswers(snapshot.state.answers);
       workflow.setDraftId(snapshot.state.draftId);
+
+      if (snapshot.stepIndex >= 2 && snapshot.state.draftId !== null) {
+        setStep(1);
+        void workflow.hydrateClarificationsFromDraft(snapshot.state.draftId);
+
+        return;
+      }
+
+      setStep(snapshot.stepIndex);
     },
     [form, setStep, workflow],
   );
@@ -217,6 +225,14 @@ export function useGuidedIntakeWizard() {
     setStep(1);
   }, [step, setStep, workflow.isSubmitBlocked]);
 
+  useEffect(() => {
+    if (step < 2 || workflow.clarificationsPersistedForSubmit) {
+      return;
+    }
+
+    setStep(1);
+  }, [setStep, step, workflow.clarificationsPersistedForSubmit]);
+
   const policyPackCloudMismatch = useMemo(
     () =>
       deriveGuidedIntakePolicyPackCloudMismatch(
@@ -245,6 +261,7 @@ export function useGuidedIntakeWizard() {
   const canSubmit =
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
+    workflow.clarificationsPersistedForSubmit &&
     !workflow.busy &&
     !workflow.isSubmitBlocked &&
     !blocksLlmExecution &&
