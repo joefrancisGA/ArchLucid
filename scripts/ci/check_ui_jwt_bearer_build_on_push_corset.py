@@ -52,8 +52,11 @@ def main(argv: list[str] | None = None) -> int:
                 "(parity with private-beta-access-on-push build)",
             )
 
-        if "npm run build" not in text:
-            errors.append(f"{_PUSH_REL}: missing npm run build step for jwt-bearer client")
+        if "npm run build:live-e2e" not in text:
+            errors.append(
+                f"{_PUSH_REL}: {_JOB_NAME} must use npm run build:live-e2e "
+                "(parity with private-beta-access-on-push; skip build:docs-pdf)",
+            )
 
         if _LOCKFILE_GUARD not in text:
             errors.append(
