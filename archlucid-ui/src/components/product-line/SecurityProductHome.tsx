@@ -16,7 +16,6 @@ import { isDevEmployeeRoleOverrideActive } from "@/lib/dev-testing-overrides";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import {
-  SECURITY_PRODUCT_HOME_CLAIM_DISCIPLINE,
   SECURITY_PRODUCT_HOME_SUBTITLE,
   SECURITY_PRODUCT_HOME_TITLE,
 } from "@/lib/product-line/product-line-copy";
@@ -51,7 +50,6 @@ export function SecurityProductHome(): React.JSX.Element {
       <OperatorPageHeader
         title={SECURITY_PRODUCT_HOME_TITLE}
         subtitle={SECURITY_PRODUCT_HOME_SUBTITLE}
-        claimDiscipline={SECURITY_PRODUCT_HOME_CLAIM_DISCIPLINE}
         navHref="/"
         headingLevel="h2"
       />
