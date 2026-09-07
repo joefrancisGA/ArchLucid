@@ -35,12 +35,17 @@ import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAT
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
+import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
 import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
 /** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
 export function InfrastructureOverviewClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
+  const showSecureNowComplianceSection = productLine === "security";
 
   return (
     <OperatorPageContainer
@@ -112,8 +117,13 @@ export function InfrastructureOverviewClient() {
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation
             instances. All six destinations are available from this hub.
+            {showSecureNowComplianceSection
+              ? " Compliance posture destinations for ARC-AMPE pack assignment and cloud-evidence findings are listed below."
+              : null}
           </p>
         )}
+
+        {showSecureNowComplianceSection ? <SecureNowComplianceHomeSection /> : null}
 
         <section aria-labelledby="governance-infrastructure-workbenches-heading">
           <h2

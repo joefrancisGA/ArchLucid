@@ -106,7 +106,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=diagram",
     );
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
       "href",
@@ -130,7 +130,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     render(<DiagramReconcileWorkbenchClient />);
 
     const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
-    expect(conflictRow).toHaveClass("bg-muted/40");
+    expect(conflictRow).toHaveClass("bg-neutral-100");
   });
 
   it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {

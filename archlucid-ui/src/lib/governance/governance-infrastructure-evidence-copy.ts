@@ -3,7 +3,11 @@ import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 
@@ -69,3 +73,110 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES: readonly EvidenceSourceLinkW
   },
 ] as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES_INTRO =
+  "Use these surfaces when buyers need inventory context, diagram exports, or remediation follow-up beyond correspondence rows.";
+
+/** Operator Sources for diagram reconciliation (GDI). */
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift context, diagram reconciliation, or grounded Ask beyond remediation instances.";
+
+/** Operator Sources for remediation factory (GRE). */
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope remediation to one cloud resource",
+  },
+  {
+    label: "Diagram reconciliation",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    when: "Return to the conflict row that created an operational finding",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots before approving execute on an instance",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same finding or instance scope",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
+  "Use these surfaces when buyers need inventory diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
+
+/** Operator Sources for drift workbench (GOR). */
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope drift comparison to one cloud resource",
+  },
+  {
+    label: "Inventory diagrams",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    when: "Inspect diagram views for the same snapshot before reviewing property drift",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same diff or resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams or remediation",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES_INTRO =
+  "Use these surfaces when buyers need reconciliation, grounded Ask, or resource context beyond diagram exports.";
+
+/** Operator Sources for inventory diagrams (OIN). */
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Diagram reconciliation",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    when: "Upload Mermaid and reconcile diagram nodes against inventory snapshots",
+  },
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope diagrams to one cloud resource",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same snapshot or resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift or remediation",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Inventory diagrams",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    when: "Export or inspect diagram views before uploading Mermaid for reconciliation",
+  },
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope reconciliation to one cloud resource",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift, Ask, or remediation",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Open the factory after creating operational findings from conflict rows",
+  },
+] as const;
