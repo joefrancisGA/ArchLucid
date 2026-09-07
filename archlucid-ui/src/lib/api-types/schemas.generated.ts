@@ -9302,6 +9302,15 @@ export interface components {
             manifestModeledElementApproxCount?: number;
             runId: string;
         };
+        RunStoredEvidenceFileDto: {
+            /** Format: int64 */
+            byteLength?: number;
+            contentType?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceItemId?: string;
+            originalFileName?: string;
+        };
         RunSummaryResponse: {
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;

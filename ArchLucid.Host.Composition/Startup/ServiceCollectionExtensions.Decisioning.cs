@@ -73,6 +73,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PrivilegedAccessFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.IdentityBlastRadiusFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DataFlowTrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
@@ -86,6 +87,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GraphAwsInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.DeclarationInventoryContradictionFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PolicyDeclarationInventoryContradictionFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsCostRecommendationFindingEngine>();

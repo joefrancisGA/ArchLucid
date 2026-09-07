@@ -233,7 +233,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
 
       {buyerFinalizedPackage ? null : sectionNavEl}
 
-      {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
+      {resolveRunDetailSponsorBriefingSection(m, {
+        pagePrimaryOwnedElsewhere: true,
+        enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+        manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
+        progressSummary: m.progressForPipelineUi,
+        graphSnapshot: m.resolvedDetail.graphSnapshot,
+      })}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
         <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />

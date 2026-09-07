@@ -23,6 +23,8 @@ type RunDetailFirstScreenProofStatusClientProps = {
   readonly runId: string;
   readonly legacyRunStatus?: string | null;
   readonly isDeadLettered?: boolean;
+  /** When true, governed coverage copy avoids "evidence-backed" (FC-13). */
+  readonly assertedTrailEmpty?: boolean;
 };
 
 export function RunDetailFirstScreenProofStatusClient(
@@ -44,8 +46,13 @@ export function RunDetailFirstScreenProofStatusClient(
   }, [refetch]);
 
   const summary = useMemo(
-    () => (payload === undefined ? null : buildRunDetailFirstScreenProofSummary(payload)),
-    [payload],
+    () =>
+      payload === undefined
+        ? null
+        : buildRunDetailFirstScreenProofSummary(payload, {
+            assertedTrailEmpty: props.assertedTrailEmpty === true,
+          }),
+    [payload, props.assertedTrailEmpty],
   );
 
   if (isPending) {

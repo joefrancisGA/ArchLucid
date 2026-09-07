@@ -160,24 +160,6 @@ function resolveFailureRecoverySecondaryAction(
   input: ResolveReviewPackageDoThisNextInput,
   failureRecovery: ReviewFailureRecoveryGuidance,
 ): { readonly label: string; readonly href: string } | null {
-  const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
-
-  if (workspaceAiSignal !== null && workspaceAiSignal !== undefined && input.canConfigureWorkspaceAi === true) {
-    const adminLink = failureRecovery.adminConfigurationHref?.trim() ?? "";
-
-    if (adminLink.length > 0) {
-      return {
-        label: failureRecovery.adminConfigurationLabel ?? "Open workspace AI settings",
-        href: adminLink,
-      };
-    }
-
-    return {
-      label: "Open workspace AI settings",
-      href: "/administration/workspace-settings",
-    };
-  }
-
   if (
     failureRecovery.submittedIntakeRecap !== null
     && failureRecovery.submittedIntakeRecap !== undefined
