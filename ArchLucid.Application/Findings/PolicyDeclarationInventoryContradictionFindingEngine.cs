@@ -17,15 +17,15 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Findings;
 
 /// <summary>
-///     Emits when assigned policy pack, secure declaration claim, and live inventory disagree (DX-33).
+///     Emits declaration vs inventory mismatches only when the tenant's assigned pack maps the mismatch theme (DX-33).
 /// </summary>
 public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository azurePackageRepository,
     ICloudInventoryExtractorPackageRepository cloudPackageRepository,
+    IComplianceRulePackProvider rulePackProvider,
     TimeProvider clock,
-    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions,
-    IComplianceRulePackProvider rulePackProvider) : IEffectfulFindingEngine
+    IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IEffectfulFindingEngine
 {
     internal const int MaxFindingsPerSnapshot = 25;
 
@@ -38,13 +38,13 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
     private readonly ICloudInventoryExtractorPackageRepository _cloudPackageRepository =
         cloudPackageRepository ?? throw new ArgumentNullException(nameof(cloudPackageRepository));
 
+    private readonly IComplianceRulePackProvider _rulePackProvider =
+        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
+
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
     private readonly RoiCostEvidenceFreshnessOptions _freshnessOptions =
         freshnessOptions?.Value ?? throw new ArgumentNullException(nameof(freshnessOptions));
-
-    private readonly IComplianceRulePackProvider _rulePackProvider =
-        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
 
     public string EngineType => "policy-declaration-inventory-contradiction";
 
@@ -57,12 +57,14 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         HashSet<string> activeRuleIds = await ResolveActiveRuleIdsAsync(ct).ConfigureAwait(false);
 
         if (activeRuleIds.Count == 0)
+        {
             return [];
+        }
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         List<DeclarationInventoryContradictionMismatch> mismatches = [];
 
         if (!EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
@@ -101,7 +103,9 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
             ct).ConfigureAwait(false);
 
         if (mismatches.Count == 0)
+        {
             return [];
+        }
 
         List<Finding> findings = [];
         bool truncated = false;
@@ -117,14 +121,18 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
             }
 
             if (!DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch))
+            {
                 continue;
+            }
 
             string? policyRuleId = DeclarationSignalPolicyKeyMap.TryGetFirstMappedRuleId(
                 mismatch.SecurityTheme,
                 activeRuleIds);
 
             if (policyRuleId is null)
+            {
                 continue;
+            }
 
             findings.Add(PolicyDeclarationInventoryContradictionFindingMapper.ToFinding(mismatch, policyRuleId));
         }
@@ -167,7 +175,9 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
             .ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(resourcesJson))
+        {
             return;
+        }
 
         mismatches.AddRange(
             DeclarationInventoryContradictionAnalyzer.Analyze(
@@ -197,7 +207,9 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
         }
 
         if (download is null || download.PackageBytes.Length == 0)
+        {
             return null;
+        }
 
         return AzureInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
     }
@@ -225,7 +237,9 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
         }
 
         if (download is null || download.PackageBytes.Length == 0)
+        {
             return null;
+        }
 
         return CloudInventoryZipResourcesJsonReader.TryReadResourcesJson(download.PackageBytes);
     }
@@ -233,6 +247,7 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
     private async Task<HashSet<string>> ResolveActiveRuleIdsAsync(CancellationToken ct)
     {
         ComplianceRulePack rulePack = await _rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+
         return DeclarationSignalPolicyKeyMap.CollectActiveRuleIds(rulePack);
     }
 }

@@ -20,6 +20,7 @@ import {
   resolveCareerExportBlockedReason,
   type CareerExportClassificationCounts,
 } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
 import {
   formatRunExportLineageStatusLabel,
@@ -116,7 +117,8 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       return;
     }
 
-    const careerExportBlockedReason = resolveCareerExportBlockedReason({
+    const careerHonestyInput = {
+      artifactKind: "export" as const,
       runId,
       progressSummary: props.progressSummary ?? null,
       manifestSummary,
@@ -131,7 +133,12 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       hostAgentExecutionMode,
       hostQualityGateMode,
       aggregateQualityGateOutcome: props.aggregateQualityGateOutcome ?? null,
-    });
+      transparencyTrail: manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+    };
+    const careerExportVerdict = evaluateCareerArtifactHonesty(careerHonestyInput);
+    const careerExportBlockedReason = careerExportVerdict.canRender
+      ? null
+      : careerExportVerdict.blockedReasons[0] ?? resolveCareerExportBlockedReason(careerHonestyInput);
 
     if (careerExportBlockedReason !== null) {
       setExportError(careerExportBlockedReason);

@@ -36,7 +36,7 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
 
     [Fact]
-    public async Task AnalyzeAsync_emits_one_finding_when_mapped_pack_rule_is_active()
+    public async Task AnalyzeAsync_emits_one_finding_when_mismatch_theme_maps_to_assigned_pack_rule()
     {
         GraphSnapshot graph = CreateStorageGraph("Disabled");
 
@@ -54,7 +54,7 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
             """;
 
         (PolicyDeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
-            CreateSut(CreateAzurePackage(resourcesJson), ["cis-az-006"]);
+            CreateSut(CreateAzurePackage(resourcesJson), CreatePack("cis-az-006"));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
@@ -63,17 +63,24 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
         finding.PolicyRuleId.Should().Be("cis-az-006");
         finding.Title.Should().Contain("cis-az-006");
         finding.Title.Should().Contain("stpayprod");
+        finding.Title.Should().Contain("Disabled");
+        finding.Title.Should().Contain("Enabled");
+        finding.Trace.Notes.Should().Contain($"evidence:inventory:{StorageArmId}");
+        finding.Trace.Notes.Should().Contain("evidence:graph-node:storage-1");
         finding.Trace.Notes.Should().Contain("evidence:policy:cis-az-006");
 
         PolicyDeclarationInventoryContradictionFindingPayload payload =
             finding.Payload.Should().BeOfType<PolicyDeclarationInventoryContradictionFindingPayload>().Subject;
+
         payload.PolicyRuleId.Should().Be("cis-az-006");
+        payload.CloudProvider.Should().Be("Azure");
+        payload.DeclarationKey.Should().Be("tf.public_network_access");
         payload.DeclaredValue.Should().Be("Disabled");
         payload.InventoryValue.Should().Be("Enabled");
     }
 
     [Fact]
-    public async Task AnalyzeAsync_returns_empty_when_active_rule_ids_are_empty()
+    public async Task AnalyzeAsync_returns_empty_when_assigned_pack_has_no_mapped_rule_for_theme()
     {
         GraphSnapshot graph = CreateStorageGraph("Disabled");
 
@@ -91,7 +98,33 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
             """;
 
         (PolicyDeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
-            CreateSut(CreateAzurePackage(resourcesJson), []);
+            CreateSut(CreateAzurePackage(resourcesJson), CreatePack("cost-opt-001"));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_assigned_pack_is_empty()
+    {
+        GraphSnapshot graph = CreateStorageGraph("Disabled");
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        (PolicyDeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreateAzurePackage(resourcesJson), CreatePack());
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
@@ -117,7 +150,53 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
             """;
 
         (PolicyDeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
-            CreateSut(CreateAzurePackage(resourcesJson), ["cis-az-006"]);
+            CreateSut(CreateAzurePackage(resourcesJson), CreatePack("cis-az-006"));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_inventory_collection_is_stale()
+    {
+        GraphSnapshot graph = CreateStorageGraph("Disabled");
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        AzureExtractorPackageDownloadRecord package = CreateAzurePackage(resourcesJson);
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        packageRepository
+            .Setup(repo => repo.TryGetLatestCollectionTimestampUtcInScopeAsync(TestScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DateTime.UtcNow);
+
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownload(packageRepository, TestScope, package);
+
+        FindingAnalysisContext context = EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(
+            package.PackageId,
+            DateTime.UtcNow.AddDays(-120));
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        PolicyDeclarationInventoryContradictionFindingEngine sut = new(
+            scopeProvider.Object,
+            packageRepository.Object,
+            new Mock<ICloudInventoryExtractorPackageRepository>().Object,
+            new StubComplianceRulePackProvider(CreatePack("cis-az-006")),
+            TimeProvider.System,
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
@@ -144,7 +223,7 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
 
     private static (PolicyDeclarationInventoryContradictionFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
         AzureExtractorPackageDownloadRecord package,
-        IReadOnlyList<string> activeRuleIds)
+        ComplianceRulePack rulePack)
     {
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
@@ -157,34 +236,16 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
 
-        Mock<IComplianceRulePackProvider> rulePackProvider = new();
-        rulePackProvider
-            .Setup(provider => provider.GetRulePackAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateRulePack(activeRuleIds));
-
         PolicyDeclarationInventoryContradictionFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
             new Mock<ICloudInventoryExtractorPackageRepository>().Object,
+            new StubComplianceRulePackProvider(rulePack),
             TimeProvider.System,
-            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }),
-            rulePackProvider.Object);
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
 
         return (engine, context);
     }
-
-    private static ComplianceRulePack CreateRulePack(IReadOnlyList<string> activeRuleIds) =>
-        new()
-        {
-            RulePackId = "test-pack",
-            Name = "Test pack",
-            Version = "1",
-            RulePackHash = "hash",
-            SourcePath = "test",
-            Rules = activeRuleIds
-                .Select(ruleId => new ComplianceRule { RuleId = ruleId, ControlName = ruleId })
-                .ToList(),
-        };
 
     private static AzureExtractorPackageDownloadRecord CreateAzurePackage(string resourcesJson) =>
         new()
@@ -192,6 +253,27 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
             PackageId = Guid.NewGuid(),
             OriginalFileName = "inventory.zip",
             PackageBytes = BuildZip(("resources.json", resourcesJson)),
+        };
+
+    private static ComplianceRulePack CreatePack(params string[] ruleIds) =>
+        new()
+        {
+            RulePackId = "test-pack",
+            Name = "Test",
+            Version = "1",
+            Rules = ruleIds
+                .Select(
+                    static ruleId => new ComplianceRule
+                    {
+                        RuleId = ruleId,
+                        ControlId = "c",
+                        ControlName = "n",
+                        AppliesToCategory = "cat",
+                        RequiredNodeType = "t",
+                        RequiredEdgeType = "e",
+                        Description = "d",
+                    })
+                .ToList(),
         };
 
     private static byte[] BuildZip(params (string Name, string Content)[] entries)
@@ -208,5 +290,12 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
         }
 
         return stream.ToArray();
+    }
+
+    private sealed class StubComplianceRulePackProvider(ComplianceRulePack pack) : IComplianceRulePackProvider
+    {
+        private readonly ComplianceRulePack _pack = pack ?? throw new ArgumentNullException(nameof(pack));
+
+        public Task<ComplianceRulePack> GetRulePackAsync(CancellationToken ct) => Task.FromResult(_pack);
     }
 }

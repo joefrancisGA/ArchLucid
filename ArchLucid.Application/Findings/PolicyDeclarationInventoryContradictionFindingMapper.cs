@@ -12,17 +12,19 @@ internal static class PolicyDeclarationInventoryContradictionFindingMapper
         DeclarationInventoryContradictionMismatch mismatch,
         string policyRuleId)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(policyRuleId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
             FindingType = FindingTypes.PolicyDeclarationInventoryContradictionFinding,
             Category = "Security",
             EngineType = "policy-declaration-inventory-contradiction",
-            Severity = FindingSeverity.Warning,
+            Severity = FindingSeverity.Error,
             Title =
-                $"Policy rule '{policyRuleId}' requires control on '{mismatch.ResourceLabel}' but inventory reports {mismatch.DeclarationKey} '{mismatch.InventoryValue}' while the declaration claims '{mismatch.DeclarationValue}'",
+                $"Pack rule '{policyRuleId}' on '{mismatch.ResourceLabel}': declaration {mismatch.DeclarationKey} '{mismatch.DeclarationValue}' vs inventory '{mismatch.InventoryValue}'",
             Rationale =
-                "The assigned policy pack requires this control, the architecture declaration asserts the secure posture, and scoped live inventory contradicts it.",
+                "The tenant's assigned policy pack requires this control, the declaration claims one posture, and scoped live inventory reports the opposite.",
             RelatedNodeIds = [mismatch.GraphNodeId],
             PayloadType = nameof(PolicyDeclarationInventoryContradictionFindingPayload),
             Payload = new PolicyDeclarationInventoryContradictionFindingPayload
@@ -37,20 +39,20 @@ internal static class PolicyDeclarationInventoryContradictionFindingMapper
             PolicyRuleId = policyRuleId,
             RecommendedActions =
             [
-                "Align live inventory with the declared secure posture or update the declaration to match measured posture.",
+                "Reconcile the declaration with live inventory or remediate inventory to satisfy the assigned pack control.",
             ],
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = [mismatch.GraphNodeId],
-                RulesApplied = [policyRuleId, mismatch.SecurityTheme],
+                RulesApplied = [policyRuleId, mismatch.SecurityTheme, "policy-declaration-inventory-contradiction"],
                 DecisionsTaken =
                 [
-                    "Filtered declaration-inventory mismatch to rows where the assigned pack maps the security theme and the declaration asserts the secure side.",
+                    "Assigned pack maps the mismatch theme; declaration and inventory disagree on the same security property.",
                 ],
                 Notes =
                 [
-                    $"evidence:inventory:{mismatch.InventoryResourceId}",
                     $"evidence:graph-node:{mismatch.GraphNodeId}",
+                    $"evidence:inventory:{mismatch.InventoryResourceId}",
                     $"evidence:policy:{policyRuleId}",
                 ],
             },

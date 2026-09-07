@@ -2235,6 +2235,13 @@ export interface components {
             sourceId?: string;
             sourceType?: string;
         };
+        /** @description RFC 9457 Problem Details for ADR 0078 career artifact export blocks (HTTP 409). */
+        CareerArtifactBlockedProblemDetails: {
+            /** @description User-safe ADR 0078 block sentence explaining why the career export cannot render. */
+            blockReason: string;
+            /** @description Machine-readable ADR 0078 block code (for example transparency_trail_incomplete, measurement_floor_incomplete). */
+            blockReasonCode?: string;
+        } & components["schemas"]["ProblemDetails"];
         CategoryBenchmarkScore: {
             category?: components["schemas"]["BenchmarkScoreCategory"];
             detail?: string;
@@ -9301,6 +9308,15 @@ export interface components {
             /** Format: int32 */
             manifestModeledElementApproxCount?: number;
             runId: string;
+        };
+        RunStoredEvidenceFileDto: {
+            /** Format: int64 */
+            byteLength?: number;
+            contentType?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceItemId?: string;
+            originalFileName?: string;
         };
         RunSummaryResponse: {
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];

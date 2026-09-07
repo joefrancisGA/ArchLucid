@@ -160,4 +160,35 @@ public sealed class CareerArtifactCompletenessValidatorTests
         result.BlockReasons.Should().Contain(reason =>
             reason.Code == CareerArtifactCompletenessValidator.QualityGateCode);
     }
+
+    [Fact]
+    public void Evaluate_export_blocks_when_asserted_trail_empty()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.AssertedEmptyCode);
+    }
+
+    [Fact]
+    public void Evaluate_finalize_warns_when_asserted_trail_empty()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Finalize,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeTrue();
+        result.Warnings.Should().Contain(CareerArtifactCompletenessValidator.AssertedTrailEmptyCareerClaimMessage);
+    }
 }

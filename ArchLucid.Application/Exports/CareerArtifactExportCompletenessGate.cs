@@ -7,7 +7,9 @@ public static class CareerArtifactExportCompletenessGate
 {
     private static readonly CareerArtifactCompletenessValidator Validator = new();
 
-    public static string? ResolveBlockedReason(CareerExportCoverageHonestyInput input, CareerArtifactCompletenessInput validatorInput)
+    public static CareerArtifactExportBlock? ResolveBlock(
+        CareerExportCoverageHonestyInput input,
+        CareerArtifactCompletenessInput validatorInput)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(validatorInput);
@@ -19,17 +21,35 @@ public static class CareerArtifactExportCompletenessGate
             return null;
         }
 
-        return result.BlockReasons.FirstOrDefault()?.Message
-            ?? CareerExportCoverageHonestyComposer.ResolveBlockedReason(input);
+        CareerArtifactBlockReason? primaryReason = result.BlockReasons.FirstOrDefault();
+
+        if (primaryReason is not null)
+        {
+            return new CareerArtifactExportBlock(primaryReason.Code, primaryReason.Message);
+        }
+
+        string? fallbackMessage = CareerExportCoverageHonestyComposer.ResolveBlockedReason(input);
+
+        if (fallbackMessage is null)
+        {
+            return null;
+        }
+
+        return new CareerArtifactExportBlock(CareerArtifactCompletenessValidator.MeasurementFloorCode, fallbackMessage);
+    }
+
+    public static string? ResolveBlockedReason(CareerExportCoverageHonestyInput input, CareerArtifactCompletenessInput validatorInput)
+    {
+        return ResolveBlock(input, validatorInput)?.Message;
     }
 
     public static void EnsureCanExport(CareerExportCoverageHonestyInput input, CareerArtifactCompletenessInput validatorInput)
     {
-        string? blockedReason = ResolveBlockedReason(input, validatorInput);
+        CareerArtifactExportBlock? block = ResolveBlock(input, validatorInput);
 
-        if (blockedReason is not null)
+        if (block is not null)
         {
-            throw new CareerArtifactExportBlockedException(blockedReason);
+            throw new CareerArtifactExportBlockedException(block.Message, block.Code);
         }
     }
 }
