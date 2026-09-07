@@ -100,6 +100,7 @@ export function RunDetailReviewPackageStampViewport(
           <RunDetailOverviewTransparencyTrail
             feasibilityVerdict={feasibilityVerdict}
             runCompleted={props.runCompleted}
+            quickDecisionFindings={props.quickDecisionFindings}
           />
         ) : null}
       </div>
@@ -147,6 +148,7 @@ export function RunDetailReviewPackageStampViewport(
       <RunDetailOverviewTransparencyTrail
         feasibilityVerdict={feasibilityVerdict}
         runCompleted={props.runCompleted}
+        quickDecisionFindings={props.quickDecisionFindings}
       />
       <RunDetailSealDeskCoverageStrip
         runId={props.runId}
