@@ -32,13 +32,12 @@ public static partial class StructuredExplanationParser
             if (root.ValueKind != JsonValueKind.Object)
                 return false;
 
-            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "reasoning", out JsonElement reasoningElement)
-                || reasoningElement.ValueKind != JsonValueKind.String)
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "reasoning", out JsonElement reasoningElement))
             {
                 return false;
             }
 
-            string? reasoning = reasoningElement.GetString();
+            string? reasoning = TryReadReasoningText(reasoningElement);
 
             if (string.IsNullOrWhiteSpace(reasoning))
                 return false;

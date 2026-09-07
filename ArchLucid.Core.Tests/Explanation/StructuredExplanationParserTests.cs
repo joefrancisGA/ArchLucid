@@ -182,4 +182,29 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Caveats.Should().Equal("Limited manifest coverage.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_array_reasoning()
+    {
+        const string json =
+            """{"reasoning":["First paragraph.","Second paragraph."],"evidenceRefs":["dec-1"],"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+        s.EvidenceRefs.Should().Equal("dec-1");
+        s.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
 }
