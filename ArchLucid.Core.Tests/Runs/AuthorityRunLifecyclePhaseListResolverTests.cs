@@ -133,6 +133,36 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_waiting_for_results_without_progress_markers_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa02"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete()
     {
         RunRecord header = new()
