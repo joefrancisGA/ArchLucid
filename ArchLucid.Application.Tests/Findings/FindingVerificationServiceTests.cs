@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
@@ -5,6 +6,7 @@ using ArchLucid.Core.Findings;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -15,7 +17,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Findings;
 
-/// <summary>TB-2033 / DX-19: append-only finding verification reports linked to sealed packages.</summary>
+/// <summary>TB-2033 / DX-19 / TB-2034: append-only finding verification reports linked to sealed packages.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class FindingVerificationServiceTests
@@ -65,11 +67,7 @@ public sealed class FindingVerificationServiceTests
             .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
             .Returns(Task.CompletedTask);
 
-        FindingVerificationService sut = new(
-            authorityQuery.Object,
-            Mock.Of<IFindingsSnapshotRepository>(),
-            repository,
-            auditService.Object);
+        FindingVerificationService sut = CreateService(authorityQuery.Object, repository, auditService.Object);
 
         FindingVerificationReportResponse response = await sut.CreateReportAsync(
             TestScope,
@@ -94,6 +92,79 @@ public sealed class FindingVerificationServiceTests
     }
 
     [Fact]
+    public async Task CreateReportAsync_with_correlated_verification_snapshot_marks_materialized()
+    {
+        Guid sourceSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid verificationSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Finding sourceFinding = new()
+        {
+            FindingId = "finding-verification-1",
+            Title = "Public storage exposure",
+            Category = "Storage",
+            EngineType = "Topology",
+            Severity = FindingSeverity.Critical,
+            PolicyRuleId = "rule-storage-public",
+            EvidenceRefs = ["arm:/subscriptions/demo/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/demo"],
+        };
+
+        Finding verificationFinding = new()
+        {
+            FindingId = "finding-verification-1-later",
+            Title = "Public storage exposure",
+            Category = "Storage",
+            EngineType = "Topology",
+            Severity = FindingSeverity.Critical,
+            PolicyRuleId = "rule-storage-public",
+            EvidenceRefs = ["arm:/subscriptions/demo/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/demo"],
+        };
+
+        RunDetailDto detail = BuildSealedRunDetail(sourceSnapshotId, sourceFinding);
+        FindingsSnapshot verificationSnapshot = new()
+        {
+            FindingsSnapshotId = verificationSnapshotId,
+            Findings = [verificationFinding],
+        };
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IFindingsSnapshotRepository> findingsSnapshotRepository = new();
+        findingsSnapshotRepository
+            .Setup(repository => repository.GetByIdAsync(TestScope, verificationSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(verificationSnapshot);
+
+        Mock<IFindingReviewTrailRepository> reviewTrailRepository = new();
+        reviewTrailRepository
+            .Setup(repository => repository.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        FindingVerificationService sut = CreateService(
+            authorityQuery.Object,
+            new InMemoryFindingVerificationReportRepository(),
+            Mock.Of<IAuditService>(),
+            findingsSnapshotRepository.Object,
+            reviewTrailRepository.Object);
+
+        FindingVerificationReportResponse response = await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            new CreateFindingVerificationReportRequest { VerificationFindingsSnapshotId = verificationSnapshotId },
+            "operator@test",
+            CancellationToken.None);
+
+        response.Results.Should().ContainSingle();
+        response.Results[0].Status.Should().Be(FindingVerificationStatus.Materialized);
+        response.Results[0].TraceText.Should().Contain("RV-003");
+    }
+
+    [Fact]
     public async Task CreateReportAsync_when_run_missing_throws_not_found()
     {
         Mock<IAuthorityQueryService> authorityQuery = new();
@@ -101,11 +172,7 @@ public sealed class FindingVerificationServiceTests
             .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
-        FindingVerificationService sut = new(
-            authorityQuery.Object,
-            Mock.Of<IFindingsSnapshotRepository>(),
-            new InMemoryFindingVerificationReportRepository(),
-            Mock.Of<IAuditService>());
+        FindingVerificationService sut = CreateService(authorityQuery.Object);
 
         Func<Task> act = () => sut.CreateReportAsync(
             TestScope,
@@ -136,11 +203,7 @@ public sealed class FindingVerificationServiceTests
             .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
-        FindingVerificationService sut = new(
-            authorityQuery.Object,
-            Mock.Of<IFindingsSnapshotRepository>(),
-            new InMemoryFindingVerificationReportRepository(),
-            Mock.Of<IAuditService>());
+        FindingVerificationService sut = CreateService(authorityQuery.Object);
 
         Func<Task> act = () => sut.CreateReportAsync(
             TestScope,
@@ -166,11 +229,7 @@ public sealed class FindingVerificationServiceTests
             .ReturnsAsync(detail);
 
         InMemoryFindingVerificationReportRepository repository = new();
-        FindingVerificationService sut = new(
-            authorityQuery.Object,
-            Mock.Of<IFindingsSnapshotRepository>(),
-            repository,
-            Mock.Of<IAuditService>());
+        FindingVerificationService sut = CreateService(authorityQuery.Object, repository);
 
         FindingVerificationReportResponse response = await sut.CreateReportAsync(
             TestScope,
@@ -184,6 +243,21 @@ public sealed class FindingVerificationServiceTests
 
         foreignLookup.Should().BeNull();
     }
+
+    private static FindingVerificationService CreateService(
+        IAuthorityQueryService authorityQueryService,
+        IAppendOnlyFindingVerificationReportRepository? repository = null,
+        IAuditService? auditService = null,
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null) =>
+        new(
+            authorityQueryService,
+            findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
+            repository ?? new InMemoryFindingVerificationReportRepository(),
+            new CrossReviewFindingCorrelationService(),
+            findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
+            new FindingVerificationDeterministicScorer(),
+            auditService ?? Mock.Of<IAuditService>());
 
     private static RunDetailDto BuildSealedRunDetail(Guid findingsSnapshotId, Finding finding) =>
         new()
