@@ -4810,6 +4810,92 @@ describe("wave62 filter url helpers", () => {
   });
 });
 
+describe("wave63 filter url helpers", () => {
+  it("architecture draft guidance, run detail first screen proof, simplified pilot advanced config, compare trust caveats, ask canned prompt follow ups, finding explainability technical, finding policy trace excerpt, policy rule authoring raw json, operator evidence limits scope, advisory scans cant find review params", async () => {
+    const {
+      architectureDraftGuidanceDisclosureHrefFromSearch,
+      parseArchitectureDraftGuidanceOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-draft-guidance-disclosure-url");
+    const {
+      parseRunDetailFirstScreenProofOpenFromSearch,
+      runDetailFirstScreenProofDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-first-screen-proof-disclosure-url");
+    const {
+      parseSimplifiedPilotAdvancedConfigOpenFromSearch,
+      simplifiedPilotAdvancedConfigDisclosureHrefFromSearch,
+    } = await import("@/lib/architecture/simplified-pilot-advanced-config-disclosure-url");
+    const {
+      compareTrustCaveatsDisclosureHrefFromSearch,
+      parseCompareTrustCaveatsOpenFromSearch,
+    } = await import("@/lib/compare/compare-trust-caveats-disclosure-url");
+    const {
+      askCannedPromptFollowUpsDisclosureHrefFromSearch,
+      parseAskCannedPromptFollowUpsOpenFromSearch,
+    } = await import("@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url");
+    const {
+      findingExplainabilityTechnicalDisclosureHrefFromSearch,
+      parseFindingExplainabilityTechnicalOpenFromSearch,
+    } = await import("@/lib/findings/finding-explainability-technical-disclosure-url");
+    const {
+      findingPolicyTraceExcerptDisclosureHrefFromSearch,
+      parseFindingPolicyTraceExcerptOpenFromSearch,
+    } = await import("@/lib/findings/finding-policy-trace-excerpt-disclosure-url");
+    const {
+      parsePolicyRuleAuthoringRawJsonOpenFromSearch,
+      policyRuleAuthoringRawJsonDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/policy-rule-authoring-raw-json-disclosure-url");
+    const {
+      operatorEvidenceLimitsScopeDisclosureHrefFromSearch,
+      parseOperatorEvidenceLimitsScopeOpenFromSearch,
+    } = await import("@/lib/operator/operator-evidence-limits-scope-disclosure-url");
+    const {
+      advisoryScansCantFindReviewDisclosureHrefFromSearch,
+      parseAdvisoryScansCantFindReviewOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-scans-cant-find-review-disclosure-url");
+
+    expect(parseArchitectureDraftGuidanceOpenFromSearch("1")).toBe(true);
+    expect(architectureDraftGuidanceDisclosureHrefFromSearch("", true, "/architecture/drafts/new")).toBe(
+      "/architecture/drafts/new?architectureDraftGuidanceOpen=1",
+    );
+    expect(parseRunDetailFirstScreenProofOpenFromSearch("true")).toBe(true);
+    expect(runDetailFirstScreenProofDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?tab=overview&runDetailFirstScreenProofOpen=1",
+    );
+    expect(parseSimplifiedPilotAdvancedConfigOpenFromSearch("1")).toBe(true);
+    expect(simplifiedPilotAdvancedConfigDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?simplifiedPilotAdvancedConfigOpen=1",
+    );
+    expect(parseCompareTrustCaveatsOpenFromSearch("true")).toBe(true);
+    expect(compareTrustCaveatsDisclosureHrefFromSearch("left=run-a", true, "/insights/compare")).toBe(
+      "/insights/compare?left=run-a&compareTrustCaveatsOpen=1",
+    );
+    expect(parseAskCannedPromptFollowUpsOpenFromSearch("1")).toBe(true);
+    expect(askCannedPromptFollowUpsDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askCannedPromptFollowUpsOpen=1",
+    );
+    expect(parseFindingExplainabilityTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      findingExplainabilityTechnicalDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingExplainabilityTechnicalOpen=1");
+    expect(parseFindingPolicyTraceExcerptOpenFromSearch("1")).toBe(true);
+    expect(
+      findingPolicyTraceExcerptDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=findings&findingPolicyTraceExcerptOpen=1");
+    expect(parsePolicyRuleAuthoringRawJsonOpenFromSearch("true")).toBe(true);
+    expect(policyRuleAuthoringRawJsonDisclosureHrefFromSearch("inputMode=json", true, "/governance/policy-packs")).toBe(
+      "/governance/policy-packs?inputMode=json&policyRuleAuthoringRawJsonOpen=1",
+    );
+    expect(parseOperatorEvidenceLimitsScopeOpenFromSearch("1")).toBe(true);
+    expect(operatorEvidenceLimitsScopeDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?operatorEvidenceLimitsScopeOpen=1",
+    );
+    expect(parseAdvisoryScansCantFindReviewOpenFromSearch("true")).toBe(true);
+    expect(advisoryScansCantFindReviewDisclosureHrefFromSearch("runId=demo", true, "/insights/advisory-scans")).toBe(
+      "/insights/advisory-scans?runId=demo&advisoryScansCantFindReviewOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
