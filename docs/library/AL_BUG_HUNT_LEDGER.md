@@ -9608,22 +9608,30 @@ ABQ-09 churn hotspot; review detail route tree.
 ## Zone: ui-review-intake-wizards
 
 - **id:** ui-review-intake-wizards
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — guided intake confirm submit allowed before reviewAnswers persisted
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
+
+- [x] (proven) `useGuidedIntakeWizard` / `useGuidedIntakeDraftWorkflow` — `canSubmit` keyed on local `savedLocallyQuestionKeys` without requiring `reviewAnswers` API persistence — **hit 2026-09-07 (#1175):** `intakeStep=2` deep-link or stale URL could reach confirm with locally handled clarifications only; fixed with `areGuidedIntakeClarificationsPersistedForSubmit`, confirm-step clamp, and clearing `intakeStep`/`scopeGate` when leaving guided intake (`areGuidedIntakeClarificationsPersistedForSubmit`, `clears intakeStep when returning to quick-review`)
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — stale `rerun`/`policyPackId` preserved across path switches (only `intakeStep`/`scopeGate` cleared today)
+- [ ] (candidate) `use-guided-intake-brief-form` — `scopeGate=1` URL bypasses scope confirmation panel
+- [ ] (candidate) `use-guided-intake-draft-submit` — post-submit evidence upload failure leaves session uncleared after run spawned
+- [ ] (candidate) `use-new-run-wizard-pending-evidence` — inventory platform detection race skips ZIP upload
+
+2026-09-07 seed hunt #1175 (hit): reseeded guided intake wizard submit/persistence paths; proved confirm submit allowed before clarification answers persisted to API.
 
 ---
 
