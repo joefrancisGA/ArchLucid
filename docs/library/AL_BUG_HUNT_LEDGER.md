@@ -9688,22 +9688,26 @@ ABQ-09 churn hotspot; intake wizard route tree.
 ## Zone: ui-governance-findings-queue
 
 - **id:** ui-governance-findings-queue
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — workspace saved view load left stale review scope in URL
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — workspace saved view load does not clear stale `runId` scope — **hit 2026-09-07 hunt #1188 (seed→hit):** loading a saved view with `scopedRunId: null` while the URL still had `?runId=` left review scope active because only the scoped-run branch called navigation; fixed with `governanceFindingsWorkspaceSavedViewHref` and a final `router.replace` when the saved view is workspace-wide; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
+
+2026-09-07 seed hunt #1188 (hit): seeded zone from ABQ-09 churn hotspot; proved saved-view scope leak on workspace-wide load.
 
 ---
 

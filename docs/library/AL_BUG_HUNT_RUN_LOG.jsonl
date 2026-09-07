@@ -1345,3 +1345,4 @@
 {"at":"2026-09-07T07:02:57.0565175Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T07:11:50.7572149Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-07T07:20:33.9678759Z","zoneId":"core-explanation-json","outcome":"hit"}
+{"at":"2026-09-07T07:40:29.0924330Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
