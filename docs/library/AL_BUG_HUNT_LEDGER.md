@@ -9307,11 +9307,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — coordination outbox tests missing sealed-hash guard mocks
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9323,12 +9323,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) Coordination lease is not released and blocks all replicas — lease acquire/release is in SQL `DequeuePendingAsync`, not in `RecoverableOutboxProcessorBase` shell
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` mutates the bound `IOptions` instance (`configured.LeaseDurationSeconds = 60`) instead of returning a normalized copy like sibling processors; first drain permanently changes the DI-bound lease for later readers — fixed 2026-08-23 (`CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_clamps_short_lease_without_mutating_bound_options`)
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` dispatches `IacStubGeneration` without ambient scope so `FindingIacStubGenerator` reads dev-default tenant — ambient is pushed in `ProcessEntryAsync` before `DispatchWorkTypeAsync`; no repro on current code
-- [ ] (candidate) `RetrievalIndexingOutboxProcessor` marks outbox processed when `GetRunDetailForRetrievalIndexingAsync` returns null or incomplete snapshots — permanent skip if worker drains before commit visibility on in-memory UoW (`AuthorityCommittedPipelineFinalizer` enqueues before `CommitAsync` when `SupportsExternalTransaction` is false); SQL transactional enqueue path likely safe; needs repro distinguishing race vs deleted run
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor` marks processed when `ProvenanceSnapshotMaterialization` detail exists but `TryMaterializeSnapshotAsync` no-ops on incomplete manifest/graph/trace — silent skip without warning log (retrieval logs skip); needs repro on committed run missing provenance snapshot after drain
+- [x] (valid-no-repro) `RetrievalIndexingOutboxProcessor` marks outbox processed when `GetRunDetailForRetrievalIndexingAsync` returns null or incomplete snapshots — SQL path enqueues in same TX as commit (row invisible until commit); in-memory writes are immediate before no-op `CommitAsync`; incomplete-child skip is documented in `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §5
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` marks processed when `ProvenanceSnapshotMaterialization` detail exists but `TryMaterializeSnapshotAsync` no-ops on incomplete manifest/graph/trace — enqueue runs after finalization (`PostCommitProjectionEnqueuer.EnqueueAfterCommitAsync`); incomplete-child no-op matches contract skip-if-done semantics; no transient race repro
+- [x] (proven) Wave-33/34 sealed-manifest-hash guards on retrieval/post-commit/cosmos outbox processors broke composition tests that omitted `IManifestHashService` + `GetRunDetailForManifestCompareAsync` mocks — processors hit backoff/DLQ path instead of indexing/materialization/coverage under test (**hit 2026-09-07 hunt #1192**): shared `CoordinationOutboxSealedManifestHashGuardTestSupport`; restored 6 failing scoped tests including TB-993 replay idempotency
 - [x] (invalid) `RecoverableOutboxProcessorBase` parallel batch leaks `AmbientScopeContext` across entries — `BoundedBatchParallelism.ForEachAsync` isolates `AsyncLocal` per task; each `ProcessEntryAsync` pushes and disposes its own ambient scope (`RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_indexing`)
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` omits `OutboxProcessorOptionsVerifier` upper lease clamp — `DapperCosmosGraphSnapshotOutboxRepository.DequeuePendingAsync` clamps lease to 60–7200 seconds regardless of processor-passed value
 
----
+2026-09-07 thorough hunt #1192 (hit): cheap-disproved enqueue-before-commit race on SQL (transactional outbox) and in-memory (immediate writes); proved wave-33/34 guard DI gap broke 6 coordination processor composition tests.
 
 ## Zone: ui-operator-routes
 
@@ -9769,21 +9770,27 @@ ABQ-09 churn hotspot.
 ## Zone: ui-claim-discipline-policy
 
 - **id:** ui-claim-discipline-policy
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — audit-trail-help omitted TOC claim anchor after header fold
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
 
 ### Hypotheses
 
----
+- [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `resolveGuideHeadingsForStrip` — `audit-trail-help` missing from omit set while buyer-polished header folds claim into `PageHeaderClaimDiscipline` — **hit 2026-09-07 hunt #1191 (seed→hit):** TOC kept `#help-audit-trail-claim-discipline-heading` with no matching anchor and operator shell duplicated claim via orientation strip; fixed by omitting `audit-trail-help` and making `AuditTrailHelpEvidenceOrientationStrip` sources-only
+- [ ] (candidate) `digests-subscriptions` — sibling digest slugs omitted but subscriptions slug absent from omit set (sources-only strip today; inconsistent if header fold lands)
+- [ ] (candidate) `policy-packs-help` registry slug vs `help-policy-packs` page slug — legacy strip slug still passes claim while live guide uses omitted `help-policy-packs`
+- [ ] (candidate) `help-sponsor-dashboard` — guide TOC lists claim heading id but claim strip renders aside without matching anchor
+- [ ] (candidate) `help-data-handling` — strip passes claim while specialty guide may fold negation into header on buyer-polished shell
+
+2026-09-07 seed hunt #1191 (hit): seeded zone from ABQ-09 churn hotspot; proved audit-trail-help omit gap broke TOC scroll targets after header claim fold.
