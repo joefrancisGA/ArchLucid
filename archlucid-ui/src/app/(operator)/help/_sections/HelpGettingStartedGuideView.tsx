@@ -34,7 +34,7 @@ import {
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
 } from "@/lib/getting-started-help-guide-content";
-import { HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE } from "@/lib/help/help-workspace-mode-copy";
+import { evaluatingProductHelpSectionTitle } from "@/lib/help/help-product-copy";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -150,8 +150,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
       ),
     [diagramTitle],
   );
-  const quickStartTitle = resolveGettingStartedHelpQuickStartTitle(isWorkingMode);
-  const quickStartCopy = resolveGettingStartedHelpQuickStartCopy(isWorkingMode);
+  const quickStartTitle = localize(resolveGettingStartedHelpQuickStartTitle(isWorkingMode));
+  const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode));
   const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
   const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
@@ -162,7 +162,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
       <HelpTopicHashScroll />
       <HelpTopicMarkdownPageHeader
         entry={entry}
-        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell, productLine)}
         breadcrumb={
           buyerPolishedShell ? (
             <HelpTopicBreadcrumb topicTitle={GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE} />
@@ -214,11 +214,11 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               data-testid="getting-started-evaluating-architecture-section"
             >
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
+                {evaluatingProductHelpSectionTitle(productLine)}
               </summary>
               <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  Use these paths when you are assessing ArchLucid before adopting it for daily review work.
+                  {localize("Use these paths when you are assessing ArchLucid before adopting it for daily review work.")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="outline">

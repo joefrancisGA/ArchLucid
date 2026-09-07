@@ -105,18 +105,18 @@ function formatProbeFreshnessLabel(asOfUtc: string): string | null {
 
 function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, compact: boolean): string {
   if (compact) {
-    return "Probe details";
+    return "AI availability details";
   }
 
   const checkCount = result.checks.length;
   const validatedAt = formatProbeFreshnessLabel(result.asOfUtc);
-  const checkLabel = `${checkCount} probe check${checkCount === 1 ? "" : "s"}`;
+  const checkLabel = `${checkCount} availability check${checkCount === 1 ? "" : "s"}`;
 
   if (validatedAt !== null) {
-    return `Probe details — ${checkLabel}, validated ${validatedAt}`;
+    return `AI availability details — ${checkLabel}, validated ${validatedAt}`;
   }
 
-  return `Probe details — ${checkLabel}`;
+  return `AI availability details — ${checkLabel}`;
 }
 
 function resolveProbeProvenanceCopy(aiSource: string): string {
@@ -244,7 +244,7 @@ function WorkspaceAiProbeDiagnostics(props: {
       />
 
       <div>
-        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Probe checks</p>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Availability checks</p>
         <ul className={cn("m-0 mt-1 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {result.checks.map((row) => (
             <li key={`${row.name}:${row.status}`}>
@@ -313,7 +313,7 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
   const probeValidatedAt =
     probeLoaded ? formatProbeFreshnessLabel(state.result.asOfUtc) : null;
   const probeTriggerLabel =
-    probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "Probe details";
+    probeLoaded ? buildProbeDetailsTriggerLabel(state.result, probeAvailable) : "AI availability details";
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -380,17 +380,16 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               </span>
             ) : null}
           </div>
-          <button
+          <Button
             type="button"
-            className={cn(
-              "shrink-0 text-al-link underline-offset-2 hover:underline",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
+            variant="outline"
+            size="sm"
+            className="shrink-0 min-h-6"
             onClick={() => void checkAvailability({ force: true })}
             data-testid="review-package-recheck-ai-availability-link"
           >
             Re-check
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

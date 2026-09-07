@@ -13,6 +13,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -48,6 +49,14 @@ public sealed partial class ArtifactExportController
             return this.ConflictProblem(
                 $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
                 ProblemTypes.DecisionReceiptSealedIncomplete);
+        }
+
+        if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.CareerArtifactBlocked)
+        {
+            return this.CareerArtifactBlockedProblem(
+                buildResult.BlockReason
+                    ?? $"Decision receipt for run '{runId}' is blocked by career artifact honesty gates.",
+                buildResult.BlockReasonCode ?? CareerArtifactCompletenessValidator.TrailMissingCode);
         }
 
         if (buildResult.Outcome != DecisionReceiptRunBuildOutcome.Success || buildResult.Receipt is null)

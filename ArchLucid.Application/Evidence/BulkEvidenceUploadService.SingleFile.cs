@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -9,8 +10,11 @@ namespace ArchLucid.Application.Evidence;
 public sealed partial class BulkEvidenceUploadService
 {
     private async Task UploadSingleEvidenceFileAsync(
+        ScopeContext scope,
+        string actorUserId,
         Guid runId,
         string safeBaseName,
+        string contentType,
         Stream contentStream,
         List<string> uploadedIds,
         List<string> fileNames,
@@ -21,12 +25,40 @@ public sealed partial class BulkEvidenceUploadService
 
         using MemoryStream ms = new();
         await contentStream.CopyToAsync(ms, cancellationToken);
-        string contentBase64 = Convert.ToBase64String(ms.ToArray());
+        byte[] bytes = ms.ToArray();
+        string contentBase64 = Convert.ToBase64String(bytes);
 
-        await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
+        string blobUri = await blobStore.WriteAsync("artifacts", blobName, contentBase64, cancellationToken);
+
+        RunStoredEvidenceFileRecord catalogRow = new()
+        {
+            EvidenceItemId = evidenceItemId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            RunId = runId,
+            OriginalFileName = safeBaseName,
+            ContentType = contentType,
+            ByteLength = bytes.LongLength,
+            BlobUri = blobUri,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            ActorUserId = actorUserId,
+        };
+
+        await storedEvidenceFileRepository.InsertAsync(catalogRow, cancellationToken);
 
         uploadedIds.Add(evidenceItemId);
         fileNames.Add(safeBaseName);
+    }
+
+    private static string ResolveUploadContentType(string? rawContentType)
+    {
+        if (string.IsNullOrWhiteSpace(rawContentType))
+        {
+            return "application/octet-stream";
+        }
+
+        return rawContentType.Trim();
     }
 
     private async Task TryUpdateEvidenceBundleMetadataAsync(

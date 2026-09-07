@@ -16,6 +16,12 @@ public static class InsightDensityPreferredEngineTypes
         "segmentation-semantics",
         "secrets-lifecycle",
         "dr-rpo-topology",
+        "insight-generator",
+        "checklist-cluster-synthesis",
+        "dangling-declaration-reference",
+        "requirement-sku-tier",
+        "policy-declaration-inventory-contradiction",
+        "data-flow-trust-boundary",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static bool IsPreferred(string? engineType)

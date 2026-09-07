@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -202,6 +203,39 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     }
 
     [Fact]
+    public async Task ApplyToFindingsAsync_prefers_dangling_declaration_reference_under_cap()
+    {
+        List<Finding> findings = Enumerable.Range(0, 12)
+            .Select(index => CreatePromotedEngineFinding(
+                $"coverage-{index:D2}",
+                engineType: "topology-coverage",
+                severity: FindingSeverity.Warning,
+                insightDensityScore: 50))
+            .ToList();
+
+        Finding danglingFinding = CreatePromotedEngineFinding(
+            "dangling-1",
+            engineType: "dangling-declaration-reference",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        findings.Add(danglingFinding);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 12,
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        judgingClient.CallCount.Should().Be(12);
+        judgingClient.JudgedFindingIds.Should().Contain("dangling-1");
+        judgingClient.JudgedFindingIds.Should().NotContain("coverage-11");
+    }
+
+    [Fact]
     public async Task ApplyToFindingsAsync_respects_per_snapshot_cap()
     {
         List<Finding> findings = Enumerable.Range(0, 30)
@@ -276,6 +310,170 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         throwFinding.DecisionConsequence.Should().BeNull();
     }
 
+    [Fact]
+    public async Task ApplyToFindingsAsync_when_prefer_high_novelty_false_preserves_default_order()
+    {
+        Finding firstCoverage = CreatePromotedEngineFinding(
+            "coverage-first",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding secondCoverage = CreatePromotedEngineFinding(
+            "coverage-second",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 1,
+            preferHighNoveltyEngines: false,
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync([firstCoverage, secondCoverage], CancellationToken.None);
+
+        judgingClient.JudgedFindingIds.Should().ContainSingle().Which.Should().Be("coverage-first");
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_when_prefer_high_novelty_true_prefers_higher_rate_engine()
+    {
+        Finding lowRateFinding = CreatePromotedEngineFinding(
+            "low-rate",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding highRateFinding = CreatePromotedEngineFinding(
+            "high-rate",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        StubNoveltyRateRepository repository = new()
+        {
+            Rates =
+            {
+                ["topology-coverage"] = 0.0,
+                ["review-pack-gap"] = 0.8,
+            },
+        };
+
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 1,
+            preferHighNoveltyEngines: true,
+            insightSignalRepository: repository,
+            scopeContextProvider: new FixedScopeContextProvider(new ScopeContext { TenantId = Guid.NewGuid() }),
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync([lowRateFinding, highRateFinding], CancellationToken.None);
+
+        judgingClient.JudgedFindingIds.Should().ContainSingle().Which.Should().Be("high-rate");
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_novelty_repository_uses_current_tenant_scope()
+    {
+        Guid tenantA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid tenantB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        TenantScopedNoveltyRateRepository repository = new();
+        repository.SetRates(tenantA, "topology-coverage", 0.0);
+        repository.SetRates(tenantA, "custom-engine-a", 0.9);
+        repository.SetRates(tenantB, "custom-engine-b", 0.9);
+
+        Finding tenantAFinding = CreatePromotedEngineFinding(
+            "tenant-a-low",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding tenantAHighFinding = CreatePromotedEngineFinding(
+            "tenant-a-high",
+            engineType: "custom-engine-a",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 1,
+            preferHighNoveltyEngines: true,
+            insightSignalRepository: repository,
+            scopeContextProvider: new FixedScopeContextProvider(new ScopeContext { TenantId = tenantA }),
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync([tenantAFinding, tenantAHighFinding], CancellationToken.None);
+
+        judgingClient.JudgedFindingIds.Should().ContainSingle().Which.Should().Be("tenant-a-high");
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_novelty_repository_failure_falls_back_to_default_order()
+    {
+        Finding firstCoverage = CreatePromotedEngineFinding(
+            "coverage-first",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding secondCoverage = CreatePromotedEngineFinding(
+            "coverage-second",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 1,
+            preferHighNoveltyEngines: true,
+            insightSignalRepository: new ThrowingNoveltyRateRepository(),
+            scopeContextProvider: new FixedScopeContextProvider(new ScopeContext { TenantId = Guid.NewGuid() }),
+            reasoningDeployment: "reasoning-deploy");
+
+        await judge.ApplyToFindingsAsync([firstCoverage, secondCoverage], CancellationToken.None);
+
+        judgingClient.JudgedFindingIds.Should().ContainSingle().Which.Should().Be("coverage-first");
+    }
+
+    [Fact]
+    public void SelectEngineJudgedCandidates_orders_by_preferred_then_novelty_then_severity()
+    {
+        Finding lowRate = CreatePromotedEngineFinding(
+            "low-rate",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding highRate = CreatePromotedEngineFinding(
+            "high-rate",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["topology-coverage"] = 0.0,
+            ["review-pack-gap"] = 0.8,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [lowRate, highRate],
+            maxJudgedFindingsPerSnapshot: 1,
+            rates);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("high-rate");
+    }
+
     private static Finding CreatePromotedEngineFinding(
         string findingId = "engine-f1",
         string engineType = "topology",
@@ -322,7 +520,10 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         bool enableLlmJudge,
         string? reasoningDeployment,
         bool enableEngineJudge = false,
-        int maxJudged = 12)
+        int maxJudged = 12,
+        bool preferHighNoveltyEngines = false,
+        IFindingInsightSignalRepository? insightSignalRepository = null,
+        IScopeContextProvider? scopeContextProvider = null)
     {
         Dictionary<string, string?> configValues = new(StringComparer.OrdinalIgnoreCase);
 
@@ -350,8 +551,12 @@ public sealed class PremiumInsightDensityLlmJudgeTests
                     EnableLlmJudge = enableLlmJudge,
                     EnableLlmJudgeForEngineFindings = enableEngineJudge,
                     MaxJudgedFindingsPerSnapshot = maxJudged,
+                    PreferHighNoveltyEngines = preferHighNoveltyEngines,
                 }),
             configuration,
+            insightSignalRepository,
+            scopeContextProvider,
+            TimeProvider.System,
             NullLogger<PremiumInsightDensityLlmJudge>.Instance);
     }
 
@@ -458,5 +663,123 @@ public sealed class PremiumInsightDensityLlmJudgeTests
 
             return Task.FromResult("{}");
         }
+    }
+
+    private sealed class FixedScopeContextProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => scope;
+    }
+
+    private sealed class StubNoveltyRateRepository : IFindingInsightSignalRepository
+    {
+        public Dictionary<string, double> Rates { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public Task<FindingInsightSignalInsertResult> TryInsertAsync(
+            FindingInsightSignalSubmission submission,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<FindingInsightSignalKind>> ListKindsForUserAsync(
+            Guid tenantId,
+            Guid runId,
+            string findingId,
+            string userId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<EngineInsightNoveltyRateRow>> ListNoveltyRatesAsync(
+            ScopeContext scope,
+            DateTime fromUtc,
+            DateTime toUtcExclusive,
+            CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<EngineInsightNoveltyRateRow> rows = Rates
+                .Select(static pair => new EngineInsightNoveltyRateRow
+                {
+                    EngineType = pair.Key,
+                    DecisionGradeCount = 10,
+                    DidNotThinkOfThatCount = (int)(pair.Value * 10),
+                    Rate = pair.Value,
+                })
+                .ToList();
+
+            return Task.FromResult(rows);
+        }
+    }
+
+    private sealed class TenantScopedNoveltyRateRepository : IFindingInsightSignalRepository
+    {
+        private readonly Dictionary<Guid, Dictionary<string, double>> _ratesByTenant = [];
+
+        public void SetRates(Guid tenantId, string engineType, double rate)
+        {
+            if (!_ratesByTenant.TryGetValue(tenantId, out Dictionary<string, double>? rates))
+            {
+                rates = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                _ratesByTenant[tenantId] = rates;
+            }
+
+            rates[engineType] = rate;
+        }
+
+        public Task<FindingInsightSignalInsertResult> TryInsertAsync(
+            FindingInsightSignalSubmission submission,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<FindingInsightSignalKind>> ListKindsForUserAsync(
+            Guid tenantId,
+            Guid runId,
+            string findingId,
+            string userId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<EngineInsightNoveltyRateRow>> ListNoveltyRatesAsync(
+            ScopeContext scope,
+            DateTime fromUtc,
+            DateTime toUtcExclusive,
+            CancellationToken cancellationToken = default)
+        {
+            if (!_ratesByTenant.TryGetValue(scope.TenantId, out Dictionary<string, double>? rates))
+            {
+                return Task.FromResult<IReadOnlyList<EngineInsightNoveltyRateRow>>([]);
+            }
+
+            IReadOnlyList<EngineInsightNoveltyRateRow> rows = rates
+                .Select(static pair => new EngineInsightNoveltyRateRow
+                {
+                    EngineType = pair.Key,
+                    DecisionGradeCount = 10,
+                    DidNotThinkOfThatCount = (int)(pair.Value * 10),
+                    Rate = pair.Value,
+                })
+                .ToList();
+
+            return Task.FromResult(rows);
+        }
+    }
+
+    private sealed class ThrowingNoveltyRateRepository : IFindingInsightSignalRepository
+    {
+        public Task<FindingInsightSignalInsertResult> TryInsertAsync(
+            FindingInsightSignalSubmission submission,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<FindingInsightSignalKind>> ListKindsForUserAsync(
+            Guid tenantId,
+            Guid runId,
+            string findingId,
+            string userId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<IReadOnlyList<EngineInsightNoveltyRateRow>> ListNoveltyRatesAsync(
+            ScopeContext scope,
+            DateTime fromUtc,
+            DateTime toUtcExclusive,
+            CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Simulated novelty lookup failure.");
     }
 }

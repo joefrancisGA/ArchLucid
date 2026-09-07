@@ -18,6 +18,10 @@ describe("WorkingUnlinkedReviewHonestyBanner (AO-49)", () => {
     expect(screen.getByTestId("working-unlinked-review-honesty-banner")).toHaveTextContent(
       "not linked to an architecture desk",
     );
+    expect(screen.getByRole("link", { name: "Open architecture desks" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures",
+    );
   });
 
   it("hides when parent architecture is known", () => {

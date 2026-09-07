@@ -2,9 +2,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
+import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import {
@@ -26,10 +27,20 @@ export function composeRunDetailActivityTab(
   const m = input.model;
   const terminalFailure = isReviewPipelineTerminalFailure(m.pipelineDiagnosticContext);
   const doThisNextOwnsFailureRecovery = terminalFailure && !m.manifestId;
+  const provenanceHref = `/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`;
+  const failureRecordedAtUtc = resolveReviewFailureRecordedAtUtc({
+    pipelineSummary: m.progressForPipelineUi ?? null,
+    runCompletedUtc: m.resolvedDetail.run.completedUtc ?? null,
+  });
 
   return (
-    <div className="space-y-4">
-      <RunDetailActivityTabSectionNav hasManifestId={Boolean(m.manifestId)} />
+    <div className={cn("flex flex-col xl:flex-row xl:items-start", OPERATOR_LAYOUT.unrelatedClusterGap, "xl:gap-6")}>
+      <div className="min-w-0 flex-1 space-y-4">
+        <RunDetailActivityTabSectionNav
+          hasManifestId={Boolean(m.manifestId)}
+          showFailureDetails={!doThisNextOwnsFailureRecovery}
+          placement="inline-top"
+        />
       {!m.manifestId && m.showProgressTracker ? (
         <div id="pipeline-timeline" className="scroll-mt-24">
           <RunDetailProgressTrackerDeferred
@@ -47,22 +58,26 @@ export function composeRunDetailActivityTab(
           diagnosticContext={m.pipelineDiagnosticContext}
         />
       ) : null}
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        <Link
-          className={OPERATOR_LINK.nav}
-          href={`/architecture/reviews/${encodeURIComponent(m.resolvedDetail.run.runId)}/provenance`}
-          data-testid="run-detail-provenance-link"
-        >
-          Full provenance view
-        </Link>
-      </p>
-      <section className="space-y-4" aria-labelledby="records-and-diagnostics-heading">
-        <h2
-          id="records-and-diagnostics-heading"
-          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-        >
-          Records and diagnostics
-        </h2>
+      <section
+        id="records-and-diagnostics"
+        className="space-y-4 scroll-mt-24"
+        aria-labelledby="records-and-diagnostics-heading"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <h2
+            id="records-and-diagnostics-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+          >
+            Records and diagnostics
+          </h2>
+          <Link
+            className={cn(OPERATOR_LINK.nav, "shrink-0")}
+            href={provenanceHref}
+            data-testid="run-detail-provenance-link"
+          >
+            Full provenance view
+          </Link>
+        </div>
         {!doThisNextOwnsFailureRecovery ? (
           <div id="review-failure-details" className="scroll-mt-24">
             <RunDetailLastFailureCardDeferred
@@ -71,7 +86,7 @@ export function composeRunDetailActivityTab(
               legacyRunStatus={
                 (m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null
               }
-              failureRecordedAtUtc={m.progressForPipelineUi?.completedUtc ?? m.resolvedDetail.run.completedUtc ?? null}
+              failureRecordedAtUtc={failureRecordedAtUtc}
             />
           </div>
         ) : null}
@@ -93,6 +108,12 @@ export function composeRunDetailActivityTab(
           />
         </Suspense>
       </section>
+      </div>
+      <RunDetailActivityTabSectionNav
+        hasManifestId={Boolean(m.manifestId)}
+        showFailureDetails={!doThisNextOwnsFailureRecovery}
+        placement="sidebar"
+      />
     </div>
   );
 }

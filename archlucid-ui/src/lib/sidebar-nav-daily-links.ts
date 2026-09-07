@@ -16,13 +16,7 @@ import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
-  GOVERNANCE_ADVISORY_SCANS_PATH,
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_FINDINGS_PATH,
-  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
-  GOVERNANCE_SETUP_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -63,14 +57,6 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     SEARCH_REVIEW_EVIDENCE_PATH,
     SPONSOR_REPORT_PATH,
     COMPARE_TWO_REVIEWS_PATH,
-  ],
-  "operate-governance": [
-    GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
-    GOVERNANCE_APPROVAL_QUEUE_PATH,
-    GOVERNANCE_SETUP_PATH,
-    GOVERNANCE_FINDINGS_PATH,
-    GOVERNANCE_ADVISORY_SCANS_PATH,
-    GOVERNANCE_ALERTS_PATH,
   ],
   "operate-policy": [
     GOVERNANCE_POLICY_PACKS_PATH,

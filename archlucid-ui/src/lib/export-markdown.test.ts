@@ -103,6 +103,40 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("Private endpoints");
   });
 
+  it("includes feasibility verdict section with soft envelope on manifest exports", () => {
+    const doc = {
+      manifestId: "m1",
+      runId: "r1",
+      ruleSetId: "rules",
+      ruleSetVersion: "1.0",
+      manifestHash: "h1",
+      feasibilityVerdict: {
+        kind: "SoftInfeasible",
+        summary: "Not feasible as specified.",
+        softEnvelope: {
+          confidenceLow: 40,
+          confidenceHigh: 70,
+          envelopeDescription: "Holds below 1k RPS.",
+          softAssumption: "Traffic stays within pilot envelope.",
+          costOfBeingWrong: "Over-provisioning spend.",
+        },
+        transparencyTrail: {
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
+        },
+      },
+    };
+
+    const md = formatGoldenManifestMarkdown(doc);
+
+    expect(md).toContain("## Feasibility verdict");
+    expect(md).toContain("bounded decision record, not a failed review");
+    expect(md).toContain("Holds below 1k RPS.");
+    expect(md).toContain("## Transparency trail");
+    expect(md).toContain("l0.pillar.security");
+  });
+
   it("includes a transparency trail section when the manifest carries one", () => {
     const doc = {
       manifestId: "m1",
@@ -115,7 +149,7 @@ describe("formatGoldenManifestMarkdown", () => {
         summary: "Not feasible as specified.",
         transparencyTrail: {
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
-          inferred: [],
+          inferred: [{ key: "throughput", value: "high", confidence: 0.6 }],
           skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
         },
       },
@@ -123,6 +157,7 @@ describe("formatGoldenManifestMarkdown", () => {
 
     const md = formatGoldenManifestMarkdown(doc);
 
+    expect(md).toContain("## Feasibility verdict");
     expect(md).toContain("## Transparency trail");
     expect(md).toContain("l0.pillar.security");
   });
