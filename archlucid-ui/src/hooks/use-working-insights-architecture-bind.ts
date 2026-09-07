@@ -16,10 +16,16 @@ import {
 } from "@/lib/desk-continuity-preference";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import {
+  architectureNestedAskPath,
+  architectureNestedGraphPath,
+  parseArchitectureNestedDeskArchitectureId,
+} from "@/lib/architecture/architecture-routes";
 
 export type UseWorkingInsightsArchitectureBindInput = {
   readonly tool: WorkingInsightsBindTool;
   readonly urlRunId: string;
+  readonly pinnedArchitectureId?: string | null;
 };
 
 export type UseWorkingInsightsArchitectureBindResult = {
@@ -37,11 +43,19 @@ export function useWorkingInsightsArchitectureBind(
   const pathname = usePathname() ?? "/";
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
+  const routeArchitectureId = parseArchitectureNestedDeskArchitectureId(pathname);
+  const pinnedArchitectureId = input.pinnedArchitectureId?.trim() ?? "";
   const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
+  const architectureIdForBind =
+    pinnedArchitectureId.length > 0
+      ? pinnedArchitectureId
+      : routeArchitectureId !== null && routeArchitectureId.length > 0
+        ? routeArchitectureId
+        : lastOpenArchitectureId;
   const lastOpenReviewId = readCachedDeskContinuity().lastOpenReviewId;
   const urlRunId = input.urlRunId.trim();
   const shouldResolveBind = workingMode && urlRunId.length === 0;
-  const architectureIdForQuery = lastOpenArchitectureId?.trim() ?? "";
+  const architectureIdForQuery = architectureIdForBind?.trim() ?? "";
 
   const identityQuery = useArchitectureIdentityQuery(
     architectureIdForQuery,
@@ -55,13 +69,13 @@ export function useWorkingInsightsArchitectureBind(
 
     return resolveOpenArchitectureJobRunId({
       pathname,
-      lastOpenArchitectureId,
+      lastOpenArchitectureId: architectureIdForBind,
       lastOpenReviewId,
       identity: identityQuery.data ?? null,
     });
   }, [
+    architectureIdForBind,
     identityQuery.data,
-    lastOpenArchitectureId,
     lastOpenReviewId,
     pathname,
     shouldResolveBind,
@@ -89,11 +103,15 @@ export function useWorkingInsightsArchitectureBind(
 
     const href =
       input.tool === "ask"
-        ? askReviewQuestionsHref({ runId })
-        : evidenceGraphHref({ runId });
+        ? routeArchitectureId !== null && routeArchitectureId.length > 0
+          ? `${architectureNestedAskPath(routeArchitectureId)}?runId=${encodeURIComponent(runId)}`
+          : askReviewQuestionsHref({ runId })
+        : routeArchitectureId !== null && routeArchitectureId.length > 0
+          ? `${architectureNestedGraphPath(routeArchitectureId)}?runId=${encodeURIComponent(runId)}`
+          : evidenceGraphHref({ runId });
 
     router.replace(href, { scroll: false });
-  }, [bindPending, bindResult, input.tool, router, shouldResolveBind]);
+  }, [bindPending, bindResult, input.tool, routeArchitectureId, router, shouldResolveBind]);
 
   return {
     workingMode,

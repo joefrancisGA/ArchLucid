@@ -22,6 +22,7 @@ import {
   parseAuditTimelineDataJsonEventIdFromSearch,
 } from "@/lib/governance/audit-timeline-data-json-disclosure-url";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
+import { useAuditTrailReviewHref } from "@/hooks/use-audit-trail-review-href";
 
 type AuditTimelineEventCardProps = {
   ev: AuditEvent;
@@ -99,6 +100,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
   }, [auditTimelineDataJsonEventIdParam, ev.eventId]);
 
   const runKey = ev.runId?.trim() ?? "";
+  const reviewHref = useAuditTrailReviewHref(runKey);
   const hideBuyerReviewLine =
     buyerPolishedShell &&
     uniformRunId !== null &&
@@ -189,7 +191,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           Review:{" "}
           {ev.runId ? (
             <Link
-              href={`/architecture/reviews/${ev.runId}`}
+              href={reviewHref}
               className={OPERATOR_LINK.nav}
             >
               {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
@@ -214,7 +216,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             Review:{" "}
             {ev.runId ? (
               <Link
-                href={`/architecture/reviews/${ev.runId}`}
+                href={reviewHref}
                 className={OPERATOR_LINK.nav}
               >
                 {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
@@ -229,7 +231,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         buyerPolishedShell ? null : (
           <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
             <Link
-              href={`/architecture/reviews/${ev.runId}#agent-traces`}
+              href={`${reviewHref}#agent-traces`}
               className={OPERATOR_LINK.nav}
             >
               View agent traces →

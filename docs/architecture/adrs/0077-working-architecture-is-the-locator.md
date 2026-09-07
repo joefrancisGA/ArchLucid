@@ -4,8 +4,9 @@
 
 # ADR 0077: Working architecture is the locator; review is a nested job
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-07
+- **Evidence:** `archlucid-ui/src/lib/architecture-object-acceptance-guard.test.ts` (AO-50) — accepted 2026-09-07 (SY-01).
 
 ## Context
 

@@ -114,7 +114,7 @@ describe("operator-nav-labels", () => {
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
   });
 
-  it("AO-14: Working reviews list nav is labeled as inbox", () => {
+  it("AO-14 / SY-56: Working reviews list nav is labeled Inbox", () => {
     const source = {
       href: "/architecture/reviews",
       label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
@@ -124,6 +124,7 @@ describe("operator-nav-labels", () => {
     const working = resolveNavLinkPresentation(source, false, false, true);
 
     expect(working.label).toBe(WORKING_REVIEWS_INBOX_NAV_LABEL);
+    expect(working.label).not.toBe("Packages");
     expect(working.title).toContain("inbox");
   });
 

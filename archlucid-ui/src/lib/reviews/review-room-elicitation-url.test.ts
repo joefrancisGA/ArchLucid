@@ -37,7 +37,7 @@ describe("review-room-elicitation-url (DR-16)", () => {
     );
   });
 
-  it("AO-38: nested room handoff uses architecture locator when parent id is known", () => {
+  it("SY-21: AO-38 nested room handoff uses architecture locator when parent id is known", () => {
     expect(reviewDetailRoomElicitationHref("run-42", "architecture-identity-001")).toBe(
       "/architecture/architectures/architecture-identity-001/reviews/run-42?roomElicitation=1",
     );

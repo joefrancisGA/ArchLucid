@@ -1,6 +1,7 @@
 import { REVIEWS_LIST_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { resolveWorkingReviewsInboxParentLink } from "@/lib/resolve-working-evidence-parent-link";
 
 export const PROVENANCE_CLAIM_DISCIPLINE =
   "This provenance graph and timeline show linkage for one review — not a complete audit export by itself. Open the Evidence trail or review workspace before briefing sponsors.";
@@ -15,10 +16,13 @@ export const PROVENANCE_SOURCES_INTRO =
 export function buildProvenanceSources(
   runId: string,
   architectureId?: string | null,
+  options?: { readonly workingMode?: boolean },
 ): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
+  const workingMode = options?.workingMode === true;
+  const reviewsParent = resolveWorkingReviewsInboxParentLink(workingMode);
   const reviewHref =
-    trimmed.length > 0 ? resolveArchitectureReviewHref(trimmed, architectureId) : REVIEWS_LIST_PATH;
+    trimmed.length > 0 ? resolveArchitectureReviewHref(trimmed, architectureId) : reviewsParent.href;
   const evidenceHref =
     trimmed.length > 0
       ? `/insights/evidence-graph?runId=${encodeURIComponent(trimmed)}`

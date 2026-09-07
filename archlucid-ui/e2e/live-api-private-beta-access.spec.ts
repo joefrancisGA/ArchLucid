@@ -30,6 +30,7 @@ import {
   writeJwtBrowserSession,
 } from "./helpers/live-private-beta-access";
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
@@ -198,6 +199,7 @@ test.describe(
 
     await page.goto(sessionExpiredHref, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("session-expired-heading")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
 
     await writeJwtBrowserSession(page, accessToken);
     await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
@@ -239,7 +241,7 @@ test.describe(
     test.info().annotations.push({ type: "e2e-beta-access-invite-id", description: invite.id });
     });
 
-    test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
+    test("invitee Operator accept → session → UI wizard create review under invitee principal (TB-927)", async ({
       page,
       request,
     }) => {
@@ -283,22 +285,7 @@ test.describe(
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
 
-    const { runId } = await createRun(
-      request,
-      enrichArchitectureRequestBody({
-        requestId: `E2E-BETA-INVITEE-${Date.now()}`,
-        description: liveE2eArchitectureDescription("Private beta invitee first meaningful action."),
-        systemName: "PrivateBetaInviteeSmoke",
-        environment: "prod",
-        cloudProvider: 1,
-        constraints: [] as string[],
-        requiredCapabilities: ["SQL"],
-        assumptions: [] as string[],
-        priorManifestVersion: null as string | null,
-      }),
-      scope,
-      inviteeSession.accessToken,
-    );
+    const runId = await submitPrivateBetaSimplifiedPilotWizard(page);
 
     await waitForArchitectureRunListIncludesRun(
       request,
@@ -307,11 +294,6 @@ test.describe(
       scope,
       inviteeSession.accessToken,
     );
-
-    await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
-      timeout: 60_000,
-    });
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 

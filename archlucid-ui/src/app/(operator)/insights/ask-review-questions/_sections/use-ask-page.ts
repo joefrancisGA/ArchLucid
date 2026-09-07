@@ -23,7 +23,12 @@ import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights
 import { useAskPageStream } from "./use-ask-page-stream";
 import { useAskPageUrlSync } from "./use-ask-page-url-sync";
 
-export function useAskPage() {
+export type UseAskPageOptions = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function useAskPage(options: UseAskPageOptions = {}) {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
@@ -165,6 +170,7 @@ export function useAskPage() {
     setLastAskReferencedArtifacts,
     threads,
     loadMessages,
+    basePathname: options.basePathname,
   });
 
   const { onSelectThread } = urlSync;
@@ -254,6 +260,7 @@ export function useAskPage() {
   const architectureBind = useWorkingInsightsArchitectureBind({
     tool: "ask",
     urlRunId: urlSync.urlRunIdRaw,
+    pinnedArchitectureId: options.pinnedArchitectureId,
   });
 
   return {

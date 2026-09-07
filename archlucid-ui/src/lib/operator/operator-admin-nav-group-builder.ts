@@ -241,14 +241,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
         },
 
         // Grouped with billing and AI usage: these anchors form the cost basis the ROI surfaces cite.
-        // Label is the short form; the page H1 keeps the "— ROI measurement" qualifier.
+        // Label is the short form; the page H1 uses the full ROI measurement settings title.
         {
 
           href: "/administration/baseline",
 
           label: OPERATOR_NAV_LINK_LABELS.baselineSettings,
 
-          title: "Baseline settings — review-cycle hours, prep time, and people per review used as the ROI cost basis",
+          title: "ROI settings — review-cycle hours, prep time, and people per review used as the ROI cost basis",
 
           icon: Gauge,
 

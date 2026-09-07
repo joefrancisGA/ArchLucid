@@ -33,6 +33,23 @@ public sealed class DrRpoTopologyFindingEngineTests
 
         payload.RpoMinutes.Should().Be(15);
         payload.DatastoreNodeId.Should().Be("sql-pay-prod");
+        finding.EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_datastore_arm_property()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.Sql/servers/sql-pay-prod/databases/payments";
+
+        GraphSnapshot graph = BuildFixture(includeFailoverGroup: false, includeRpoText: true, sqlResourceId: armResourceId);
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
     }
 
     [Fact]
@@ -59,7 +76,10 @@ public sealed class DrRpoTopologyFindingEngineTests
         findings.Should().BeEmpty();
     }
 
-    private static GraphSnapshot BuildFixture(bool includeFailoverGroup, bool includeRpoText)
+    private static GraphSnapshot BuildFixture(
+        bool includeFailoverGroup,
+        bool includeRpoText,
+        string? sqlResourceId = null)
     {
         GraphNode requirement = new()
         {
@@ -94,6 +114,11 @@ public sealed class DrRpoTopologyFindingEngineTests
         if (includeFailoverGroup)
         {
             sqlProperties["failover_group"] = "fg-pay-prod";
+        }
+
+        if (!string.IsNullOrWhiteSpace(sqlResourceId))
+        {
+            sqlProperties["resourceId"] = sqlResourceId;
         }
 
         GraphNode sql = new()

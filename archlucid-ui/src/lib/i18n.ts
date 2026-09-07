@@ -157,8 +157,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   sealedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
-  /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
-  baselineSettings: "Baseline settings",
+  /** ROI settings (`/administration/baseline`) — sidebar short form; the page H1 uses the full measurement title. */
+  baselineSettings: "ROI Settings",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
