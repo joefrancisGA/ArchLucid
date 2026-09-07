@@ -9192,14 +9192,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
-- **test-filter:** FullyQualifiedName~Application.Agents
-- **hunts:** 3
-- **bugs-found:** 3
+- **test-filter:** FullyQualifiedName~Application.Tests.Agents
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — run-detail completion counts omitted reasoning tokens; curated evidence proposer/validator mismatch; alias resolver audit flag conflation
 - **related-pd-tb:** none
-- **code-changed-since:** 12
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -9209,6 +9209,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) Reasoning-only LLM cost slices report Unavailable basis when estimator returns null — `AgentExecutionTraceRunLlmCostAggregator.ComputeCore` early-return ignored reasoning token counts (fixed 2026-08-20)
 - [x] (proven) Trace-derived tool forensics emit enum agent-type labels that disagree with structured ledger rows — `RunToolInvocationForensicsBuilder.BuildFromTraces` used `AgentType.ToString()` instead of `InferAgentTypeLabel(FormatToolName(...))`; regression in `Build_trace_derived_rows_use_tool_slug_agent_type_labels`
 - [x] (proven) Engine provenance omits reasoning-only token totals — **hit 2026-08-23:** `ReviewRunEngineProvenanceAggregator.Aggregate` mapped only prompt/completion sums from the cost aggregator; o-series reasoning-only traces showed `EstimatedCostUsd` with null `TotalOutputTokens`; regression in `Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total`
+- [x] (proven) Run-detail LLM completion counts omit reasoning tokens while engine provenance includes them — **hit 2026-09-07:** `RunDetailLlmCostEnrichmentSlice`, `RunDetailQueryService.DetailLoad`, and `RunAgentExecutionLlmCostEstimateAppender` mapped `Completion = summary.CompletionTokens` only; reasoning-only o-series runs showed `Completion=0` despite non-zero provenance output totals; fixed via `AgentExecutionTraceRunLlmCostSummary.CombinedOutputTokens`; regression in `Compute_ReasoningTokensOnlyTrace_ExposesCombinedOutputTokensForRunDetailParity`
+- [x] (proven) Curated evidence proposer accepts title-only payloads that fail promotion validation — **hit 2026-09-07:** `AgentCuratedEvidenceProposer.NormalizeResponse` required only `Title` + `Type` while `ProposedEvidencePayloadValidator` also requires non-empty `Description`, so proposals persisted but failed on promote; fixed by rejecting missing description at normalize time; regression in `NormalizeResponse_returns_null_when_description_is_missing`
+- [x] (proven) External-subprocessor alias resolver conflates missing ack with outside-allowed-set rejection — **hit 2026-09-07:** `ReviewModelAliasResolver.ResolveForRunCreateAsync` returned `RejectedOutsideAllowedSet: true` when the alias was allowed but workspace subprocessor acknowledgment was missing, mislabeling audit events; fixed to `(false, true)`; regression in `ResolveForRunCreateAsync_WhenExternalSubprocessorAckMissing_DoesNotRejectOutsideAllowedSet`
+
+2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
 ---
 
