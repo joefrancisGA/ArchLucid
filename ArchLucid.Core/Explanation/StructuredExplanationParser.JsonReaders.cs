@@ -6,8 +6,22 @@ public static partial class StructuredExplanationParser
 {
     private static List<string>? TryReadStringList(JsonElement root, string propertyName)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement arrayElement)
-            || arrayElement.ValueKind != JsonValueKind.Array)
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement arrayElement))
+        {
+            return null;
+        }
+
+        if (arrayElement.ValueKind == JsonValueKind.String)
+        {
+            string? scalar = arrayElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(scalar))
+                return null;
+
+            return [scalar.Trim()];
+        }
+
+        if (arrayElement.ValueKind != JsonValueKind.Array)
         {
             return null;
         }

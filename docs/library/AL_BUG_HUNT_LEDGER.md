@@ -7221,11 +7221,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — string-encoded confidence/schemaVersion bypassed structured normalize
+- **last-bug:** 2026-09-07 — scalar string list fields dropped on structured normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7237,10 +7237,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — omitted `citations` property skipped zero-citation WARN gate — **hit 2026-09-07 hunt #1187 (seed→hit):** missing key left `CitationCount` null so `ResolveDisposition` returned PASS while `FromSummary` with empty citations returned WARN; fixed by treating omitted property as empty array; regression in `FromAggregateJson_treats_omitted_citations_as_empty_for_disposition`
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — object-shaped `citations` ignored — **hit 2026-09-07 hunt #1187 (seed→hit):** single-object citation payloads fell through shape handling with null count; fixed by mapping object token to one citation; regression in `FromAggregateJson_maps_object_citation_as_single_citation_count`
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — string-encoded numeric `confidence` / `schemaVersion` may bypass structured normalize path — **hit 2026-09-07 hunt #1261:** `JsonSerializer.Deserialize` to strongly typed DTO threw on string numerics, so `TryNormalizeStructuredJson` returned false and `Parse` wrapped the raw JSON as plain-text reasoning; fixed with `JsonDocument` field reads plus `RunExplanationAggregateJsonReader.TryReadFiniteDouble` and `StrictSchemaVersionReader`; regressions `TryNormalizeStructuredJson_coerces_string_encoded_confidence`, `TryNormalizeStructuredJson_coerces_string_encoded_schema_version`, `Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text`.
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — scalar string `evidenceRefs` / `alternativesConsidered` / `caveats` dropped when LLM emits a string instead of `string[]` — **hit 2026-09-07 seed hunt #1275:** `ValueKind != Array` returned null (or `?? []` for evidenceRefs), losing required alternatives and provenance refs on otherwise valid structured payloads; fixed by mapping a non-empty string token to a one-element list; regressions `TryNormalizeStructuredJson_maps_scalar_alternatives_considered_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_evidence_ref_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_caveats_as_single_entry`.
+- [ ] (candidate) `StructuredExplanationParser.TryReadStringList` — object-shaped entries in `evidenceRefs` arrays silently skipped (LLM `{ "id": "dec-1" }` objects dropped while sibling citation counter maps object tokens).
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — non-string `reasoning` token rejects normalize so `DeterministicExplanationService.BuildRunExplanationFromLlmPayload` takes JSON-object fallback and drops structured list fields.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
 2026-09-07 thorough hunt #1261 (hit): proved string-encoded `confidence`/`schemaVersion` bypassed structured normalize; 44 scoped RunExplanation unit tests passed.
+
+2026-09-07 seed hunt #1275 (hit): promoted scalar-string list coercion; 48 scoped RunExplanation unit tests passed.
 
 ---
 ## Zone: archlucid-contracts

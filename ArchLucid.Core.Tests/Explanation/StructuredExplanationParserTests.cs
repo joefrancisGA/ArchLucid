@@ -148,4 +148,38 @@ public sealed class StructuredExplanationParserTests
         s.Reasoning.Should().Be("Main");
         s.Confidence.Should().Be(0.75m);
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_alternatives_considered_as_single_entry()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":"Keep monolith — rejected for scaling."}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith — rejected for scaling.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_evidence_ref_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":"dec-1"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_caveats_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","caveats":"Limited manifest coverage."}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Limited manifest coverage.");
+    }
 }
