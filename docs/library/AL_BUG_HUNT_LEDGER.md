@@ -2074,11 +2074,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 14
-- **bugs-found:** 19
+- **hunts:** 15
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — OIDC authority hash fragment broke discovery URL; javascript: authorization_endpoint passed discovery parse
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — non-http(s) end_session_endpoint accepted at discovery parse and used for RP-initiated logout redirect
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2110,6 +2110,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `parseDiscoveryDocument` accepted non-http(s) `authorization_endpoint` values such as `javascript:` — **hit 2026-09-05 (#805):** `new URL()` alone allowed script-scheme authorize URLs from a compromised discovery payload; fixed by requiring `http:` or `https:` for required endpoints (`discovery.test.ts` rejects javascript scheme).
 
 2026-09-05 seed hunt #805 (hit): reseeded zone; proved authority hash-fragment discovery URL bug and non-http(s) endpoint scheme gap.
+
+- [x] (proven) `parseDiscoveryDocument` accepted non-http(s) `end_session_endpoint` values such as `javascript:` — **hit 2026-09-07 hunt #1234 (seed→hit):** optional logout URL was validated with `new URL()` only, so a compromised discovery payload could supply a script-scheme RP-initiated logout redirect via `resolveRpLogoutUrlFromBffSession`; fixed by requiring `http:` or `https:` for optional logout endpoints (`discovery.test.ts` omits javascript scheme on end_session).
+- [ ] (candidate) `bff-session-sync.resolveExpiresInSeconds` maps `expires_in` zero/negative to default 3600 while `session.resolveExpiresInSeconds` honors zero — client expiry hint can disagree with BFF cookie TTL until the next successful refresh.
+- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` returns BFF-built logout URLs without client-side scheme validation before `window.location.assign` — defense-in-depth gap if server-side discovery parsing regresses.
+- [x] (valid-no-repro) `CallbackClient` skips id_token nonce binding when the token response omits `id_token` — primary OIDC scopes request `openid`; supplemental Google flow uses the same nonce check when `id_token` is present; absent id_token is treated as provider non-compliance rather than a reachable cross-flow bypass in these files.
+
+2026-09-07 seed hunt #1234 (hit): reseeded ui-oidc zone; proved end_session_endpoint scheme gap (parity with #805 authorization_endpoint fix); cheap-disproved id_token-absent nonce bypass; seeded BFF expiry skew and client logout URL validation candidates.
 
 ---
 
