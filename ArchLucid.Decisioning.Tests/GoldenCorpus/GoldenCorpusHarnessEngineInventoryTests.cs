@@ -16,19 +16,15 @@ public sealed class GoldenCorpusHarnessEngineInventoryTests
     [Fact]
     public void Registered_count_matches_harness_contract()
     {
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(16);
-        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(16);
-        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(29);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineCount.Should().Be(32);
+        GoldenCorpusHarnessEngineInventory.RegisteredEngineTypeIds.Count.Should().Be(32);
+        GoldenCorpusHarnessEngineInventory.AbsentEngineReasons.Count.Should().Be(13);
         BuiltInFindingEngineTypeCatalog.EngineTypeIds.Count.Should().Be(45);
     }
 
     [Fact]
     public void Absent_inventory_documents_cloud_and_cross_run_engines()
     {
-        GoldenCorpusHarnessEngineInventory.TryGetAbsentReason("azure-inventory-reconciliation", out string? azureReason)
-            .Should().BeTrue();
-        azureReason.Should().Contain("inventory");
-
         GoldenCorpusHarnessEngineInventory.TryGetAbsentReason("requirement-cross-run-diff", out string? diffReason)
             .Should().BeTrue();
         diffReason.Should().Contain("Cross-run");

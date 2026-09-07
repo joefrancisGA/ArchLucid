@@ -67,7 +67,8 @@ public sealed class GoldenCorpusMaterializerTests
                 def.Graph,
                 audit,
                 def.Merge,
-                CancellationToken.None);
+                CancellationToken.None,
+                null);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -137,6 +138,31 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-36");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_37_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusInventoryContradictionGraphFactory.CreateDeclarationDisabledInventoryEnabledGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            InventoryFixture = GoldenCorpusInventoryContradictionGraphFactory.CreateMismatchInventoryFixture(),
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-37");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        await RecordHandAuthoredCaseAsync("case-37");
+    }
+
     private static async Task RecordHandAuthoredCaseAsync(string caseFolderName)
     {
         string compliance = Path.Combine(
@@ -170,7 +196,8 @@ public sealed class GoldenCorpusMaterializerTests
             input.GraphSnapshot,
             audit,
             merge,
-            CancellationToken.None);
+            CancellationToken.None,
+            input.InventoryFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -222,7 +249,8 @@ public sealed class GoldenCorpusMaterializerTests
                 input.GraphSnapshot,
                 audit,
                 merge,
-                CancellationToken.None);
+                CancellationToken.None,
+                input.InventoryFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
