@@ -100,6 +100,38 @@ export function lookupArchitectureDraftOwnerLabel(
   return null;
 }
 
+/** Parent architecture identity for a linked review when the draft registry knows it (AO-26 / AO-08). */
+export function lookupArchitectureDraftParentArchitectureId(
+  runId: string,
+  entries: readonly ArchitectureDraftRegistryEntry[] | undefined,
+): string | null {
+  if (entries === undefined || entries.length === 0) {
+    return null;
+  }
+
+  const normalizedRunId = canonicalizeDemoRunId(runId);
+
+  for (const entry of entries) {
+    const linkedReviewId = entry.linkedReviewId?.trim() ?? "";
+
+    if (linkedReviewId.length === 0) {
+      continue;
+    }
+
+    if (canonicalizeDemoRunId(linkedReviewId) !== normalizedRunId) {
+      continue;
+    }
+
+    const parentArchitectureId = entry.parentArchitectureId?.trim() ?? "";
+
+    if (parentArchitectureId.length > 0) {
+      return parentArchitectureId;
+    }
+  }
+
+  return null;
+}
+
 function governanceDecisionOwnerLabel(run: RunSummary): string | null {
   const decisionBy = (run as RunSummaryWithGovernanceOwner).operatorGovernanceDecisionByUserId?.trim() ?? "";
 
