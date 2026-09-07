@@ -22,10 +22,16 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
             InfrastructureDeclarationBatchPathIndex.Build(declarations);
         Dictionary<string, IReadOnlyDictionary<string, string>> bicepParamByBicepPath =
             BicepParamBatchIndex.Build(declarations, batchByPath);
+        Dictionary<string, InfrastructureDeclarationReference> terraformBatchByPath =
+            SimpleTerraformModuleBatchIndex.Build(declarations);
 
         HashSet<string> referencedBicepModulePaths = BicepDeclarationBatchIndex.CollectReferencedModulePaths(
             declarations,
             bicepBatchByPath);
+        HashSet<string> referencedTerraformModulePaths = SimpleTerraformModuleBatchIndex.CollectReferencedModulePaths(
+            declarations,
+            terraformBatchByPath,
+            batchByPath);
         HashSet<string> consumedHelmTemplatePaths =
             HelmChartInfrastructureDeclarationParser.CollectConsumedTemplatePaths(declarations);
         HashSet<string> consumedKustomizeResourcePaths =
@@ -34,6 +40,9 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         foreach (InfrastructureDeclarationReference declaration in declarations)
         {
             if (ShouldSkipReferencedBicepModule(declaration, referencedBicepModulePaths))
+                continue;
+
+            if (ShouldSkipReferencedTerraformModule(declaration, referencedTerraformModulePaths))
                 continue;
 
             if (ShouldSkipBicepParamDeclaration(declaration))
@@ -61,6 +70,7 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
                 bicepBatchByPath,
                 batchByPath,
                 bicepParamByBicepPath,
+                terraformBatchByPath,
                 ct);
 
             batch.CanonicalObjects.AddRange(objects);
@@ -76,6 +86,7 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         IReadOnlyDictionary<string, InfrastructureDeclarationReference> bicepBatchByPath,
         IReadOnlyDictionary<string, InfrastructureDeclarationReference> batchByPath,
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> bicepParamByBicepPath,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference> terraformBatchByPath,
         CancellationToken ct)
     {
         if (parser is BicepInfrastructureDeclarationParser bicepParser)
@@ -85,6 +96,9 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
 
             return await bicepParser.ParseAsync(declaration, bicepBatchByPath, parameterValues, ct);
         }
+
+        if (parser is SimpleTerraformDeclarationParser terraformParser)
+            return await terraformParser.ParseAsync(declaration, terraformBatchByPath, batchByPath, ct);
 
         if (parser is HelmChartInfrastructureDeclarationParser helmParser)
             return await helmParser.ParseAsync(declaration, batchDeclarations, ct);
@@ -105,6 +119,18 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         string normalizedName = BicepDeclarationBatchIndex.NormalizeLookupKey(declaration.Name);
 
         return referencedBicepModulePaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipReferencedTerraformModule(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> referencedTerraformModulePaths)
+    {
+        if (!string.Equals(declaration.Format?.Trim(), "simple-terraform", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return referencedTerraformModulePaths.Contains(normalizedName);
     }
 
     private static bool ShouldSkipBicepParamDeclaration(InfrastructureDeclarationReference declaration)

@@ -182,6 +182,8 @@ public sealed class BicepInfrastructureDeclarationParser : IInfrastructureDeclar
                     BicepResourceBodyParser.ParseBodyIntoProperties(braceBody, properties, parameterValues);
             }
 
+            InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, resourceType, symbolicName);
+
             string canonicalName = symbolicName.ToLowerInvariant();
             string canonicalResourceType = resourceType.ToLowerInvariant();
             string labelKey = $"{canonicalResourceType}|{canonicalName}";
