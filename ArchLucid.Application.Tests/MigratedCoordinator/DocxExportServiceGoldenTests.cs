@@ -98,6 +98,71 @@ public sealed class DocxExportServiceGoldenTests
     }
 
     [SkippableFact]
+    public async Task ExportAsync_renders_career_export_honesty_section_when_plain_text_provided()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved",
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = ["Golden plan note."] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            CareerExportHonestyPlainText =
+                "Measurement floor: 37 catalog engines measured on this package — treat as incomplete for career use below that floor.",
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main!.Document.OuterXml;
+
+        xml.Should().Contain("Career export honesty");
+        xml.Should().Contain("Measurement floor");
+    }
+
+    [SkippableFact]
     public async Task ExportAsync_embeds_mermaid_source_when_diagram_enabled_and_mermaid_artifact_present()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");

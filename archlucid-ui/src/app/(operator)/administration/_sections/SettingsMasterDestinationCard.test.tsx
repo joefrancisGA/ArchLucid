@@ -1,8 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import type { SettingsMasterDestination } from "./settings-master-types";
+
+vi.mock("next/navigation", async (importOriginal) => extendNextNavigationVitestMock(importOriginal));
 
 function buildDestination(overrides: Partial<SettingsMasterDestination> = {}): SettingsMasterDestination {
   return {

@@ -58,6 +58,20 @@ describe("infra-evidence-diagrams-filter-url", () => {
     );
   });
 
+  it("round-trips audit scope in diagrams filter href patches", () => {
+    expect(
+      infraDiagramsFilterHrefFromSearch("", {
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    ).toBe(
+      "/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
+
   it("round-trips dependency neighborhood mode in filter href patches", () => {
     expect(
       infraDiagramsFilterHrefFromSearch("", {

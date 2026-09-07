@@ -8,7 +8,10 @@ import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/govern
 
 import { GOVERNANCE_APPROVAL_HELP_PATH } from "@/lib/governance/governance-approval-help-route";
 
-import { GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS } from "@/lib/governance/governance-approval-help-guide-content";
+import {
+  GOVERNANCE_APPROVAL_HELP_PAGE_TITLE,
+  GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS,
+} from "@/lib/governance/governance-approval-help-guide-content";
 
 import { HELP_CENTER_FEATURED_SLUGS } from "@/lib/help/help-center-catalog";
 
@@ -22,13 +25,21 @@ import {
 
 const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", "[...topic]", "page.tsx");
 
+const HELP_TOPIC_VIEW_RESOLVER_OPERATE = join(
+  process.cwd(),
+  "src",
+  "lib",
+  "help",
+  "help-topic-view-resolver-operate.tsx",
+);
+
 const PRODUCT_GOVERNANCE_APPROVAL_HELP_SURFACES = [
 
   "archlucid-ui/src/lib/help/help-center-catalog.ts",
 
-  "archlucid-ui/src/lib/product-documentation-registry.ts",
+  "archlucid-ui/src/lib/product-documentation-registry-entries-operator-governance.ts",
 
-  "archlucid-ui/src/lib/help/help-search-panel-catalog.ts",
+  "archlucid-ui/src/lib/help/help-search-panel-catalog-topics.ts",
 
   "archlucid-ui/src/lib/audit-trail-help-guide-content.ts",
 
@@ -62,22 +73,21 @@ describe("governance-approval-help-route (GO)", () => {
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
 
-    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe("Governance approval");
+    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe(GOVERNANCE_APPROVAL_HELP_PAGE_TITLE);
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.description?.toLowerCase()).toContain("submission");
 
   });
 
   it("routes the canonical slug through HelpGovernanceApprovalGuideView instead of bare markdown", () => {
-
     const pageSource = readFileSync(HELP_TOPIC_PAGE, "utf8");
+    const resolverSource = readFileSync(HELP_TOPIC_VIEW_RESOLVER_OPERATE, "utf8");
 
-    expect(pageSource).toContain('loaded.entry.slug === "governance-approval"');
+    expect(pageSource).toContain('entry.slug === "governance-approval"');
 
-    expect(pageSource).toContain("HelpGovernanceApprovalGuideView");
+    expect(resolverSource).toContain("HelpGovernanceApprovalGuideView");
 
     expect(pageSource).toContain("GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA");
-
   });
 
   it("keeps marketing SEO inventory off the in-app help path", () => {
@@ -102,7 +112,7 @@ describe("governance-approval-help-route (GO)", () => {
 
   });
 
-  it("features governance approval on the customer Help Center grid and links audit-trail not API contracts", () => {
+  it("features approval on the customer Help Center grid and links audit-trail not API contracts", () => {
 
     expect(HELP_CENTER_FEATURED_SLUGS).toContain("governance-approval");
 

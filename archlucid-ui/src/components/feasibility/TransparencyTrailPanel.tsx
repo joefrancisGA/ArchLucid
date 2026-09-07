@@ -2,6 +2,8 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type TransparencyTrailPanelProps = {
@@ -14,6 +16,8 @@ export type TransparencyTrailPanelProps = {
   readonly detailsOpen?: boolean;
   /** Called when the guided-mode disclosure open state changes. */
   readonly onDetailsOpenChange?: (open: boolean) => void;
+  /** FC-14: wire trust labels for `finding.blocking.*` inferred rows. */
+  readonly inferredFindingTrustById?: ReadonlyMap<string, FindingTrustPresentationInput>;
 };
 
 function MustSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
@@ -76,7 +80,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
           <ul className="mt-1 list-disc pl-5">
             {trail.inferred.map((entry) => (
               <li key={entry.key}>
-                {entry.key}: {entry.value} (confidence {entry.confidence})
+                {formatInferredTrailEntryLabel(entry, props.inferredFindingTrustById)}
               </li>
             ))}
           </ul>
@@ -95,7 +99,12 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             ))}
           </ul>
         </div>
-      ) : null}
+      ) : (
+        <div data-testid="transparency-trail-skipped-must">
+          <p className="m-0 font-medium">Skipped MUST questions (0)</p>
+          <p className="m-0 mt-1 text-al-text-secondary">None recorded.</p>
+        </div>
+      )}
       {shouldSkipped.length > 0 ? (
         <div>
           <p className="m-0 font-medium">Skipped SHOULD questions ({shouldSkipped.length})</p>

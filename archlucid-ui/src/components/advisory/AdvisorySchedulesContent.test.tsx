@@ -31,6 +31,11 @@ const reviewAvailabilityMock = vi.hoisted(() => ({
 const demoEnvMock = vi.hoisted(() => ({
   buyerPolished: false,
   fullShell: true,
+  evalChrome: false,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => demoEnvMock.evalChrome,
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -78,6 +83,7 @@ describe("AdvisorySchedulesContent", () => {
     reviewAvailabilityMock.finalizedCount = 1;
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
+    demoEnvMock.evalChrome = false;
     apiMocks.listAdvisorySchedules.mockReset();
     apiMocks.createAdvisorySchedule.mockReset();
     apiMocks.listScheduleExecutions.mockReset();
@@ -364,6 +370,7 @@ describe("AdvisorySchedulesContent", () => {
   it("blocks create in sample mode", async () => {
     demoEnvMock.buyerPolished = true;
     demoEnvMock.fullShell = false;
+    demoEnvMock.evalChrome = true;
 
     render(<AdvisorySchedulesContent />);
 

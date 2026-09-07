@@ -158,6 +158,6 @@ export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
 
 export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trace";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance approval";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View approval";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to approval";

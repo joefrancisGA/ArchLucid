@@ -1,10 +1,13 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE,
-  CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO,
+  cloudConnectionsSecurityPreflightIntro,
 } from "@/lib/cloud-connections-copy";
 
 export type CloudProviderDetailSectionProps = {
@@ -45,6 +48,9 @@ export type CloudProviderDetailLayoutProps = {
 
 /** Shared provider detail structure — equal information architecture across Azure, AWS, and GCP. */
 export function CloudProviderDetailLayout(props: CloudProviderDetailLayoutProps) {
+  const { productLine } = useProductLine();
+  const securityPreflightIntro = cloudConnectionsSecurityPreflightIntro(productLine);
+
   return (
     <div className="space-y-4" data-testid={`cloud-provider-detail-${props.providerLabel.toLowerCase()}`}>
       <CloudProviderDetailSection id="overview" title="Overview">
@@ -53,7 +59,7 @@ export function CloudProviderDetailLayout(props: CloudProviderDetailLayoutProps)
       <CloudProviderDetailSection
         id="security-preflight"
         title="Security preflight"
-        description={CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO}
+        description={securityPreflightIntro}
       >
         {props.securityPreflight}
       </CloudProviderDetailSection>

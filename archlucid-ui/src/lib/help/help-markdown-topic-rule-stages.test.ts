@@ -119,15 +119,14 @@ describe("help markdown topic rule stages", () => {
     }
   });
 
-  it("never matches the evidence-trail rule set, because its file name is compared case-sensitively", () => {
-    // Documents a pre-existing defect carried through the registry refactor: normalizedSourcePath is
-    // lower-cased, so the upper-case EVIDENCE_TRAIL_OPERATOR_GUIDE.md needle cannot match. Fixing it
-    // changes rendered help copy, so it must be a deliberate change rather than a refactor side effect.
+  it("routes evidence-trail to its dedicated audience rule set", () => {
     const context = {
       helpTopicSlug: "evidence-trail",
       normalizedSourcePath: "docs/library/evidence_trail_operator_guide.md",
     };
 
-    expect(findHelpMarkdownTopicRuleSet(HELP_MARKDOWN_TOPIC_RULE_STAGES.audience, context)).toBeNull();
+    expect(findHelpMarkdownTopicRuleSet(HELP_MARKDOWN_TOPIC_RULE_STAGES.audience, context)?.id).toBe(
+      "evidence-trail",
+    );
   });
 });

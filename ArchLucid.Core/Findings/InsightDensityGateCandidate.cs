@@ -91,9 +91,9 @@ public sealed class InsightDensityGateCandidate
             .Select(static note => note["evidence:".Length..])
             .ToList();
 
-        if (evidenceRefs.Count == 0 && finding.RelatedNodeIds.Count > 0)
+        if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId))
         {
-            evidenceRefs.AddRange(finding.RelatedNodeIds);
+            evidenceRefs.Add($"policy-rule:{finding.PolicyRuleId.Trim()}");
         }
 
         return evidenceRefs;

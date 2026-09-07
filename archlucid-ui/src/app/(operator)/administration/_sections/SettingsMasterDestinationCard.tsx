@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseSettingsDestinationMetaDestinationIdFromSearch,
+  settingsDestinationMetaDisclosureHrefFromSearch,
+} from "@/lib/administration/settings-destination-meta-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { SettingsScopeMeta } from "./SettingsScopeMeta";
@@ -17,6 +23,42 @@ type SettingsMasterDestinationCardProps = {
 
 export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCardProps) {
   const destination = props.destination;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/settings";
+  const searchParams = useSearchParams();
+  const settingsDestinationMetaDestinationIdParam = searchParams.get("settingsDestinationMetaDestinationId");
+  const [metaOpen, setMetaOpenState] = useState(
+    () =>
+      parseSettingsDestinationMetaDestinationIdFromSearch(settingsDestinationMetaDestinationIdParam) === destination.id,
+  );
+
+  const syncMetaOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        settingsDestinationMetaDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? destination.id : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [destination.id, pathname, router, searchParams],
+  );
+
+  const setMetaOpen = useCallback(
+    (open: boolean) => {
+      setMetaOpenState(open);
+      syncMetaOpenToUrl(open);
+    },
+    [syncMetaOpenToUrl],
+  );
+
+  useEffect(() => {
+    setMetaOpenState(
+      parseSettingsDestinationMetaDestinationIdFromSearch(settingsDestinationMetaDestinationIdParam) === destination.id,
+    );
+  }, [destination.id, settingsDestinationMetaDestinationIdParam]);
 
   return (
     <Card data-testid={`settings-destination-${destination.id}`}>
@@ -42,7 +84,14 @@ export function SettingsMasterDestinationCard(props: SettingsMasterDestinationCa
             {destination.emptyStateHint}
           </p>
         ) : null}
-        <details className="group" data-testid="settings-destination-meta-disclosure">
+        <details
+          className="group"
+          data-testid="settings-destination-meta-disclosure"
+          open={metaOpen}
+          onToggle={(event) => {
+            setMetaOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary
             className={cn(
               "flex cursor-pointer list-none items-center gap-2 text-al-text-secondary underline-offset-2 hover:underline marker:content-none [&::-webkit-details-marker]:hidden",

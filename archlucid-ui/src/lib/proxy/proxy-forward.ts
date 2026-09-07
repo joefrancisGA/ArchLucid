@@ -18,7 +18,10 @@ import { resolveProxyUpstreamFetchTimeout } from "@/lib/resolve-proxy-upstream-f
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
-import { shouldTraceProxyInteractiveReadHang } from "@/lib/proxy/should-trace-proxy-interactive-read-hang";
+import {
+  appendProxyBffSlideCookieHeaders,
+  enforceProxyBffSessionGuard,
+} from "@/lib/proxy/proxy-bff-session-guard";
 import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
 import {
   applyServerTimingHeader,
@@ -30,6 +33,7 @@ import {
 import { forwardMutatingWithBody } from "./proxy-forward-mutating-body";
 import { logUpstreamNonSuccess, respondWithUpstreamFetchFailure } from "./proxy-forward-upstream-errors";
 import type { ForwardMethod } from "./proxy-forward-types";
+import { shouldTraceProxyInteractiveReadHang } from "./should-trace-proxy-interactive-read-hang";
 
 export type { ForwardMethod } from "./proxy-forward-types";
 
@@ -59,6 +63,12 @@ async function forward(
   const upstreamHeaders = buildProxyUpstreamHeaders(request, path);
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
+
+  const bffGuard = enforceProxyBffSessionGuard(request, method, correlationId);
+
+  if (!bffGuard.allowed) {
+    return bffGuard.response;
+  }
 
   const sandbox = trySandboxProxyMock(method, pathSegments, correlationId);
 
@@ -102,7 +112,9 @@ async function forward(
   const headers = upstreamHeaders;
 
   if (method === "POST" || method === "PUT" || method === "PATCH") {
-    return forwardMutatingWithBody(request, method, pathForLog, correlationId, targetUrl, headers);
+    const response = await forwardMutatingWithBody(request, method, pathForLog, correlationId, targetUrl, headers);
+
+    return appendProxyBffSlideCookieHeaders(response, bffGuard.slideCookieHeaders);
   }
 
   if (method === "DELETE") {
@@ -131,7 +143,10 @@ async function forward(
       logUpstreamNonSuccess(method, pathForLog, res.status, correlationId);
     }
 
-    return await passThrough(res);
+    return appendProxyBffSlideCookieHeaders(
+      await passThrough(res),
+      bffGuard.slideCookieHeaders,
+    );
   }
 
   let res: Response;
@@ -209,7 +224,10 @@ async function forward(
     });
   }
 
-  return await passThrough(res, authMePrivateCacheSeconds);
+  return appendProxyBffSlideCookieHeaders(
+    await passThrough(res, authMePrivateCacheSeconds),
+    bffGuard.slideCookieHeaders,
+  );
 }
 
 export async function handleRateLimitedForward(

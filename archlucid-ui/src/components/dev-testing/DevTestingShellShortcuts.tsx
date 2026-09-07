@@ -2,12 +2,8 @@
 
 import { useEffect } from "react";
 
-import {
-  cycleDevShellExperienceOverride,
-  isDevTestingOverridesEnabled,
-  reloadAfterDevTestingOverrideChange,
-} from "@/lib/dev-testing-overrides";
 import { toggleDevQuickSwitchPanelVisibility } from "@/lib/dev-quick-switch-panel-visibility";
+import { isDevTestingOverridesEnabled } from "@/lib/dev-testing-overrides";
 
 function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   return (
@@ -18,7 +14,7 @@ function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** Local-dev global hotkeys for shell overrides and the home quick-switch panel. */
+/** Local-dev global hotkeys for the dev quick-switch drawer. */
 export function DevTestingShellShortcuts(): null {
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {
@@ -30,20 +26,12 @@ export function DevTestingShellShortcuts(): null {
         return;
       }
 
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "h") {
-        event.preventDefault();
-        toggleDevQuickSwitchPanelVisibility();
-
-        return;
-      }
-
       if (!event.altKey || !event.shiftKey || event.key.toLowerCase() !== "d") {
         return;
       }
 
       event.preventDefault();
-      cycleDevShellExperienceOverride();
-      reloadAfterDevTestingOverrideChange();
+      toggleDevQuickSwitchPanelVisibility();
     };
 
     window.addEventListener("keydown", onKeyDown);

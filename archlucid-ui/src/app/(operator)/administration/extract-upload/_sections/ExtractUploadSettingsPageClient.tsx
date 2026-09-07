@@ -62,6 +62,10 @@ import {
   extractUploadValidateDisclosureHrefFromSearch,
   parseExtractUploadValidateDisclosureOpenFromSearch,
 } from "@/lib/administration/extract-upload-validate-disclosure-url";
+import {
+  extractUploadAdvancedCommandDisclosureHrefFromSearch,
+  parseExtractUploadAdvancedCommandOpenFromSearch,
+} from "@/lib/administration/extract-upload-advanced-command-disclosure-url";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
@@ -71,8 +75,12 @@ export function ExtractUploadSettingsPageClient() {
   const pathname = usePathname() ?? "/administration/extract-upload";
   const searchParams = useSearchParams();
   const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
+  const extractUploadAdvancedCommandOpenParam = searchParams.get("extractUploadAdvancedCommandOpen");
   const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
     parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
+  );
+  const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
+    parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineQuery = useExtractUploadBaselineQuery();
@@ -138,6 +146,30 @@ export function ExtractUploadSettingsPageClient() {
     );
   }, [extractUploadValidateDisclosureOpenParam]);
 
+  const syncAdvancedCommandOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        extractUploadAdvancedCommandDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedCommandOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedCommandOpenState(open);
+      syncAdvancedCommandOpenToUrl(open);
+    },
+    [syncAdvancedCommandOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedCommandOpenState(
+      parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
+    );
+  }, [extractUploadAdvancedCommandOpenParam]);
+
   return (
     <div
       className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
@@ -202,6 +234,10 @@ export function ExtractUploadSettingsPageClient() {
               <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
               <details
                 className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+                open={advancedCommandOpen}
+                onToggle={(event) => {
+                  setAdvancedCommandOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
               >
                 <summary
                   className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}

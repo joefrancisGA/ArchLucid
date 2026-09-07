@@ -34,6 +34,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
+}));
+
 import { HelpGettingStartedGuideView } from "@/app/(operator)/help/_sections/HelpGettingStartedGuideView";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA } from "@/lib/golden-sponsor-package-walkthrough";
@@ -171,9 +175,9 @@ describe("HelpGettingStartedGuideView", () => {
 
     const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
-    expect(mermaid).toHaveTextContent("gov{Governance gate}");
+    expect(mermaid).toHaveTextContent("gov{Approval gate}");
     expect(mermaid).toHaveTextContent("SR[Sealed review record]");
-    expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
+    expect(mermaid.getAttribute("data-description")).toMatch(/approval gate/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });

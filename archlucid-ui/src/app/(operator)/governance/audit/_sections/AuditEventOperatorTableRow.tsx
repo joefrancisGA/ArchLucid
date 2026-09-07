@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import type { CSSProperties, ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactElement } from "react";
 
 import {
   EnterpriseTableCell,
@@ -12,6 +13,10 @@ import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  auditOperatorTableEventJsonDisclosureHrefFromSearch,
+  parseAuditOperatorTableEventJsonEventIdFromSearch,
+} from "@/lib/governance/audit-operator-table-event-json-disclosure-url";
 import {
   AUDIT_EVENTS_EVENT_STICKY_CLASS,
   AUDIT_EVENTS_WHEN_STICKY_CLASS,
@@ -27,6 +32,42 @@ export type AuditEventOperatorTableRowProps = {
 /** Single audit log row (virtualized list item in {@link AuditEventsOperatorTable}). */
 export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProps): ReactElement {
   const { event: ev, style } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/audit";
+  const searchParams = useSearchParams();
+  const auditOperatorTableEventJsonEventIdParam = searchParams.get("auditOperatorTableEventJsonEventId");
+  const [eventJsonOpen, setEventJsonOpenState] = useState(
+    () => parseAuditOperatorTableEventJsonEventIdFromSearch(auditOperatorTableEventJsonEventIdParam) === ev.eventId,
+  );
+
+  const syncEventJsonOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditOperatorTableEventJsonDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? ev.eventId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [ev.eventId, pathname, router, searchParams],
+  );
+
+  const setEventJsonOpen = useCallback(
+    (open: boolean) => {
+      setEventJsonOpenState(open);
+      syncEventJsonOpenToUrl(open);
+    },
+    [syncEventJsonOpenToUrl],
+  );
+
+  useEffect(() => {
+    setEventJsonOpenState(
+      parseAuditOperatorTableEventJsonEventIdFromSearch(auditOperatorTableEventJsonEventIdParam) === ev.eventId,
+    );
+  }, [auditOperatorTableEventJsonEventIdParam, ev.eventId]);
+
   const runId = ev.runId?.trim() ?? "";
 
   return (
@@ -60,7 +101,12 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <details>
+        <details
+          open={eventJsonOpen}
+          onToggle={(event) => {
+            setEventJsonOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
             View JSON
           </summary>

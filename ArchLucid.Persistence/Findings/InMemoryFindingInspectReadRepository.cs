@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Findings;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -116,13 +117,19 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             HumanReviewStatus = match.HumanReviewStatus,
             IsMuted = match.IsMuted,
             MuteReason = match.MuteReason,
-            ReasoningTrace = match.Trace.ReasoningTrace,
+            ReasoningTrace = ResolveInspectReasoningTrace(match),
             ReasoningTraceDigestSha256 = match.Trace.ReasoningTraceDigestSha256,
             AssignedToUserId = match.AssignedToUserId,
             RemediationDueUtc = match.RemediationDueUtc,
             RunStructuralExecutionMode = detail.Run.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = detail.Run.RealModeFellBackToSimulator,
         };
+    }
+
+    private static string? ResolveInspectReasoningTrace(Finding finding)
+    {
+        return FindingCounterfactualNotes.ToPrefixedWireValue(finding.Trace?.Notes)
+            ?? finding.Trace?.ReasoningTrace;
     }
 
     private static JsonElement? TryPayloadElement(Finding finding)

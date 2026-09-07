@@ -1,5 +1,8 @@
 import { AUTHORITY_RANK, requiredAuthorityRank, type RequiredAuthority } from "@/lib/nav-authority";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 
 import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
@@ -10,6 +13,8 @@ export type SettingsMasterPageModelInput = {
   readonly showInternalShell: boolean;
   readonly searchQuery: string;
   readonly showAdvanced: boolean;
+  readonly productLine?: ProductLineId;
+  readonly productLineAssignmentOverrides?: Readonly<Record<string, ProductLineAssignment>>;
 };
 
 export type SettingsMasterVisibleSection = SettingsMasterSection & {
@@ -115,6 +120,14 @@ export function buildSettingsMasterVisibleSections(
         }
 
         if (destination.id === "api-keys" && !isApiKeysSettingsSurfaceEnabled()) {
+          return false;
+        }
+
+        if (
+          !isPathAllowedForProductLine(destination.href, input.productLine ?? DEFAULT_PRODUCT_LINE_ID, {
+            assignmentOverrides: input.productLineAssignmentOverrides,
+          })
+        ) {
           return false;
         }
 

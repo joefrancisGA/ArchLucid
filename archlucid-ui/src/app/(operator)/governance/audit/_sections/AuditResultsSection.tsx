@@ -38,6 +38,7 @@ import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AuditBuyerEmptyState } from "./AuditBuyerEmptyState";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
+import { AuditBuyerUtilitiesDetailsDisclosure } from "./AuditBuyerUtilitiesDetailsDisclosure";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { AuditTrailViewSwitcher } from "./AuditTrailViewSwitcher";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
@@ -316,14 +317,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               </section>
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
-              <details
-                className="mt-4 border-t border-neutral-200 pt-2 dark:border-neutral-700"
-                data-testid="audit-buyer-utilities-details"
-              >
-                <summary className={cn("cursor-pointer pt-2 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                  {auditBuyerUtilitiesDetailsSummary}
-                </summary>
-                <div className="mt-4 space-y-3 pb-2">
+              <AuditBuyerUtilitiesDetailsDisclosure summary={auditBuyerUtilitiesDetailsSummary}>
                   <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {auditExportSectionSupportingLineBuyerPolished}
                   </p>
@@ -385,8 +379,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                       </p>
                     </div>
                   )}
-                </div>
-              </details>
+              </AuditBuyerUtilitiesDetailsDisclosure>
             ) : null}
             {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
             {buyerPolishedShell && events.length > 0 ? <CtoDemoAuditClosingBeat /> : null}

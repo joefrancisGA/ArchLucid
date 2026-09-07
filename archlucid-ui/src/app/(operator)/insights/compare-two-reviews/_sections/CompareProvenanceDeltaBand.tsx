@@ -11,6 +11,7 @@ import {
   summarizeCompareProvenanceDelta,
 } from "@/lib/compare/compare-provenance-delta-summary";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { feasibilityVerdictKindLabel } from "@/lib/feasibility-verdict-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { DiffItem, RunSummary } from "@/types/authority";
@@ -42,12 +43,14 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
       label: compareRunHeadingLabel(props.baselineRunId, props.baselinePickedSummary),
       trail: query.data.baseline.trail,
       missingTrailDefect: query.data.baseline.missingTrailDefect,
+      feasibilityVerdictKind: query.data.baseline.feasibilityVerdictKind,
     },
     {
       runId: query.data.target.runId,
       label: compareRunHeadingLabel(props.targetRunId, props.targetPickedSummary),
       trail: query.data.target.trail,
       missingTrailDefect: query.data.target.missingTrailDefect,
+      feasibilityVerdictKind: query.data.target.feasibilityVerdictKind,
     },
     assumptionDiffs,
   );
@@ -90,6 +93,20 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
           </dd>
         </div>
       </dl>
+
+      {summary.feasibilityVerdictChanged ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-feasibility-verdict-delta">
+          Feasibility verdict changed — baseline{" "}
+          {summary.baseline.feasibilityVerdictKind !== null
+            ? feasibilityVerdictKindLabel(summary.baseline.feasibilityVerdictKind)
+            : "unknown"}{" "}
+          · updated{" "}
+          {summary.target.feasibilityVerdictKind !== null
+            ? feasibilityVerdictKindLabel(summary.target.feasibilityVerdictKind)
+            : "unknown"}
+          .
+        </p>
+      ) : null}
 
       {summary.assumptionDiffCount > 0 ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-assumptions-diff-count">

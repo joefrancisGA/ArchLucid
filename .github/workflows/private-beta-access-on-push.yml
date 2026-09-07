@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # One invite-wave smoke per branch — cancel superseded queued/in-flight runs when trunk advances.
+  # One invite-wave smoke per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.
   group: private-beta-access-on-push-${{ github.ref }}
   cancel-in-progress: true
 
@@ -138,6 +138,7 @@ jobs:
           ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
           ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
           AuthorityPipeline__PipelineTimeout: "00:05:00"
+          FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |

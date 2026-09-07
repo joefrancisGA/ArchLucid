@@ -4,7 +4,7 @@
 
 # ADR 0059: SPA BFF / HttpOnly session plan (GA hardening)
 
-**Status:** Accepted (P1 dual-mode shipped in repo; P2 removes client `sessionStorage` Bearer — LK-06)  
+**Status:** Accepted (P1 dual-mode shipped; **P2** removes client `sessionStorage` Bearer — LK-06 shipped 2026-09-06)  
 **Date:** 2026-07-18  
 **Deciders:** Owner + Architecture review  
 **Related:** Customer identity security assessment (H-10), `.local/owner/public_self_service_identity_gate.md`, ADR 0015 (trial auth)
@@ -15,6 +15,20 @@
 - **Dual-mode proxy:** `buildProxyUpstreamHeaders` forwards browser `Authorization: Bearer` when present; otherwise resolves Bearer from the BFF session cookie (`archlucid-ui/src/lib/proxy/bff-session-cookie.ts`).
 - **Issue / clear:** `POST` / `DELETE` `/api/auth/bff-session`; `persistTokenResponse` mirrors tokens into the cookie while `sessionStorage` Bearer remains until **LK-06**.
 - **Residual:** XSS can still read `sessionStorage` access tokens in P1; CSRF hardening on mutating proxy routes is **LK-07**.
+
+## Implementation (2026-09-06 — LK-06 P2)
+
+- **No JS-readable tokens:** `persistTokenResponse` writes only expiry + non-sensitive display/subject hints to `sessionStorage`; access, refresh, and id tokens live in the HttpOnly BFF cookie only.
+- **Cookie-first proxy:** `buildProxyUpstreamHeaders` prefers the BFF session cookie over browser `Authorization` (XSS cannot attach a migration Bearer).
+- **Server refresh:** `POST /api/auth/bff-session/refresh` rotates access tokens using the server-held refresh token; `ensureAccessTokenFresh` calls this route instead of reading `sessionStorage`.
+- **RP logout:** `GET /api/auth/bff-session/rp-logout-url` supplies `id_token_hint` from the cookie before local session clear.
+- **Residual closed for Working GA:** XSS cannot `sessionStorage.getItem` an access token; CSRF hardening on mutating proxy routes remains **LK-07**.
+
+## Implementation (2026-09-06 — LK-07)
+
+- **Server idle:** BFF session payload tracks `la` (last activity) and `wm` (Working vs Guided). Proxy + `/api/auth/bff-session/activity` slide activity; 4h Working / 1h Guided idle enforced server-side.
+- **CSRF:** Readable `archlucid-bff-csrf` companion cookie + required `X-Archlucid-Bff-Csrf` header on mutating `/api/proxy` and BFF refresh/activity routes.
+- **Meeting keepalive:** `useOidcSessionKeepalive` and `OidcTokenExpiryWarningGuard` pulse BFF activity + token refresh on print/presenter surfaces (reuses PT-19 / LI-14 loops).
 
 ## Context
 

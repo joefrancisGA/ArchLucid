@@ -6,6 +6,7 @@ import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architect
 import {
   BUYER_NEW_REVIEW_NAV_LABEL,
   OPERATOR_START_REVIEW_QUICK_ACTION_LABEL,
+  WORKING_REVIEWS_INBOX_NAV_LABEL,
   isReviewsListNavHref,
   resolveNavLinkPresentation,
   resolveNewReviewNavLinkLabel,
@@ -13,6 +14,7 @@ import {
   resolveReviewsListNavLinkLabel,
 } from "@/lib/operator/operator-nav-labels";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 
 describe("operator-nav-labels", () => {
   it("returns Start review for left nav in buyer-polished and default shells", () => {
@@ -110,6 +112,30 @@ describe("operator-nav-labels", () => {
 
     expect(resolveNavLinkPresentation(source, false, false).label).toBe("Reviews");
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
+  });
+
+  it("AO-14: Working reviews list nav is labeled as inbox", () => {
+    const source = {
+      href: "/architecture/reviews",
+      label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
+      title: "Browse architecture reviews",
+    };
+
+    const working = resolveNavLinkPresentation(source, false, false, true);
+
+    expect(working.label).toBe(WORKING_REVIEWS_INBOX_NAV_LABEL);
+    expect(working.title).toContain("inbox");
+  });
+
+  it("uses Teams instead of Microsoft Teams in the SecureNow shell", () => {
+    const source = {
+      href: INTEGRATIONS_TEAMS_PATH,
+      label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
+      title: "Microsoft Teams — configure Teams webhook delivery",
+    };
+
+    expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Teams");
+    expect(resolveNavLinkPresentation(source, false, false, false, "architecture").label).toBe("Microsoft Teams");
   });
 
   it("TB-882: curated operator surfaces keep sidebar labels aligned with route titles", () => {

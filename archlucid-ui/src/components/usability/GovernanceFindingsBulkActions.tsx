@@ -62,7 +62,7 @@ function isAssignedToMeFindingsPath(pathname: string): boolean {
     || pathname.startsWith(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}/`);
 }
 
-/** Bulk accept / waive / defer for governance findings queue rows. */
+/** Bulk accept / waive / defer for policy findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_FINDINGS_PATH;

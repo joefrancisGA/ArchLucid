@@ -5,6 +5,11 @@ import {
   inAppHelpHref,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  operatorSecurityTrustNdaRequestHref,
+  operatorSecurityTrustSubprocessorsWhatItIs,
+} from "@/lib/security-trust-product-copy";
 import { assuranceMaturityBadgeLabel } from "@/lib/security-trust-content";
 
 export type OperatorSecurityTrustLinkItem = {
@@ -27,33 +32,42 @@ export const OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM: OperatorSecurity
 };
 
 /** Procurement-facing materials available without NDA (excludes Trust Center primary CTA and Security policies duplicate). */
-export const OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS: ReadonlyArray<OperatorSecurityTrustMaterialItem> = [
-  {
-    label: "DPA template",
-    href: resolveInAppDocHref("docs/go-to-market/DPA_TEMPLATE.md"),
-    docSlug: "dpa-template",
-    whatItIs: "Data Processing Agreement template for contractual data-processing terms — requires legal review before execution.",
-  },
-  {
-    label: "Subprocessors",
-    href: resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md"),
-    docSlug: "subprocessors",
-    whatItIs: "Third-party subprocessors register for hosted ArchLucid.",
-  },
-  {
-    label: "SOC 2 self-assessment",
-    href: resolveInAppDocHref("docs/security/SOC2_SELF_ASSESSMENT_2026.md"),
-    docSlug: "soc2-self-assessment",
-    whatItIs: "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.",
-  },
-  {
-    label: "CAIQ / SIG pre-fill drafts",
-    href: inAppHelpHref("caiq-sig-response"),
-    docSlug: "caiq-sig-response",
-    whatItIs:
-      "Pre-filled CAIQ Lite themes and SIG Core families for procurement reviewers — transpose into your buyer workbook, not a completed STAR/SIG submission.",
-  },
-];
+export function operatorSecurityTrustMaterialItems(
+  productLineId: ProductLineId,
+): ReadonlyArray<OperatorSecurityTrustMaterialItem> {
+  return [
+    {
+      label: "DPA template",
+      href: resolveInAppDocHref("docs/go-to-market/DPA_TEMPLATE.md"),
+      docSlug: "dpa-template",
+      whatItIs:
+        "Data Processing Agreement template for contractual data-processing terms — requires legal review before execution.",
+    },
+    {
+      label: "Subprocessors",
+      href: resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md"),
+      docSlug: "subprocessors",
+      whatItIs: operatorSecurityTrustSubprocessorsWhatItIs(productLineId),
+    },
+    {
+      label: "SOC 2 self-assessment",
+      href: resolveInAppDocHref("docs/security/SOC2_SELF_ASSESSMENT_2026.md"),
+      docSlug: "soc2-self-assessment",
+      whatItIs: "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.",
+    },
+    {
+      label: "CAIQ / SIG pre-fill drafts",
+      href: inAppHelpHref("caiq-sig-response"),
+      docSlug: "caiq-sig-response",
+      whatItIs:
+        "Pre-filled CAIQ Lite themes and SIG Core families for procurement reviewers — transpose into your buyer workbook, not a completed STAR/SIG submission.",
+    },
+  ];
+}
+
+/** Architecture-shell default material inventory. */
+export const OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS: ReadonlyArray<OperatorSecurityTrustMaterialItem> =
+  operatorSecurityTrustMaterialItems("architecture");
 
 /** @deprecated Use OPERATOR_SECURITY_TRUST_PRIMARY_TRUST_CENTER_ITEM and OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS. */
 export const OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS: ReadonlyArray<OperatorSecurityTrustLinkItem> = [
@@ -69,8 +83,12 @@ export const OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY =
 
 export const OPERATOR_SECURITY_TRUST_NDA_REQUEST_LABEL = "Request diligence materials";
 
-export const OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF =
-  "mailto:security@archlucid.net?subject=ArchLucid%20security%20review";
+export function operatorSecurityTrustNdaRequestHrefForProductLine(productLineId: ProductLineId): string {
+  return operatorSecurityTrustNdaRequestHref(productLineId);
+}
+
+/** Architecture-shell default diligence mailto. */
+export const OPERATOR_SECURITY_TRUST_NDA_REQUEST_HREF = operatorSecurityTrustNdaRequestHref("architecture");
 
 /** @deprecated Prefer OPERATOR_SECURITY_TRUST_NDA_SHARED_TODAY and OPERATOR_SECURITY_TRUST_NDA_APPROVAL_ONLY. */
 export const OPERATOR_SECURITY_TRUST_NDA_INTRO =

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
-  buildBffSessionClearCookieHeader,
-  buildBffSessionSetCookieHeader,
+  buildBffSessionClearCookieHeaders,
+  buildBffSessionCookieHeaders,
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
 } from "@/lib/proxy/bff-session-cookie";
@@ -10,6 +10,9 @@ import {
 type BffSessionPostBody = {
   readonly access_token?: string;
   readonly expires_in?: number;
+  readonly refresh_token?: string;
+  readonly id_token?: string;
+  readonly working_mode?: boolean;
 };
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
@@ -47,16 +50,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const expiresAtMs = resolveExpiresAtMs(body.expires_in);
-  const cookieValue = createBffSessionCookieValue({ accessToken, expiresAtMs });
+  const issueResult = createBffSessionCookieValue({
+    accessToken,
+    expiresAtMs,
+    refreshToken: body.refresh_token ?? null,
+    idToken: body.id_token ?? null,
+    workingMode: body.working_mode === true,
+  });
 
-  if (cookieValue === null) {
+  if (issueResult === null) {
     return NextResponse.json({ title: "Failed to issue BFF session cookie" }, { status: 500 });
   }
 
-  const maxAgeSeconds = Math.max(0, Math.trunc((expiresAtMs - Date.now()) / 1000));
   const response = NextResponse.json({ ok: true });
 
-  response.headers.append("Set-Cookie", buildBffSessionSetCookieHeader(cookieValue, maxAgeSeconds));
+  for (const cookieHeader of buildBffSessionCookieHeaders(issueResult, expiresAtMs)) {
+    response.headers.append("Set-Cookie", cookieHeader);
+  }
 
   return response;
 }
@@ -65,7 +75,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(): Promise<NextResponse> {
   const response = NextResponse.json({ ok: true });
 
-  response.headers.append("Set-Cookie", buildBffSessionClearCookieHeader());
+  for (const cookieHeader of buildBffSessionClearCookieHeaders()) {
+    response.headers.append("Set-Cookie", cookieHeader);
+  }
 
   return response;
 }

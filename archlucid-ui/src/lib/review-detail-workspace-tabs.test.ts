@@ -35,6 +35,12 @@ describe("review-detail-workspace-tabs", () => {
     );
   });
 
+  it("AO-33: keeps nested review paths for tab hrefs when architecture id is known", () => {
+    expect(
+      buildReviewDetailTabHref("run-abc", "findings", { architectureId: "architecture-identity-001" }),
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-abc?reviewTab=findings");
+  });
+
   it("reads tab ids from href hash or search param", () => {
     expect(readReviewDetailTabFromHref("#run-explanation")).toBe("findings");
     expect(readReviewDetailTabFromHref("/architecture/reviews/run-1?reviewTab=policies")).toBe("policies");

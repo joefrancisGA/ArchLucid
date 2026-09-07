@@ -1,3 +1,4 @@
+import { EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK } from "@/lib/evidence-graph-operator-source-link";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -11,7 +12,7 @@ export const COMPARE_SOURCES_INTRO =
 /** Operator Sources — no self-href to compare-two-reviews. */
 export const COMPARE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK,
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Compare and replay help", href: inAppHelpHref("comparison-replay") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
