@@ -8,6 +8,7 @@ The golden corpus harness registers **32** engines; **16** appear in this table 
 
 Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
 Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
+Live tenant novelty rates (DidNotThinkOfThat marks per engine) are available via `GET /v1/tenants/current/insight-density/novelty-rates` — internal Working-mode diagnostics only; not golden-corpus fiction.
 
 | Engine | Findings | Min | Median | Max | Would demote if unprotected |
 | --- | --- | --- | --- | --- | --- |

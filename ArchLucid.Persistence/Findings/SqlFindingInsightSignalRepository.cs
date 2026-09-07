@@ -2,7 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -132,5 +135,50 @@ public sealed class SqlFindingInsightSignalRepository(ISqlConnectionFactory conn
                 cancellationToken: cancellationToken));
 
         return rows.Select(static kind => (FindingInsightSignalKind)kind).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<EngineInsightNoveltyRateRow>> ListNoveltyRatesAsync(
+        ScopeContext scope,
+        DateTime fromUtc,
+        DateTime toUtcExclusive,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (toUtcExclusive <= fromUtc)
+        {
+            return [];
+        }
+
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        DynamicParameters parameters = new();
+        parameters.Add("FromUtc", fromUtc);
+        parameters.Add("ToUtcExclusive", toUtcExclusive);
+        parameters.Add("DidNotThinkOfThatKind", (byte)FindingInsightSignalKind.DidNotThinkOfThat);
+        parameters.Add("DecisionGradeClassification", (byte)FindingClassification.DecisionGradeFinding);
+        parameters.Add("PromoteTreatment", (byte)FindingTreatment.Promote);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
+
+        IEnumerable<EngineInsightNoveltyRateSqlRow> rows = await connection.QueryAsync<EngineInsightNoveltyRateSqlRow>(
+            new CommandDefinition(
+                EngineInsightNoveltyRateSql.BuildListByEngineType(scope),
+                parameters,
+                cancellationToken: cancellationToken));
+
+        return rows
+            .Select(static row => new EngineInsightNoveltyRateRow
+            {
+                EngineType = row.EngineType,
+                DecisionGradeCount = row.DecisionGradeCount,
+                DidNotThinkOfThatCount = row.DidNotThinkOfThatCount,
+                Rate = EngineInsightNoveltyRateCalculator.ComputeRate(
+                    row.DecisionGradeCount,
+                    row.DidNotThinkOfThatCount),
+            })
+            .ToList();
     }
 }
