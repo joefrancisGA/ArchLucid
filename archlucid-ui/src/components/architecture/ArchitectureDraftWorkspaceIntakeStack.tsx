@@ -96,7 +96,11 @@ export function ArchitectureDraftWorkspaceIntakeStack(
       ) : null}
 
       {draft?.status === "Submitted" && linkedReviewId === null ? (
-        <GuidedIntakeAlreadySubmittedCallout linkedSpawnedRunId={null} />
+        <GuidedIntakeAlreadySubmittedCallout
+          linkedSpawnedRunId={null}
+          architectureId={parentArchitectureId}
+          workingMode={isWorkingMode}
+        />
       ) : null}
 
       {conflictMessage !== null ? (

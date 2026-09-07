@@ -58,4 +58,34 @@ export const SYSTEM_DESK_ACCEPTANCE_CASES: readonly SystemDeskAcceptanceCase[] =
     relativeTestPath: "lib/operator/operator-nav-labels.test.ts",
     marker: "SY-56",
   },
+  {
+    id: "SY-20",
+    relativeTestPath: "lib/architecture/working-share-href.test.ts",
+    marker: "SY-20",
+  },
+  {
+    id: "SY-21",
+    relativeTestPath: "lib/reviews/review-room-elicitation-url.test.ts",
+    marker: "SY-21",
+  },
+  {
+    id: "SY-22",
+    relativeTestPath: "lib/reviews/review-pin-run-url.test.ts",
+    marker: "SY-22",
+  },
+  {
+    id: "SY-23",
+    relativeTestPath: "lib/resolve-invite-reviewer-review-href.test.ts",
+    marker: "SY-23",
+  },
+  {
+    id: "SY-24",
+    relativeTestPath: "lib/resolve-invite-reviewer-review-href.test.ts",
+    marker: "SY-24",
+  },
+  {
+    id: "SY-25",
+    relativeTestPath: "lib/architecture/architecture-draft-intake-mode.test.ts",
+    marker: "SY-25",
+  },
 ];
