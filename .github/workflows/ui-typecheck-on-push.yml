@@ -98,6 +98,8 @@ jobs:
           python3 scripts/ci/check_api_types_package_in_sync.py
           python3 scripts/ci/check_release_gate_playwright_wiring.py
           python3 scripts/ci/check_insight_density_advisory_surfaces.py
+          python3 scripts/ci/check_architecture_object_acceptance_wiring.py
+          python3 scripts/ci/check_securenow_archlucid_leak_guard_wiring.py
           python3 scripts/ci/check_policy_pack_finding_delta_offline_packet.py
           python3 scripts/ci/check_manifest_summary_manifest_version_access.py
           python3 scripts/ci/check_status_tag_kind_warning.py
@@ -115,6 +117,8 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_api_types_package_in_sync.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_release_gate_playwright_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_insight_density_advisory_surfaces.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_architecture_object_acceptance_wiring.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_securenow_archlucid_leak_guard_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_golden_cohort_gate_ruleset_batch.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_finding_delta_offline_packet.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_manifest_summary_manifest_version_access.py"
