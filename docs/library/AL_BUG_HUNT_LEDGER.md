@@ -944,11 +944,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — security/cost trade-off attached to first matching recommendation instead of primary dimension
+- **last-bug:** 2026-09-07 — non-public trust-boundary gaps received public-exposure alternatives while ProposedChange stayed generic
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -960,8 +960,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unverified/indeterminate findings still emit production-control alternatives — **hit 2026-08-23:** `ArchitectureRecommendationAlternatives.Build` ignored `ProvenancePresentationMapper` and returned private-network/API-gateway paths while `ProposedChange` asked to collect evidence first
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — competing-dimension trade-off attaches to `recommendations.First` list order instead of the primary dimension recommendation — **hit 2026-09-07 seed hunt #1283:** when Cost preceded Security in finding order, Security/Cost trade-off landed on the Cost card and the Security recommendation had no trade-off; fixed by resolving the target recommendation via primary dimension first; regression in `ArchitectureRecommendationTradeOffBuilderTests`
 - [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — hypothesis-tier (`SystemProposed`) Fail findings still emit production-control copy — **valid-no-repro 2026-09-07 seed hunt #1283:** Fail + `EvidenceCondition.Sufficient` is an intentional must-change path; only `ProvenancePresentationBucket.Unverified` (including Indeterminate) gates evidence-first copy
-- [ ] (candidate) `ArchitectureRecommendationAlternatives.Build` — security trust-boundary branch keys on title substring only, so non-public trust-boundary gaps can still receive public-exposure remediation alternatives while `ProposedChange` stays generic — no failing repro in zone yet
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — security trust-boundary branch keys on title substring only, so non-public trust-boundary gaps can still receive public-exposure remediation alternatives while `ProposedChange` stays generic — **hit 2026-09-07 hunt #1294:** `Alternatives.Build` matched any title containing "trust boundary" while `ProposedChange.Build` requires both "public" and "trust boundary"; internal-tier gaps got private-network/API-gateway alternatives with generic primary copy; fixed by aligning the alternatives gate with ProposedChange; regressions in `ArchitectureRecommendationAlternativesTrustBoundaryTests`
 
+2026-09-07 thorough hunt #1294 (hit): proved trust-boundary alternatives mismatch for non-public security gaps; aligned alternatives gate with ProposedChange public+trust-boundary predicate.
 2026-09-07 seed hunt #1283 (hit): reseeded architecture-recommendation zone; proved trade-off attachment order bug; disproved hypothesis-tier must-change gap; seeded trust-boundary alternative mismatch candidate.
 
 ---

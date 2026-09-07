@@ -1450,3 +1450,5 @@
 {"at":"2026-09-07T23:29:14.0701891Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T23:34:46.0169358Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
 {"at":"2026-09-07T23:38:07.0788624Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
+{"at":"2026-09-07T23:47:03.8363957Z","zoneId":"application-pilots","outcome":"hit"}
+{"at":"2026-09-07T23:51:25.7066013Z","zoneId":"architecture-recommendation","outcome":"hit"}
