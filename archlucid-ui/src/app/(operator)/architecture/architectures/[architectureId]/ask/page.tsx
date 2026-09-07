@@ -3,11 +3,18 @@ import { notFound } from "next/navigation";
 
 import { ArchitectureNestedAskPageClient } from "@/app/(operator)/architecture/architectures/[architectureId]/ask/ArchitectureNestedAskPageClient";
 import { resolveArchitectureRouteSegment } from "@/lib/architecture/resolve-architecture-route-segment";
+import { metadataForWorkingArchitectureNestedToolRoute } from "@/lib/architecture/working-architecture-document-title";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
-export const metadata: Metadata = {
-  title: "Ask",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ architectureId: string }>;
+}): Promise<Metadata> {
+  const { architectureId } = await params;
+
+  return metadataForWorkingArchitectureNestedToolRoute(architectureId, "Ask");
+}
 
 function decodeRouteSegment(raw: string): string {
   const trimmed = raw.trim();

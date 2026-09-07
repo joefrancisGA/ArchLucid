@@ -1,4 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { resolveSignedRecordsListReviewHref } from "@/lib/resolve-signed-records-list-review-href";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { ManifestSummary } from "@/types/authority";
 import type { RunSummary } from "@/types/authority";
@@ -60,7 +61,7 @@ export function buildSignedRecordsListRowsFromRuns(runs: readonly RunSummary[]):
     .filter((run) => run.hasGoldenManifest === true)
     .map((run): SignedRecordsListRow => {
       const runId = run.runId.trim();
-      const reviewHref = `/architecture/reviews/${encodeURIComponent(runId)}`;
+      const reviewHref = resolveSignedRecordsListReviewHref(run);
       const goldenManifestId = run.goldenManifestId?.trim() ?? "";
       const hasManifestId = goldenManifestId.length > 0;
 
