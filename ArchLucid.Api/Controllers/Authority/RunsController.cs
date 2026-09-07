@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -57,6 +58,7 @@ public sealed partial class RunsController(
     IAuditService auditService,
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
+    FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IRunRepository runRepository,
     ILogger<RunsController> logger)
     : ControllerBase
@@ -66,6 +68,9 @@ public sealed partial class RunsController(
 
     private readonly IFindingFeedbackRepository findingFeedbackRepository =
         findingFeedbackRepository ?? throw new ArgumentNullException(nameof(findingFeedbackRepository));
+
+    private readonly FindingInstrumentationAuditSupport findingInstrumentationAudit =
+        findingInstrumentationAudit ?? throw new ArgumentNullException(nameof(findingInstrumentationAudit));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
