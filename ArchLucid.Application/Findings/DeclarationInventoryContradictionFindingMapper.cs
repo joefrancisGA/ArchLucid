@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 
@@ -16,6 +17,10 @@ internal static class DeclarationInventoryContradictionFindingMapper
             ? ["declaration-inventory-contradiction", mismatch.SecurityTheme]
             : [policyRuleId, mismatch.SecurityTheme];
 
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, mismatch.InventoryResourceId);
+        FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, policyRuleId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -28,6 +33,7 @@ internal static class DeclarationInventoryContradictionFindingMapper
             Rationale =
                 "A security-relevant declaration property on the topology graph disagrees with the scoped live inventory snapshot for the same resource.",
             RelatedNodeIds = [mismatch.GraphNodeId],
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(DeclarationInventoryContradictionFindingPayload),
             Payload = new DeclarationInventoryContradictionFindingPayload
             {

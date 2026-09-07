@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -226,6 +227,9 @@ public sealed class SecretsLifecycleFindingEngine(
     {
         string vaultLabel = string.IsNullOrWhiteSpace(row.VaultName) ? "vault" : row.VaultName;
 
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, row.InventoryResourceId);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -237,6 +241,7 @@ public sealed class SecretsLifecycleFindingEngine(
             Rationale =
                 "Inventory shows the secret was last rotated or updated beyond the rotation threshold, or expiry is imminent, and the current graph references this vault or secret.",
             RelatedNodeIds = relatedNodeIds.ToList(),
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(SecretsLifecycleFindingPayload),
             Payload = new SecretsLifecycleFindingPayload
             {
