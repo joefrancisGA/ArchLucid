@@ -22,7 +22,6 @@ public sealed class CommitSponsorEmailNotifier(
     IManifestHashService manifestHashService,
     ILogger<CommitSponsorEmailNotifier> logger) : ICommitSponsorEmailNotifier
 {
-    private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "architecture-commit-sponsor";
     private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
 
@@ -93,7 +92,7 @@ public sealed class CommitSponsorEmailNotifier(
         to = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
         string runUrlText = operatorBase is null
             ? $"(configure {nameof(EmailNotificationOptions.OperatorBaseUrl)}) /runs/{trimmedRunId}"
