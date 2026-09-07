@@ -5,6 +5,7 @@ import {
 } from "@/lib/command-palette-work-action-dom";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
+export const COMMAND_PALETTE_FINALIZE_REVIEW_EVENT = "archlucid-command-palette-finalize-review";
 export const COMMAND_PALETTE_UNDO_MUTATION_EVENT = "archlucid-command-palette-undo-mutation";
 export const COMMAND_PALETTE_FINDING_NEXT_EVENT = "archlucid-command-palette-finding-next";
 export const COMMAND_PALETTE_FINDING_PREV_EVENT = "archlucid-command-palette-finding-prev";
