@@ -5,9 +5,6 @@ import {
 import { EVIDENCE_CLAIM_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import {
-  AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE,
-  AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING,
-  AUDIT_TRAIL_HELP_CLAIM_HEADING_ID,
   AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE,
   AUDIT_TRAIL_HELP_SOURCES,
   AUDIT_TRAIL_HELP_SOURCES_INTRO,
@@ -137,14 +134,11 @@ export function AuditTrailHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="audit-trail-help"
-      claimTestId="help-audit-trail-claim-discipline"
-      claim={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE}
-      claimHeading={AUDIT_TRAIL_HELP_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={AUDIT_TRAIL_HELP_CLAIM_HEADING_ID}
       sourcesTitle={AUDIT_TRAIL_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={AUDIT_TRAIL_HELP_SOURCES_INTRO}
       sources={AUDIT_TRAIL_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      hubSecondary
     />
   );
 }
