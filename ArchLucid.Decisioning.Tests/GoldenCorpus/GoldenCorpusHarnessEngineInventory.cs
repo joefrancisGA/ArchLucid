@@ -29,6 +29,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["checklist-cluster-synthesis"] = "Post-gate synthesis — see ChecklistClusterSynthesisGoldenCorpusTests; merge harness does not emit clustered rows without dismiss posture.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
             ["data-flow-trust-boundary"] = "External actor→datastore path without trust-boundary hop — needs hand-authored path graph (DX-32 unit tests only until golden case).",
+            ["policy-declaration-inventory-contradiction"] = "Three-way pack contradiction needs assigned pack + inventory JSON — not on static golden graphs.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

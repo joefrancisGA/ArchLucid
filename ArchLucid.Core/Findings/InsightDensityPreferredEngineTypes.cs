@@ -12,6 +12,7 @@ public static class InsightDensityPreferredEngineTypes
         "open-commitment",
         "declaration-premise-conflict",
         "declaration-inventory-contradiction",
+        "policy-declaration-inventory-contradiction",
         "identity-blast-radius",
         "segmentation-semantics",
         "secrets-lifecycle",
