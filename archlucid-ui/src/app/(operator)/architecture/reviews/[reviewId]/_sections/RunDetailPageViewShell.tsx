@@ -12,6 +12,7 @@ import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
+import { WorkingUnlinkedReviewHonestyBanner } from "@/components/reviews/WorkingUnlinkedReviewHonestyBanner";
 import {
   RunDetailBuyerModeFallbackBannerDeferred,
   RunDetailBuyerPilotConversionSectionDeferred,
@@ -290,6 +291,10 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
 
                     <WorkingNestedArchitectureIdentityChromeMount
                       parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+                    />
+
+                    <WorkingUnlinkedReviewHonestyBanner
+                      architectureId={m.resolvedDetail.run.architectureId ?? null}
                     />
 
                     {chrome.tabbedWorkspaceEl}

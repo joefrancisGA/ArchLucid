@@ -242,6 +242,21 @@ export const FINDINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+/** Architecture desk work actions — documented first in Working Shift+? overlay (AO-43). */
+export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "alt+n",
+    label: "Start or resume",
+    description: WORKING_ALT_N_SHORTCUT_DESCRIPTION,
+  },
+  {
+    key: "ctrl+shift+s",
+    label: "Save architecture draft",
+    description:
+      "Save the architecture draft from the desk when the draft editor pane is open on the architecture identity page",
+  },
+];
+
 export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "alt+c",

@@ -37,6 +37,7 @@ public static class DeskContinuityValues
                 return null;
             }
 
+            parsed.LastOpenArchitectureId = NormalizeOptionalId(parsed.LastOpenArchitectureId);
             parsed.LastOpenReviewId = NormalizeOptionalId(parsed.LastOpenReviewId);
             parsed.LastOpenDraftId = NormalizeOptionalId(parsed.LastOpenDraftId);
             parsed.LastVisitWatermarkUtc = NormalizeOptionalTimestamp(parsed.LastVisitWatermarkUtc);
@@ -55,6 +56,7 @@ public static class DeskContinuityValues
 
         DeskContinuityDto normalized = new()
         {
+            LastOpenArchitectureId = NormalizeOptionalId(continuity.LastOpenArchitectureId),
             LastOpenReviewId = NormalizeOptionalId(continuity.LastOpenReviewId),
             LastOpenDraftId = NormalizeOptionalId(continuity.LastOpenDraftId),
             LastVisitWatermarkUtc = NormalizeOptionalTimestamp(continuity.LastVisitWatermarkUtc),

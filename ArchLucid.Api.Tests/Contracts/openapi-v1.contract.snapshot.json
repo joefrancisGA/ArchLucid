@@ -11988,6 +11988,12 @@
       },
       "DeskContinuityDto": {
         "properties": {
+          "lastOpenArchitectureId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "lastOpenDraftId": {
             "type": [
               "null",
