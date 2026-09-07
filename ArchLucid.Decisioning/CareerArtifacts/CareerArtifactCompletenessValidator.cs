@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Findings;
@@ -17,6 +18,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string QualityGateCode = "quality_gate_incomplete";
     public const string DemoSampleCode = "demo_sample_external_block";
     public const string AssertedEmptyCode = "asserted_trail_empty";
+    public const string DecisionGradeProvenanceCode = "decision_grade_provenance";
 
     public const string FinalizeTrailMissingMessage =
         "Finalize requires a transparency trail with asserted, inferred, and skipped sections. Complete intake provenance or reload the package before sealing.";
@@ -48,6 +50,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         EvaluatePreCommitGate(input, blockReasons);
         EvaluateQualityGate(input, blockReasons);
         EvaluateDemoSampleExternalBlock(input, blockReasons);
+        EvaluateDecisionGradeProvenance(input, blockReasons);
 
         if (input.IsSampleRun && input.ArtifactKind == CareerArtifactKind.Export)
         {
@@ -209,6 +212,21 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         }
 
         blockReasons.Add(new CareerArtifactBlockReason(DemoSampleCode, DemoSampleExternalBlockMessage));
+    }
+
+    private static void EvaluateDecisionGradeProvenance(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons)
+    {
+        if (input.ArtifactKind != CareerArtifactKind.Export || !input.WorkingDesk || input.FindingsSnapshot is null)
+        {
+            return;
+        }
+
+        foreach (string violation in DecisionGradeFindingProvenanceValidator.GetViolations(input.FindingsSnapshot))
+        {
+            blockReasons.Add(new CareerArtifactBlockReason(DecisionGradeProvenanceCode, violation));
+        }
     }
 
     private static void AppendMeasurementFloorHeader(

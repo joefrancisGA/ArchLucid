@@ -116,6 +116,7 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     statedConstraintContext: null,
     nextFindingInReview: null,
     parentArchitectureId: null,
+    transparencyTrail: null,
     ...overrides,
   };
 }

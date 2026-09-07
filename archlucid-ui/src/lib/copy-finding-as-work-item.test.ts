@@ -31,6 +31,19 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("**Trust label:** DeterministicRule — Policy rule matched.");
   });
 
+  it("includes Working coverage honesty in Jira wiki exports (FC-41)", () => {
+    const withHonesty = {
+      ...inspectInput,
+      coverageHonestyLine: "Checklist coverage stays on the package when the insight-density gate demotes a finding.",
+      includeCoverageHonesty: true,
+    };
+
+    const text = buildInspectFindingWorkItemBody("jiraWiki", withHonesty);
+
+    expect(text).toContain("*Coverage honesty:*");
+    expect(text).toContain("insight-density gate demotes");
+  });
+
   it("uses Jira wiki markers for Jira variant", () => {
     const text = buildInspectFindingWorkItemBody("jiraWiki", inspectInput);
 
@@ -147,6 +160,16 @@ describe("buildTraceRowWorkItemBody", () => {
     expect(text).toContain("Restrict egress.");
     expect(text).toContain("ArchLucid inspector link:");
     expect(text).toContain("Finding ID: find-z");
+  });
+
+  it("includes skipped MUST coverage honesty in trace-row Jira wiki exports (FC-41)", () => {
+    const text = buildTraceRowWorkItemBody("jiraWiki", {
+      ...traceInput,
+      includeCoverageHonesty: true,
+      coverageHonestyLine: "Skipped required questions: drRpo.",
+    });
+
+    expect(text).toContain("*Coverage honesty:* Skipped required questions: drRpo.");
   });
 
   it("supports Jira wiki with severity and recommended action", () => {

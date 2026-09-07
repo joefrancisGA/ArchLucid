@@ -16,6 +16,35 @@ import {
   type TraceRowWorkItemInput,
   type WorkItemClipboardFormat,
 } from "./copy-finding-as-work-item-types";
+import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
+
+function traceRowCoverageHonestyLineForExport(input: TraceRowWorkItemInput): string | null {
+  if (input.includeCoverageHonesty === false) {
+    return null;
+  }
+
+  const resolved = resolveFindingWorkItemCoverageHonestyFromInput({
+    runId: input.runId,
+    findingId: input.findingId,
+    siteOrigin: input.siteOrigin,
+    severityLabel: input.severityLabel,
+    categoryLabel: null,
+    impactedAreaLabel: null,
+    title: input.findingTitle,
+    description: null,
+    recommendedAction: input.recommendedAction,
+    decisionRuleId: input.ruleId,
+    decisionRuleName: null,
+    evidenceExcerpts: [],
+    trustLabel: input.trustLabel ?? null,
+    trustLabelReason: input.trustLabelReason ?? null,
+    coverageHonestyLine: input.coverageHonestyLine ?? null,
+    includeCoverageHonesty: input.includeCoverageHonesty,
+    productLineId: input.productLineId,
+  });
+
+  return resolved?.line ?? null;
+}
 
 function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
   origin: string;
@@ -39,6 +68,7 @@ function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
 function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): FindingWorkItemJsonDocument {
   const links = traceRowWorkItemLinks(input);
   const trustFields = findingTrustExportJsonFields(input);
+  const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
 
   return {
     schema: "archlucid.work-item.v1",
@@ -50,6 +80,7 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
     status: na(input.statusLabel),
     ruleId: na(input.ruleId),
     ...trustFields,
+    ...(coverageHonestyLine !== null ? { coverageHonesty: coverageHonestyLine } : {}),
     links: {
       review: links.runUrl,
       finding: links.findingUrl,
@@ -67,6 +98,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
   const status = na(input.statusLabel);
   const rule = na(input.ruleId);
   const trustLine = formatFindingTrustExportLine(input);
+  const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
 
   if (format === "json") {
     return JSON.stringify(buildTraceRowWorkItemJsonDocument(input), null, 2);
@@ -85,6 +117,10 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
 
     if (trustLine !== null) {
       lines.push(`*Trust label:* ${trustLine}`);
+    }
+
+    if (coverageHonestyLine !== null) {
+      lines.push(`*Coverage honesty:* ${coverageHonestyLine}`);
     }
 
     lines.push(
@@ -110,6 +146,10 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
 
     if (trustLine !== null) {
       descriptionLines.push(`Trust label: ${trustLine}`);
+    }
+
+    if (coverageHonestyLine !== null) {
+      descriptionLines.push(`Coverage honesty: ${coverageHonestyLine}`);
     }
 
     return [
@@ -143,6 +183,10 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
 
   if (trustLine !== null) {
     markdownLines.push("**Trust label:** " + trustLine);
+  }
+
+  if (coverageHonestyLine !== null) {
+    markdownLines.push("**Coverage honesty:** " + coverageHonestyLine);
   }
 
   markdownLines.push(

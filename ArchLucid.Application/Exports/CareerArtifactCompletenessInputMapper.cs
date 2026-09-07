@@ -30,7 +30,8 @@ public static class CareerArtifactCompletenessInputMapper
             HostQualityGateMode: input.HostQualityGateMode,
             AggregateQualityGateOutcome: input.AggregateQualityGateOutcome,
             LegacySealedReExport: legacySealedReExport,
-            BlockExternalSponsorDistribution: blockExternalSponsorDistribution);
+            BlockExternalSponsorDistribution: blockExternalSponsorDistribution,
+            FindingsSnapshot: input.FindingsSnapshot);
     }
 
     public static CareerArtifactCompletenessInput MapForFinalize(

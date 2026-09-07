@@ -29,7 +29,7 @@ type Props = { readonly presentation: FindingDetailPresentation };
 
 /** Finding detail actions and footers. */
 export function FindingDetailActions({ presentation }: Props) {
-  const { model, graphEvidenceHref, linkedManifestHref } = presentation;
+  const { model, graphEvidenceHref, linkedManifestHref, transparencyTrail } = presentation;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -141,7 +141,12 @@ export function FindingDetailActions({ presentation }: Props) {
           onToggle={setExportOpen}
           summaryLine="Copy for Jira, Azure Boards, or ServiceNow"
         >
-          <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+          <FindingItsmExportPanel
+            runId={runId}
+            findingId={decodedFindingId}
+            payload={inspectPayload}
+            transparencyTrail={transparencyTrail}
+          />
         </CollapsibleSection>
       ) : null}
 

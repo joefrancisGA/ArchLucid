@@ -35,10 +35,11 @@ import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAT
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
-import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
-import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
+import { InfrastructureOverviewBreadcrumb } from "./InfrastructureOverviewBreadcrumb";
+import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
 /** Infrastructure overview hub — lists all infrastructure evidence workbench destinations. */
 export function InfrastructureOverviewClient() {

@@ -14,6 +14,7 @@ import {
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
+import { getDecisionGradeFindingProvenanceViolations } from "@/lib/findings/decision-grade-finding-provenance-validator";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type CareerArtifactKind = "finalize" | "export";
@@ -202,6 +203,14 @@ export function evaluateCareerArtifactHonesty(
 
     if (hardCitationBlockedReason !== null) {
       blockedReasons.push(hardCitationBlockedReason);
+    }
+
+    if (input.workingDesk === true && input.findingsSnapshot !== undefined && input.findingsSnapshot !== null) {
+      const provenanceViolations = getDecisionGradeFindingProvenanceViolations(input.findingsSnapshot);
+
+      for (const violation of provenanceViolations) {
+        blockedReasons.push(violation);
+      }
     }
   }
 
