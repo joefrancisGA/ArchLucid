@@ -98,6 +98,7 @@ export function ArchitectureIdentityDeskReviewsTable(
                   <PinReviewToDeskButton
                     pinRunId={review.runId}
                     primaryRunId={props.primaryRunIdForPin}
+                    architectureId={props.architectureId}
                     label="Pin"
                     testId={`architecture-identity-pin-review-${review.runId}`}
                   />

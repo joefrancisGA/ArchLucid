@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getFindingInspect } from "@/lib/api/findings-api";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { cn } from "@/lib/utils";
 import type { UsePinnedReviewContextResult } from "@/hooks/use-pinned-review-context";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -146,12 +148,17 @@ function PinnedReviewFindingsList({
 /** DR-11 — read-only secondary review context docked beside the primary workspace. */
 export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): React.JSX.Element {
   const { context, primaryRunId } = props;
+  const pathname = usePathname() ?? "";
   const [inspectFindingId, setInspectFindingId] = useState<string | null>(null);
   const pinRunId = context.pinRunId ?? "";
   const headline =
     context.summary !== null ? buyerFacingReviewTitleFromSummary(context.summary) : "Pinned review";
 
-  const makePrimaryHref = reviewDetailPath(pinRunId);
+  const architectureId = resolveReviewWorkspaceArchitectureId(
+    context.summary?.architectureId ?? null,
+    pathname,
+  );
+  const makePrimaryHref = resolveArchitectureReviewHref(pinRunId, architectureId);
 
   return (
     <InspectorPanel

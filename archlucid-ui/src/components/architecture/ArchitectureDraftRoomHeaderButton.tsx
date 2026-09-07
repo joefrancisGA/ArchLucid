@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 export type ArchitectureDraftRoomHeaderButtonProps = {
   readonly linkedReviewId: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Architecture draft desk Room entry — hands off to linked review elicitation (DR-16). */
@@ -83,7 +84,7 @@ export function ArchitectureDraftRoomHeaderButton(
       size="sm"
       data-testid="review-room-enter"
       onClick={() => {
-        router.push(reviewDetailRoomElicitationHref(linkedReviewId));
+        router.push(reviewDetailRoomElicitationHref(linkedReviewId, props.parentArchitectureId));
       }}
     >
       Room

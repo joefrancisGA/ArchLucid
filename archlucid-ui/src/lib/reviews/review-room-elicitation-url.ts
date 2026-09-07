@@ -1,4 +1,4 @@
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref, reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
 export const REVIEW_ROOM_ELICITATION_PARAM = "roomElicitation";
 
@@ -36,8 +36,11 @@ export function reviewRoomElicitationHrefFromSearch(
   return nextQuery.length === 0 ? pathname : `${pathname}?${nextQuery}`;
 }
 
-/** Deep link into linked review room elicitation from architecture draft desk (DR-16). */
-export function reviewDetailRoomElicitationHref(reviewId: string): string {
+/** Deep link into linked review room elicitation from architecture draft desk (DR-16 / AO-38). */
+export function reviewDetailRoomElicitationHref(
+  reviewId: string,
+  architectureId?: string | null,
+): string {
   const trimmedReviewId = reviewId.trim();
 
   if (trimmedReviewId.length === 0) {
@@ -47,5 +50,7 @@ export function reviewDetailRoomElicitationHref(reviewId: string): string {
   const params = new URLSearchParams();
   params.set(REVIEW_ROOM_ELICITATION_PARAM, "1");
 
-  return `${reviewDetailPath(trimmedReviewId)}?${params.toString()}`;
+  const base = resolveArchitectureReviewHref(trimmedReviewId, architectureId);
+
+  return `${base}?${params.toString()}`;
 }

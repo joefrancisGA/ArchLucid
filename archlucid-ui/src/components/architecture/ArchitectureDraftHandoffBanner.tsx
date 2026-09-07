@@ -38,7 +38,10 @@ export function ArchitectureDraftHandoffBanner(
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-review">
           <Link href={reviewHref}>Continue in review</Link>
         </Button>
-        <ArchitectureDraftCloneSnapshotControl draftId={props.draftId} />
+        <ArchitectureDraftCloneSnapshotControl
+          draftId={props.draftId}
+          parentArchitectureId={props.parentArchitectureId}
+        />
       </div>
     </div>
   );
