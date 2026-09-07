@@ -6,7 +6,7 @@
 
 **Created:** 2026-09-07 · **Status:** Ready to run. One prompt per chat.
 
-DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). Latest golden case is **`case-57`**. Harness registers **38** engines; catalog has **50**; **12** absent-with-reason. This set closes the **remaining Cursor-implementable** density holes after DX-42–DX-46: honest `EvidenceRefs` on cost-recommendation and path engines DX-45 left empty, golden cases that prove DX-42 Pulumi/CloudFormation/CDK ingest actually feeds path/contradiction engines, harness registration for three absent-with-reason engines that only need fixtures, and (owner-gated) Workstream 2 tightening of `HasConcreteEvidenceCitation`.
+DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). Latest golden case is **`case-57`**. Harness registers **39** engines; catalog has **50**; **11** absent-with-reason (`topology-anti-pattern` is already registered — it still needs a golden case). This set closes the **remaining Cursor-implementable** density holes after DX-42–DX-46: honest `EvidenceRefs` on cost-recommendation and path engines DX-45 left empty, golden cases that prove DX-42 Pulumi/CloudFormation/CDK ingest actually feeds path/contradiction engines, harness registration + goldens for `security-baseline-expectation` and `required-capability-coverage` (plus a `topology-anti-pattern` golden), and (owner-gated) Workstream 2 tightening of `HasConcreteEvidenceCitation`.
 
 **Run one prompt per chat.** Feature branch per prompt. Suggested Cloud Agent branch: `cursor/dx-<short-name>-97a4`. Name the branch in any commit/push request. **Do not push to `master`.**
 
@@ -28,7 +28,7 @@ DX-01–DX-46 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 |--------|-------|-----------|------------|----------------|
 | **DX-47** | Honest `EvidenceRefs` remainder (cost + path engines) | Yes | DX-45 shipped | Precision (dismiss honesty) |
 | **DX-48** | Golden fixtures proving DX-42 ingest feeds density engines | Yes | DX-42 shipped | Measurement |
-| **DX-49** | Golden harness for three absent-with-reason engines | After DX-48 preferred | engines already shipped | Measurement |
+| **DX-49** | Golden harness for two absent engines + topology-anti-pattern golden | After DX-48 preferred | engines already shipped | Measurement |
 | **DX-50** | Tighten `HasConcreteEvidenceCitation` (Workstream 2) | **OWNER-GATED** — after DX-47 | DX-47 shipped | Precision |
 
 **Start DX-47 and DX-48 now** (independent). Start **DX-49** after DX-48 if you share `case-NN` numbers, or in parallel if you pick unused numbers after checking `GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber` (currently **57**). **Do not start DX-50** until the owner explicitly unparks Workstream 2 remainder in this conversation (or a later message that names **DX-50**). Prerequisite for DX-50 is **DX-47 shipped** so path/cost findings already carry ARM/ARN citations when the package has them.
@@ -187,27 +187,27 @@ Done when: at least one CloudFormation-sourced case fires declaration-inventory-
 
 ---
 
-# DX-49 — Golden harness for three absent-with-reason engines (fixtures only)
+# DX-49 — Golden harness for two absent engines + topology-anti-pattern golden
 
-**Closes:** `GoldenCorpusHarnessEngineInventory.AbsentReasons` still lists `topology-anti-pattern` (“richer topology fixtures than case-01..case-50”), `security-baseline-expectation` (“declaration fixtures beyond default graphs”), and `required-capability-coverage` (“inventory-shaped graph not in corpus”). All three are **already catalog engines** with unit tests (`TopologyAntiPatternFindingEngineTests`, `TopologyWaveFindingEngineTests.SecurityBaselineExpectationFindingEngine_WhenCategoryUnprotected_EmitsFinding`, `RequiredCapabilityCoverageAnalyzerTests`). They are not cross-run diffs and not real-mode LLM engines. `requirement-gap` / `*-cross-run-diff` / `insight-generator` / `cost-breach` / `policy-applicability` stay absent.
+**Closes:** `GoldenCorpusHarnessEngineInventory.AbsentReasons` still lists `security-baseline-expectation` (“declaration fixtures beyond default graphs”) and `required-capability-coverage` (“inventory-shaped graph not in corpus”). **`topology-anti-pattern` is already registered** in `GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds` and `GoldenCorpusHarness.CreateEngines()` but has **no golden case** — it does not appear in `insight-density-engine-distribution.md`. All three are **already catalog engines** with unit tests (`TopologyAntiPatternFindingEngineTests`, `TopologyWaveFindingEngineTests.SecurityBaselineExpectationFindingEngine_WhenCategoryUnprotected_EmitsFinding`, `RequiredCapabilityCoverageAnalyzerTests`). They are not cross-run diffs and not real-mode LLM engines. `requirement-gap` / `*-cross-run-diff` / `insight-generator` / `cost-breach` / `policy-applicability` stay absent.
 **Depends on:** none (engines shipped); run after DX-48 if you share `case-NN` numbers
 **Branch suggestion:** `cursor/dx-49-absent-engine-goldens`
 
 ### Design intent
 
-Measurement only. One golden case per engine minimum, starting at **`case-61`** if DX-48 took `case-58`–`case-60`. Register the three engines in `GoldenCorpusHarness.CreateEngines()` and `GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds`. Remove their `AbsentReasons` rows. Do not add `EngineType`. Do not turn these into new coverage-only engines — they already exist; this prompt only gives the harness a graph they already emit on in unit tests.
+Measurement only. One golden case per engine minimum, starting at **`case-61`** if DX-48 took `case-58`–`case-60`. Register **`security-baseline-expectation`** and **`required-capability-coverage`** in `GoldenCorpusHarness.CreateEngines()` and `GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds`; remove their `AbsentReasons` rows. Add a golden case for **`topology-anti-pattern`** (already registered — do not double-register). Do not add `EngineType`. Do not turn these into new coverage-only engines — they already exist; this prompt only gives the harness fixtures they already emit on in unit tests.
 
 ### Prompt (copy below)
 
 ```text
-You are working in the ArchLucid repo on a FEATURE BRANCH (not master). Goal: add golden corpus cases (next unused case-NN after DX-48; currently plan case-61+ if DX-48 took 58–60) that fire topology-anti-pattern, security-baseline-expectation, and required-capability-coverage, register those engines in the merge harness, and remove them from AbsentReasons. Do not add EngineType. Do not register cross-run, insight-generator, cost-breach, or policy-applicability.
+You are working in the ArchLucid repo on a FEATURE BRANCH (not master). Goal: add golden corpus cases (next unused case-NN after DX-48; currently plan case-61+ if DX-48 took 58–60) that fire topology-anti-pattern, security-baseline-expectation, and required-capability-coverage; register security-baseline-expectation and required-capability-coverage in the merge harness and remove them from AbsentReasons. topology-anti-pattern is already registered — add its golden only. Do not add EngineType. Do not register cross-run, insight-generator, cost-breach, or policy-applicability.
 
-Why: Catalog is 50; harness registers 38; 12 absent-with-reason. Three of those twelve are fixture-only. Unit tests already emit. docs/quality/insight-density-engine-distribution.md cannot score them until they are in CreateEngines() and have a case.
+Why: Catalog is 50; harness registers 39; 11 absent-with-reason. topology-anti-pattern is registered but has no golden case. security-baseline-expectation and required-capability-coverage are still absent-with-reason. Unit tests already emit. docs/quality/insight-density-engine-distribution.md cannot score them until each has a case (and the two absent engines are registered).
 
 Read first:
-- ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusHarnessEngineInventory.cs (AbsentReasons — those three rows)
-- ArchLucid.Decisioning/Findings/GoldenCorpusHarnessEngineRegistration.cs (RegisteredEngineTypeIds, LatestGoldenCorpusCaseNumber — read at start)
-- ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusHarness.cs (CreateEngines — currently 22 graph engines; GoldenCorpusHarnessEngineTests asserts count 22)
+- ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusHarnessEngineInventory.cs (AbsentReasons — security-baseline-expectation and required-capability-coverage rows; topology-anti-pattern is NOT absent)
+- ArchLucid.Decisioning/Findings/GoldenCorpusHarnessEngineRegistration.cs (RegisteredEngineTypeIds already includes topology-anti-pattern; LatestGoldenCorpusCaseNumber — read at start)
+- ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusHarness.cs (CreateEngines — already includes TopologyAntiPatternFindingEngine; GoldenCorpusHarnessEngineTests count may lag — update after adding the two new engines)
 - ArchLucid.Decisioning/Services/TopologyAntiPatternFindingEngine.cs (datastore with no CONNECTS_TO/DEPENDS_ON from compute; publicEndpoint true / "public"+"sql|storage|blob" label)
 - ArchLucid.Decisioning/Services/SecurityBaselineExpectationFindingEngine.cs (IGraphCoverageAnalyzer.AnalyzeSecurityBaselineExpectations — topology node with no PROTECTS)
 - ArchLucid.Decisioning/Services/RequiredCapabilityCoverageFindingEngine.cs (RequiredCapabilityCoverageAnalyzer — ContextSnapshot RequiredCapabilities token with no matching evidence)
@@ -219,13 +219,12 @@ Read first:
 
 Work:
 
-1. Register in CreateEngines() next to the other graph engines:
-   - new TopologyAntiPatternFindingEngine()
+1. Register in CreateEngines() next to the other graph engines (topology-anti-pattern is already there — do not duplicate):
    - new SecurityBaselineExpectationFindingEngine(analyzer) — analyzer is already constructed
    - new RequiredCapabilityCoverageFindingEngine(new RequiredCapabilityCoverageAnalyzer()) — own analyzer instance is fine
-   Update GoldenCorpusHarnessEngineTests count (22 → 25) and Contain() assertions. Add the three EngineType strings to GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds.
+   Update GoldenCorpusHarnessEngineTests count and Contain() assertions. Add security-baseline-expectation and required-capability-coverage to GoldenCorpusHarnessEngineRegistration.RegisteredEngineTypeIds (topology-anti-pattern is already listed).
 
-2. Remove the three AbsentReasons entries. Leave requirement-gap, requirement-cross-run-diff, topology-cross-run-diff, policy-applicability, policy-coverage, cost-breach, checklist-cluster-synthesis, insight-generator, policy-declaration-inventory-contradiction. ValidateCatalogCoverage must still hold (registered + absent = catalog 50). After this prompt: 41 registered, 9 absent.
+2. Remove the two AbsentReasons entries (security-baseline-expectation, required-capability-coverage). Leave requirement-gap, requirement-cross-run-diff, topology-cross-run-diff, policy-applicability, policy-coverage, cost-breach, checklist-cluster-synthesis, insight-generator, policy-declaration-inventory-contradiction. ValidateCatalogCoverage must still hold (registered + absent = catalog 50). After this prompt: 41 registered, 9 absent.
 
 3. Add at least three cases, copying unit-test graph shape with varied node ids (do not reuse cmp-1/ds-1 if that collides with an existing case’s expected files):
    - case-61: compute TopologyResource + data TopologyResource with no CONNECTS_TO/DEPENDS_ON → topology-anti-pattern (datastore-without-compute-dependency). Optional second finding if a node is publicly exposed; do not force it.
