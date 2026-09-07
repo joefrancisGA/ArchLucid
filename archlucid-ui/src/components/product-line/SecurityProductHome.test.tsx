@@ -1,11 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
-import { NAV_GROUPS } from "@/lib/nav-config";
-import { createOperatorNavAuthorityVitestMock } from "@/testing/operator-nav-authority-vitest-mock";
-
 vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({
     productLine: "security",
@@ -17,35 +12,17 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   }),
 }));
 
-vi.mock("@/components/operator/OperatorNavAuthorityProvider", () =>
-  createOperatorNavAuthorityVitestMock({ callerAuthorityRank: AUTHORITY_RANK.AdminAuthority }),
-);
-
 import { SecurityProductHome } from "@/components/product-line/SecurityProductHome";
+import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-copy";
 
 describe("SecurityProductHome", () => {
-  it("renders destination labels without helper title text", () => {
+  it("shows the home header and product-line switch without duplicating sidebar destinations", () => {
     render(<SecurityProductHome />);
 
-    const destinations = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      AUTHORITY_RANK.AdminAuthority,
-      "all",
-      false,
-      false,
-      { productLine: "security", showVendorInternalNav: false },
-    )
-      .flatMap((row) => row.visibleLinks)
-      .filter((link) => link.href !== "/");
-
-    expect(destinations.length).toBeGreaterThan(0);
-
-    for (const link of destinations) {
-      expect(screen.getByRole("link", { name: link.label })).toBeInTheDocument();
-
-      if (link.title !== undefined && link.title !== link.label) {
-        expect(screen.queryByText(link.title)).not.toBeInTheDocument();
-      }
-    }
+    expect(screen.getByTestId("security-product-home")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SECURITY_PRODUCT_HOME_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("product-line-switch-bar")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Infrastructure overview/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Remediation factory/i })).not.toBeInTheDocument();
   });
 });
