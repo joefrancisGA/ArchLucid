@@ -134,7 +134,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
-    public void Validate_boolean_schemaVersion_succeeds()
+    public void Validate_boolean_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -146,11 +146,13 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]
-    public void Validate_string_boolean_schemaVersion_succeeds()
+    public void Validate_string_boolean_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -162,11 +164,13 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]
-    public void Validate_on_synonym_schemaVersion_succeeds()
+    public void Validate_on_synonym_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -178,7 +182,9 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]

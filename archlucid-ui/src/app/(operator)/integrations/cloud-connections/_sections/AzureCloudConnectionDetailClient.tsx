@@ -15,6 +15,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 import { azureConnectionStatusTagKind } from "@/lib/azure-connection-present";
 
@@ -115,59 +116,36 @@ function AzureCloudConnectionPageHeader(): React.ReactElement {
 
 
 function AzureConnectionDetailBody() {
+  const { productLine, localize } = useLocalizedProductCopy();
 
   return (
-
     <>
-
       <CloudProviderDetailLayout
-
       providerLabel="Azure"
-
       overview={
-
         <p className={OPERATOR_TYPOGRAPHY.body}>
-
-          Connect selected Azure subscriptions for scheduled read-only evidence collection. ArchLucid stores
-
-          connection metadata only — no client secrets.
-
+          {localize(
+            "Connect selected Azure subscriptions for scheduled read-only evidence collection. ArchLucid stores connection metadata only — no client secrets.",
+          )}
         </p>
-
       }
-
       securityPreflight={
-
         <CloudSecurityPreflightPanel
-
-          topics={cloudSecurityPreflightTopics("azure")}
-
+          topics={cloudSecurityPreflightTopics("azure", productLine)}
           providerLabel="Azure"
-
           collapsedByDefault
-
         />
-
       }
-
       identitySetup={
-
         <p className={OPERATOR_TYPOGRAPHY.body}>
-
-          Provision a read-only service principal in your tenant, then add federated credentials that trust
-
-          ArchLucid&apos;s managed identity. Use the setup script in Connection details or deploy the{" "}
-
+          {localize(
+            "Provision a read-only service principal in your tenant, then add federated credentials that trust ArchLucid's managed identity. Use the setup script in Connection details or deploy the",
+          )}{" "}
           <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-
             infrastructure templates
-
           </Link>
-
           .
-
         </p>
-
       }
 
       connectionDetails={<AzureConnectionDetailsPanel />}
@@ -181,11 +159,9 @@ function AzureConnectionDetailBody() {
         <CloudSecurityPreflightTechnicalDetails>
 
           <p>
-
-            ArchLucid hosts the extractor service on Azure infrastructure. Your tenant provisions a customer-side
-
-            service principal — you are not required to adopt Azure as your primary cloud platform.
-
+            {localize(
+              "ArchLucid hosts the extractor service on Azure infrastructure. Your tenant provisions a customer-side service principal — you are not required to adopt Azure as your primary cloud platform.",
+            )}
           </p>
 
           <p>

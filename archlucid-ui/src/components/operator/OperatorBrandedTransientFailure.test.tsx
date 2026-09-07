@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi, beforeAll } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -19,6 +19,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     refresh: vi.fn(),
   }),
   usePathname: () => "/architecture/reviews/run-1",
+  useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -26,6 +27,19 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
+
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: productLineMock.value,
+    assignmentOverrides: {},
+    setProductLine: vi.fn(),
+    setHrefAssignment: vi.fn(),
+    resetHrefAssignment: vi.fn(),
+    resetAllAssignments: vi.fn(),
+  }),
+}));
 
 beforeAll(() => {
   globalThis.ResizeObserver = class {
@@ -38,6 +52,10 @@ beforeAll(() => {
 });
 
 describe("OperatorBrandedTransientFailure", () => {
+  beforeEach(() => {
+    productLineMock.value = "architecture";
+  });
+
   it("renders timeout copy and retry affordance", () => {
     render(
       <OperatorBrandedTransientFailure
@@ -74,6 +92,25 @@ describe("OperatorBrandedTransientFailure", () => {
 
     expect(screen.getByText("ArchLucid is temporarily unavailable")).toBeInTheDocument();
     expect(screen.getByText("ArchLucid · UNAVAILABLE")).toBeInTheDocument();
+  });
+
+  it("names SecureNow when the Security product line is active", () => {
+    productLineMock.value = "security";
+
+    render(
+      <OperatorBrandedTransientFailure
+        failure={{
+          message: "Timed out",
+          problem: null,
+          correlationId: null,
+          httpStatus: 504,
+          retryAfterSeconds: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("SecureNow is taking longer than expected")).toBeInTheDocument();
+    expect(screen.getByText("SecureNow · TIMEOUT")).toBeInTheDocument();
   });
 
   it("renders fatal-page Report problem when surface id is provided (TB-786)", () => {

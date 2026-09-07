@@ -60,8 +60,8 @@ export function resolvePipelineJobLabel(
   }
 
   return {
-    heading: "Review pipeline progress",
-    progressAriaLabel: "Architecture review pipeline stages completed",
-    stageSummaryNoun: "review pipeline",
+    heading: "Assessment progress",
+    progressAriaLabel: "Architecture assessment stages completed",
+    stageSummaryNoun: "assessment",
   };
 }

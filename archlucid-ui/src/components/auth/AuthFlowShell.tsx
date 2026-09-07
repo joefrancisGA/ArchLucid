@@ -1,13 +1,22 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
 } from "@/lib/authentication-sign-in-inbound-copy";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
+import {
+  productLineAuthWelcomeAriaLabel,
+  productLineDisplayName,
+  productLineEvaluationSignupLead,
+  productLinePasswordlessExplanation,
+} from "@/lib/product-line/product-line-display-name";
 import { publicSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +47,7 @@ export function AuthFlowShell({
   showFooterHelpLink = true,
   afterPanel = null,
 }: AuthFlowShellProps) {
+  const { productLine } = useProductLine();
   const showFooterLinks = showEvaluationSignupLink || showFooterHelpLink;
 
   return (
@@ -46,7 +56,8 @@ export function AuthFlowShell({
         <header>
           <ArchLucidWordmarkLink
             href={publicSiteHref("/welcome")}
-            aria-label="ArchLucid — welcome"
+            aria-label={productLineAuthWelcomeAriaLabel(productLine)}
+            wordmarkText={productLineDisplayName(productLine)}
             variant="marketing"
             className="self-start"
           />
@@ -77,15 +88,14 @@ export function AuthFlowShell({
           <footer className="mt-4 space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
             {showFooterPasswordlessExplanation ? (
               <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                ArchLucid does not use a product password. Sign in with a work or school account or a
-                one-time email code.
+                {productLinePasswordlessExplanation(productLine)}
               </p>
             ) : null}
             {showFooterLinks ? (
               <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {showEvaluationSignupLink ? (
                   <>
-                    New to ArchLucid?{" "}
+                    {productLineEvaluationSignupLead(productLine)}{" "}
                     <Link className={OPERATOR_LINK.nav} href={publicSiteHref("/signup")}>
                       Start an evaluation
                     </Link>

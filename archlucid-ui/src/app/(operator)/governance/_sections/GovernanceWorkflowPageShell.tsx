@@ -142,7 +142,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
   );
 
   return (
-    <MutationErrorBoundary title="Governance workflow failed to render">
+    <MutationErrorBoundary title="Approval workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <OperatorPageContainer variant="workflow">
       <OperatorPageHeader

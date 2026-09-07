@@ -7,7 +7,7 @@ import {
   GOVERNANCE_FINDINGS_SOURCES_INTRO,
 } from "@/lib/governance/governance-findings-evidence-copy";
 
-/** Claim discipline + Sources index for the governance findings queue (GFN). */
+/** Claim discipline + Sources index for the policy findings queue (GFN). */
 export function GovernanceFindingsClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip

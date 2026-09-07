@@ -10,9 +10,9 @@ export type ApiContractsHelpJobMatrixRow = {
   readonly isCurrent?: boolean;
 };
 
-/** TB-2268 — explicit job split vs governance approval and configuration reference. */
+/** TB-2268 — explicit job split vs approval and configuration reference. */
 export const API_CONTRACTS_HELP_JOB_MATRIX_HEADING =
-  "Governance approval, configuration keys, or HTTP contract reference?";
+  "Approval, configuration keys, or HTTP contract reference?";
 
 export const API_CONTRACTS_HELP_JOB_MATRIX_TEST_ID = "help-api-contracts-job-matrix";
 

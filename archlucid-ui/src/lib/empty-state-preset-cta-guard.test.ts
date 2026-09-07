@@ -19,7 +19,7 @@ describe("empty-state preset CTA guard (IA-012)", () => {
     expect(hrefTargetsPermanentRedirectSource("/audit?runId=abc")).toBe(false);
   });
 
-  it("points governance workflow idle policy packs at the canonical path", () => {
+  it("points approval workflow idle policy packs at the canonical path", () => {
     const policyPacksAction = GOVERNANCE_WORKFLOW_IDLE.actions?.find(
       (action) => action.label === "Policy packs",
     );

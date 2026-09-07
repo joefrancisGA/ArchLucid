@@ -42,10 +42,16 @@ internal static class FindingsOrchestratorComposer
             effectfulEngines,
             portfolioRecurrenceCurrentReviewIdentitySource);
 
+        IFindingsInsightGeneratorStage insightGeneratorStage = new FindingsInsightGeneratorStage(
+            NoOpInsightFindingGenerator.Instance,
+            NullLogger<FindingsInsightGeneratorStage>.Instance);
+
         IFindingsMergeAndGateStage mergeAndGateStage = new FindingsMergeAndGateStage(
             humanReviewOptions,
             insightDensityGate,
             timeProvider);
+
+        IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
 
         IFindingsSnapshotEmitStage snapshotEmitStage = new FindingsSnapshotEmitStage(
             NullLogger<FindingsSnapshotEmitStage>.Instance);
@@ -53,7 +59,9 @@ internal static class FindingsOrchestratorComposer
         return new FindingsOrchestrator(
             policyStampStage,
             engineInvokeStage,
+            insightGeneratorStage,
             mergeAndGateStage,
+            checklistClusterStage,
             snapshotEmitStage);
     }
 }

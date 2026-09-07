@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+
 import { FindingCrossReviewLifecycleHint } from "@/components/findings/FindingCrossReviewLifecycleHint";
 import { FindingJobViewLaneCallout } from "@/components/findings/FindingJobViewLaneCallout";
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
@@ -17,6 +19,7 @@ import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { parseCounterfactualFromPrefixedText } from "@/lib/findings/finding-counterfactual-line";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingJobView } from "@/lib/findings/finding-inspect-job-view";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -84,6 +87,11 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
     inspectHref,
     findingsQueueNavHref,
   } = props;
+  const { isWorkingMode } = useWorkspaceMode();
+  const inspectCounterfactualLine =
+    isWorkingMode && !buyerPolishedShell
+      ? parseCounterfactualFromPrefixedText(inspectPayload?.reasoningTrace ?? null)
+      : null;
 
   return (
     <>
@@ -95,11 +103,13 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
           {FINDING_DETAIL_SKIP_LINK_LABEL}
         </a>
       ) : null}
-      <FindingDetailWayfinding
-        reviewPackageHref={reviewPackageHref}
-        reviewFindingsHref={reviewFindingsHref}
-        currentPageLabel={pageTitle}
-      />
+      {isWorkingMode && !buyerPolishedShell ? (
+        <FindingDetailWayfinding
+          reviewPackageHref={reviewPackageHref}
+          reviewFindingsHref={reviewFindingsHref}
+          currentPageLabel={pageTitle}
+        />
+      ) : null}
       <FindingCrossReviewLifecycleHint
         runId={runId}
         findingId={decodedFindingId}
@@ -130,6 +140,14 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
           claimDiscipline={FINDING_DETAIL_CLAIM_DISCIPLINE}
           claimDisciplineTestId="finding-detail-claim-discipline"
         >
+          {inspectCounterfactualLine !== null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-detail-counterfactual-line"
+            >
+              {inspectCounterfactualLine}
+            </p>
+          ) : null}
           {policyProvenanceModel !== null &&
           (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
             <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />

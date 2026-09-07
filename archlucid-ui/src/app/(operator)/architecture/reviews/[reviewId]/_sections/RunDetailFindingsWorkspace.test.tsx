@@ -19,6 +19,14 @@ vi.mock("@/components/QuickDecisionSummary", () => ({
   QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
 }));
 
+vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", () => ({
+  RunDetailFindingsCardViewLazy: () => <div data-testid="quick-decision-summary-stub" />,
+}));
+
+vi.mock("@/components/findings/RunDetailFindingsDenseTable", () => ({
+  RunDetailFindingsDenseTable: () => <div data-testid="run-detail-findings-dense-table-stub" />,
+}));
+
 vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
 }));

@@ -7,17 +7,16 @@ import {
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import {
+  ARCHITECTURES_LIST_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import {
-  GOVERNANCE_ADVISORY_SCANS_PATH,
-  GOVERNANCE_ALERTS_PATH,
-  GOVERNANCE_APPROVAL_QUEUE_PATH,
-  GOVERNANCE_FINDINGS_PATH,
-  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
-  GOVERNANCE_SETUP_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -59,14 +58,6 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     SPONSOR_REPORT_PATH,
     COMPARE_TWO_REVIEWS_PATH,
   ],
-  "operate-governance": [
-    GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
-    GOVERNANCE_APPROVAL_QUEUE_PATH,
-    GOVERNANCE_SETUP_PATH,
-    GOVERNANCE_FINDINGS_PATH,
-    GOVERNANCE_ADVISORY_SCANS_PATH,
-    GOVERNANCE_ALERTS_PATH,
-  ],
   "operate-policy": [
     GOVERNANCE_POLICY_PACKS_PATH,
     GOVERNANCE_STANDARDS_AND_RULES_PATH,
@@ -90,6 +81,36 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
   ],
 };
 
+/**
+ * Working sidebar daily strip — architecture portfolio leads; insight tools bind later (AO-14 / ADR 0077).
+ * Empty arrays demote every link in that group to “more” until the active route is promoted.
+ */
+export const SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING: Readonly<Record<string, readonly string[]>> = {
+  pilot: [
+    ARCHITECTURES_LIST_PATH,
+    REVIEWS_LIST_PATH,
+    "/",
+    SIGNED_RECORDS_LIST_PATH,
+    SPONSOR_DASHBOARD_HREF,
+  ],
+  "operate-analysis": [],
+};
+
+function resolveSidebarDailyHrefs(
+  groupId: string,
+  workingMode: boolean,
+): readonly string[] | undefined {
+  if (workingMode) {
+    if (groupId in SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING) {
+      return SIDEBAR_DAILY_HREFS_BY_GROUP_WORKING[groupId];
+    }
+
+    return SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+  }
+
+  return SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+}
+
 export type SidebarDailyLinkSplit = {
   readonly daily: NavLinkItem[];
   readonly more: NavLinkItem[];
@@ -103,11 +124,25 @@ export function splitSidebarLinksDailyVsMore(
   groupId: string,
   links: readonly NavLinkItem[],
   pathname: string,
+  workingMode = false,
 ): SidebarDailyLinkSplit {
-  const dailyHrefs = SIDEBAR_DAILY_HREFS_BY_GROUP[groupId];
+  const dailyHrefs = resolveSidebarDailyHrefs(groupId, workingMode);
 
-  if (dailyHrefs === undefined || dailyHrefs.length === 0) {
+  if (dailyHrefs === undefined) {
     return { daily: [...links], more: [] };
+  }
+
+  if (dailyHrefs.length === 0) {
+    const activeInMore = links.find((link) => sidebarLinkMatchesPathname(pathname, link.href));
+
+    if (activeInMore !== undefined) {
+      return {
+        daily: [activeInMore],
+        more: links.filter((link) => link.href !== activeInMore.href),
+      };
+    }
+
+    return { daily: [], more: [...links] };
   }
 
   const dailyHrefSet = new Set(dailyHrefs);
@@ -152,14 +187,14 @@ export function sidebarMoreLinksLabel(groupId: string, count: number, expanded =
     SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
   if (expanded) {
-    return `Show fewer ${destination} destinations`;
+    return `Show fewer in ${destination}`;
   }
 
   if (count === 1) {
-    return `Show 1 more ${destination} destination`;
+    return `Show 1 more in ${destination}`;
   }
 
-  return `Show ${count} more ${destination} destinations`;
+  return `Show ${count} more in ${destination}`;
 }
 
 /** Collapse label when the secondary nav disclosure is expanded. */
@@ -167,5 +202,5 @@ export function sidebarMoreLinksCollapseLabel(groupId: string): string {
   const destination =
     SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL[groupId] ?? "sidebar";
 
-  return `Show fewer ${destination} destinations`;
+  return `Show fewer in ${destination}`;
 }

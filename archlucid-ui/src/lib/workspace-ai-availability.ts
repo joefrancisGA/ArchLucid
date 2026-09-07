@@ -71,3 +71,14 @@ export function workspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResu
 
   return "ArchLucid-managed AI is unavailable — reviews cannot start until platform AI is restored.";
 }
+
+/** Buyer/operator shell copy — hide HTTP paths, proxy hops, and internal service names. */
+export function operatorSafeWorkspaceAiUnavailableDetail(result: WorkspaceAiAvailabilityResult): string {
+  const raw = workspaceAiUnavailableDetail(result);
+
+  if (raw.includes("GET /") || raw.includes("ArchLucid.Api") || raw.includes("BFF proxy")) {
+    return "Live AI availability checks could not finish for this workspace. Use Check AI availability to retry, or open Report a problem if this persists.";
+  }
+
+  return raw;
+}

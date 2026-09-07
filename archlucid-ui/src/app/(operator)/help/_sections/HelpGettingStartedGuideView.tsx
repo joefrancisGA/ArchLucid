@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
@@ -35,7 +35,6 @@ import {
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
 } from "@/lib/getting-started-help-guide-content";
-import { HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE } from "@/lib/help/help-workspace-mode-copy";
 import {
   gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
   parseGettingStartedEvaluatingArchitectureOpenFromSearch,
@@ -44,6 +43,9 @@ import {
   gettingStartedTechnicalDetailsDisclosureHrefFromSearch,
   parseGettingStartedTechnicalDetailsOpenFromSearch,
 } from "@/lib/help/getting-started-technical-details-disclosure-url";
+import { evaluatingProductHelpSectionTitle } from "@/lib/help/help-product-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -207,19 +209,28 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
       parseGettingStartedTechnicalDetailsOpenFromSearch(gettingStartedTechnicalDetailsOpenParam),
     );
   }, [gettingStartedTechnicalDetailsOpenParam]);
-  const quickStartTitle = resolveGettingStartedHelpQuickStartTitle(isWorkingMode);
-  const quickStartCopy = resolveGettingStartedHelpQuickStartCopy(isWorkingMode);
+  const { localize, productLine } = useLocalizedProductCopy();
+  const diagramTitle = howProductWorksTitle(productLine);
+  const guideHeadings = useMemo(
+    () =>
+      GETTING_STARTED_HELP_GUIDE_HEADINGS.map((heading) =>
+        heading.id === "how-archlucid-works" ? { ...heading, title: diagramTitle } : heading,
+      ),
+    [diagramTitle],
+  );
+  const quickStartTitle = localize(resolveGettingStartedHelpQuickStartTitle(isWorkingMode));
+  const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode));
   const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
   const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
-  const contentGridClass = resolveHelpPageContentGridClass(GETTING_STARTED_HELP_GUIDE_HEADINGS.length);
-  const showSectionNav = GETTING_STARTED_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
       <HelpTopicMarkdownPageHeader
         entry={entry}
-        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell, productLine)}
         breadcrumb={
           buyerPolishedShell ? (
             <HelpTopicBreadcrumb topicTitle={GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE} />
@@ -275,11 +286,11 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               }}
             >
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
+                {evaluatingProductHelpSectionTitle(productLine)}
               </summary>
               <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  Use these paths when you are assessing ArchLucid before adopting it for daily review work.
+                  {localize("Use these paths when you are assessing ArchLucid before adopting it for daily review work.")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="outline">
@@ -316,8 +327,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </section>
 
           <section aria-labelledby="how-archlucid-works" className="space-y-3">
-            <HelpSectionHeading id="how-archlucid-works">{GETTING_STARTED_HELP_DIAGRAM_TITLE}</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_DIAGRAM_SUMMARY}</p>
+            <HelpSectionHeading id="how-archlucid-works">{diagramTitle}</HelpSectionHeading>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_DIAGRAM_SUMMARY)}</p>
             <HowArchLucidWorksDiagram />
             <div
               className={cn(
@@ -404,7 +415,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             open={technicalDetailsOpen}
             onOpenChange={setTechnicalDetailsOpen}
           >
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY)}</p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Deeper engineering references:{" "}
@@ -422,7 +433,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </HelpLazyDetails>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
       </div>
     </article>
   );

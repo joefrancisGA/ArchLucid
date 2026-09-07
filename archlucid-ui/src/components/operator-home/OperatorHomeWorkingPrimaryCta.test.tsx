@@ -80,4 +80,21 @@ describe("OperatorHomeWorkingPrimaryCta (PC-05)", () => {
     expect(resume).toHaveTextContent(OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA);
     expect(screen.queryByTestId("operator-home-working-new-review-primary")).toBeNull();
   });
+
+  it("AO-13: never uses a peer review detail href as the Working Home primary", () => {
+    resolveContinueLastArchitectureIdentityTarget.mockReturnValue(null);
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      {
+        ...intakeDraftEntry(),
+        linkedReviewId: "run-peer-001",
+        serverDraftStatus: "RunSpawned",
+      },
+    ]);
+
+    render(<OperatorHomeWorkingPrimaryCta />);
+
+    const primary = screen.getByTestId("operator-home-working-new-review-primary");
+
+    expect(primary.getAttribute("href")).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+  });
 });

@@ -51,7 +51,7 @@ describe("LayerHeader", () => {
   it("renders Governance responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
-    expect(screen.getByText("Governance")).toBeInTheDocument();
+    expect(screen.getByText("Approval")).toBeInTheDocument();
     expect(screen.getByText(/Tenant audit trail — who did what, when/i)).toBeInTheDocument();
   });
 
@@ -66,10 +66,10 @@ describe("LayerHeader", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders governance resolution Governance footnote", () => {
+  it("renders policy resolution Governance footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Governance workflow\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Approval workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Execute+ rank cue on Governance audit when caller rank is Execute+", () => {
@@ -136,7 +136,7 @@ describe("LayerHeader", () => {
   it("renders Execute+ rank cue for every Governance layer-guidance page key at Execute rank", () => {
     const governanceKeys = (Object.keys(LAYER_PAGE_GUIDANCE) as LayerGuidancePageKey[]).filter(
       (key) =>
-        LAYER_PAGE_GUIDANCE[key].layerBadge === "Governance" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
+        LAYER_PAGE_GUIDANCE[key].layerBadge === "Approval" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
     );
 
     expect(governanceKeys.length).toBeGreaterThan(0);

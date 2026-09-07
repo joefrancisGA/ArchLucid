@@ -18,6 +18,7 @@ describe("compare-provenance-delta-summary (WA-09)", () => {
           skipped: [{ questionKey: "data-residency", tier: "Must" }],
         },
         missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
       },
       {
         runId: "run-right",
@@ -28,11 +29,35 @@ describe("compare-provenance-delta-summary (WA-09)", () => {
           skipped: [],
         },
         missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
       },
       [],
     );
 
     expect(summary.showBand).toBe(true);
+  });
+
+  it("shows the band when feasibility verdict kinds differ (FC-34)", () => {
+    const summary = summarizeCompareProvenanceDelta(
+      {
+        runId: "run-left",
+        label: "Baseline",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "Feasible",
+      },
+      {
+        runId: "run-right",
+        label: "Updated",
+        trail: { asserted: [], inferred: [], skipped: [] },
+        missingTrailDefect: false,
+        feasibilityVerdictKind: "SoftInfeasible",
+      },
+      [],
+    );
+
+    expect(summary.showBand).toBe(true);
+    expect(summary.feasibilityVerdictChanged).toBe(true);
   });
 
   it("filters manifest assumption diffs from legacy compare output", () => {

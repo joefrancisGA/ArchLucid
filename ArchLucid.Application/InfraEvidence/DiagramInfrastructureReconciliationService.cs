@@ -123,6 +123,13 @@ public sealed class DiagramInfrastructureReconciliationService : IDiagramInfrast
             return null;
         }
 
+        await DiagramInfrastructureReconciliationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            runId,
+            scope,
+            this.authorityQueryService,
+            this.manifestHashService,
+            cancellationToken);
+
         return JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(record.ResultJson, JsonOptions);
     }
 }

@@ -1,7 +1,9 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
 
@@ -151,8 +153,19 @@ public interface IRemediationInstanceQueryService
 public sealed class RemediationInstanceQueryService(
     IRemediationInstanceRepository instanceRepository,
     IOperationalSecurityFindingRepository findingRepository,
-    IRemediationPatternMatchRepository matchRepository) : IRemediationInstanceQueryService
+    IRemediationPatternMatchRepository matchRepository,
+    IAuditManualEvidenceRepository auditManualEvidenceRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IRemediationInstanceQueryService
 {
+    private readonly IAuditManualEvidenceRepository _auditManualEvidenceRepository =
+        auditManualEvidenceRepository ?? throw new ArgumentNullException(nameof(auditManualEvidenceRepository));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     public async Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
         Guid? cloudResourceId = null,
@@ -212,6 +225,15 @@ public sealed class RemediationInstanceQueryService(
 
         if (instance is null || instance.TenantId != scope.TenantId)
             return null;
+
+        await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
+            instance.FindingId,
+            scope,
+            findingRepository,
+            _auditManualEvidenceRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         OperationalSecurityFindingRecord? finding =
             await findingRepository.TryGetByIdAsync(scope.TenantId, instance.FindingId, cancellationToken);

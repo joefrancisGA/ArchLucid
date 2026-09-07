@@ -65,11 +65,23 @@ public static partial class AuditEventTypes
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 
+    /// <summary>Operator recorded thumbs feedback for a finding (<c>dbo.FindingFeedback</c> append).</summary>
+    public const string FindingFeedbackRecorded = "FindingFeedbackRecorded";
+
+    /// <summary>Operator persisted a finding-scoped ask conversation turn (<c>ConversationThread</c> / messages).</summary>
+    public const string FindingAskConversationPersisted = "FindingAskConversationPersisted";
+
+    /// <summary>Operator recorded an insight-density desk signal on a finding (DX-13).</summary>
+    public const string FindingInsightSignalRecorded = "FindingInsightSignalRecorded";
+
     /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
     public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
 
     /// <summary>Bulk evidence files were attached to a run.</summary>
     public const string EvidenceBulkAttached = "EvidenceBulkAttached";
+
+    /// <summary>Operator opened or downloaded a stored evidence source file on a review run.</summary>
+    public const string EvidenceSourceOpened = "EvidenceSourceOpened";
 
     /// <summary>
     ///     Admin promoted an agent-curated evidence proposal into the tenant catalog (

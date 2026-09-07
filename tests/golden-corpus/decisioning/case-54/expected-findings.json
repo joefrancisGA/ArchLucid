@@ -1,0 +1,50 @@
+[
+  {
+    "findingId": "f518daa1-f1ea-4417-89de-d777d11206db",
+    "findingType": "GcpInventorySecurityBaseline",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "GCP inventory security baseline gap: compute.googleapis.com/Firewall",
+    "rationale": "GCP inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "gcp-inventory-security-baseline-classifier"
+    ],
+    "decisionsTaken": [
+      "Mapped inventory row to control family \u0027network-isolation\u0027 and emitted a typed security finding."
+    ]
+  },
+  {
+    "findingId": "a2df080a-cfa0-f03f-f7d2-2de66867a2eb",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and GCP inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped GCP inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-gcp-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource identifiers to scoped GCP inventory resources.json rows."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

@@ -9,7 +9,7 @@ import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
 import { WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL } from "@/lib/workspace-mode/workspace-mode-copy";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
@@ -26,6 +26,8 @@ const navigationTestState = vi.hoisted(() => ({
 }));
 
 const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
+const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+const devTestingOverridesMock = vi.hoisted(() => ({ enabled: false }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -97,6 +99,22 @@ vi.mock("@/hooks/useArchitectWorkspaceChrome", () => ({
   useArchitectWorkspaceChrome: () => architectWorkspaceChromeMock.value,
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: productLineMock.value,
+    assignmentOverrides: {},
+    setProductLine: () => {},
+    setHrefAssignment: () => {},
+    resetHrefAssignment: () => {},
+    resetAllAssignments: () => {},
+  }),
+}));
+
+vi.mock("@/lib/dev-testing-overrides", () => ({
+  isDevTestingOverridesEnabled: () => devTestingOverridesMock.enabled,
+  readDevAgentExecutionModeOverrideFromDocument: () => null,
+}));
+
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
 }));
@@ -122,6 +140,8 @@ describe("OperatorShellTopBar", () => {
     workspaceModeMock.isWorkingMode = false;
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
+    productLineMock.value = "architecture";
+    devTestingOverridesMock.enabled = false;
     fetchBudgetStatus.mockReset();
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -191,8 +211,37 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
-      PERSONA_SHELL_WORDMARK_ARIA_LABEL,
+      PRODUCT_LINE_WORDMARK_ARIA_LABEL.architecture,
     );
+  });
+
+  it("uses the Security wordmark aria label in the Security product shell", async () => {
+    productLineMock.value = "security";
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
+      "aria-label",
+      PRODUCT_LINE_WORDMARK_ARIA_LABEL.security,
+    );
+  });
+
+  it("hides dev and analysis top bar chrome in the Security product shell", async () => {
+    productLineMock.value = "security";
+    devTestingOverridesMock.enabled = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("dev-environment-top-bar-tag")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
   });
 
   it("hides the AI budget pill when remaining budget is healthy", async () => {

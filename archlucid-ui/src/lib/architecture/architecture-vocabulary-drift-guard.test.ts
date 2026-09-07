@@ -82,7 +82,7 @@ describe("architecture vocabulary drift guard (CA-48)", () => {
     );
 
     expect(architectureIdentityDraftHref("architecture-identity-001", "draft-001")).toBe(
-      "/architecture/architectures/architecture-identity-001?draft=draft-001",
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
     );
     expect(architectureIdentityPath("architecture-identity-001")).toBe(
       "/architecture/architectures/architecture-identity-001",

@@ -19,6 +19,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights-architecture-bind";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 import { graphPresentationViewHrefFromSearch } from "@/lib/insights/graph-presentation-view-url";
 import { graphRunIdHrefFromSearch } from "@/lib/insights/graph-run-id-url";
@@ -67,6 +68,10 @@ export function useGraphPageState() {
     setDepth,
     setNodeId,
     setDecisionId,
+  });
+  const architectureBind = useWorkingInsightsArchitectureBind({
+    tool: "evidence-graph",
+    urlRunId,
   });
 
   const setGraphLoadRequested = useCallback(
@@ -363,6 +368,9 @@ export function useGraphPageState() {
     getGraphSavedViewPayload: savedViews.getGraphSavedViewPayload,
     loadGraphSavedView: savedViews.loadGraphSavedView,
     workingMode,
+    architectureBindPending: architectureBind.bindPending,
+    showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
+    architectureBindResult: architectureBind.bindResult,
   };
 }
 

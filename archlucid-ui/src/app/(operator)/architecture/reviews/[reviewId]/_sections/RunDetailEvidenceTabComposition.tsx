@@ -17,6 +17,7 @@ export function composeRunDetailEvidenceTab(
     evidenceInventoryCount,
     evidenceInventoryItems,
     evidenceReviewDateLabel,
+    findingCoverageSummary,
     primaryConcernFindingId,
     primaryConcernLabel,
     blockingApprovalCount,
@@ -42,6 +43,10 @@ export function composeRunDetailEvidenceTab(
           (m.resolvedDetail.run as { requestId?: string }).requestId
         }
         deliverablesDefaultOpen={false}
+        enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+        progressSummary={m.resolvedDetail.run}
+        graphSnapshot={m.resolvedDetail.graphSnapshot}
+        findingsSnapshot={m.resolvedDetail.findingsSnapshot}
         pagePrimaryOwnedElsewhere
       />
     ) : null;

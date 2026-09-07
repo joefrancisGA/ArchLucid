@@ -104,15 +104,32 @@ public sealed class TraceabilityBundleBuilder(
                 zip,
                 "audit-evidence-summary.md",
                 BuyerSafeAuditEvidenceSummaryBuilder.BuildMarkdown(runId, audits, auditTruncated));
-            ZipArchiveEntry readme = zip.CreateEntry("README.txt", CompressionLevel.Fastest);
-            using StreamWriter w = new(readme.Open());
-            w.WriteLine("ArchLucid traceability bundle — audit slice, decision traces, and run summary.");
-            w.WriteLine("Includes buyer-safe audit-evidence-summary.md/json (no raw payloads).");
-            w.WriteLine("LLM full prompts may be omitted per export policy; use admin evidence export when explicitly authorized.");
-            w.WriteLine("Agent-output metrics export readiness: scripts/report_observability_export_readiness.py");
+            AddTextEntry(zip, "README.txt", BuildReadmeText(auditTruncated));
         }
 
         return ms.ToArray();
+    }
+
+    internal static string BuildReadmeText(bool auditTruncated)
+    {
+        List<string> lines =
+        [
+            "ArchLucid traceability bundle — audit slice, decision traces, and run summary.",
+            "Includes buyer-safe audit-evidence-summary.md/json (no raw payloads).",
+            "LLM full prompts may be omitted per export policy; use admin evidence export when explicitly authorized.",
+            "Agent-output metrics export readiness: scripts/report_observability_export_readiness.py",
+        ];
+
+        if (auditTruncated)
+        {
+            lines.Add(
+                "Audit events capped at 1000 rows — counts in audit-evidence-summary are a lower bound only.");
+        }
+
+        lines.Add(
+            "Full bundle may return HTTP 413 when size limits apply — use narrower exports from Artifacts.");
+
+        return string.Join(Environment.NewLine, lines) + Environment.NewLine;
     }
 
     private static void AddTextEntry(ZipArchive zip, string path, string content)

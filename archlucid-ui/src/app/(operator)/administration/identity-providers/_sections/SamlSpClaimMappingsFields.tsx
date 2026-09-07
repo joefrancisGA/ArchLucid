@@ -29,6 +29,7 @@ import {
   parseSamlSpAdvancedSettingsOpenFromSearch,
   samlSpAdvancedSettingsDisclosureHrefFromSearch,
 } from "@/lib/administration/saml-sp-advanced-settings-disclosure-url";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_EXAMPLES,
   IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER,
@@ -71,6 +72,7 @@ type SamlSpClaimMappingsFieldsProps = {
 
 export function SamlSpClaimMappingsFields(props: SamlSpClaimMappingsFieldsProps) {
   const { values, setValues, touchedFields, setTouchedFields, fieldErrors, discoveredClaimNames } = props;
+  const { localize } = useLocalizedProductCopy();
   const router = useRouter();
   const pathname = usePathname() ?? "/administration/identity-providers";
   const searchParams = useSearchParams();
@@ -138,16 +140,16 @@ export function SamlSpClaimMappingsFields(props: SamlSpClaimMappingsFieldsProps)
         </datalist>
       </div>
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER}</p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(IDENTITY_PROVIDERS_ROLE_MAPPING_HELPER)}</p>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="saml-role-mapping-semantics">
-        {IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER}
+        {localize(IDENTITY_PROVIDERS_ROLE_MAPPING_SEMANTICS_HELPER)}
       </p>
 
       <EnterpriseTable ariaLabel="SAML claim role mappings" className={OPERATOR_TYPOGRAPHY.body} data-testid="saml-claim-mapping-table">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
             <EnterpriseTableHeaderCell className="py-2 pr-2">IdP group / role value</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell className="py-2 pr-2">ArchLucid role</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className="py-2 pr-2">{localize("ArchLucid role")}</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell className="py-2">
               <span className="sr-only">Row actions</span>
             </EnterpriseTableHeaderCell>

@@ -214,6 +214,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ZipEvidenceExpanderOptions.SectionName));
         services.AddSingleton<IZipEvidenceExpanderService, ZipEvidenceExpanderService>();
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
+        services.AddScoped<IRunStoredEvidenceFileCatalogService, RunStoredEvidenceFileCatalogService>();
+        services.AddScoped<IRunStoredEvidenceFileContentService, RunStoredEvidenceFileContentService>();
         services.AddSingleton<IEvidenceAddedIncrementalReReviewQueue, EvidenceAddedIncrementalReReviewQueue>();
         services.AddScoped<IEvidenceAddedIncrementalReReviewCoordinator, EvidenceAddedIncrementalReReviewCoordinator>();
         services.AddHostedService<EvidenceAddedIncrementalReReviewHostedService>();

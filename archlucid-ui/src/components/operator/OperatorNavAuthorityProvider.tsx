@@ -130,6 +130,8 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
  * When used outside `OperatorNavAuthorityProvider` (e.g. unit tests), defaults to **Admin** rank so links stay visible.
  */
 export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
+  "use no memo";
+
   const ctx = useContext(OperatorNavAuthorityContext);
 
   if (ctx === undefined) {
@@ -151,6 +153,8 @@ export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
  * @see `OperatorNavAuthorityProvider.test.tsx` — refetch + `/me` failure regressions.
  */
 export function useNavCallerAuthorityRank(): number {
+  "use no memo";
+
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
 
   if (isAuthorityLoading && isJwtAuthMode() && isLikelySignedIn()) {
@@ -168,6 +172,8 @@ export function useNavCallerAuthorityRank(): number {
  * transport glitch does not trap users in thin nav; **jwt-unsigned** stays **false**; bootstrap shell defaults **false** until **`/me`** settles.
  */
 export function useNavCommittedArchitectureReview(): boolean {
+  "use no memo";
+
   const { currentPrincipal } = useOperatorNavAuthority();
 
   return currentPrincipal.hasCommittedArchitectureReview;

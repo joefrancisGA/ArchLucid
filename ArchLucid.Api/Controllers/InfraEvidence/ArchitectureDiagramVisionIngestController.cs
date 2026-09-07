@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -66,6 +67,10 @@ public sealed class ArchitectureDiagramVisionIngestController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not configured", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (ConflictException ex)
         {
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
