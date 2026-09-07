@@ -52,6 +52,12 @@ function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
   return currentPath.startsWith(`${linkPath}/`);
 }
 
+function isAdministrationRoute(pathname: string): boolean {
+  const currentPath = navHrefPathPart(pathname);
+
+  return currentPath === SETTINGS_ROOT_PATH || currentPath.startsWith(`${SETTINGS_ROOT_PATH}/`);
+}
+
 /** Minimum sidebar links shown before the “Show N more …” disclosure in any nav cluster. */
 export const SIDEBAR_MIN_DAILY_VISIBLE_COUNT = 3;
 
@@ -170,6 +176,10 @@ export function splitSidebarLinksDailyVsMore(
   pathname: string,
   workingMode = false,
 ): SidebarDailyLinkSplit {
+  if (groupId === "operator-admin" && isAdministrationRoute(pathname)) {
+    return { daily: [...links], more: [] };
+  }
+
   const dailyHrefs = resolveSidebarDailyHrefs(groupId, workingMode);
 
   if (dailyHrefs === undefined) {

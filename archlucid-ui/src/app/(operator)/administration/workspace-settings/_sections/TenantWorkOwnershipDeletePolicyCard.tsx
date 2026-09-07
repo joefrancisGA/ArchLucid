@@ -1,13 +1,19 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { Button } from "@/components/ui/button";
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import {
   LivelihoodDocumentGuardDialog,
   useLivelihoodDocumentGuards,
 } from "@/hooks/use-livelihood-document-guards";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type TenantWorkOwnershipDeletePolicyResponse,
   updateTenantWorkOwnershipDeletePolicy,
@@ -42,8 +48,10 @@ function PolicyToggle(props: {
 
 export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
   const queryClient = useQueryClient();
+  const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const [draft, setDraft] = useState<TenantWorkOwnershipDeletePolicyResponse | null>(null);
+  const canEdit = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   useEffect(() => {
     if (policyQuery.data !== undefined) {
@@ -70,8 +78,25 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
     && draft.allowCreatorDeleteOwnedWork !== savedPolicy.allowCreatorDeleteOwnedWork;
   const documentGuards = useLivelihoodDocumentGuards({ when: dirty });
 
+  if (!isAuthorityLoading && callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
+    return (
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="tenant-work-ownership-delete-policy-denied">
+        Work ownership delete policy requires Admin authority. Your session cannot view or edit this policy.
+      </p>
+    );
+  }
+
   if (policyQuery.isError) {
-    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Work ownership delete policy is unavailable.</p>;
+    const failure = toApiLoadFailure(policyQuery.error);
+
+    return (
+      <OperatorSectionLoadFailure
+        message={failure.message}
+        retrying={policyQuery.isFetching}
+        testId="tenant-work-ownership-delete-policy-load-failure"
+        onRetry={() => void policyQuery.refetch()}
+      />
+    );
   }
 
   if (policyQuery.isLoading || draft === null || savedPolicy === undefined) {
@@ -84,15 +109,20 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
         label="Allow creator delete"
         description="When enabled, operators can delete or archive their own unsealed architectures and in-flight reviews. Workspace administrators can always remove work."
         checked={draft.allowCreatorDeleteOwnedWork}
-        disabled={saveMutation.isPending}
+        disabled={!canEdit || saveMutation.isPending}
         onCheckedChange={(checked) => setDraft({ allowCreatorDeleteOwnedWork: checked })}
       />
+      {!canEdit ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Editing requires Admin authority.
+        </p>
+      ) : null}
       <div className="flex justify-end">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          disabled={!dirty || saveMutation.isPending}
+          disabled={!canEdit || !dirty || saveMutation.isPending}
           data-testid="tenant-work-ownership-delete-policy-save"
           onClick={() => void saveMutation.mutate(draft)}
         >
