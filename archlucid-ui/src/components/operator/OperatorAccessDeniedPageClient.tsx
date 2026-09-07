@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { AccessDeniedBreadcrumb } from "@/components/operator/AccessDeniedBreadcrumb";
 import { AccessDeniedClaimOrientationStrip } from "@/components/operator/AccessDeniedClaimOrientationStrip";
 import { OperatorJwtBearerRoleMappingCallout } from "@/components/operator/OperatorJwtBearerRoleMappingCallout";
@@ -14,12 +15,12 @@ import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPage
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  ACCESS_DENIED_BODY,
-  ACCESS_DENIED_HEADING,
   ACCESS_DENIED_REQUIRED_ROLES,
-  ACCESS_DENIED_SUPPLEMENT_COPY,
   formatAccessDeniedSupportTimestamp,
   formatAccessDeniedTenantLabel,
+  resolveAccessDeniedBody,
+  resolveAccessDeniedHeading,
+  resolveAccessDeniedSupplementCopy,
   resolveAccessDeniedSupplementMessage,
   resolveAdministratorContactHref,
 } from "@/lib/access-denied-context";
@@ -46,6 +47,9 @@ export function OperatorAccessDeniedPageClient() {
   const router = useRouter();
   const pathname = usePathname() ?? "/access-denied";
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
+  const accessDeniedHeading = resolveAccessDeniedHeading(productLine);
+  const accessDeniedBody = resolveAccessDeniedBody(productLine);
   const operatorAccessDeniedAdminDetailsOpenParam = searchParams.get("operatorAccessDeniedAdminDetailsOpen");
   const { currentPrincipal } = useOperatorNavAuthority();
   const [adminDetailsOpen, setAdminDetailsOpenState] = useState(() =>
@@ -91,8 +95,8 @@ export function OperatorAccessDeniedPageClient() {
     setSupportTimestamp(
       formatAccessDeniedSupportTimestamp(new Date(), Intl.DateTimeFormat().resolvedOptions().timeZone),
     );
-    setAdministratorContactHref(resolveAdministratorContactHref());
-  }, []);
+    setAdministratorContactHref(resolveAdministratorContactHref(productLine));
+  }, [productLine]);
 
   const handleReturnToSignIn = (): void => {
     clearOidcSession();
@@ -121,10 +125,10 @@ export function OperatorAccessDeniedPageClient() {
               className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
               data-testid="operator-access-denied-heading"
             >
-              {ACCESS_DENIED_HEADING}
+              {accessDeniedHeading}
             </h1>
 
-            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ACCESS_DENIED_BODY}</p>
+            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{accessDeniedBody}</p>
 
             <PageHeaderClaimDiscipline
               text={ACCESS_DENIED_CLAIM_DISCIPLINE}
@@ -134,7 +138,7 @@ export function OperatorAccessDeniedPageClient() {
 
             {supplementMessage !== null ? (
               <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-access-denied-supplement">
-                {ACCESS_DENIED_SUPPLEMENT_COPY[supplementMessage]}
+                {resolveAccessDeniedSupplementCopy(productLine, supplementMessage)}
               </p>
             ) : null}
 
@@ -226,7 +230,7 @@ export function OperatorAccessDeniedPageClient() {
                 ? "auth-jwt-insufficient-scope"
                 : "operator-role-gate-session-break"
           }
-          errorTitle={ACCESS_DENIED_HEADING}
+          errorTitle={accessDeniedHeading}
           correlationId={correlationId}
           errorCode="access-denied"
         />
