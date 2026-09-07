@@ -9404,11 +9404,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — trial conversion rejected lowercase `active` trial status
+- **last-bug:** 2026-09-07 — trial limit gate bypassed expiry and lifecycle freezes for non-canonical TrialStatus casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9430,9 +9430,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` fail-opens to allow delete when stored boolean is malformed — **cheap-disproof 2026-09-07 (#1247):** only `SetAllowCreatorDeleteOwnedWorkAsync` writes the key via `TenantSettingBooleanParser.Format`; malformed stored values require out-of-band DB tampering, not tenant-controlled input; default-allow on missing setting is documented product behavior.
 
 - [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` rejected lowercase `active` trial status — **hit 2026-09-07 (#1248):** Ordinal `TrialStatus` compare left post-#808 lifecycle tenants unable to convert; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `ConvertTrialAsync_when_trial_status_is_lowercase_active_succeeds`.
-- [ ] (candidate) `TrialLimitGate` uses Ordinal `TrialStatus` compares — may block or allow trial limits incorrectly for padded/lowercase lifecycle labels; same class as #808/#1248 but mutating-path reachability unverified in this folder alone
-- [ ] (candidate) `TenantUsageStatusService` treats trial only when `TrialStatus` equals `Active` ordinally — usage snapshot may omit trial counters for non-canonical casing
-- [ ] (candidate) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — lowercase `converted` retry may duplicate conversion audit
+- [x] (proven) `TrialLimitGate` used Ordinal `TrialStatus` compares — **hit 2026-09-07 (#1249):** lowercase `active` returned before expiry/run/seat enforcement; lowercase `expired`/`readonly`/`exportonly` skipped post-active write freeze; fixed with `TrialLifecycleStatus.EqualsStatus` throughout; regressions `GuardWriteAsync_lowercase_active_expired_throws_Expired`, `GuardWriteAsync_lowercase_expired_throws_LifecycleWritesFrozen`.
+- [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
+- [x] (invalid) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — **cheap-disproof 2026-09-07 (#1249):** duplicate conversion retry is handled in `TenantTrialConversionStage.IsIdempotentConvertedRetry` via `EqualsStatus` (fixed #1248); facade Ordinal compare only affects `IdentityHandoffPending` status display, not conversion audit idempotency.
+
+2026-09-07 thorough hunt #1249 (hit): proved trial limit gate and usage status ignored non-canonical `TrialStatus` casing; cheap-disproved facade duplicate-audit candidate (conversion idempotency already in `TenantTrialConversionStage`).
 
 2026-09-07 seed hunt #1248 (hit): reseeded trial conversion/limit paths; proved lowercase `active` blocked `ConvertTrialAsync`; seeded Ordinal-compare candidates in `TrialLimitGate`, `TenantUsageStatusService`, and `TenantTrialFacade`.
 
