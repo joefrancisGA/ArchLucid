@@ -4530,6 +4530,102 @@ describe("wave59 filter url helpers", () => {
   });
 });
 
+describe("wave60 filter url helpers", () => {
+  it("run pipeline stages technical, core pilot guide vocabulary, core pilot optional paths, core pilot what guide covers, core pilot actor intake, help slack credential handling, getting started evaluating architecture, getting started technical details, service now incident settings collapsed, help governance approval troubleshooting params", async () => {
+    const {
+      parseRunPipelineStagesTechnicalOpenFromSearch,
+      runPipelineStagesTechnicalDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-pipeline-stages-technical-disclosure-url");
+    const {
+      corePilotGuideVocabularyDisclosureHrefFromSearch,
+      parseCorePilotGuideVocabularyOpenFromSearch,
+    } = await import("@/lib/help/core-pilot-guide-vocabulary-disclosure-url");
+    const {
+      corePilotOptionalPathsDisclosureHrefFromSearch,
+      parseCorePilotOptionalPathsOpenFromSearch,
+    } = await import("@/lib/help/core-pilot-optional-paths-disclosure-url");
+    const {
+      corePilotWhatGuideCoversDisclosureHrefFromSearch,
+      parseCorePilotWhatGuideCoversOpenFromSearch,
+    } = await import("@/lib/help/core-pilot-what-guide-covers-disclosure-url");
+    const {
+      corePilotActorIntakeDisclosureHrefFromSearch,
+      parseCorePilotActorIntakeOpenFromSearch,
+    } = await import("@/lib/help/core-pilot-actor-intake-disclosure-url");
+    const {
+      helpSlackCredentialHandlingDisclosureHrefFromSearch,
+      parseHelpSlackCredentialHandlingOpenFromSearch,
+    } = await import("@/lib/help/help-slack-credential-handling-disclosure-url");
+    const {
+      gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
+      parseGettingStartedEvaluatingArchitectureOpenFromSearch,
+    } = await import("@/lib/help/getting-started-evaluating-architecture-disclosure-url");
+    const {
+      gettingStartedTechnicalDetailsDisclosureHrefFromSearch,
+      parseGettingStartedTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/help/getting-started-technical-details-disclosure-url");
+    const {
+      parseServiceNowIncidentSettingsCollapsedOpenFromSearch,
+      serviceNowIncidentSettingsCollapsedDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/servicenow-incident-settings-collapsed-disclosure-url");
+    const {
+      governanceApprovalTroubleshootingIssueSlug,
+      helpGovernanceApprovalTroubleshootingDisclosureHrefFromSearch,
+      parseHelpGovernanceApprovalTroubleshootingIssueFromSearch,
+    } = await import("@/lib/help/help-governance-approval-troubleshooting-disclosure-url");
+
+    expect(parseRunPipelineStagesTechnicalOpenFromSearch("1")).toBe(true);
+    expect(runPipelineStagesTechnicalDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/runs/run1")).toBe(
+      "/architecture/reviews/r1/runs/run1?runPipelineStagesTechnicalOpen=1",
+    );
+    expect(parseCorePilotGuideVocabularyOpenFromSearch("true")).toBe(true);
+    expect(corePilotGuideVocabularyDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?corePilotGuideVocabularyOpen=1",
+    );
+    expect(parseCorePilotOptionalPathsOpenFromSearch("1")).toBe(true);
+    expect(corePilotOptionalPathsDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?corePilotOptionalPathsOpen=1",
+    );
+    expect(parseCorePilotWhatGuideCoversOpenFromSearch("true")).toBe(true);
+    expect(corePilotWhatGuideCoversDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?corePilotWhatGuideCoversOpen=1",
+    );
+    expect(parseCorePilotActorIntakeOpenFromSearch("1")).toBe(true);
+    expect(corePilotActorIntakeDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?corePilotActorIntakeOpen=1",
+    );
+    expect(parseHelpSlackCredentialHandlingOpenFromSearch("true")).toBe(true);
+    expect(helpSlackCredentialHandlingDisclosureHrefFromSearch("", true, "/help/slack-integration")).toBe(
+      "/help/slack-integration?helpSlackCredentialHandlingOpen=1",
+    );
+    expect(parseGettingStartedEvaluatingArchitectureOpenFromSearch("1")).toBe(true);
+    expect(gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch("", true, "/help/getting-started")).toBe(
+      "/help/getting-started?gettingStartedEvaluatingArchitectureOpen=1",
+    );
+    expect(parseGettingStartedTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(gettingStartedTechnicalDetailsDisclosureHrefFromSearch("", true, "/help/getting-started")).toBe(
+      "/help/getting-started?gettingStartedTechnicalDetailsOpen=1",
+    );
+    expect(parseServiceNowIncidentSettingsCollapsedOpenFromSearch("1")).toBe(true);
+    expect(serviceNowIncidentSettingsCollapsedDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?serviceNowIncidentSettingsCollapsedOpen=1",
+    );
+    expect(parseHelpGovernanceApprovalTroubleshootingIssueFromSearch("submit-for-approval-is-unavailable")).toBe(
+      "submit-for-approval-is-unavailable",
+    );
+    expect(
+      governanceApprovalTroubleshootingIssueSlug("Submit for approval is unavailable"),
+    ).toBe("submit-for-approval-is-unavailable");
+    expect(
+      helpGovernanceApprovalTroubleshootingDisclosureHrefFromSearch(
+        "",
+        "submit-for-approval-is-unavailable",
+        "/help/governance-approval",
+      ),
+    ).toBe("/help/governance-approval?helpGovernanceApprovalTroubleshootingIssue=submit-for-approval-is-unavailable");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
