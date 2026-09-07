@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-01–DX-16)
 
-**Created:** 2026-09-06 · **Status:** ready to run (one prompt per chat).
+**Created:** 2026-09-06 · **Status:** **SHIPPED on `master` (2026-09-07).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-21–DX-28**).
 
 These prompts turn the excellence strategy into Cursor-shippable batches. They raise **Decision-Changing Insight Density** by growing the **numerator** (new information sources) and making **dismiss** actually demote generic rows. Cost and calendar are not constraints; **false-hard (R5)** and **tenant isolation (ADR 0037)** still are.
 
@@ -768,21 +768,32 @@ Done when: every DeclarationSignalPolicyKeyMap id exists in the merged catalog; 
 
 ---
 
-## Later chats (same constraints; do not start until DX-01–DX-10 land)
+## Later chats (DX-17–DX-28)
 
-These are still Cursor-shippable but larger. Write a fresh chat; paste global constraints plus:
+**DX-01–DX-16 shipped on `master` (2026-09-07).** Do not re-run them.
 
-| Follow-on | Intent | Start from |
-|-----------|--------|------------|
-| **DX-17** Community Graph-RAG | ADR 0057 option (a) owner override — Leiden/Louvain + hierarchical summaries, flag default off, fingerprint exclusion | [`adrs/0057-graph-rag-community-summarization-scope-decision.md`](adrs/0057-graph-rag-community-summarization-scope-decision.md) |
-| **DX-18** TB-885 compounding ledger | Dry-run older vs newer pack on same run; JSON+MD ledger | `TECH_BACKLOG.md` TB-885 |
-| **DX-19** Verification loop slice 1 | ADR 0062 tables + linked artifact, no marketing rates | [`adrs/0062-finding-verification-loop.md`](adrs/0062-finding-verification-loop.md) TB-2033 |
-| **DX-20** Live frontier capture | Operator script + fixture schema; **no** fake named-model beat claims; one regression fixture labeled synthetic | [`../quality/insight-density-frontier-delta.md`](../quality/insight-density-frontier-delta.md) + miss-clause forbidden list |
+Copy-paste prompts for the next batches live in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md):
+
+| Prompt | Intent | Run now? |
+|--------|--------|----------|
+| **DX-21** | Judge cap prefers path/contradiction engines | Yes |
+| **DX-22** | Checklist-cluster synthesis | Yes |
+| **DX-23** | Novelty-signal → per-engine rate | Yes |
+| **DX-24** | Dangling declaration references | Yes |
+| **DX-25** | Requirement × SKU/tier contradiction | Yes |
+| **DX-26** | Deterministic path counterfactual line | Yes |
+| **DX-27** | Ingestion nested ARM / Bicep modules / TF for_each | Yes |
+| **DX-28** | Path-engine golden fixtures | Yes |
+| **DX-17** | Community summaries → InsightGenerator | After DX-21–28 if capacity remains |
+| **DX-20** | Live frontier capture schema (synthetic labeled) | After DX-21–28 if capacity remains |
+| **DX-18** | TB-885 compounding ledger | **Held** until owner unparks TB-885 |
+| **DX-19** | ADR 0062 verification slice 1 | **Held** until owner unparks TB-2033 |
 
 ---
 
 ## Related
 
 - Strategy: [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
+- Follow-on **DX-17–DX-28:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
