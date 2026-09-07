@@ -9742,24 +9742,29 @@ ABQ-09 churn hotspot.
 ## Zone: host-infra-evidence-composition
 
 - **id:** host-infra-evidence-composition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
 
 ### Hypotheses
 
----
+- [x] (proven) `InMemoryStorageProviderRegistrar` / `InfraEvidenceCompositionModule` — `ICloudResourceEvidenceHubService` and `ICloudResourceExplorerQueryService` registered but InMemory `ICloudResourceIdentityDirectory` never persisted upserted identities — **hit 2026-09-07 hunt #1190 (seed→hit):** `NoOpCloudResourceIdentityDirectory` returned synthetic upsert rows with new Guids while `TryGetByCloudResourceIdAsync` always returned null, so OpenAPI/InMemory hosts could not resolve resource hub after inventory materialization; fixed with `InMemoryCloudResourceIdentityDirectory` and composition regression in `InfraEvidenceCompositionModuleTests`
+- [ ] (candidate) `InfraEvidenceCompositionModule` — `MermaidDiagramReadabilityThresholds` singleton may not flow into `InfraEvidenceSnapshotMermaidService` when optional ctor default bypasses DI
+- [ ] (candidate) `InfraEvidenceCompositionModule` — `IAuditEvaluationFindingHandoffService` always wires real handoff; no InMemory no-op variant when operational finding ingest is disabled
+- [ ] (valid-no-repro) orphan `ISecurityCrosswalkService` registration — no production controller caller yet; service resolves and unit tests cover behavior
+
+2026-09-07 seed hunt #1190 (hit): seeded zone from ABQ-09 churn hotspot; proved InMemory cloud-resource identity directory broke hub services registered by composition module.
 
 ## Zone: ui-claim-discipline-policy
 
