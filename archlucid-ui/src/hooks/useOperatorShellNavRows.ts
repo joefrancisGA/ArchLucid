@@ -90,9 +90,17 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       navListOptions,
     );
 
-    const adminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters
-        ? []
+    const adminNavRows: NavGroupWithVisibleLinks[] = omitAdminClusters
+      ? []
+      : productLine === "security"
+        ? listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            callerAuthorityRank,
+            "all",
+            committedForNav,
+            hideGettingStartedFromMainNav,
+            navListOptions,
+          ).filter((row) => row.group.id === "operator-admin")
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
             callerAuthorityRank,
@@ -103,7 +111,10 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
           );
 
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || !showVendorInternalNav
+      omitAdminClusters
+        || !isShowSystemAdministrationNavEnabled()
+        || !showVendorInternalNav
+        || productLine === "security"
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
