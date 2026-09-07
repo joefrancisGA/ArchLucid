@@ -156,6 +156,13 @@ export function ReviewsNewPathSwitcher() {
       params.delete("scopeGate");
     }
 
+    if (path !== "detailed") {
+      params.delete("step");
+      params.delete("mode");
+      params.delete("pilot");
+      params.delete("advancedConfig");
+    }
+
     router.replace(buildReviewsNewPathHref(pathname, path, params), { scroll: false });
   };
 

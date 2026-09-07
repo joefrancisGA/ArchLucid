@@ -181,13 +181,21 @@ export function useGuidedIntakeWizard() {
 
   const handleSessionRestore = useCallback(
     (snapshot: { stepIndex: number; state: GuidedIntakeSessionState }) => {
-      setStep(snapshot.stepIndex);
       form.setFreeTextIntent(snapshot.state.freeTextIntent);
       form.setBusinessOutcome(snapshot.state.businessOutcome);
       form.setSystemName(snapshot.state.systemName);
       form.setActorSet(snapshot.state.actorSet);
       workflow.setAnswers(snapshot.state.answers);
       workflow.setDraftId(snapshot.state.draftId);
+
+      if (snapshot.stepIndex >= 2 && snapshot.state.draftId !== null) {
+        setStep(1);
+        void workflow.hydrateClarificationsFromDraft(snapshot.state.draftId);
+
+        return;
+      }
+
+      setStep(snapshot.stepIndex);
     },
     [form, setStep, workflow],
   );

@@ -67,6 +67,8 @@ export type GuidedIntakeDraftCoreState = {
   readonly setViewAllClarifications: Dispatch<SetStateAction<boolean>>;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly setStructuredBrief: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
+  readonly clarificationSelectionHydrated: boolean;
+  readonly setClarificationSelectionHydrated: Dispatch<SetStateAction<boolean>>;
 };
 
 /**
@@ -112,6 +114,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [structuredBrief, setStructuredBrief] = useState<ArchitectureDraftStructuredBriefState>(
     () => emptyArchitectureDraftStructuredBrief(),
   );
+  const [clarificationSelectionHydrated, setClarificationSelectionHydrated] = useState(false);
 
   const core: GuidedIntakeDraftCoreState = {
     busy,
@@ -150,11 +153,14 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     setViewAllClarifications,
     structuredBrief,
     setStructuredBrief,
+    clarificationSelectionHydrated,
+    setClarificationSelectionHydrated,
   };
 
   const {
     applyAdmittedRequiredMustQuestionKeysFromDocument,
     applyBranchDraft,
+    hydrateClarificationsFromDraft,
     refreshQuestions,
     runCreateArchitectureContinuation,
   } = useGuidedIntakeDraftCreate({
@@ -242,6 +248,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     pendingQuestions,
     allClarificationsHandled,
     savedLocallyQuestionKeys,
+    clarificationSelectionHydrated,
   );
   const isSubmitBlocked = isGuidedIntakeDraftSubmitBlocked(draftStatus);
 
@@ -273,6 +280,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     otherPendingQuestions,
     allClarificationsHandled,
     clarificationsPersistedForSubmit,
+    clarificationSelectionHydrated,
+    setClarificationSelectionHydrated,
+    hydrateClarificationsFromDraft,
     applyBranchDraft,
     runAdmission,
     runCreateArchitectureContinuation,

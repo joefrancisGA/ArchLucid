@@ -88,6 +88,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
       core.setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
       applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft?.document);
+      core.setClarificationSelectionHydrated(true);
     });
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,
@@ -135,6 +136,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
         core.setAllQuestions(questions.selection.allQuestions);
         core.setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
         core.setPendingQuestions(questions.selection.pendingMustQuestions);
+        core.setClarificationSelectionHydrated(true);
         setStep(questions.selection.pendingMustQuestions.length === 0 ? 2 : 1);
 
         return;
@@ -168,7 +170,16 @@ export function useGuidedIntakeDraftCreate(options: Options) {
     core.setAllQuestions(questions.selection.allQuestions);
     core.setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
     core.setPendingQuestions(questions.selection.pendingMustQuestions);
+    core.setClarificationSelectionHydrated(true);
   }, [core]);
+
+  const hydrateClarificationsFromDraft = useCallback(
+    async (id: string) => {
+      core.setClarificationSelectionHydrated(false);
+      await refreshQuestions(id);
+    },
+    [core, refreshQuestions],
+  );
 
   const applyBranchDraft = useCallback(
     async (response: BranchDraftResponse) => {
@@ -228,6 +239,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setPendingQuestions(questions.selection.pendingMustQuestions);
       core.setSavedLocallyQuestionKeys(new Set());
       core.setViewAllClarifications(false);
+      core.setClarificationSelectionHydrated(true);
       setStep(1);
     } catch (error) {
       core.setSubmitError(error);
@@ -249,6 +261,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
   return {
     refreshQuestions,
+    hydrateClarificationsFromDraft,
     applyBranchDraft,
     runCreateArchitectureContinuation,
     applyAdmittedRequiredMustQuestionKeysFromDocument,

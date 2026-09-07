@@ -64,24 +64,31 @@ describe("resolveGuidedIntakeClarificationProgress", () => {
 });
 
 describe("areGuidedIntakeClarificationsPersistedForSubmit", () => {
+  it("blocks submit before clarification selection is hydrated", () => {
+    expect(areGuidedIntakeClarificationsPersistedForSubmit([], true, new Set(), false)).toBe(false);
+  });
+
   it("blocks submit when clarifications are handled locally but not persisted", () => {
     expect(
       areGuidedIntakeClarificationsPersistedForSubmit(
         [{ questionKey: "l0.pillar.security" }],
         true,
         new Set(["l0.pillar.security"]),
+        true,
       ),
     ).toBe(false);
   });
 
   it("allows submit after reviewAnswers clears local-only saved keys", () => {
     expect(
-      areGuidedIntakeClarificationsPersistedForSubmit([{ questionKey: "l0.pillar.security" }], true, new Set()),
+      areGuidedIntakeClarificationsPersistedForSubmit([{ questionKey: "l0.pillar.security" }], true, new Set(), true),
     ).toBe(true);
   });
 
   it("allows submit when no clarifications were required", () => {
-    expect(areGuidedIntakeClarificationsPersistedForSubmit([], true, new Set(["l0.pillar.security"]))).toBe(true);
+    expect(
+      areGuidedIntakeClarificationsPersistedForSubmit([], true, new Set(["l0.pillar.security"]), true),
+    ).toBe(true);
   });
 });
 

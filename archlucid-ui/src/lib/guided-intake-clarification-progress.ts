@@ -56,7 +56,12 @@ export function areGuidedIntakeClarificationsPersistedForSubmit(
   pendingQuestions: readonly unknown[],
   allClarificationsHandled: boolean,
   savedLocallyQuestionKeys: ReadonlySet<string>,
+  clarificationSelectionHydrated: boolean,
 ): boolean {
+  if (!clarificationSelectionHydrated) {
+    return false;
+  }
+
   if (pendingQuestions.length === 0) {
     return true;
   }
