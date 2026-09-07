@@ -9,6 +9,7 @@ import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
+import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
 export const SECURENOW_SECURITY_NAV_GROUP_ID = "operate-security" as const;
@@ -88,7 +89,7 @@ function buildSecureNowNavGroup(
 }
 
 /**
- * SecureNow shell — Compliance, Infrastructure, and Security sidebar clusters replace
+ * SecureNow shell — Security, ARC-AMPE compliance, and Infrastructure sidebar clusters replace
  * Policy, Approval, and Integrations groupings while preserving link metadata.
  */
 export function reshapeNavGroupsForSecureNow(
@@ -110,20 +111,6 @@ export function reshapeNavGroupsForSecureNow(
 
   const reshaped: ProductLineNavGroupRow[] = [];
 
-  if (complianceLinks.length > 0) {
-    reshaped.push(
-      buildSecureNowNavGroup(
-        SECURENOW_COMPLIANCE_NAV_GROUP_ID,
-        OPERATOR_NAV_GROUP_LABELS.compliance,
-        "Assign ARC-AMPE packs, review effective rules, triage findings, and export audit control lineage.",
-        complianceLinks,
-        sourceGroup,
-      ),
-    );
-  }
-
-  reshaped.push(infrastructureRow);
-
   if (securityLinks.length > 0) {
     reshaped.push(
       buildSecureNowNavGroup(
@@ -135,6 +122,20 @@ export function reshapeNavGroupsForSecureNow(
       ),
     );
   }
+
+  if (complianceLinks.length > 0) {
+    reshaped.push(
+      buildSecureNowNavGroup(
+        SECURENOW_COMPLIANCE_NAV_GROUP_ID,
+        SECURENOW_COMPLIANCE_NAV_GROUP_LABEL,
+        "Assign ARC-AMPE packs, review effective rules, triage findings, and export audit control lineage.",
+        complianceLinks,
+        sourceGroup,
+      ),
+    );
+  }
+
+  reshaped.push(infrastructureRow);
 
   const tailRows = rows.filter((row) => !SECURENOW_SOURCE_GROUP_IDS.has(row.group.id));
 

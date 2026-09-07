@@ -34,9 +34,19 @@ import { SECURENOW_SECURITY_HOME_SECTION_HEADING } from "@/lib/product-line/secu
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
-  it("renders Compliance, Infrastructure, and Security sections on the Security home", () => {
+  it("renders Security, ARC-AMPE compliance, and Infrastructure sections on the Security home", () => {
     render(<InfrastructureOverviewClient />);
 
+    const groupedSections = screen.getByTestId("securenow-grouped-home-sections");
+    const sectionTestIds = Array.from(groupedSections.children).map(
+      (element) => (element as HTMLElement).dataset.testid,
+    );
+
+    expect(sectionTestIds).toEqual([
+      "securenow-security-home-section",
+      "securenow-compliance-home-section",
+      "securenow-infrastructure-home-section",
+    ]);
     expect(screen.getByTestId("securenow-compliance-home-section")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-infrastructure-home-section")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-security-home-section")).toBeInTheDocument();
