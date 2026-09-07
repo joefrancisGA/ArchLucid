@@ -9,6 +9,7 @@ import { useReviewClarificationQuestions } from "@/hooks/use-review-clarificatio
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
+import { ArchitectureCreatedEvidenceBuyerChrome } from "@/components/architecture/ArchitectureCreatedEvidenceBuyerChrome";
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -245,7 +246,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && activeTab === "overview")
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence"))
       ? "context-bar"
       : "full";
 
@@ -405,11 +406,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
       <div hidden={activeTab !== "evidence"} data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
-            <PackageEvidenceEvidenceGraphVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="package-evidence"
-            />
+            {buyerPolishedShell ? null : (
+              <PackageEvidenceEvidenceGraphVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="package-evidence"
+              />
+            )}
             {props.panels.evidence}
+            {buyerPolishedShell ? <ArchitectureCreatedEvidenceBuyerChrome /> : null}
           </div>
       </div>
 
