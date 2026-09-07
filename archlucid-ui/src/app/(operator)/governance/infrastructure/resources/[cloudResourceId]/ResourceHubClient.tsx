@@ -775,14 +775,15 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       {loadError != null ? (
         buyerPolishedShell ? (
           <EnterpriseCompactEmptyState
+            role="alert"
             title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_LOAD_ERROR_TITLE}
             description={loadError}
-            action={(
+            testId="infra-resource-hub-load-error"
+            footer={
               <Button type="button" variant="outline" size="sm" onClick={() => void loadHub()}>
                 Retry
               </Button>
-            )}
-            data-testid="infra-resource-hub-load-error"
+            }
           />
         ) : (
           <p className="m-0 text-sm text-destructive" role="alert">{loadError}</p>
