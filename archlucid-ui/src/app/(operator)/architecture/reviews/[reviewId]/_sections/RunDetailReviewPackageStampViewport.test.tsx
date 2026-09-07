@@ -101,6 +101,7 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
 
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-stamp-decision-receipt-strip")).toBeNull();
+    expect(screen.getByTestId("transparency-trail-panel").tagName).toBe("SECTION");
   });
 
   it("suppresses finalize-policy and quality-gate strips on terminal pre-stage failure", () => {

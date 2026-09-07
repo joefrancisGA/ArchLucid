@@ -31,10 +31,12 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
       ...baseExportInput,
       artifactKind: "finalize",
       transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+      workingDesk: true,
     });
 
     expect(verdict.canRender).toBe(true);
     expect(verdict.blockedReasons).toHaveLength(0);
+    expect(verdict.warnings.join(" ")).toMatch(/no asserted intake recorded/i);
   });
 
   it("blocks finalize when trail is null", () => {
@@ -81,6 +83,16 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.warnings.join(" ")).toMatch(/sealed record/i);
   });
 
+  it("blocks Working export when asserted trail is empty", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons.join(" ")).toMatch(/no asserted intake recorded/i);
+  });
+
   it("includes skipped must keys in headerLines for export", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
@@ -97,14 +109,14 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
           kind: "Feasible",
           summary: "ok",
           transparencyTrail: {
-            asserted: [],
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
             inferred: [],
             skipped: [{ questionKey: "drRpo", tier: "Must" }],
           },
         },
       } as never,
       transparencyTrail: {
-        asserted: [],
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
         inferred: [],
         skipped: [{ questionKey: "drRpo", tier: "Must" }],
       },

@@ -6,6 +6,8 @@ import {
 } from "@/lib/career-export-coverage-honesty";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import {
+  ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON,
+  isAssertedTransparencyTrailEmpty,
   isTransparencyTrailComplete,
   transparencyTrailIncompleteFinalizeReason,
 } from "@/lib/feasibility/transparency-trail-completeness";
@@ -131,6 +133,14 @@ function buildHeaderLines(input: CareerArtifactHonestyInput): readonly string[] 
     }
   }
 
+  if (
+    input.workingDesk === true
+    && isAssertedTransparencyTrailEmpty(trail)
+    && !lines.some((line) => line.includes("No asserted intake recorded"))
+  ) {
+    lines.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+  }
+
   return lines;
 }
 
@@ -196,6 +206,16 @@ export function evaluateCareerArtifactHonesty(
 
   if (demoSampleBlockedReason !== null) {
     blockedReasons.push(demoSampleBlockedReason);
+  }
+
+  const trail = input.transparencyTrail ?? input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
+
+  if (input.workingDesk === true && isAssertedTransparencyTrailEmpty(trail)) {
+    if (input.artifactKind === "export") {
+      blockedReasons.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+    } else {
+      warnings.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
+    }
   }
 
   if (input.isSample === true && input.artifactKind === "export") {
