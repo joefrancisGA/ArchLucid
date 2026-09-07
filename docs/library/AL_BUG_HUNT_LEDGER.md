@@ -6827,22 +6827,28 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-configuration-summary
 - **split-from:** archlucid-core
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — HMAC pseudonymization salt leaked in operator config summary
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)
+- [ ] (candidate) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — catalog documents non-secret replacement string
+- [ ] (candidate) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — SaaS / `ARCHLUCID_ENVIRONMENT` hosts may stay allowed when override store throws
+
+2026-09-07 seed hunt #1167 (hit): proved pseudonymization salt leaked through config summary redaction.
 
 ---
 ## Zone: core-findings-advice
