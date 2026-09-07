@@ -7485,6 +7485,7 @@ export interface components {
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
             committedManifestTimestampResolved?: boolean;
+            deferredBuyerRequirementsPresent?: boolean;
             demoTenantWarningRequired?: boolean;
             evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;

@@ -6,7 +6,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -67,10 +73,27 @@ import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLin
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_ID_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
+
+import { DiagramReconcileBreadcrumb } from "./DiagramReconcileBreadcrumb";
+import { DiagramReconcileClaimOrientationStrip } from "./DiagramReconcileClaimOrientationStrip";
 
 const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; label: string }[] = [
   { value: "all", label: "All rows" },
@@ -122,7 +145,14 @@ async function copyTextToClipboard(text: string): Promise<void> {
   await navigator.clipboard.writeText(text);
 }
 
+const cnCard =
+  "rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950";
+
+const cnField =
+  "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
+
 export function DiagramReconcileWorkbenchClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -511,34 +541,109 @@ export function DiagramReconcileWorkbenchClient() {
   }, [filteredRows, selectedCorrespondenceId]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagram-reconcile-workbench">
-      <LayerHeader pageKey="infrastructure-diagram-reconcile" />
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <OperatorPageContainer
+      variant="full"
+      className="py-4"
+      data-testid="infra-diagram-reconcile-workbench"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <OperatorPageHeader
+        navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}
+        title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE}
+        subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD}
+        claimDiscipline={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="infra-diagram-reconcile-claim-discipline"
+        titleTestId="infra-diagram-reconcile-page-title"
+        breadcrumb={buyerPolishedShell ? <DiagramReconcileBreadcrumb /> : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <PageContextualHelpButton />
+            {!buyerPolishedShell ? (
+              <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
+            ) : null}
+          </div>
+        }
+      />
+
+      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagram-reconcile" /> : null}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PRIMARY_CONTENT_ID : undefined}
+        className={cn(
+          "mx-auto flex w-full max-w-6xl flex-col gap-4",
+          buyerPolishedShell ? "scroll-mt-24" : undefined,
+        )}
+        data-testid="infra-diagram-reconcile-primary-content"
+      >
+      {buyerPolishedShell ? (
+        <div className="flex justify-end">
+          <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
+        </div>
+      ) : null}
+
+      {!buyerPolishedShell ? (
         <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Reconcile an ingested architecture diagram against an Azure inventory snapshot. Correspondence rows are
           deterministic — AI rationale appears only on Possible or Unknown matches and cannot promote insufficient
           evidence to confirmed.
         </p>
-        <CopyScopedOperatorLinkButton testId="infra-diagram-reconcile-copy-scoped-link" />
-      </div>
+      ) : null}
       <InfraEvidenceSelectionAnnouncer
         message={selectionAnnouncement}
         testId="infra-diagram-reconcile-selection-announcer"
       />
 
       {loadError != null ? (
-        <StatusTag kind="needs-attention" label={loadError} />
+        buyerPolishedShell ? (
+          <EnterpriseCompactEmptyState
+            role="alert"
+            title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE}
+            description={loadError}
+            testId="infra-diagram-reconcile-load-error-panel"
+            footer={
+              <Button type="button" size="sm" variant="primary" onClick={() => window.location.reload()}>
+                Reload page
+              </Button>
+            }
+          />
+        ) : (
+          <StatusTag kind="needs-attention" label={loadError} />
+        )
       ) : null}
 
       {urlCloudResourceId.length > 0 ? (
         <section
-          className="rounded border border-border bg-card p-4"
+          className={cnCard}
           data-testid="infra-diagram-reconcile-resource-scope-banner"
           aria-label="Diagram reconcile workbench resource scope"
         >
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-            Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL}
+            {!buyerPolishedShell ? (
+              <> <span className="font-mono text-xs">{urlCloudResourceId}</span>.</>
+            ) : (
+              "."
+            )}
           </p>
+          {buyerPolishedShell ? (
+            <CollapsibleSection
+              title="Resource id"
+              sectionTestId="infra-diagram-reconcile-resource-id-disclosure"
+              summaryLine="Cloud resource UUID from the scoped link"
+            >
+              <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {urlCloudResourceId}
+              </p>
+            </CollapsibleSection>
+          ) : null}
           {(auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
             <WorkbenchAuditLineageStatus
               auditScope={auditScope}
@@ -585,7 +690,7 @@ export function DiagramReconcileWorkbenchClient() {
 
       {deepLinkedCorrespondenceMissing ? (
         <p
-          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
           role="status"
         >
@@ -594,18 +699,33 @@ export function DiagramReconcileWorkbenchClient() {
         </p>
       ) : null}
 
-      <section className="grid gap-4 rounded-md border border-border p-4" aria-label="Reconciliation wizard">
+      <section className={cn("grid gap-4", cnCard)} aria-label="Reconciliation wizard">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>1. Diagram source</h2>
-        <label className="flex flex-col gap-1">
-          <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed review record id</span>
-          <input
-            className="rounded border border-border bg-background px-3 py-2"
-            data-testid="infra-diagram-reconcile-run-id"
-            value={runId}
-            onChange={(event) => handleRunIdChange(event.target.value)}
-            placeholder="00000000-0000-0000-0000-000000000000"
-          />
-        </label>
+        {buyerPolishedShell ? (
+          <div className="grid gap-2">
+            <Label htmlFor="infra-diagram-reconcile-run-id">
+              {GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_ID_LABEL}
+            </Label>
+            <Input
+              id="infra-diagram-reconcile-run-id"
+              data-testid="infra-diagram-reconcile-run-id"
+              value={runId}
+              onChange={(event) => handleRunIdChange(event.target.value)}
+              placeholder="00000000-0000-0000-0000-000000000000"
+            />
+          </div>
+        ) : (
+          <label className="flex flex-col gap-1">
+            <span className={OPERATOR_TYPOGRAPHY.helper}>Sealed review record id</span>
+            <input
+              className={cnField}
+              data-testid="infra-diagram-reconcile-run-id"
+              value={runId}
+              onChange={(event) => handleRunIdChange(event.target.value)}
+              placeholder="00000000-0000-0000-0000-000000000000"
+            />
+          </label>
+        )}
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" data-testid="infra-diagram-reconcile-load-model" onClick={() => void loadExistingModel()}>
             Use existing ingested model
@@ -619,7 +739,7 @@ export function DiagramReconcileWorkbenchClient() {
         <label className="flex flex-col gap-1">
           <span className={OPERATOR_TYPOGRAPHY.helper}>Source name</span>
           <input
-            className="rounded border border-border bg-background px-3 py-2"
+            className={cnField}
             value={diagramSourceName}
             onChange={(event) => setDiagramSourceName(event.target.value)}
           />
@@ -627,7 +747,7 @@ export function DiagramReconcileWorkbenchClient() {
         <label className="flex flex-col gap-1">
           <span className={OPERATOR_TYPOGRAPHY.helper}>Paste Mermaid diagram</span>
           <textarea
-            className="min-h-[8rem] rounded border border-border bg-background px-3 py-2 font-mono text-sm"
+            className={cn("min-h-[8rem] font-mono text-sm", cnField)}
             data-testid="infra-diagram-reconcile-mermaid-input"
             value={diagramMermaid}
             onChange={(event) => setDiagramMermaid(event.target.value)}
@@ -646,12 +766,12 @@ export function DiagramReconcileWorkbenchClient() {
         </Button>
       </section>
 
-      <section className="grid gap-4 rounded-md border border-border p-4" aria-label="Snapshot selection">
+      <section className={cn("grid gap-4", cnCard)} aria-label="Snapshot selection">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>2. Inventory snapshot</h2>
         <label className="flex flex-col gap-1">
           <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
           <select
-            className="rounded border border-border bg-background px-3 py-2"
+            className={cnField}
             data-testid="infra-diagram-reconcile-snapshot-picker"
             disabled={loadingSnapshots || snapshots.length === 0}
             value={selectedSnapshotId}
@@ -701,7 +821,7 @@ export function DiagramReconcileWorkbenchClient() {
             <label className="flex flex-col gap-1">
               <span className={OPERATOR_TYPOGRAPHY.helper}>Filter</span>
               <select
-                className="rounded border border-border bg-background px-3 py-2"
+                className={cnField}
                 data-testid="infra-diagram-reconcile-filter"
                 value={matchKindFilter}
                 onChange={(event) => handleFilterChange(event.target.value as DiagramReconcileMatchKindFilter)}
@@ -765,8 +885,8 @@ export function DiagramReconcileWorkbenchClient() {
                     key={row.correspondenceId}
                     data-testid={`infra-diagram-reconcile-row-${row.correspondenceId}`}
                     className={cn(
-                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                      selectedCorrespondenceId === row.correspondenceId ? "bg-muted/40" : undefined,
+                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400",
+                      selectedCorrespondenceId === row.correspondenceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
                     )}
                     role="button"
                     tabIndex={0}
@@ -858,6 +978,9 @@ export function DiagramReconcileWorkbenchClient() {
           </EnterpriseTable>
         </section>
       ) : null}
-    </div>
+
+        {buyerPolishedShell ? <DiagramReconcileClaimOrientationStrip /> : null}
+      </main>
+    </OperatorPageContainer>
   );
 }

@@ -25523,6 +25523,9 @@
           "committedManifestTimestampResolved": {
             "type": "boolean"
           },
+          "deferredBuyerRequirementsPresent": {
+            "type": "boolean"
+          },
           "demoTenantWarningRequired": {
             "type": "boolean"
           },

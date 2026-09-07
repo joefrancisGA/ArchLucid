@@ -17,6 +17,9 @@ import {
 import { applyBuyerDemoVocabulary } from "@/lib/vocabulary/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 
 /** Buyer-polished shell left-nav label for `/architecture/reviews/new`. */
 export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;
@@ -121,8 +124,19 @@ export function resolveNavLinkPresentation(
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
   workingMode = false,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): NavLinkPresentationSource {
   const vocabularyPassActive = isBuyerVocabularyPassActive();
+
+  if (link.href === INTEGRATIONS_TEAMS_PATH) {
+    const teamsLabel = productLineMicrosoftTeamsLabel(productLine);
+
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: teamsLabel,
+      title: link.title.replaceAll("Microsoft Teams", teamsLabel),
+    });
+  }
 
   if (link.href === ARCHITECTURES_LIST_PATH) {
     return applyBuyerNavVocabulary({

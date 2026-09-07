@@ -100,7 +100,7 @@ Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-vers
 
 ### `arm-json`
 
-Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
+Parses an ARM template JSON **`resources`** array. **`Microsoft.Resources/deployments`** are not emitted as canonical objects; nested resources are expanded from inline **`properties.template.resources`**, deployment wrapper **`resources[]`**, and in-batch **`properties.templateLink`** references (relative path / file name only — **no HTTP fetch**). Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
 
 ### `kubernetes-json` / `kubernetes-yaml`
 
