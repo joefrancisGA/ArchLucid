@@ -8,7 +8,7 @@
 
 # `/al-bug` quality — Composer prompt set (ABQ-01–ABQ-25)
 
-**Status:** **ABQ-01–18 shipped in code** (merged via `cursor/al-bug-quality-prompts-3c5e`). **ABQ-19–25 are ready to run** — paste one `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session. Do **not** re-implement 01–18 from these prompt files (several early prompts are stale vs shipped code; see footnotes).
+**Status:** **ABQ-01–25 shipped in code** (wave 4 merged on `cursor/al-bug-quality-prompts-wave4-3c5e`). Prompt files remain for reference; do **not** re-implement from them unless starting a new wave.
 
 `/al-bug` finds a real defect with a failing repro, ships a minimal fix to `bugsmash`, and updates `docs/library/AL_BUG_HUNT_LEDGER.md`. By 2026-09-06 the loop was manufacturing bugs: 1,236 logged hunts, 1,182 hits, mega-zone `archlucid-core` reporting thousands of “bugs,” and redactors that redact `beefAccessKey` while leaking `adminPassword`.
 
@@ -36,19 +36,17 @@ Do **not** revert every post–2026-08-23 bugsmash merge. Replace the *mechanism
 | **Silent tests** | Pester 3 syntax + ungated suites hid StrictMode defects | ABQ-11, ABQ-12, ABQ-17 *(shipped)* |
 | **Stale wire fixtures** | `enforcementTier` required in converter; fixtures omit it | ABQ-14 *(shipped)* |
 | **Cloud Agent image** | Linux image has no `pwsh`; prompts assume it | ABQ-18 *(shipped)* |
-| **Self-reported yield** | Hunt KPI ignores operator/CI/pilot escapes | **ABQ-19** |
-| **Unguarded proven rows** | Cited tests would still pass if the production patch vanished | **ABQ-20** |
-| **Class treadmill** | Same defect class farmed across sibling files; file cooldown never fires | **ABQ-21** |
-| **Example-only parsers** | Identity readers covered by a handful of `"on"` facts | **ABQ-22** |
-| **Blind seed hunts** | Hypotheses only from file reading; analyzer diagnostics unused | **ABQ-23** |
-| **Churn-only nominate** | `-Nominate` cannot tell an untested orchestrator from a constants file | **ABQ-24** |
-| **Ignored mutation scores** | Scheduled Stryker exists; picker does not show kill rate | **ABQ-25** |
+| **Self-reported yield** | Hunt KPI ignores operator/CI/pilot escapes | ABQ-19 *(shipped)* |
+| **Unguarded proven rows** | Cited tests would still pass if the production patch vanished | ABQ-20 *(shipped)* |
+| **Class treadmill** | Same defect class farmed across sibling files; file cooldown never fires | ABQ-21 *(shipped)* |
+| **Example-only parsers** | Identity readers covered by a handful of `"on"` facts | ABQ-22 *(shipped)* |
+| **Blind seed hunts** | Hypotheses only from file reading; analyzer diagnostics unused | ABQ-23 *(shipped)* |
+| **Churn-only nominate** | `-Nominate` cannot tell an untested orchestrator from a constants file | ABQ-24 *(shipped)* |
+| **Ignored mutation scores** | Scheduled Stryker exists; picker does not show kill rate | ABQ-25 *(shipped)* |
 
 ## Run order
 
-**01–18 are done** (do not paste those files to re-do the work). Wave 4:
-
-**20 and 21 first** (fix honesty + class cooldown; both reuse ledger/picker/jsonl). **19** after 21 preferred (escape log can carry `defectClass` later; v1 does not require it). **24** after 09 (extend `-Nominate` only). **23** after 05 (must not weaken hunt-ready). **22** is independent (Core.Tests + existing FsCheck). **25** last (display-only Stryker map; do not run Stryker in `/al-bug`).
+**01–25 are done** (do not paste those files to re-do the work).
 
 | # | Prompt file | Flaw it mitigates |
 |---|----------------|-------------------|

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "CA1062",
+          "message": { "text": "Validate parameter is non-null" },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs" },
+                "region": { "startLine": 42 }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CA1062",
+          "message": { "text": "Duplicate diagnostic" },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs" },
+                "region": { "startLine": 42 }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0051",
+          "message": { "text": "Unused member" },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "ArchLucid.Core.Tests/SampleTests.cs" },
+                "region": { "startLine": 10 }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0051",
+          "message": { "text": "Outside zone" },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "ArchLucid.Core/Unrelated.cs" },
+                "region": { "startLine": 3 }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

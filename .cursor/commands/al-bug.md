@@ -160,6 +160,8 @@ For a previously hunted zone with no open rows, reseed from fresh evidence rathe
 
 Do not add new zones. Do not refill a zone with three untagged harm-class rows.
 
+Optional: after reading zone files, run `.\scripts\agent\al-bug-seed-from-analyzers.ps1 -ZoneId '<id>' -SarifPath <export.sarif> -Preview` and paste `(candidate)` rows only. Analyzer warnings are **not** hunt-ready until 1.1b is met.
+
 ### 1.1b Hunt-ready quality bar
 
 A row stays **open** as hunt-ready only when all five are filled from the zone files (not from a bug-class template):
@@ -179,6 +181,8 @@ Also ban hunt-ready rows whose **input** is a constructed string with no reachab
 Prefer mechanisms that have paid off in this catalog: dual-path disagreement (gate vs merge, parent SQL vs child join, watchdog vs visibility), alias/identity mismatch, parameterized-test holes, recent churn with no new test.
 
 **Guard failure direction:** for redaction, validation, authz, and schema readers, the conservative failure mode (over-redact, reject malformed, deny) is usually `(valid-no-repro)` unless reachability shows a real caller or attacker-controlled input. Fail-open / leak / accept malformed as success is hunt-eligible. Severity must name user-visible harm (secret in summary, cross-tenant 200, committed bad manifest). “Test disagreed with an allowlist” is not medium/high.
+
+Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`.
 
 ### 1.1c Cheap disproof (before a repro)
 
@@ -247,6 +251,8 @@ Exit code **2** → stop; tell the user which paths are blocked.
 3. The fix must close a **class** of inputs, not one instance. Forbidden as the entire fix: appending one string to a keyword/phrase/allowlist so a single new theory case passes. If the mechanism is substring or phrase matching, change the mechanism (see ABQ tokenizer/redaction patterns) or close the row `(valid-no-repro)` — do not ship an instance-list diff.
 4. If picker JSON lists `escalatedFiles` containing the implicated production file, **do not ship** another allowlist/phrase-list patch to that file. Record the hunt as `dry`/`invalid` and cite ABQ-01–04 or a design fix instead.
 5. Keep the regression test in the permanent test file (delete temporary repro-only files).
+6. The shipped test must **fail** if the production hunk alone is reverted (revert-to-fail honesty). Owners may batch-check with `python3 scripts/agent/al-bug-verify-proven-revert.py`.
+7. Do **not** run `dotnet stryker` during `/al-bug`. Mutation score in picker preview is display-only from scheduled baselines.
 6. Run scoped tests again — all relevant tests must pass.
 7. Optional **one** scoped compile check when .NET production code changed:
 

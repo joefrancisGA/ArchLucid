@@ -15,7 +15,9 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
    - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
-4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only [-DefectClass boolean-coercion] -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+
+Proven-row revert honesty (optional batch): `python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5` samples recent `(proven)` rows — the cited test must fail if only the production hunk is reverted.
 
 For proven-row validity see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`). It classifies every proven row, not a sample: **57.2% (2321 of 4061)** are treadmill rows that re-prove one guard against a new surface form, and **82.7%** of the retired `archlucid-core` mega-zone is treadmill. Read `bugs-found` accordingly — picker preview and scoring use **effective-bugs** (`min(bugs-found, hunts)` when `hunts > 0`); run `python3 scripts/agent/al-bug-lint-ledger-counters.py` to list zones where raw `bugs-found` exceeds `hunts` (retired mega-zones are footnoted, not rewritten).
 
@@ -35,7 +37,7 @@ New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed t
 Open rows:
 
 - `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input).
+- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input). Optional defect-class tag: `[class:boolean-coercion]` (closed enum — see Scoring).
 
 Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
@@ -67,13 +69,20 @@ base_score =
 + 0.25 × min(3, hunt-ready open hypotheses)
 + 0.5 × precision               (0 when omitted)
 − 2 × consecutive_dry_hunts
+− 1 when escapeCount90d ≥ 1 (escaped defects in last 90d; see escape log)
 
 score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65; missing → medium)
 ```
 
-Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
 
 **Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
+
+**Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
+
+**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`.
+
+**Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
 
 Rolling 24h preview warns when hit rate ≥ 0.6 with ≥ 8 hunts in the window — a catalog health signal, not a yield celebration.
 
@@ -81,7 +90,7 @@ Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `uns
 
 ## Nominate mode
 
-`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` (optional `-Since`, `-SkipGit` in tests) diffs recent production file churn against every zone `paths` prefix. Files with no covering zone are **gaps**. JSON includes `nominate: true`, `gaps: [{ path, commitCount }]`, and up to ~15 `proposedZones` entries (`id`, `paths`, `impact`, `testFilterGuess`). Preview prints paste-ready markdown stanzas for agent-led ledger updates — use when implicated files fall outside every current zone. Excludes tests, docs, generated OpenAPI, and lockfiles. Retired mega-zones pointing at this ledger do not cover production paths.
+`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` (optional `-Since`, `-SkipGit` in tests, optional `-CoverageCobertura` from a prior local `dotnet test --collect:"XPlat Code Coverage"`) diffs recent production file churn against every zone `paths` prefix. Files with no covering zone are **gaps**. Rank uses `commitCount × (1 − coverageRatio) × log(1 + lineCount)` when coverage is supplied; otherwise churn-only (preview notes `coverage: omitted`). JSON includes `nominate: true`, `gaps: [{ path, commitCount, coverageRatio?, lineCount, rank }]`, and up to ~15 `proposedZones` entries (`id`, `paths`, `impact`, `testFilterGuess`). Preview prints paste-ready markdown stanzas for agent-led ledger updates — use when implicated files fall outside every current zone. Excludes tests, docs, generated OpenAPI, and lockfiles. Retired mega-zones pointing at this ledger do not cover production paths.
 
 ## Exhaustion (all must hold)
 

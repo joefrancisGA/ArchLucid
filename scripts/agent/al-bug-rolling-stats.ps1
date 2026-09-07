@@ -46,6 +46,18 @@ param(
     [ValidateSet('high', 'medium', 'low')]
     [string] $Severity,
 
+    [ValidateSet(
+        'fail-open-validation',
+        'boolean-coercion',
+        'strictmode-script',
+        'state-machine-gap',
+        'null-deref',
+        'off-by-one',
+        'authz-scope',
+        'other'
+    )]
+    [string] $DefectClass,
+
     [switch] $Rolling24h,
 
     [string] $AtUtc,
@@ -298,6 +310,10 @@ if ($RecordHunt) {
 
     if (-not [string]::IsNullOrWhiteSpace($Severity)) {
         $newEntry | Add-Member -NotePropertyName severity -NotePropertyValue $Severity
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($DefectClass)) {
+        $newEntry | Add-Member -NotePropertyName defectClass -NotePropertyValue $DefectClass
     }
 
     $entries = @($entries) + @($newEntry)

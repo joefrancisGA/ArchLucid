@@ -15,7 +15,8 @@ BeforeAll {
             [string] $HuntZoneId,
             [string] $HuntOutcome,
             [switch] $Rolling24h,
-            [string] $AtUtc
+            [string] $AtUtc,
+            [string] $DefectClass
         )
 
         # Splatted so each optional switch stays absent rather than passing $false.
@@ -35,6 +36,10 @@ BeforeAll {
 
         if (-not [string]::IsNullOrWhiteSpace($AtUtc)) {
             $scriptArgs.AtUtc = $AtUtc
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($DefectClass)) {
+            $scriptArgs.DefectClass = $DefectClass
         }
 
         return @(& $script:statsScript @scriptArgs)
@@ -108,5 +113,16 @@ Describe 'al-bug-rolling-stats.ps1' {
 
         { & $script:statsScript -RunLogPath $log -RecordHunt -HuntOutcome dry } | Should -Throw -ExpectedMessage '*HuntZoneId*'
         { & $script:statsScript -RunLogPath $log -RecordHunt -HuntZoneId 'zone-a' } | Should -Throw -ExpectedMessage '*HuntOutcome*'
+    }
+
+    It 'records optional defectClass on hunt hits' {
+        $log = Join-Path $TestDrive 'defect-class.jsonl'
+        $at = '2026-08-19T12:00:00Z'
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-a' -HuntOutcome hit -AtUtc $at -DefectClass 'boolean-coercion' | Out-Null
+        $line = Get-Content -LiteralPath $log -Encoding UTF8 | Select-Object -Last 1
+        $parsed = $line | ConvertFrom-Json
+
+        $parsed.defectClass | Should -Be 'boolean-coercion'
     }
 }
