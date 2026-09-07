@@ -208,6 +208,23 @@ public sealed class CareerArtifactCompletenessValidatorTests
     }
 
     [Fact]
+    public void Evaluate_blocks_working_sample_export_without_external_distribution_flag()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            IsSampleRun: true);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+    }
+
+    [Fact]
     public void Evaluate_finalize_warns_when_asserted_trail_empty()
     {
         CareerArtifactCompletenessInput input = new(
