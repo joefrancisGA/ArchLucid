@@ -5,14 +5,10 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { ProductLineSwitchBar } from "@/components/product-line/ProductLineSwitchBar";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { PRODUCT_LINE_ASSIGNMENTS, type ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import {
-  PRODUCT_LINE_ASSIGNMENTS,
-  type ProductLineAssignment,
-} from "@/lib/product-line/product-line-assignment";
-import { PRODUCT_LINE_IDS } from "@/lib/product-line/product-line-id";
-import {
-  PRODUCT_LINE_LABELS,
   PRODUCT_LINE_PLAYGROUND_DUAL_START_NOTE,
   PRODUCT_LINE_PLAYGROUND_SUBTITLE,
   PRODUCT_LINE_PLAYGROUND_TITLE,
@@ -36,7 +32,6 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
   const {
     productLine,
     assignmentOverrides,
-    setProductLine,
     setHrefAssignment,
     resetHrefAssignment,
     resetAllAssignments,
@@ -73,31 +68,13 @@ export function ProductLinePlaygroundClient(): React.JSX.Element {
         <p className={OPERATOR_TYPOGRAPHY.helper}>{PRODUCT_LINE_PLAYGROUND_DUAL_START_NOTE}</p>
       </section>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Active product shell">
-        {PRODUCT_LINE_IDS.map((id) => {
-          const selected = productLine === id;
-
-          return (
-            <Button
-              key={id}
-              type="button"
-              size="sm"
-              variant={selected ? "default" : "outline"}
-              aria-pressed={selected}
-              data-testid={`product-line-option-${id}`}
-              onClick={() => {
-                setProductLine(id);
-              }}
-            >
-              {PRODUCT_LINE_LABELS[id]}
-            </Button>
-          );
-        })}
-      </div>
+      <ProductLineSwitchBar />
 
       <Button type="button" size="sm" variant="outline" onClick={() => resetAllAssignments()}>
         Reset href assignments
       </Button>
+
+      <p className={OPERATOR_TYPOGRAPHY.cardTitle}>Individual destinations</p>
 
       <table className="w-full border-collapse text-left" data-testid="product-line-assignment-table">
         <thead>

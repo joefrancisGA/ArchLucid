@@ -20,7 +20,6 @@ public sealed class TrialLifecycleEmailDispatcher(
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<TrialLifecycleEmailDispatcher> logger) : ITrialLifecycleEmailDispatcher
 {
-    private const string DefaultProductName = "ArchLucid";
     private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
@@ -67,7 +66,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         to = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? baseUrl = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
         TrialDispatchPlan? plan = TryBuildPlan(envelope, tenant, productName, baseUrl, utcNow);
 

@@ -18,6 +18,8 @@ import { createHelpHeadingSlugAllocator } from "@/lib/help/help-heading-slug";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PRIVACY_POLICY_PROSE } from "@/lib/privacy-policy-layout";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help/help-markdown-presentation";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecurityTrustHelpTopic } from "@/lib/security-trust-help-presentation";
 
 import {
@@ -54,6 +56,8 @@ type MarketingAccessibilityMarkdownFragmentProps = {
   preserveMaintenanceMetadata?: boolean;
   /** Optional pre-prepared markdown (for example CAIQ/SIG structured halves). */
   preparedMarkdownOverride?: string;
+  /** Override active product line for help markdown brand rewrite (defaults to {@link resolveProductLineId}). */
+  productLineId?: ProductLineId;
 };
 
 /**
@@ -103,6 +107,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     nowrapInlineCode: isHelp,
     copyableInlineCode: isEngineeringTroubleshooting,
   };
+  const productLineId = props.productLineId ?? resolveProductLineId();
   const markdownBody =
     props.preparedMarkdownOverride !== undefined && props.preparedMarkdownOverride.trim().length > 0
       ? props.preparedMarkdownOverride
@@ -111,6 +116,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
           ? prepareHelpMarkdownForPresentation(props.markdownBody, props.sourceDocPath, {
               preserveMaintenanceMetadata: props.preserveMaintenanceMetadata === true,
               helpTopicSlug: props.helpTopicSlug,
+              productLineId,
             })
           : sanitizeBareMarkdownFileReferences(props.markdownBody)
         : isPrivacy

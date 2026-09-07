@@ -30,6 +30,8 @@ import {
   parseHelpAdvancedTopicsOpenFromSearch,
 } from "@/lib/help/help-advanced-topics-url";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle, usingProductTitle } from "@/lib/product-line/product-line-display-name";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -37,6 +39,7 @@ import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-doc
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
  */
 export function HelpProductGuide() {
+  const { localize, productLine } = useLocalizedProductCopy();
   const router = useRouter();
   const pathname = usePathname() ?? "/help";
   const searchParams = useSearchParams();
@@ -123,7 +126,7 @@ export function HelpProductGuide() {
         id="help-product-guide-heading"
         className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}
       >
-        Using ArchLucid
+        {usingProductTitle(productLine)}
       </h2>
 
       <section aria-labelledby="help-product-guide-getting-started" className={HELP_PAGE_LAYOUT.contentPanel}>
@@ -133,7 +136,7 @@ export function HelpProductGuide() {
         <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
-              How ArchLucid works
+              {howProductWorksTitle(productLine)}
             </Link>{" "}
             — workflow from evidence through findings, approval, and exports.
           </p>
@@ -214,8 +217,9 @@ export function HelpProductGuide() {
       </section>
 
       <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
-        ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence
-        trail you can export for diligence.
+        {localize(
+          "ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence trail you can export for diligence.",
+        )}
       </p>
 
       <section aria-labelledby="help-product-guide-troubleshooting" className={HELP_PAGE_LAYOUT.contentPanel}>
@@ -234,7 +238,7 @@ export function HelpProductGuide() {
             </li>
             <li>Confirm the selected workspace.</li>
             <li>Download a support bundle (below).</li>
-            <li>Contact your tenant admin or ArchLucid support.</li>
+            <li>{localize("Contact your tenant admin or ArchLucid support.")}</li>
           </ol>
           <SupportBundleDownloadButton showDiagnosticsLink={isAdmin} />
           <p className="m-0 mt-3">

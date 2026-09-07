@@ -2,6 +2,8 @@ import "server-only";
 
 import { EmailClient } from "@azure/communication-email";
 
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import type { AccessRequestPayload } from "@/lib/server/access-request-validation";
 import {
   resolveAccessRequestEmailConfig,
@@ -17,13 +19,14 @@ function escapeHtml(value: string): string {
 }
 
 function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonly subject: string; readonly html: string; readonly text: string } {
+  const productName = productLineDisplayName(resolveProductLineIdFromEnv());
   const safeName = escapeHtml(payload.name);
   const safeEmail = escapeHtml(payload.workEmail);
   const safeCompany = escapeHtml(payload.company);
   const safeRole = escapeHtml(payload.roleTitle);
   const safeCloud = payload.cloudPlatformFocus === null ? " — " : escapeHtml(payload.cloudPlatformFocus);
   const safeNote = payload.note === null ? " — " : escapeHtml(payload.note);
-  const subject = "ArchLucid: private beta access request";
+  const subject = `${productName}: private beta access request`;
 
   const html =
     "<p>A new <strong>private beta access</strong> request was submitted from the sign-in callback screen.</p>" +
@@ -35,7 +38,7 @@ function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonl
     `<p><strong>Note:</strong> ${safeNote}</p>`;
 
   const text =
-    "ArchLucid private beta access request\n" +
+    `${productName} private beta access request\n` +
     `Name: ${payload.name}\n` +
     `Work email: ${payload.workEmail}\n` +
     `Company: ${payload.company}\n` +
