@@ -6831,11 +6831,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — nested ARM property values skipped sensitive-key redaction
+- **last-bug:** 2026-09-07 — apiKey/sasToken property redaction, tag key redaction, validator non-array resources.json rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6844,11 +6844,14 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `AzureExtractorPackageInventoryReader.ReadProperties` serialized nested object values via `GetRawText()` without evaluating inner sensitive keys — **hit 2026-09-07 (#1166):** App Service-style `siteConfig.connectionString` persisted plaintext; fixed via `RedactStructuredJson` recursive walk (`TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values`)
-- [ ] (candidate) `AzureExtractorSensitivePropertyRedactor` omits `token`/`apikey` fragments present in config redactor — reachability via top-level ARM property keys such as `apiKey`, `sasToken`
-- [ ] (candidate) `AzureExtractorPackageZipValidator` accepts schema v2 ZIP with non-array `resources.json` while inventory reader silently returns zero rows — sibling `AzureExtractorResourceInventoryReader` rejects non-array root
-- [ ] (candidate) `ReadStringDictionary` for resource tags never redacts sensitive tag values — materializer persists tag values verbatim
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`
+- [x] (proven) `AzureExtractorPackageZipValidator` accepted schema v2 ZIP with non-array `resources.json` while inventory reader silently returned zero rows — **hit 2026-09-07 (#1200):** validator only checked entry presence; `PackageInventoryReader` swallowed non-array root; fixed via `TryReadResourcesSchemaError` and inventory reader failure; regression `Validate_rejects_non_array_resources_json`
+- [x] (proven) `ReadStringDictionary` for resource tags never redacted sensitive tag values — **hit 2026-09-07 (#1200):** tag map copied string values verbatim while property reader redacted sensitive keys; fixed by applying `IsSensitiveKey` to tag keys; regression `TryReadFromZip_redacts_secret_like_tag_keys`
+- [ ] (candidate) `ReadOptionalArray` for schema v2 companion files (`roleAssignments.json`, etc.) silently returns empty on non-array root while `resources.json` now fails closed — hunt when upload path reads companion arrays without validator shape checks.
 
 2026-09-07 seed hunt #1166 (hit): proved nested object property values bypassed sensitive-key redaction.
+
+2026-09-07 thorough hunt #1200 (hit): promoted three candidates to hunt-ready; proved apiKey/token property redaction gap, validator/inventory non-array resources.json skew, and tag key redaction gap.
 
 ---
 ## Zone: core-configuration-summary

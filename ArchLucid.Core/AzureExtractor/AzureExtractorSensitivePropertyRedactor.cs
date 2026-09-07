@@ -15,6 +15,7 @@ public static class AzureExtractorSensitivePropertyRedactor
         "certificate",
         "accesskey",
         "accountkey",
+        "apikey",
         "clientsecret",
         "primarykey",
         "secondarykey",
@@ -38,7 +39,25 @@ public static class AzureExtractorSensitivePropertyRedactor
                 return true;
         }
 
+        if (IsSuffixTokenCredentialKey(normalized))
+            return true;
+
         return false;
+    }
+
+    private static bool IsSuffixTokenCredentialKey(string normalized)
+    {
+        if (!normalized.EndsWith("token", StringComparison.Ordinal))
+            return false;
+
+        if (normalized.Length <= "token".Length)
+            return true;
+
+        if (normalized.EndsWith("tokenless", StringComparison.Ordinal)
+            || normalized.EndsWith("tokenizer", StringComparison.Ordinal))
+            return false;
+
+        return true;
     }
 
     private static bool ContainsSensitiveFragment(string normalized, string fragment)

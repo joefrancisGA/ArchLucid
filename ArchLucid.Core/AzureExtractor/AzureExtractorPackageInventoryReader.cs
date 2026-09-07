@@ -55,7 +55,7 @@ public static class AzureExtractorPackageInventoryReader
         using JsonDocument document = JsonDocument.Parse(stream);
 
         if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            return [];
+            throw new JsonException("resources.json root must be a JSON array.");
 
         List<AzureExtractorExtendedResourceRow> rows = [];
 
@@ -164,8 +164,15 @@ public static class AzureExtractorPackageInventoryReader
 
         foreach (JsonProperty property in dictionary.EnumerateObject())
         {
-            if (property.Value.ValueKind is JsonValueKind.String)
-                values[property.Name] = property.Value.GetString() ?? string.Empty;
+            if (property.Value.ValueKind is not JsonValueKind.String)
+                continue;
+
+            string value = property.Value.GetString() ?? string.Empty;
+
+            if (AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
+                value = AzureExtractorSensitivePropertyRedactor.RedactValue(value);
+
+            values[property.Name] = value;
         }
 
         return values;
