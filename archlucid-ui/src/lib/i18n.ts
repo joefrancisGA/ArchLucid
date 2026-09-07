@@ -110,6 +110,8 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   analysis: "Insights",
   governance: "Approval",
   policy: "Policy",
+  compliance: "Compliance",
+  security: "Security",
   reports: "Reports",
   integrations: "Integrations",
   infrastructure: "Infrastructure",

@@ -62,6 +62,12 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
     GOVERNANCE_POLICY_PACKS_PATH,
     GOVERNANCE_STANDARDS_AND_RULES_PATH,
   ],
+  "operate-compliance": [
+    GOVERNANCE_POLICY_PACKS_PATH,
+    GOVERNANCE_STANDARDS_AND_RULES_PATH,
+    "/governance/findings",
+    "/governance/audit-evidence",
+  ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
   "operator-admin": [
@@ -177,7 +183,9 @@ const SIDEBAR_MORE_DISCLOSURE_DESTINATION_LABEL: Readonly<Record<string, string>
   "operate-analysis": "Insights",
   "operate-governance": "Approval",
   "operate-policy": "Policy",
+  "operate-compliance": "Compliance",
   "operate-infrastructure": "Infrastructure",
+  "operate-security": "Security",
   "operator-admin": "Administration",
   "operator-system-admin": "Internal",
 };
