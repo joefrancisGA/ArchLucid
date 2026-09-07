@@ -9721,11 +9721,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — inventory platform detection race skipped pending ZIP upload on auto-upload
+- **last-bug:** 2026-09-07 — accelerator/preset query prefill re-fired on step URL sync and wiped in-progress edits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9738,9 +9738,14 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `use-guided-intake-brief-form` — `scopeGate=1` URL bypasses scope confirmation panel — **2026-09-07 (#1212):** intentional deep-link/Rerun prefill sets confirmed scope (`parseScopeGateOpenFromSearch`); advance blockers still require `scopeGateOpen` before draft admission
 - [x] (valid-no-repro) `use-guided-intake-draft-submit` — post-submit evidence upload failure leaves session uncleared after run spawned — **2026-09-07 (#1212):** `linkedSpawnedRunId` + `isSubmitBlocked` shows `GuidedIntakeAlreadySubmittedCallout` and blocks resubmit; uncleared session preserves operator context after spawn
 - [x] (proven) `use-new-run-wizard-pending-evidence` — inventory platform detection race skips ZIP upload — **hit 2026-09-07 (#1212):** auto-upload effect ran before `detectTier1InventoryPlatformFromFile` resolved; mixed document+inventory pending evidence uploaded documents first and set `evidenceUploadState` to `"success"`, skipping inventory upload; fixed by deferring auto-upload until platform detection completes (`waits for inventory platform detection before auto-uploading pending evidence`)
+- [x] (proven) `use-new-run-wizard-query-prefill` — accelerator/preset deep-link prefill re-fires when `goToStep` identity changes on step URL sync — **hit 2026-09-07 (#1213):** missing run-once guards vs zero-config/example/policy prefills; each `router.replace` for `step` recreated `goToStepWithUrl`, retriggered accelerator/preset effects, and `reset(applyWizardPreset(...))` wiped in-progress edits; fixed with `acceleratorPrefillAppliedRef` / `presetPrefillAppliedRef` (`applies accelerator prefill only once when goToStep identity changes`)
+- [ ] (candidate) `use-guided-intake-wizard` / `handleSessionRestore` — session restore at confirm without `refreshQuestions` leaves empty `pendingQuestions` and false `clarificationsPersistedForSubmit`
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — stale `step`/`pilot`/`mode` query params survive path switches (only `intakeStep`/`scopeGate` cleared today)
+- [ ] (candidate) `use-new-run-wizard-mode` — returning-tenant committed probe flips quick → full mid-session before explicit mode choice
 
 2026-09-07 seed hunt #1175 (hit): reseeded guided intake wizard submit/persistence paths; proved confirm submit allowed before clarification answers persisted to API.
 2026-09-07 thorough hunt #1212 (hit): proved pending-evidence auto-upload race skipped inventory ZIP when platform detection lagged; cheap-disproved path-switcher rerun/policyPack, scopeGate deeplink, and draft-submit session retention hypotheses.
+2026-09-07 seed hunt #1213 (hit): reseeded query-prefill and wizard lifecycle paths; proved accelerator/preset prefill re-fired on step URL sync; added session-restore, stale step param, and mode-probe candidates.
 
 ---
 
