@@ -5,6 +5,8 @@
  * Same verb "Search" meant two jobs; keep labels distinct so operators pick the right surface.
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Header GlobalSearchBar / command-palette-style find-a-page surface. */
 export const GLOBAL_FIND_PAGE_SEARCH = {
   /** Placeholder — navigation lookup; use Ctrl+K for workspace-wide command palette search. */
@@ -33,3 +35,12 @@ export const EVIDENCE_TRAIL_SEARCH = {
   /** Visible label above the evidence query input. */
   queryFieldLabel: "Evidence query",
 } as const;
+
+/** Global search quick-action label for the evidence-trail search destination. */
+export function evidenceTrailSearchQuickActionLabel(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return EVIDENCE_TRAIL_SEARCH.shortNavLabel;
+  }
+
+  return EVIDENCE_TRAIL_SEARCH.title;
+}
