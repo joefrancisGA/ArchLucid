@@ -128,4 +128,9 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/routing/working-route-roles.test.ts",
     marker: "AO-39",
   },
+  {
+    id: "AO-40",
+    relativeTestPath: "lib/apply-working-bind-tool-nav-gate.test.ts",
+    marker: "AO-40",
+  },
 ];
