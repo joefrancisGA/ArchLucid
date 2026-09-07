@@ -17,16 +17,18 @@ import {
   writeSharedSessionLastActivityAt,
 } from "@/lib/auth/session-idle-timeout";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
+import { persistIdleDeskRestoreBeforeSessionClear } from "@/lib/auth/idle-desk-restore";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import { clearOidcSession } from "@/lib/oidc/session";
 import { OidcTokenExpiryWarningGuard } from "@/components/OidcTokenExpiryWarningGuard";
 
 function clearSessionAndRedirect(router: ReturnType<typeof useRouter>): void {
   sessionStorage.setItem(SESSION_CLEARED_AT_STORAGE_KEY, new Date().toISOString());
+  const returnPath = window.location.pathname + window.location.search;
+
+  persistIdleDeskRestoreBeforeSessionClear(returnPath);
   clearOidcSession();
   clearOperatorScopeStorage();
-
-  const returnPath = window.location.pathname + window.location.search;
 
   router.push(buildSessionExpiredHref(returnPath));
   router.refresh();

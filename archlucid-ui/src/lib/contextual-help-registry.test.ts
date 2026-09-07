@@ -270,9 +270,9 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves AI and model governance Category-1 help (AMO)", () => {
+  it("resolves AI and model policy Category-1 help (AMO)", () => {
     expect(contextualHelpForPathname("/administration/model-governance")?.whatIsThisPage).toContain(
-      "AI and model governance",
+      "AI and model policy",
     );
     expect(contextualHelpForPathname("/administration/model-governance")?.whatToDoNext).toContain(
       "AI usage",
@@ -407,8 +407,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/findings")?.whatToDoNext).toContain("findings queue");
   });
 
-  it("resolves governance approval help Category-1 help (GO)", () => {
-    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
+  it("resolves approval help Category-1 help (GO)", () => {
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Approval");
     expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
   });
 

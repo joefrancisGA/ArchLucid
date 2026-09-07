@@ -59,6 +59,25 @@ export function mergeInfrastructureAskAuditScope(
   };
 }
 
+export function hasStaleInfraEvidenceAuditUrlParams(
+  searchParams: Pick<URLSearchParams, "get">,
+): boolean {
+  const auditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+  const assessmentId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_ASSESSMENT_ID_PARAM),
+  );
+  const auditEvidenceSnapshotId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
+  );
+  const controlId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const hasAnyAuditParam =
+    assessmentId.length > 0
+    || auditEvidenceSnapshotId.length > 0
+    || controlId.length > 0;
+
+  return hasAnyAuditParam && auditScope == null;
+}
+
 export function mergeWorkbenchHubScopePatch(
   snapshotId: string,
   auditScope: InfraEvidenceWorkbenchAuditScope | null,

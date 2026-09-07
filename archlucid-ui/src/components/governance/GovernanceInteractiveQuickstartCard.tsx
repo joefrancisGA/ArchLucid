@@ -31,7 +31,7 @@ export function GovernanceInteractiveQuickstartCard({
     >
       <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
         {suppressCardTitle ? null : (
-          <CardTitle className={OPERATOR_TYPOGRAPHY.body}>How governance approval works</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.body}>How approval works</CardTitle>
         )}
       </CardHeader>
       <CardContent className={cn("pb-3 pt-0", suppressCardTitle && "pt-0")}>

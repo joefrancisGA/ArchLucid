@@ -39,8 +39,13 @@ param(
 
     [string] $HuntZoneId,
 
-    [ValidateSet('hit', 'dry', 'seed-only')]
+    [ValidateSet('hit', 'dry', 'seed-only', 'held-for-triage')]
     [string] $HuntOutcome,
+
+    [ValidateSet('high', 'medium', 'low')]
+    [string] $Severity,
+
+    [string[]] $HuntPaths,
 
     [string] $LogPath,
 
@@ -53,7 +58,12 @@ $ErrorActionPreference = 'Stop'
 $scriptDir = $PSScriptRoot
 $pickerScript = Join-Path $scriptDir 'al-bug-pick-zone.ps1'
 $statsScript = Join-Path $scriptDir 'al-bug-rolling-stats.ps1'
+$escalationScript = Join-Path $scriptDir 'al-bug-escalation.ps1'
 $stateFile = Join-Path $scriptDir '.al-bug-sequential-state.json'
+
+if (Test-Path -LiteralPath $escalationScript) {
+    . $escalationScript
+}
 
 function Get-RepoRootFromScript {
     param([string] $ExplicitRoot)
@@ -94,6 +104,30 @@ function Read-State {
     }
 
     return (Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json)
+}
+
+function Get-HuntRunLogJsonlPath {
+    param([string] $Root)
+
+    return Join-Path $Root ('docs/library/AL_BUG_HUNT_RUN_LOG.jsonl' -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
+
+function Get-CurrentEscalatedFiles {
+    param([string] $Root)
+
+    # Hit counts come from per-hunt ledger entries; recent bugsmash commits add one more
+    # point per distinct file, so a file repeatedly patched by both signals crosses the threshold.
+    if (-not (Get-Command Get-EscalatedProductionFiles -ErrorAction SilentlyContinue)) {
+        return @()
+    }
+
+    $entries = Read-EscalationRunLogEntries -Path (Get-HuntRunLogJsonlPath -Root $Root)
+    $gitPaths = Get-GitBugsmashProductionPaths -GitRepoRoot $Root
+
+    return @(Get-EscalatedProductionFiles `
+            -RunLogEntries $entries `
+            -GitLogText ($gitPaths -join [Environment]::NewLine) `
+            -NowUtc ([datetime]::UtcNow))
 }
 
 function Write-State {
@@ -142,7 +176,37 @@ if ($CompleteHunt) {
         throw '-HuntOutcome is required with -CompleteHunt.'
     }
 
-  $statsOutput = & $statsScript -RecordHunt -HuntZoneId $HuntZoneId -HuntOutcome $HuntOutcome -Rolling24h -RepoRoot $resolvedRoot
+    $resolvedSeverity = $(if ([string]::IsNullOrWhiteSpace($Severity)) { 'medium' } else { $Severity })
+
+    if ($HuntOutcome -eq 'hit' -and (Get-Command Test-AlBugShouldHoldHit -ErrorAction SilentlyContinue)) {
+        $escalatedFiles = Get-CurrentEscalatedFiles -Root $resolvedRoot
+        $shouldHold = Test-AlBugShouldHoldHit -Severity $resolvedSeverity -EscalatedFiles $escalatedFiles -ChangedPaths @($HuntPaths)
+
+        if ($shouldHold) {
+            $HuntOutcome = 'held-for-triage'
+            Write-Host ''
+            Write-Host '**Held for triage:** low-severity or escalated-file hit — do not auto-push instance-list fixes.'
+            Write-Host ''
+        }
+    }
+
+    $statsArgs = @{
+        RecordHunt  = $true
+        HuntZoneId  = $HuntZoneId
+        HuntOutcome = $HuntOutcome
+        Rolling24h  = $true
+        RepoRoot    = $resolvedRoot
+    }
+
+    if ($HuntPaths -and $HuntPaths.Count -gt 0) {
+        $statsArgs.HuntPaths = $HuntPaths
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($resolvedSeverity)) {
+        $statsArgs.Severity = $resolvedSeverity
+    }
+
+    $statsOutput = & $statsScript @statsArgs
     $statsJson = $statsOutput | Select-Object -Last 1
     $stats = $statsJson | ConvertFrom-Json
 

@@ -76,7 +76,8 @@ public sealed partial class PremiumInsightDensityLlmJudge
         int maxJudgedFindingsPerSnapshot)
     {
         List<Finding> ordered = candidates
-            .OrderByDescending(static finding => finding.Severity)
+            .OrderByDescending(static finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType))
+            .ThenByDescending(static finding => finding.Severity)
             .ThenBy(static finding => finding.InsightDensityScore ?? int.MaxValue)
             .ThenBy(static finding => finding.FindingId, StringComparer.Ordinal)
             .ToList();

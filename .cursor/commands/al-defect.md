@@ -83,6 +83,7 @@ Examples:
    - **Screenshot:** the attached file path/name, or "none provided"
    - **Status:** `Investigating`
 4. Add a matching row to the summary table.
+5. When disposition will be **Escalated to TB-###** or **confirmed still broken**, map implicated production files to hunt zones (`python3 -c` via `scripts/agent/al_bug_escape_log.py` / ledger `paths`) and append one line to `docs/library/AL_BUG_ESCAPE_LOG.jsonl` (`source: al-defect`, `zoneId` or `unzoned`, `paths`, `ref: PD-###`, `huntedInPriorDays` from run log). Add `related-pd-tb` on a zone stanza **only** when path match is confirmed. No customer data in the escape log.
 
 ## Step 3 — Investigate
 

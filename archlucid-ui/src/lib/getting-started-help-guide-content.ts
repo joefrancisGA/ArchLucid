@@ -4,12 +4,12 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
-  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
+  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.";
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
-  "See how evidence becomes findings, decisions, and governance outputs before your first review.";
+  "See how evidence becomes findings, decisions, and approval outputs before your first review.";
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
@@ -59,25 +59,25 @@ export const GETTING_STARTED_HELP_QUICK_START_COPY =
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture review you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a formal architecture review you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",
   "Analyze",
   "Findings",
   "Decisions",
-  "Governance outputs",
+  "Approval outputs",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Governance gate: allow commits the sealed review record; block or warn policy holds finalize.",
+  "Approval gate: allow commits the sealed review record; block or warn policy holds finalize.",
   "Committed outputs: sealed review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), approval gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -103,12 +103,12 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for governance and audit.",
+      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for approval and audit.",
   },
   {
     term: "Sealed review record",
     definition:
-      "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
+      "The immutable package locked when a review is finalized — the authoritative anchor for approvals, exports, and evidence lineage.",
   },
   {
     term: "Evidence trail",
@@ -118,10 +118,10 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Policy pack",
     definition:
-      "Versioned governance standards and rules applied to reviews for your workspace or project.",
+      "Versioned policy standards and rules applied to reviews for your workspace or project.",
   },
   {
-    term: "Governance approval",
+    term: "Approval",
     definition:
       "Formal sign-off workflow when a review requires approver acknowledgement before release.",
   },
@@ -156,7 +156,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 3,
     title: "Review findings",
-    description: "Triage issues, confirm evidence coverage, and note items that need governance follow-up.",
+    description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
     expectedOutputs: "Prioritized findings ready for decisions.",
     href: "/governance/findings",
     ctaLabel: "Open findings queue",
@@ -165,9 +165,9 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 4,
     title: "Record decisions",
     description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
-    expectedOutputs: "Architecture decisions and governance notes.",
+    expectedOutputs: "Architecture decisions and approval notes.",
     href: "/governance/approval-queue",
-    ctaLabel: "Open governance workflow",
+    ctaLabel: "Open approval workflow",
   },
   {
     stepNumber: 5,
@@ -280,7 +280,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: "Learn the vocabulary",
-    description: "Scan the plain-language terms used across review, governance, and exports.",
+    description: "Scan the plain-language terms used across review, approval, and exports.",
     href: "#plain-language-vocabulary",
     ctaLabel: "View vocabulary",
   },
@@ -343,7 +343,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   end
   AR --> CI --> KG --> FD --> DV --> ART
   R -.created at start.- CI
-  FD --> gov{Governance gate}
+  FD --> gov{Approval gate}
   gov -->|allow| SR
   gov -->|block / warn policy| gov
   SR --> PKG`;

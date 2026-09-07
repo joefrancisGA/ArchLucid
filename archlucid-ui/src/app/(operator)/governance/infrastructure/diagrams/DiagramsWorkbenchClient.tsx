@@ -46,12 +46,19 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
+import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -182,11 +189,42 @@ export function DiagramsWorkbenchClient() {
   }, [fallbackArtifacts, selectedViewKey, showFallbackCards]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const scopedSnapshotId = selectedSnapshotId.length > 0 ? selectedSnapshotId : urlSnapshotId;
   const workbenchHubScopePatch = useMemo(
     () => mergeWorkbenchHubScopePatch(scopedSnapshotId, auditScope),
     [auditScope, scopedSnapshotId],
   );
+  const { hub: resourceHub } = useInfraEvidenceResourceHubAuditLineage(
+    urlCloudResourceId,
+    scopedSnapshotId,
+  );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(resourceHub),
+    [resourceHub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), buildInfraEvidenceAuditControlScopePatch(match), pathname), {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams]);
+  const deepLinkedSnapshotMissing = useMemo(() => {
+    if (urlSnapshotId.length === 0 || loadingSnapshots || snapshots.length === 0) {
+      return false;
+    }
+
+    return !snapshots.some((snapshot) => snapshot.snapshotId === urlSnapshotId);
+  }, [loadingSnapshots, snapshots, urlSnapshotId]);
+  const selectionAnnouncement = useMemo(() => {
+    if (selectedSnapshotId.length === 0) {
+      return null;
+    }
+
+    return `Diagram snapshot ${selectedSnapshotId} selected. Mode ${selectedMode}.`;
+  }, [selectedMode, selectedSnapshotId]);
 
   const mermaidSource = renderResult?.mermaid ?? "";
   const metrics = renderResult?.metrics ?? null;
@@ -398,10 +436,24 @@ export function DiagramsWorkbenchClient() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-diagrams-workbench">
       <LayerHeader pageKey="infrastructure-diagrams" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
-        thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability
+          thresholds. Server PNG export applies tenant branding on the container only — never inside graph nodes.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-diagrams-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
+
+      {deepLinkedSnapshotMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagrams-snapshot-deep-link-missing"
+          role="status"
+        >
+          The linked snapshot is not available in the diagrams workbench scope.
+        </p>
+      ) : null}
 
       {loadError != null ? (
         <StatusTag kind="needs-attention" label={loadError} />
@@ -416,6 +468,21 @@ export function DiagramsWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
+          {auditScope != null || resourceHub?.auditLineageLink.available === false || hasStaleAuditUrlParams ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={resourceHub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={scopedSnapshotId}
+              activeTab="diagram"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
+              provenanceTestId="infra-diagrams-audit-provenance"
+              unavailableTestId="infra-diagrams-audit-unavailable"
+            />
+          ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}
             primaryTab="diagram"
@@ -559,6 +626,7 @@ export function DiagramsWorkbenchClient() {
                   selectedMode === "dependencyNeighborhood" && seedNodeId.length > 0
                     ? seedNodeId
                     : undefined,
+                hubTab: "diagram",
                 ...mergeInfrastructureAskAuditScope(auditScope),
               })}
             >

@@ -1,4 +1,4 @@
-import type { RunsDashboardTabCounts } from "@/components/operator-home/runs-dashboard-helpers";
+import type { RunsDashboardTabCounts } from "@/lib/operator/run-home-status";
 import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
@@ -39,6 +39,7 @@ export function deriveOperatorHomeTenantCountingSnapshot(
     previewItems: tenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,
     awaitingApprovalRunIds: input.awaitingApprovalRunIds,
+    awaitingApprovalCount,
   });
 
   return {

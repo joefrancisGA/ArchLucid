@@ -31,7 +31,7 @@ describe("hub filter URL restore (SD-07)", () => {
     );
   });
 
-  it("hydrates governance findings register filter, job view, nl facets, and hide-generic from URL", () => {
+  it("hydrates policy findings register filter, job view, nl facets, and hide-generic from URL", () => {
     const search =
       "?filter=high-severity&jobView=deferred&severity=critical&status=open&hideGeneric=1";
 

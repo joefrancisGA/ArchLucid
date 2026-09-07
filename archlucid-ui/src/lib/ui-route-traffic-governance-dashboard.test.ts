@@ -10,7 +10,7 @@ import { ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID } from "@/lib/ui-route-tr
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 describe("ui-route-traffic-governance-dashboard", () => {
-  it("tracks the legacy governance dashboard bookmark without reviving the retired GDX row id", () => {
+  it("tracks the legacy approval dashboard bookmark without reviving the retired GDX row id", () => {
     const rows = extractMasterTableRows(readUiRouteTrafficEstimatesTemplateMarkdown());
     const gdxRow = rows.find((row) => row.id === GOVERNANCE_DASHBOARD_RETIRED_TRAFFIC_ROW_ID);
     const areRow = rows.find((row) => row.id === ARCHITECTURE_SPONSOR_DASHBOARD_TRAFFIC_ROW_ID);

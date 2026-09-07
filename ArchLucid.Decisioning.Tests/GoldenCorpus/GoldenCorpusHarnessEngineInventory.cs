@@ -8,7 +8,7 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 /// </summary>
 public static class GoldenCorpusHarnessEngineInventory
 {
-    public const int RegisteredEngineCount = 16;
+    public const int RegisteredEngineCount = 32;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
@@ -28,6 +28,22 @@ public static class GoldenCorpusHarnessEngineInventory
         "cost-constraint",
         "declaration-security-baseline",
         "declaration-premise-conflict",
+        "orphaned-azure-resource",
+        "advisor-cost-recommendation",
+        "azure-inventory-reconciliation",
+        "aws-inventory-reconciliation",
+        "gcp-inventory-reconciliation",
+        "declaration-inventory-contradiction",
+        "orphaned-aws-resource",
+        "orphaned-gcp-resource",
+        "aws-cost-recommendation",
+        "gcp-cost-recommendation",
+        "azure-inventory-security-baseline",
+        "aws-inventory-security-baseline",
+        "gcp-inventory-security-baseline",
+        "open-commitment",
+        "secrets-lifecycle",
+        "portfolio-recurrence",
     ];
 
     private static readonly IReadOnlyDictionary<string, string> AbsentReasons =
@@ -36,26 +52,17 @@ public static class GoldenCorpusHarnessEngineInventory
             ["requirement-gap"] = "Needs cross-run requirement diff graph — not present on golden corpus graphs.",
             ["requirement-cross-run-diff"] = "Cross-run diff engine — golden corpus is single-snapshot per case.",
             ["topology-cross-run-diff"] = "Cross-run topology diff — golden corpus is single-snapshot per case.",
-            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-35.",
+            ["topology-anti-pattern"] = "Anti-pattern engine needs richer topology fixtures than case-01..case-37.",
             ["security-baseline-expectation"] = "Expectation engine needs declaration fixtures beyond default graphs.",
             ["policy-applicability"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["required-capability-coverage"] = "Capability coverage needs inventory-shaped graph not in corpus.",
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
-            ["orphaned-azure-resource"] = "Azure inventory reconciliation — needs cloud inventory snapshot.",
-            ["advisor-cost-recommendation"] = "Advisor recommendations — needs Azure Advisor payload.",
-            ["azure-inventory-reconciliation"] = "Azure inventory reconciliation — needs cloud inventory snapshot.",
-            ["aws-inventory-reconciliation"] = "AWS inventory reconciliation — needs cloud inventory snapshot.",
-            ["gcp-inventory-reconciliation"] = "GCP inventory reconciliation — needs cloud inventory snapshot.",
-            ["orphaned-aws-resource"] = "AWS orphan scan — needs cloud inventory snapshot.",
-            ["orphaned-gcp-resource"] = "GCP orphan scan — needs cloud inventory snapshot.",
-            ["aws-cost-recommendation"] = "AWS cost recommendations — needs cloud cost payload.",
-            ["gcp-cost-recommendation"] = "GCP cost recommendations — needs cloud cost payload.",
-            ["azure-inventory-security-baseline"] = "Azure inventory security baseline — needs inventory snapshot.",
-            ["aws-inventory-security-baseline"] = "AWS inventory security baseline — needs inventory snapshot.",
-            ["gcp-inventory-security-baseline"] = "GCP inventory security baseline — needs inventory snapshot.",
-            ["open-commitment"] = "Open-commitment engine reads disposition trail — not wired on golden corpus runs.",
-            ["portfolio-recurrence"] = "Portfolio recurrence needs multi-run tenant history — not on golden corpus.",
+            ["dr-rpo-topology"] = "DR/RPO topology checks need requirement text plus linked SQL/storage nodes — not on default golden graphs.",
+            ["segmentation-semantics"] = "Segmentation semantics needs NSG/NetworkPolicy rule blobs with sensitive target paths — not on default golden graphs.",
+            ["identity-blast-radius"] = "Identity blast-radius needs hand-built actor/role/datastore path fixtures — not on default golden graphs.",
+            ["dangling-declaration-reference"] = "Cross-file dangling refs need paired source/target fixtures — not on default golden graphs.",
+            ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

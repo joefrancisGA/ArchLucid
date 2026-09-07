@@ -80,7 +80,7 @@ export function DevTestingQuickJumpLinks(props: DevTestingQuickJumpLinksProps): 
   const approvalItems = snapshot.approvalRequests.map((approval) => ({
     href: devTestingApprovalLineagePath(approval.approvalRequestId),
     id: approval.approvalRequestId,
-    entityLabel: "Governance approval",
+    entityLabel: "Approval",
   }));
   const manifestItems = snapshot.manifests.map((manifest) => ({
     href: devTestingManifestDetailPath(manifest.manifestId),
@@ -119,8 +119,8 @@ export function DevTestingQuickJumpLinks(props: DevTestingQuickJumpLinksProps): 
         testIdPrefix="dev-quick-jump-run"
       />
       <DevTestingQuickJumpCluster
-        label="Governance approvals"
-        emptyMessage="No governance approvals for recent reviews"
+        label="Approvals"
+        emptyMessage="No approvals for recent reviews"
         loading={loading}
         items={approvalItems}
         testIdPrefix="dev-quick-jump-approval"

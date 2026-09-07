@@ -20,6 +20,8 @@ using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Exports;
@@ -311,6 +313,8 @@ public sealed class SponsorReviewPacketBuilderTests
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             authorityQuery.Object,
             manifestHash.Object,
-            Mock.Of<IGraphSnapshotRepository>());
+            Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IConfiguration>());
     }
 }

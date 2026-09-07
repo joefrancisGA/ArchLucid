@@ -3,7 +3,7 @@
  * **`authority-seam-regression.test.ts`** / **`current-principal.test.ts`**; this file catches inverted `disabled` props,
  * dropped hooks, or pages that stop calling the hook while nav still filters by rank.
  *
- * Governance workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
+ * Approval workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
  * via DOM attributes, not tooltip copy strings.
  *
  * Policy resolution: **`Refresh policy resolution`** reader supplement is driven only by the mutation capability hook
@@ -604,7 +604,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   it(
-    "Governance workflow: submit Review ID and manifest inputs stay read-only when mutation capability is false",
+    "Approval workflow: submit Review ID and manifest inputs stay read-only when mutation capability is false",
     async () => {
       mutateCapability.current = false;
       scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
@@ -620,7 +620,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
       // Approvals list and submit card are separate dynamic chunks that mount after the context bar.
       expect(await screen.findByText(GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS)).toBeInTheDocument();
-      expect((await screen.findAllByText("Submit for governance approval")).length).toBeGreaterThan(0);
+      expect((await screen.findAllByText("Submit for approval")).length).toBeGreaterThan(0);
 
       const submitVersion = await waitFor(() => {
         const input = document.getElementById("gov-submit-version") as HTMLInputElement | null;
@@ -635,7 +635,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     15_000,
   );
 
-  it("Governance workflow: submit Review ID is editable when mutation capability is true", async () => {
+  it("Approval workflow: submit Review ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;
     scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
     render(<GovernanceWorkflowPageContent />);

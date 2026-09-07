@@ -1,4 +1,4 @@
-/** Advisory scans hub — page chrome, form labels, empty states, and governance disposition copy. */
+/** Advisory scans hub — page chrome, form labels, empty states, and approval disposition copy. */
 
 /** Single above-the-fold lead under the page title (TB-1125 — no triple description). */
 export const ADVISORY_SCANS_PAGE_LEAD =

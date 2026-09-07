@@ -19,7 +19,7 @@ const PRODUCT_ALERTS_INBOX_SURFACES = [
   "archlucid-ui/src/lib/nav-shell-visibility.ts",
 ] as const;
 
-describe("governance alerts inbox legacy tab (GOI / TB-1594–TB-1596)", () => {
+describe("approval alerts inbox legacy tab (GOI / TB-1594–TB-1596)", () => {
   it("keeps canonical inbox on bare /governance/alerts", () => {
     expect(CANONICAL_ALERTS_INBOX_TRAFFIC_PATH).toBe(GOVERNANCE_ALERTS_PATH);
     expect(RETIRED_ALERTS_INBOX_TAB_TRAFFIC_PATH).toBe(RETIRED_GOVERNANCE_ALERTS_INBOX_TAB_HREF);

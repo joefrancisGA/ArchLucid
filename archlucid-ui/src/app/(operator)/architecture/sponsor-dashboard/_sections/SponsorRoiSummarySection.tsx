@@ -9,6 +9,7 @@ import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-hone
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,9 @@ import {
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
+import { verifyBoardPackRunLineage } from "@/lib/exports/traceability-bundle-download";
+import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -76,6 +80,7 @@ export function SponsorRoiSummarySection({
   scopedReviewId = "",
 }: SponsorRoiSummarySectionProps = {}) {
   const executiveSurface = surface === "sponsor";
+  const workingDesk = useProductionDeskChrome();
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
   const summaryQuery = useSponsorRoiSummaryQuery({ enabled: !usesExternalSummary });
   const scopedReviewTrimmed = scopedReviewId.trim();
@@ -103,6 +108,7 @@ export function SponsorRoiSummarySection({
   );
   const [boardPackBusy, setBoardPackBusy] = useState(false);
   const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
+  const [boardPackRecovery, setBoardPackRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
   const onDownloadSponsorSummary = useCallback(() => {
     const resolved = usesExternalSummary ? summaryProp : data;
 
@@ -128,9 +134,26 @@ export function SponsorRoiSummarySection({
   }, [coverageHonestyQuery.data, data, scopedReviewTrimmed, summaryProp, usesExternalSummary]);
 
   const onDownloadBoardPack = useCallback(async () => {
+    const resolved = usesExternalSummary ? summaryProp : data;
+
+    if (resolved === null || resolved === undefined) {
+      return;
+    }
+
     setBoardPackBusy(true);
+    setBoardPackRecovery(null);
 
     try {
+      const verify = await verifyBoardPackRunLineage(
+        resolved.systems.map((system) => system.runId),
+        { workingDesk, skipVerify: !workingDesk || executiveSurface },
+      );
+
+      if (!verify.ok) {
+        setBoardPackRecovery(verify.recovery);
+        return;
+      }
+
       await downloadSponsorRoiBoardPack({
         format: "md",
         generateNarrative: includeBoardPackNarrative,
@@ -140,7 +163,14 @@ export function SponsorRoiSummarySection({
     } finally {
       setBoardPackBusy(false);
     }
-  }, [includeBoardPackNarrative]);
+  }, [
+    data,
+    executiveSurface,
+    includeBoardPackNarrative,
+    summaryProp,
+    usesExternalSummary,
+    workingDesk,
+  ]);
 
   const onDownloadCsv = useCallback(async () => {
     if (scopedReviewExportBlockedReason !== null) {
@@ -317,13 +347,19 @@ export function SponsorRoiSummarySection({
             data-testid="exec-roi-board-pack-narrative-toggle"
           />
           {isBuyerPolishedOperatorShellEnv()
-            ? "Include an AI-generated sponsor report."
-            : "Include AI sponsor report (uses 1 fast LLM call when enabled in API config)"}
+            ? "Include an AI-generated advisory narrative (off by default; not a sealed metric)."
+            : "Include AI advisory narrative (off by default; uses 1 fast LLM call when enabled in API config)"}
         </label>
         <SponsorRoiBoardPackEvidenceBanner
           summary={displayData}
           includeNarrative={includeBoardPackNarrative}
         />
+        {boardPackRecovery !== null ? (
+          <OperatorErrorRecoveryContract
+            presentation={boardPackRecovery}
+            testId="exec-roi-board-pack-verify-recovery"
+          />
+        ) : null}
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Latest finalized review per system in this workspace. {BUYER_SPONSOR_DATA_SOURCE_NOTE}
         </CardDescription>

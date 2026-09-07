@@ -1,6 +1,7 @@
 > **Scope:** Copy-paste Composer prompts that close **professional-core wave-15 kernel gaps** after CA-01–50 and LK-01–15 ADRs. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13
 > **Paste-ready files:** [`.cursor/prompts/professional-core-00-index.md`](../../.cursor/prompts/professional-core-00-index.md) (**PC-01–PC-13**)
+> **Successor (wave 16):** [`DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md`](DEFENSIBLE_RECORD_COMPOSER_PROMPTS.md) (**DR-01–DR-16**) — do **not** add PC-14; paste DR files instead.
 
 # Professional-core Composer prompts (PC-01–PC-13)
 

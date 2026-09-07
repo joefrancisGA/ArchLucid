@@ -39,7 +39,7 @@ export function secondaryAppearanceSurfaceLabel(surface: SecondaryAppearanceSurf
     case "reviewPackageFindingsTab":
       return "Architecture review findings";
     case "reviewPackageGovernanceTab":
-      return "Architecture review governance";
+      return "Architecture review policies";
     case "reviewPackageAuthorityChain":
       return "Architecture review authority chain";
     case "findingEvidenceTrace":

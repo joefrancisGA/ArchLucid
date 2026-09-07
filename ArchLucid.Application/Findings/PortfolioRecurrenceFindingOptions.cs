@@ -9,7 +9,7 @@ public sealed class PortfolioRecurrenceFindingOptions
     {
         get;
         set;
-    } = false;
+    } = true;
 
     public int MinSystemCountToReport
     {

@@ -70,6 +70,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0072](0072-working-canonical-work-identity.md) | Working canonical work URL after spawn — handoff not second desk; ADR 0068 tables unchanged (**Status: Accepted** 2026-09-05) |
 | [0073](0073-transparency-trail-finalize-export-gate.md) | Transparency trail is a finalize and export gate — null trail blocks seal (**Status: Accepted** 2026-09-05) |
 | [0074](0074-customer-visible-architecture-identity.md) | Customer-visible durable architecture identity — `dbo.Architectures` as named parent; drafts and reviews as children; supersedes stale “no Architectures nav” assessment for Working (**Status: Accepted** 2026-09-05) |
+| [0075](0075-coordinator-audit-echo-fail-closed.md) | Coordinator audit echo fail-closed on governed mutations — finalize `Run.CommitCompleted` echo must not swallow durable write failures (**Status: Accepted** 2026-09-06) |
+| [0076](0076-finding-disposition-conflict-409.md) | Finding disposition current-pointer conflict (409) — ADR 0076 / DR-08 (**Status: Accepted** 2026-09-06) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

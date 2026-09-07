@@ -9,14 +9,14 @@ describe("GovernanceModeFirstUseCoach (TB-2392)", () => {
     window.localStorage.removeItem(GOVERNANCE_MODE_TEACHING_DISMISS_KEY);
   });
 
-  it("shows the coach when governance mode is enabled and teaching is not dismissed", () => {
+  it("shows the coach when approval view mode is enabled and teaching is not dismissed", () => {
     render(<GovernanceModeFirstUseCoach enabled />);
 
     expect(screen.getByTestId("governance-mode-first-use-coach")).toBeInTheDocument();
     expect(screen.getByTestId("governance-mode-first-use-coach-step-routes")).toBeInTheDocument();
   });
 
-  it("hides the coach when governance mode is disabled", () => {
+  it("hides the coach when approval view mode is disabled", () => {
     render(<GovernanceModeFirstUseCoach enabled={false} />);
 
     expect(screen.queryByTestId("governance-mode-first-use-coach")).not.toBeInTheDocument();

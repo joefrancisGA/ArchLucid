@@ -324,7 +324,7 @@ export function stripTrustCenterContributorLeakage(markdown: string): string {
     [
       "## Healthcare and PHI",
       "",
-      "ArchLucid is for **architecture and governance evidence** — not a regulated record system for clinical care.",
+      "ArchLucid is for **architecture and approval evidence** — not a regulated record system for clinical care.",
       "",
       "- **Do not upload PHI** into briefs, uploads, or free-text architecture fields.",
       "- For **BAA**, **MSA/DPA** wording, or contractual posture beyond in-repo templates, contact **sales@archlucid.net**.",

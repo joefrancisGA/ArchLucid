@@ -6,7 +6,10 @@ import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSe
 
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
+import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
+import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
+import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -21,6 +24,11 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly graphSnapshot?: unknown;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly quickDecisionFindings?: readonly QuickDecisionFinding[];
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+  readonly isSample?: boolean | null;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -29,6 +37,12 @@ export function RunDetailReviewPackageStampViewport(
 ): React.JSX.Element | null {
   const { isWorkingMode } = useWorkspaceMode();
   const feasibilityVerdict = props.feasibilityVerdict ?? null;
+  const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const measurementFloorOptions = {
+    actorNodeCount,
+    analysisStagesComplete: props.analysisStagesComplete === true,
+    judgeSkippedByCap: props.judgeSkippedByCap ?? null,
+  };
 
   if (props.hasGoldenManifest) {
     if (feasibilityVerdict === null) {
@@ -37,9 +51,22 @@ export function RunDetailReviewPackageStampViewport(
 
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-        <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+        <RunDetailPreFinalizeGateHonestyStrip />
+        <RunDetailQualityGateModeStrip
+          runId={props.runId}
+          structuralExecutionMode={props.structuralExecutionMode}
+          isSample={props.isSample}
+        />
+        <RunDetailReviewPackageClassificationSummary
+          findings={props.quickDecisionFindings ?? []}
+          withheldFindingCount={props.withheldFindingCount}
+          catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
+          actorNodeCount={measurementFloorOptions.actorNodeCount}
+          analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
+          judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -58,8 +85,21 @@ export function RunDetailReviewPackageStampViewport(
 
   return (
     <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
-      <RunDetailReviewPackageClassificationSummary findings={props.quickDecisionFindings ?? []} />
+      <RunDetailPreFinalizeGateHonestyStrip />
+      <RunDetailQualityGateModeStrip
+        runId={props.runId}
+        structuralExecutionMode={props.structuralExecutionMode}
+        isSample={props.isSample}
+      />
+      <RunDetailReviewPackageClassificationSummary
+        findings={props.quickDecisionFindings ?? []}
+        withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+      />
       <RunDetailInsightDensityMeasurementDenominatorStrip
+        actorNodeCount={measurementFloorOptions.actorNodeCount}
+        analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
+        judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

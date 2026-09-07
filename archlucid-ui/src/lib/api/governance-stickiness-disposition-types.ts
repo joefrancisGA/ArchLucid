@@ -27,6 +27,7 @@ export type FindingDispositionEvent = {
   evidenceRequestText?: string | null;
   occurredAtUtc: string;
   runId?: string | null;
+  currentDispositionRowVersionBase64?: string | null;
 };
 
 export type GovernanceDecisionsNeededSummary = {

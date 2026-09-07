@@ -58,4 +58,11 @@ public sealed class FindingDispositionEventDto
         get;
         init;
     }
+
+    /// <summary>Row version of <c>dbo.FindingCurrentDispositions</c> after this event became current (ADR 0076).</summary>
+    public string? CurrentDispositionRowVersionBase64
+    {
+        get;
+        init;
+    }
 }

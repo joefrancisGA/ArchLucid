@@ -23,6 +23,7 @@ import {
 } from "@/lib/compare/compare-stale-inputs-technical-ids-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -143,6 +144,10 @@ export function CompareResultsPanelVerdictChrome({
           }
           newFindingTrustLanes={newFindingTrustLanes}
         />
+      ) : null}
+
+      {golden !== null ? (
+        <ComparePinToDeskActions baselineRunId={golden.baseRunId} updatedRunId={golden.targetRunId} />
       ) : null}
 
       {showStaleInputsWarning && (

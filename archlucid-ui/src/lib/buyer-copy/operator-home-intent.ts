@@ -33,7 +33,7 @@ export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
 export const OPERATOR_HOME_IN_PROGRESS_HEADING = "In progress";
 
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
-  "Open an in-progress review or start another governed review when your architecture is ready.";
+  "Open an in-progress review or start another formal review when your architecture is ready.";
 
 export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
 
@@ -125,14 +125,14 @@ export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCo
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (trimmedName.length > 0 && safeCount === 1) {
-    return `Pick up "${trimmedName}" or start a governed review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" or start a formal review from the lifecycle steps below.`;
   }
 
   if (trimmedName.length > 0) {
-    return `Pick up "${trimmedName}" — your most recent draft — or start a governed review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" — your most recent draft — or start a formal review from the lifecycle steps below.`;
   }
 
-  return "Resume your most recent draft or start a governed review from the lifecycle steps below.";
+  return "Resume your most recent draft or start a formal review from the lifecycle steps below.";
 }
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
@@ -149,13 +149,15 @@ export const OPERATOR_HOME_YOUR_WORK_COLUMN_TYPE = "Type";
 
 export const OPERATOR_HOME_YOUR_WORK_COLUMN_UPDATED = "Updated";
 
+export const OPERATOR_HOME_YOUR_WORK_COLUMN_CREATED = "Created";
+
 export const OPERATOR_HOME_YOUR_WORK_COLUMN_STATUS = "Status";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT =
   "Describe your system or connect cloud inventory to produce a draft architecture.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY_COMPACT =
-  "Attach diagrams, documents, or inventory to run a governed architecture review.";
+  "Attach diagrams, documents, or inventory to run a formal architecture review.";
 
 export function formatOperatorHomeRecommendedNextTitle(title: string): string {
   const trimmedTitle = title.trim();

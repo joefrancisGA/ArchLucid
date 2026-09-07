@@ -32,14 +32,6 @@ public static class AgentModelExecutionProfileParser
             return true;
         }
 
-        if (TryParseBooleanOrdinalString(normalized, out int booleanOrdinal)
-            && Enum.IsDefined(typeof(AgentModelExecutionProfile), booleanOrdinal))
-        {
-            profile = (AgentModelExecutionProfile)booleanOrdinal;
-
-            return true;
-        }
-
         if (string.Equals(normalized, "high-assurance", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "high assurance", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "high_assurance", StringComparison.OrdinalIgnoreCase))
@@ -48,58 +40,6 @@ public static class AgentModelExecutionProfileParser
 
             return true;
         }
-
-        return false;
-    }
-
-    private static bool TryParseBooleanOrdinalString(string raw, out int ordinal)
-    {
-        if (TryParseBooleanString(raw, out bool boolean))
-        {
-            ordinal = boolean ? 1 : 0;
-
-            return true;
-        }
-
-        ordinal = default;
-
-        return false;
-    }
-
-    private static bool TryParseBooleanString(string? raw, out bool value)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            value = default;
-
-            return false;
-        }
-
-        string trimmed = raw.Trim();
-
-        if (trimmed.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("yes", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("on", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = true;
-
-            return true;
-        }
-
-        if (trimmed.Equals("false", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("0", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("no", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("off", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-        {
-            value = false;
-
-            return true;
-        }
-
-        value = default;
 
         return false;
     }

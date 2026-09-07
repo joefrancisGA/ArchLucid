@@ -15,7 +15,11 @@ using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Configuration;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Models;
@@ -31,6 +35,8 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
+using Moq;
+
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>
@@ -45,6 +51,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
+    private readonly GoldenCorpusFixedScopeContextProvider _scopeContextProvider = new();
+
     /// <summary>Runs findings + authority decisioning (+ optional merge) and returns normalized JSON artifacts.</summary>
     public async Task<GoldenCorpusRunArtifacts> RunAsync(
         Guid runId,
@@ -52,20 +60,21 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         GraphSnapshot graph,
         CollectingAuditService audit,
         GoldenCorpusMergeInput? merge,
-        CancellationToken ct)
+        CancellationToken ct,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(audit);
 
-        IFindingEngine[] engines = CreateEngines();
-        FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
-            engines,
-            new FindingPayloadValidator(),
-            Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault(),
-            _timeProvider);
+        (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture);
 
-        FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(runId, contextSnapshotId, graph, ct);
+        FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(
+            runId,
+            contextSnapshotId,
+            graph,
+            ct,
+            analysisContext);
 
         RuleBasedDecisionEngine decisionEngine = Feasibility.RuleBasedDecisionEngineTestDependencies.CreateEngine(
             new InMemoryDecisionRuleProvider());
@@ -108,19 +117,76 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graph,
-        CancellationToken ct)
+        CancellationToken ct,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
 
+        (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture);
+
+        return await orchestrator.GenerateFindingsSnapshotAsync(
+            runId,
+            contextSnapshotId,
+            graph,
+            ct,
+            analysisContext);
+    }
+
+    private (FindingsOrchestrator Orchestrator, FindingAnalysisContext? AnalysisContext) CreateOrchestrator(
+        Guid runId,
+        Guid contextSnapshotId,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture)
+    {
+        (IAzureExtractorPackageRepository azureRepository, FindingAnalysisContext? analysisContext) =
+            ResolveAzureInventory(runId, contextSnapshotId, inventoryFixture);
+
+        ICloudInventoryExtractorPackageRepository cloudRepository = new NoOpCloudInventoryExtractorPackageRepository();
+
         IFindingEngine[] engines = CreateEngines();
+        IEffectfulFindingEngine[] effectfulEngines = GoldenCorpusEffectfulEngineFactory.Create(
+            _scopeContextProvider,
+            azureRepository,
+            cloudRepository,
+            _timeProvider);
+
         FindingsOrchestrator orchestrator = FindingsOrchestratorComposer.Compose(
             engines,
             new FindingPayloadValidator(),
             Options.Create(new HumanReviewFindingOptions()),
             DeterministicInsightDensityGate.CreateDefault(),
-            _timeProvider);
+            _timeProvider,
+            effectfulEngines,
+            _scopeContextProvider);
 
-        return await orchestrator.GenerateFindingsSnapshotAsync(runId, contextSnapshotId, graph, ct);
+        return (orchestrator, analysisContext);
+    }
+
+    private (IAzureExtractorPackageRepository Repository, FindingAnalysisContext? AnalysisContext) ResolveAzureInventory(
+        Guid runId,
+        Guid contextSnapshotId,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture)
+    {
+        if (inventoryFixture is null)
+            return (new NoOpAzureExtractorPackageRepository(), null);
+
+        DateTime collectionUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        AzureExtractorPackageDownloadRecord download = GoldenCorpusEffectfulInventorySupport.CreateAzurePackage(
+            inventoryFixture.AzurePackageId,
+            inventoryFixture.ResourcesJson);
+
+        Mock<IAzureExtractorPackageRepository> repository = GoldenCorpusEffectfulInventorySupport.CreateSeededAzureRepository(
+            GoldenCorpusFixedScopeContextProvider.Scope,
+            download,
+            collectionUtc);
+
+        FindingAnalysisContext analysisContext = GoldenCorpusEffectfulInventorySupport.CreateAzurePinnedContext(
+            runId,
+            contextSnapshotId,
+            inventoryFixture.AzurePackageId,
+            collectionUtc);
+
+        return (repository.Object, analysisContext);
     }
 
     private IFindingEngine[] CreateEngines()

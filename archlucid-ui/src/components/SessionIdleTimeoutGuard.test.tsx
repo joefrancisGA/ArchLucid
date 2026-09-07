@@ -28,9 +28,16 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import {
+  readIdleDeskRestorePayload,
+} from "@/lib/auth/idle-desk-restore";
+import {
   SESSION_IDLE_TIMEOUT_MS,
   SESSION_IDLE_WORKING_TIMEOUT_MS,
 } from "@/lib/auth/session-idle-timeout";
+import {
+  clearOperatorScopeStorage,
+  writeOperatorScopeToStorage,
+} from "@/lib/operator/operator-scope-storage";
 
 const IDLE_MS = SESSION_IDLE_TIMEOUT_MS;
 
@@ -50,6 +57,25 @@ describe("SessionIdleTimeoutGuard", () => {
     vi.useRealTimers();
     vi.clearAllMocks();
     sessionStorage.clear();
+    localStorage.clear();
+    clearOperatorScopeStorage();
+  });
+
+  it("copies operator scope into idle desk restore before clearing live scope", () => {
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-b",
+      projectId: "project-c",
+      workspaceLabel: "Payments",
+      projectLabel: "Primary",
+    });
+
+    render(<SessionIdleTimeoutGuard />);
+
+    vi.advanceTimersByTime(IDLE_MS);
+
+    expect(readIdleDeskRestorePayload()?.scope.projectId).toBe("project-c");
+    expect(localStorage.getItem("archlucid_operator_scope_v1")).toBeNull();
   });
 
   it("navigates to the cleaner /auth/session-expired route (not /auth/signin) after idle timeout", () => {
