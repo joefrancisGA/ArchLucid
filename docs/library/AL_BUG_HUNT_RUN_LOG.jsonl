@@ -1418,3 +1418,4 @@
 {"at":"2026-09-07T20:08:32.7884897Z","zoneId":"alert-simulation","outcome":"dry"}
 {"at":"2026-09-07T20:14:00.3068757Z","zoneId":"orchestrator-transient-retry","outcome":"dry"}
 {"at":"2026-09-07T20:19:55.1441511Z","zoneId":"core-costing","outcome":"hit"}
+{"at":"2026-09-07T20:25:17.6338887Z","zoneId":"core-explanation-json","outcome":"hit"}
