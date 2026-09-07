@@ -1357,4 +1357,5 @@
 {"at":"2026-09-07T08:56:41.4337641Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit"}
 {"at":"2026-09-07T09:07:44.7226479Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-09-07T09:24:08.5563337Z","zoneId":"topology-proposal-merge","outcome":"dry"}
-{"at":"2026-09-07T09:30:07.2801130Z","zoneId":"core-azure-extractor","outcome":"hit"}
+{"at":"2026-09-07T09:30:07.280113Z","zoneId":"core-azure-extractor","outcome":"hit"}
+{"at":"2026-09-07T09:36:25.2467638Z","zoneId":"core-configuration-summary","outcome":"hit"}

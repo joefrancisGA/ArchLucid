@@ -6863,11 +6863,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — HMAC pseudonymization salt leaked in operator config summary
+- **last-bug:** 2026-09-07 — Quick Scan operational fail-closed scope missed SaaS and ARCHLUCID_ENVIRONMENT production-like hosts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6876,10 +6876,13 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)
-- [ ] (candidate) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — catalog documents non-secret replacement string
-- [ ] (candidate) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — SaaS / `ARCHLUCID_ENVIRONMENT` hosts may stay allowed when override store throws
+- [x] (invalid) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — **disproved 2026-09-07 (#1201):** `ConfigurationSensitiveConfigPathMatcher` treats embedded `Token` in `ReplacementToken` as non-sensitive; catalog default `[REDACTED]` is the configured value, not summary redaction; regression `Resolve_preserves_llm_prompt_redaction_replacement_token`
+- [x] (proven) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — **hit 2026-09-07 (#1201):** provider only checked ASP.NET `Production`/`Staging` while `QuickScanSafetyOptionsValidator` also treats `SaaS` and `ARCHLUCID_ENVIRONMENT=Production|Staging` as production-like; store failures left anonymous Quick Scan enabled on those hosts; fixed via shared `QuickScanSafetyProductionLikeHostClassification` and provider `IConfiguration` wiring; regressions `GetSnapshotAsync_store_failure_in_saas_environment_fails_closed`, `GetSnapshotAsync_store_failure_when_archlucid_environment_is_production_fails_closed`
+- [ ] (candidate) `EmailOtpAuthOptionsValidator.IsProductionLike` omits `SaaS` and `ARCHLUCID_ENVIRONMENT` unlike Quick Scan validator — hunt when OTP enforcement must align with Quick Scan production-like classification on hosted SaaS.
 
 2026-09-07 seed hunt #1167 (hit): proved pseudonymization salt leaked through config summary redaction.
+
+2026-09-07 thorough hunt #1201 (hit): disproved ReplacementToken over-redaction; proved Quick Scan operational fail-closed scope drift from validator production-like classification.
 
 ---
 ## Zone: core-findings-advice

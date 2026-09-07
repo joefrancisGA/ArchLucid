@@ -38,6 +38,24 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_preserves_llm_prompt_redaction_replacement_token()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["LlmPromptRedaction:ReplacementToken"] = "[REDACTED]",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "LlmPromptRedaction:ReplacementToken",
+            isSet: true);
+
+        value.Should().Be("[REDACTED]");
+    }
+
+    [Fact]
     public void Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
