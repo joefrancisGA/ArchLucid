@@ -1401,3 +1401,4 @@
 {"at":"2026-09-07T18:24:02.6916559Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
 {"at":"2026-09-07T18:29:17.5619996Z","zoneId":"agent-runtime-safety","outcome":"dry"}
 {"at":"2026-09-07T18:35:36.9764212Z","zoneId":"finding-inspect-sql","outcome":"hit"}
+{"at":"2026-09-07T18:40:53.7478483Z","zoneId":"extraction-router","outcome":"hit"}

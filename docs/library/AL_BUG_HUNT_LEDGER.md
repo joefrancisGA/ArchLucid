@@ -925,13 +925,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — long structured GDPR JSON bypassed human-review classification
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -939,6 +939,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Router swallows a failed extraction and returns an empty graph as success (retired: no failure/empty-success path; placeholder Assumption on miss)
 - [x] Difficulty score is computed from a different document than the one extracted (retired: Classify and Extract share the same sourceText)
 - [x] (proven) `InferLifecycleScopeForIndex` tags elements TargetState when any target marker appears before matchIndex, ignoring a later current-state section (`Extract_tags_component_after_current_state_section_even_when_target_state_appears_first`, `Extract_tags_component_after_as_is_section_even_when_to_be_appears_first`)
+- [x] (proven) `RequiresHumanReview` low-clarity gate let long structured compliance JSON classify as `StructuredParse` / `DirectlyEstablished` — **hit 2026-09-07 seed hunt #1244:** sensitive-marker docs with JSON/YAML/table shape bypassed human review when length ≥ 200 and colons present; fixed by requiring human review when sensitive content also matches `LooksStructured`; regressions in `Classify_returns_human_review_for_long_structured_gdpr_json` and `Extract_does_not_stamp_sensitive_structured_content_directly_established`.
+- [ ] (candidate) Long non-structured sensitive prose (>200 chars with colons) still classifies `ClearExtraction` without human review — `RequiresHumanReview` only gates on length/colon after structured check; no failing repro in zone yet.
+
+2026-09-07 seed hunt #1244 (hit): reseeded extraction-router zone; proved sensitive structured compliance bypass; seeded long-form sensitive prose candidate.
 
 ---
 
