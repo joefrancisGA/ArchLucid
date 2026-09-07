@@ -72,6 +72,43 @@ public sealed class OutboundWebhookDryRunServiceTests
     }
 
     [SkippableFact]
+    public async Task ProbeWithBodyAsync_treats_no_content_response_as_transport_success()
+    {
+        NoContentHandler handler = new();
+        using HttpClient http = new(handler);
+        OutboundWebhookDryRunService service = new(http);
+
+        OutboundWebhookDryRunResult result = await service.ProbeWithBodyAsync(
+            new Uri("https://example.com/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            CancellationToken.None);
+
+        result.TransportSucceeded.Should().BeTrue();
+        result.StatusCode.Should().Be(204);
+        result.ResponseBodyPreview.Should().BeEmpty();
+        result.ResponseBodyTruncated.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task ProbeWithBodyAsync_preserves_status_code_when_response_body_read_fails()
+    {
+        ThrowingBodyHandler handler = new();
+        using HttpClient http = new(handler);
+        OutboundWebhookDryRunService service = new(http);
+
+        OutboundWebhookDryRunResult result = await service.ProbeWithBodyAsync(
+            new Uri("https://example.com/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            CancellationToken.None);
+
+        result.TransportSucceeded.Should().BeTrue();
+        result.StatusCode.Should().Be(502);
+        result.ResponseBodyPreview.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public async Task ProbeWithBodyAsync_omits_signature_header_when_shared_secret_is_whitespace_only()
     {
         CapturingHandler handler = new();
@@ -133,6 +170,61 @@ public sealed class OutboundWebhookDryRunServiceTests
 
             return read;
         }
+    }
+
+    private sealed class NoContentHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.NoContent) { Content = null });
+    }
+
+    private sealed class ThrowingBodyHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.BadGateway)
+            {
+                Content = new StreamContent(new ThrowingReadStream())
+            });
+    }
+
+    private sealed class ThrowingReadStream : Stream
+    {
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush() => throw new NotSupportedException();
+
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new IOException("simulated subscriber body read failure");
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+            throw new IOException("simulated subscriber body read failure");
+
+        public override ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default) =>
+            throw new IOException("simulated subscriber body read failure");
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
 
     private sealed class CapturingHandler : HttpMessageHandler

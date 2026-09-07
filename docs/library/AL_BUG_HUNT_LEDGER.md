@@ -894,13 +894,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — dry-run audit misreported whitespace secret; oversized probe response read
+- **last-bug:** 2026-09-07 — probe misreported transport failure when subscriber returned headers but body preview read failed
 - **related-pd-tb:** none
-- **code-changed-since:** 3
+- **code-changed-since:** 4
 
 ### Hypotheses
 
@@ -911,6 +911,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0` — **invalid 2026-09-07 hunt #1266:** same contract as retired transport-throws row; probe outcome is intentionally returned in body (`TransportSucceeded`, `Error`); regression `DryRunAsync_returns_200_with_transport_failed_outcome_in_body`.
 - [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }` — **hit 2026-09-07 hunt #1266:** audit now uses `!string.IsNullOrEmpty(body.SharedSecret?.Trim())`; regression `DryRunAsync_audit_records_hasSharedSecret_false_when_shared_secret_is_whitespace_only`.
 - [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation — **hit 2026-09-07 hunt #1266:** capped stream read stops after preview window; regression `ProbeWithBodyAsync_does_not_read_entire_oversized_subscriber_response`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` when HTTP headers arrive but response body preview read throws (or `response.Content` is null) — outer catch returned `TransportSucceeded=false` and `StatusCode=0` — **hit 2026-09-07 seed hunt #1267:** body preview is best-effort after `SendAsync`; preserve subscriber status/reason; regressions `ProbeWithBodyAsync_preserves_status_code_when_response_body_read_fails` and `ProbeWithBodyAsync_treats_no_content_response_as_transport_success`.
+- [ ] (candidate) `OutboundWebhookDryRunController.DryRunAsync` validates `body.TargetUrl.ToString()` but probes `body.TargetUrl` — IDN/normalization drift could desync SSRF guard from outbound request; no failing repro in zone yet.
+- [ ] (candidate) Dry-run audit omits `responseBodyTruncated` — operator audit cannot confirm preview truncation without re-reading API response; no failing repro in zone yet.
+
+2026-09-07 seed hunt #1267 (hit): reseeded zone; proved post-header body preview failures misclassified transport; seeded URL-validation drift and audit-truncation candidates.
 
 2026-09-07 thorough hunt #1266 (hit): closed transport-failed HTTP contract as intentional; fixed audit whitespace secret mismatch and uncapped subscriber response reads; 9 scoped unit tests passed.
 
