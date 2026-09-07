@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -10,9 +10,13 @@ export const PROVENANCE_SOURCES_INTRO =
 
 
 /** Build operator Sources for a run — never self-links the provenance path. */
-export function buildProvenanceSources(runId: string): readonly EvidenceSourceLink[] {
+export function buildProvenanceSources(
+  runId: string,
+  architectureId?: string | null,
+): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
-  const reviewHref = trimmed.length > 0 ? reviewDetailPath(trimmed) : REVIEWS_LIST_PATH;
+  const reviewHref =
+    trimmed.length > 0 ? resolveArchitectureReviewHref(trimmed, architectureId) : REVIEWS_LIST_PATH;
   const evidenceHref =
     trimmed.length > 0
       ? `/insights/evidence-graph?runId=${encodeURIComponent(trimmed)}`

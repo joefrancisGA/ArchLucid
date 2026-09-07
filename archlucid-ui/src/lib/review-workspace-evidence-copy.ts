@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
@@ -61,7 +61,10 @@ export const REVIEW_WORKSPACE_SOURCES_INTRO =
 
 
 /** Build operator Sources for a run — never self-links the review detail path. */
-export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSourceLink[] {
+export function buildReviewWorkspaceSources(
+  runId: string,
+  architectureId?: string | null,
+): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
   const evidenceHref =
     trimmed.length > 0
@@ -69,7 +72,7 @@ export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSou
       : "/insights/evidence-graph";
   const findingsHref =
     trimmed.length > 0
-      ? `${reviewDetailPath(trimmed)}?reviewTab=findings`
+      ? `${resolveArchitectureReviewHref(trimmed, architectureId)}?reviewTab=findings`
       : GOVERNANCE_FINDINGS_PATH;
 
   return [

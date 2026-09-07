@@ -14,6 +14,7 @@ import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_se
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceVocabularyRail";
 import { AskPickReviewBeforeAskingStrip } from "@/components/ask/AskPickReviewBeforeAskingStrip";
+import { WorkingInsightsArchitectureBindEmptyState } from "@/components/insights/WorkingInsightsArchitectureBindEmptyState";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
@@ -42,7 +43,16 @@ function AskFirstViewportBand(props: {
     return null;
   }
 
-  if (!ask.reviewScopedForAsking) {
+  if (ask.showArchitectureDeskEmpty && ask.architectureBindResult !== null) {
+    return (
+      <WorkingInsightsArchitectureBindEmptyState
+        bindResult={ask.architectureBindResult}
+        tool="ask"
+      />
+    );
+  }
+
+  if (!ask.reviewScopedForAsking && !ask.architectureBindPending) {
     return (
       <div data-testid="ask-review-questions-start-here-panel">
         <AskPickReviewBeforeAskingStrip selectedReviewId="" onSelectReview={ask.onPickReviewForAsking} />
@@ -131,7 +141,16 @@ export function AskPageContent() {
           </div>
         ) : null}
 
-        {!buyerPolishedShell && !ask.reviewScopedForAsking ? (
+        {!buyerPolishedShell && ask.showArchitectureDeskEmpty && ask.architectureBindResult !== null ? (
+          <WorkingInsightsArchitectureBindEmptyState
+            bindResult={ask.architectureBindResult}
+            tool="ask"
+          />
+        ) : null}
+        {!buyerPolishedShell &&
+        !ask.reviewScopedForAsking &&
+        !ask.architectureBindPending &&
+        !ask.showArchitectureDeskEmpty ? (
           <AskPickReviewBeforeAskingStrip selectedReviewId="" onSelectReview={ask.onPickReviewForAsking} />
         ) : null}
 
