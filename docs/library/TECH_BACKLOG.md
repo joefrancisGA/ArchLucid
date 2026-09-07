@@ -47100,21 +47100,32 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-2033 ? Finding verification loop ? data model + linked artifact (P2)
+## TB-2033 — Finding verification loop — data model + linked artifact (P2)
 
-**Window:** V1.1 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
 
-**Status:** Open.
+**Status:** **Done** (2026-09-07, DX-19 slice 1).
 
-**Source:** Principal-architect "proof of what?" critique (2026-08-03); ADR 0062 Proposed.
+**Source:** Principal-architect "proof of what?" critique (2026-08-03); ADR 0062 Accepted 2026-09-07.
 
 **Why:** Verification results must attach to sealed packages without mutating them (ADR 0039/0045 immutability is load-bearing). A dedicated append-only report artifact with its own hash and audit events is the prerequisite for every later slice.
 
-**Scope:** `FindingVerificationReports` + `FindingVerificationResults` tables (per-tenant catalogs, single-DDL-file convention), `IFindingVerificationReportRepository` (Dapper), new typed `AuditEventTypes` constants (`FindingVerificationStarted`, `FindingVerificationCompleted`) with CI count guard update, architecture test asserting verification writes never touch `GoldenManifest` rows.
+**Shipped:**
 
-**Depends on:** ADR 0062 owner ratification.
+1. `FindingVerificationReports` + `FindingVerificationResults` tables (migration **373** + `ArchLucid.sql`).
+2. `IAppendOnlyFindingVerificationReportRepository` (SQL + in-memory), `IFindingVerificationService`, `FindingVerificationSlice1Scorer` (all findings → `NotVerifiable` until TB-2034).
+3. Operator API `POST /v1/runs/{runId}/finding-verification`; audit events `FindingVerificationStarted` / `FindingVerificationCompleted`.
+4. Architecture test asserting verification writes never touch `GoldenManifests` rows.
 
-**Out of scope:** Scoring logic, exports, UI.
+**Acceptance (met):**
+
+- POST writes append-only report artifact linked to sealed package manifest hash.
+- Sealed package / `ManifestHash` unchanged by construction.
+- Cross-tenant isolation returns 404 (`FindingVerificationServiceTests`, `FindingVerificationEndpointTests`).
+
+**Depends on:** ADR 0062 owner ratification (met 2026-09-07).
+
+**Out of scope:** Scoring logic (TB-2034), exports (TB-2035), UI, scorecard metric (TB-2036), claim-copy unlock (TB-2037).
 
 **Size estimate:** M.
 
