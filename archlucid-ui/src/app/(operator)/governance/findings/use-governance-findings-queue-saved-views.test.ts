@@ -96,4 +96,14 @@ describe("useGovernanceFindingsQueueSavedViews", () => {
       scroll: false,
     });
   });
+
+  it("clears register and facet params without dropping review scope", () => {
+    const { result } = renderSavedViewsHook(
+      "runId=run-1&filter=open&q=phi&findingJobView=ready-for-sponsor-packet&severity=high",
+    );
+
+    result.current.clearAllFilters();
+
+    expect(routerReplaceMock).toHaveBeenLastCalledWith("/governance/findings?runId=run-1", { scroll: false });
+  });
 });

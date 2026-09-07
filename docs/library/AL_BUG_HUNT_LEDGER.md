@@ -9979,11 +9979,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — run-scoped saved view load merged stale URL params
+- **last-bug:** 2026-09-07 — clear-all-filters final navigation restored stale register/facet params
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9993,11 +9993,13 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — workspace saved view load does not clear stale `runId` scope — **hit 2026-09-07 hunt #1188 (seed→hit):** loading a saved view with `scopedRunId: null` while the URL still had `?runId=` left review scope active because only the scoped-run branch called navigation; fixed with `governanceFindingsWorkspaceSavedViewHref` and a final `router.replace` when the saved view is workspace-wide; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — run-scoped saved view load merged stale URL params instead of rebuilding from saved filters — **hit 2026-09-07 hunt #1279 (seed→hit):** run-scoped branch delegated to `onPickReviewForTriage`, which only set `runId` on the current query string so stale `filter` / `architectureId` survived after `setRegisterFilter`; fixed with `governanceFindingsRunScopedSavedViewHref`; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
-- [ ] (candidate) `GovernanceFindingsQueueClient.clearAllFilters` — clears register/facet state but `governanceFindingsSearchHrefFromSearch` preserves review/architecture scope query params (may be intentional because scope chips live outside the active-filter strip)
+- [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation restored stale register/facet params after state clears — **hit 2026-09-07 hunt #1280:** `clearAllFilters` ended with `governanceFindingsSearchHrefFromSearch`, which only cleared `q` and rebuilt from the render-scoped query string so `filter` / `findingJobView` / NL facet params survived; review/architecture scope preservation is intentional (`Clear review scope` is separate); fixed with `governanceFindingsClearAllFiltersHref`; regressions in `governance-findings-clear-all-filters-url.test.ts` and `use-governance-findings-queue-saved-views.test.ts`
 
 2026-09-07 seed hunt #1188 (hit): seeded zone from ABQ-09 churn hotspot; proved saved-view scope leak on workspace-wide load.
 
 2026-09-07 seed hunt #1279 (hit): reseeded run-scoped saved-view URL merge hypothesis from `onLoadFindingsSavedView` + `onPickReviewForTriage`; 5 scoped saved-view unit tests passed.
+
+2026-09-07 thorough hunt #1280 (hit): proved clear-all-filters stale URL restore; 5 scoped clear-all / saved-view unit tests passed.
 
 ---
 
