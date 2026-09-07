@@ -9,15 +9,37 @@
  * `nav-shell-visibility.test.ts`, and `enterprise-authority-ui-shaping.test.tsx` (mutation → disabled/readOnly).
  * Rank-gated **note** lines live in `EnterpriseControlsContextHints.authority.test.tsx`.
  */
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+vi.mock("@/components/alerts/AlertsInboxInteractiveClient", () => ({
+  AlertsInboxInteractiveClient: ({
+    initialModel,
+  }: {
+    initialModel?: { items?: unknown[] } | null;
+  }) => (
+    <article data-testid="alerts-inbox-article-stub">
+      <div role="region" aria-label="Triage actions" className="opacity-90">
+        Triage stub
+      </div>
+      <span>{initialModel ? "loaded" : "loading"}</span>
+    </article>
+  ),
+}));
+
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import {
+  resetGovernanceWorkflowVitestNavigation,
+  scopeGovernanceWorkflowVitestReview,
+} from "@/testing/governance-workflow-vitest-navigation";
 
 const mutateCapability = vi.hoisted(() => ({ current: false }));
+const governanceWorkflowVitestNavigation = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -49,7 +71,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
   usePathname: (): string => "/alerts",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useSearchParams: (): URLSearchParams => governanceWorkflowVitestNavigation.searchParams,
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -130,9 +152,10 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
 
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
-import GovernanceWorkflowPage from "./governance/approval-queue/page";
+import { GovernanceWorkflowPageContent } from "./governance/_sections/GovernanceWorkflowPageContent";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 const sampleAlert = {
   alertId: "alert-layout-1",
@@ -150,6 +173,7 @@ describe("authority-shaped layout regression", () => {
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = false;
     mutateCapability.current = false;
+    resetGovernanceWorkflowVitestNavigation(governanceWorkflowVitestNavigation);
     apiHoisted.listPolicyPacks.mockResolvedValue([]);
     apiHoisted.getEffectivePolicyPacks.mockResolvedValue({
       tenantId: "",
@@ -221,26 +245,15 @@ describe("authority-shaped layout regression", () => {
    */
   it("Governance workflow: inspect-first column order when mutation capability is false", async () => {
     mutateCapability.current = false;
-    const { container } = render(<GovernanceWorkflowPage />);
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-layout-run");
+    const { container } = render(<GovernanceWorkflowPageContent />);
 
-    // Dynamic chunk can lag under parallel Vitest workers (same timeout as operate-authority shaping).
     await waitFor(
       () => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
       },
       { timeout: 8000 },
     );
-
-    // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
-    await waitFor(
-      () => {
-        expect(screen.getByLabelText("Review")).toBeInTheDocument();
-      },
-      { timeout: 8000 },
-    );
-
-    fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-layout-run" } });
-    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(
       () => {
@@ -287,13 +300,16 @@ describe("authority-shaped layout regression", () => {
    */
   it("Alert routing: delivery inspect button precedes enable/disable on a subscription row", async () => {
     mutateCapability.current = true;
-    render(<AlertRoutingContent />);
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "run-layout-routing");
+    renderWithOperatorQuery(<AlertRoutingContent />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Layout fixture subscription")).toBeInTheDocument();
+    const card = await waitFor(() => {
+      const element = document.querySelector('[data-alert-routing-subscription-id="rs-layout-1"]');
+
+      expect(element).not.toBeNull();
+
+      return element as HTMLElement;
     });
-
-    const card = screen.getByText("Layout fixture subscription").closest("div");
 
     expect(card).not.toBeNull();
 

@@ -17,8 +17,15 @@ import {
   buyerPolishedShellVitestOverride,
   extendBuyerPolishedShellVitestMock,
 } from "@/testing/buyer-polished-shell-vitest-override";
+import {
+  resetGovernanceWorkflowVitestNavigation,
+  scopeGovernanceWorkflowVitestReview,
+} from "@/testing/governance-workflow-vitest-navigation";
 
 const mutateCapability = vi.hoisted(() => ({ current: false }));
+const governanceWorkflowVitestNavigation = vi.hoisted(() => ({
+  searchParams: new URLSearchParams(),
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
@@ -63,7 +70,7 @@ vi.mock("next/navigation", async (importOriginal) => {
     ...actual,
   usePathname: (): string => "/alerts",
   useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useSearchParams: (): URLSearchParams => governanceWorkflowVitestNavigation.searchParams,
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -234,6 +241,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = false;
     mutateCapability.current = false;
+    resetGovernanceWorkflowVitestNavigation(governanceWorkflowVitestNavigation);
     apiHoisted.listPolicyPacks.mockResolvedValue([]);
     apiHoisted.getEffectivePolicyPacks.mockResolvedValue({
       tenantId: "",
@@ -599,19 +607,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     "Governance workflow: submit Review ID and manifest inputs stay read-only when mutation capability is false",
     async () => {
       mutateCapability.current = false;
+      scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
       render(<GovernanceWorkflowPageContent />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: GOVERNANCE_OVERVIEW_PAGE_TITLE })).toBeInTheDocument();
       });
-
-      // The overview panel (review picker) is its own dynamic chunk, so wait for the control itself.
-      await waitFor(() => {
-        expect(screen.getByLabelText("Review")).toBeInTheDocument();
-      });
-
-      fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
-      fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
       await waitFor(() => {
         expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
@@ -636,14 +637,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Governance workflow: submit Review ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;
+    scopeGovernanceWorkflowVitestReview(governanceWorkflowVitestNavigation, "gov-ui-shape-run");
     render(<GovernanceWorkflowPageContent />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Review")).toBeInTheDocument();
+      expect(screen.getByTestId("governance-review-context-bar")).toBeInTheDocument();
     });
-
-    fireEvent.change(screen.getByLabelText("Review"), { target: { value: "gov-ui-shape-run" } });
-    fireEvent.click(screen.getByTestId("governance-overview-load-review"));
 
     await waitFor(() => {
       const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
