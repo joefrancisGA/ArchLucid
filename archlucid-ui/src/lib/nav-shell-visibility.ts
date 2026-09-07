@@ -9,6 +9,7 @@ import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access"
 import {
   applyNavShellPresetPackagingFilter,
   isSystemAdministrationNavGroupVisible,
+  isVendorInternalNavGroupVisible,
   resolveNavShellPresetId,
 } from "@/lib/nav-shell-preset";
 import { buildOperatorSystemAdminNavLinks } from "@/lib/operator/operator-system-admin-nav-group-builder";
@@ -123,7 +124,7 @@ export function listNavGroupsVisibleInOperatorShell(
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    if (group.staffInternalOnly === true && !showVendorInternalNav) {
+    if (group.staffInternalOnly === true && !isVendorInternalNavGroupVisible(presetId, showVendorInternalNav)) {
       continue;
     }
 
