@@ -119,16 +119,6 @@ public sealed partial class GovernanceStickinessController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
-        catch (FindingDispositionConflictException ex)
-        {
-            return this.ConflictProblem(
-                ex.Message,
-                ProblemTypes.Conflict,
-                extensions: new Dictionary<string, object?>
-                {
-                    ["currentDisposition"] = ex.CurrentDisposition,
-                });
-        }
     }
 
     [IdempotencyFilter]
