@@ -42,7 +42,7 @@ function formatIngestedLabel(iso: string): string {
 export function RunDetailCreateHomeCapturedEvidenceInventory(
   props: RunDetailCreateHomeCapturedEvidenceInventoryProps,
 ): ReactElement {
-  const { preview, closePreview, handlers } = useStoredEvidenceFileActions(props.runId);
+  const { preview, closePreview, handlers, openButtonRef } = useStoredEvidenceFileActions(props.runId);
 
   return (
     <section
@@ -88,6 +88,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                         fileName={item.fileName}
                         contentType={item.contentType}
                         handlers={handlers}
+                        openButtonRef={openButtonRef}
                       />
                     ) : (
                       item.fileName
