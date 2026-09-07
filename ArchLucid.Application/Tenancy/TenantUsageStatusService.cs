@@ -72,10 +72,10 @@ public sealed class TenantUsageStatusService(
         }
 
         if (string.Equals(commercialTier, CommercialPackagingTierLabels.Team, StringComparison.Ordinal))
-            return CommercialPackagingLimits.TeamSeatsIncluded;
+            return CommercialPackagingLimits.TeamSeatsMax;
 
         if (string.Equals(commercialTier, CommercialPackagingTierLabels.Professional, StringComparison.Ordinal))
-            return CommercialPackagingLimits.ProfessionalSeatsIncluded;
+            return CommercialPackagingLimits.ProfessionalSeatsMax;
 
         return null;
     }
@@ -95,7 +95,7 @@ public sealed class TenantUsageStatusService(
             return CommercialPackagingLimits.TeamWorkspacesIncluded;
 
         if (string.Equals(commercialTier, CommercialPackagingTierLabels.Professional, StringComparison.Ordinal))
-            return CommercialPackagingLimits.ProfessionalWorkspacesIncluded;
+            return CommercialPackagingLimits.ProfessionalWorkspacesMax;
 
         return CommercialPackagingLimits.FreeOrTrialWorkspacesIncluded;
     }
