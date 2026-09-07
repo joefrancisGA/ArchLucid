@@ -20,6 +20,7 @@ public static class InsightDensityPreferredEngineTypes
         "checklist-cluster-synthesis",
         "dangling-declaration-reference",
         "requirement-sku-tier",
+        "data-flow-trust-boundary",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static bool IsPreferred(string? engineType)
