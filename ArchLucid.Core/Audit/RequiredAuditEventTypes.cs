@@ -52,6 +52,8 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.RoleOverriddenByScim,
         AuditEventTypes.ScimGroupMembershipChanged,
         AuditEventTypes.ArchitectureDocxExportGenerated,
+        AuditEventTypes.FindingFeedbackRecorded,
+        AuditEventTypes.FindingAskConversationPersisted,
     ];
 
     /// <summary>
@@ -78,6 +80,8 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.RoleOverriddenByScim),
         nameof(AuditEventTypes.ScimGroupMembershipChanged),
         nameof(AuditEventTypes.ArchitectureDocxExportGenerated),
+        nameof(AuditEventTypes.FindingFeedbackRecorded),
+        nameof(AuditEventTypes.FindingAskConversationPersisted),
     ];
 
     public static bool IsRequired(string? eventType)

@@ -65,6 +65,12 @@ public static partial class AuditEventTypes
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 
+    /// <summary>Operator recorded thumbs feedback for a finding (<c>dbo.FindingFeedback</c> append).</summary>
+    public const string FindingFeedbackRecorded = "FindingFeedbackRecorded";
+
+    /// <summary>Operator persisted a finding-scoped ask conversation turn (<c>ConversationThread</c> / messages).</summary>
+    public const string FindingAskConversationPersisted = "FindingAskConversationPersisted";
+
     /// <summary>Operator updated general remediation assignee/due date on a finding row (TB-395).</summary>
     public const string FindingRemediationAssignmentUpdated = "FindingRemediationAssignmentUpdated";
 

@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
@@ -770,6 +771,7 @@ public sealed class RunsControllerTests
             auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
+            Mock.Of<FindingInstrumentationAuditSupport>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             NullLogger<RunsController>.Instance)
         {
