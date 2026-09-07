@@ -36,6 +36,9 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
             HelmChartInfrastructureDeclarationParser.CollectConsumedTemplatePaths(declarations);
         HashSet<string> consumedKustomizeResourcePaths =
             KustomizeOverlayInfrastructureDeclarationParser.CollectConsumedResourcePaths(declarations, batchByPath);
+        HashSet<string> referencedArmTemplateLinkPaths = ArmJsonLinkedTemplateBatchIndex.CollectReferencedTemplateLinkPaths(
+            declarations,
+            batchByPath);
 
         foreach (InfrastructureDeclarationReference declaration in declarations)
         {
@@ -43,6 +46,9 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
                 continue;
 
             if (ShouldSkipReferencedTerraformModule(declaration, referencedTerraformModulePaths))
+                continue;
+
+            if (ShouldSkipReferencedArmTemplateLink(declaration, referencedArmTemplateLinkPaths))
                 continue;
 
             if (ShouldSkipBicepParamDeclaration(declaration))
@@ -106,6 +112,9 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         if (parser is KustomizeOverlayInfrastructureDeclarationParser kustomizeParser)
             return await kustomizeParser.ParseAsync(declaration, batchByPath, ct);
 
+        if (parser is ArmJsonInfrastructureDeclarationParser armParser)
+            return await armParser.ParseAsync(declaration, batchByPath, ct);
+
         return await parser.ParseAsync(declaration, ct);
     }
 
@@ -131,6 +140,18 @@ public sealed class InfrastructureDeclarationsPayloadNormalizer(IEnumerable<IInf
         string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
 
         return referencedTerraformModulePaths.Contains(normalizedName);
+    }
+
+    private static bool ShouldSkipReferencedArmTemplateLink(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlySet<string> referencedArmTemplateLinkPaths)
+    {
+        if (!ArmJsonLinkedTemplateBatchIndex.IsArmJson(declaration))
+            return false;
+
+        string normalizedName = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(declaration.Name);
+
+        return referencedArmTemplateLinkPaths.Contains(normalizedName);
     }
 
     private static bool ShouldSkipBicepParamDeclaration(InfrastructureDeclarationReference declaration)
