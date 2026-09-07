@@ -52,4 +52,40 @@ public static class CustomerContentPromptDelimiters
         sb.AppendLine(EndMarker);
         sb.AppendLine();
     }
+
+    /// <summary>
+    ///     Truncates customer prose to a max length without leaving an unclosed customer-content section when the cut
+    ///     would drop <see cref="EndMarker" />.
+    /// </summary>
+    public static string TruncatePreservingSectionBounds(string? text, int maxCharacters)
+    {
+        if (maxCharacters <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxCharacters));
+
+        if (string.IsNullOrEmpty(text) || text.Length <= maxCharacters)
+            return text ?? string.Empty;
+
+        string prefix = text[..maxCharacters];
+        int beginIndex = prefix.LastIndexOf(BeginMarker, StringComparison.Ordinal);
+
+        if (beginIndex < 0)
+            return prefix;
+
+        int endIndex = prefix.LastIndexOf(EndMarker, StringComparison.Ordinal);
+
+        if (endIndex > beginIndex)
+            return prefix;
+
+        string suffix = Environment.NewLine + EndMarker;
+
+        if (prefix.Length + suffix.Length <= maxCharacters)
+            return prefix + suffix;
+
+        int trimTo = maxCharacters - suffix.Length;
+
+        if (trimTo <= beginIndex)
+            return text[..Math.Min(beginIndex, maxCharacters)].TrimEnd();
+
+        return prefix[..trimTo].TrimEnd() + suffix;
+    }
 }

@@ -1394,3 +1394,4 @@
 {"at":"2026-09-07T17:27:35.6860428Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-09-07T17:33:00.770989Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
 {"at":"2026-09-07T17:45:14.4959821Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
+{"at":"2026-09-07T17:54:59.2107222Z","zoneId":"agent-runtime-safety","outcome":"hit"}

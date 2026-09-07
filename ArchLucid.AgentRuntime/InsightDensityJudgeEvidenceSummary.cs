@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
@@ -29,6 +30,6 @@ internal static class InsightDensityJudgeEvidenceSummary
             return builder.ToString();
         }
 
-        return builder.ToString(0, MaxCharacters);
+        return CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(builder.ToString(), MaxCharacters);
     }
 }

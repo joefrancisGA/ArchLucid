@@ -1691,13 +1691,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — PriorManifest.ManifestVersion omitted from untrusted-input sanitizer
+- **last-bug:** 2026-09-07 — Insight-density evidence summary truncation dropped CUSTOMER_CONTENT_END
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1715,6 +1715,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize without re-run of `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-07 hunt #1232:** Critic prompt quarantines staged notes in a second TB-949 section with `EscapeEmbeddedMarkers` at compose time; regression `CriticUserPrompt_staged_prior_summary_with_embedded_end_marker_stays_quarantined_without_resanitize`
 
 2026-09-07 thorough hunt #1232 (hit): proved PriorManifest version sanitizer gap; cheap-disproved staged-summary re-sanitize requirement.
+
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer` omits `ServiceCatalogEvidence.Category` / `Tags` while `EvidencePackageInjectionMitigator` redacts them — **seed 2026-09-07 hunt #1237:** neither field is rendered in `AgentUserPromptBuilder`; no agent user-prompt reachability in zone files.
+- [ ] (candidate) `PatternEvidence.ApplicableCapabilities` omitted from untrusted-input sanitizer — **seed 2026-09-07 hunt #1237:** not emitted by `AgentUserPromptBuilder`; markdown export path is out of zone scope.
+- [x] (proven) `InsightDensityJudgeEvidenceSummary` char cap truncates quarantined evidence without preserving `CUSTOMER_CONTENT_END` — **hit 2026-09-07 hunt #1237:** `builder.ToString(0, MaxCharacters)` dropped the closing TB-949 marker on large architecture descriptions, leaving an unclosed customer-data section in insight-density judge prompts; fixed with `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds`; regressions in `TruncatePreservingSectionBounds_appends_end_marker_when_truncation_would_drop_it` and `InsightDensityJudgeEvidenceSummary_Build_preserves_customer_content_end_marker_when_truncated`.
+- [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard` fail-open on inner exception skips deny-list scrub while circuit-open fail-open scrubs — **cheap-disproof 2026-09-07 hunt #1237:** production inner `AzureContentSafetyGuard` maps SDK failures to `SdkError` results rather than throwing; circuit-open degraded path already covered by `CircuitBreakingContentSafetyGuardTests`.
+
+2026-09-07 seed hunt #1237 (hit): proved insight-density evidence truncation dropped TB-949 end marker; seeded and cheap-disproved service-catalog scalar parity and circuit-breaker exception-scrub candidates.
 
 ---
 

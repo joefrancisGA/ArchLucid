@@ -69,6 +69,41 @@ public sealed class CustomerContentPromptDelimiterTests
         escaped.Should().Contain("\u200B");
     }
 
+    [Fact]
+    public void TruncatePreservingSectionBounds_appends_end_marker_when_truncation_would_drop_it()
+    {
+        string body = new string('x', 200);
+        string text =
+            $"{CustomerContentPromptDelimiters.FramingInstruction}\n"
+            + $"{CustomerContentPromptDelimiters.BeginMarker}\n"
+            + body
+            + $"\n{CustomerContentPromptDelimiters.EndMarker}\n";
+
+        int cutLength = text.IndexOf(CustomerContentPromptDelimiters.BeginMarker, StringComparison.Ordinal)
+            + CustomerContentPromptDelimiters.BeginMarker.Length
+            + 50;
+
+        string truncated = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(text, cutLength);
+
+        truncated.Should().Contain(CustomerContentPromptDelimiters.BeginMarker);
+        truncated.Should().Contain(CustomerContentPromptDelimiters.EndMarker);
+        truncated.Length.Should().BeLessThanOrEqualTo(cutLength);
+        truncated.LastIndexOf(CustomerContentPromptDelimiters.EndMarker, StringComparison.Ordinal)
+            .Should()
+            .BeGreaterThan(truncated.IndexOf(CustomerContentPromptDelimiters.BeginMarker, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TruncatePreservingSectionBounds_leaves_closed_sections_unchanged_when_within_budget()
+    {
+        string text =
+            $"{CustomerContentPromptDelimiters.BeginMarker}\nshort\n{CustomerContentPromptDelimiters.EndMarker}";
+
+        string truncated = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(text, text.Length);
+
+        truncated.Should().Be(text);
+    }
+
     [Theory]
     [InlineData(nameof(AgentUserPromptComposer.BuildTopologyUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildComplianceUserPrompt))]
