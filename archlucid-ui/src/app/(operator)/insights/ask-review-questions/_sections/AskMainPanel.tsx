@@ -1,5 +1,5 @@
 ﻿import { cn } from "@/lib/utils";
-import type { RefObject } from "react";
+import { useMemo, type RefObject } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
@@ -15,6 +15,8 @@ import {
   resolveAskQuestionSteps,
 } from "@/lib/ask-question-checklist";
 import { BUYER_ASK_SYNTHETIC_SAMPLE_HINT } from "@/lib/buyer/buyer-polish-copy";
+import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
+import { isReviewManifestFinalized } from "@/lib/manifest-status-display";
 import type { ConversationMessage } from "@/types/conversation";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AskCompareReviewsCollapsible } from "@/app/(operator)/insights/ask-review-questions/_sections/AskCompareReviewsCollapsible";
@@ -102,6 +104,14 @@ export function AskMainPanel(props: AskMainPanelProps) {
     questionWritten,
     questionSent,
   });
+  const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, { enabled: reviewPicked });
+  const isFinalizedReview = useMemo(() => {
+    if (!reviewPicked || coverageHonestyQuery.data === undefined) {
+      return false;
+    }
+
+    return isReviewManifestFinalized(coverageHonestyQuery.data.manifestSummary?.status);
+  }, [coverageHonestyQuery.data, reviewPicked]);
 
   const messageThreadPanel = (
     <AskMessageThreadPanel
@@ -116,6 +126,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
       onStarterPromptClick={onStarterPromptClick}
       runId={runId}
       retrievalDegraded={retrievalDegraded}
+      isFinalizedReview={isFinalizedReview}
     />
   );
 
