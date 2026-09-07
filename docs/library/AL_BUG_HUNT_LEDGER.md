@@ -466,10 +466,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -480,9 +480,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
 - [x] Transient retry does not include the same isolation / tenant scope on the replay Î“Ã‡Ã¶ retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 - [x] (proven) `AggregateException` with a non-transient `SqlException` listed before a deadlock (`1205`) skips orchestrator retry — fixed: `IsRetriableOrchestratorDbFailure` flattens aggregate inners before `SqlTransientDetector` (`ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`)
-- [ ] (hunt-ready) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast.
-- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s/8s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers.
-- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window.
+- [x] (invalid) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast — **cheap-disproof 2026-09-07 hunt #1259:** intentional parallel-persistence semantics; first attempt retries when any inner is transient, second attempt fail-fast when only permanent remains; regression `ExecuteAsync_does_not_retry_when_second_attempt_raises_permanent_only_after_mixed_aggregate` plus existing `ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers — **cheap-disproof 2026-09-07 hunt #1259:** documented wall-clock ceiling in `CommitRunTransientRetryPolicy` comment; `AuthorityDrivenArchitectureRunCommitOrchestrator.IsCommitRetryBudgetExhausted` intentionally layers outer budget over inner DB retry; existing `IsExhausted_returns_true_when_retry_budget_is_reached` plus regression `IsExhausted_returns_false_when_attempt_and_elapsed_are_below_limits`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window — **cheap-disproof 2026-09-07 hunt #1259:** reconcile loop checks budget after polls via `IsExhausted`; client receives `ConflictException` for retry; inter-poll delay sum alone fits inside budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
+
+2026-09-07 thorough hunt #1259 (dry): cheap-disproof closed three hunt-ready rows as intentional layered retry design; ten scoped unit tests passed.
 
 ---
 

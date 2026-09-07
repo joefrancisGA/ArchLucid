@@ -87,4 +87,27 @@ public sealed class OrchestratorTransientDbRetryTests
 
         attempts.Should().Be(2);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_second_attempt_raises_permanent_only_after_mixed_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(fkViolation, deadlock);
+
+                throw fkViolation;
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(2);
+    }
 }
