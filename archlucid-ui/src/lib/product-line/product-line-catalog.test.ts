@@ -85,6 +85,7 @@ describe("product-line catalog", () => {
     );
     const hrefs = rows.flatMap((row) => row.visibleLinks.map((link) => link.href));
 
+    expect(rows.some((row) => row.group.id === "operator-system-admin")).toBe(false);
     expect(hrefs).toContain("/internal/health");
     expect(hrefs).toContain("/internal/configuration");
     expect(hrefs).toContain("/internal/tenants");
