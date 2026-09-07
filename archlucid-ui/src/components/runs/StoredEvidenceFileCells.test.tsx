@@ -4,6 +4,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import {
   StoredEvidenceFileCells,
   openRunStoredEvidencePreview,
+  RunStoredEvidencePreviewDialog,
   useStoredEvidenceFileActions,
 } from "@/components/runs/StoredEvidenceFileCells";
 
@@ -27,6 +28,7 @@ function PreviewHarness(props: { readonly runId: string; readonly evidenceItemId
         handlers={handlers}
         openButtonRef={openButtonRef}
       />
+      <RunStoredEvidencePreviewDialog runId={props.runId} preview={preview} onClose={closePreview} />
       {preview !== null ? (
         <button type="button" data-testid="close-preview" onClick={closePreview}>
           Close preview
@@ -129,6 +131,38 @@ describe("StoredEvidenceFileCells", () => {
     fireEvent.click(screen.getByTestId("close-preview"));
 
     await waitFor(() => {
+      expect(document.activeElement).toBe(openButton);
+    });
+  });
+
+  it("closes the preview dialog on Escape and restores focus to the open trigger", async () => {
+    const blob = new Blob(["png"], { type: "image/png" });
+    vi.mocked(fetchRunStoredEvidenceFileBlob).mockResolvedValue({
+      blob,
+      fileName: "diagram.png",
+      contentType: "image/png",
+    });
+
+    render(
+      <PreviewHarness
+        runId="run-1"
+        evidenceItemId="ev-1"
+        fileName="diagram.png"
+        contentType="image/png"
+      />,
+    );
+
+    const openButton = screen.getByRole("button", { name: "diagram.png" });
+    fireEvent.click(openButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-stored-evidence-preview-dialog")).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("run-stored-evidence-preview-dialog")).not.toBeInTheDocument();
       expect(document.activeElement).toBe(openButton);
     });
   });

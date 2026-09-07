@@ -391,16 +391,16 @@ def main(argv: list[str] | None = None) -> int:
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
         _require_private_beta_failure_triage_wiring(_PUSH_REL, text, _PUSH_TRIAGE_ARTIFACT, errors)
 
-        if "private-beta-access-on-push-${{ github.sha }}" not in text:
+        if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
-                f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.sha }} "
-                "(one smoke per commit; parity with ui-typecheck-on-push)",
+                f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
+                "(one smoke per ref; cancel stale queued runs when a newer trunk push lands)",
             )
 
-        if "cancel-in-progress: false" not in text:
+        if "cancel-in-progress: true" not in text:
             errors.append(
-                f"{_PUSH_REL}: must set cancel-in-progress: false so each trunk push completes "
-                "invite-wave smoke instead of cancelling superseded SHAs",
+                f"{_PUSH_REL}: must set cancel-in-progress: true so superseded trunk pushes "
+                "do not bury the first-green private-beta signal",
             )
 
         if _FULL_REGRESSION_NEED in text:
