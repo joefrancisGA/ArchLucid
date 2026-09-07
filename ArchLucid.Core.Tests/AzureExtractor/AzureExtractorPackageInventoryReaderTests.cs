@@ -61,6 +61,36 @@ public sealed class AzureExtractorPackageInventoryReaderTests
         result.Resources[0].Properties["connectionString"].Should().Be("[REDACTED]");
     }
 
+    [Fact]
+    public void TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1",
+                "resourceType": "Microsoft.Web/sites",
+                "name": "app1",
+                "properties": {
+                  "siteConfig": {
+                    "connectionString": "DefaultEndpointsProtocol=https;AccountName=x"
+                  }
+                }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Properties["siteConfig"].Should().Contain("[REDACTED]");
+        result.Resources[0].Properties["siteConfig"].Should().NotContain("AccountName=x");
+    }
+
     private static byte[] BuildZip(string resourcesJson)
     {
         using MemoryStream ms = new();

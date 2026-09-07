@@ -187,10 +187,16 @@ public static class AzureExtractorPackageInventoryReader
                 JsonValueKind.True => "true",
                 JsonValueKind.False => "false",
                 JsonValueKind.Null => string.Empty,
+                JsonValueKind.Object or JsonValueKind.Array =>
+                    AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(property.Value),
                 _ => property.Value.GetRawText(),
             };
 
-            if (AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
+            if (property.Value.ValueKind is JsonValueKind.String
+                    or JsonValueKind.Number
+                    or JsonValueKind.True
+                    or JsonValueKind.False
+                && AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Name))
                 serialized = AzureExtractorSensitivePropertyRedactor.RedactValue(serialized);
 
             if (serialized.Length > 4000)

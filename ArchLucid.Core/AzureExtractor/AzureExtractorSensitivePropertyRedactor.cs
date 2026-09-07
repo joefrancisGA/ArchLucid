@@ -1,5 +1,8 @@
 namespace ArchLucid.Core.AzureExtractor;
 
+using System.Text;
+using System.Text.Json;
+
 /// <summary>Redacts secret-like ARM property keys before persistence or hashing.</summary>
 public static class AzureExtractorSensitivePropertyRedactor
 {
@@ -911,4 +914,74 @@ public static class AzureExtractorSensitivePropertyRedactor
 
     public static string RedactValue(string? value) =>
         string.IsNullOrWhiteSpace(value) ? string.Empty : "[REDACTED]";
+
+    public static string RedactStructuredJson(JsonElement element)
+    {
+        using MemoryStream buffer = new();
+        using (Utf8JsonWriter writer = new(buffer))
+        {
+            WriteRedactedElement(writer, element);
+        }
+
+        return Encoding.UTF8.GetString(buffer.ToArray());
+    }
+
+    private static void WriteRedactedElement(Utf8JsonWriter writer, JsonElement element)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+
+                foreach (JsonProperty property in element.EnumerateObject())
+                {
+                    writer.WritePropertyName(property.Name);
+
+                    if (IsSensitiveKey(property.Name) && IsScalarJsonValue(property.Value))
+                    {
+                        writer.WriteStringValue(RedactValue(ReadScalarText(property.Value)));
+                        continue;
+                    }
+
+                    if (property.Value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+                    {
+                        WriteRedactedElement(writer, property.Value);
+                        continue;
+                    }
+
+                    property.Value.WriteTo(writer);
+                }
+
+                writer.WriteEndObject();
+                break;
+            case JsonValueKind.Array:
+                writer.WriteStartArray();
+
+                foreach (JsonElement item in element.EnumerateArray())
+                    WriteRedactedElement(writer, item);
+
+                writer.WriteEndArray();
+                break;
+            default:
+                element.WriteTo(writer);
+                break;
+        }
+    }
+
+    private static bool IsScalarJsonValue(JsonElement value) =>
+        value.ValueKind is JsonValueKind.String
+            or JsonValueKind.Number
+            or JsonValueKind.True
+            or JsonValueKind.False
+            or JsonValueKind.Null;
+
+    private static string ReadScalarText(JsonElement value) =>
+        value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString() ?? string.Empty,
+            JsonValueKind.Null => string.Empty,
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            _ => value.GetRawText(),
+        };
 }
