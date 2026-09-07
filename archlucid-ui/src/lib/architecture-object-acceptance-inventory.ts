@@ -58,4 +58,14 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     relativeTestPath: "lib/architecture/finalize-success-desk-href.test.ts",
     marker: "AO-35",
   },
+  {
+    id: "AO-28",
+    relativeTestPath: "lib/governance/governance-findings-architecture-scope.test.ts",
+    marker: "AO-28",
+  },
+  {
+    id: "AO-34",
+    relativeTestPath: "components/architecture/WorkingNestedArchitectureIdentityChrome.test.tsx",
+    marker: "AO-34",
+  },
 ];
