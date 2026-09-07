@@ -256,6 +256,52 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedUpsertTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+
+        inner.ArmUpsertDelayUntilReleased();
+        Task upsertTask = repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+
+        await inner.WaitUntilUpsertPersistedAsync();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+
+        inner.ReleaseUpsert();
+
+        await upsertTask;
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+        inner.ArmDelayUntilReleased();
+
+        Task<string?> readTask = repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None);
+
+        await repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        inner.Release();
+
+        (await readTask).Should().BeNull();
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -300,6 +346,64 @@ internal sealed class DelayedTenantSettingsRepository : ITenantSettingsRepositor
         string settingValue,
         CancellationToken cancellationToken) =>
         _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
+
+    public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+}
+
+internal sealed class DelayedUpsertTenantSettingsRepository : ITenantSettingsRepository
+{
+    private readonly InMemoryTenantSettingsRepository _inner = new();
+
+    private TaskCompletionSource? _upsertReleaseGate;
+
+    private TaskCompletionSource? _upsertPersistedGate;
+
+    public void ArmUpsertDelayUntilReleased()
+    {
+        _upsertReleaseGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _upsertPersistedGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    public void ReleaseUpsert()
+    {
+        TaskCompletionSource? gate = _upsertReleaseGate;
+
+        if (gate is not null)
+            gate.TrySetResult();
+    }
+
+    public Task WaitUntilUpsertPersistedAsync()
+    {
+        TaskCompletionSource? gate = _upsertPersistedGate;
+
+        if (gate is null)
+            throw new InvalidOperationException("Upsert delay was not armed.");
+
+        return gate.Task;
+    }
+
+    public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.TryGetAsync(tenantId, settingKey, cancellationToken);
+
+    public async Task UpsertAsync(
+        Guid tenantId,
+        string settingKey,
+        string settingValue,
+        CancellationToken cancellationToken)
+    {
+        await _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
+
+        TaskCompletionSource? persistedGate = _upsertPersistedGate;
+
+        if (persistedGate is not null)
+            persistedGate.TrySetResult();
+
+        TaskCompletionSource? releaseGate = _upsertReleaseGate;
+
+        if (releaseGate is not null)
+            await releaseGate.Task.WaitAsync(cancellationToken);
+    }
 
     public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
         _inner.DeleteAsync(tenantId, settingKey, cancellationToken);

@@ -48,6 +48,7 @@ public sealed class CachingTenantSettingsRepository(
     {
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
+        BumpCacheGeneration(tenantId, normalizedKey);
         await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
         BumpCacheGeneration(tenantId, normalizedKey);
     }
@@ -57,6 +58,7 @@ public sealed class CachingTenantSettingsRepository(
     {
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
+        BumpCacheGeneration(tenantId, normalizedKey);
         await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
         BumpCacheGeneration(tenantId, normalizedKey);
     }

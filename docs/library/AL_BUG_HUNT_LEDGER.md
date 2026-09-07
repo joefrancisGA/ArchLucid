@@ -228,11 +228,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — upsert during in-flight cached read could pin stale miss after write completed
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — cached miss at old generation survived between upsert commit and generation bump
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -244,8 +244,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 - [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
-- [ ] (hunt-ready) `CachingTenantSettingsRepository.TryGetAsync` with hybrid-cache loader started before `UpsertAsync` completes — without generation-stamped keys, a slow loader can publish a miss after upsert (regression guard exists; verify delete/upsert bumps generation on all code paths including `DeleteAsync` and bulk invalidation).
-- [ ] (hunt-ready) `SqlTenantSettingsRepository.UpsertAsync` with concurrent readers on the same tenant id — read path uses snapshot isolation while upsert uses row lock; verify no path returns pre-upsert defaults when upsert commits between read start and materialization.
+- [x] (proven) Cached miss at the pre-write generation survives after upsert commits but before the post-write generation bump — **hit 2026-09-07 (#1178):** a prior `TryGetAsync` miss at `g0` was served from hybrid cache while inner upsert had already persisted; fixed by bumping generation before and after inner upsert/delete; regressions in `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump` and `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed`
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertAsync` concurrent readers return pre-upsert defaults — repository returns null when row absent and never materializes defaults; reads use default `ReadCommitted` without snapshot isolation in this file; no fabricated default path in `TryGetCoreAsync`
+
+2026-09-07 thorough hunt #1178 (hit): proved cached-miss race between upsert commit and generation bump; cheap-disproof on SQL concurrent-default hypothesis.
 
 ---
 
