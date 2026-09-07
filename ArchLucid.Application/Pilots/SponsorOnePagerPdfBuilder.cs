@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Rendering;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
@@ -14,6 +15,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -44,6 +46,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     IScopeContextProvider scopeContextProvider,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IRunRepository runRepository,
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
@@ -61,6 +64,7 @@ public sealed class SponsorOnePagerPdfBuilder(
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -122,6 +126,12 @@ public sealed class SponsorOnePagerPdfBuilder(
         GoldenManifest? manifest = detail.Manifest;
         int denom = Math.Max(1, scorecard.RunsInPeriod);
         double committedRatio = scorecard.RunsWithCommittedManifest / (double)denom;
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
+            _runRepository,
+            _scopeContextProvider,
+            runId,
+            cancellationToken);
+        string reviewUiPath = WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(run.RunId, architectureId);
 
         return QuestPdfDocumentBytes.Generate(container =>
         {
@@ -203,7 +213,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/review/{run.RunId}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
-                    column.Item().Text($"{ui}/reviews/{run.RunId}");
+                    column.Item().Text($"{ui}{reviewUiPath}");
                     column.Item().Text($"{ui}/scorecard");
                 });
             });

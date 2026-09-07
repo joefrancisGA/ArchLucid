@@ -6,13 +6,16 @@ import {
   accessDeniedHeading,
   accessDeniedMailtoSubject,
   accessDeniedSupplementCopy,
+  localizeProductCopy,
   productLineAuthWelcomeAriaLabel,
   productLineDisplayName,
   productLineDocumentTitle,
   productLineEvaluationSignupLead,
   productLineGeneratedByLine,
+  productLineManagedIdentityObjectIdLabel,
   productLinePasswordlessExplanation,
   productLinePoweredByLine,
+  productLineTenantIdLabel,
   productLineTitleTemplate,
   productLineTransientFailureFooter,
   productLineTransientFailureTimeoutTitle,
@@ -84,5 +87,20 @@ describe("product line recovery copy", () => {
     expect(accessDeniedMailtoSubject("security")).toBe("SecureNow access request");
     expect(productLinePasswordlessExplanation("security")).toContain("SecureNow does not use");
     expect(productLineEvaluationSignupLead("security")).toBe("New to SecureNow?");
+  });
+});
+
+describe("localizeProductCopy", () => {
+  it("preserves script placeholder tokens while renaming the product", () => {
+    const template = "Replace {ArchLucid tenant ID} and {ArchLucid managed identity object ID} for ArchLucid federation.";
+
+    expect(localizeProductCopy("security", template)).toBe(
+      "Replace {ArchLucid tenant ID} and {ArchLucid managed identity object ID} for SecureNow federation.",
+    );
+  });
+
+  it("exposes SecureNow federation field labels", () => {
+    expect(productLineTenantIdLabel("security")).toBe("SecureNow tenant ID");
+    expect(productLineManagedIdentityObjectIdLabel("security")).toBe("SecureNow managed identity object ID");
   });
 });

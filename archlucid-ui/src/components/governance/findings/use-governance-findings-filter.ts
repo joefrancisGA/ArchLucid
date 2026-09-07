@@ -21,6 +21,12 @@ import {
   scopedRunIdFromQuery,
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+import {
+  governanceFindingsArchitectureScopeHrefFromSearch,
+  resolveGovernanceFindingsArchitectureScopeFromUrl,
+  scopedArchitectureIdFromQuery,
+} from "@/lib/governance/governance-findings-architecture-scope";
 
 import {
   GOVERNANCE_FINDINGS_FILTER_PRESET_LABELS,
@@ -52,19 +58,30 @@ function initialGroupByResourceFromUrlOrStorage(
 
 export type UseGovernanceFindingsFilterOptions = {
   readonly mode?: GovernanceFindingsQueueMode;
+  readonly isWorkingMode?: boolean;
 };
 
 export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilterOptions) {
   const mode = options?.mode ?? "tenant";
+  const isWorkingMode = options?.isWorkingMode === true;
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const defaultArchitectureId = isWorkingMode ? readCachedLastOpenArchitectureId() : null;
   const [registerFilter, setRegisterFilterState] = useState<RiskRegisterFilter>(() =>
     initialRegisterFilterFromUrlOrStorage(searchParams.get("filter"), mode),
   );
   const [scopedRunId, setScopedRunId] = useState<string | null>(() =>
     scopedRunIdFromQuery(searchParams.get("runId")),
   );
+  const [scopedArchitectureId, setScopedArchitectureIdState] = useState<string | null>(() => {
+    const resolved = resolveGovernanceFindingsArchitectureScopeFromUrl(
+      searchParams.get("architectureId"),
+      defaultArchitectureId,
+    );
+
+    return scopedArchitectureIdFromQuery(resolved.architectureId);
+  });
   const [savedPresets, setSavedPresets] = useState<GovernanceFindingsFilterPreset[]>(() =>
     loadGovernanceFindingsFilterPresets(),
   );
@@ -84,6 +101,12 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
 
     setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
 
+    const resolvedArchitecture = resolveGovernanceFindingsArchitectureScopeFromUrl(
+      searchParams.get("architectureId"),
+      isWorkingMode ? readCachedLastOpenArchitectureId() : null,
+    );
+    setScopedArchitectureIdState(scopedArchitectureIdFromQuery(resolvedArchitecture.architectureId));
+
     const rawGroupBy = searchParams.get("groupBy");
 
     if (rawGroupBy !== null && rawGroupBy.trim().length > 0) {
@@ -91,7 +114,34 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     } else {
       setGroupByResource(readGroupByResourcePreference());
     }
-  }, [mode, searchParams]);
+  }, [isWorkingMode, mode, searchParams]);
+
+  useEffect(() => {
+    if (!isWorkingMode) {
+      return;
+    }
+
+    const rawArchitectureId = searchParams.get("architectureId");
+
+    if (rawArchitectureId !== null && rawArchitectureId.trim().length > 0) {
+      return;
+    }
+
+    const lastOpenArchitectureId = readCachedLastOpenArchitectureId();
+
+    if (lastOpenArchitectureId === null) {
+      return;
+    }
+
+    router.replace(
+      governanceFindingsArchitectureScopeHrefFromSearch(
+        searchParams.toString(),
+        lastOpenArchitectureId,
+        pathname,
+      ),
+      { scroll: false },
+    );
+  }, [isWorkingMode, pathname, router, searchParams]);
 
   const setRegisterFilter = useCallback((next: RiskRegisterFilter): void => {
     setRegisterFilterState(next);
@@ -157,10 +207,22 @@ export function useGovernanceFindingsFilter(options?: UseGovernanceFindingsFilte
     router.replace(governanceFindingsGroupByHrefFromSearch(searchParams.toString(), next, pathname), { scroll: false });
   }, [pathname, router, searchParams]);
 
+  const setScopedArchitectureId = useCallback((next: string | null): void => {
+    setScopedArchitectureIdState(next);
+    router.replace(
+      governanceFindingsArchitectureScopeHrefFromSearch(searchParams.toString(), next, pathname),
+      { scroll: false },
+    );
+  }, [pathname, router, searchParams]);
+
   return {
     registerFilter,
     setRegisterFilter,
     scopedRunId,
+    scopedArchitectureId,
+    setScopedArchitectureId,
+    architectureScopeFilterActive: scopedArchitectureId !== null,
+    lastOpenArchitectureId: defaultArchitectureId,
     savedPresets,
     saveCurrentFilterAsPreset,
     removePreset,

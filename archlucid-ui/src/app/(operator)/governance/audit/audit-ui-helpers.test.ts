@@ -11,6 +11,7 @@ import {
   canExportAuditCsv,
   formatAuditSummaryHeading,
   formatBuyerAuditTrailSummaryLine,
+  formatAuditActorDisplayName,
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "./audit-ui-helpers";
@@ -30,6 +31,13 @@ describe("auditBuyerEventIsSystemRecordedActor", () => {
   it("returns false for blank names", () => {
     expect(auditBuyerEventIsSystemRecordedActor("")).toBe(false);
     expect(auditBuyerEventIsSystemRecordedActor("   ")).toBe(false);
+  });
+});
+
+describe("formatAuditActorDisplayName", () => {
+  it("rewrites ArchLucid system labels for the security product line only", () => {
+    expect(formatAuditActorDisplayName("ArchLucid system", "architecture")).toBe("ArchLucid system");
+    expect(formatAuditActorDisplayName("ArchLucid system", "security")).toBe("SecureNow system");
   });
 });
 
