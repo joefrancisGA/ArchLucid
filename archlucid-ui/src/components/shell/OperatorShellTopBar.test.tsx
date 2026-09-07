@@ -27,6 +27,7 @@ const navigationTestState = vi.hoisted(() => ({
 
 const architectWorkspaceChromeMock = vi.hoisted(() => ({ value: false }));
 const productLineMock = vi.hoisted(() => ({ value: "architecture" as "architecture" | "security" }));
+const devTestingOverridesMock = vi.hoisted(() => ({ enabled: false }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -109,6 +110,11 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   }),
 }));
 
+vi.mock("@/lib/dev-testing-overrides", () => ({
+  isDevTestingOverridesEnabled: () => devTestingOverridesMock.enabled,
+  readDevAgentExecutionModeOverrideFromDocument: () => null,
+}));
+
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
 }));
@@ -135,6 +141,7 @@ describe("OperatorShellTopBar", () => {
     navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     productLineMock.value = "architecture";
+    devTestingOverridesMock.enabled = false;
     fetchBudgetStatus.mockReset();
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -221,6 +228,20 @@ describe("OperatorShellTopBar", () => {
       "aria-label",
       PRODUCT_LINE_WORDMARK_ARIA_LABEL.security,
     );
+  });
+
+  it("hides the analysis mode top bar chip in the Security product shell", async () => {
+    productLineMock.value = "security";
+    devTestingOverridesMock.enabled = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("dev-environment-top-bar-tag")).not.toBeInTheDocument();
   });
 
   it("hides the AI budget pill when remaining budget is healthy", async () => {
