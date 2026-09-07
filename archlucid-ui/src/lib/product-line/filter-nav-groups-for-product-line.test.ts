@@ -58,7 +58,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(adminHrefs).toContain("/internal/health");
     expect(adminHrefs).toContain("/internal/configuration");
     expect(adminHrefs).toContain("/internal/tenants");
-    expect(adminHrefs).toContain("/internal/product-line");
+    expect(adminHrefs).not.toContain("/internal/product-line");
     expect(adminHrefs).not.toContain("/internal/deployment-status");
     expect(adminHrefs).not.toContain("/internal/trial-funnel");
   });

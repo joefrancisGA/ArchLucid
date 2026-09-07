@@ -74,7 +74,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/internal/operational-errors": "both",
   "/internal/tenants": "both",
   "/internal/tenant-health": "both",
-  "/internal/product-line": "both",
+  "/internal/product-line": "architecture",
 };
 
 /**
@@ -111,14 +111,13 @@ export const PRODUCT_LINE_NESTED_PREFIXES: readonly string[] = [
   "/auth",
 ];
 
-/** Always reachable in every product (account, help, auth, playground). */
+/** Always reachable in every product (account, help, auth). */
 export const PRODUCT_LINE_ALWAYS_ALLOWED_PREFIXES: readonly string[] = [
   "/help",
   "/account",
   "/auth",
   "/403",
   "/why-archlucid",
-  "/internal/product-line",
 ];
 
 export { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/internal-ops-route-paths";

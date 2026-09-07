@@ -89,7 +89,7 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/internal/health");
     expect(hrefs).toContain("/internal/configuration");
     expect(hrefs).toContain("/internal/tenants");
-    expect(hrefs).toContain("/internal/product-line");
+    expect(hrefs).not.toContain("/internal/product-line");
     expect(hrefs).not.toContain("/internal/deployment-status");
     expect(hrefs).not.toContain("/internal/trial-funnel");
     expect(hrefs).not.toContain("/internal/pricing-quote-aging");
@@ -152,6 +152,12 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/internal/deployment-status", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/internal/deployment-status", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/internal/health", "security")).toBe(true);
+  });
+
+  it("keeps the product-line playground architecture-only", () => {
+    expect(resolveProductLineAssignmentForPath("/internal/product-line")).toBe("architecture");
+    expect(isPathAllowedForProductLine("/internal/product-line", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/internal/product-line", "architecture")).toBe(true);
   });
 
   it("keeps recycle bin architecture-only even though workspace-settings is both", () => {
