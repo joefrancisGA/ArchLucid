@@ -31,7 +31,7 @@ describe("deriveReviewPipelineStallDiagnosis", () => {
       elapsedMinutes: 56,
     });
 
-    expect(diagnosis?.headline).toMatch(/no pipeline stage has started/i);
+    expect(diagnosis?.headline).toMatch(/no assessment stage has started/i);
     expect(diagnosis?.detail).toMatch(/AuthorityPipelineWorkHostedService/i);
   });
 
@@ -72,7 +72,7 @@ describe("deriveReviewPipelineTerminalFailureDiagnosis", () => {
       },
     });
 
-    expect(diagnosis?.headline).toMatch(/before the first pipeline stage/i);
+    expect(diagnosis?.headline).toMatch(/before the first assessment stage/i);
     expect(diagnosis?.detail).toContain("Missing Azure OpenAI deployment configuration");
   });
 

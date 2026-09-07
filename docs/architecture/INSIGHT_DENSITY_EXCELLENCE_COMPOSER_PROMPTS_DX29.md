@@ -4,11 +4,11 @@
 
 # Insight density — excellence Composer prompt set (DX-29–DX-35)
 
-**Created:** 2026-09-07 · **Status:** Ready to run. One prompt per chat.
+**Created:** 2026-09-07 · **Status:** **DX-29–DX-35 shipped on `master` (2026-09-07).** Do **not** re-run. **DX-18** / **DX-19** remain held in [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md).
 
-DX-01–DX-28 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). This set grows the **numerator** (ingest + one remaining path engine + three-way contradiction), deepens **measurement** (golden fixtures still 1-finding medians), and tightens **dismiss** without adding coverage-only engines.
+DX-01–DX-28 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) and **DX-19** (ADR 0062 / TB-2033 hold). This set grew the **numerator** (ingest + one remaining path engine + three-way contradiction), deepened **measurement** (golden fixtures still 1-finding medians), and tightened **dismiss** without adding coverage-only engines.
 
-**Run one prompt per chat.** Feature branch per prompt. Suggested Cloud Agent branch: `cursor/dx-<short-name>-97a4`. Name the branch in any commit/push request. **Do not push to `master`.**
+**Do not re-run.** Archive only. Feature branches landed as #2042–#2060.
 
 ## Do not re-run
 
@@ -32,7 +32,7 @@ DX-01–DX-28 shipped on `master` (2026-09-07) except **DX-18** (TB-885 hold) an
 | **DX-34** | Preferred-engine list catch-up | Yes | DX-21 shipped | Precision (same cap) |
 | **DX-35** | Novelty-rate as optional judge-cap secondary sort | After DX-23 + DX-34 | DX-21, DX-23 shipped | Precision (default **off**) |
 
-**Start DX-29, DX-30, DX-31, DX-32, and DX-34 now** (independent). Start **DX-33** after DX-04 context is loaded (already on `master`). Start **DX-35** after DX-34 so the preferred list is current.
+**2026-09-07 closure:** DX-29–DX-35 landed on `master`. Do **not** re-run this file.
 
 **Do not start from this document:** **DX-18** / **DX-19** (held in the DX-21 file until the owner unparks **TB-885** / **TB-2033**), Pulumi/CDK parsers, live extractor-as-default (product/GTM), fake named-model frontier transcripts, SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType` enum value.
 

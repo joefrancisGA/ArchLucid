@@ -25,6 +25,7 @@ import {
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
   formatReviewFailureRecordedAtLabel,
+  REVIEW_FAILURE_RECORDED_AT_UNAVAILABLE_LABEL,
 } from "@/components/resolve-run-detail-last-failure-summary";
 import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
@@ -241,9 +242,15 @@ function ReviewSubmittedIntakeRecapPanel(props: {
           <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Attached files
           </p>
-          <ul className={cn("m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          <ul className={cn("m-0 mt-1 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             {recap.attachedFiles.map((fileName) => (
-              <li key={fileName}>{fileName}</li>
+              <li key={fileName} className="flex min-h-6 items-center gap-2">
+                <span className="text-al-text-secondary" aria-hidden>•</span>
+                <span data-testid="review-package-attached-file-name">{fileName}</span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Recorded with intake (not downloadable here)
+                </span>
+              </li>
             ))}
           </ul>
         </div>
@@ -296,15 +303,9 @@ function ReviewFailureRecoveryDetails(props: {
   return (
     <div className="space-y-3" data-testid="review-package-failure-recovery">
       <div data-testid="review-package-failure-review-id">
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-semibold text-al-text-primary">Review ID:</span>{" "}
-          <span className="inline-flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-            <code className={cn("break-all font-mono select-all", OPERATOR_TYPOGRAPHY.micro)}>{runId}</code>
-            <CopyIdButton value={runId} aria-label="Copy review ID" />
-          </span>
-        </p>
+        <CopyIdButton value={runId} aria-label="Copy review ID" />
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link href={failureRecovery.supportHref} className="text-al-link underline-offset-2 hover:underline">
+          <Link href={failureRecovery.supportHref} className={cn(OPERATOR_LINK.inline)}>
             Report a problem
           </Link>{" "}
           and include this review ID if you need support.
@@ -376,12 +377,14 @@ function ReviewFailureRecoveryDetails(props: {
         </p>
       ) : null}
 
-      <div
-        className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
-        data-testid="review-package-failure-foot-action"
-      >
-        {footActionRow}
-      </div>
+      {footActionRow !== null ? (
+        <div
+          className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
+          data-testid="review-package-failure-foot-action"
+        >
+          {footActionRow}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -410,6 +413,8 @@ export function ReviewPackageDoThisNextStrip(
   const suppressStaleFailureRecovery =
     reRunInFlight && next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
+  const failureRecordedAtDisplay =
+    failureRecordedAtLabel ?? REVIEW_FAILURE_RECORDED_AT_UNAVAILABLE_LABEL;
   const disabledRerunHintId = "review-package-rerun-disabled-hint";
 
   const primaryActionButton =
@@ -483,6 +488,17 @@ export function ReviewPackageDoThisNextStrip(
     </>
   );
 
+  const footActionRow =
+    next.kind === "rerun-review" && !blockRerun ? (
+      <ReRunReviewButton
+        runId={runId}
+        retryCount={retryCount}
+        variant="outline"
+        size="sm"
+        data-testid="review-package-re-run-review-foot"
+      />
+    ) : null;
+
   const hasFailureRecovery = next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecoverySteps =
     hasFailureRecovery
@@ -528,14 +544,12 @@ export function ReviewPackageDoThisNextStrip(
               >
                 Do this next
               </h2>
-              {failureRecordedAtLabel !== null ? (
-                <p
-                  className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="review-package-failure-recorded-at"
-                >
-                  Failed {failureRecordedAtLabel}
-                </p>
-              ) : null}
+              <p
+                className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="review-package-failure-recorded-at"
+              >
+                Failed {failureRecordedAtDisplay}
+              </p>
             </div>
             <p
               className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -590,7 +604,7 @@ export function ReviewPackageDoThisNextStrip(
           pipelineDiagnosticContext={pipelineDiagnosticContext}
           pipelineSummary={pipelineSummary}
           retryCount={retryCount}
-          footActionRow={primaryActionButton}
+          footActionRow={footActionRow}
           showRecoverySteps={showFailureRecoverySteps}
         />
       </div>

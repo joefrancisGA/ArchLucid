@@ -51,6 +51,8 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-pre
 
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -135,6 +137,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   const preserveMaintenanceMetadata = entry.audience === "developer";
 
+  const productLineId = resolveProductLineIdFromEnv();
+
   const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
 
   const preparedMarkdown = isCaiqSigResponse
@@ -146,6 +150,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         preserveMaintenanceMetadata,
 
         helpTopicSlug: entry.slug,
+
+        productLineId,
 
       });
 
@@ -305,6 +311,8 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             preserveMaintenanceMetadata={preserveMaintenanceMetadata}
 
             preparedMarkdownOverride={preparedMarkdown}
+
+            productLineId={productLineId}
 
           />
 

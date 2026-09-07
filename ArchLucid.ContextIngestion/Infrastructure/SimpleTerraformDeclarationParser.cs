@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
@@ -14,18 +15,95 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         InfrastructureDeclarationReference declaration,
         CancellationToken ct)
     {
+        return ParseAsync(declaration, terraformBatchByPath: null, fullBatchByPath: null, ct);
+    }
+
+    internal Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? terraformBatchByPath,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? fullBatchByPath,
+        CancellationToken ct)
+    {
         ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
 
         if (string.IsNullOrWhiteSpace(declaration.Content))
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
+        List<CanonicalObject> results = [];
+        HashSet<string> visitedModuleKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        ParseResourcesRecursive(
+            declaration,
+            declaration.Content,
+            terraformBatchByPath,
+            fullBatchByPath,
+            moduleDepth: 0,
+            visitedModuleKeys,
+            results);
+
+        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static void ParseResourcesRecursive(
+        InfrastructureDeclarationReference declaration,
+        string content,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? terraformBatchByPath,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? fullBatchByPath,
+        int moduleDepth,
+        HashSet<string> visitedModuleKeys,
+        List<CanonicalObject> results)
+    {
+        ParseResourcesFromContent(declaration, content, results);
+
+        if (terraformBatchByPath is null
+            || fullBatchByPath is null
+            || moduleDepth >= SimpleTerraformModuleBatchIndex.MaxModuleRecursionDepth)
+            return;
+
+        foreach (SimpleTerraformResourceBlockParser.SimpleTerraformModuleBlock moduleBlock in
+                 SimpleTerraformResourceBlockParser.ExtractModuleBlocks(content))
+        {
+            if (SimpleTerraformModuleBatchIndex.IsRemoteModuleSource(moduleBlock.Source))
+                continue;
+
+            if (!SimpleTerraformModuleBatchIndex.TryResolveModule(
+                    moduleBlock.Source,
+                    declaration.Name,
+                    terraformBatchByPath,
+                    fullBatchByPath,
+                    out InfrastructureDeclarationReference moduleDeclaration))
+                continue;
+
+            string moduleKey = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(moduleDeclaration.Name);
+
+            if (!visitedModuleKeys.Add(moduleKey))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(moduleDeclaration.Content))
+                continue;
+
+            ParseResourcesRecursive(
+                moduleDeclaration,
+                moduleDeclaration.Content,
+                terraformBatchByPath,
+                fullBatchByPath,
+                moduleDepth + 1,
+                visitedModuleKeys,
+                results);
+        }
+    }
+
+    private static void ParseResourcesFromContent(
+        InfrastructureDeclarationReference declaration,
+        string content,
+        List<CanonicalObject> results)
+    {
         IReadOnlyList<SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock> blocks =
-            SimpleTerraformResourceBlockParser.ExtractBlocks(declaration.Content);
+            SimpleTerraformResourceBlockParser.ExtractBlocks(content);
 
         Dictionary<string, int> labelTotals = CountResourceLabelOccurrences(blocks);
         Dictionary<string, int> labelSeen = new(StringComparer.OrdinalIgnoreCase);
-        List<CanonicalObject> results = [];
 
         foreach (SimpleTerraformResourceBlockParser.SimpleTerraformResourceBlock block in blocks)
         {
@@ -56,8 +134,6 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
                 labelSeen,
                 results);
         }
-
-        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }
 
     private static void AddResourceObject(
@@ -87,6 +163,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             properties["forEachKey"] = forEachKey;
 
         SimpleTerraformResourceBlockParser.ParseBodyIntoProperties(block.Body, properties);
+        InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, canonicalTerraformType, name);
 
         string canonicalName = name.ToLowerInvariant();
         string labelKey = $"{canonicalTerraformType}|{canonicalName}";

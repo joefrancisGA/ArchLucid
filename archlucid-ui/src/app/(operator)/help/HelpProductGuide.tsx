@@ -15,8 +15,8 @@ import {
   filterHelpCenterTopicsByQuery,
   getHelpCenterDisplay,
   getHelpCenterTier,
-  HELP_CENTER_FEATURED_SLUGS,
   listHelpCenterAdvancedGuideTopics,
+  listHelpCenterFeaturedSlugs,
   listHelpCenterGuideTopics,
 } from "@/lib/help/help-center-catalog";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
@@ -106,18 +106,20 @@ export function HelpProductGuide() {
       showAdvanced,
       isAdmin,
       isInternalOperator: isArchLucidInternalOperatorShellEnv(),
+      productLineId: productLine,
     }),
-    [isAdmin, showAdvanced],
+    [isAdmin, productLine, showAdvanced],
   );
 
   const visibleTopics = useMemo(() => listHelpCenterGuideTopics(topicFilters), [topicFilters]);
   const filteredTopics = useMemo(
-    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery),
-    [topicQuery, visibleTopics],
+    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery, productLine),
+    [productLine, topicQuery, visibleTopics],
   );
   const advancedTopics = useMemo(() => listHelpCenterAdvancedGuideTopics(topicFilters), [topicFilters]);
 
-  const featuredTopics = filteredTopics.filter((entry) => HELP_CENTER_FEATURED_SLUGS.includes(entry.slug));
+  const featuredSlugs = useMemo(() => listHelpCenterFeaturedSlugs(productLine), [productLine]);
+  const featuredTopics = filteredTopics.filter((entry) => featuredSlugs.includes(entry.slug));
   const expandedAdvancedTopics = filteredTopics.filter((entry) => advancedTopics.some((advanced) => advanced.slug === entry.slug));
 
   return (
@@ -293,21 +295,24 @@ export function HelpProductGuide() {
           autoComplete="off"
         />
 
-        <HelpTopicGrid topics={featuredTopics} heading="Start here" />
+        <HelpTopicGrid topics={featuredTopics} heading="Start here" productLine={productLine} />
 
         {showAdvanced && expandedAdvancedTopics.length > 0 ? (
           <>
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "admin")}
               heading="Admin and integration"
+              productLine={productLine}
             />
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "internal")}
               heading="System administration and engineering"
+              productLine={productLine}
             />
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "product")}
               heading="More product guides"
+              productLine={productLine}
             />
           </>
         ) : null}
@@ -323,9 +328,10 @@ export function HelpProductGuide() {
 type HelpTopicGridProps = {
   topics: readonly ProductDocumentationEntry[];
   heading: string;
+  productLine: ReturnType<typeof useLocalizedProductCopy>["productLine"];
 };
 
-function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
+function HelpTopicGrid({ topics, heading, productLine }: HelpTopicGridProps) {
   if (topics.length === 0) {
     return null;
   }
@@ -337,7 +343,7 @@ function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
       </h4>
       <ul className="m-0 grid gap-2 sm:grid-cols-2">
         {topics.map((topic) => {
-          const display = getHelpCenterDisplay(topic);
+          const display = getHelpCenterDisplay(topic, productLine);
 
           return (
             <li key={topic.slug}>

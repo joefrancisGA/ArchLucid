@@ -40,7 +40,7 @@ function formatUtc(value: string | undefined): string {
   return new Date(value).toLocaleString();
 }
 
-function TechnicalIdentifierRow(props: { readonly label: string; readonly value: string | undefined }): React.JSX.Element {
+function TechnicalIdentifierRow(props: { readonly label: string; readonly value: string | null | undefined }): React.JSX.Element {
   return (
     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
       {props.label}={props.value ?? "—"}

@@ -80,6 +80,9 @@ public static partial class AuditEventTypes
     /// <summary>Bulk evidence files were attached to a run.</summary>
     public const string EvidenceBulkAttached = "EvidenceBulkAttached";
 
+    /// <summary>Operator opened or downloaded a stored evidence source file on a review run.</summary>
+    public const string EvidenceSourceOpened = "EvidenceSourceOpened";
+
     /// <summary>
     ///     Admin promoted an agent-curated evidence proposal into the tenant catalog (
     ///     <c>POST /v1/admin/evidence/proposals/{{resultId}}/promote</c>).
