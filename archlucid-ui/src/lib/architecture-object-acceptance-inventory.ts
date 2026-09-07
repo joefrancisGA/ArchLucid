@@ -149,6 +149,11 @@ export const ARCHITECTURE_OBJECT_ACCEPTANCE_CASES: readonly ArchitectureObjectAc
     marker: "AO-43",
   },
   {
+    id: "AO-44",
+    relativeTestPath: "lib/architecture/working-back-href.test.ts",
+    marker: "AO-44",
+  },
+  {
     id: "AO-47",
     relativeTestPath: "lib/working-start-route-architecture-locator-guard.test.ts",
     marker: "AO-47",

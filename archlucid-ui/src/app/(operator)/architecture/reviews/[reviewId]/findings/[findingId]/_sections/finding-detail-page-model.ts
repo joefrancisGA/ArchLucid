@@ -19,4 +19,6 @@ export type FindingDetailPageModel = {
   readonly runExecutionFootnote: OperatorEvidenceLimitsExecutionProps | null;
   readonly statedConstraintContext: StatedConstraintContext | null;
   readonly nextFindingInReview: FindingDetailNextFindingTarget | null;
+  /** Parent architecture identity when the authority run record includes it (AO-44 back locator). */
+  readonly parentArchitectureId: string | null;
 };
