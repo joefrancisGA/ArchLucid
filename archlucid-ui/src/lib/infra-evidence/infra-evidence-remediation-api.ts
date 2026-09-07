@@ -1,5 +1,5 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import type {
   RemediationFactoryWorkbenchSummary,
   RemediationInstanceDetail,
@@ -224,9 +224,5 @@ export async function closeRemediationInstance(instanceId: string): Promise<Reme
 }
 
 export function formatInfraEvidenceRemediationApiError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return toApiLoadFailure(error).message;
+  return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

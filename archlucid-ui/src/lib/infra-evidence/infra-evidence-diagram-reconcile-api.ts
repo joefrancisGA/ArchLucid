@@ -1,4 +1,4 @@
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import type {
   ArchitectureDiagramModelRecord,
@@ -53,9 +53,5 @@ export async function ingestOperationalSecurityFindings(
 }
 
 export function formatInfraEvidenceDiagramReconcileApiError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return toApiLoadFailure(error).message;
+  return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

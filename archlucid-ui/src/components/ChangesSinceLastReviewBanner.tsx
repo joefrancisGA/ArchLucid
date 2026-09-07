@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -13,7 +14,8 @@ export type ChangesSinceLastReviewBannerProps = {
   readonly priorReviewDateLabel: string;
   readonly priorRunId: string;
   readonly currentRunId: string;
-  readonly copy: ChangesSinceLastReviewCopy;
+  readonly copy: ChangesSinceLastReviewCopy | null;
+  readonly blockedReason?: string | null;
 };
 
 /** Collapsible read-only delta banner vs the prior committed review on the same project. */
@@ -22,6 +24,27 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
   const compareLinkLabel = isBuyerPolishedOperatorShellEnv()
     ? BUYER_COMPARE_OPEN_FULL_LINK_LABEL
     : "Open full comparison";
+  const blockedReason = props.blockedReason?.trim() ?? "";
+
+  if (blockedReason.length > 0) {
+    return (
+      <OperatorWarningCallout data-testid="changes-since-last-review-banner">
+        <strong>Changes since your previous review on {props.priorReviewDateLabel} are unavailable.</strong>
+        <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{blockedReason}</p>
+        <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Resolve lifecycle or sealed-manifest gaps on the prior review, then reload this page or open{" "}
+          <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={compareHref}>
+            {compareLinkLabel}
+          </Link>{" "}
+          after both reviews pass compare gates.
+        </p>
+      </OperatorWarningCallout>
+    );
+  }
+
+  if (props.copy === null) {
+    return <></>;
+  }
 
   return (
     <details

@@ -1,13 +1,16 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -75,12 +78,33 @@ public sealed partial class ExplanationController
     [MutatingAuditExcluded("Holistic critic is advisory-only and does not persist domain mutations.")]
     [ProducesResponseType(typeof(HolisticCriticResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> HolisticCritic(
         Guid runId,
         [FromBody] HolisticCriticRequest? request,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail?.GoldenManifest is null)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+        }
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         try
         {
