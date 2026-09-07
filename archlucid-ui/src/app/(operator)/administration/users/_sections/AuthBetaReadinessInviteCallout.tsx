@@ -67,27 +67,29 @@ export function AuthBetaReadinessInviteCallout(
   }
 
   return (
-    <OperatorWarningCallout data-testid="auth-beta-readiness-invite-callout">
-      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        Private-beta invite readiness
-      </p>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Fix these before inviting private-beta users — otherwise accept links or post-accept sessions may fail.
-      </p>
-      <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-        {blockers.map((blocker) => (
-          <li key={blocker.id}>
-            <span className="font-medium text-al-text-primary">{blocker.label}</span>
-            {": "}
-            {blocker.detail}
-          </li>
-        ))}
-      </ul>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link href={diagnosticsHref} className={OPERATOR_LINK.inline}>
-          Open identity provider diagnostics
-        </Link>
-      </p>
-    </OperatorWarningCallout>
+    <div data-testid="auth-beta-readiness-invite-callout">
+      <OperatorWarningCallout>
+        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Private-beta invite readiness
+        </p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Fix these before inviting private-beta users — otherwise accept links or post-accept sessions may fail.
+        </p>
+        <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+          {blockers.map((blocker) => (
+            <li key={blocker.id}>
+              <span className="font-medium text-al-text-primary">{blocker.label}</span>
+              {": "}
+              {blocker.detail}
+            </li>
+          ))}
+        </ul>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={diagnosticsHref} className={OPERATOR_LINK.inline}>
+            Open identity provider diagnostics
+          </Link>
+        </p>
+      </OperatorWarningCallout>
+    </div>
   );
 }
