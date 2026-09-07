@@ -1,6 +1,7 @@
 > **Scope:** Copy-paste Composer prompts that close **false confidence on career artifacts** — stamp, finalize, sponsor PDF, print, ADR export, decision receipt, audit CSV, Ask/Compare exports. Internal engineering only — not buyer-facing marketing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/false-confidence-career-00-index.md`](../../.cursor/prompts/false-confidence-career-00-index.md) (**FC-01–FC-80**)
+> **Working-seat leftovers (wave 19):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**) Accepts **0078** and owns Working finalize/visibility defaults — do **not** paste FC to evict buyer polish.
 
 # False-confidence career-artifact Composer prompts (FC-01–FC-80)
 

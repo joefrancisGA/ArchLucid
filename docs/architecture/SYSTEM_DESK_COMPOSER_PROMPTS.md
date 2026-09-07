@@ -2,10 +2,11 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/system-desk-00-index.md`](../../.cursor/prompts/system-desk-00-index.md) (**SY-01–SY-100**)
 > **Predecessor (wave 17 — locator):** [`ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md`](ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md) (**AO-01–50**) — nested review URLs and Start-on-architecture. **Do not re-run AO.** This set owns leftovers AO-50 did not ratchet: Alt+R → inbox, peer Insights tools, remaining `reviewDetailPath` mints.
+> **Successor (wave 19 — Working never buyer-polished):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**) — do **not** add SY-101; paste WS files for dual skin.
 
 # System-desk Composer prompts (SY-01–SY-100)
 
-**Created:** 2026-09-07 · **Status:** ready to run · **Do not re-run** AO, CA, DA, PC, DR, FC, LK, or overlay waves except as an SY row names a leftover. **Do not paste this wave to “fix” insight density, dual skin, career-export honesty, or what-if cost.**
+**Created:** 2026-09-07 · **Status:** ready to run (desk URLs) · **Do not re-run** AO, CA, DA, PC, DR, FC, LK, or overlay waves except as an SY row names a leftover. **Do not paste this wave to “fix” insight density, dual skin, career-export honesty, or what-if cost** — dual skin is **WS-01–WS-24**.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **The Monday-morning object is still a job, not a system.** Wave 17 made architecture the **locator** (`resolveWorkingStartHref` → identity path; nested `/architectures/{id}/reviews/{id}`). The paying desk still **does the day’s work** in peer products: Alt+R opens `/architecture/reviews`, Ask/Compare/Graph live under `/insights/*`, and many call sites still mint `reviewDetailPath`.
 
