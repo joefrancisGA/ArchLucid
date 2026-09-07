@@ -120,7 +120,11 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngine(
                 break;
             }
 
-            // Analyzer only emits when both declaration and inventory values are present and disagree (declaration-claims side is implicit in the mismatch row).
+            if (!DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch))
+            {
+                continue;
+            }
+
             string? policyRuleId = DeclarationSignalPolicyKeyMap.TryGetFirstMappedRuleId(
                 mismatch.SecurityTheme,
                 activeRuleIds);

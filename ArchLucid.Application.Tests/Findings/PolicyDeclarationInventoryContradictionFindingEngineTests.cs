@@ -132,6 +132,32 @@ public sealed class PolicyDeclarationInventoryContradictionFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_returns_empty_when_declaration_does_not_claim_secure_posture()
+    {
+        GraphSnapshot graph = CreateStorageGraph("Enabled");
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Disabled"
+                }
+              }
+            ]
+            """;
+
+        (PolicyDeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreateAzurePackage(resourcesJson), CreatePack("cis-az-006"));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_returns_empty_when_inventory_collection_is_stale()
     {
         GraphSnapshot graph = CreateStorageGraph("Disabled");
