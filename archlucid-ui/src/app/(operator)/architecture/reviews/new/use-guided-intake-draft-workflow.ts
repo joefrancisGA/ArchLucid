@@ -7,7 +7,10 @@ import {
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
-import { resolveGuidedIntakeClarificationProgress } from "@/lib/guided-intake-clarification-progress";
+import {
+  areGuidedIntakeClarificationsPersistedForSubmit,
+  resolveGuidedIntakeClarificationProgress,
+} from "@/lib/guided-intake-clarification-progress";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -235,6 +238,11 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
     pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
+  const clarificationsPersistedForSubmit = areGuidedIntakeClarificationsPersistedForSubmit(
+    pendingQuestions,
+    allClarificationsHandled,
+    savedLocallyQuestionKeys,
+  );
   const isSubmitBlocked = isGuidedIntakeDraftSubmitBlocked(draftStatus);
 
   return {
@@ -264,6 +272,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     primaryPendingQuestion,
     otherPendingQuestions,
     allClarificationsHandled,
+    clarificationsPersistedForSubmit,
     applyBranchDraft,
     runAdmission,
     runCreateArchitectureContinuation,

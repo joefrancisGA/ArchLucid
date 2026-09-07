@@ -151,6 +151,11 @@ export function ReviewsNewPathSwitcher() {
       params.delete("template");
     }
 
+    if (path !== "guided-intake") {
+      params.delete("intakeStep");
+      params.delete("scopeGate");
+    }
+
     router.replace(buildReviewsNewPathHref(pathname, path, params), { scroll: false });
   };
 

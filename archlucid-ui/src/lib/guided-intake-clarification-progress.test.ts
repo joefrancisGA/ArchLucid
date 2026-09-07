@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  areGuidedIntakeClarificationsPersistedForSubmit,
   mergeAdmittedRequiredMustQuestionKeys,
   resolveGuidedIntakeClarificationProgress,
 } from "./guided-intake-clarification-progress";
@@ -59,6 +60,28 @@ describe("resolveGuidedIntakeClarificationProgress", () => {
 
     expect(progress.totalRequired).toBe(2);
     expect(progress.handledCount).toBe(1);
+  });
+});
+
+describe("areGuidedIntakeClarificationsPersistedForSubmit", () => {
+  it("blocks submit when clarifications are handled locally but not persisted", () => {
+    expect(
+      areGuidedIntakeClarificationsPersistedForSubmit(
+        [{ questionKey: "l0.pillar.security" }],
+        true,
+        new Set(["l0.pillar.security"]),
+      ),
+    ).toBe(false);
+  });
+
+  it("allows submit after reviewAnswers clears local-only saved keys", () => {
+    expect(
+      areGuidedIntakeClarificationsPersistedForSubmit([{ questionKey: "l0.pillar.security" }], true, new Set()),
+    ).toBe(true);
+  });
+
+  it("allows submit when no clarifications were required", () => {
+    expect(areGuidedIntakeClarificationsPersistedForSubmit([], true, new Set(["l0.pillar.security"]))).toBe(true);
   });
 });
 

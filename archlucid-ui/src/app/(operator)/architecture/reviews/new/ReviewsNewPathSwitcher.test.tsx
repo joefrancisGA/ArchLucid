@@ -147,6 +147,28 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.getByTestId("reviews-new-back-to-quick-start")).toBeInTheDocument();
   });
 
+  it("clears intakeStep when returning to quick-review", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake&intakeStep=2"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=quick-review",
+      expect.objectContaining({ scroll: false }),
+    );
+    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
+  });
+
   it("returns to the job chooser when back to quick start clears accelerator deep-link params", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("baseline=1&accelerator=ai-llm-workload"));
 

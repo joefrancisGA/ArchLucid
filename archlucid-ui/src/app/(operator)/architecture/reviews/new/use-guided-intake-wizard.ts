@@ -217,6 +217,14 @@ export function useGuidedIntakeWizard() {
     setStep(1);
   }, [step, setStep, workflow.isSubmitBlocked]);
 
+  useEffect(() => {
+    if (step < 2 || workflow.clarificationsPersistedForSubmit) {
+      return;
+    }
+
+    setStep(1);
+  }, [setStep, step, workflow.clarificationsPersistedForSubmit]);
+
   const policyPackCloudMismatch = useMemo(
     () =>
       deriveGuidedIntakePolicyPackCloudMismatch(
@@ -245,6 +253,7 @@ export function useGuidedIntakeWizard() {
   const canSubmit =
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
+    workflow.clarificationsPersistedForSubmit &&
     !workflow.busy &&
     !workflow.isSubmitBlocked &&
     !blocksLlmExecution &&

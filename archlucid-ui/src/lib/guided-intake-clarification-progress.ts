@@ -50,3 +50,16 @@ export function mergeAdmittedRequiredMustQuestionKeys(
 
   return [...currentKeys];
 }
+
+/** Submit is allowed only after reviewAnswers persisted locally handled rows (or when none were required). */
+export function areGuidedIntakeClarificationsPersistedForSubmit(
+  pendingQuestions: readonly unknown[],
+  allClarificationsHandled: boolean,
+  savedLocallyQuestionKeys: ReadonlySet<string>,
+): boolean {
+  if (pendingQuestions.length === 0) {
+    return true;
+  }
+
+  return allClarificationsHandled && savedLocallyQuestionKeys.size === 0;
+}
