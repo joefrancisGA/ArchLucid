@@ -99,6 +99,13 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_push_workflow_requires_invite_flow_spec(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+
+        self.assertIn(sut._INVITE_FLOW_SPEC, push_text)
+
     def test_tb927_invitee_role_wiring_requires_direct_me_helper(self) -> None:
         helper_text = (REPO_ROOT / sut._PRIVATE_BETA_HELPER_REL).read_text(encoding="utf-8")
         spec_text = (REPO_ROOT / "archlucid-ui" / "e2e" / sut._SPEC).read_text(encoding="utf-8")

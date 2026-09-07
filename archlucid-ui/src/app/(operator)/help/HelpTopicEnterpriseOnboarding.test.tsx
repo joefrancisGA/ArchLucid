@@ -27,6 +27,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/enterprise-onboarding",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";

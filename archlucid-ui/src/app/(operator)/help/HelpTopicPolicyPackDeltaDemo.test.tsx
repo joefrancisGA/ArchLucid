@@ -11,6 +11,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/policy-pack-delta-demo",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpPolicyPackDeltaDemoGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPackDeltaDemoGuideView";

@@ -9,6 +9,7 @@ import { PostAuthBootstrapBuyerChrome } from "@/app/(operator)/auth/bootstrap/Po
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
 import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
@@ -186,6 +187,12 @@ export function PostAuthBootstrapClient() {
           <p role="alert" className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {errorMessage ?? POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE}
           </p>
+          <FatalPageReportProblemSupportRow
+            surfaceId="auth-bootstrap-cannot-complete"
+            routePath="/auth/bootstrap"
+            errorTitle={POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE}
+            errorCode="auth-bootstrap-load-error"
+          />
           <PostAuthBootstrapExitActions />
         </div>
     );
@@ -321,6 +328,12 @@ export function PostAuthBootstrapClient() {
             {CREATE_WORKSPACE_COPY.accessRequest}
           </Button>
         )}
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-bootstrap-cannot-complete"
+          routePath="/auth/bootstrap"
+          errorTitle={CREATE_WORKSPACE_COPY.noAccessTitle}
+          errorCode="auth-bootstrap-no-access"
+        />
         <PostAuthBootstrapExitActions />
       </div>
   );

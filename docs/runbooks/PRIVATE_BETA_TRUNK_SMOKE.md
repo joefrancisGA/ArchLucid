@@ -121,6 +121,20 @@ export LIVE_E2E_PRIVATE_BETA_ACCESS=1
 cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --workers=1
 ```
 
+```bash
+cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-invite-flow.spec.ts --workers=1
+```
+
+## Golden-cohort apply (owner, after first green)
+
+When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
+
+1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
+2. Re-run the ruleset script (or add the check in GitHub Rulesets UI).
+3. Confirm trunk push still runs both `live-api-private-beta-access.spec.ts` and `live-api-invite-flow.spec.ts` before sending beta invites.
+
+**Do not** add the private-beta check to golden-cohort required checks until step 1 completes after a verified green run.
+
 ## Ruleset apply (owner)
 
 **Do not** add `Operator UI: private-beta access-path (JwtBearer)` to the golden-cohort ruleset until this job completes green at least once on `master`. See `.github/BRANCH_PROTECTION.md`.

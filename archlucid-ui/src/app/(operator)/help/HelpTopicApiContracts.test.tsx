@@ -47,6 +47,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/api-contracts",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const navAuthMock = vi.hoisted(() => ({

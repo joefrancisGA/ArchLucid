@@ -94,6 +94,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     surfaceId: "auth-callback-cannot-complete",
     requiredMarkers: ["auth-callback-cannot-complete", "FatalPageReportProblemSupportRow"],
   },
+  {
+    surfaceId: "auth-bootstrap-cannot-complete",
+    requiredMarkers: ["auth-bootstrap-cannot-complete", "FatalPageReportProblemSupportRow"],
+  },
 ] as const;
 
 const REPORT_PROBLEM_AFFORDANCE_MARKERS = [
