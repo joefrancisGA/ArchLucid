@@ -71,6 +71,7 @@ public sealed class OutboundWebhookDryRunController(
                     transportSucceeded = outcome.TransportSucceeded,
                     statusCode = outcome.StatusCode,
                     reasonPhrase = outcome.ReasonPhrase,
+                    responseBodyTruncated = outcome.ResponseBodyTruncated,
                     error = outcome.Error
                 })
             },

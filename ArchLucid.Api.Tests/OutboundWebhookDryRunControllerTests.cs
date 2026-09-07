@@ -5,6 +5,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Security;
 
 using FluentAssertions;
 
@@ -179,5 +180,58 @@ public sealed class OutboundWebhookDryRunControllerTests
         using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
         document.RootElement.GetProperty("hasSharedSecret").GetBoolean().Should().BeFalse(
             "whitespace-only secrets are trimmed before signing and must not appear as configured in audit.");
+    }
+
+    [Fact]
+    public async Task DryRunAsync_audit_records_response_body_truncated_when_preview_truncated()
+    {
+        Uri target = new("https://example.com/webhook");
+        Mock<IOutboundWebhookDryRunService> probe = new();
+        probe
+            .Setup(p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OutboundWebhookDryRunResult
+            {
+                TransportSucceeded = true,
+                StatusCode = 200,
+                ResponseBodyPreview = new string('x', 100),
+                ResponseBodyTruncated = true
+            });
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        OutboundWebhookDryRunController controller = new(probe.Object, audit.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = target },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
+        document.RootElement.GetProperty("responseBodyTruncated").GetBoolean().Should().BeTrue(
+            "audit must record when the subscriber response preview was truncated.");
+    }
+
+    [Theory]
+    [InlineData("https://hooks.example.com/webhook")]
+    [InlineData("https://example.com:8443/path?q=1")]
+    [InlineData("https://127.0.0.1/webhook")]
+    [InlineData("https://[::1]/webhook")]
+    public void DryRunAsync_target_url_to_string_round_trip_matches_ssrf_guard_decision(string rawUrl)
+    {
+        Uri target = new(rawUrl);
+        Uri reparsed = new Uri(target.ToString(), UriKind.Absolute);
+
+        reparsed.IdnHost.Should().Be(target.IdnHost);
+
+        AllowedOutboundWebhookProbeUrlPolicy.TryGetRejectionReason(target.ToString())
+            .Should().Be(AllowedOutboundWebhookProbeUrlPolicy.TryGetRejectionReason(reparsed.ToString()));
     }
 }
