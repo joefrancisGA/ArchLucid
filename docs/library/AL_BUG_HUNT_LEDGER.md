@@ -9576,21 +9576,24 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **status:** open
 - **impact:** high
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
-- **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/QuickScanDistributedConcurrencyStore.cs
+- **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — orchestrator leaked concurrency lease on budget-stage early return
+- **last-bug:** 2026-09-07 — promote cancellation swallowed by store-error handler, skipping cancel abandon path
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
-- [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (`QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`); `DisposeAsync` still uses default non-cancellable release for intentional cleanup
+- [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (#1193): `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`; `DisposeAsync` still uses default non-cancellable release for intentional cleanup
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `catch (Exception)` on `TryPromoteAsync` swallowed `OperationCanceledException` and returned `StoreUnavailable` instead of abandoning via the cancel path and rethrowing; store-error abandon used caller token — **hit 2026-09-07 (#1209):** exclude `OperationCanceledException` from promote store-error handler; abandon promote failures and queue timeouts with `CancellationToken.None` (`WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled`)
+- [ ] (candidate) `QuickScanExecutionBudgetAndConcurrencyStage` — post-admission operational emergency re-check sets `TerminalResult` while admitted lease stays active until orchestrator `finally` dispose (brief anonymous slot pin during flip)
 
+2026-09-07 seed hunt #1209 (hit): reseeded distributed concurrency service/store paths; proved promote cancellation swallowed by promote store-error handler.
 2026-09-07 thorough hunt #1193 (hit): cheap-disproved cancel+abandon token hypothesis; proved orchestrator finally scope omitted budget-stage early returns and leaked anonymous concurrency slots.
 
 ## Zone: run-execute-ownership

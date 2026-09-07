@@ -17,6 +17,39 @@ namespace ArchLucid.Application.Tests.Architecture;
 public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 {
     [Fact]
+    public async Task WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        Guid activeLeaseId = Guid.NewGuid();
+        Guid queueEntryId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        CancellationTokenPromoteStore store = new(inner, queueEntryId);
+        using CancellationTokenSource cancellation = new();
+        QuickScanDistributedConcurrencyService service = CreateService(store);
+
+        Task<QuickScanDistributedConcurrencyAdmissionResult> waitTask =
+            service.WaitForAdmissionAsync("queued-request", cancellation.Token);
+
+        await Task.Delay(50);
+        await cancellation.CancelAsync();
+
+        Func<Task> act = () => waitTask;
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        QuickScanConcurrencyAdmitResult followUpQueue = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "after-promote-cancel", maxConcurrent: 1, maxQueued: 1));
+
+        followUpQueue.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.Queued,
+            "cancelled promote must abandon its queue row so capacity is not pinned until QueueExpiresUtc");
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting()
     {
         InMemoryQuickScanDistributedConcurrencyStore store = new();
@@ -115,7 +148,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     private static QuickScanDistributedConcurrencyService CreateService(
-        InMemoryQuickScanDistributedConcurrencyStore store)
+        IQuickScanDistributedConcurrencyStore store)
     {
         Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
         safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
@@ -174,5 +207,51 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             QueueWaitTimeout = TimeSpan.FromSeconds(30),
             LeaseDuration = TimeSpan.FromSeconds(60),
         };
+    }
+
+    private sealed class CancellationTokenPromoteStore(InMemoryQuickScanDistributedConcurrencyStore inner, Guid queuedEntryId)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            QuickScanConcurrencyAdmitRequest rewritten = new()
+            {
+                LeaseId = request.LeaseId,
+                QueueEntryId = queuedEntryId,
+                RequestKey = request.RequestKey,
+                HolderInstanceId = request.HolderInstanceId,
+                UtcNow = request.UtcNow,
+                MaxConcurrentScans = request.MaxConcurrentScans,
+                MaxQueuedScans = request.MaxQueuedScans,
+                QueueWaitTimeout = request.QueueWaitTimeout,
+                LeaseDuration = request.LeaseDuration,
+            };
+
+            return inner.TryAdmitAsync(rewritten, cancellationToken);
+        }
+
+        public async Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+
+            return QuickScanConcurrencyPromoteResult.NotYet();
+        }
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
     }
 }
