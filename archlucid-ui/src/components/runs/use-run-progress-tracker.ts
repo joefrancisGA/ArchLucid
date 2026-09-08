@@ -99,7 +99,7 @@ export function useRunProgressTracker({
     [durationEstimate?.p90Seconds],
   );
 
-  const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
+  const { summary, streamPhase, sseConnected, streamBlockedReason } = useRunSummaryStream(runId, {
     enabled: liveTrackingActive,
     initialSummary,
     retryToken: pollSession,
@@ -361,6 +361,7 @@ export function useRunProgressTracker({
     summary,
     streamPhase,
     sseConnected,
+    streamBlockedReason,
     pollSession,
     pollMaxMs,
     pollCount,

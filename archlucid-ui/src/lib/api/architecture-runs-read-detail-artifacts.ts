@@ -40,7 +40,7 @@ export async function getRunDetail(
   }
 
   return apiGetSealedManifestAware<RunDetail>(
-    `/v1/authority/reviews/${runId}`,
+    `/v1/runs/${runId}`,
     options,
   ).then((data) => ({ data, traceId: null }));
 }

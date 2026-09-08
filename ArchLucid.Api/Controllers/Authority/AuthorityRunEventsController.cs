@@ -2,8 +2,12 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -25,8 +29,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityRunEventsController(
     IAuthorityQueryService queryService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -39,15 +46,35 @@ public sealed class AuthorityRunEventsController(
     [HttpGet("runs/{runId:guid}/events")]
     [Produces("text/event-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task GetRunEvents(Guid runId, CancellationToken cancellationToken)
     {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                IActionResult conflict = this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                await conflict.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
+                return;
+            }
+        }
+
         Response.Headers.ContentType = "text/event-stream";
         Response.Headers.CacheControl = "no-cache";
         Response.Headers.Connection = "keep-alive";
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
         DateTime startedUtc = TimeProvider.System.UtcNowDateTime();
         TimeSpan maxDuration = TimeSpan.FromMinutes(5);
         TimeSpan pollInterval = TimeSpan.FromSeconds(2);

@@ -244,9 +244,6 @@ export function EmailRunToSponsorBanner({
         blockSponsorPdfForAiGate={banner.blockSponsorPdfForAiGate}
         blockSponsorPdfForProjectedDollar={banner.blockSponsorPdfForProjectedDollar}
         blockSponsorPdfForRoi={banner.blockSponsorPdfForRoi}
-        sponsorProofPackHref={banner.sponsorProofPackHref}
-        SponsorReviewPacketHref={banner.SponsorReviewPacketHref}
-        markdownHref={banner.markdownHref}
         onDownloadPdf={banner.onDownloadPdf}
         onMarkSentToSponsor={banner.onMarkSentToSponsor}
       />

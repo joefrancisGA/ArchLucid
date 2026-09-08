@@ -1,4 +1,7 @@
+"use client";
+
 import { Download, FileText } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
@@ -16,6 +19,8 @@ import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/comp
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
+import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
+import { showError } from "@/lib/toast";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
 export function CompareResultsPanelDiffStack({
@@ -48,6 +53,32 @@ export function CompareResultsPanelDiffStack({
     handleDownloadPdf,
   } = viewModel;
 
+  const [manifestExportBusy, setManifestExportBusy] = useState(false);
+
+  const handleDownloadManifestCompareExport = useCallback(async () => {
+    if (golden === null) {
+      return;
+    }
+
+    setManifestExportBusy(true);
+
+    try {
+      await downloadManifestCompareExport({
+        leftRunId: golden.baseRunId,
+        rightRunId: golden.targetRunId,
+        leftManifestVersion: leftPickedSummary?.currentManifestVersion ?? leftPickedSummary?.goldenManifestId,
+        rightManifestVersion: rightPickedSummary?.currentManifestVersion ?? rightPickedSummary?.goldenManifestId,
+      });
+    } catch (error: unknown) {
+      showError(
+        "Manifest compare export failed",
+        error instanceof Error ? error.message : "Download failed.",
+      );
+    } finally {
+      setManifestExportBusy(false);
+    }
+  }, [golden, leftPickedSummary, rightPickedSummary]);
+
   return (
     <>
       {hasResultsToNavigate ? (
@@ -78,6 +109,20 @@ export function CompareResultsPanelDiffStack({
               >
                 <FileText className="h-4 w-4" aria-hidden />
                 {docxDownloading ? "Downloading DOCX…" : "Download DOCX package"}
+              </Button>
+            ) : null}
+            {golden !== null ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={manifestExportBusy || docxDownloading || pdfDownloading}
+                onClick={() => void handleDownloadManifestCompareExport()}
+                className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
+                data-testid="compare-download-manifest-compare-export-button"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
               </Button>
             ) : null}
             <Button

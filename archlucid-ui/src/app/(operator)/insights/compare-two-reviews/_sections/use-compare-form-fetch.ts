@@ -12,6 +12,7 @@ import {
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
 } from "@/lib/operator/operator-static-demo";
+import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import {
   readCompareLastComparisonPair,
   writeCompareLastComparisonPair,
@@ -35,6 +36,8 @@ export function useCompareFormFetch() {
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
   const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
   const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
+  const [leftSummaryBlockedReason, setLeftSummaryBlockedReason] = useState<string | null>(null);
+  const [rightSummaryBlockedReason, setRightSummaryBlockedReason] = useState<string | null>(null);
   const [continueLastPair, setContinueLastPair] = useState<CompareLastComparisonPair | null>(null);
 
   useEffect(() => {
@@ -42,17 +45,24 @@ export function useCompareFormFetch() {
   }, []);
 
   const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
-    const [leftSummary, rightSummary] = await Promise.all([
-      getRunSummary(leftAtStart).catch(() => null),
-      getRunSummary(rightAtStart).catch(() => null),
+    setLeftSummaryBlockedReason(null);
+    setRightSummaryBlockedReason(null);
+
+    const [leftOutcome, rightOutcome] = await Promise.allSettled([
+      getRunSummary(leftAtStart),
+      getRunSummary(rightAtStart),
     ]);
 
-    if (leftSummary !== null) {
-      setLeftPickedSummary(leftSummary);
+    if (leftOutcome.status === "fulfilled") {
+      setLeftPickedSummary(leftOutcome.value);
+    } else {
+      setLeftSummaryBlockedReason(runSummaryBlockedReason(toApiLoadFailure(leftOutcome.reason)));
     }
 
-    if (rightSummary !== null) {
-      setRightPickedSummary(rightSummary);
+    if (rightOutcome.status === "fulfilled") {
+      setRightPickedSummary(rightOutcome.value);
+    } else {
+      setRightSummaryBlockedReason(runSummaryBlockedReason(toApiLoadFailure(rightOutcome.reason)));
     }
   }, []);
 
@@ -181,6 +191,8 @@ export function useCompareFormFetch() {
     lastComparedPair,
     leftPickedSummary,
     rightPickedSummary,
+    leftSummaryBlockedReason,
+    rightSummaryBlockedReason,
     continueLastPair,
     setLeftPickedSummary,
     setRightPickedSummary,

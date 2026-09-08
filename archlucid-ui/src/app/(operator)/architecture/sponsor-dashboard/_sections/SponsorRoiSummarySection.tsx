@@ -8,11 +8,8 @@ import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-hone
 import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
-import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { downloadSponsorRoiCsvExport } from "@/lib/api/downloads-blob-trigger-sponsor-roi-csv-export";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { applyCorrelationHeaders } from "@/lib/api/http";
-import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
@@ -37,12 +34,10 @@ import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponso
 import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveSponsorHeadlineScopeLabel,
   resolveSponsorSystemRowScopeLabel,
@@ -53,8 +48,6 @@ import {
 } from "@/lib/roi-resolution-priority";
 
 import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboard-deferred-chunks";
-
-const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
 function sponsorRoiSummaryCardTitle(): string {
   if (isBuyerPolishedOperatorShellEnv()) {
@@ -158,63 +151,7 @@ export function SponsorRoiSummarySection({
     }
 
     try {
-      const scoped = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(new Headers(scoped.headers));
-      const response = await fetch(`${SPONSOR_ROI_SUMMARY_PATH}/export`, {
-        ...scoped,
-        headers: correlatedHeaders,
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-        throw new Error(formatExportSealedManifestAwareApiError(failure));
-      }
-
-      const json = (await response.json()) as {
-        rows?: Array<{
-          findingId: string;
-          runId: string;
-          systemName: string;
-          environment: string;
-          category: string;
-          severity: string;
-          title: string;
-          affectedResource?: string | null;
-          estimatedUsdSavings?: number | null;
-        }>;
-        savingsPricingBasis?: string;
-        eaDiscountMultiplier?: number;
-        savingsPricingBasisDescription?: string;
-        costEvidenceFreshnessStatus?: string;
-      };
-
-      const eaMultiplier = json.eaDiscountMultiplier ?? 1;
-      const preamble = [
-        `# Savings pricing basis: ${json.savingsPricingBasis ?? "Retail"} (EA discount multiplier ${eaMultiplier})`,
-        json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
-        json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-      const header = "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
-      const lines = (json.rows ?? []).map((row) =>
-        [
-          row.findingId,
-          row.runId,
-          row.systemName,
-          row.environment,
-          row.category,
-          row.severity,
-          `"${row.title.replaceAll('"', '""')}"`,
-          row.affectedResource ?? "",
-          row.estimatedUsdSavings ?? "",
-        ].join(","),
-      );
-
-      const blob = new Blob([[preamble, header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
-
-      await triggerBrowserBlobDownload(blob, "sponsor-roi-findings.csv");
+      await downloadSponsorRoiCsvExport();
     } catch (e: unknown) {
       showError("CSV export failed", e instanceof Error ? e.message : String(e));
     }
