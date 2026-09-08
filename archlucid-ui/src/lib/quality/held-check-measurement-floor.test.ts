@@ -40,4 +40,18 @@ describe("held-check ledger (DX-52)", () => {
     expect(presentation.topHeldCheckUnblockClause).toContain("Azure inventory ZIP");
     expect(presentation.line).toContain("would unblock 4 engines");
   });
+
+  it("adds second-pass clause when completed with decision-grade findings", () => {
+    const presentation = formatInsightDensityMeasurementFloorPresentation(12, {
+      heldCheckSecondPass: {
+        inputCode: "azureInventoryZip",
+        status: "completed",
+        unblockedEngineCount: 2,
+        newDecisionGradeCount: 1,
+      },
+    });
+
+    expect(presentation.heldCheckSecondPassClause).toContain("Azure inventory ZIP");
+    expect(presentation.line).toContain("Re-ran after Azure inventory ZIP");
+  });
 });

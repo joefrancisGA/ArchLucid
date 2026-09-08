@@ -5078,6 +5078,16 @@ export interface components {
             engineTypes?: string[];
             inputCode?: components["schemas"]["HeldCheckInputCode"];
         };
+        /** @enum {string} */
+        HeldCheckSecondPassStatus: "Completed" | "NotEligible" | "NoPriorLedger" | "NoNewFindings";
+        HeldCheckSecondPassSummary: {
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            /** Format: int32 */
+            newDecisionGradeCount?: number;
+            status?: components["schemas"]["HeldCheckSecondPassStatus"];
+            /** Format: int32 */
+            unblockedEngineCount?: number;
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5360,6 +5370,7 @@ export interface components {
             /** Format: int32 */
             demotedToChecklistCount?: number;
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeSkippedByCap?: number;
             /** Format: int32 */

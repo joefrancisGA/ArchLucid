@@ -17637,6 +17637,34 @@
         },
         "type": "object"
       },
+      "HeldCheckSecondPassStatus": {
+        "enum": [
+          "Completed",
+          "NotEligible",
+          "NoPriorLedger",
+          "NoNewFindings"
+        ],
+        "type": "string"
+      },
+      "HeldCheckSecondPassSummary": {
+        "properties": {
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "newDecisionGradeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HeldCheckSecondPassStatus"
+          },
+          "unblockedEngineCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "HolisticCriticRequest": {
         "properties": {
           "focus": {
@@ -18509,6 +18537,16 @@
             "type": [
               "null",
               "array"
+            ]
+          },
+          "heldCheckSecondPass": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HeldCheckSecondPassSummary"
+              }
             ]
           },
           "judgeSkippedByCap": {
