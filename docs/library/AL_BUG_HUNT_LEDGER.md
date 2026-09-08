@@ -7269,11 +7269,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — dot/slash-delimited product names false-positive phrase and token constraints
+- **last-bug:** 2026-09-08 — colon/backslash-delimited product names false-positive phrase and token constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7290,6 +7290,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 
 - [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — dot/slash-delimited product names (e.g. `field.encryption.module`, `email.openai.gateway`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1335:** `#1297` guarded hyphen/underscore and PascalCase compounds only; `.` and `/` delimiters were not treated as compound boundaries; fixed by extending delimiter detection to `.` and `/`; regressions in `RequestConstraintCompoundIdentifierDotNotationTests`
 
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — colon/backslash-delimited product names (e.g. `field:encryption:module`, `field\encryption\module`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1370:** `#1335` guarded `.` and `/` only; `:` and `\` delimiters were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `:` and `\`; regressions in `RequestConstraintCompoundIdentifierColonBackslashTests`
+
+2026-09-08 seed hunt #1370 (hit): reseeded core-requests-constraints; proved colon/backslash compound-identifier false positives for encryption/openai/search/sql tokens; 836 scoped RequestConstraint tests passed.
 2026-09-08 seed hunt #1335 (hit): reseeded core-requests-constraints; proved dot/slash compound-identifier false positives for encryption/openai/search/sql tokens; 831 scoped RequestConstraint tests passed.
 2026-09-08 thorough hunt #1297 (hit): proved PascalCase/camelCase compound-identifier phrase false positives; 827 scoped RequestConstraint tests passed.
 2026-09-07 seed hunt #1288 (hit): reseeded core-requests-constraints; proved phrase-level compound-identifier false positives for `openai` and `encryption`; seeded camelCase embedding candidate; 824 scoped RequestConstraint tests passed.
