@@ -10213,11 +10213,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — drift/findings/remediation Infrastructure Ask links dropped review `runId` while diagram/audit/overview ask helpers preserved it
+- **last-bug:** 2026-09-08 — remediation factory workbench links dropped review runId while Ask and diagram-remediation links preserved it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10231,6 +10231,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `buildHubAuditLineageTabHref` — audit lineage hub tab links omit `runId` while `buildHubScopedTabHref` cross-links preserve review scope — **hit 2026-09-07 hunt #1285 (seed→hit):** `resourceHubFilterHrefFromSearch` rebuild dropped `runId` on all `*-open-audit-*` tab links; fixed by routing through `buildHubScopedTabHref`; regression in `preserves runId on audit lineage tab quick links`
 - [x] (proven) `buildHubAuditLineageAskHref` — Infrastructure Ask links from audit tab omit `runId` while diagram/finding ask helpers pass it when present — **hit 2026-09-07 hunt #1295:** audit-tab Ask helper never forwarded `runId` to `buildInfrastructureAskHref` while sibling ask helpers did; fixed by threading `runId` through `buildHubAuditLineageAskHref` and call sites; regression in `preserves runId on audit lineage Infrastructure Ask link`
 - [x] (proven) `buildHubDriftChangeAskHref` / `buildHubFindingAskHref` / `buildHubRemediationAskHref` — drift/findings/remediation Infrastructure Ask links omit `runId` while diagram/audit/overview ask helpers pass it when present — **hit 2026-09-08 hunt #1299 (seed→hit):** three tab-scoped Ask helpers spread audit context only and never forwarded hub `runId`; fixed by threading `runId` through helpers and call sites; regressions in `preserves runId on drift/findings/remediation Infrastructure Ask links`
+- [x] (proven) `buildRemediationWorkbenchHref` call sites / `buildResourceScopedWorkbenchHref` — overview/findings/remediation factory links omit `runId` while diagram correspondence remediation and Infrastructure Ask links preserve review scope — **hit 2026-09-08 seed hunt #1337:** factory href builders spread audit context but never forwarded hub `runId`; fixed by threading `runId` through scoped remediation helper and ResourceHubClient factory call sites; regressions in `preserves runId on overview/findings/remediation factory links`
+
+2026-09-08 seed hunt #1337 (seed→hit): reseeded ui-infra-resource-hub; proved remediation factory runId scope leak; aligned factory links with Ask/diagram-remediation parity; 28 scoped `ResourceHubClient` tests passed.
 
 2026-09-08 seed hunt #1299 (hit): reseeded ui-infra-resource-hub; proved drift/findings/remediation Ask runId scope leak; aligned remaining Ask helpers with audit/diagram parity.
 

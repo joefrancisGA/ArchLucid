@@ -857,7 +857,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-work">
-                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext)}>
+                  <Link href={buildResourceScopedWorkbenchHref(cloudResourceId, "remediation", resolvedSnapshotId, workbenchLinkAuditContext, runId)}>
                     Open remediation factory
                   </Link>
                 </Button>
@@ -1463,6 +1463,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                       cloudResourceId,
                                       findingId: item.id,
                                       snapshotId: resolvedSnapshotId,
+                                      runId: runId.length > 0 ? runId : undefined,
                                       ...workbenchLinkAuditContext,
                                     })}
                                     data-testid={`infra-resource-hub-finding-factory-${item.id}`}
@@ -1519,7 +1520,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 testId="infra-resource-hub-remediation-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-remediation-factory">
-                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, ...workbenchLinkAuditContext })}>
+                <Link href={buildRemediationWorkbenchHref({ cloudResourceId, snapshotId: resolvedSnapshotId, runId: runId.length > 0 ? runId : undefined, ...workbenchLinkAuditContext })}>
                   Open remediation factory
                 </Link>
               </Button>
@@ -1598,6 +1599,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 cloudResourceId,
                                 instanceId: item.instanceId,
                                 snapshotId: resolvedSnapshotId,
+                                runId: runId.length > 0 ? runId : undefined,
                                 ...workbenchLinkAuditContext,
                               })}
                               data-testid={`infra-resource-hub-remediation-factory-${item.instanceId}`}
