@@ -179,6 +179,55 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         IReadOnlyList<AgentTask> forcedTasks = SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
 
+        if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid)
+            && _runExecuteOwnershipLeaseService.IsEnabled)
+        {
+            await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
+
+            using CancellationTokenSource executeCancellation =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            IAsyncDisposable renewalScope = _runExecuteOwnershipLeaseService.BeginRenewalScope(
+                runGuid,
+                executeCancellation);
+
+            try
+            {
+                return await ExecuteSelectiveRunOwnedCoreAsync(
+                    runId,
+                    actor,
+                    run,
+                    forcedTasks,
+                    request,
+                    executeCancellation.Token).ConfigureAwait(false);
+            }
+            finally
+            {
+                await renewalScope.DisposeAsync().ConfigureAwait(false);
+
+                await _runExecuteOwnershipLeaseService
+                    .ReleaseAsync(runGuid, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        return await ExecuteSelectiveRunOwnedCoreAsync(
+            runId,
+            actor,
+            run,
+            forcedTasks,
+            request,
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<ExecuteRunResult> ExecuteSelectiveRunOwnedCoreAsync(
+        string runId,
+        string actor,
+        ArchitectureRun run,
+        IReadOnlyList<AgentTask> forcedTasks,
+        SelectiveAgentExecuteRequest request,
+        CancellationToken cancellationToken)
+    {
         foreach (AgentTask task in forcedTasks)
         {
             await _resultRepository.DeleteForRunTaskAsync(runId, task.TaskId, cancellationToken);
@@ -187,7 +236,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await _preExecuteStage.TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, run.Status, cancellationToken);
         await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
 
-        return await ExecuteRunAsync(runId, cancellationToken);
+        return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
     }
 
     internal static bool ArePersistedResultsCompleteForTasks(
