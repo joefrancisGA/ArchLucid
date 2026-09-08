@@ -95,6 +95,7 @@ public sealed class AskController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task AskStream([FromBody] AskRequest? request, CancellationToken ct = default)
     {
         IActionResult? validation = ValidateAskRequest(request);
