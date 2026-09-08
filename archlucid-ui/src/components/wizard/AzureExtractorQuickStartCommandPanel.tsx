@@ -35,7 +35,7 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
   const resolvedDescription = description ?? extractUploadQuickStartDescription(productLine);
   const checkoutLead = extractUploadQuickStartCheckoutLead(productLine);
   const descriptionBody = extractUploadQuickStartDescriptionBody(productLine);
-  const commandLine = buildGetArchLucidAzurePackageCommandLine();
+  const commandLine = buildGetArchLucidAzurePackageCommandLine({ productLineId: productLine });
 
   return (
     <div

@@ -18,6 +18,7 @@ describe("extractUploadProductCopy", () => {
     expect(extractUploadQuickStartCheckoutLead("security")).toBe("From your SecureNow checkout:");
     expect(extractUploadQuickStartDescription("security")).toContain("SecureNow checkout");
     expect(extractUploadQuickStartDescription("security")).not.toMatch(/\bArchLucid\b/);
+    expect(extractUploadQuickStartDescription("security")).toContain("securenow-azure-package.zip");
 
     expect(extractUploadCloudInventoryCheckoutLead("architecture")).toContain("ArchLucid checkout");
     expect(extractUploadCloudInventoryCheckoutLead("security")).toContain("SecureNow checkout");
