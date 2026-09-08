@@ -85,6 +85,7 @@ export function buildScopedHubDriftChangeWorkbenchHref(
   snapshotId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext?: InfrastructureAskAuditContext | null,
+  runId?: string | null,
 ): string {
   return buildScopedInfraWorkbenchHref(
     "drift",
@@ -93,6 +94,7 @@ export function buildScopedHubDriftChangeWorkbenchHref(
       snapshotId,
       changeId: change.changeId,
       diffId: change.diffId,
+      runId,
     },
     auditContext,
   );
@@ -102,6 +104,7 @@ export function buildScopedHubDriftWorkbenchHref(
   snapshotId: string,
   cloudResourceId: string,
   auditContext?: InfrastructureAskAuditContext | null,
+  runId?: string | null,
 ): string {
-  return buildResourceHubDriftWorkbenchHref(snapshotId, cloudResourceId, auditContext ?? undefined);
+  return buildResourceHubDriftWorkbenchHref(snapshotId, cloudResourceId, auditContext ?? undefined, runId);
 }

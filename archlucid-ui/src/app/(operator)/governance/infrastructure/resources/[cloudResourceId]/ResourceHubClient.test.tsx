@@ -269,6 +269,42 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on overview drift workbench link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-drift-work")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on drift tab drift workbench link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=drift&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-drift")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on overview drift change workbench links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-change-change-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
   it("preserves runId on findings remediation factory link", async () => {
     searchParams = new URLSearchParams(
       "tab=findings&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",

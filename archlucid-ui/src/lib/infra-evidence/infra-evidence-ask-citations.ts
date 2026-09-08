@@ -188,10 +188,12 @@ export function buildResourceHubDriftWorkbenchHref(
     readonly auditEvidenceSnapshotId?: string | null;
     readonly controlId?: string | null;
   },
+  runId?: string | null,
 ): string {
   return buildDriftWorkbenchHref({
     snapshotId,
     cloudResourceId,
+    runId,
     assessmentId: auditContext?.assessmentId,
     auditEvidenceSnapshotId: auditContext?.auditEvidenceSnapshotId,
     controlId: auditContext?.controlId,

@@ -145,10 +145,11 @@ type ResourceHubClientProps = {
 function buildHubDriftChangeWorkbenchHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext: InfrastructureAskAuditContext,
 ): string {
-  return buildScopedHubDriftChangeWorkbenchHref(cloudResourceId, snapshotId, change, auditContext);
+  return buildScopedHubDriftChangeWorkbenchHref(cloudResourceId, snapshotId, change, auditContext, runId);
 }
 
 function buildHubDriftChangeAskHref(
@@ -871,6 +872,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     href={buildDriftWorkbenchHref({
                       cloudResourceId,
                       snapshotId: resolvedSnapshotId,
+                      runId: runId.length > 0 ? runId : undefined,
                       ...workbenchLinkAuditContext,
                     })}
                   >
@@ -999,7 +1001,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableCell>
                           <Link
                             className="text-al-link hover:underline"
-                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                            href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                             data-testid={`infra-resource-hub-drift-change-${change.changeId}`}
                           >
                             {change.property ?? change.changeType}
@@ -1049,7 +1051,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 testId="infra-resource-hub-drift-open-overview-tab"
               />
               <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-drift">
-                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext)}>
+                <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId)}>
                   Open drift workbench
                 </Link>
               </Button>
@@ -1115,7 +1117,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Link
                           className="text-al-link hover:underline"
-                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                          href={buildHubDriftChangeWorkbenchHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                           data-testid={`infra-resource-hub-drift-tab-change-${change.changeId}`}
                         >
                           {change.property ?? change.changeType}
@@ -1328,7 +1330,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-drift-export">
-                  <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext)}>
+                  <Link href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId)}>
                     Export from drift workbench
                   </Link>
                 </Button>

@@ -81,6 +81,18 @@ describe("infra-evidence-workbench-url", () => {
     );
   });
 
+  it("builds drift workbench links with review run scope", () => {
+    expect(
+      buildDriftWorkbenchHref({
+        snapshotId: "22222222-2222-2222-2222-222222222222",
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        runId: "run-1",
+      }),
+    ).toBe(
+      "/governance/infrastructure/drift?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&runId=run-1",
+    );
+  });
+
   it("preserves audit scope on drift and remediation workbench links", () => {
     expect(
       buildDriftWorkbenchHref({
