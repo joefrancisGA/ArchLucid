@@ -17,7 +17,9 @@ export const ALERT_RULES_SOURCES_INTRO =
 export const ALERT_RULES_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert rules hub", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
+  { label: "Conditions tab", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Notifications tab", href: governanceAlertRulesTabHref("notifications") },
+  { label: "Advanced rules tab", href: governanceAlertRulesTabHref("advanced-rules") },
   { label: "Test alerts tab", href: governanceAlertRulesTabHref("test-alerts") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
