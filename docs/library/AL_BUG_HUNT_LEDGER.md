@@ -1702,11 +1702,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — stale BFF session blocked pre-auth sign-in routing proxy POST
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — cross-origin BFF session POST/DELETE and unstable legacy v1 migrated CSRF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1733,9 +1733,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous marketing proxy mutations when a valid BFF session lacked CSRF — **hit 2026-09-07 (#1252):** signed-in visitor with active HttpOnly session got 403 on POST `/api/proxy/v1/marketing/early-access` because LK-07 CSRF gate ran after stale-session bypass; marketing hooks omit BFF CSRF header; fixed by skipping same-origin/CSRF mutation guard on `isAnonymousMarketingProxyPath`; regressions in `proxy-bff-session-guard.test.ts` and `forwards anonymous marketing early-access POST when BFF session cookie is valid but CSRF is omitted`.
 - [x] (valid-no-repro) New `[AllowAnonymous]` marketing routes under `/v1/marketing/*` still require manual `isAnonymousMarketingProxyPath` updates — OpenAPI `/v1/marketing/*` paths in `paths.generated.ts` match allowlist; UI proxy callers grep to same set; no uncovered route today — process risk only when new marketing endpoints ship without allowlist update.
 - [x] (proven) `enforceProxyBffSessionGuard` blocked pre-auth sign-in proxy calls when a stale HttpOnly BFF cookie was present — **hit 2026-09-07 (#1253):** expired or idle-expired session returned 401 on `POST /api/proxy/v1/auth/routing/evaluate` and `GET /api/proxy/v1/auth/invitations/validate` while marketing paths already bypassed; `evaluateAuthSignInRouting` silently returned null; extended `isPublicAnonymousProxyPath` with pre-auth `[AllowAnonymous]` auth routes (`routing/evaluate`, `email-otp/challenge`, `email-otp/verify`, `invitations/validate`); regressions in `proxy-route-pre-auth-anonymous.test.ts`, `proxy-anonymous-marketing-paths.test.ts`, and `proxy-bff-session-guard.test.ts`.
-- [ ] (candidate) `POST /api/auth/bff-session` accepts cross-origin token posts without origin or CSRF validation — login CSRF / session swap when BFF enabled; needs route-level repro against attacker `Origin`
-- [ ] (candidate) Legacy v1 BFF session cookies regenerate a new CSRF on every parse — companion CSRF cookie may never match until full re-login; severity depends on remaining v1 cookie volume
+- [x] (proven) `POST /api/auth/bff-session` accepted cross-origin token posts without origin validation — **hit 2026-09-08 hunt #1294:** attacker `Origin` could establish a victim-browser HttpOnly session (login CSRF / session swap); fixed with shared `isSameOriginBffRequest` on POST/DELETE; regressions in `route.test.ts`.
+- [x] (proven) Legacy v1 BFF session cookies regenerated a new CSRF on every parse — **hit 2026-09-08 hunt #1294:** `normalizeLegacyPayload` called `generateBffSessionCsrfToken()` per parse so migrated CSRF could never match the companion cookie until full re-login; fixed with deterministic `deriveLegacyV1MigrationCsrfToken`; regression `keeps stable migrated CSRF when parsing legacy v1 session cookies`.
 
+2026-09-08 thorough hunt #1294 (hit): proved cross-origin BFF session establishment and legacy v1 CSRF migration instability; shared same-origin guard with proxy mutations.
 2026-09-07 thorough hunt #1253 (hit): cheap-disproof closed allowlist-maintenance candidate; proved stale BFF cookie blocked pre-auth sign-in routing and invitation validate proxy; extended public anonymous proxy path class beyond marketing.
 
 2026-09-07 thorough hunt #1252 (hit): cheap-disproof closed allowlist-maintenance candidate (OpenAPI/UI parity complete); proved valid BFF session CSRF blocked public marketing POST; reseeded allowlist-maintenance process candidate.
