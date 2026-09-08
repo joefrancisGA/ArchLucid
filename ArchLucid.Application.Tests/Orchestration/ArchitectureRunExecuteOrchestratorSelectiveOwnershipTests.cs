@@ -150,6 +150,56 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire()
+    {
+        Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string runId = runGuid.ToString("N");
+        int loadCount = 0;
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-selective-ownership",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        Mock<IAgentExecutor> executor = new();
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            executor.Object,
+            resultRepo.Object,
+            ownership.Object,
+            header,
+            () =>
+            {
+                loadCount++;
+
+                if (loadCount >= 2)
+                    header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            });
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*committed*");
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private sealed class RecordingRenewalScope : IAsyncDisposable
     {
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -161,7 +211,8 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         IAgentExecutor executor,
         IAgentResultRepository resultRepo,
         IRunExecuteOwnershipLeaseService ownershipLeaseService,
-        RunRecord? header = null)
+        RunRecord? header = null,
+        Action? onRunRecordLoad = null)
     {
         header ??= new RunRecord
         {
@@ -179,7 +230,12 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         Mock<IRunRepository> runRepo = new();
         runRepo
             .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(header);
+            .ReturnsAsync(() =>
+            {
+                onRunRecordLoad?.Invoke();
+
+                return header;
+            });
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);

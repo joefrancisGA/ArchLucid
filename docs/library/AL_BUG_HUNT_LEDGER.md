@@ -9938,11 +9938,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 6
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — selective execute deleted results after run committed post-validation
+- **last-bug:** 2026-09-08 — selective execute acquired ownership after concurrent commit
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -9956,9 +9956,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — unexpected `RenewAsync` failures (storage/transient) logged without cancelling the linked execute token when Warning logging was enabled; with Warning disabled the renewal task faulted on scope dispose while execute kept running — **hit 2026-09-08 (#1324):** cancel in-flight execute on any renewal failure; regression in `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — deleted forced-task results and demoted status before nested `ExecuteRunAsync` called `AcquireAsync`, leaving a prep window where another replica could run an overlapping batch or the caller could fail after destructive prep — **hit 2026-09-08 (#1325):** acquire ownership (with renewal scope) before selective prep and route execute through `ExecuteRunCoreAsync`; regression in `ExecuteSelectiveRunAsync_acquires_ownership_before_deleting_forced_task_results`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — selective prep used the validation-time `ArchitectureRun` snapshot; if the run committed after validation but before delete, forced-task results were deleted before `ExecuteRunCoreAsync` reloaded and threw — **hit 2026-09-08 (#1326):** reload run + re-check committed/authority-pipeline gates before destructive prep; regression in `ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`); a draining replica with in-flight execute can extend SQL lease TTL until `ReleaseAllHeldByThisInstanceAsync` runs (TB-961 drain interaction).
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — task resolution and validation complete before ownership acquire; concurrent full execute can still commit during that pre-acquire window (no prep mutations yet, but selective caller may acquire after commit and fail after holding lease briefly).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`) — **cheap-disproof 2026-09-08 (#1327):** in-flight execute may keep renewing until scope dispose; drain boundary is `ReleaseAllHeldByThisInstanceAsync` (TB-961), not blocking renew; regression in `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — validation and task planning finished before `AcquireAsync`; if the run committed in that window selective still claimed the SQL lease and only failed on the prep reload — **hit 2026-09-08 (#1327):** reload committed/authority gates before acquire via `EnsureSelectiveExecuteStillEligibleAsync`; regression in `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire precedes `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still holds the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943).
 
+2026-09-08 thorough hunt #1327 (hit): cheap-disproved drain-time renewal block; proved selective must re-check eligibility before ownership acquire.
 2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
 2026-09-08 thorough hunt #1325 (hit): proved selective execute prep ran before ownership acquire; fixed lease ordering to match full execute.
 2026-09-08 seed hunt #1324 (hit): reseeded renewal-scope failure modes; proved unexpected renewal errors must cancel linked execute.
