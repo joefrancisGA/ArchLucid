@@ -22,8 +22,7 @@ import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -34,12 +33,13 @@ type HealthcareClaimsPolicyPackDetailProps = {
  */
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const versionBadgeLabel = `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`;
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={canonicalPackLabel}
@@ -67,8 +67,6 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
         </div>
       </OperatorPageHeader>
-
-      <PolicyPackDetailBuyerChrome />
 
       <Card>
         <CardHeader>

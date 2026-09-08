@@ -28,6 +28,9 @@ import {
   downloadProductLearningReportMarkdown,
   openProductLearningReportJsonInNewTab,
 } from "@/lib/product-learning-report-download";
+import { productLearningReportBlockedReason } from "@/lib/product-learning/product-learning-report-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { showError } from "@/lib/toast";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
@@ -57,6 +60,15 @@ import type { ProductLearningPageViewModel } from "./product-learning-view-model
 type Props = {
   readonly model: ProductLearningPageViewModel;
 };
+
+function runProductLearningReportDownload(download: () => Promise<void>, title: string): void {
+  void download().catch((error: unknown) => {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = productLearningReportBlockedReason(failure);
+
+    showError(title, blockedReason ?? failure.message);
+  });
+}
 
 /**
  * Pilot feedback dashboard: outcome trends, opportunities, and improvement planning — distinct from advisory recommendation learning.
@@ -152,7 +164,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void downloadProductLearningReportMarkdown(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => downloadProductLearningReportMarkdown(sinceIsoForRange(m.range)),
+                "Pilot feedback report",
+              )}
             >
               Download Markdown
             </button>
@@ -160,7 +175,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void downloadProductLearningReportJson(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => downloadProductLearningReportJson(sinceIsoForRange(m.range)),
+                "Pilot feedback report JSON",
+              )}
             >
               Download JSON
             </button>
@@ -168,7 +186,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void openProductLearningReportJsonInNewTab(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => openProductLearningReportJsonInNewTab(sinceIsoForRange(m.range)),
+                "Pilot feedback report JSON",
+              )}
             >
               Open JSON in new tab
             </button>

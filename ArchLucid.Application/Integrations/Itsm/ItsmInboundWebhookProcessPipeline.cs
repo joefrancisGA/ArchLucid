@@ -230,25 +230,45 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
         try
         {
-            int updated = await _support
-                .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
-                .ConfigureAwait(false);
-
-            if (updated == 0)
-
-                _logger.LogWarning(
-                    "ITSM {Provider} webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
-                    descriptor.ProviderName,
-                    row.TenantId,
-                    LogSanitizer.Sanitize(row.FindingId));
-
             FindingDisposition? mappedDisposition =
                 statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
-                    .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)
+                    .TryRecordFromWebhookAsync(
+                        row,
+                        mappedDisposition,
+                        effectivePayload.StatusValue,
+                        descriptor.WebhookActorId,
+                        inspect.LatestDispositionRowVersionBase64,
+                        inspect.LatestDisposition,
+                        ct)
                     .ConfigureAwait(false);
+
+            int updated = 0;
+
+            if (!dispositionResult.IsDispositionConflict)
+            {
+                updated = await _support
+                    .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
+                    .ConfigureAwait(false);
+
+                if (updated == 0)
+
+                    _logger.LogWarning(
+                        "ITSM {Provider} webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
+                        descriptor.ProviderName,
+                        row.TenantId,
+                        LogSanitizer.Sanitize(row.FindingId));
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "ITSM {Provider} webhook: disposition CAS conflict for tenant {TenantId} finding {FindingId}; HumanReviewStatus not updated.",
+                    descriptor.ProviderName,
+                    row.TenantId,
+                    LogSanitizer.Sanitize(row.FindingId));
+            }
 
             AuditEvent auditEvent = new()
             {
@@ -354,6 +374,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 disposition = dispositionResult.Disposition?.ToString(),
                 dispositionEventId = dispositionResult.DispositionEventId,
                 dispositionSkipReason = dispositionResult.SkipReason,
+                dispositionConflict = dispositionResult.IsDispositionConflict,
+                currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
+                currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
             };
         }
 
@@ -368,6 +391,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             disposition = dispositionResult.Disposition?.ToString(),
             dispositionEventId = dispositionResult.DispositionEventId,
             dispositionSkipReason = dispositionResult.SkipReason,
+            dispositionConflict = dispositionResult.IsDispositionConflict,
+            currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
+            currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
         };
     }
 }
