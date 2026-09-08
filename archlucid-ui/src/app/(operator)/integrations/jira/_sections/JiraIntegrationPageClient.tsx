@@ -24,6 +24,10 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { launchJiraAtlassianOAuthConnect } from "@/lib/jira-atlassian-oauth-connect";
 import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import {
@@ -260,6 +264,15 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const credentialStatus = resolveJiraCredentialStatusLabel(settings, credentialsReady);
   const connectionLabel = connection?.label?.trim();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const hasUnsavedSettingsEdits =
+    settings !== null
+    && !settingsLoadFailed
+    && (
+      jiraProjectKey !== (settings.jiraProjectKeyOverride ?? "")
+      || jiraSendInfo !== (settings.jiraSendInfoSeverity ?? false)
+      || issueTypeJson !== (settings.jiraIssueTypeBySeverityJson ?? "")
+    );
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSettingsEdits });
 
   const workspaceBody =
     isLoading && health === null && settings === null ? (
@@ -350,6 +363,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     );
 
   return (
+    <>
     <OperatorPageContainer
       variant="workflow"
       className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
@@ -414,5 +428,12 @@ export function JiraIntegrationPageClient(): React.ReactElement {
         ) : null}
       </div>
     </OperatorPageContainer>
+    <LivelihoodDocumentGuardDialog
+      open={documentGuards.dialogOpen}
+      message={documentGuards.dialogMessage}
+      onConfirmLeave={documentGuards.confirmLeave}
+      onCancelLeave={documentGuards.cancelLeave}
+    />
+    </>
   );
 }

@@ -44,6 +44,7 @@ import { RISK_EXCEPTIONS_CLAIM_DISCIPLINE } from "@/lib/risk-exceptions-evidence
 import { RiskExceptionsRevokeConfirm } from "./RiskExceptionsRenewPanel";
 import { RiskExceptionsTable } from "./RiskExceptionsTable";
 import { useRiskExceptionsClient } from "./use-risk-exceptions-client";
+import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-guards";
 
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
@@ -64,6 +65,7 @@ export default function RiskExceptionsClient() {
     setRenewExpiresAtUtc,
     renewRationale,
     setRenewRationale,
+    documentGuards,
     pendingRevoke,
     setPendingRevoke,
     loading,
@@ -249,6 +251,12 @@ export default function RiskExceptionsClient() {
             setPendingRevoke(null);
           });
         }}
+      />
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
       />
     </OperatorPageContainer>
   );
