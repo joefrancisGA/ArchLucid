@@ -5694,6 +5694,96 @@ describe("wave71 filter url helpers", () => {
   });
 });
 
+describe("wave73 filter url helpers", () => {
+  it("infra ask simulator, remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
+    const {
+      infraAskSimulatorDisclosureHrefFromSearch,
+      parseInfraAskSimulatorDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-ask-simulator-disclosure-url");
+    const {
+      infraRemediationResourceIdDisclosureHrefFromSearch,
+      parseInfraRemediationResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-resource-id-disclosure-url");
+    const {
+      infraRemediationFindingIdDisclosureHrefFromSearch,
+      parseInfraRemediationFindingIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-finding-id-disclosure-url");
+    const {
+      infraRemediationVerifyHintDisclosureHrefFromSearch,
+      parseInfraRemediationVerifyHintDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-verify-hint-disclosure-url");
+    const {
+      infraDriftResourceIdDisclosureHrefFromSearch,
+      parseInfraDriftResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-drift-resource-id-disclosure-url");
+    const {
+      infraDiagramReconcileResourceIdDisclosureHrefFromSearch,
+      parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-diagram-reconcile-resource-id-disclosure-url");
+    const {
+      infraDiagramsResourceIdDisclosureHrefFromSearch,
+      parseInfraDiagramsResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-diagrams-resource-id-disclosure-url");
+    const {
+      infraResourceRowArmIdDisclosureHrefFromSearch,
+      parseInfraResourceRowArmIdDisclosureKeyFromSearch,
+    } = await import("@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url");
+    const {
+      governanceFindingsResourceGroupDisclosureHrefFromSearch,
+      parseGovernanceFindingsResourceGroupKeyFromSearch,
+    } = await import("@/lib/governance/governance-findings-resource-group-disclosure-url");
+    const {
+      advisoryScheduleAdvancedDisclosureHrefFromSearch,
+      parseAdvisoryScheduleAdvancedOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-schedule-advanced-disclosure-url");
+
+    expect(parseInfraAskSimulatorDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraAskSimulatorDisclosureHrefFromSearch("cloudResourceId=res-1", true, "/governance/infrastructure/ask")).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=res-1&infraAskSimulatorDisclosureOpen=1",
+    );
+    expect(parseInfraRemediationResourceIdDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraRemediationResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?infraRemediationResourceIdDisclosureOpen=1");
+    expect(parseInfraRemediationFindingIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(
+      infraRemediationFindingIdDisclosureHrefFromSearch("findingId=f-1", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?findingId=f-1&infraRemediationFindingIdDisclosureOpen=1");
+    expect(parseInfraRemediationVerifyHintDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraRemediationVerifyHintDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?infraRemediationVerifyHintDisclosureOpen=1");
+    expect(parseInfraDriftResourceIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraDriftResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/drift")).toBe(
+      "/governance/infrastructure/drift?infraDriftResourceIdDisclosureOpen=1",
+    );
+    expect(parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraDiagramReconcileResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/diagram-reconcile"),
+    ).toBe("/governance/infrastructure/diagram-reconcile?infraDiagramReconcileResourceIdDisclosureOpen=1");
+    expect(parseInfraDiagramsResourceIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraDiagramsResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/diagrams")).toBe(
+      "/governance/infrastructure/diagrams?infraDiagramsResourceIdDisclosureOpen=1",
+    );
+    expect(parseInfraResourceRowArmIdDisclosureKeyFromSearch("res-uuid-1")).toBe("res-uuid-1");
+    expect(
+      infraResourceRowArmIdDisclosureHrefFromSearch(
+        "workQueue=drift",
+        "res-uuid-1",
+        "/governance/infrastructure/resources",
+      ),
+    ).toBe("/governance/infrastructure/resources?workQueue=drift&infraResourceRowArmIdDisclosureKey=res-uuid-1");
+    expect(parseGovernanceFindingsResourceGroupKeyFromSearch("rg-prod")).toBe("rg-prod");
+    expect(
+      governanceFindingsResourceGroupDisclosureHrefFromSearch("", "rg-prod", "/governance/findings"),
+    ).toBe("/governance/findings?governanceFindingsResourceGroupKey=rg-prod");
+    expect(parseAdvisoryScheduleAdvancedOpenFromSearch("1")).toBe(true);
+    expect(advisoryScheduleAdvancedDisclosureHrefFromSearch("tab=schedules", true, "/insights/advisory-scans")).toBe(
+      "/insights/advisory-scans?tab=schedules&advisoryScheduleAdvancedOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

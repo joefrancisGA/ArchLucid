@@ -60,6 +60,11 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
+  infraDiagramReconcileResourceIdDisclosureHrefFromSearch,
+  parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-diagram-reconcile-resource-id-disclosure-url";
 import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
@@ -167,6 +172,36 @@ export function DiagramReconcileWorkbenchClient() {
   const urlCorrespondenceId = parseDiagramReconcileCorrespondenceIdFromSearch(
     searchParams.get(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM),
   );
+  const diagramReconcileResourceIdOpenParam = searchParams.get(
+    INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
+  );
+  const [diagramReconcileResourceIdOpen, setDiagramReconcileResourceIdOpenState] = useState(() =>
+    parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch(diagramReconcileResourceIdOpenParam),
+  );
+
+  const syncDiagramReconcileResourceIdOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        infraDiagramReconcileResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDiagramReconcileResourceIdOpen = useCallback(
+    (open: boolean) => {
+      setDiagramReconcileResourceIdOpenState(open);
+      syncDiagramReconcileResourceIdOpenToUrl(open);
+    },
+    [syncDiagramReconcileResourceIdOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDiagramReconcileResourceIdOpenState(
+      parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch(diagramReconcileResourceIdOpenParam),
+    );
+  }, [diagramReconcileResourceIdOpenParam]);
 
   const [runId, setRunId] = useState<string>(urlRunId);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
@@ -638,6 +673,8 @@ export function DiagramReconcileWorkbenchClient() {
               title="Resource id"
               sectionTestId="infra-diagram-reconcile-resource-id-disclosure"
               summaryLine="Cloud resource UUID from the scoped link"
+              open={diagramReconcileResourceIdOpen}
+              onToggle={setDiagramReconcileResourceIdOpen}
             >
               <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {urlCloudResourceId}

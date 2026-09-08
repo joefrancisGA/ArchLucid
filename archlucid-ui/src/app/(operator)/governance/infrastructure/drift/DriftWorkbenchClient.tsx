@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -55,6 +55,11 @@ import {
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
+  infraDriftResourceIdDisclosureHrefFromSearch,
+  parseInfraDriftResourceIdDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-drift-resource-id-disclosure-url";
 import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
@@ -166,7 +171,34 @@ function sortDirectionForColumn(
 export function DriftWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
+  const [driftResourceIdOpen, setDriftResourceIdOpenState] = useState(() =>
+    parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam),
+  );
+
+  const syncDriftResourceIdOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(infraDriftResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDriftResourceIdOpen = useCallback(
+    (open: boolean) => {
+      setDriftResourceIdOpenState(open);
+      syncDriftResourceIdOpenToUrl(open);
+    },
+    [syncDriftResourceIdOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDriftResourceIdOpenState(parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam));
+  }, [driftResourceIdOpenParam]);
+
   const changeDrawerRef = useRef<HTMLElement | null>(null);
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
@@ -688,6 +720,8 @@ export function DriftWorkbenchClient() {
                 title="Resource id"
                 sectionTestId="infra-drift-resource-id-disclosure"
                 summaryLine="Cloud resource UUID from the scoped link"
+                open={driftResourceIdOpen}
+                onToggle={setDriftResourceIdOpen}
               >
                 <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {urlCloudResourceId}
