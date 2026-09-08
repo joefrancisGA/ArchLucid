@@ -1,7 +1,9 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
@@ -75,6 +77,11 @@ public sealed class DeclarationInventoryContradictionFindingEngine(
                         InventoryTopologyCloudProvider.Azure,
                         azureResourcesJson,
                         graphSnapshot));
+            }
+            else
+            {
+                // Missing inventory ZIP — not a happy empty contradiction scan.
+                HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.AzureInventoryZip);
             }
         }
 

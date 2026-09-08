@@ -1,9 +1,16 @@
 import { ACTOR_DEPENDENT_FINDING_ENGINE_TYPES } from "@/lib/findings/actor-dependent-finding-engine-types";
+import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import {
+  formatHeldCheckInputCodeLabel,
+  formatHeldCheckUnblockClause,
+} from "@/lib/quality/held-check-input-code";
 import {
   INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT,
   INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT,
   INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
 } from "@/lib/quality/insight-density-measurement-denominator";
+
+export type { HeldCheckLedgerRollupEntry };
 
 /**
  * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
@@ -19,6 +26,7 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly actorNodeCount?: number;
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
 };
 
 export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasurementFloorCounts & {
@@ -27,6 +35,8 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
   readonly meetsCareerExportFloor: boolean;
   readonly skippedActorEngineTypes: readonly string[];
   readonly judgeSkippedByCap: number | null;
+  readonly heldCheckLedgerEntries: readonly HeldCheckLedgerRollupEntry[];
+  readonly topHeldCheckUnblockClause: string | null;
 };
 
 /** Minimum measured engines before Working career exports proceed without explicit incomplete confirmation (PC-01). */
@@ -72,10 +82,19 @@ function normalizeJudgeSkippedByCap(judgeSkippedByCap: number | null | undefined
   return normalized > 0 ? normalized : null;
 }
 
+function resolveTopHeldCheckUnblockClause(entries: readonly HeldCheckLedgerRollupEntry[]): string | null {
+  if (entries.length === 0 || entries[0].engineCount < 2) {
+    return null;
+  }
+
+  return formatHeldCheckUnblockClause(entries[0].engineCount, entries[0].inputCode);
+}
+
 function appendMeasurementFloorHonestySuffixes(
   baseLine: string,
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
+  topHeldCheckUnblockClause: string | null,
 ): string {
   const suffixes: string[] = [];
 
@@ -93,6 +112,10 @@ function appendMeasurementFloorHonestySuffixes(
     );
   }
 
+  if (topHeldCheckUnblockClause !== null) {
+    suffixes.push(topHeldCheckUnblockClause);
+  }
+
   if (suffixes.length === 0) {
     return baseLine;
   }
@@ -104,6 +127,7 @@ function buildMeasurementFloorLine(
   counts: InsightDensityMeasurementFloorCounts,
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
+  topHeldCheckUnblockClause: string | null,
 ): string {
   const measured = counts.measuredThisRunEngineCount;
   let baseLine: string;
@@ -116,7 +140,20 @@ function buildMeasurementFloorLine(
     baseLine = `${measured} of ${counts.catalogEngineCount} catalog engines produced findings on this package.`;
   }
 
-  return appendMeasurementFloorHonestySuffixes(baseLine, skippedActorEngineTypes, judgeSkippedByCap);
+  return appendMeasurementFloorHonestySuffixes(
+    baseLine,
+    skippedActorEngineTypes,
+    judgeSkippedByCap,
+    topHeldCheckUnblockClause,
+  );
+}
+
+export function formatHeldCheckLedgerRankedLabels(
+  entries: readonly HeldCheckLedgerRollupEntry[],
+): readonly string[] {
+  return entries.map(
+    (entry) => `${formatHeldCheckInputCodeLabel(entry.inputCode)} (${entry.engineCount} engine${entry.engineCount === 1 ? "" : "s"})`,
+  );
 }
 
 export function formatInsightDensityMeasurementFloorPresentation(
@@ -132,14 +169,23 @@ export function formatInsightDensityMeasurementFloorPresentation(
     options.analysisStagesComplete === true,
   );
   const judgeSkippedByCap = normalizeJudgeSkippedByCap(options.judgeSkippedByCap);
+  const heldCheckLedgerEntries = options.heldCheckLedgerEntries ?? [];
+  const topHeldCheckUnblockClause = resolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
 
   return {
     ...counts,
-    line: buildMeasurementFloorLine(counts, skippedActorEngineTypes, judgeSkippedByCap),
+    line: buildMeasurementFloorLine(
+      counts,
+      skippedActorEngineTypes,
+      judgeSkippedByCap,
+      topHeldCheckUnblockClause,
+    ),
     helpHref: INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
     meetsCareerExportFloor,
     skippedActorEngineTypes,
     judgeSkippedByCap,
+    heldCheckLedgerEntries,
+    topHeldCheckUnblockClause,
   };
 }
 

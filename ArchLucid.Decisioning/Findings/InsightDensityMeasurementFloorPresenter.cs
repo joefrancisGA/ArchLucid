@@ -1,5 +1,8 @@
 namespace ArchLucid.Decisioning.Findings;
 
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
+
 /// <summary>Shared measurement-floor copy for run detail, finalize scorecard, and career exports (PC-01 / DX-15).</summary>
 public static class InsightDensityMeasurementFloorPresenter
 {
@@ -20,17 +23,38 @@ public static class InsightDensityMeasurementFloorPresenter
         bool meetsFloor = measured is not null && measured.Value >= CareerExportMeasurementFloorMinEngines;
         IReadOnlyList<string> skippedActorEngineTypes = ResolveSkippedActorEngineTypes(context);
         int? judgeSkippedByCap = NormalizeJudgeSkippedByCap(context?.JudgeSkippedByCap);
+        IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries =
+            context?.HeldCheckLedgerEntries ?? [];
+        string? topHeldCheckUnblockClause = ResolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
 
         return new InsightDensityMeasurementFloorPresentation
         {
             CatalogEngineCount = catalog,
             MeasuredThisRunEngineCount = measured,
             HarnessEngineCount = harness,
-            Sentence = BuildSentence(measured, catalog, harness, skippedActorEngineTypes, judgeSkippedByCap),
+            Sentence = BuildSentence(
+                measured,
+                catalog,
+                harness,
+                skippedActorEngineTypes,
+                judgeSkippedByCap,
+                topHeldCheckUnblockClause),
             MeetsCareerExportFloor = meetsFloor,
             SkippedActorEngineTypes = skippedActorEngineTypes,
             JudgeSkippedByCap = judgeSkippedByCap,
+            HeldCheckLedgerEntries = heldCheckLedgerEntries,
+            TopHeldCheckUnblockClause = topHeldCheckUnblockClause,
         };
+    }
+
+    internal static string? ResolveTopHeldCheckUnblockClause(IReadOnlyList<HeldCheckLedgerRollupEntry> entries)
+    {
+        if (entries.Count == 0 || entries[0].EngineCount < 2)
+        {
+            return null;
+        }
+
+        return HeldCheckInputCodeLabels.FormatUnblockClause(entries[0]);
     }
 
     private static IReadOnlyList<string> ResolveSkippedActorEngineTypes(InsightDensityMeasurementFloorContext? context)
@@ -106,7 +130,8 @@ public static class InsightDensityMeasurementFloorPresenter
         int catalog,
         int harness,
         IReadOnlyList<string> skippedActorEngineTypes,
-        int? judgeSkippedByCap)
+        int? judgeSkippedByCap,
+        string? topHeldCheckUnblockClause)
     {
         string baseSentence;
 
@@ -126,13 +151,18 @@ public static class InsightDensityMeasurementFloorPresenter
                 $"{measured.Value} of {catalog} catalog engines produced findings on this package; the golden corpus harness proves {harness}.";
         }
 
-        return AppendHonestySuffixes(baseSentence, skippedActorEngineTypes, judgeSkippedByCap);
+        return AppendHonestySuffixes(
+            baseSentence,
+            skippedActorEngineTypes,
+            judgeSkippedByCap,
+            topHeldCheckUnblockClause);
     }
 
     private static string AppendHonestySuffixes(
         string baseSentence,
         IReadOnlyList<string> skippedActorEngineTypes,
-        int? judgeSkippedByCap)
+        int? judgeSkippedByCap,
+        string? topHeldCheckUnblockClause)
     {
         List<string> suffixes = [];
 
@@ -148,6 +178,11 @@ public static class InsightDensityMeasurementFloorPresenter
                 judgeSkippedByCap.Value == 1
                     ? "Premium insight-density judge skipped 1 finding by per-snapshot cap."
                     : $"Premium insight-density judge skipped {judgeSkippedByCap.Value} findings by per-snapshot cap.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(topHeldCheckUnblockClause))
+        {
+            suffixes.Add(topHeldCheckUnblockClause);
         }
 
         if (suffixes.Count == 0)

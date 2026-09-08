@@ -21,4 +21,11 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Ranked missing-input rollup persisted after engine invocation (DX-52).</summary>
+    public IReadOnlyList<HeldCheckLedgerRollupEntry>? HeldCheckLedgerEntries
+    {
+        get;
+        set;
+    }
 }

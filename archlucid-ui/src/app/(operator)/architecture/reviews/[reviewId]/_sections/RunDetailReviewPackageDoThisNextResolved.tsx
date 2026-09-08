@@ -27,6 +27,7 @@ import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -49,6 +50,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -228,6 +230,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         judgeSkippedByCap={props.judgeSkippedByCap}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

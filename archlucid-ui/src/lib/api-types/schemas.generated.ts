@@ -5054,6 +5054,14 @@ export interface components {
             nodeCount?: number;
             nodes?: components["schemas"]["GraphNodeVm"][];
         };
+        /** @enum {string} */
+        HeldCheckInputCode: "AzureInventoryZip" | "AwsInventoryZip" | "GcpInventoryZip" | "ActorNodes" | "RbacBindings" | "SecretRotationMetadata" | "ReplicaOrFailoverProperties" | "NetworkPolicyRules" | "PriorRunSnapshot" | "AssignedPolicyPack";
+        HeldCheckLedgerRollupEntry: {
+            /** Format: int32 */
+            engineCount?: number;
+            engineTypes?: string[];
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5335,6 +5343,7 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
             /** Format: int32 */
             judgeSkippedByCap?: number;
             /** Format: int32 */

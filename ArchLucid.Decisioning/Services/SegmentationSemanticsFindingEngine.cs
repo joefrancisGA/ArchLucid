@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -32,6 +34,8 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
         }
 
         List<Finding> findings = [];
+        bool sawSegmentationControl = false;
+        bool sawRuleMaterial = false;
 
         foreach (GraphNode node in graphSnapshot.Nodes)
         {
@@ -40,12 +44,15 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
                 continue;
             }
 
+            sawSegmentationControl = true;
             IReadOnlyList<SegmentationRiskyRule> riskyRules = SegmentationRuleParser.ParseRiskyRules(node.Properties);
 
             if (riskyRules.Count == 0)
             {
                 continue;
             }
+
+            sawRuleMaterial = true;
 
             if (!SegmentationSemanticsPathAnalyzer.HasPathToSensitiveTarget(
                     graphSnapshot,
@@ -65,6 +72,12 @@ public sealed class SegmentationSemanticsFindingEngine : IFindingEngine
                     return Task.FromResult<IReadOnlyList<Finding>>(findings);
                 }
             }
+        }
+
+        if (findings.Count == 0 && (!sawSegmentationControl || !sawRuleMaterial))
+        {
+            // Graph present but no NSG/NetworkPolicy rule material — not a happy empty segmentation scan.
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.NetworkPolicyRules);
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
