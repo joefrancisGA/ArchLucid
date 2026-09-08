@@ -13,7 +13,11 @@ public static class InsightDensityFrontierCaptureLoader
         PropertyNameCaseInsensitive = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters =
+        {
+            new JsonStringEnumConverter(),
+            new FrontierBaselineSourceJsonConverter(),
+        },
     };
 
     public static InsightDensityFrontierCaptureFixture LoadFromFile(string path)
@@ -44,7 +48,26 @@ public static class InsightDensityFrontierCaptureLoader
                 $"Unexpected frontier capture schema '{fixture.Schema}'. Expected '{InsightDensityFrontierCaptureFixture.SchemaId}'.");
         }
 
+        ValidateFixture(fixture);
+
         return fixture;
+    }
+
+    private static void ValidateFixture(InsightDensityFrontierCaptureFixture fixture)
+    {
+        if (string.Equals(fixture.Label, "synthetic", StringComparison.OrdinalIgnoreCase)
+            && !fixture.ExpectedNoveltyPercentage.HasValue)
+        {
+            throw new InvalidOperationException(
+                "Synthetic frontier capture fixtures must include expectedNoveltyPercentage.");
+        }
+
+        if (fixture.FrontierBaseline.Source == FrontierBaselineSource.Empty
+            && fixture.FrontierBaseline.Findings.Count > 0)
+        {
+            throw new InvalidOperationException(
+                "frontierBaseline.source=empty requires an empty findings array.");
+        }
     }
 
     public static FindingsSnapshot BuildFindingsSnapshot(InsightDensityFrontierCaptureFixture fixture)

@@ -76,7 +76,19 @@ public sealed class InsightDensityFrontierCaptureFixture
         init;
     }
 
-    public double ExpectedNoveltyPercentage
+    public double? ExpectedNoveltyPercentage
+    {
+        get;
+        init;
+    }
+
+    public int? HumanWouldChangeDecisionCount
+    {
+        get;
+        init;
+    }
+
+    public int? HumanWouldChangeDecisionSampleSize
     {
         get;
         init;

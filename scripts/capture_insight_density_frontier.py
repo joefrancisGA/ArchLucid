@@ -19,6 +19,7 @@ _CLAIM_BOUNDARY = (
 _MAX_NOVELTY_DEVIATION = 0.001
 _DECISION_GRADE = "decisiongradefinding"
 _DID_NOT_THINK_KIND = 0
+_VALID_BASELINE_SOURCES = {"human-authored", "pilot-pending", "empty"}
 
 
 def _repo_root() -> Path:
@@ -72,6 +73,16 @@ def _bytes_to_sha256_hex(raw: Any) -> str:
     return "0" * 64
 
 
+def _baseline_source_for_label(label: str, baseline_findings: list[dict[str, Any]]) -> str:
+    if label == "pilot-pending":
+        return "empty"
+
+    if baseline_findings:
+        return "human-authored"
+
+    return "empty"
+
+
 def build_capture_document(
     *,
     architecture_package_sha256: str,
@@ -80,7 +91,8 @@ def build_capture_document(
     label: str,
     archlucid_findings: list[dict[str, Any]],
     frontier_baseline_findings: list[dict[str, Any]],
-    expected_novelty_percentage: float,
+    expected_novelty_percentage: float | None = None,
+    frontier_baseline_source: str | None = None,
     run_id: str | None = None,
     novelty_finding_ids: list[str] | None = None,
     fixture_id: str | None = None,
@@ -92,6 +104,8 @@ def build_capture_document(
         and str(row.get("title") or "").strip()
     ]
 
+    baseline_source = frontier_baseline_source or _baseline_source_for_label(label, frontier_baseline_findings)
+
     document: dict[str, Any] = {
         "schema": _SCHEMA,
         "architecturePackageSha256": architecture_package_sha256.lower(),
@@ -100,9 +114,14 @@ def build_capture_document(
         "label": label,
         "decisionGradeFindingTitles": decision_grade_titles,
         "archlucidFindings": archlucid_findings,
-        "frontierBaseline": {"findings": frontier_baseline_findings},
-        "expectedNoveltyPercentage": expected_novelty_percentage,
+        "frontierBaseline": {
+            "source": baseline_source,
+            "findings": frontier_baseline_findings,
+        },
     }
+
+    if expected_novelty_percentage is not None:
+        document["expectedNoveltyPercentage"] = expected_novelty_percentage
 
     if fixture_id:
         document["id"] = fixture_id
@@ -149,41 +168,9 @@ def evaluate_capture_document(document: dict[str, Any], threshold: float = 0.60)
 
 
 def validate_capture_document(document: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
+    delta = _load_frontier_delta_module()
 
-    if document.get("schema") != _SCHEMA:
-        errors.append(f"schema must be {_SCHEMA}")
-
-    label = str(document.get("label") or "")
-
-    if label not in {"synthetic", "pilot-pending"}:
-        errors.append("label must be synthetic or pilot-pending")
-
-    expected = document.get("expectedNoveltyPercentage")
-
-    if not isinstance(expected, (int, float)):
-        errors.append("expectedNoveltyPercentage must be numeric")
-        return errors
-
-    computed = evaluate_capture_document(document)
-
-    if abs(computed - float(expected)) > _MAX_NOVELTY_DEVIATION:
-        errors.append(
-            f"expectedNoveltyPercentage {expected} deviates from computed {computed} by more than {_MAX_NOVELTY_DEVIATION}",
-        )
-
-    titles = document.get("decisionGradeFindingTitles") or []
-    archlucid = document.get("archlucidFindings") or []
-    derived_titles = [
-        str(row.get("title") or "").strip()
-        for row in archlucid
-        if _classification_name(row.get("classification")) == "DecisionGradeFinding"
-    ]
-
-    if list(titles) != derived_titles:
-        errors.append("decisionGradeFindingTitles must match decision-grade archlucidFindings titles")
-
-    return errors
+    return delta.validate_capture_fixture(document)
 
 
 def _capture_from_sql(connection_string: str, run_id: str, label: str) -> dict[str, Any]:
@@ -248,6 +235,33 @@ def _capture_from_sql(connection_string: str, run_id: str, label: str) -> dict[s
 
     connection.close()
 
+    if label == "pilot-pending":
+        return build_capture_document(
+            architecture_package_sha256=architecture_hash,
+            findings_snapshot_id=findings_snapshot_id,
+            run_id=str(run_row.RunId),
+            captured_utc=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            label=label,
+            archlucid_findings=archlucid_findings,
+            frontier_baseline_findings=[],
+            frontier_baseline_source="empty",
+            expected_novelty_percentage=None,
+            novelty_finding_ids=novelty_finding_ids or None,
+        )
+
+    expected_novelty = evaluate_capture_document(
+        build_capture_document(
+            architecture_package_sha256=architecture_hash,
+            findings_snapshot_id=findings_snapshot_id,
+            captured_utc=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            label=label,
+            archlucid_findings=archlucid_findings,
+            frontier_baseline_findings=[],
+            frontier_baseline_source="empty",
+            expected_novelty_percentage=100.0 if archlucid_findings else 0.0,
+        )
+    )
+
     return build_capture_document(
         architecture_package_sha256=architecture_hash,
         findings_snapshot_id=findings_snapshot_id,
@@ -256,7 +270,8 @@ def _capture_from_sql(connection_string: str, run_id: str, label: str) -> dict[s
         label=label,
         archlucid_findings=archlucid_findings,
         frontier_baseline_findings=[],
-        expected_novelty_percentage=100.0 if archlucid_findings else 0.0,
+        frontier_baseline_source="empty",
+        expected_novelty_percentage=expected_novelty,
         novelty_finding_ids=novelty_finding_ids or None,
     )
 
