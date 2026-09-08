@@ -163,6 +163,8 @@ COPY --chown=archlucid:archlucid docs/library/COMPARISON_REPLAY.md /docs/library
 COPY --chown=archlucid:archlucid docs/library/REPEAT_REVIEW_LOOP.md /docs/library/REPEAT_REVIEW_LOOP.md
 COPY --chown=archlucid:archlucid docs/library/API_CONTRACTS.md /docs/library/API_CONTRACTS.md
 COPY --chown=archlucid:archlucid docs/library/PRODUCT_LEARNING.md /docs/library/PRODUCT_LEARNING.md
+# Extract & upload packager script download (`/api/extractor-scripts/azure/Get-ArchLucidAzurePackage.ps1`).
+COPY --chown=archlucid:archlucid scripts/azure/Get-ArchLucidAzurePackage.ps1 /scripts/azure/Get-ArchLucidAzurePackage.ps1
 
 USER archlucid
 
