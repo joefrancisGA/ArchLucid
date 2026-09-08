@@ -2007,11 +2007,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 10
-- **bugs-found:** 13
+- **hunts:** 11
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — sparse agent results left decision-delta on Info while severity used snapshot Critical/Warning
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — TB-930 coverage projection omitted `IsMuted`, so muted snapshot findings inflated buyer-proof delta severity/governed coverage
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2042,6 +2042,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PilotSponsorMaterialFindingsResolver` / `SponsorDecisionDeltaNoveltyResolver` — sparse agent results left decision-delta markdown on Info advisory while severity buckets used persisted snapshot Critical/Warning — **hit 2026-09-07 thorough hunt #1293:** populated `SponsorNarrativeFindings` when snapshot drives severity and prefer snapshot narrative when agent rows are sparser; regressions in `Resolve_when_sparse_agent_results_prefers_snapshot_material_findings` and `ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`
 
 2026-09-05 seed hunt #802: reseeded buyer-proof cross-surface freshness after Wave-22 guards; proved 30-day vs 90-day sponsor badge parity gap; reseeded muted-finding and evidence-pack freshness candidates.
+
+- [x] (proven) `PilotRunDeltaComputer` TB-930 coverage projection omitted `IsMuted` from `FindingsSnapshotCoverageSql` / `FindingsCoverageProjectionMapper` — **hit 2026-09-08 seed hunt #1332:** operator-muted snapshot rows defaulted to active in `GetCoverageProjectionByIdAsync`, defeating `.Where(!IsMuted)` in severity/governed/top-finding paths; fixed by projecting `IsMuted` from `dbo.FindingRecords`; regression in `FindingsCoverageProjectionMapperTests.Map_preserves_is_muted_from_coverage_projection`.
+- [ ] (candidate) `PilotRunDeltaComputer` equal-count agent/snapshot tie keeps agent severity when snapshot has equal count but higher severities — needs repro when `SumFindingCounts` matches but snapshot severity mix is worse (`PilotRunDeltaComputer.Compute.cs` L44–48).
+- [ ] (candidate) `FindingsSnapshotEstimatedSavingsCalculator` / `TenantEstimatedUsdSavingsResolver` rollup ignores operator-muted cost findings — needs repro pairing muted high-`ProjectedImpactUsd` snapshot row with non-zero `EstimatedUsdSavings` in deltas JSON.
+
+2026-09-08 seed hunt #1332 (hit): reseeded after Wave-22 mute guards; proved TB-930 coverage projection dropped `IsMuted`; seeded equal-count snapshot tie and muted-savings rollup candidates.
 
 2026-09-07 thorough hunt #1293 (hit): disproved two reseeded sponsor-packet candidates; proved sparse-agent decision-delta vs snapshot severity split; 20 scoped BuyerProofPack/BoardPack/SponsorDecisionDelta tests (19 pass; 1 pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unrelated to this diff).
 
