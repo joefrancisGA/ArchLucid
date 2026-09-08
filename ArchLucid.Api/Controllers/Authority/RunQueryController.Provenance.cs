@@ -2,12 +2,17 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,10 +49,32 @@ public sealed partial class RunQueryController
     [HttpGet("reviews/{runId}/provenance")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitectureRunProvenance(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        if (Guid.TryParse(runId, out Guid runGuid))
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+            if (detail?.GoldenManifest is not null)
+            {
+                try
+                {
+                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                        detail.GoldenManifest,
+                        runGuid.ToString("D"),
+                        manifestHashService);
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
+            }
+        }
+
         ArchitectureRunProvenanceGraph? graph =
             await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
 

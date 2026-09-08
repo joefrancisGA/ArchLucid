@@ -17,7 +17,9 @@ import {
   BUYER_MANIFEST_DELIVERABLE_ZIP_DESC,
   BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { downloadFirstValueReportPdf, getArchitecturePackageDocxUrl, getBundleDownloadUrl } from "@/lib/api";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { downloadFirstValueReportPdf } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -58,6 +60,8 @@ function DeliverableTile(props: DeliverableTileProps): React.JSX.Element {
 export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): React.JSX.Element | null {
   const { manifestId, runId, buyerPolished, systemName } = props;
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [docxBusy, setDocxBusy] = useState(false);
+  const [zipBusy, setZipBusy] = useState(false);
   const runIdTrimmed = runId.trim();
   const manifestIdTrimmed = manifestId.trim();
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -142,8 +146,24 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
               Download DOCX
             </Button>
           ) : (
-            <Button variant="outline" size="sm" asChild>
-              <a href={getArchitecturePackageDocxUrl(runIdTrimmed)}>Download DOCX</a>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={docxBusy}
+              onClick={() => {
+                setDocxBusy(true);
+
+                void downloadArchitecturePackageDocx(runIdTrimmed)
+                  .catch((error: unknown) => {
+                    showError("Architecture package DOCX", error instanceof Error ? error.message : "Download failed.");
+                  })
+                  .finally(() => {
+                    setDocxBusy(false);
+                  });
+              }}
+            >
+              {docxBusy ? "Downloading…" : "Download DOCX"}
             </Button>
           )}
         </DeliverableTile>
@@ -157,8 +177,24 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
               Download ZIP
             </Button>
           ) : (
-            <Button variant="outline" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestIdTrimmed)}>Download ZIP</a>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={zipBusy}
+              onClick={() => {
+                setZipBusy(true);
+
+                void downloadArtifactBundleZip(manifestIdTrimmed)
+                  .catch((error: unknown) => {
+                    showError("Artifact bundle", error instanceof Error ? error.message : "Download failed.");
+                  })
+                  .finally(() => {
+                    setZipBusy(false);
+                  });
+              }}
+            >
+              {zipBusy ? "Downloading…" : "Download ZIP"}
             </Button>
           )}
         </DeliverableTile>

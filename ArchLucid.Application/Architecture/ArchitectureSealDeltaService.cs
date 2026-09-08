@@ -1,4 +1,5 @@
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -6,6 +7,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
@@ -17,8 +19,12 @@ public sealed class ArchitectureSealDeltaService(
     IGoldenManifestRepository goldenManifestRepository,
     IDraftRequestRepository draftRequestRepository,
     IDraftRequestProjector draftRequestProjector,
-    IRunRepository runRepository) : IArchitectureSealDeltaService
+    IRunRepository runRepository,
+    IManifestHashService manifestHashService) : IArchitectureSealDeltaService
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly IArchitectureIdentityRepository _architectureIdentityRepository =
         architectureIdentityRepository ?? throw new ArgumentNullException(nameof(architectureIdentityRepository));
 
@@ -96,6 +102,14 @@ public sealed class ArchitectureSealDeltaService(
             response.LatestSealedReviewRunId = null;
             return response;
         }
+
+        string sealedManifestRunIdLabel = sealedReviewRunId?.ToString("D")
+            ?? detail.LatestSealedManifestId.Value.ToString("D");
+
+        SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+            sealedManifest,
+            sealedManifestRunIdLabel,
+            _manifestHashService);
 
         DraftRequestResponse? draft = await _draftRequestRepository
             .GetAsync(

@@ -83,6 +83,7 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/findings/{findingId}/evidence-chain")]
     [ProducesResponseType(typeof(FindingEvidenceChainResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFindingEvidenceChain(
         [FromRoute] string runId,
         [FromRoute] string findingId,
@@ -91,9 +92,12 @@ public sealed partial class RunQueryController
         FindingEvidenceChainQueryResult result =
             await runFindingsQueryService.GetFindingEvidenceChainAsync(runId, findingId, cancellationToken);
 
-        return result.Outcome == RunFindingsQueryOutcome.Success
-            ? Ok(result.Chain)
-            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+        return result.Outcome switch
+        {
+            RunFindingsQueryOutcome.Success => Ok(result.Chain),
+            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
+            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
+        };
     }
 
     /// <summary>
@@ -103,6 +107,7 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/findings/{findingId}/inspect")]
     [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFindingInspectForRun(
         [FromRoute] string runId,
         [FromRoute] string findingId,
@@ -119,6 +124,7 @@ public sealed partial class RunQueryController
         {
             RunFindingsQueryOutcome.Success => Ok(result.Response),
             RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
             _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
         };
     }

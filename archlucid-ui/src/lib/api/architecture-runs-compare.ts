@@ -5,11 +5,11 @@ import type {
 } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
 import {
-  apiGet,
   ensureOidcBearerReady,
   resolveRequest,
   withCorrelationHeaders,
 } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -29,14 +29,14 @@ export async function compareRunsEndToEnd(
   leftRunId: string,
   rightRunId: string,
 ): Promise<EndToEndReplayComparisonWireResponse> {
-  return apiGet<EndToEndReplayComparisonWireResponse>(
+  return apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
     `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
 
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
-  return apiGet<RunComparison>(
+  return apiGetSealedManifestAware<RunComparison>(
     `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
@@ -46,7 +46,7 @@ export async function compareGoldenManifestRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<GoldenManifestComparison> {
-  return apiGet<GoldenManifestComparison>(
+  return apiGetSealedManifestAware<GoldenManifestComparison>(
     `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
@@ -56,14 +56,14 @@ export async function explainComparisonRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<ComparisonExplanation> {
-  return apiGet<ComparisonExplanation>(
+  return apiGetSealedManifestAware<ComparisonExplanation>(
     `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
-  return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
+  return apiGetSealedManifestAware<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
 /**
