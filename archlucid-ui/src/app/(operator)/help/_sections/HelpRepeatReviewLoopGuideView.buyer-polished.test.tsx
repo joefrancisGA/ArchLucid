@@ -45,6 +45,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_CONTENT_ID,
   REPEAT_REVIEW_LOOP_HELP_SKIP_LINK_LABEL,
   REPEAT_REVIEW_LOOP_HELP_SKIP_TARGET_ID,
@@ -57,7 +58,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
   const loaded = tryLoadProductDocumentation("repeat-review-loop");
 
-  it("renders skip link, header claim discipline, first-viewport start loop, and bottom Sources", () => {
+  it("renders skip link, intro lead, header claim discipline, first-viewport start loop, and bottom Sources", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -77,6 +78,7 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     expect(screen.queryByTestId("help-repeat-review-loop-header-actions")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-repeat-review-loop-related-help")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-page-title")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
@@ -89,6 +91,7 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     const orientationBottom = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("help-repeat-review-loop-intro")).toHaveTextContent(REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
     expect(
       within(actionPanel).getByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.label }),
