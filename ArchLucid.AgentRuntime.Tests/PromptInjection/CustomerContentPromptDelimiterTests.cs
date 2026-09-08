@@ -166,8 +166,27 @@ public sealed class CustomerContentPromptDelimiterTests
         prompt.Should().NotContain("legacy-control-should-not-appear");
     }
 
+    [Fact]
+    public void TopologyUserPrompt_does_not_render_evidence_package_cloud_provider_string()
+    {
+        ArchitectureRequest request = SampleRequest();
+        request.CloudProvider = CloudProvider.Azure;
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.CloudProvider = $"Azure-injected-{CustomerContentPromptDelimiters.EndMarker}";
+
+        string prompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            request,
+            evidence,
+            SampleTask(),
+            CloudProvider.Azure);
+
+        prompt.Should().Contain("CloudProvider: Azure");
+        prompt.Should().NotContain("Azure-injected-");
+        prompt.Should().NotContain($"Azure-injected-{CustomerContentPromptDelimiters.EndMarker}");
+    }
+
     [Theory]
-    [InlineData(nameof(AgentUserPromptComposer.BuildTopologyUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildComplianceUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildCostUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildCriticUserPrompt))]
