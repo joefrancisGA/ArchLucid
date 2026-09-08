@@ -159,7 +159,7 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
-        return connector is '-' or '_' or '.' or '/' or ':' or '\\';
+        return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
