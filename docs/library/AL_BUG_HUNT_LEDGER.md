@@ -232,9 +232,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
@@ -270,10 +270,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `WorkspaceAllowedEngineSetService.SetAsync` — allowed-engine alias JSON for 14+ catalog aliases exceeds migration `NVARCHAR(512)` without application validation — **hit 2026-09-08 seed hunt #1323:** SettingsController PUT `allowed-engine-set` serializes full alias list to `ModelGovernance.AllowedEngineAliases`; repository guard alone surfaced late `ArgumentException`; added `EnsureSerializedPayloadFitsTenantSettings` before upsert; regressions `SetAsync_throws_when_serialized_allowed_engine_set_exceeds_tenant_setting_value_limit`, `SetAsync_persists_when_default_catalog_alias_count_fits_tenant_setting_value_limit`, `Serialized_allowed_engine_set_with_fourteen_aliases_exceeds_migration_setting_value_limit`
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — inner upsert failure after pre-write generation bump skips cache invalidation — **cheap-disproof 2026-09-08 seed hunt #1323:** failed upsert still leaves `TryGetAsync` reading last committed SQL value via bumped generation miss path; regression `TenantSettings_TryGetAsync_returns_last_committed_value_when_upsert_fails_after_generation_bump`
 - [x] (proven) `InMemoryTenantSettingsRepository.UpsertAsync` — omitted `TenantSettingsWriteGuard` length enforcement used by `SqlTenantSettingsRepository`; dev/in-memory stacks accepted oversize JSON that production SQL rejects — **hit 2026-09-08 thorough hunt #1347:** in-memory upsert accepted `SettingValue` payloads longer than migration `NVARCHAR(512)` while SQL repository rejects via `TenantSettingsWriteGuard`; fixed by sharing guard on in-memory upsert; regression `UpsertAsync_rejects_values_longer_than_migration_nvarchar_512_limit`
-- [ ] (candidate) `CachingTenantSettingsRepository` — out-of-band `dbo.TenantSettings` mutation bypasses generation bumps until hybrid-cache TTL expires; no invalidation hook outside wrapper upsert/delete
-- [ ] (candidate) `TenantFindingEngineControlsService.SetAsync` — three sequential `UpsertAsync` calls without transaction; mid-sequence SQL failure leaves partial tenant flag overrides visible via per-key cache bumps
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — inner delete failure after pre-write generation bump serves stale absent while SQL row survives — **cheap-disproof 2026-09-08 seed hunt #1358:** symmetric to failed-upsert row #1323; `TryGetAsync` at bumped generation still reads last committed inner value; regression `TenantSettings_TryGetAsync_returns_last_committed_value_when_delete_fails_after_generation_bump`
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — rejected `Guid.Empty` tenant id after pre-write generation bump poisons cache slot for live tenant reads — **cheap-disproof 2026-09-08 seed hunt #1358:** inner rejects before persist; generation bump on `(Guid.Empty, key)` does not affect reads for real tenant ids; regression `TenantSettings_TryGetAsync_still_reads_committed_value_after_upsert_rejects_empty_tenant_id`
+- [x] (invalid) `CachingTenantSettingsRepository` — out-of-band `dbo.TenantSettings` mutation bypasses generation bumps until hybrid-cache TTL expires — **cheap-disproof 2026-09-08 thorough hunt #1359:** read-through cache by design; wrapper upsert/delete bumps generation and invalidates; direct SQL/ops mutation is out of contract; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write`
+- [x] (invalid) `TenantFindingEngineControlsService.SetAsync` — three sequential `UpsertAsync` calls without transaction leave partial tenant flag overrides on mid-sequence failure — **cheap-disproof 2026-09-08 thorough hunt #1359:** `SqlTenantSettingsRepository`/`CachingTenantSettingsRepository` correctly implement single-key MERGE with per-key cache bumps; multi-key atomicity is caller orchestration outside zone paths; no repository defect reproduces
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — rejected `Guid.Empty` tenant id after pre-write generation bump poisons cache slot for live tenant reads — **cheap-disproof 2026-09-08 thorough hunt #1359:** symmetric to upsert empty-tenant row; regression `TenantSettings_TryGetAsync_still_reads_committed_value_after_delete_rejects_empty_tenant_id`
+
+2026-09-08 thorough hunt #1359 (dry): cheap-disproof closed both open candidates; no hunt-ready row reproduces; 23 scoped tenant-settings tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
