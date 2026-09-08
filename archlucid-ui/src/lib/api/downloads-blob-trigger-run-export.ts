@@ -1,10 +1,12 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import {
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
-  throwApiRequestError,
 } from "./http";
 import { getRunExportDownloadUrl } from "./downloads-blob-urls";
 import {
@@ -43,7 +45,8 @@ export async function downloadRunExportZip(runId: string): Promise<void> {
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/zip"]);

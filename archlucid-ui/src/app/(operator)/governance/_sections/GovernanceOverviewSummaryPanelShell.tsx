@@ -35,6 +35,7 @@ import {
   GOVERNANCE_OVERVIEW_SUMMARY_HEADING,
   GOVERNANCE_OVERVIEW_SUMMARY_SCOPE_LINE,
 } from "@/lib/governance/governance-overview-copy";
+import { governanceSealedManifestBlockedReason } from "@/lib/governance/governance-sealed-manifest-blocked-reason";
 import {
   operatorLastRefreshedExactLabel,
   operatorLastRefreshedLabel,
@@ -115,9 +116,19 @@ export function GovernanceOverviewSummaryPanelShell(
         <div className="mt-3" role="alert">
           <OperatorApiProblem
             problem={loadState.failure.problem}
-            fallbackMessage={loadState.failure.message}
+            fallbackMessage={
+              governanceSealedManifestBlockedReason(loadState.failure) ?? loadState.failure.message
+            }
             correlationId={loadState.failure.correlationId}
           />
+          {governanceSealedManifestBlockedReason(loadState.failure) !== null ? (
+            <p
+              className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-overview-sealed-manifest-blocked-reason"
+            >
+              {governanceSealedManifestBlockedReason(loadState.failure)}
+            </p>
+          ) : null}
           <Button type="button" variant="outline" size="sm" className="mt-3" onClick={retryOverview}>
             Retry summary
           </Button>
