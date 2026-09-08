@@ -244,6 +244,18 @@ BEGIN
     FROM dbo.FindingsSnapshots AS fs
     WHERE EXISTS (SELECT 1 FROM @RunIds AS p WHERE p.RunId = fs.RunId);
 
+    /* GraphSnapshotEdges FK (018) has no ON DELETE CASCADE — delete before parent snapshots. */
+    IF OBJECT_ID(N'dbo.GraphSnapshotEdges', N'U') IS NOT NULL
+    BEGIN
+        DELETE gse
+        FROM dbo.GraphSnapshotEdges AS gse
+        WHERE EXISTS (
+            SELECT 1
+            FROM dbo.GraphSnapshots AS gs
+            INNER JOIN @RunIds AS p ON p.RunId = gs.RunId
+            WHERE gs.GraphSnapshotId = gse.GraphSnapshotId);
+    END;
+
     DELETE gs
     FROM dbo.GraphSnapshots AS gs
     WHERE EXISTS (SELECT 1 FROM @RunIds AS p WHERE p.RunId = gs.RunId);
