@@ -149,12 +149,14 @@ function buildHubDriftChangeWorkbenchHref(
 function buildHubDriftChangeAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId,
+    runId: runId.length > 0 ? runId : undefined,
     diffId: change.diffId,
     hubTab: "drift",
     ...auditContext,
@@ -164,12 +166,14 @@ function buildHubDriftChangeAskHref(
 function buildHubFindingAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   findingId: string,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     findingId,
     hubTab: "findings",
     ...auditContext,
@@ -179,12 +183,14 @@ function buildHubFindingAskHref(
 function buildHubRemediationAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   instanceId: string,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     instanceId,
     hubTab: "remediation",
     ...auditContext,
@@ -999,7 +1005,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                         <EnterpriseTableCell>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                              href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                               data-testid={`infra-resource-hub-drift-ask-${change.changeId}`}
                             >
                               Ask
@@ -1104,7 +1110,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Button asChild size="sm" variant="outline">
                           <Link
-                            href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                            href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                             data-testid={`infra-resource-hub-drift-tab-ask-${change.changeId}`}
                           >
                             Ask
@@ -1476,7 +1482,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id, askAuditContext)}
+                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
                                     data-testid={`infra-resource-hub-finding-ask-${item.id}`}
                                   >
                                     Ask
@@ -1486,7 +1492,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id, askAuditContext)}
+                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
                                   data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
                                 >
                                   Ask
@@ -1601,7 +1607,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </Button>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, item.instanceId, askAuditContext)}
+                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext)}
                               data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
                             >
                               Ask

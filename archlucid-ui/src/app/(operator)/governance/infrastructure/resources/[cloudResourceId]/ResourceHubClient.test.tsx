@@ -221,6 +221,42 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on drift Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-drift-ask-change-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&diffId=diff-1&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=drift",
+    );
+  });
+
+  it("preserves runId on findings Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=findings&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-ask-finding-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&findingId=finding-1&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=findings",
+    );
+  });
+
+  it("preserves runId on remediation Infrastructure Ask links", async () => {
+    searchParams = new URLSearchParams(
+      "tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-ask-instance-1")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&instanceId=instance-1&runId=run-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=remediation",
+    );
+  });
+
   it("preserves runId when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       "tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
