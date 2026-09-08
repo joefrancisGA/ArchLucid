@@ -151,4 +151,15 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = 90;
+
+    /// <summary>
+    ///     When true in Real execution mode with a Premium deployment, uses
+    ///     <see cref="InsightDensityGateHumanCalibrationRow.Residual" /> as a tertiary judge-cap sort after preferred-engine
+    ///     and novelty sorts. Default false; Simulator ignores this flag (DX-67).
+    /// </summary>
+    public bool PreferHighHumanAcceptResidual
+    {
+        get;
+        set;
+    } = false;
 }

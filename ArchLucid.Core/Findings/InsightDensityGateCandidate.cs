@@ -11,7 +11,10 @@ public sealed class InsightDensityGateCandidate
         IReadOnlyList<string> evidenceRefs,
         FindingSeverity severity,
         string category = "",
-        bool isAgentArchitectureFinding = false)
+        bool isAgentArchitectureFinding = false,
+        string engineType = "",
+        IReadOnlyList<string>? relatedNodeIds = null,
+        int? impactHopCount = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(candidateKey);
         ArgumentNullException.ThrowIfNull(message);
@@ -23,6 +26,9 @@ public sealed class InsightDensityGateCandidate
         Severity = severity;
         Category = category ?? string.Empty;
         IsAgentArchitectureFinding = isAgentArchitectureFinding;
+        EngineType = string.IsNullOrWhiteSpace(engineType) ? string.Empty : engineType.Trim();
+        RelatedNodeIds = NormalizeRelatedNodeIds(relatedNodeIds);
+        ImpactHopCount = impactHopCount is > 0 ? impactHopCount : null;
     }
 
     public string CandidateKey
@@ -56,6 +62,24 @@ public sealed class InsightDensityGateCandidate
         get;
     }
 
+    /// <summary>Typed engine identifier when the finding originated from a built-in engine (empty for agent rows).</summary>
+    public string EngineType
+    {
+        get;
+    }
+
+    /// <summary>Graph node ids cited by the finding (never null).</summary>
+    public IReadOnlyList<string> RelatedNodeIds
+    {
+        get;
+    }
+
+    /// <summary>Path length when the typed engine already computed hop count (null when unknown).</summary>
+    public int? ImpactHopCount
+    {
+        get;
+    }
+
     public static InsightDensityGateCandidate FromFinding(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
@@ -68,7 +92,10 @@ public sealed class InsightDensityGateCandidate
             ExtractEvidenceRefs(finding),
             finding.Severity,
             finding.Category,
-            InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType));
+            InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType),
+            finding.EngineType,
+            finding.RelatedNodeIds,
+            InsightDensityGateCandidateImpactHopCountResolver.TryResolveImpactHopCount(finding));
     }
 
     public static InsightDensityGateCandidate FromArchitectureFinding(ArchitectureFinding finding)
@@ -81,7 +108,38 @@ public sealed class InsightDensityGateCandidate
             finding.EvidenceRefs,
             finding.Severity,
             finding.Category,
-            isAgentArchitectureFinding: true);
+            isAgentArchitectureFinding: true,
+            engineType: string.Empty,
+            relatedNodeIds: []);
+    }
+
+    internal static IReadOnlyList<string> NormalizeRelatedNodeIds(IReadOnlyList<string>? relatedNodeIds)
+    {
+        if (relatedNodeIds is null || relatedNodeIds.Count == 0)
+        {
+            return [];
+        }
+
+        List<string> normalized = [];
+
+        foreach (string nodeId in relatedNodeIds)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId))
+            {
+                continue;
+            }
+
+            string trimmed = nodeId.Trim();
+
+            if (normalized.Any(existing => existing.Equals(trimmed, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            normalized.Add(trimmed);
+        }
+
+        return normalized;
     }
 
     internal static List<string> ExtractEvidenceRefs(Finding finding)

@@ -12,8 +12,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(52);
-        presentation.HarnessEngineCount.Should().Be(41);
+        presentation.CatalogEngineCount.Should().Be(53);
+        presentation.HarnessEngineCount.Should().Be(42);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
 
