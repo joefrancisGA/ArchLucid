@@ -246,10 +246,11 @@ function countAwaitingApprovalPreviewRuns(
  * Recent tab at the featured limit so labels read `Recent (2 of N)` instead of a silent cap.
  */
 export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
+  const activePreviewItems = input.previewItems.filter((run) => run.isArchived !== true);
   const listItems =
     input.excludeShowcaseRunId !== undefined
-      ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
-      : input.previewItems;
+      ? activePreviewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+      : activePreviewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
   const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
   const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);

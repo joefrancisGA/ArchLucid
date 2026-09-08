@@ -35,18 +35,19 @@ public static class InsightDensityEngineDistributionMarkdown
             "(penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.",
             $"The golden corpus harness registers **{GoldenCorpusHarnessEngineCount}** engines; **{enginesInTable}** appear in this table (≥1 finding across case-01..case-{caseRangeEnd}). **{absentFromTable}** built-in product engines are absent from this corpus-derived slice.",
             "`WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).",
+            "`WouldDemoteAt65Count` is advisory measurement for a possible threshold change; production DemotionThreshold remains 50 until DX-59.",
             "",
             "Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.",
             "Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.",
             "",
-            "| Engine | Findings | Min | Median | Max | Would demote if unprotected |",
-            "| --- | --- | --- | --- | --- | --- |",
+            "| Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
         ];
 
         foreach (InsightDensityEngineDistributionRow row in rows)
         {
             lines.Add(
-                $"| {row.EngineType} | {row.FindingCount} | {row.MinScore} | {row.MedianScore} | {row.MaxScore} | {row.WouldDemoteIfUnprotectedCount} |");
+                $"| {row.EngineType} | {row.FindingCount} | {row.MinScore} | {row.MedianScore} | {row.MaxScore} | {row.WouldDemoteIfUnprotectedCount} | {row.GenericAdviceCount} | {row.NoConcreteEvidenceCount} | {row.NoArchitectureAnchorCount} | {row.DuplicationCount} | {row.WouldDemoteAt65Count} |");
         }
 
         lines.Add("");

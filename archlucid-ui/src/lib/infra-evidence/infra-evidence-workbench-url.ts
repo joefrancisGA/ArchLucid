@@ -153,12 +153,23 @@ export function buildResourceScopedWorkbenchHref(
     InfraEvidenceWorkbenchContext,
     "assessmentId" | "auditEvidenceSnapshotId" | "controlId"
   >,
+  runId?: string | null,
 ): string {
   switch (kind) {
     case "findings":
-      return buildResourceHubWorkbenchHref({ cloudResourceId, tab: "findings", snapshotId });
+      return buildResourceHubWorkbenchHref({
+        cloudResourceId,
+        tab: "findings",
+        snapshotId,
+        runId: runId ?? undefined,
+      });
     case "remediation":
-      return buildRemediationWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
+      return buildRemediationWorkbenchHref({
+        cloudResourceId,
+        snapshotId,
+        runId: runId ?? undefined,
+        ...auditContext,
+      });
     case "drift":
       return buildDriftWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     default:

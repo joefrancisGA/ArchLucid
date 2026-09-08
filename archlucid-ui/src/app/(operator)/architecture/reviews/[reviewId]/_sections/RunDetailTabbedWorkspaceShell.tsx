@@ -3,7 +3,10 @@ import { Suspense } from "react";
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
-import { readHeldCheckLedgerFromFindingsSnapshot } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import {
+  readHeldCheckLedgerFromFindingsSnapshot,
+  readHeldCheckSecondPassFromFindingsSnapshot,
+} from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 import {
   RunDetailExplanationSkeleton,
@@ -85,6 +88,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
       judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       withheldFindingCount={withheldFindings.length}
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
     />

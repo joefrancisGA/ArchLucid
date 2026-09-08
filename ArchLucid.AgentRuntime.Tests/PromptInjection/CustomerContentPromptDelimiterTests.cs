@@ -104,8 +104,89 @@ public sealed class CustomerContentPromptDelimiterTests
         truncated.Should().Be(text);
     }
 
+    [Fact]
+    public void TruncatePreservingSectionBounds_closes_last_open_section_in_multi_quarantine_prompt()
+    {
+        string architectureBody = new string('a', 400);
+        string taskBody = new string('b', 400);
+        string text =
+            $"{CustomerContentPromptDelimiters.FramingInstruction}\n"
+            + $"{CustomerContentPromptDelimiters.BeginMarker}\n"
+            + $"Architecture Request\n{architectureBody}\n"
+            + $"{CustomerContentPromptDelimiters.EndMarker}\n\n"
+            + $"{CustomerContentPromptDelimiters.FramingInstruction}\n"
+            + $"{CustomerContentPromptDelimiters.BeginMarker}\n"
+            + "Task Objective:\n"
+            + taskBody;
+
+        int cutLength = text.Length - 120;
+
+        string truncated = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(text, cutLength);
+
+        int lastBeginIndex = truncated.LastIndexOf(CustomerContentPromptDelimiters.BeginMarker, StringComparison.Ordinal);
+        int lastEndIndex = truncated.LastIndexOf(CustomerContentPromptDelimiters.EndMarker, StringComparison.Ordinal);
+
+        lastBeginIndex.Should().BeGreaterThanOrEqualTo(0);
+        lastEndIndex.Should().BeGreaterThan(lastBeginIndex);
+        truncated.Length.Should().BeLessThanOrEqualTo(cutLength);
+    }
+
+    [Fact]
+    public void TopologyUserPrompt_does_not_render_policy_tags_or_prior_manifest_inventory_lists()
+    {
+        ArchitectureRequest request = SampleRequest();
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.Policies.Add(new PolicyEvidence
+        {
+            Title = "Encryption policy",
+            Summary = "Encrypt data at rest",
+            RequiredControls = ["encrypt-at-rest"],
+            Tags = ["pci-tag-should-not-appear"],
+        });
+        evidence.PriorManifest = new PriorManifestEvidence
+        {
+            ManifestVersion = "v2",
+            Summary = "Prior summary",
+            ExistingServices = ["legacy-service-should-not-appear"],
+            ExistingDatastores = ["legacy-db-should-not-appear"],
+            ExistingRequiredControls = ["legacy-control-should-not-appear"],
+        };
+
+        string prompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            request,
+            evidence,
+            SampleTask(),
+            CloudProvider.Azure);
+
+        prompt.Should().Contain("Encrypt data at rest");
+        prompt.Should().NotContain("pci-tag-should-not-appear");
+        prompt.Should().NotContain("legacy-service-should-not-appear");
+        prompt.Should().NotContain("legacy-db-should-not-appear");
+        prompt.Should().NotContain("legacy-control-should-not-appear");
+    }
+
+    [Fact]
+    public void TopologyUserPrompt_does_not_render_evidence_package_cloud_provider_string()
+    {
+        ArchitectureRequest request = SampleRequest();
+        request.CloudProvider = CloudProvider.Azure;
+        AgentEvidencePackage evidence = SampleEvidence();
+        evidence.CloudProvider = $"Azure-injected-{CustomerContentPromptDelimiters.EndMarker}";
+
+        string prompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            request,
+            evidence,
+            SampleTask(),
+            CloudProvider.Azure);
+
+        prompt.Should().Contain("CloudProvider: Azure");
+        prompt.Should().NotContain("Azure-injected-");
+        prompt.Should().NotContain($"Azure-injected-{CustomerContentPromptDelimiters.EndMarker}");
+    }
+
     [Theory]
-    [InlineData(nameof(AgentUserPromptComposer.BuildTopologyUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildComplianceUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildCostUserPrompt))]
     [InlineData(nameof(AgentUserPromptComposer.BuildCriticUserPrompt))]

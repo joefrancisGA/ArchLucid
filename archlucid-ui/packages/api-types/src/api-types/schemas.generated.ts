@@ -3896,6 +3896,22 @@ export interface components {
             /** Format: date-time */
             toUtcExclusive?: string;
         };
+        EngineVerificationConfirmedRateRow: {
+            /** Format: int32 */
+            confirmedNumerator?: number;
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            engineType?: string;
+            /** Format: int32 */
+            verifiableDenominator?: number;
+        };
+        EngineVerificationConfirmedRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineVerificationConfirmedRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
         EntityTagHeaderValue: {
             isWeak?: boolean;
             tag?: components["schemas"]["StringSegment"];
@@ -5062,6 +5078,16 @@ export interface components {
             engineTypes?: string[];
             inputCode?: components["schemas"]["HeldCheckInputCode"];
         };
+        /** @enum {string} */
+        HeldCheckSecondPassStatus: "Completed" | "NotEligible" | "NoPriorLedger" | "NoNewFindings";
+        HeldCheckSecondPassSummary: {
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            /** Format: int32 */
+            newDecisionGradeCount?: number;
+            status?: components["schemas"]["HeldCheckSecondPassStatus"];
+            /** Format: int32 */
+            unblockedEngineCount?: number;
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5344,6 +5370,7 @@ export interface components {
             /** Format: int32 */
             demotedToChecklistCount?: number;
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeSkippedByCap?: number;
             /** Format: int32 */

@@ -40,6 +40,7 @@ export function RunTrustEvidenceCardSection(props: {
   readonly card: RunTrustEvidenceCard;
   readonly evidenceAskRunId?: string | null;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly blockingFindingId?: string | null;
   readonly blockingFindingTitle?: string | null;
   readonly approvalBlocked?: boolean;
@@ -211,7 +212,12 @@ export function RunTrustEvidenceCardSection(props: {
             </div>
           </CollapsibleSection>
 
-          <RunTrustEvidenceProofChain card={card} runId={runId} buyerPolishedShell={buyerPolishedShell} />
+          <RunTrustEvidenceProofChain
+            card={card}
+            runId={runId}
+            manifestVersion={props.manifestVersion}
+            buyerPolishedShell={buyerPolishedShell}
+          />
 
           <section aria-labelledby="trust-evidence-scope-limitations">
             <h4 id="trust-evidence-scope-limitations" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>

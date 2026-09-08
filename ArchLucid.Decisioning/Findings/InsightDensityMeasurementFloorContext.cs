@@ -31,6 +31,13 @@ public sealed class InsightDensityMeasurementFloorContext
         init;
     } = [];
 
+    /// <summary>Inventory-upload second-pass summary when findings were regenerated (DX-60).</summary>
+    public HeldCheckSecondPassSummary? HeldCheckSecondPass
+    {
+        get;
+        init;
+    }
+
     public static IReadOnlyList<string> DeriveSkippedActorEngineTypes(
         int actorNodeCount,
         bool analysisStagesComplete)

@@ -36,6 +36,7 @@ import {
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
 import { governanceFindingsClearAllFiltersHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
+import { governanceFindingsClearReviewScopeHref } from "@/lib/governance/governance-findings-clear-review-scope-url";
 import { governanceFindingsPickReviewForTriageHref } from "@/lib/governance/governance-findings-pick-review-url";
 import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
 import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/governance-findings-architecture-scope";
@@ -135,6 +136,10 @@ export default function GovernanceFindingsQueueClient({
   );
 
   const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
+  const clearReviewScopeHref = useMemo(
+    () => governanceFindingsClearReviewScopeHref(searchParams.toString(), pathname),
+    [pathname, searchParams],
+  );
   const synopsis = useGovernanceFindingsQueueSynopsis({
     mode,
     isAssignedToMe,
@@ -254,6 +259,7 @@ export default function GovernanceFindingsQueueClient({
         mode={mode}
         buyerPolishedShell={buyerPolishedShell}
         navHref={navHref}
+        clearReviewScopeHref={clearReviewScopeHref}
         pageTitle={pageTitle}
         scopedRunId={scopedRunId}
         scopedRunFilterActive={synopsis.scopedRunFilterActive}

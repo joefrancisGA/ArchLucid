@@ -134,10 +134,21 @@ public sealed partial class PolicyPackWorkflowFacade(
         if (isOrganizationRequired && !_callerRoleAccessor.IsTenantAdministrator())
             return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Forbidden, null);
 
+        string normalizedScope = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
+
+        if (!string.Equals(normalizedScope, GovernanceScopeLevel.Project, StringComparison.Ordinal)
+            && !_callerRoleAccessor.IsTenantAdministrator())
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Forbidden, null);
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct);
+        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
 
         if (!IsPackVisibleInScope(pack, scope))
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.PackNotFound, null);
+
+        if (isOrganizationRequired
+            && pack is not null
+            && !await _platformAvailability.IsGloballyActiveAsync(pack, ct).ConfigureAwait(false))
             return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.PackNotFound, null);
 
         PolicyPackAssignment? assignment = await _policyPacksApp.TryAssignAsync(
@@ -240,6 +251,17 @@ public sealed partial class PolicyPackWorkflowFacade(
 
         if (!isEnabled && PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(existing))
             return PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock;
+
+        if (isEnabled)
+        {
+            PolicyPack? pack = await _packRepository.GetByIdAsync(existing!.PolicyPackId, ct).ConfigureAwait(false);
+
+            if (pack is null || pack.TenantId != scope.TenantId)
+                return PolicyPackSetAssignmentEnabledOutcome.NotFound;
+
+            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct).ConfigureAwait(false))
+                return PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive;
+        }
 
         bool valueUnchanged = existing!.IsEnabled == isEnabled;
 

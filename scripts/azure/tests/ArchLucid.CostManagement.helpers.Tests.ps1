@@ -9,6 +9,9 @@ BeforeAll {
 
 Describe 'ArchLucid.CostManagement.helpers' {
 
+    [string[]]$script:CapturedAzRestTailArgs = @()
+    [string]$script:CapturedAzRestBodyText = ''
+
     It 'maps a Cost Management ActualCost-shaped payload to TotalActualCostUsd, BillingPeriod, and BreakdownByServiceName entries' {
 
         [string]$fixturePath =
@@ -97,6 +100,79 @@ Describe 'ArchLucid.CostManagement.helpers' {
 
         ([double]$storageEntry.PreTaxCost -eq 5.0) | Should -Be $true
 
+    }
+
+    It 'passes CompressedBody when invoking the ActualCost paged query helper' {
+
+        Mock Test-ArchLucidAzureCliRunnable { return $true }
+
+        Mock Invoke-ArchLucidActualCostPagedQuery {
+            return @{
+                Ok = $true
+                StderrCombined = ''
+                Pages = @()
+            }
+        }
+
+        $null = Get-ArchLucidActualCostSummary -SubscriptionId '00000000-0000-0000-0000-000000000001'
+
+        Should -Invoke Invoke-ArchLucidActualCostPagedQuery -Times 1 -ParameterFilter {
+            (-not [string]::IsNullOrWhiteSpace($CompressedBody)) -and
+            ($CompressedBody -match '"type"\s*:\s*"ActualCost"') -and
+            (-not [string]::IsNullOrWhiteSpace($PostUrl)) -and
+            (-not [string]::IsNullOrWhiteSpace($DiagTokenForWarnings))
+        }
+    }
+
+    It 'writes the POST body to a temp file and passes @path to az rest on Windows-safe invocation' {
+
+        $script:CapturedAzRestTailArgs = @()
+        $script:CapturedAzRestBodyText = ''
+
+        Mock Invoke-ArchLucidAzureCliAzRestCaptured {
+            param([string[]]$TailAfterRest)
+
+            $script:CapturedAzRestTailArgs = @($TailAfterRest)
+
+            [int]$bodyIndex = [array]::IndexOf($TailAfterRest, '--body')
+
+            if ($bodyIndex -ge 0) {
+
+                [string]$bodyArg = $TailAfterRest[$bodyIndex + 1]
+                [string]$bodyPath = $bodyArg.TrimStart('@')
+
+                $script:CapturedAzRestBodyText =
+                    [System.IO.File]::ReadAllText($bodyPath, [System.Text.UTF8Encoding]::new($false))
+
+            }
+
+            return @{
+                Exit = 0
+                Stdout = '{"properties":{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[]}}'
+                Stderr = ''
+            }
+        }
+
+        [string]$body =
+            New-ArchLucidCostManagementActualCostBodyJson -Timeframe 'MonthToDate'
+
+        [hashtable]$result =
+            Invoke-ArchLucidActualCostPagedQuery `
+                -PostUrl 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000001/providers/Microsoft.CostManagement/query?api-version=2023-03-01' `
+                -CompressedBody $body `
+                -DiagTokenForWarnings 'test-token'
+
+        $result.Ok | Should -Be $true
+
+        [int]$bodyIndex = [array]::IndexOf($script:CapturedAzRestTailArgs, '--body')
+
+        $bodyIndex | Should -BeGreaterThan 0
+
+        [string]$bodyArg = $script:CapturedAzRestTailArgs[$bodyIndex + 1]
+
+        $bodyArg | Should -Match '^@'
+
+        $script:CapturedAzRestBodyText | Should -Be $body
     }
 
 }

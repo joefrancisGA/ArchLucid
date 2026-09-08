@@ -33,6 +33,18 @@ public static class TenantSettingKeys
     public const string FindingsInsightDensityLlmJudgeEngineFindingsEnabled =
         "Findings.InsightDensityLlmJudge.EngineFindingsEnabled";
 
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:EnableInsightGenerator</c>.</summary>
+    public const string FindingsInsightDensityInsightGeneratorEnabled =
+        "Findings.InsightDensityInsightGenerator.Enabled";
+
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:PreferHighNoveltyEngines</c>.</summary>
+    public const string FindingsInsightDensityPreferHighNoveltyEnginesEnabled =
+        "Findings.InsightDensityPreferHighNoveltyEngines.Enabled";
+
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:PreferHighVerificationEngines</c>.</summary>
+    public const string FindingsInsightDensityPreferHighVerificationEnginesEnabled =
+        "Findings.InsightDensityPreferHighVerificationEngines.Enabled";
+
     /// <summary>Tenant override for <c>ArchLucid:Findings:PortfolioRecurrence:Enabled</c>.</summary>
     public const string FindingsPortfolioRecurrenceEnabled = "Findings.PortfolioRecurrence.Enabled";
 

@@ -5,6 +5,16 @@ import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-wor
 /** Canonical page title for `/architecture/architecture-intelligence`. */
 export const ARCHITECTURE_INTELLIGENCE_PAGE_TITLE = "Try another reasoning pass";
 
+export const ARCHITECTURE_INTELLIGENCE_PRIMARY_CONTENT_ID = "architecture-intelligence-primary-content" as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_ID = "architecture-intelligence-first-viewport" as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID = ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID = ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_INTELLIGENCE_SKIP_LINK_LABEL = "Skip to architecture intelligence workspace" as const;
+
 export const ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE =
   "Explore an alternative reasoning pass on a free-form architecture description.";
 

@@ -898,6 +898,55 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_when_sealed_manifest_unverified_does_not_mutate_human_review_or_claim_replay()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-55", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sealed" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(TenantA, "f-sealed", It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .Setup(g => g.TryClaimAsync(TenantA, "Jira", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("tampered-manifest-hash");
+
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(
+            correlations,
+            new IntegrationsItsmInboundOptions(),
+            configureDefaultFindingExists: false,
+            replayGuard: replayGuard,
+            manifestHashService: manifestHashService.Object);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-55","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult result = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        result.Accepted.Should().BeTrue();
+        result.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationJiraInboundWebhookRejected);
+        JsonDocument auditPayload = JsonDocument.Parse(result.DurableAuditEvent.DataJson);
+        auditPayload.RootElement.GetProperty("reasonCode").GetString().Should().Be("sealed_manifest_unverified");
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        replayGuard.Verify(
+            g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Jira_when_disposition_sync_fails_after_human_review_still_accepts_without_releasing_replay()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -1220,7 +1269,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         IntegrationsItsmInboundOptions inboundOptions,
         Mock<IFindingDispositionService>? dispositionService = null,
         bool configureDefaultFindingExists = true,
-        Mock<IItsmInboundWebhookReplayGuard>? replayGuard = null)
+        Mock<IItsmInboundWebhookReplayGuard>? replayGuard = null,
+        IManifestHashService? manifestHashService = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
         if (configureDefaultFindingExists)
             correlations
@@ -1243,7 +1294,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 .ReturnsAsync(true);
         }
 
-        return CreateSut(correlations.Object, monitor.Object, dispositionSync, replay.Object);
+        return CreateSut(
+            correlations.Object,
+            monitor.Object,
+            dispositionSync,
+            replay.Object,
+            pipelineLogger: null,
+            manifestHashService: manifestHashService,
+            authorityQueryService: authorityQueryService);
     }
 
     private static ItsmInboundWebhookSyncService CreateSut(
@@ -1251,7 +1309,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
         ItsmInboundDispositionSync dispositionSync,
         IItsmInboundWebhookReplayGuard replayGuard,
-        ILogger<ItsmInboundWebhookProcessPipeline>? pipelineLogger = null)
+        ILogger<ItsmInboundWebhookProcessPipeline>? pipelineLogger = null,
+        IManifestHashService? manifestHashService = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
         ScopeContext defaultScope = new()
         {
@@ -1272,18 +1332,20 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                     FindingId = findingId,
                     RunId = DefaultRunId,
                 });
-        IAuthorityQueryService authorityQueryService =
-            ItsmOutboundSealedManifestTestSupport.CreateAuthorityQueryService(defaultScope, DefaultRunId);
-        IManifestHashService manifestHashService =
-            ItsmOutboundSealedManifestTestSupport.CreateManifestHashService();
+        IAuthorityQueryService resolvedAuthorityQueryService =
+            authorityQueryService
+            ?? ItsmOutboundSealedManifestTestSupport.CreateAuthorityQueryService(defaultScope, DefaultRunId);
+        IManifestHashService resolvedManifestHashService =
+            manifestHashService
+            ?? ItsmOutboundSealedManifestTestSupport.CreateManifestHashService();
         ItsmInboundWebhookSyncSupport support = new(correlations, replayGuard);
         ItsmInboundWebhookProcessPipeline pipeline = new(
             support,
             inboundOptions,
             dispositionSync,
             inspectRepository.Object,
-            authorityQueryService,
-            manifestHashService,
+            resolvedAuthorityQueryService,
+            resolvedManifestHashService,
             pipelineLogger ?? NullLogger<ItsmInboundWebhookProcessPipeline>.Instance);
         ItsmInboundJiraWebhookProcessor jiraProcessor = new(
             pipeline,

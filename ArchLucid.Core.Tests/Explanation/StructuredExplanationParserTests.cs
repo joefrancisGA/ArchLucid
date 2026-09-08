@@ -207,4 +207,18 @@ public sealed class StructuredExplanationParserTests
         s.EvidenceRefs.Should().Equal("dec-1");
         s.AlternativesConsidered.Should().Equal("Keep monolith");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_object_shaped_reasoning_text()
+    {
+        const string json =
+            """{"reasoning":{"text":"Object-wrapped reasoning."},"evidenceRefs":["dec-1"],"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Object-wrapped reasoning.");
+        s.EvidenceRefs.Should().Equal("dec-1");
+        s.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
 }

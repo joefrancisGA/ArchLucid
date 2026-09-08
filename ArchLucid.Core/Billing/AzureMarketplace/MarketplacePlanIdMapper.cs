@@ -36,16 +36,30 @@ public static class MarketplacePlanIdMapper
             string? previousToken = i > 0 ? tokens[i - 1] : null;
             string? nextToken = i + 1 < tokens.Count ? tokens[i + 1] : null;
 
-            if (string.Equals(previousToken, "non", StringComparison.OrdinalIgnoreCase))
+            if (IsEnterpriseNegationToken(previousToken))
                 continue;
 
-            if (string.Equals(nextToken, "non", StringComparison.OrdinalIgnoreCase))
+            if (IsEnterpriseNegationToken(nextToken))
                 continue;
 
             return true;
         }
 
         return false;
+    }
+
+    private static bool IsEnterpriseNegationToken(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return false;
+
+        return token.Equals("non", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("not", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("no", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("never", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("anti", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("without", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("sans", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)

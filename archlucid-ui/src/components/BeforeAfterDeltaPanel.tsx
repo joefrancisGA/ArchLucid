@@ -54,6 +54,7 @@ type PilotRunDeltasPayload = {
   timeToCommittedManifestTotalSeconds?: number | null;
   manifestCommittedUtc?: string | null;
   estimatedUsdSavings?: number | null;
+  roiSourceFreshnessDisposition?: string | null;
 };
 
 type PanelData = {
@@ -64,6 +65,7 @@ type PanelData = {
   estimatedUsdSavings: number | null;
   effectiveRunId: string | null;
   measuredAvailable: boolean;
+  roiSourceFreshness: string;
 };
 
 const SECONDS_PER_HOUR = 3600;
@@ -155,6 +157,7 @@ function BeforeAfterDeltaCyclePanel({
         estimatedUsdSavings: null,
         effectiveRunId: null,
         measuredAvailable: false,
+        roiSourceFreshness: "",
       };
     }
 
@@ -165,6 +168,7 @@ function BeforeAfterDeltaCyclePanel({
     let measuredHours: number | null = null;
     let measuredAvailable = false;
     let estimatedUsdSavings: number | null = null;
+    let roiSourceFreshness = "";
 
     if (deltas !== undefined) {
       const seconds = (deltas as PilotRunDeltasPayload).timeToCommittedManifestTotalSeconds;
@@ -177,6 +181,8 @@ function BeforeAfterDeltaCyclePanel({
       if (typeof deltas.estimatedUsdSavings === "number" && Number.isFinite(deltas.estimatedUsdSavings)) {
         estimatedUsdSavings = deltas.estimatedUsdSavings;
       }
+
+      roiSourceFreshness = (deltas as PilotRunDeltasPayload).roiSourceFreshnessDisposition?.trim().toUpperCase() ?? "";
     }
 
     return {
@@ -187,6 +193,7 @@ function BeforeAfterDeltaCyclePanel({
       estimatedUsdSavings,
       effectiveRunId,
       measuredAvailable,
+      roiSourceFreshness,
     };
   }, [trialFetched, trialPayload, effectiveRunId, deltas, deltasPending]);
 
@@ -276,6 +283,18 @@ function BeforeAfterDeltaCyclePanel({
           {delta.hours >= 0
             ? `Delta: ${delta.hours.toFixed(2)} h saved per finalized review (${delta.percent.toFixed(1)}% improvement)`
             : `Delta: measured review took ${Math.abs(delta.hours).toFixed(2)} h longer than the supplied baseline`}
+        </p>
+      ) : null}
+
+      {data.roiSourceFreshness.length > 0 ? (
+        <p
+          data-testid="before-after-delta-roi-freshness"
+          className={cn("mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          ROI source freshness disposition: {data.roiSourceFreshness}
+          {data.roiSourceFreshness === "HOLD" || data.roiSourceFreshness === "WARN"
+            ? " — treat estimated USD savings as internal directional only until freshness clears."
+            : ""}
         </p>
       ) : null}
     </section>

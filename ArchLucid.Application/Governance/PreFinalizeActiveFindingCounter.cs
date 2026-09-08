@@ -49,4 +49,30 @@ internal static class PreFinalizeActiveFindingCounter
 
     internal static bool IsClosedForRiskRegister(Disposition disposition) =>
         disposition is Disposition.Remediated or Disposition.RejectedAsNotApplicable;
+
+    internal static bool IsBlockingForPreCommitGate(
+        Finding finding,
+        int effectiveMinimumSeverity,
+        IReadOnlyDictionary<string, Disposition> latestDispositionsByFindingId)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+        ArgumentNullException.ThrowIfNull(latestDispositionsByFindingId);
+
+        if (finding.IsMuted)
+            return false;
+
+        if (finding.EnforcementTier == FindingEnforcementTier.Advisory)
+            return false;
+
+        if ((int)finding.Severity < effectiveMinimumSeverity)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(finding.FindingId))
+            return true;
+
+        if (!latestDispositionsByFindingId.TryGetValue(finding.FindingId.Trim(), out Disposition disposition))
+            return true;
+
+        return !IsClosedForRiskRegister(disposition);
+    }
 }

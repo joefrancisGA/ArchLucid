@@ -27,7 +27,7 @@ import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -51,6 +51,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -218,6 +219,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        manifestVersion={props.manifestId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
         pipelineTerminalFailure={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
@@ -231,6 +233,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         judgeSkippedByCap={props.judgeSkippedByCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

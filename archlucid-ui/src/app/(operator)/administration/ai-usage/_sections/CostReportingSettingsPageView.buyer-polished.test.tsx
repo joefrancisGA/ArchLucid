@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { DEFAULT_AI_USAGE_DASHBOARD_FILTERS } from "@/lib/ai-usage-dashboard-filters";
@@ -6,15 +6,20 @@ import { buildAiUsageDashboardDerived } from "@/lib/ai-usage-dashboard-model";
 import {
   AI_USAGE_SETTINGS_CLAIM_DISCIPLINE,
   AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE,
+  AI_USAGE_SETTINGS_SOURCES,
 } from "@/lib/ai-usage-settings-evidence-copy";
 import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-billing-vocabulary";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
 import {
-  AI_USAGE_SETTINGS_FIRST_VIEWPORT_ID,
+  AI_USAGE_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AI_USAGE_SETTINGS_PAGE_DESCRIPTION_BUYER,
   AI_USAGE_SETTINGS_PAGE_DESCRIPTION_OPERATOR,
+  AI_USAGE_SETTINGS_PRIMARY_CONTENT_ID,
   AI_USAGE_SETTINGS_SKIP_LINK_LABEL,
   AI_USAGE_SETTINGS_SKIP_TARGET_ID,
 } from "./ai-usage-settings-page-copy";
@@ -118,7 +123,7 @@ function buildQuietEmptyModel(): CostReportingSettingsPageViewModel {
 }
 
 describe("CostReportingSettingsPageView buyer-polished shell (ADI)", () => {
-  it("renders skip link, workspace before follow-ups, buyer description, and hides contextual help", () => {
+  it("renders skip link, header outside workspace band, buyer description, and hides contextual help", () => {
     render(<CostReportingSettingsPageView model={buildQuietEmptyModel()} />);
 
     expect(screen.getByRole("link", { name: AI_USAGE_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -128,9 +133,10 @@ describe("CostReportingSettingsPageView buyer-polished shell (ADI)", () => {
     expect(screen.getByText(AI_USAGE_SETTINGS_PAGE_DESCRIPTION_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(AI_USAGE_SETTINGS_PAGE_DESCRIPTION_OPERATOR)).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
-    expect(screen.getByTestId("ai-usage-settings-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId(AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       AI_USAGE_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("ai-usage-settings-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("ai-usage-estimate-honesty-line")).toHaveTextContent(
       AI_USAGE_BILLING_ESTIMATES_HONESTY,
     );
@@ -138,14 +144,22 @@ describe("CostReportingSettingsPageView buyer-polished shell (ADI)", () => {
     expect(screen.queryByTestId("model-governance-ai-usage-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AI_USAGE_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const primaryContent = screen.getByTestId("ai-usage-settings-primary-content");
-    const firstViewport = screen.getByTestId(AI_USAGE_SETTINGS_FIRST_VIEWPORT_ID);
+    const primaryContent = screen.getByTestId(AI_USAGE_SETTINGS_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(AI_USAGE_SETTINGS_FIRST_VIEWPORT_TEST_ID);
     const quietEmpty = screen.getByTestId("ai-usage-period-zero-state");
     const orientationBottom = screen.getByTestId("ai-usage-settings-orientation-bottom");
+    const sourcesSection = screen.getByTestId("ai-usage-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(quietEmpty);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
+
+    for (const source of filterWhereToGoNextFollowUpLinks(AI_USAGE_SETTINGS_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

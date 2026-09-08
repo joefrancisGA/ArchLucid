@@ -107,6 +107,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_review_tier_changes()
+    {
+        ClosedLoopReasoningRequest trial = CreateRequest("Architecture note.");
+        trial.ReviewTier = ArchitectureIntelligenceReviewTier.Trial;
+
+        ClosedLoopReasoningRequest standard = CreateRequest("Architecture note.");
+        standard.ReviewTier = ArchitectureIntelligenceReviewTier.Standard;
+
+        ReviewCacheManifestBuilder.Build(trial).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(standard).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_baseline_ledger_fingerprint_changes_for_supplied_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
