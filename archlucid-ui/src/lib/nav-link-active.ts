@@ -62,7 +62,7 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
       return false;
     }
 
-    return pathname === SETTINGS_ROOT_PATH || pathname.startsWith(`${SETTINGS_ROOT_PATH}/`);
+    return pathname === SETTINGS_ROOT_PATH;
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);

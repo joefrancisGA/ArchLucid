@@ -75,7 +75,7 @@ export function OperateExecutePageHint({ className }: OperateExecutePageHintProp
 }
 
 /**
- * Governance resolution: rank-aware second line (read evidence vs where operators change policy).
+ * Policy resolution: rank-aware second line (read evidence vs where operators change policy).
  */
 export function GovernanceResolutionRankCue({ className }: { className?: string }): ReactNode {
   const rank = useNavCallerAuthorityRank();
@@ -133,7 +133,7 @@ export function AlertOperatorToolingRankCue({ className }: { className?: string 
 }
 
 /**
- * Governance dashboard: clarifies that in-product approvals still need execute on the API when rank is below operator.
+ * Approval dashboard: clarifies that in-product approvals still need execute on the API when rank is below operator.
  */
 export function GovernanceDashboardReaderActionCue({ className }: { className?: string }): ReactNode {
   const rank = useNavCallerAuthorityRank();

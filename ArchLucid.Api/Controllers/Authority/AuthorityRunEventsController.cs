@@ -132,6 +132,8 @@ public sealed class AuthorityRunEventsController(
             DegradedExecutionAgents = x.DegradedExecutionAgents,
             PackageOrigin = x.PackageOrigin,
             StructuralExecutionMode = x.StructuralExecutionMode,
+            AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
+            LegacyRunStatus = x.LegacyRunStatus,
         };
     }
 }

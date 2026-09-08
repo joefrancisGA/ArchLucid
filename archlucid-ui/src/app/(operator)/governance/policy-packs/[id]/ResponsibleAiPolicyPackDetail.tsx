@@ -55,7 +55,7 @@ import {
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -193,6 +193,7 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const versionMetric = resolveVersionMetric(packRecord);
   const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
@@ -221,7 +222,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   );
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
@@ -244,8 +245,6 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         }
         actions={headerActions}
       />
-
-      <PolicyPackDetailBuyerChrome />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>
@@ -323,7 +322,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
 
       <section className="space-y-2" aria-labelledby="policy-pack-governance-heading">
         <h3 id="policy-pack-governance-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Governance approval workflow
+          Approval workflow
         </h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW}</p>
       </section>

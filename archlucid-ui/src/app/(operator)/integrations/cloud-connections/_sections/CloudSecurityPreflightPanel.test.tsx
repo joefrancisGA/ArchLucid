@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
 import { CloudSecurityPreflightPanel } from "./CloudSecurityPreflightPanel";
+
+vi.mock("next/navigation", async (importOriginal) => extendNextNavigationVitestMock(importOriginal));
 
 describe("CloudSecurityPreflightPanel", () => {
   it("renders a read-only checklist without attestation controls (P0-2)", () => {

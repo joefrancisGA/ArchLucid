@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  RECOMMENDATION_LEARNING_WEIGHTS_OPEN_PARAM,
+  parseRecommendationLearningWeightsOpenFromSearch,
+  recommendationLearningWeightsDisclosureHrefFromSearch,
+} from "@/lib/internal/recommendation-learning-weights-disclosure-url";
 import { cn } from "@/lib/utils";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type { RecommendationLearningOperationalStatus } from "@/types/recommendation-learning-operational";
@@ -31,8 +38,37 @@ type Props = {
 };
 
 export function RecommendationLearningOpsStatusPanel(props: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const recommendationLearningWeightsParam = searchParams.get(RECOMMENDATION_LEARNING_WEIGHTS_OPEN_PARAM);
+  const [recommendationLearningWeightsOpen, setRecommendationLearningWeightsOpenState] = useState(() =>
+    parseRecommendationLearningWeightsOpenFromSearch(recommendationLearningWeightsParam),
+  );
+  const syncRecommendationLearningWeightsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        recommendationLearningWeightsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setRecommendationLearningWeightsOpen = useCallback(
+    (open: boolean) => {
+      setRecommendationLearningWeightsOpenState(open);
+      syncRecommendationLearningWeightsOpenToUrl(open);
+    },
+    [syncRecommendationLearningWeightsOpenToUrl],
+  );
   const { canMutate, onPreview, onRebuild, onRefresh, previewPanel, profile, status } = props;
   const insufficient = status.profileState === "InsufficientData";
+
+  useEffect(() => {
+    setRecommendationLearningWeightsOpenState(
+      parseRecommendationLearningWeightsOpenFromSearch(recommendationLearningWeightsParam),
+    );
+  }, [recommendationLearningWeightsParam]);
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -104,7 +140,10 @@ export function RecommendationLearningOpsStatusPanel(props: Props) {
         {profile ? (
           <article className="rounded-lg border border-al-border/70 p-4">
             <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Weighting details</h2>
-            <details open>
+            <details
+              open={recommendationLearningWeightsOpen}
+              onToggle={(event) => setRecommendationLearningWeightsOpen(event.currentTarget.open)}
+            >
               <summary className="cursor-pointer">Active profile weights</summary>
               <RecommendationLearningWeightTable
                 deltas={Object.entries(profile.categoryWeights).map(([feature, proposedWeight]) => ({

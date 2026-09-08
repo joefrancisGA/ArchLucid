@@ -11,7 +11,11 @@ export function isReviewDetailHeaderSearchPath(pathname: string): boolean {
     return false;
   }
 
-  return /^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path);
+  if (/^\/architecture\/reviews\/[^/]+(?:\/|$)/u.test(path)) {
+    return true;
+  }
+
+  return /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+(?:\/|$)/u.test(path);
 }
 
 /** Matches visible "On this page" section links for review-detail header search. */

@@ -1,24 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
 import { DevTestingResetDatabaseButton } from "@/components/dev-testing/DevTestingResetDatabaseButton";
 import { useDevTestingQuickJumpSnapshot } from "@/components/dev-testing/use-dev-testing-quick-jump-snapshot";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { DEV_CHROME_MARKER_CLASS, DEV_CHROME_SURFACE_CLASS } from "@/lib/dev-chrome-treatment";
 import { cn } from "@/lib/utils";
 
 import {
-  devTestingQuickSwitchDisclosureHrefFromSearch,
-  parseDevTestingQuickSwitchOpenFromSearch,
-} from "@/lib/dev-testing/dev-testing-quick-switch-disclosure-url";
-import {
   DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT,
+  setDevQuickSwitchPanelVisibility,
   useDevQuickSwitchPanelVisibility,
 } from "@/lib/dev-quick-switch-panel-visibility";
 import {
@@ -116,7 +113,7 @@ type DevTestingQuickSwitchPanelProps = {
   readonly runIds?: readonly string[];
 };
 
-/** Local-dev footer rail — switch shell density and dev-bypass role without restarting Next.js. */
+/** Local-dev keyboard drawer — shell density, role override, quick-jump links, and database reset. */
 export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProps): React.JSX.Element | null {
   const { recentRunIds: liveRecentRunIds } = useOperatorHomeWorkspaceActivity();
   const runIds = liveRecentRunIds.length > 0 ? liveRecentRunIds : (props.runIds ?? []);
@@ -150,151 +147,124 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
     () => resolveEffectiveDevAgentExecutionMode(agentExecutionOverride),
     [agentExecutionOverride],
   );
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const devTestingQuickSwitchOpenParam = searchParams.get("devTestingQuickSwitchOpen");
-  const [quickSwitchOpen, setQuickSwitchOpenState] = useState(() =>
-    parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam),
-  );
-
-  const syncQuickSwitchOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(devTestingQuickSwitchDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setQuickSwitchOpen = useCallback(
-    (open: boolean) => {
-      setQuickSwitchOpenState(open);
-      syncQuickSwitchOpenToUrl(open);
-    },
-    [syncQuickSwitchOpenToUrl],
-  );
-
-  useEffect(() => {
-    setQuickSwitchOpenState(parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam));
-  }, [devTestingQuickSwitchOpenParam]);
 
   if (!isDevTestingOverridesEnabled() || !mounted) {
-    return null;
-  }
-
-  if (panelHidden) {
     return null;
   }
 
   const buyerPolishedChrome = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <CollapsibleSection
-      title="Dev testing quick switch"
-      open={quickSwitchOpen}
-      onToggle={setQuickSwitchOpen}
-      sectionTestId="dev-testing-quick-switch"
-      className="mb-0 border-dashed border-neutral-300 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/40"
-      summaryLine="Shell density, role override, quick-jump links, and database reset"
+    <Dialog
+      open={!panelHidden}
+      onOpenChange={(open) => {
+        setDevQuickSwitchPanelVisibility(!open);
+      }}
     >
-      <div className="space-y-4 pt-2" aria-label="Development testing quick switch">
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Overrides persist in this browser only. Active shell:{" "}
-          <strong>{effectiveShellLabel}</strong>
-          {roleOverride !== null ? (
-            <>
-              {" "}
-              · role override <strong>{roleOverride}</strong>
-            </>
-          ) : null}
-          {" "}
-          · agent execution <strong>{effectiveAgentExecutionMode}</strong>
-          {buyerPolishedChrome ? null : " · buyer-polished chrome off (demo build)"}. Press{" "}
-          <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
-            Alt+Shift+D
-          </kbd>{" "}
-          to cycle shell modes or{" "}
-          <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
-            {DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT}
-          </kbd>{" "}
-          to hide this panel.
-        </p>
-
-        <div className="flex flex-col gap-2">
-          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Shell density
+      <DialogContent
+        data-testid="dev-testing-quick-switch"
+        className={cn(
+          DEV_CHROME_SURFACE_CLASS,
+          DEV_CHROME_MARKER_CLASS,
+          "max-h-[min(90vh,48rem)] max-w-2xl overflow-y-auto",
+        )}
+        closeAriaLabel="Close dev testing quick switch"
+      >
+        <DialogTitle>Dev testing quick switch</DialogTitle>
+        <div className="space-y-4" aria-label="Development testing quick switch">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Overrides persist in this browser only. Active shell:{" "}
+            <strong>{effectiveShellLabel}</strong>
+            {roleOverride !== null ? (
+              <>
+                {" "}
+                · role override <strong>{roleOverride}</strong>
+              </>
+            ) : null}
+            {" "}
+            · agent execution <strong>{effectiveAgentExecutionMode}</strong>
+            {buyerPolishedChrome ? null : " · buyer-polished chrome off (demo build)"}. Press{" "}
+            <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
+              {DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT}
+            </kbd>{" "}
+            to close this drawer.
           </p>
-          <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Shell density override">
-            {SHELL_OPTIONS.map((option) => {
-              const selected =
-                option.value === "build-default"
-                  ? shellOverride === null
-                  : shellOverride === option.value;
 
-              return (
-                <FilterChip
-                  key={option.value}
-                  aria-pressed={selected}
-                  data-testid={`dev-shell-option-${option.value}`}
-                  onClick={() => selectShellOverride(option.value)}
-                >
-                  {option.label}
-                </FilterChip>
-              );
-            })}
-          </FilterChipGroup>
+          <div className="flex flex-col gap-2">
+            <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+              Shell density
+            </p>
+            <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Shell density override">
+              {SHELL_OPTIONS.map((option) => {
+                const selected =
+                  option.value === "build-default"
+                    ? shellOverride === null
+                    : shellOverride === option.value;
+
+                return (
+                  <FilterChip
+                    key={option.value}
+                    aria-pressed={selected}
+                    data-testid={`dev-shell-option-${option.value}`}
+                    onClick={() => selectShellOverride(option.value)}
+                  >
+                    {option.label}
+                  </FilterChip>
+                );
+              })}
+            </FilterChipGroup>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+              Agent execution (API host)
+            </p>
+            <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Agent execution mode override">
+              {AGENT_EXECUTION_OPTIONS.map((option) => {
+                const selected = effectiveAgentExecutionMode === option.value;
+
+                return (
+                  <FilterChip
+                    key={option.value}
+                    aria-pressed={selected}
+                    data-testid={`dev-agent-execution-option-${option.value.toLowerCase()}`}
+                    onClick={() => selectAgentExecutionOverride(option.value)}
+                  >
+                    {option.label}
+                  </FilterChip>
+                );
+              })}
+            </FilterChipGroup>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+              Dev role (nav + dev-bypass API)
+            </p>
+            <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Dev role override">
+              {ROLE_OPTIONS.map((option) => {
+                const selected =
+                  option.value === "build-default" ? roleOverride === null : roleOverride === option.value;
+
+                return (
+                  <FilterChip
+                    key={option.value}
+                    aria-pressed={selected}
+                    data-testid={`dev-role-option-${option.value}`}
+                    onClick={() => selectRoleOverride(option.value)}
+                  >
+                    {option.label}
+                  </FilterChip>
+                );
+              })}
+            </FilterChipGroup>
+          </div>
+
+          <DevTestingQuickJumpLinks snapshot={quickJumpSnapshot} loading={quickJumpLoading} />
+
+          <DevTestingResetDatabaseButton />
         </div>
-
-        <div className="flex flex-col gap-2">
-          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Agent execution (API host)
-          </p>
-          <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Agent execution mode override">
-            {AGENT_EXECUTION_OPTIONS.map((option) => {
-              const selected = effectiveAgentExecutionMode === option.value;
-
-              return (
-                <FilterChip
-                  key={option.value}
-                  aria-pressed={selected}
-                  data-testid={`dev-agent-execution-option-${option.value.toLowerCase()}`}
-                  onClick={() => selectAgentExecutionOverride(option.value)}
-                >
-                  {option.label}
-                </FilterChip>
-              );
-            })}
-          </FilterChipGroup>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
-            Dev role (nav + dev-bypass API)
-          </p>
-          <FilterChipGroup className="flex flex-wrap gap-2" aria-label="Dev role override">
-            {ROLE_OPTIONS.map((option) => {
-              const selected =
-                option.value === "build-default" ? roleOverride === null : roleOverride === option.value;
-
-              return (
-                <FilterChip
-                  key={option.value}
-                  aria-pressed={selected}
-                  data-testid={`dev-role-option-${option.value}`}
-                  onClick={() => selectRoleOverride(option.value)}
-                >
-                  {option.label}
-                </FilterChip>
-              );
-            })}
-          </FilterChipGroup>
-        </div>
-
-        <DevTestingQuickJumpLinks snapshot={quickJumpSnapshot} loading={quickJumpLoading} />
-
-        <DevTestingResetDatabaseButton />
-      </div>
-    </CollapsibleSection>
+      </DialogContent>
+    </Dialog>
   );
 }

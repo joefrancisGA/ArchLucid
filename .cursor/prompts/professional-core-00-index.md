@@ -15,6 +15,8 @@ Waves 1–14 shipped **overlays and ADRs** (Working chrome, density gate ADR 007
 
 This set is **wave 15** — the Sept 2026 **paradigm gaps** diagnosis: chrome assumes a professional; the kernel still assumes an evaluator. Paste **one** `.cursor/prompts/professional-core-NN-*.md` file per Composer session.
 
+**Status:** **Shipped** — PC-01–PC-13 on `master` (#1776–#1893). Wave close: [`docs/architecture/PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md`](../../docs/architecture/PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md) + `professional-core-acceptance-guard.test.ts`. **Do not re-run this set.** Fail-closed leftovers: [`defensible-record-00-index.md`](defensible-record-00-index.md) (**DR-01–DR-16**).
+
 **Do not implement from this index.** **Do not treat as a V1 assessment scorecard.** No GTM cohorts **M-90 / M-44 / M-91 / M-92**; no reopen **TB-135 / TB-136**. **TB-645** vocabulary stays.
 
 ## Diagnosis → prompt (maps to Sept 2026 review)

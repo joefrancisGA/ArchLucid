@@ -33,7 +33,7 @@ One invocation runs four phases end to end, with **no owner approval gate betwee
 
 - **Screenshot** (required) — attach one or more images to the message.
 - **`<ID>`** (optional) — owner workbook route shorthand (e.g. `ASK`, `GFN`). When present, resolve path/section from `.local/owner/ui_route_traffic_estimates.md` for orientation and for the Phase 4 score write.
-- **`"<optional context>"`** (optional) — free text: intended persona, demo mode (buyer-polished vs full architect workspace), what the user was trying to do, known env quirks.
+- **`"<optional context>"`** (optional) — free text: intended persona, workspace mode (**Working** vs **Guided** / demo / trial), what the user was trying to do, known env quirks. When omitted, **default Working** (ADR 0080).
 - **`--rate-only`** (optional) — stop after Phase 1. No code changes, no commit, no workbook write. Also honor plain-language equivalents in the context text ("just rate this", "critique only").
 
 Examples:
@@ -67,13 +67,35 @@ If **no screenshot** is attached, stop:
 
 ---
 
-## Critique brief (use verbatim)
+## Workspace mode (critique stance)
 
-This brief is the evaluation stance for Phase 1 — pass it to the Opus High subagent **exactly**, without paraphrase or softening:
+**Default: Working** — unless the user context or screenshot clearly indicates Guided, demo, frictionless trial, or static showcase.
+
+Resolve mode in Step 0 before Phase 1:
+
+| Signal | Mode | Brief |
+|--------|------|-------|
+| No mode stated; production architect / review / desk screenshot | **Working** | Working brief below |
+| User text mentions Guided, tour, first-run, teaching chrome, demo, trial, buyer-polished shell, showcase | **Guided/demo** | Guided/demo brief below |
+| Route is known eval-only (marketing, frictionless trial, static showcase env) | **Guided/demo** | Guided/demo brief below |
+
+Record the resolved mode in chat before Phase 1. Label as **(inferred from screenshot)** when not user-confirmed.
+
+---
+
+## Critique briefs (use verbatim — pick one by mode)
+
+Pass **exactly one** brief to the Opus High subagent — **without paraphrase or softening**. **Default to Working** unless Step 0 resolved Guided/demo.
+
+### Working brief (default)
+
+> Critique this as the design lead for an all-day professional architecture review instrument — not a buyer demo or first-run walkthrough. Be brutally honest. Focus on resume-ability after interruption, information density without hiding safety, status honesty, keyboard and shortcut discoverability for repeat professionals, irreversible-action safety, and sealed-record trust. **Do not** recommend remediations whose only goal is first-run buyer confidence, sample CTAs, wizard collapse, hiding shortcut chips, or softening engineering identifiers behind buyer-friendly copy. Produce a complete prioritized fix backlog covering every concrete instrument issue on this screen. Tag each item P0, P1, or P2. Tag buyer-walkthrough-only items `buyer-walkthrough` — they must not ship in Working mode (Phase 2 refuses them).
+
+### Guided/demo brief (eval seats only)
 
 > Critique this as if you were the design lead for Microsoft Azure Portal. Be brutally honest. Focus on enterprise UX, information architecture, visual hierarchy, trustworthiness, accessibility, discoverability, and buyer confidence. Produce a complete prioritized fix backlog covering every concrete issue you find on this screen, no matter how small. Tag each item P0, P1, or P2 by severity.
 
-Apply that stance to **each** attached screenshot. If multiple images show a flow, critique the flow as a sequence and still emit one consolidated fix backlog.
+Apply the chosen brief to **each** attached screenshot. If multiple images show a flow, critique the flow as a sequence and still emit one consolidated fix backlog.
 
 ---
 
@@ -83,8 +105,9 @@ Apply that stance to **each** attached screenshot. If multiple images show a flo
 
 1. Confirm at least one image attachment; otherwise stop.
 2. Parse optional **ID** (uppercase if present), optional context text, and `--rate-only`.
-3. If ID is present and `.local/owner/ui_route_traffic_estimates.md` exists, look up Path / Section / current Scores / Notes (read-only) to orient Phases 1 and 4.
-4. Resolve the local file path of each attached screenshot — Phase 1 needs it to attach the images to the subagent.
+3. **Resolve workspace mode** per **Workspace mode (critique stance)** — default **Working** unless context or route is clearly Guided / demo / trial / showcase. Print `Resolved mode: Working` or `Resolved mode: Guided/demo` before Phase 1.
+4. If ID is present and `.local/owner/ui_route_traffic_estimates.md` exists, look up Path / Section / current Scores / Notes (read-only) to orient Phases 1 and 4.
+5. Resolve the local file path of each attached screenshot — Phase 1 needs it to attach the images to the subagent.
 
 ---
 
@@ -102,14 +125,30 @@ Launch **one** `Task` subagent:
 
 The subagent prompt must contain:
 
-1. The **critique brief** above, verbatim.
+1. The resolved **workspace mode** and the matching **critique brief** above, verbatim (Working brief by default; Guided/demo brief only when Step 0 resolved eval context).
 2. The route ID / path / section / current scores when known, and the user's context text.
-3. The product-language and Carbon/Fluent grounding rules from **Guardrails**, plus pointers to `docs/library/UI_DESIGN_SYSTEM.md` and (only when buyer confidence is in play) `docs/go-to-market/BUYER_PERSONAS.md`.
+3. The product-language and Carbon/Fluent grounding rules from **Guardrails**, plus pointers to `docs/library/UI_DESIGN_SYSTEM.md` and (only when mode is **Guided/demo**) `docs/go-to-market/BUYER_PERSONAS.md`.
 4. Instruction to skim the matching route component(s) via Grep/Glob **only** to name concrete fix targets — file paths make Phase 2 implementable.
 5. The seven critique lenses and the fix backlog item schema below.
 6. The **rating output contract** below — the subagent's final message must end with it.
 
 #### Critique lenses (subagent must cover all)
+
+Use the lens set that matches the resolved mode. **Working** is the default.
+
+**Working lenses**
+
+| Lens | Ask |
+|------|-----|
+| Resume-ability | After interruption, can a repeat professional re-enter the task without re-reading chrome or losing draft state cues? |
+| Information density | Is safety-critical status visible without buyer-style simplification? Are engineering identifiers available behind existing disclosures? |
+| Visual hierarchy | Does hierarchy serve the primary review job — not first-run onboarding? |
+| Trustworthiness | Status honesty, provenance, no fake polish, no unexplained empty chrome, sealed-record cues |
+| Accessibility | Contrast, hit targets, focus order cues, text alternatives, tag/color-only status |
+| Keyboard & shortcuts | Are shortcut chips, atlas hints, and power-user paths discoverable without tribal knowledge? |
+| Instrument continuity | Would hiding chips, collapsing wizards, or sample CTAs break an all-day professional workflow? Tag buyer-walkthrough-only fixes `buyer-walkthrough`. |
+
+**Guided/demo lenses** (eval seats only — use when Step 0 resolved Guided/demo)
 
 | Lens | Ask |
 |------|-----|
@@ -135,6 +174,7 @@ Every concrete issue goes in the backlog. Tag severity honestly — **do not** p
 | **Evidence** | What in the screenshot proves it (inferred as needed) |
 | **Fix direction** | Concrete UI/IA change; name likely file/component when known |
 | **Acceptance** | Observable pass condition on this screen |
+| **Tags** (optional) | `buyer-walkthrough` when the fix exists only for first-run buyer confidence, sample CTAs, wizard collapse, or hiding shortcut chips — **Phase 2 skips these on Working** |
 
 Severity guide:
 
@@ -185,10 +225,10 @@ Launch **one** `Task` subagent:
 
 The subagent prompt must contain:
 
-1. The **full fix backlog verbatim** from Phase 1 (P0, P1, and P2), including each item's Fix direction and Acceptance.
+1. The resolved **workspace mode** from Step 0 and the **full fix backlog verbatim** from Phase 1 (P0, P1, and P2), including each item's Fix direction, Acceptance, and Tags.
 2. Route ID, path, and the named component files.
-3. Repo conventions it cannot infer: `archlucid-ui/AGENTS.md`, `docs/library/UI_DESIGN_SYSTEM.md`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`, `.cursor/rules/Agent-Working-Tree-Safety.mdc`.
-4. Scope fence: implement **every** backlog item (P0, P1, P2) except hypothesis / needs-repro; no drive-by refactors beyond what backlog items require; no `TB-###` edits; no commits or pushes — the parent commits.
+3. Repo conventions it cannot infer: `archlucid-ui/AGENTS.md`, `docs/library/UI_DESIGN_SYSTEM.md`, `.cursor/rules/UI-Enterprise-Design-Standard.mdc`, `.cursor/rules/Agent-Working-Tree-Safety.mdc`, ADR 0080 (`docs/architecture/adrs/0080-working-seat-never-buyer-polished.md`).
+4. Scope fence: implement **every** backlog item (P0, P1, P2) except hypothesis / needs-repro and except items tagged **`buyer-walkthrough`** when mode is **Working** — mark those **skipped** with reason `buyer-walkthrough forbidden on Working seat (ADR 0080 / WS-07)`; no drive-by refactors beyond what backlog items require; no `TB-###` edits; no commits or pushes — the parent commits.
 5. Verification duty: update or add unit tests / snapshots for changed components and run the scoped checks below.
 6. Reporting duty: return **per backlog item** a status of `shipped` / `partial` / `skipped` with a one-line reason, plus the exact list of changed file paths.
 
@@ -271,7 +311,8 @@ Use `--replace` only when the user asks; the default append keeps prior owner no
 | Screenshots | `<filenames>` |
 | Rating model | `claude-opus-5-thinking-high` |
 | Implementation model | `composer-2.5` |
-| Stance | Azure Portal design lead (brutal) |
+| Workspace mode | `Working` / `Guided/demo` |
+| Stance | Working instrument (default) / Azure Portal buyer-confidence (Guided/demo only) |
 
 ### Critique
 

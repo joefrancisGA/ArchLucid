@@ -10,5 +10,9 @@ export function DecisionRegisterBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return <DecisionRegisterClaimOrientationStrip />;
+  return (
+    <div className="mb-4 text-left" data-testid="decision-register-orientation-bottom">
+      <DecisionRegisterClaimOrientationStrip />
+    </div>
+  );
 }

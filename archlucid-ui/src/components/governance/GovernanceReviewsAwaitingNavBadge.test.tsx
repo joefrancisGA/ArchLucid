@@ -6,6 +6,13 @@ import { getGovernanceReviewsAwaitingAction } from "@/lib/api/governance-stickin
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
+vi.mock("@/hooks/use-operator-attention-summary", () => ({
+  useOperatorAttentionSummary: () => ({
+    summaries: [],
+    surfaceCounts: {},
+  }),
+}));
+
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getGovernanceReviewsAwaitingAction: vi.fn(),
 }));
@@ -52,7 +59,7 @@ describe("GovernanceReviewsAwaitingNavBadge (TB-2144)", () => {
     const badge = await screen.findByTestId("governance-awaiting-action-nav-badge");
 
     expect(badge).toHaveTextContent("2");
-    expect(badge).toHaveAttribute("aria-label", "2 reviews awaiting action");
+    expect(badge).toHaveAttribute("aria-label", "2 reviews awaiting approval");
   });
 
   it("does not refetch awaiting reviews on remount while query data is still fresh", async () => {

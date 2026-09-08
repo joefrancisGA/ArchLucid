@@ -5,6 +5,8 @@ import PostAuthBootstrapPage, { metadata } from "@/app/(operator)/auth/bootstrap
 import {
   AUTH_BOOTSTRAP_PAGE_DESCRIPTION,
   AUTH_BOOTSTRAP_PAGE_TITLE,
+  AUTH_BOOTSTRAP_SKIP_LINK_LABEL,
+  AUTH_BOOTSTRAP_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-bootstrap-page-copy";
 
 vi.mock("@/app/(operator)/auth/bootstrap/PostAuthBootstrapClient", () => ({
@@ -21,11 +23,18 @@ describe("PostAuthBootstrapPage (TB-1465)", () => {
     expect(metadata.description).toBe(AUTH_BOOTSTRAP_PAGE_DESCRIPTION);
   });
 
-  it("wraps the client in Suspense with branded auth-flow loading chrome", () => {
+  it("wraps the client in Suspense with buyer chrome on the loading fallback", () => {
     render(<PostAuthBootstrapPage />);
 
-    expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: AUTH_BOOTSTRAP_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${AUTH_BOOTSTRAP_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId("post-auth-bootstrap-primary-content")).toBeInTheDocument();
+    expect(screen.getByTestId("post-auth-bootstrap-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("post-auth-bootstrap-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("post-auth-bootstrap-loading")).toBeInTheDocument();
     expect(screen.getByTestId("post-auth-bootstrap-loading-skeleton-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("post-auth-bootstrap-breadcrumb")).not.toBeInTheDocument();
   });
 });

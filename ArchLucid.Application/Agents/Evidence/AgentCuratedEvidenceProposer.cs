@@ -127,6 +127,9 @@ public sealed class AgentCuratedEvidenceProposer(
             if (payload is null || string.IsNullOrWhiteSpace(payload.Title))
                 return null;
 
+            if (string.IsNullOrWhiteSpace(payload.Description))
+                return null;
+
             if (!IsSupportedType(payload.Type))
                 return null;
 

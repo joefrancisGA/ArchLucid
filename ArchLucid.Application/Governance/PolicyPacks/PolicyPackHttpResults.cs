@@ -13,6 +13,7 @@ public enum PolicyPackHttpOutcome
     ValidationFailed,
     CrossTenantDistributionBlocked,
     Conflict,
+    Forbidden,
 }
 
 public sealed record PolicyPackHttpResult<T>

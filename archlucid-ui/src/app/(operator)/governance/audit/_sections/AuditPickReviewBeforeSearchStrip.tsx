@@ -48,7 +48,7 @@ export function AuditPickReviewBeforeSearchStrip(
         Pick a review before searching the audit trail
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Audit events are scoped to an architecture package. Choose one to filter governance activity.
+        Audit events are scoped to an architecture package. Choose one to filter approval activity.
       </p>
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
