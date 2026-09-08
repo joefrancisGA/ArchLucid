@@ -63,6 +63,7 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
     private static void SanitizeArchitectureRequest(ArchitectureRequest request)
     {
+        request.RequestId = SanitizePromptIdentifier(request.RequestId);
         request.SystemName = AzureResourceTagPromptSanitizer.SanitizeScalar(request.SystemName);
         request.Environment = AzureResourceTagPromptSanitizer.SanitizeScalar(request.Environment);
         request.Description = AzureResourceTagPromptSanitizer.SanitizeScalar(request.Description);
@@ -73,8 +74,16 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
     private static void SanitizeEvidencePackageScalars(AgentEvidencePackage evidence)
     {
+        evidence.EvidencePackageId = SanitizePromptIdentifier(evidence.EvidencePackageId);
         evidence.SystemName = AzureResourceTagPromptSanitizer.SanitizeScalar(evidence.SystemName);
         evidence.Environment = AzureResourceTagPromptSanitizer.SanitizeScalar(evidence.Environment);
+    }
+
+    private static string SanitizePromptIdentifier(string? value)
+    {
+        string escaped = CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(value);
+
+        return AzureResourceTagPromptSanitizer.SanitizeScalar(escaped);
     }
 
     private static void SanitizeRequestEvidence(RequestEvidence request)
