@@ -9935,11 +9935,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 15
-- **bugs-found:** 25
+- **hunts:** 16
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — stable-cache alerts-only persistence; lifecycle invalidation omitted userAttentionSummary; corePilotCommitContext survived scope switch
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — archived runs inflated home preview tab counts while workspace metrics excluded them
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9979,6 +9979,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `writeOperatorShellStableCache` — `alertsInboxSummary` persisted without `isStable*` gate unlike trial/catalog/budget snapshots; hydrate may seed stale open-count badges before shell-status refetch — **hit 2026-09-05 (#800):** alerts-only payload written when trial lifecycle unstable; fixed by requiring `hasStableSnapshot` before any session write (`operator-shell-stable-cache.test.ts`).
 - [x] (proven) `invalidateOperatorHomeRunsCaches` — lifecycle invalidation omits `userAttentionSummary`; post-commit attention badges may stay stale until 30s `staleTime` expires — **hit 2026-09-05 (#800):** added `userAttentionSummary` invalidation alongside home runs caches (`operator-query-invalidation.test.ts`).
 - [x] (proven) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch — **hit 2026-09-05 (#800):** added to `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS` (`operator-scope-storage.test.ts`).
+- [x] (proven) `deriveHomePreviewTabCounts` — archived runs inflated home preview tab counts while `deriveOperatorHomeWorkspaceMetrics` and `deriveAttentionSurfaceCounts` already skip `isArchived` — **hit 2026-09-08 seed hunt #1345 (seed→hit):** preview tab derivation counted archived approved/attention rows; fixed by filtering archived runs before `deriveRunsDashboardTabCounts`; regressions in `excludes archived runs from home preview tab counts` and `excludes archived runs from attention and approved tab counts`
+
+2026-09-08 seed hunt #1345 (seed→hit): reseeded home counting parity after HOM reconciliation commits; proved archived-run tab count inflation on Overview preview; 15 scoped home-counting tests passed.
 
 2026-09-05 thorough hunt #800: proved stable-cache alerts-only persistence, lifecycle userAttentionSummary invalidation gap, and corePilotCommitContext scope-cache leak.
 
