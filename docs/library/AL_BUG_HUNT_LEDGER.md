@@ -232,11 +232,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 9
-- **bugs-found:** 5
+- **hunts:** 10
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — SqlTenantSettingsRepository accepted SettingValue longer than NVARCHAR(512)
+- **last-bug:** 2026-09-08 — RealizedValueAttestationUpsertValidation NoteMaxLength exceeded TenantSettings JSON budget
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -265,8 +265,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-07 thorough hunt #1262 (dry): cheap-disproof closed both open candidates; three scoped unit tests passed.
 
 - [x] (proven) `SqlTenantSettingsRepository.UpsertCoreAsync` accepted `SettingValue` payloads longer than migration `173` `NVARCHAR(512)` — **hit 2026-09-08:** realized-value attestation JSON at `NoteMaxLength` 2000 exceeds column limit; added `TenantSettingsWriteGuard.EnsureSettingValueLength` before MERGE; regressions in `EnsureSettingValueLength_rejects_values_longer_than_migration_nvarchar_512_limit` and `Serialized_realized_value_attestation_at_note_max_length_exceeds_migration_setting_value_limit`.
-- [ ] (candidate) `RealizedValueAttestationUpsertValidation.NoteMaxLength` (2000) exceeds what `dbo.TenantSettings.SettingValue` can store (512) — repository now rejects oversize writes; application validation should align note limits with serialized JSON budget.
-- [ ] (candidate) `CachingTenantSettingsRepository` concurrent `DeleteAsync` on same key clears `WriteInFlightKeys` before first delete wrapper completes — same non-refcounted slot pattern as prior upsert rows; regressions suggest latest inner value wins.
+- [x] (proven) `RealizedValueAttestationUpsertValidation.NoteMaxLength` (2000) exceeds what `dbo.TenantSettings.SettingValue` can store (512) — **hit 2026-09-08 (#1322):** HTTP/application validation allowed 2000-char notes while serialized attestation JSON exceeds migration `NVARCHAR(512)`; aligned `NoteMaxLength` to 204 (both notes populated), added `EnsureSerializedAttestationFitsOrThrow` before upsert, shared `TenantSettingsSchemaLimits.SettingValueMaxLength`; regressions `SaveAttestationAsync_throws_when_serialized_attestation_exceeds_tenant_setting_value_limit`, `SaveAttestationAsync_persists_when_both_notes_at_note_max_length`, `Serialized_realized_value_attestation_at_note_max_length_fits_migration_setting_value_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository` concurrent `DeleteAsync` on same key clears `WriteInFlightKeys` before first delete wrapper completes — **cheap-disproof 2026-09-08 (#1322):** same non-refcounted slot as prior upsert rows; inner delete idempotency plus generation bumps still expose absent final state; parity with `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag` and delete cached-hit regressions (#1239)
+
+2026-09-08 thorough hunt #1322 (hit): proved attestation note validation vs TenantSettings JSON budget mismatch; cheap-disproof closed concurrent delete write-in-flight candidate.
 
 2026-09-08 seed hunt #1308: proved SettingValue length guard gap; reseeded attestation validation alignment and concurrent delete write-in-flight candidates.
 

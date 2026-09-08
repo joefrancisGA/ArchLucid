@@ -1489,3 +1489,4 @@
 {"at":"2026-09-08T13:09:02.1586416Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
 {"at":"2026-09-08T13:14:33.7857685Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
 {"at":"2026-09-08T13:21:27.8821905Z","zoneId":"core-tenancy-commercial","outcome":"dry"}
+{"at":"2026-09-08T13:55:15.9579444Z","zoneId":"tenant-settings-sql","outcome":"hit"}
