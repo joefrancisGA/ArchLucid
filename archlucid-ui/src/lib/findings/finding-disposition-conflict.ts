@@ -1,6 +1,7 @@
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api-types";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { readTrimmedString } from "@/lib/api-problem";
+import { isApiRequestError } from "@/lib/api-request-error";
 
 export type FindingDispositionConflictDetail = {
   readonly eventId: string;
@@ -56,4 +57,23 @@ export function formatFindingDispositionConflictMessage(
   conflict: FindingDispositionConflictDetail,
 ): string {
   return `Another operator recorded ${conflict.disposition} at ${conflict.occurredAtUtc}. Reload the current disposition, then amend or record a correction if needed.`;
+}
+
+export const FINDING_DISPOSITION_BULK_BATCH_NOT_APPLIED_COPY =
+  "The batch was not applied.";
+
+export function formatFindingDispositionBulkConflictMessage(
+  conflict: FindingDispositionConflictDetail,
+): string {
+  return `${FINDING_DISPOSITION_BULK_BATCH_NOT_APPLIED_COPY} ${formatFindingDispositionConflictMessage(conflict)}`;
+}
+
+export function readFindingDispositionConflictFromError(
+  error: unknown,
+): FindingDispositionConflictDetail | null {
+  if (!isApiRequestError(error) || error.httpStatus !== 409) {
+    return null;
+  }
+
+  return readFindingDispositionConflictDetail(error.problem);
 }

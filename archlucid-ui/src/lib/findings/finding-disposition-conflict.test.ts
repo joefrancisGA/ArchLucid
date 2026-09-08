@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatFindingDispositionBulkConflictMessage,
   formatFindingDispositionConflictMessage,
   readFindingDispositionConflictDetail,
 } from "@/lib/findings/finding-disposition-conflict";
@@ -44,5 +45,19 @@ describe("finding-disposition-conflict (DR-08)", () => {
 
     expect(message).toContain("Remediated");
     expect(message).toContain("Reload");
+  });
+
+  it("formatFindingDispositionBulkConflictMessage says the batch was not applied", () => {
+    const message = formatFindingDispositionBulkConflictMessage({
+      eventId: "11111111-1111-1111-1111-111111111111",
+      findingId: "finding-1",
+      disposition: "Accepted",
+      reviewerUserId: "alice",
+      occurredAtUtc: "2026-09-06T12:00:00.000Z",
+      currentDispositionRowVersionBase64: "AQID",
+    });
+
+    expect(message).toContain("The batch was not applied.");
+    expect(message).toContain("Accepted");
   });
 });
