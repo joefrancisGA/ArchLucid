@@ -80,8 +80,15 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
+const evalChrome = { enabled: true };
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChrome.enabled,
+}));
+
 describe("DriftWorkbenchClient", () => {
   beforeEach(() => {
+    evalChrome.enabled = true;
     mockFetchDiffs.mockClear();
     mockFetchChanges.mockClear();
   });
@@ -221,6 +228,7 @@ describe("DriftWorkbenchClient", () => {
   });
 
   it("collapses advanced-operations guidance behind a summary", async () => {
+    evalChrome.enabled = false;
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DriftWorkbenchClient />);
 
