@@ -377,7 +377,7 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
 }
 
 export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
-  readonly sources?: readonly EvidenceSourceLink[];
+  readonly sources?: readonly EvidenceOrientationLink[];
 } = {}): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_SAML_SOURCES;
 
