@@ -132,7 +132,7 @@ function extractSealedFromFindingsSnapshot(detail: RunDetail): QuickDecisionFind
         findings,
       },
     ],
-  } as RunDetail;
+  } as unknown as RunDetail;
 
   return tagFindingStreamBand(extractQuickDecisionFindingsFromRunDetail(pseudoDetail), "sealed");
 }
@@ -156,7 +156,7 @@ function extractSealedFromBuyerSummarySyntheticResults(detail: RunDetail): Quick
   const pseudoDetail = {
     ...detail,
     results: syntheticResults,
-  } as RunDetail;
+  } as unknown as RunDetail;
 
   return tagFindingStreamBand(extractQuickDecisionFindingsFromRunDetail(pseudoDetail), "sealed");
 }
@@ -198,7 +198,7 @@ export function extractAgentQuickDecisionFindingsFromRunDetail(detail: RunDetail
   const pseudoDetail = {
     ...detail,
     results: agentResults,
-  } as RunDetail;
+  } as unknown as RunDetail;
 
   return tagFindingStreamBand(extractQuickDecisionFindingsFromRunDetail(pseudoDetail), "agent");
 }
