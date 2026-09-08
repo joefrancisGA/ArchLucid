@@ -246,9 +246,10 @@ export function ExtractUploadSettingsPageClient() {
                 </summary>
                 <pre
                   className={cn(
-                    "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md bg-neutral-950 p-3 text-neutral-100",
+                    "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900",
                     OPERATOR_TYPOGRAPHY.micro,
                   )}
+                  data-testid="extract-upload-advanced-command"
                 >
                   <code className="whitespace-pre-wrap break-words">
                     {buildAdvancedGetArchLucidAzurePackageCommandLine()}
