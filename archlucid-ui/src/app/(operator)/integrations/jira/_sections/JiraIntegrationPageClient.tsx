@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -40,6 +40,7 @@ import {
 } from "@/lib/jira-integration-page-copy";
 import {
   JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  JIRA_INTEGRATION_PAGE_LEAD,
   JIRA_INTEGRATION_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_SKIP_LINK_LABEL,
   JIRA_INTEGRATION_SKIP_TARGET_ID,
@@ -64,6 +65,7 @@ import { JiraConnectionSettingsPanel } from "./JiraConnectionSettingsPanel";
 import { JiraConnectionTestPanel } from "./JiraConnectionTestPanel";
 import { JiraIntegrationAside } from "./JiraIntegrationAside";
 import { JiraIntegrationPageHeader } from "./JiraIntegrationPageHeader";
+import { JiraIntegrationSourcesOrientationStrip } from "./JiraIntegrationSourcesOrientationStrip";
 import { JiraWorkspaceRoutingPanel } from "./JiraWorkspaceRoutingPanel";
 
 export function JiraIntegrationPageClient(): React.ReactElement {
@@ -264,6 +266,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const credentialStatus = resolveJiraCredentialStatusLabel(settings, credentialsReady);
   const connectionLabel = connection?.label?.trim();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const hasUnsavedSettingsEdits =
     settings !== null
     && !settingsLoadFailed
@@ -415,17 +418,18 @@ export function JiraIntegrationPageClient(): React.ReactElement {
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="jira-integration-buyer-intro">
+              <p className={readingBodyClass} data-testid="jira-integration-intro">
+                {JIRA_INTEGRATION_PAGE_LEAD}
+              </p>
+            </div>
             {workspaceBody}
           </div>
         ) : (
           workspaceBody
         )}
 
-        {buyerPolishedShell ? (
-          <div data-testid="jira-integration-orientation-bottom">
-            <JiraIntegrationEvidenceOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <JiraIntegrationSourcesOrientationStrip /> : null}
       </div>
     </OperatorPageContainer>
     <LivelihoodDocumentGuardDialog
