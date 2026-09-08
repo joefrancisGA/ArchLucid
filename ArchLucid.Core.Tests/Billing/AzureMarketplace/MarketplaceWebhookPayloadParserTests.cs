@@ -228,6 +228,27 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Should().Be(nameof(TenantTier.Standard));
     }
 
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("contoso-no-enterprise-standard")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("never-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("sans-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
     [Theory]
     [InlineData("contoso/enterprise/monthly")]
     [InlineData("contoso:enterprise:annual")]

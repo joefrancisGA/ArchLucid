@@ -7202,11 +7202,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — `anti-enterprise-*` / `without-enterprise-*` marketplace planId false-positive Enterprise tier
+- **last-bug:** 2026-09-08 — `no-enterprise-*` / `never-enterprise-*` marketplace planId false-positive Enterprise tier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7221,6 +7221,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `not-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 (#1315):** #1169 guarded `non` only; `not-enterprise-standard` still matched delimiter-bounded `enterprise`; fixed by skipping enterprise when adjacent token is `not`; regression `TierStorageCodeFromPlanId_does_not_false_positive_on_not_enterprise_delimited_plan`
 - [x] (valid-no-repro) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — Professional 10-seat base bundle vs Team 10-seat cap collision — **cheap-disproof 2026-09-08 (#1319):** PRICING §3 intentionally overlaps Team max (10 seats + 1 workspace) with Professional base bundle; `BillingSubscriptionSnapshot.TierCode` stores tenant tier (`Standard`) not checkout SKU; seat-cap inference cannot disambiguate without breaking Team add-on max or persisting checkout plan metadata; regression documents boundary `ResolveCommercialTierLabel_returns_team_at_ten_seat_one_workspace_subscription_boundary`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `anti-enterprise-*` / `without-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 hunt #1319:** #1315 guarded `non`/`not` only; `contoso-anti-enterprise-standard` and `without-enterprise-plan` still matched delimiter-bounded `enterprise`; fixed with shared `IsEnterpriseNegationToken`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_anti_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_without_enterprise_delimited_plan`
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `no-enterprise-*` / `never-enterprise-*` / `sans-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 seed hunt #1320:** #1319 guarded `non`/`not`/`anti`/`without` only; `contoso-no-enterprise-standard`, `never-enterprise-plan`, and `sans-enterprise-plan` still matched delimiter-bounded `enterprise`; extended `IsEnterpriseNegationToken` with `no`, `never`, and `sans`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan`
+- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — IPv4 literal domains (`127.0.0.1`, `8.8.8.8`) pass `IsValidDomain` and can be proposed into tenant sign-in domain registry despite lacking public DNS ownership semantics — reachability via `TenantAuthDomainVerificationService.ProposeDomainAsync`; cheap-disproof pending on whether unverified rows affect routing
+
+2026-09-08 seed hunt #1320 (hit): reseeded Identity/Billing/Budgeting after negation-token sweep; proved `no`/`never`/`sans` enterprise negation gaps; seeded IPv4 domain literal candidate.
 
 2026-09-08 thorough hunt #1319 (hit): cheap-disproved Team/Professional 10-seat collision as intentional packaging boundary; proved `anti`/`without` enterprise negation gaps symmetric to #1315; scoped CommercialTenant unit tests passed.
 

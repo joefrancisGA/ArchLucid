@@ -55,8 +55,11 @@ public static class MarketplacePlanIdMapper
 
         return token.Equals("non", StringComparison.OrdinalIgnoreCase)
                || token.Equals("not", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("no", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("never", StringComparison.OrdinalIgnoreCase)
                || token.Equals("anti", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("without", StringComparison.OrdinalIgnoreCase);
+               || token.Equals("without", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("sans", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)
