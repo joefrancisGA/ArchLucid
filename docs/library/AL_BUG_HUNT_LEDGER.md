@@ -1306,11 +1306,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — deep-linked review switch left publish-to-product toggle checked for prior review
+- **last-bug:** 2026-09-08 — in-flight reasoning POST applied stale results after deep-linked runId switch mid-request
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1326,6 +1326,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Deep-linked `runId` switch leaves stale `prioritiesRaw` when next review has no `declaredPriorities` — **hit 2026-09-07 seed hunt #1292 (seed→hit):** hydration effect only updated priorities when the new payload was non-empty; fixed by always assigning `hydratedPrioritiesFromQuery`; regression in `clears declared priorities when deep-linked review switches to one without priorities`
 - [x] (proven) Clearing deep-linked `runId` from the URL leaves stale `activeRunId`, hydrated intake, and analyze affordances — **hit 2026-09-08 seed hunt #1333:** `useArchitectureIntelligenceProductContext` reset intake only on operator scope change, not when both `runId` and `contextRunId` search params are absent; fixed by resetting freeform intake when no URL run scope remains; regression in `clears hydrated intake and review scope when deep-linked runId is removed from the URL`
 - [x] (proven) Deep-linked review switch leaves publish-to-product toggle checked for the prior review — **hit 2026-09-08:** inbound-run effect cleared reasoning but not `publishToProduct`; fixed by resetting toggle on `inboundRunId` change; regression in `clears publish-to-product toggle when deep-linked review switches to another review`
+- [x] (proven) In-flight architecture reasoning POST applies stale results after deep-linked `runId` switch — **hit 2026-09-08 seed hunt #1342 (seed→hit):** `runReasoningWithOptions` always called `setRunState` on completion while inbound-run reset only cleared synchronous state; fixed with `actionGenerationRef` invalidation on scope/run reset and stale-completion guards in async actions; regression in `ignores stale reasoning results when inbound runId switches before run completes`
+
+2026-09-08 seed hunt #1342 (seed→hit): reseeded async action races; proved in-flight reasoning carryover on deep-linked run switch; 15 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-08 thorough hunt (hit): proved publish-toggle carryover on deep-linked review switch; 11 scoped `ArchitectureIntelligencePageClient` tests passed.
 

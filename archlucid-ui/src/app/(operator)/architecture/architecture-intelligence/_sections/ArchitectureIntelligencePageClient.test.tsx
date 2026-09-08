@@ -544,6 +544,111 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByText("Stale finding from previous review")).not.toBeInTheDocument();
   });
 
+  it("ignores stale reasoning results when inbound runId switches before run completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveRunPost: (() => void) | null = null;
+    const runPostGate = new Promise<void>((resolve) => {
+      resolveRunPost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          await runPostGate;
+
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "stale-in-flight",
+                      title: "Stale in-flight finding",
+                      severity: "High",
+                      conclusion: "Must not appear after run switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolveRunPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale in-flight finding")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+  });
+
   it("clears publish-to-product toggle when deep-linked review switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
