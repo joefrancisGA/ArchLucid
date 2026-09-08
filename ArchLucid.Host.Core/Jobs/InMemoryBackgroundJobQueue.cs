@@ -138,7 +138,11 @@ public sealed class InMemoryBackgroundJobQueue(
                     afterSuccess.State == BackgroundJobState.Canceled)
                     continue;
 
-                _info[item.JobId] = afterSuccess with
+                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeSuccessWrite) ||
+                    beforeSuccessWrite.State == BackgroundJobState.Canceled)
+                    continue;
+
+                _info[item.JobId] = beforeSuccessWrite with
                 {
                     State = BackgroundJobState.Succeeded,
                     CompletedUtc = TimeProvider.System.GetUtcNow(),

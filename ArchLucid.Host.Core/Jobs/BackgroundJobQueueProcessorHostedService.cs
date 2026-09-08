@@ -171,6 +171,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
             await repository.MarkSucceededAsync(jobId, blobName, file.FileName, file.ContentType, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
         }
