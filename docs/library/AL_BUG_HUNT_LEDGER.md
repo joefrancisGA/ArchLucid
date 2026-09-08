@@ -1598,11 +1598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — terminal failure path skipped second cancel re-read before `MarkFailedTerminalAsync`
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — in-memory terminal failure path overwrote cancel between first re-read and Failed assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

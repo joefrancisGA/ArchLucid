@@ -1460,3 +1460,4 @@
 {"at":"2026-09-08T00:16:02.0632003Z","zoneId":"core-azure-extractor","outcome":"hit"}
 {"at":"2026-09-08T00:25:07.556201Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-08T00:29:51.1103217Z","zoneId":"host-composition","outcome":"hit"}
+{"at":"2026-09-08T00:36:20.4708993Z","zoneId":"host-core-jobs","outcome":"hit"}
