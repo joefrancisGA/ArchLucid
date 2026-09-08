@@ -212,7 +212,7 @@ export default function GovernanceFindingsQueueClient({
   );
 
   return (
-    <OperatorPageContainer variant="dashboard">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"}>
       <GovernanceFindingsQueueHeader
         isAssignedToMe={isAssignedToMe}
         buyerPolishedShell={buyerPolishedShell}
