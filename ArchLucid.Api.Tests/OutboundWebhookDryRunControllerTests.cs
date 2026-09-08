@@ -264,6 +264,47 @@ public sealed class OutboundWebhookDryRunControllerTests
     }
 
     [Fact]
+    public async Task DryRunAsync_audit_omits_response_body_preview_from_metadata()
+    {
+        Uri target = new("https://example.com/webhook");
+        Mock<IOutboundWebhookDryRunService> probe = new();
+        probe
+            .Setup(p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OutboundWebhookDryRunResult
+            {
+                TransportSucceeded = true,
+                StatusCode = 200,
+                ResponseBodyPreview = "subscriber-secret-token",
+                ResponseBodyTruncated = false
+            });
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        OutboundWebhookDryRunController controller = new(probe.Object, audit.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult action = await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = target },
+            CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        OutboundWebhookDryRunResponse response = ok.Value.Should().BeOfType<OutboundWebhookDryRunResponse>().Subject;
+        response.ResponseBodyPreview.Should().Be("subscriber-secret-token");
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
+        document.RootElement.TryGetProperty("responseBodyPreview", out _).Should().BeFalse(
+            "subscriber response bodies may contain secrets and are intentionally omitted from audit metadata.");
+    }
+
+    [Fact]
     public async Task DryRunAsync_audit_omits_query_string_from_target_metadata()
     {
         Uri target = new("https://example.com/webhook?token=secret-token");

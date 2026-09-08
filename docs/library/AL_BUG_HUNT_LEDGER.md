@@ -945,7 +945,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -972,6 +972,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` audit JSON omits `TargetUrl` query string — **cheap-disproof 2026-09-08 seed hunt #1360:** query strings commonly carry webhook auth tokens; audit records authority + path only by design; regression `DryRunAsync_audit_omits_query_string_from_target_metadata`
 - [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed HttpClient 30s timeout during `SendAsync` returns `TransportSucceeded=false` / `StatusCode=0` even when subscriber may have consumed the POST — **cheap-disproof 2026-09-08 thorough hunt #1361:** operator probe contract treats timeout as transport failure; no response headers means no subscriber status to preserve
 - [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — inbound `CancellationToken` abort during pre-header `SendAsync` is indistinguishable from subscriber transport failure in outer catch — **cheap-disproof 2026-09-08 thorough hunt #1361:** same catch-all as other transport faults; ambiguous diagnosis is acceptable for operator-initiated cancel vs retry risk on rare client disconnect
+- [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` audit JSON omits `responseBodyPreview` while API response includes `ResponseBodyPreview` — **cheap-disproof 2026-09-08 seed hunt #1362:** subscriber bodies may contain secrets; audit stores transport metadata only (same class as query omission); regression `DryRunAsync_audit_omits_response_body_preview_from_metadata`
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — connect-guard rejection surfaces as generic `TransportSucceeded=false` / `Error` string — **cheap-disproof 2026-09-08 seed hunt #1362:** operator probe contract; `Error` still names the block (`private network`); regression `ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect`
+- [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — hard-coded `tenantId: Guid.Empty` in synthetic envelope — **cheap-disproof 2026-09-08 seed hunt #1362:** `note` field documents non-persistent sample; dry-run endpoint contract per OpenAPI
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeAuthorityRunCompletedAsync` — authority-run payload builder not invoked by zone controller (`DryRunAsync` calls `ProbeAsync` only, `OutboundWebhookDryRunController.cs` L48-49) — **cheap-disproof 2026-09-08 seed hunt #1362:** simulate endpoint owns authority payload path; out of dry-run trust boundary
+
+2026-09-08 seed hunt #1362 (seed-only): reseeded after #1361 connect-guard hit; cheap-disproof closed audit preview omission, connect error shape, synthetic tenant id, and unreachable authority payload path; 22 scoped controller/service tests passed.
 
 2026-09-08 thorough hunt #1361 (hit): proved DNS rebind connect-time SSRF gap; cheap-disproof closed timeout and cancellation diagnosis candidates; 25 scoped webhook dry-run + 4 connect-guard tests passed.
 
