@@ -1546,3 +1546,4 @@
 {"at":"2026-09-08T22:05:47.6843075Z","zoneId":"host-composition","outcome":"dry"}
 {"at":"2026-09-08T22:10:12.1251454Z","zoneId":"chatops-delivery","outcome":"hit"}
 {"at":"2026-09-08T22:14:15.1405873Z","zoneId":"chatops-delivery","outcome":"seed-only"}
+{"at":"2026-09-08T22:19:55.2067514Z","zoneId":"core-requests-constraints","outcome":"hit"}
