@@ -8,9 +8,12 @@ import {
   apiGet,
   ensureOidcBearerReady,
   resolveRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 
 type EndToEndReplayComparisonWireResponse = {
   readonly report?: {
@@ -70,14 +73,18 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 export async function getFirstValueReportMarkdown(runId: string): Promise<string | null> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
-  const h = withCorrelationHeaders(headers);
-  h.set("Accept", "text/markdown");
-  const response = await fetch(url, { cache: "no-store", headers: h });
+  const baseHeaders = withCorrelationHeaders(headers);
+  baseHeaders.set("Accept", "text/markdown");
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(baseHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
   const text = await response.text();
 
   if (response.status === 404) return null;
 
-  if (!response.ok) throwApiRequestError(response, text);
+  if (!response.ok) {
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
 
   return text;
 }

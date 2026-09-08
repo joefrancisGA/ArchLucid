@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { useCallback, useState } from "react";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWhatIfControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
+import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { showError } from "@/lib/toast";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -42,6 +43,26 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
     runId,
     manifestVersion: sealedManifestVersion,
   });
+  const [traceabilityBusy, setTraceabilityBusy] = useState(false);
+
+  const onDownloadTraceabilityBundle = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setTraceabilityBusy(true);
+
+    void downloadTraceabilityBundleZip(runId)
+      .catch((error: unknown) => {
+        showError(
+          "Evidence bundle",
+          error instanceof Error ? error.message : "Could not download traceability bundle.",
+        );
+      })
+      .finally(() => {
+        setTraceabilityBusy(false);
+      });
+  }, [collateralExportBlockedReason, runId]);
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -91,10 +112,15 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 </p>
               </div>
             ) : (
-              <Button variant="secondary" size="sm" asChild>
-                <ExportTrackedAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
-                  Download evidence bundle (ZIP)
-                </ExportTrackedAnchor>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={traceabilityBusy}
+                data-testid="run-actions-traceability-bundle-download"
+                onClick={onDownloadTraceabilityBundle}
+              >
+                {traceabilityBusy ? "Downloading…" : "Download evidence bundle (ZIP)"}
               </Button>
             )}
             {evalChromeShell ? null : (

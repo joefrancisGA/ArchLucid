@@ -8,6 +8,11 @@ import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-hone
 import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
@@ -33,7 +38,6 @@ import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -154,13 +158,17 @@ export function SponsorRoiSummarySection({
     }
 
     try {
-      const response = await fetch(
-        `${SPONSOR_ROI_SUMMARY_PATH}/export`,
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
+      const scoped = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
+      const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(new Headers(scoped.headers));
+      const response = await fetch(`${SPONSOR_ROI_SUMMARY_PATH}/export`, {
+        ...scoped,
+        headers: correlatedHeaders,
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errText = await response.text();
+        const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+        throw new Error(formatExportSealedManifestAwareApiError(failure));
       }
 
       const json = (await response.json()) as {
@@ -205,12 +213,8 @@ export function SponsorRoiSummarySection({
       );
 
       const blob = new Blob([[preamble, header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "sponsor-roi-findings.csv";
-      anchor.click();
-      URL.revokeObjectURL(url);
+
+      await triggerBrowserBlobDownload(blob, "sponsor-roi-findings.csv");
     } catch (e: unknown) {
       showError("CSV export failed", e instanceof Error ? e.message : String(e));
     }

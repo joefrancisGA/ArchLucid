@@ -21,6 +21,7 @@ public sealed partial class ArtifactExportController
     [HttpGet("signed-review-records/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListArtifacts(
@@ -57,6 +58,7 @@ public sealed partial class ArtifactExportController
     [HttpGet("/v{version:apiVersion}/architecture/runs/{runId:guid}/artifacts")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListArtifactsForRun(Guid runId, CancellationToken ct = default)
@@ -87,6 +89,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadBundleForRun(Guid runId, CancellationToken ct = default)
@@ -117,6 +120,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadArtifactForRun(Guid runId, Guid artifactId, CancellationToken ct = default)
@@ -181,6 +185,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadArtifact(
@@ -235,6 +240,7 @@ public sealed partial class ArtifactExportController
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadBundle(

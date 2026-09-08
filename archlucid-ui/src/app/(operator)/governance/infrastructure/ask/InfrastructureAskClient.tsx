@@ -12,6 +12,8 @@ import {
   formatInfraEvidenceAskApiError,
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
+import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { buildDiagramReconcileWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-filter-url";
 import {
@@ -260,7 +262,8 @@ export function InfrastructureAskClient() {
       setHistory((current) => [...current, { question: trimmed, response: result }]);
       setQuestion("");
     } catch (error: unknown) {
-      setSubmitError(formatInfraEvidenceAskApiError(error));
+      const failure = toApiLoadFailure(error);
+      setSubmitError(infraEvidenceAskBlockedReason(failure) ?? formatInfraEvidenceAskApiError(error));
     } finally {
       setSubmitting(false);
     }
