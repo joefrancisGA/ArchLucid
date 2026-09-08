@@ -308,4 +308,14 @@ public sealed class DeterministicInsightDensityGateTests
             .Should()
             .BeGreaterThanOrEqualTo(0.85);
     }
+
+    [Fact]
+    public void Jaccard_similarity_treats_slash_separated_arm_path_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Public endpoint on /subscriptions/abc/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db",
+                "Public endpoint on subscriptions abc resourceGroups rg providers Microsoft Sql servers prod db")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
 }
