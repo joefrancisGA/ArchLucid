@@ -10323,11 +10323,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — Clear review scope link dropped register/facet filters
+- **last-bug:** 2026-09-08 — clear all filters left bulk selection URL params
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10343,6 +10343,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run — **hit 2026-09-08 hunt #1298:** `#1290` cleared `architectureId` only; architecture-scoped register/facet params survived pick-review navigation so run triage inherited architecture filters; fixed by rebuilding run-only URL when `architectureId` was present; regressions in `governance-findings-pick-review-url.test.ts`
 
 - [x] (proven) `GovernanceFindingsQueueScopeSection` — Clear review scope link used bare `navHref` and dropped register/facet/search params — **hit 2026-09-08 seed hunt #1336:** `#1280` preserved scope on clear-all-filters but clear review scope reset the entire query string; fixed with `governanceFindingsClearReviewScopeHref` and client wiring; regressions in `governance-findings-clear-review-scope-url.test.ts` and `GovernanceFindingsQueueScopeSection.test.tsx`
+- [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation preserved stale bulk selection and disposition-confirm params after register/facet clears — **hit 2026-09-08 seed hunt #1374:** `#1280` cleared register/facet/search/groupBy but `governanceFindingsClearAllFiltersHref` left `bulkFindings` / `bulkDispConfirm` on the URL so checkbox selection and confirm dialog state survived clear-all; fixed by deleting bulk params in the helper; regression in `governance-findings-clear-all-filters-url.test.ts`
+
+2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
 2026-09-08 seed hunt #1336 (hit): reseeded ui-governance-findings-queue; proved clear review scope dropped active filters; 16 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
