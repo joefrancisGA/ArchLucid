@@ -1456,4 +1456,5 @@
 {"at":"2026-09-07T23:59:59.0191142Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-09-08T00:04:32.0380441Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-08T00:08:15.8915476Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
-{"at":"2026-09-08T00:11:45.1026670Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
+{"at":"2026-09-08T00:11:45.102667Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
+{"at":"2026-09-08T00:16:02.0632003Z","zoneId":"core-azure-extractor","outcome":"hit"}

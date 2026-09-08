@@ -6982,11 +6982,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 2
-- **bugs-found:** 4
+- **hunts:** 3
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — apiKey/sasToken property redaction, tag key redaction, validator non-array resources.json rejection
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — companion inventory JSON arrays silently dropped on non-array root while resources.json fails closed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6998,7 +6998,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`
 - [x] (proven) `AzureExtractorPackageZipValidator` accepted schema v2 ZIP with non-array `resources.json` while inventory reader silently returned zero rows — **hit 2026-09-07 (#1200):** validator only checked entry presence; `PackageInventoryReader` swallowed non-array root; fixed via `TryReadResourcesSchemaError` and inventory reader failure; regression `Validate_rejects_non_array_resources_json`
 - [x] (proven) `ReadStringDictionary` for resource tags never redacted sensitive tag values — **hit 2026-09-07 (#1200):** tag map copied string values verbatim while property reader redacted sensitive keys; fixed by applying `IsSensitiveKey` to tag keys; regression `TryReadFromZip_redacts_secret_like_tag_keys`
-- [ ] (candidate) `ReadOptionalArray` for schema v2 companion files (`roleAssignments.json`, etc.) silently returns empty on non-array root while `resources.json` now fails closed — hunt when upload path reads companion arrays without validator shape checks.
+- [x] (proven) `ReadOptionalArray` for schema v2 companion files (`roleAssignments.json`, etc.) silently returned empty on non-array root while `resources.json` fails closed — **hit 2026-09-08 hunt #1300:** validator only shape-checked `resources.json`; inventory reader swallowed malformed companion arrays; fixed by fail-closed array-root checks in `ReadOptionalArray` and validator loop over `OptionalInventoryEntryNames`; regressions `TryReadFromZip_fails_on_non_array_role_assignments_json`, `Validate_rejects_non_array_role_assignments_json`
+
+2026-09-08 thorough hunt #1300 (hit): promoted companion-array candidate; proved silent empty companion inventory on non-array root; aligned validator and inventory reader with resources.json fail-closed parity.
 
 2026-09-07 seed hunt #1166 (hit): proved nested object property values bypassed sensitive-key redaction.
 
