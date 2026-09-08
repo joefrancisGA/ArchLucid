@@ -107,11 +107,28 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsEmbeddedInCompoundIdentifier(string haystack, int tokenIndex, int tokenLength)
     {
+        if (HasHyphenOrUnderscoreCompoundBoundaries(haystack, tokenIndex, tokenLength))
+            return true;
+
+        return HasAlphanumericCompoundBoundaries(haystack, tokenIndex, tokenLength);
+    }
+
+    private static bool HasHyphenOrUnderscoreCompoundBoundaries(string haystack, int tokenIndex, int tokenLength)
+    {
         bool precededByConnector = HasAlphanumericBeforeConnector(haystack, tokenIndex);
         int afterToken = tokenIndex + tokenLength;
         bool followedByConnector = HasAlphanumericAfterConnector(haystack, afterToken);
 
         return precededByConnector && followedByConnector;
+    }
+
+    private static bool HasAlphanumericCompoundBoundaries(string haystack, int tokenIndex, int tokenLength)
+    {
+        bool precededByAlphanumeric = tokenIndex > 0 && char.IsLetterOrDigit(haystack[tokenIndex - 1]);
+        int afterToken = tokenIndex + tokenLength;
+        bool followedByAlphanumeric = afterToken < haystack.Length && char.IsLetterOrDigit(haystack[afterToken]);
+
+        return precededByAlphanumeric && followedByAlphanumeric;
     }
 
     private static bool HasAlphanumericBeforeConnector(string haystack, int tokenIndex)

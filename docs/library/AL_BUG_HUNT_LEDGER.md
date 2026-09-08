@@ -7079,11 +7079,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`)
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — PascalCase/camelCase compound product names false-positive phrase constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7096,8 +7096,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhrasePrefix` — mid-sentence `, not ` comma negation may still false-positive on trailing affirmative constraint tokens — **thorough hunt #1278:** comma-contrast and leading-exclusion inputs preserve affirmative encryption detection; regressions in `HasEncryptionConstraint_returns_true_when_comma_contrast_negates_later_scope_only`, `HasEncryptionConstraint_returns_true_when_leading_exclusion_clause_precedes_affirmative_encryption`
 - [x] (proven) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — capability tokens embedded inside longer product names may false-positive `RequiresAiCapability` — **hit 2026-09-07 hunt #1278:** hyphen/underscore compound segments like `email-ai-gateway` treated `ai` as standalone because connectors are non-letters; fixed via `IsEmbeddedInCompoundIdentifier` requiring alphanumeric segments on both sides of the token; regression in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_ai_token`
 - [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`) — **hit 2026-09-07 seed hunt #1288:** `#1278` guarded standalone tokens only; `ContainsAffirmativePhrase` still matched `email-openai-gateway` and `field-encryption-module`; fixed by reusing `IsEmbeddedInCompoundIdentifier` on phrase hits; regressions in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token`, `HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token`
-- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — PascalCase/camelCase embedded tokens without hyphen connectors (e.g. `FieldEncryptionModule`) may still false-positive phrase constraints
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — PascalCase/camelCase embedded tokens without hyphen connectors (e.g. `FieldEncryptionModule`) may still false-positive phrase constraints — **hit 2026-09-08 hunt #1297:** `#1288` guarded hyphen/underscore compounds only; `FieldEncryptionModule` and `EmailOpenAiGateway` still matched `encryption`/`openai`; fixed by treating alphanumeric boundaries on both sides as compound-identifier embedding; regressions in `RequestConstraintCompoundIdentifierCamelCaseTests`
 
+2026-09-08 thorough hunt #1297 (hit): proved PascalCase/camelCase compound-identifier phrase false positives; 827 scoped RequestConstraint tests passed.
 2026-09-07 seed hunt #1288 (hit): reseeded core-requests-constraints; proved phrase-level compound-identifier false positives for `openai` and `encryption`; seeded camelCase embedding candidate; 824 scoped RequestConstraint tests passed.
 
 2026-09-07 thorough hunt #1277 (hit): proved trailing-clause negation over-suppressed leading constraint mentions; 818 scoped RequestConstraint tests passed.
