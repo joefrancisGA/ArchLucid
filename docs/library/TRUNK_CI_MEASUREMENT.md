@@ -27,7 +27,7 @@ Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 |--------|--------|-------|
 | Private-beta push workflow wiring | **Guard green** | `check_live_api_private_beta_access_ci_wiring.py` requires `live-api-private-beta-access.spec.ts` + `live-api-invite-flow.spec.ts` on `.github/workflows/private-beta-access-on-push.yml` |
 | Report Problem registry (bootstrap + invite recovery) | **Vitest green** | `report-problem-surfaces.test.ts` + `PostAuthBootstrapClient.test.tsx` |
-| `Operator UI: private-beta access-path (JwtBearer)` on `master` | **Pending owner green** | First green required before applying [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` |
+| `Operator UI: private-beta access-path (JwtBearer)` on `master` | **Pending owner green** | First green required before applying [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` |
 
 **Interpretation:** Engineering batch extends invite-wave Playwright (revoked invite, Reader invitee, wrong-tenant `/me` 403) and wires admin invite-flow smoke on trunk push. Golden-cohort apply remains owner-only after the first green private-beta job on `master`.
 

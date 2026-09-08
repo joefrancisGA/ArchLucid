@@ -5428,6 +5428,92 @@ describe("wave68 filter url helpers", () => {
   });
 });
 
+describe("wave69 filter url helpers", () => {
+  it("architecture created home overflow, architecture intelligence technical, artifact review raw content, finding causal chain, ask review anchors, architecture structured section, compare decision technical, manifest top decisions area, wizard advanced section, finding derivation evidence params", async () => {
+    const {
+      architectureCreatedHomeOverflowDisclosureHrefFromSearch,
+      parseArchitectureCreatedHomeOverflowOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-home-overflow-disclosure-url");
+    const {
+      architectureIntelligenceTechnicalDisclosureHrefFromSearch,
+      parseArchitectureIntelligenceTechnicalOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-intelligence-technical-disclosure-url");
+    const {
+      artifactReviewRawContentDisclosureHrefFromSearch,
+      parseArtifactReviewRawContentOpenFromSearch,
+    } = await import("@/lib/artifacts/artifact-review-raw-content-disclosure-url");
+    const {
+      findingCausalChainDisclosureHrefFromSearch,
+      parseFindingCausalChainOpenFromSearch,
+    } = await import("@/lib/findings/finding-causal-chain-disclosure-url");
+    const {
+      askReviewAnchorsDisclosureHrefFromSearch,
+      parseAskReviewAnchorsOpenFromSearch,
+    } = await import("@/lib/insights/ask-review-anchors-disclosure-url");
+    const {
+      architectureStructuredSectionDisclosureHrefFromSearch,
+      parseArchitectureStructuredSectionKeyFromSearch,
+    } = await import("@/lib/architecture/architecture-structured-section-disclosure-url");
+    const {
+      compareDecisionTechnicalDisclosureHrefFromSearch,
+      parseCompareDecisionTechnicalKeyFromSearch,
+    } = await import("@/lib/compare/compare-decision-technical-disclosure-url");
+    const {
+      manifestTopDecisionsAreaDisclosureHrefFromSearch,
+      parseManifestTopDecisionsAreaKeyFromSearch,
+    } = await import("@/lib/manifests/manifest-top-decisions-area-disclosure-url");
+    const {
+      parseWizardAdvancedSectionKeyFromSearch,
+      wizardAdvancedSectionDisclosureHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-advanced-section-disclosure-url");
+    const {
+      findingDerivationEvidenceDisclosureHrefFromSearch,
+      parseFindingDerivationEvidenceOpenFromSearch,
+    } = await import("@/lib/findings/finding-derivation-evidence-disclosure-url");
+
+    expect(parseArchitectureCreatedHomeOverflowOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedHomeOverflowDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/created"),
+    ).toBe("/architecture/reviews/run-1/created?architectureCreatedHomeOverflowOpen=1");
+    expect(parseArchitectureIntelligenceTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureIntelligenceTechnicalDisclosureHrefFromSearch("tab=runs", true, "/architecture/architecture-intelligence"),
+    ).toBe("/architecture/architecture-intelligence?tab=runs&architectureIntelligenceTechnicalOpen=1");
+    expect(parseArtifactReviewRawContentOpenFromSearch("1")).toBe(true);
+    expect(artifactReviewRawContentDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/artifacts/a-1")).toBe(
+      "/architecture/reviews/run-1/artifacts/a-1?artifactReviewRawContentOpen=1",
+    );
+    expect(parseFindingCausalChainOpenFromSearch("true")).toBe(true);
+    expect(findingCausalChainDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/run-1/findings/f-1")).toBe(
+      "/architecture/reviews/run-1/findings/f-1?tab=findings&findingCausalChainOpen=1",
+    );
+    expect(parseAskReviewAnchorsOpenFromSearch("1")).toBe(true);
+    expect(askReviewAnchorsDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askReviewAnchorsOpen=1",
+    );
+    expect(parseArchitectureStructuredSectionKeyFromSearch("overview")).toBe("overview");
+    expect(
+      architectureStructuredSectionDisclosureHrefFromSearch("tab=structured", "overview", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=structured&architectureStructuredSectionKey=overview");
+    expect(parseCompareDecisionTechnicalKeyFromSearch("decision-key-1")).toBe("decision-key-1");
+    expect(
+      compareDecisionTechnicalDisclosureHrefFromSearch("", "decision-key-1", "/insights/compare-two-reviews"),
+    ).toBe("/insights/compare-two-reviews?compareDecisionTechnicalKey=decision-key-1");
+    expect(parseManifestTopDecisionsAreaKeyFromSearch("Security")).toBe("Security");
+    expect(
+      manifestTopDecisionsAreaDisclosureHrefFromSearch("", "Security", "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestTopDecisionsAreaKey=Security");
+    expect(parseWizardAdvancedSectionKeyFromSearch("documents")).toBe("documents");
+    expect(wizardAdvancedSectionDisclosureHrefFromSearch("step=advanced", "documents", "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=advanced&wizardAdvancedSectionKey=documents",
+    );
+    expect(parseFindingDerivationEvidenceOpenFromSearch("true")).toBe(true);
+    expect(
+      findingDerivationEvidenceDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingDerivationEvidenceOpen=1");
+  });
+});
+
 describe("wave70 filter url helpers", () => {
   it("first pilot technical commands, help technical reference group/mobile, help azure role details, caiq sig evidence segment, help mermaid diagram source, help topic toc mobile/group, transparency trail, product learning summary notes, recommendation learning weights params", async () => {
     const {

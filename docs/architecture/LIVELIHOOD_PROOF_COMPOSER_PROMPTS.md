@@ -5,7 +5,7 @@
 
 # Livelihood-proof Composer prompts (LP-01–LP-20)
 
-**Created:** 2026-09-08 · **Status:** LP-02 typed Kind A + LP-03 agent Kind B + LP-04 citation-coverage PilotStrict + LP-05 dual-stream desk + LP-06 simulator career honesty + LP-07 LLM rec provenance + LP-08 ADR 0083 + LP-09 promote/activate/submit co-commit + LP-10 authority-chain audit fail-closed + LP-11 livelihood guard inventory expansion + LP-12 OIDC keepalive on operator livelihood editors + LP-13 expert intake Working default shipped; LP-01 ADR **0082 Proposed** · **Do not re-run** WS, SY, AO, FC, DR, DX, PC, LK, or overlay waves except as an LP row names a leftover. **Do not paste this wave to add engines, MCP, finding-comment chat, or G-REAL-06.**
+**Created:** 2026-09-08 · **Status:** LP-02 typed Kind A + LP-03 agent Kind B + LP-04 citation-coverage PilotStrict + LP-05 dual-stream desk + LP-06 simulator career honesty + LP-07 LLM rec provenance + LP-08 ADR 0083 + LP-09 promote/activate/submit co-commit + LP-10 authority-chain audit fail-closed + LP-11 livelihood guard inventory expansion + LP-12 OIDC keepalive on operator livelihood editors + LP-13 expert intake Working default + LP-14 apply-change preview server attestation shipped; LP-01 ADR **0082 Proposed** · **Do not re-run** WS, SY, AO, FC, DR, DX, PC, LK, or overlay waves except as an LP row names a leftover. **Do not paste this wave to add engines, MCP, finding-comment chat, or G-REAL-06.**
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves through **WS-24** built the **court reporter** (trail, stamp, CAS, career-artifact honesty, Working-as-product). The remaining livelihood failures are:
 

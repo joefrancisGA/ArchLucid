@@ -17,6 +17,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
+import { governanceSealedManifestBlockedReason } from "@/lib/governance/governance-sealed-manifest-blocked-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type ManifestDetailPageErrorFrameProps = {
@@ -65,6 +66,8 @@ export function ManifestDetailSummaryLoadErrorView(props: {
     );
   }
 
+  const sealedManifestBlockedReason = governanceSealedManifestBlockedReason(props.summaryFailure);
+
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -74,11 +77,12 @@ export function ManifestDetailSummaryLoadErrorView(props: {
       </p>
       <OperatorApiProblem
         problem={props.summaryFailure.problem}
-        fallbackMessage={props.summaryFailure.message}
+        fallbackMessage={sealedManifestBlockedReason ?? props.summaryFailure.message}
         correlationId={props.summaryFailure.correlationId}
       />
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Try reloading, or return to the reviews list, open a review, then the Finalized review record from review detail.
+        {sealedManifestBlockedReason ??
+          "Try reloading, or return to the reviews list, open a review, then the Finalized review record from review detail."}
       </p>
       <ManifestDetailPageErrorFooterLinks />
     </ManifestDetailPageErrorFrame>

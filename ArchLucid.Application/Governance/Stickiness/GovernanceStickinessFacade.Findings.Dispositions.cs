@@ -38,6 +38,8 @@ public sealed partial class GovernanceStickinessFacade
             TradeOffAcknowledgment = request.TradeOffAcknowledgment,
             RevisitDueUtc = request.RevisitDueUtc,
             EvidenceRequestText = request.EvidenceRequestText,
+            ImpactPreviewCompleted = request.ImpactPreviewCompleted,
+            PreviewOverrideReason = request.PreviewOverrideReason,
             ExpectedCurrentDispositionRowVersionBase64 = request.ExpectedCurrentDispositionRowVersionBase64,
         };
 

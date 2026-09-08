@@ -83,4 +83,15 @@ describe("insight-density-measurement-floor (PC-01 / DX-15)", () => {
     expect(presentation.judgeSkippedByCap).toBe(3);
     expect(presentation.line).toContain("skipped 3 findings by per-snapshot cap");
   });
+
+  it("appends judge cap reduction honesty when effective cap is lower", () => {
+    const presentation = formatInsightDensityMeasurementFloorPresentation(16, {
+      judgeConfiguredCap: 40,
+      judgeEffectiveCap: 6,
+    });
+
+    expect(presentation.line).toContain(
+      "Premium judge cap reduced from 40 to 6 from remaining AI budget.",
+    );
+  });
 });

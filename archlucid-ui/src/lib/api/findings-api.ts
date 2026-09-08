@@ -5,12 +5,15 @@
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 import {
   apiGet,
   apiPostJson,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
 
@@ -106,11 +109,13 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");
-  const response = await fetch(url, { cache: "no-store", headers: requestHeaders });
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
 
   if (!response.ok) {
     const text = await response.text();
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = await response.blob();

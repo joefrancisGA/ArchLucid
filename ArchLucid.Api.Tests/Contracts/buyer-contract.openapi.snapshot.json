@@ -18549,6 +18549,20 @@
               }
             ]
           },
+          "judgeConfiguredCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "judgeEffectiveCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "judgeSkippedByCap": {
             "format": "int32",
             "type": "integer"

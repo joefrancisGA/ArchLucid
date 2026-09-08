@@ -9,15 +9,15 @@ public sealed class NoOpInsightDensityLlmJudge : IInsightDensityLlmJudge
 {
     public static NoOpInsightDensityLlmJudge Instance { get; } = new();
 
-    public Task<int> ApplyToArchitectureFindingsAsync(
+    public Task<InsightDensityLlmJudgeApplyResult> ApplyToArchitectureFindingsAsync(
         IReadOnlyList<ArchitectureFinding> findings,
         AgentEvidencePackage evidence,
         ArchitectureRequest request,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(0);
+        Task.FromResult(InsightDensityLlmJudgeApplyResult.None);
 
-    public Task<int> ApplyToFindingsAsync(
+    public Task<InsightDensityLlmJudgeApplyResult> ApplyToFindingsAsync(
         IReadOnlyList<Finding> findings,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(0);
+        Task.FromResult(InsightDensityLlmJudgeApplyResult.None);
 }

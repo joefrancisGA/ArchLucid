@@ -18549,6 +18549,20 @@
               }
             ]
           },
+          "judgeConfiguredCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "judgeEffectiveCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "judgeSkippedByCap": {
             "format": "int32",
             "type": "integer"
@@ -27232,6 +27246,18 @@
             "$ref": "#/components/schemas/FindingDisposition"
           },
           "evidenceRequestText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "impactPreviewCompleted": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "previewOverrideReason": {
             "type": [
               "null",
               "string"

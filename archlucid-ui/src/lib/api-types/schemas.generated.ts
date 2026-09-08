@@ -5372,6 +5372,10 @@ export interface components {
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
+            judgeConfiguredCap?: null | number;
+            /** Format: int32 */
+            judgeEffectiveCap?: null | number;
+            /** Format: int32 */
             judgeSkippedByCap?: number;
             proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
@@ -8005,6 +8009,8 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
