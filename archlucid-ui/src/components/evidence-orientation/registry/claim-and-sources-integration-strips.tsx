@@ -292,6 +292,18 @@ export function AzureCloudConnectionEvidenceOrientationStrip(): React.JSX.Elemen
   );
 }
 
+export function AwsCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections-aws"
+      sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+      sources={cloudProviderConnectionSources("aws")}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
 export function GcpCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
