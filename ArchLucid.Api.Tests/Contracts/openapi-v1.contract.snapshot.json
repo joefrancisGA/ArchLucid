@@ -27237,6 +27237,18 @@
               "string"
             ]
           },
+          "impactPreviewCompleted": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "previewOverrideReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "expectedCurrentDispositionRowVersionBase64": {
             "type": [
               "null",

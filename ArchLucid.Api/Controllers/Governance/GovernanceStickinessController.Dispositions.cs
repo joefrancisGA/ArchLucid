@@ -87,6 +87,8 @@ public sealed partial class GovernanceStickinessController
             TradeOffAcknowledgment = body.TradeOffAcknowledgment,
             RevisitDueUtc = body.RevisitDueUtc,
             EvidenceRequestText = body.EvidenceRequestText,
+            ImpactPreviewCompleted = body.ImpactPreviewCompleted,
+            PreviewOverrideReason = body.PreviewOverrideReason,
             ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 

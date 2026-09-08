@@ -8005,6 +8005,8 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
