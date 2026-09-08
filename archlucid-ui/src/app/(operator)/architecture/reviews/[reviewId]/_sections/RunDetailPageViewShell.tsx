@@ -2,6 +2,13 @@ import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  REVIEW_DETAIL_FIRST_VIEWPORT_ID,
+  REVIEW_DETAIL_PRIMARY_CONTENT_ID,
+  REVIEW_DETAIL_SKIP_LINK_LABEL,
+  REVIEW_DETAIL_SKIP_TARGET_ID,
+} from "@/lib/review-detail-page-copy";
 
 import { ArchitectureIntelligenceReviewToolStrip } from "@/components/ArchitectureIntelligenceReviewToolStrip";
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
@@ -30,6 +37,7 @@ import {
   ReviewGenerationCreatedNoticeDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailFirstWeekRouteGuidanceMount } from "./RunDetailFirstWeekRouteGuidanceMount";
+import { RunDetailBuyerChrome } from "./RunDetailBuyerChrome";
 import { RunDetailNextReviewFooterClient } from "./RunDetailNextReviewFooterClient";
 import { RunDetailPageViewCommitted } from "./RunDetailPageViewCommitted";
 import { RunDetailPageViewCreateHome } from "./RunDetailPageViewCreateHome";
@@ -222,6 +230,72 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
     packageVersionLabel,
   } = presentation;
   const reviewPipelineIncomplete = presentation.reviewPipelineIncomplete;
+  const buyerPolishedShell = m.buyerPolishedArtifactTable;
+
+  const runDetailWorkspaceHeader = (
+    <RunDetailWorkspaceHeaderDeferred
+      runId={m.resolvedDetail.run.runId}
+      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      h1Title={reviewHeaderPresentation.h1Title}
+      eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
+      reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
+      signedReviewRecordId={signedReviewRecordId}
+      signedReviewRecordIdLabel={signedReviewRecordIdLabel}
+      workspaceStatus={workspaceStatus}
+      reviewOwner={reviewOwnerLabel}
+      templateLabel={templateLabel}
+      finalizedAtLabel={finalizedAtLabel}
+      packageVersionLabel={packageVersionLabel}
+    />
+  );
+
+  const runDetailIdentityChrome = (
+    <>
+      <WorkingNestedArchitectureIdentityChromeMount
+        parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
+      />
+
+      <WorkingUnlinkedReviewHonestyBanner architectureId={m.resolvedDetail.run.architectureId ?? null} />
+    </>
+  );
+
+  const runDetailStandardWorkspaceBody = buyerPolishedShell ? (
+    <>
+      <a href={`#${REVIEW_DETAIL_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+        {REVIEW_DETAIL_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={REVIEW_DETAIL_PRIMARY_CONTENT_ID}
+        data-testid={REVIEW_DETAIL_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        {runDetailWorkspaceHeader}
+        {runDetailIdentityChrome}
+
+        <div
+          id={REVIEW_DETAIL_FIRST_VIEWPORT_ID}
+          data-testid={REVIEW_DETAIL_FIRST_VIEWPORT_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <RunDetailBuyerChrome
+            runId={m.resolvedDetail.run.runId}
+            architectureId={m.resolvedDetail.run.architectureId ?? null}
+          />
+          {chrome.tabbedWorkspaceEl}
+        </div>
+      </div>
+    </>
+  ) : (
+    <>
+      {runDetailWorkspaceHeader}
+      {runDetailIdentityChrome}
+      {chrome.tabbedWorkspaceEl}
+    </>
+  );
 
   return (
     <div
@@ -274,30 +348,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
                   />
                 ) : (
                   <>
-                    <RunDetailWorkspaceHeaderDeferred
-                      runId={m.resolvedDetail.run.runId}
-                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
-                      h1Title={reviewHeaderPresentation.h1Title}
-                      eyebrowLabel={reviewHeaderPresentation.eyebrowLabel}
-                      reviewIdentifierLabel={reviewHeaderPresentation.reviewIdentifierLabel}
-                      signedReviewRecordId={signedReviewRecordId}
-                      signedReviewRecordIdLabel={signedReviewRecordIdLabel}
-                      workspaceStatus={workspaceStatus}
-                      reviewOwner={reviewOwnerLabel}
-                      templateLabel={templateLabel}
-                      finalizedAtLabel={finalizedAtLabel}
-                      packageVersionLabel={packageVersionLabel}
-                    />
-
-                    <WorkingNestedArchitectureIdentityChromeMount
-                      parentArchitectureId={m.resolvedDetail.run.architectureId ?? null}
-                    />
-
-                    <WorkingUnlinkedReviewHonestyBanner
-                      architectureId={m.resolvedDetail.run.architectureId ?? null}
-                    />
-
-                    {chrome.tabbedWorkspaceEl}
+                    {runDetailStandardWorkspaceBody}
                   </>
                 )}
 
@@ -309,7 +360,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         </RunDetailWorkspaceDisclosureProvider>
 
-        {!reviewPipelineIncomplete ? (
+        {!reviewPipelineIncomplete && !buyerPolishedShell ? (
           <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
             <ArchitectureIntelligenceReviewToolStrip
               runId={m.resolvedDetail.run.runId}
@@ -329,7 +380,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
           />
         ) : null}
 
-        {blockingApprovalCount === 0 && !reviewPipelineIncomplete ? (
+        {blockingApprovalCount === 0 && !reviewPipelineIncomplete && !buyerPolishedShell ? (
           <RunDetailFirstWeekRouteGuidanceMount
             variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
             pagePrimaryOwnedElsewhere
