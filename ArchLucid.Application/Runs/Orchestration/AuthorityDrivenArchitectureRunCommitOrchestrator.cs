@@ -8,6 +8,7 @@ using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
@@ -24,7 +25,9 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 
 using ArchLucid.Application.Exports;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.CareerArtifacts;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -48,6 +51,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IArtifactBundleRepository artifactBundleRepository,
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IManifestHashService manifestHashService,
+    IUserWorkspaceModeReader userWorkspaceModeReader,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -87,6 +91,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IUserWorkspaceModeReader _userWorkspaceModeReader =
+        userWorkspaceModeReader ?? throw new ArgumentNullException(nameof(userWorkspaceModeReader));
 
     private readonly ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -327,11 +334,34 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
+        bool workingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(actor, cancellationToken);
+
+        bool degradedFindingCoverage = false;
+        IReadOnlyList<string> degradedFindingCoverageFailedEngineLabels = [];
+        int? enginesSucceeded = null;
+
+        if (runRecord.FindingsSnapshotId is Guid findingsSnapshotId)
+        {
+            FindingsSnapshot? findingsSnapshot =
+                await _findingsSnapshotRepository.GetByIdAsync(scope, findingsSnapshotId, cancellationToken);
+
+            if (findingsSnapshot is not null)
+            {
+                (degradedFindingCoverage, RunFindingCoverageSummary? coverageSummary) =
+                    RunFindingCoverageProjection.Build(findingsSnapshot);
+                degradedFindingCoverageFailedEngineLabels = coverageSummary?.FailedEngineLabels ?? [];
+                enginesSucceeded = coverageSummary?.EnginesSucceeded;
+            }
+        }
+
         CareerArtifactCompletenessInput finalizeArtifactInput = CareerArtifactCompletenessInputMapper.MapForFinalize(
             request.IntakeTransparencyTrail,
-            enginesSucceeded: null,
-            workingDesk: false,
-            preCommitGateEnabled: true);
+            enginesSucceeded,
+            workingDesk,
+            preCommitGateEnabled: true,
+            structuralExecutionMode: runRecord.StructuralExecutionMode,
+            degradedFindingCoverage,
+            degradedFindingCoverageFailedEngineLabels);
         CareerArtifactCompletenessResult finalizeArtifactResult =
             new CareerArtifactCompletenessValidator().Evaluate(finalizeArtifactInput);
 

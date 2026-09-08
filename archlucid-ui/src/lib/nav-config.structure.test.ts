@@ -258,6 +258,7 @@ describe("nav-config structure", () => {
     expect(adminHrefs).toContain("/administration/support");
     expect(adminHrefs).toContain("/administration/ai-usage");
     expect(adminHrefs).toContain("/administration/notifications");
+    expect(adminHrefs).toContain("/administration/extract-upload");
     expect(adminHrefs).toContain("/administration/connection-status");
     expect(adminHrefs).toContain("/administration/system-health");
     expect(adminHrefs).toContain("/administration/identity-providers");

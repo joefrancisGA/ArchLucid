@@ -138,7 +138,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Approval",
     headline: "Establish policies, alerts, approvals, and reporting for this workspace.",
     useWhen:
-      "Work the checklist in orde — ach step opens the configuration surface where changes are made and audited.",
+      "Work the checklist in order — each step opens the configuration surface where changes are made and audited.",
     firstPilotNote:
       "Optional after first Pilot proof when sponsors want a minimal enterprise cadence on one baseline.",
     enterpriseFootnote: "Configuration changes happen on the linked surfaces, not on this checklist page.",
@@ -152,7 +152,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   audit: {
     layerBadge: "Approval",
-    headline: "Tenant audit trai — ho did what, when.",
+    headline: "Tenant audit trail — who did what, when.",
     useWhen: "Search and filter audit events; export requires Auditor or Admin access.",
     firstPilotNote: "Bounded export after Pilot proof when audit window and roles are clear.",
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",

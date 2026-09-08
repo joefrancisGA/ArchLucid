@@ -13,7 +13,7 @@ import {
   useLivelihoodDocumentGuards,
 } from "@/hooks/use-livelihood-document-guards";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { resolveApiLoadFailurePresentation, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type TenantWorkOwnershipDeletePolicyResponse,
   updateTenantWorkOwnershipDeletePolicy,
@@ -88,6 +88,15 @@ export function TenantWorkOwnershipDeletePolicyCard(): React.JSX.Element {
 
   if (policyQuery.isError) {
     const failure = toApiLoadFailure(policyQuery.error);
+    const presentation = resolveApiLoadFailurePresentation(failure);
+
+    if (presentation === "forbidden") {
+      return (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="tenant-work-ownership-delete-policy-denied">
+          Work ownership delete policy requires Admin authority. Your session cannot view or edit this policy.
+        </p>
+      );
+    }
 
     return (
       <OperatorSectionLoadFailure

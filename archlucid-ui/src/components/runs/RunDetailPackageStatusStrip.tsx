@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-polish-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
@@ -139,6 +140,7 @@ export type RunDetailPackageStatusStripProps = {
 
 export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripProps) {
   const { evaluationStandardsLabel, approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
+  const workingDesk = useProductionDeskChrome();
   const inlineLinkClass =
     props.pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.inline;
   const trimmedManifestId = props.manifestId?.trim() ?? "";
@@ -269,7 +271,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
 
       {authorityPhaseLabel !== null ? (
         <div className={segmentInner} data-testid="run-detail-authority-lifecycle-phase">
-          <p className={stripSegmentLabelClass()}>Authority pipeline</p>
+          <p className={stripSegmentLabelClass()}>{workingDesk ? "Review progress" : "Authority pipeline"}</p>
           <div className="mt-1">
             <StatusTag
               kind={
@@ -280,7 +282,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
                     : "in-progress"
               }
               label={authorityPhaseLabel}
-              aria-label={`Authority pipeline: ${authorityPhaseLabel}`}
+              aria-label={`${workingDesk ? "Review progress" : "Authority pipeline"}: ${authorityPhaseLabel}`}
             />
           </div>
         </div>

@@ -48,7 +48,7 @@ public sealed class UserPreferencesControllerTests
         body.WorkspaceModeGraduationOfferIsExplicit.Should().BeFalse();
         body.FindingsHideGenericEnabled.Should().BeFalse();
         body.FindingsHideGenericEnabledIsExplicit.Should().BeFalse();
-        body.FindingsShowLowConfidenceEnabled.Should().BeFalse();
+        body.FindingsShowLowConfidenceEnabled.Should().BeTrue();
         body.FindingsShowLowConfidenceEnabledIsExplicit.Should().BeFalse();
         body.FindingsShowAdvisoryEnabled.Should().BeFalse();
         body.FindingsShowAdvisoryEnabledIsExplicit.Should().BeFalse();

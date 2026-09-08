@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 export type RunDetailReviewPackageDecisionReceiptStripProps = {
   readonly runId: string;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
+  readonly manifestVersion?: string | null;
 };
 
 /** Sealed-review decision receipt on the stamp band, not only Artifacts (WA-13). */
@@ -37,6 +38,7 @@ export function RunDetailReviewPackageDecisionReceiptStrip(
           runId: props.runId,
           verdict,
         }}
+        manifestVersion={props.manifestVersion}
       />
       {isWorkingMode ? (
         <GovernanceRecordCorrectionInlineControl

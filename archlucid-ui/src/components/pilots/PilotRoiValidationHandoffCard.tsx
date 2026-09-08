@@ -73,6 +73,7 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   const readiness = describeSponsorProofReadiness(payload);
   const executionMode = formatStructuralExecutionModeLabel(payload);
   const dollarSafe = isProjectedDollarClaimsSponsorSafe(payload);
+  const roiSourceFreshness = payload?.roiSourceFreshnessDisposition?.trim() ?? "";
   const validationSessionHref = resolveInAppDocHref(
     "docs/go-to-market/validation/PAID_PILOT_EVIDENCE_LEDGER.md#pilot-roi-validation-session",
   );
@@ -162,6 +163,13 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
           <StatusTag
             kind={readiness.variant === "ready" ? "ready" : readiness.variant === "blocked" ? "blocked" : "needs-attention"}
             label={readiness.title}
+          />
+        ) : null}
+        {roiSourceFreshness.length > 0 ? (
+          <StatusTag
+            kind={roiSourceFreshness.toUpperCase() === "PASS" ? "ready" : roiSourceFreshness.toUpperCase() === "WARN" ? "needs-attention" : "blocked"}
+            label={`ROI source freshness: ${roiSourceFreshness.toUpperCase()}`}
+            data-testid="pilot-roi-validation-freshness-tag"
           />
         ) : null}
       </div>

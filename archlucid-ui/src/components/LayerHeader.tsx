@@ -1,8 +1,9 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-import type { ReactNode } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
@@ -12,6 +13,11 @@ import {
   type LayerGuidancePageKey,
 } from "@/lib/layer-guidance";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM,
+  layerHeaderCollapsibleGuidanceDisclosureHrefFromSearch,
+  parseLayerHeaderCollapsibleGuidanceOpenFromSearch,
+} from "@/lib/usability/layer-header-collapsible-guidance-disclosure-url";
 import { useNavSurface } from "@/lib/use-nav-surface";
 
 export type LayerHeaderProps = {
@@ -45,9 +51,48 @@ export function LayerHeader({
   collapsibleGuidance,
   collapsibleChildren,
 }: LayerHeaderProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const layerHeaderCollapsibleGuidanceParam = searchParams.get(LAYER_HEADER_COLLAPSIBLE_GUIDANCE_OPEN_PARAM);
+  const [layerHeaderCollapsibleGuidanceOpen, setLayerHeaderCollapsibleGuidanceOpenState] = useState(() =>
+    parseLayerHeaderCollapsibleGuidanceOpenFromSearch(layerHeaderCollapsibleGuidanceParam),
+  );
+  const syncLayerHeaderCollapsibleGuidanceOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        layerHeaderCollapsibleGuidanceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setLayerHeaderCollapsibleGuidanceOpen = useCallback(
+    (open: boolean) => {
+      setLayerHeaderCollapsibleGuidanceOpenState(open);
+      syncLayerHeaderCollapsibleGuidanceOpenToUrl(open);
+    },
+    [syncLayerHeaderCollapsibleGuidanceOpenToUrl],
+  );
+  useEffect(() => {
+    setLayerHeaderCollapsibleGuidanceOpenState(
+      parseLayerHeaderCollapsibleGuidanceOpenFromSearch(layerHeaderCollapsibleGuidanceParam),
+    );
+  }, [layerHeaderCollapsibleGuidanceParam]);
   const surface = useNavSurface(pageKey);
+  const { localize } = useLocalizedProductCopy();
   const buyerDemoShell = isBuyerPolishedOperatorShellEnv();
   const block = mergeLayerGuidanceForBuyerDemoShell(pageKey, surface.layerGuidance, buyerDemoShell);
+  const headline = localize(block.headline);
+  const useWhen = localize(block.useWhen);
+  const firstPilotNote = block.firstPilotNote === null ? null : localize(block.firstPilotNote);
+  const enterpriseFootnote =
+    block.enterpriseFootnote === null || block.enterpriseFootnote === undefined
+      ? block.enterpriseFootnote
+      : localize(block.enterpriseFootnote);
+  const layerBadge = localize(block.layerBadge);
+  const collapsibleGuidanceLabel =
+    collapsibleGuidance === undefined ? undefined : localize(collapsibleGuidance);
   const operateExecuteRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
   const demoUi = isNextPublicDemoMode();
   const usesOperateGovernanceFootnote =
@@ -64,9 +109,9 @@ export function LayerHeader({
             : (cn("text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)),
         )}
       >
-        {block.layerBadge}
+        {layerBadge}
       </p>
-      <p className={cn("m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{block.headline}</p>
+      <p className={cn("m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{headline}</p>
       {!block.omitReviewPackageScopeHelp ? (
         <p
           className={cn("m-0 mt-1.5 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
@@ -88,16 +133,16 @@ export function LayerHeader({
             : (cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)),
         )}
       >
-        {block.useWhen}
+        {useWhen}
       </p>
-      {!compact && block.firstPilotNote ? (
+      {!compact && firstPilotNote ? (
         <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          <InlineGuidanceText text={block.firstPilotNote} />
+          <InlineGuidanceText text={firstPilotNote} />
         </p>
       ) : null}
-      {block.enterpriseFootnote ? (
+      {enterpriseFootnote ? (
         <p className={cn("m-0 mt-1.5 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          {block.enterpriseFootnote}
+          {enterpriseFootnote}
         </p>
       ) : null}
       {operateExecuteRankCue && !demoUi ? (
@@ -122,20 +167,22 @@ export function LayerHeader({
         collapsibleGuidance ? "mb-0" : null,
         className,
       )}
-      aria-label={`${block.layerBadge}: ${block.headline}`}
+      aria-label={`${layerBadge}: ${headline}`}
     >
       {guidanceBody}
     </aside>
   );
 
-  if (collapsibleGuidance !== undefined && collapsibleGuidance.trim().length > 0) {
+  if (collapsibleGuidanceLabel !== undefined && collapsibleGuidanceLabel.trim().length > 0) {
     return (
       <details
         className={cn("mb-4 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="layer-header-collapsible-guidance"
+        open={layerHeaderCollapsibleGuidanceOpen}
+        onToggle={(event) => setLayerHeaderCollapsibleGuidanceOpen(event.currentTarget.open)}
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          {collapsibleGuidance}
+          {collapsibleGuidanceLabel}
         </summary>
         <div className="mt-3">
           {guidanceAside}

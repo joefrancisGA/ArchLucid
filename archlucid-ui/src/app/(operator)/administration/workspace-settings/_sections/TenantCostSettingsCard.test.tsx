@@ -45,7 +45,7 @@ describe("TenantCostSettingsCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit tenantDisplayName="Acme Architecture" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-cost-settings-save")).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe("TenantCostSettingsCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit tenantDisplayName="Acme Architecture" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-cost-ea-percentage")).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe("TenantCostSettingsCard", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    renderWithOperatorQuery(<TenantCostSettingsCard canEdit />);
+    renderWithOperatorQuery(<TenantCostSettingsCard canEdit tenantDisplayName="Acme Architecture" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("tenant-cost-settings-defaults-status")).toHaveTextContent(

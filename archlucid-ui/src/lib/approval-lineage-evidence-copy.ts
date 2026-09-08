@@ -8,6 +8,12 @@ export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
 
 export const APPROVAL_LINEAGE_HELP_TOPIC_LABEL = "How approval lineage works";
 
+export const APPROVAL_LINEAGE_PRIMARY_CONTENT_ID = "approval-lineage-primary-content" as const;
+
+export const APPROVAL_LINEAGE_SKIP_LINK_LABEL = "Skip to approval lineage" as const;
+
+export const APPROVAL_LINEAGE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
   "Approval lineage shows how one approval request connects to its review, findings, and finalized review record version. Use it to inspect links — not as a full audit export on its own. Open Audit or the architecture review when you need the fuller trail.";
 

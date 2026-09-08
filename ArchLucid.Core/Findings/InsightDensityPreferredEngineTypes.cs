@@ -22,6 +22,8 @@ public static class InsightDensityPreferredEngineTypes
         "requirement-sku-tier",
         "policy-declaration-inventory-contradiction",
         "data-flow-trust-boundary",
+        "decision-grade-fusion",
+        "portfolio-shared-topology",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static bool IsPreferred(string? engineType)

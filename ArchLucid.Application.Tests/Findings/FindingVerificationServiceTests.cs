@@ -3,15 +3,20 @@ using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Findings;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -208,6 +213,87 @@ public sealed class FindingVerificationServiceTests
     }
 
     [Fact]
+    public async Task CreateReportAsync_new_report_enqueues_integration_event_outbox()
+    {
+        Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Finding finding = new()
+        {
+            FindingId = "finding-verification-1",
+            Title = "Public storage exposure",
+            Severity = FindingSeverity.Critical,
+        };
+
+        RunDetailDto detail = BuildSealedRunDetail(findingsSnapshotId, finding);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingVerificationReportRepository repository = new();
+        InMemoryIntegrationEventOutboxRepository outbox = new();
+        FindingVerificationService sut = CreateService(authorityQuery.Object, repository, outbox: outbox);
+
+        long pendingBefore = await outbox.CountIntegrationOutboxPublishPendingAsync(CancellationToken.None);
+
+        FindingVerificationCreateReportResult result = await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            new CreateFindingVerificationReportRequest(),
+            "operator@test",
+            CancellationToken.None);
+
+        result.CreatedNewReport.Should().BeTrue();
+
+        long pendingAfter = await outbox.CountIntegrationOutboxPublishPendingAsync(CancellationToken.None);
+        pendingAfter.Should().Be(pendingBefore + 1);
+
+        IReadOnlyList<IntegrationEventOutboxEntry> batch =
+            await outbox.DequeuePendingAsync(10, CancellationToken.None);
+
+        batch.Should().ContainSingle(entry =>
+            entry.EventType == IntegrationEventTypes.FindingVerificationCompletedV1
+            && entry.RunId == RunId);
+    }
+
+    [Fact]
+    public async Task CreateReportAsync_idempotent_replay_does_not_enqueue_integration_event_outbox()
+    {
+        Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        RunDetailDto detail = BuildSealedRunDetail(
+            findingsSnapshotId,
+            new Finding { FindingId = "finding-1", Title = "t", Severity = FindingSeverity.Error });
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(service => service.GetRunDetailAsync(TestScope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        InMemoryFindingVerificationReportRepository repository = new();
+        InMemoryIntegrationEventOutboxRepository outbox = new();
+        FindingVerificationService sut = CreateService(authorityQuery.Object, repository, outbox: outbox);
+
+        await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            new CreateFindingVerificationReportRequest(),
+            "operator@test",
+            CancellationToken.None);
+
+        long pendingAfterFirst = await outbox.CountIntegrationOutboxPublishPendingAsync(CancellationToken.None);
+
+        await sut.CreateReportAsync(
+            TestScope,
+            RunId,
+            new CreateFindingVerificationReportRequest(),
+            "operator@test",
+            CancellationToken.None);
+
+        long pendingAfterSecond = await outbox.CountIntegrationOutboxPublishPendingAsync(CancellationToken.None);
+        pendingAfterSecond.Should().Be(pendingAfterFirst);
+    }
+
+    [Fact]
     public async Task CreateReportAsync_when_run_missing_throws_not_found()
     {
         Mock<IAuthorityQueryService> authorityQuery = new();
@@ -292,15 +378,28 @@ public sealed class FindingVerificationServiceTests
         IAppendOnlyFindingVerificationReportRepository? repository = null,
         IAuditService? auditService = null,
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null) =>
-        new(
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
+        InMemoryIntegrationEventOutboxRepository? outbox = null)
+    {
+        InMemoryIntegrationEventOutboxRepository integrationEventOutbox = outbox ?? new InMemoryIntegrationEventOutboxRepository();
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
+        integrationEventsOptions
+            .Setup(options => options.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = true });
+
+        return new FindingVerificationService(
             authorityQueryService,
             findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             repository ?? new InMemoryFindingVerificationReportRepository(),
             new CrossReviewFindingCorrelationService(),
             findingReviewTrailRepository ?? Mock.Of<IFindingReviewTrailRepository>(),
             new FindingVerificationDeterministicScorer(),
-            auditService ?? Mock.Of<IAuditService>());
+            auditService ?? Mock.Of<IAuditService>(),
+            integrationEventOutbox,
+            Mock.Of<IIntegrationEventPublisher>(),
+            integrationEventsOptions.Object,
+            Mock.Of<ILogger<FindingVerificationService>>());
+    }
 
     private static RunDetailDto BuildSealedRunDetail(Guid findingsSnapshotId, Finding finding) =>
         new()

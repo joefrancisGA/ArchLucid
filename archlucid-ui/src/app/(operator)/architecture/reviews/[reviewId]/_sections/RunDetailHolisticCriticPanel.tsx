@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { holisticCriticBlockedReason } from "@/lib/explain/holistic-critic-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SEALED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -31,6 +32,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [critiqueMarkdown, setCritiqueMarkdown] = useState<string | null>(null);
+  const blockedReason = holisticCriticBlockedReason(failure);
 
   return (
     <Card className="border border-neutral-200 dark:border-neutral-700" data-testid="run-holistic-critic-panel">
@@ -96,8 +98,19 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
           {busy ? "Generating critique…" : "Generate holistic critique"}
         </Button>
         {failure !== null ? (
-          <div role="alert">
-            <OperatorApiProblem failure={failure} />
+          <div role="alert" data-testid="holistic-critic-failure">
+            {blockedReason === null ? (
+              <OperatorApiProblem failure={failure} />
+            ) : (
+              <>
+                <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {blockedReason}
+                </p>
+                <OperatorWarningCallout>
+                  Resolve lifecycle or sealed-manifest gaps on this review, then retry holistic critique.
+                </OperatorWarningCallout>
+              </>
+            )}
           </div>
         ) : null}
         {disclaimer !== null && critiqueMarkdown !== null ? (

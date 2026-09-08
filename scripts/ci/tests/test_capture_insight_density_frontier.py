@@ -56,9 +56,45 @@ class CaptureInsightDensityFrontierTests(unittest.TestCase):
             ],
             frontier_baseline_findings=[],
             expected_novelty_percentage=100.0,
+            frontier_baseline_source="empty",
         )
 
         self.assertEqual(document["decisionGradeFindingTitles"], ["Novel cost finding"])
+
+    def test_build_capture_document_sets_empty_source_for_pilot_pending(self) -> None:
+        document = MOD.build_capture_document(
+            architecture_package_sha256="f" * 64,
+            findings_snapshot_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            captured_utc="2026-09-07T00:00:00Z",
+            label="pilot-pending",
+            archlucid_findings=[
+                {
+                    "findingId": "f1",
+                    "engineType": "topology",
+                    "category": "Cost",
+                    "title": "Novel cost finding",
+                    "policyRuleId": None,
+                    "classification": "DecisionGradeFinding",
+                },
+            ],
+            frontier_baseline_findings=[],
+            expected_novelty_percentage=None,
+        )
+
+        self.assertEqual(document["frontierBaseline"]["source"], "empty")
+        self.assertNotIn("expectedNoveltyPercentage", document)
+
+    def test_pilot_pending_idle_fixture_validates(self) -> None:
+        idle_fixture = (
+            _REPO
+            / "tests"
+            / "eval-corpus"
+            / "insight-density-frontier-capture"
+            / "pilot-pending-idle.json"
+        )
+        document = json.loads(idle_fixture.read_text(encoding="utf-8"))
+        errors = MOD.validate_capture_document(document)
+        self.assertEqual(errors, [])
 
     def test_validate_fixture_cli(self) -> None:
         exit_code = MOD.main(["--validate-fixture", str(_FIXTURE)])

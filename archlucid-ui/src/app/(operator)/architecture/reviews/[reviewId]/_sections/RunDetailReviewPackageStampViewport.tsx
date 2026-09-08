@@ -11,12 +11,14 @@ import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDe
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
+import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
   readonly pipelineTerminalFailure?: boolean;
   readonly enginesSucceeded?: number | null;
@@ -29,6 +31,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -90,11 +93,13 @@ export function RunDetailReviewPackageStampViewport(
           actorNodeCount={measurementFloorOptions.actorNodeCount}
           analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
           judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+          heldCheckLedgerEntries={props.heldCheckLedgerEntries}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}
+          manifestVersion={props.manifestVersion}
         />
         {isWorkingMode ? (
           <RunDetailOverviewTransparencyTrail
@@ -143,6 +148,7 @@ export function RunDetailReviewPackageStampViewport(
         actorNodeCount={measurementFloorOptions.actorNodeCount}
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
         judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

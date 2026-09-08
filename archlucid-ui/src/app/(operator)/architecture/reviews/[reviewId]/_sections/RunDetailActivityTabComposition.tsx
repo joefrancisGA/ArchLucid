@@ -48,6 +48,7 @@ export function composeRunDetailActivityTab(
             initialSummary={m.progressForPipelineUi}
             diagnosticContext={m.pipelineDiagnosticContext}
             deferFailureRecoveryToDoThisNext
+            workingDeskProgressCopy={m.buyerPolishedArtifactTable !== true}
           />
         </div>
       ) : null}
@@ -56,6 +57,7 @@ export function composeRunDetailActivityTab(
           runId={m.routeRunId}
           initialSummary={m.progressForPipelineUi}
           diagnosticContext={m.pipelineDiagnosticContext}
+          workingDeskProgressCopy={m.buyerPolishedArtifactTable !== true}
         />
       ) : null}
       <section

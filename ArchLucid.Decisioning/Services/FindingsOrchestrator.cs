@@ -10,8 +10,10 @@ public sealed class FindingsOrchestrator(
     IFindingsPolicyStampStage policyStampStage,
     IFindingsEngineInvokeStage engineInvokeStage,
     IFindingsInsightGeneratorStage insightGeneratorStage,
+    IFindingsProseAssumptionStage proseAssumptionStage,
     IFindingsMergeAndGateStage mergeAndGateStage,
     IFindingsChecklistClusterStage checklistClusterStage,
+    IFindingsDecisionGradeFusionStage decisionGradeFusionStage,
     IFindingsSnapshotEmitStage snapshotEmitStage) : IFindingsOrchestrator
 {
     private readonly IFindingsPolicyStampStage _policyStampStage =
@@ -23,11 +25,17 @@ public sealed class FindingsOrchestrator(
     private readonly IFindingsInsightGeneratorStage _insightGeneratorStage =
         insightGeneratorStage ?? throw new ArgumentNullException(nameof(insightGeneratorStage));
 
+    private readonly IFindingsProseAssumptionStage _proseAssumptionStage =
+        proseAssumptionStage ?? throw new ArgumentNullException(nameof(proseAssumptionStage));
+
     private readonly IFindingsMergeAndGateStage _mergeAndGateStage =
         mergeAndGateStage ?? throw new ArgumentNullException(nameof(mergeAndGateStage));
 
     private readonly IFindingsChecklistClusterStage _checklistClusterStage =
         checklistClusterStage ?? throw new ArgumentNullException(nameof(checklistClusterStage));
+
+    private readonly IFindingsDecisionGradeFusionStage _decisionGradeFusionStage =
+        decisionGradeFusionStage ?? throw new ArgumentNullException(nameof(decisionGradeFusionStage));
 
     private readonly IFindingsSnapshotEmitStage _snapshotEmitStage =
         snapshotEmitStage ?? throw new ArgumentNullException(nameof(snapshotEmitStage));
@@ -55,8 +63,13 @@ public sealed class FindingsOrchestrator(
         await _policyStampStage.ExecuteAsync(context, ct);
         await _engineInvokeStage.ExecuteAsync(context, ct);
         await _insightGeneratorStage.ExecuteAsync(context, ct);
+
+        // Prose assumptions must be emitted before the gate so extracted contradictions are scored and
+        // demoted by the same predicate as every other finding (DX-55; no separate classification path).
+        await _proseAssumptionStage.ExecuteAsync(context, ct);
         await _mergeAndGateStage.ExecuteAsync(context, ct);
         await _checklistClusterStage.ExecuteAsync(context, ct);
+        await _decisionGradeFusionStage.ExecuteAsync(context, ct);
 
         return await _snapshotEmitStage.ExecuteAsync(context, ct);
     }

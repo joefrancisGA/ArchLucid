@@ -5,6 +5,7 @@
 import { ARCHITECTURE_IDENTITIES_NAV_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE } from "@/lib/extract-upload-settings-page-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 // Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
@@ -214,6 +215,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   systemHealth: "System health",
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
+  /** Inventory ZIP intake (`/administration/extract-upload`). */
+  extractUpload: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   digests: "Digests",
   /**
    * Settings hub (`/administration`) — the searchable index, not a leaf page. Named "All settings" so the

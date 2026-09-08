@@ -8,7 +8,7 @@
 | --- | --- |
 | Workflow | `.github/workflows/private-beta-access-on-push.yml` |
 | Display name | `Operator UI: private-beta access-path (JwtBearer)` |
-| Specs (push workflow, `--workers=1`) | `live-api-private-beta-access.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-scim-invite-substitute-smoke.spec.ts` |
+| Specs (push workflow, `--workers=1`) | `live-api-scim-invite-substitute-smoke.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-private-beta-access.spec.ts` (lighter specs first for faster CI signal) |
 | Timeout | 120 minutes (job); 45 minutes per Playwright test in CI |
 
 ## Happy path (CI step order)
@@ -71,6 +71,26 @@ bash scripts/ci/retrigger_private_beta_access_on_push.sh master
 
 Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
 
+### Smoke branch (merge-heavy trunk)
+
+When `master` merge churn keeps cancelling `private-beta-access-on-push` mid-Playwright, use the **frozen** isolated lane (do not merge `master` into it until the run finishes):
+
+| Field | Value |
+| --- | --- |
+| Branch | `cursor/al-beta-private-beta-frozen-7730` |
+| Pin | `scripts/ci/private_beta_frozen_branch.sha` |
+| Workflow | `.github/workflows/private-beta-access-smoke-branch.yml` |
+| Concurrency | `cancel-in-progress: false` (runs finish even if the lane branch is pushed again) |
+| Runbook | [PRIVATE_BETA_FROZEN_BRANCH.md](./PRIVATE_BETA_FROZEN_BRANCH.md) |
+
+Legacy lane branches (`cursor/al-beta-private-beta-smoke-lane-7730`, `cursor/al-beta-private-beta-e2e-fixes-7730`) may still exist; use **`workflow_dispatch`** or the frozen branch for new point-in-time runs.
+
+```bash
+bash scripts/ci/retrigger_private_beta_smoke_branch.sh cursor/al-beta-private-beta-frozen-7730
+```
+
+Artifact names use the `-smoke-branch` suffix (e.g. `ui-e2e-live-beta-access-smoke-branch-playwright-report`).
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):
@@ -85,6 +105,14 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 **Triage order:** confirm Playwright step started (not stuck in queue) → check post-warm `/health/ready` lines in job log → open API log for exceptions during `createRun` → inspect Playwright trace for proxy/JWT failures.
 
 For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
+
+**Download artifacts from a finished smoke run:**
+
+```bash
+bash scripts/ci/fetch_private_beta_smoke_artifacts.sh <run-id> ./triage-out --lane smoke-branch
+```
+
+Use `--lane trunk` for `private-beta-access-on-push` or `--lane full-matrix` for `ci.yml` `ui-e2e-live-beta-access`.
 
 **OpenAPI drift on push corset:** when `.NET: OpenAPI v1 contract snapshot (fail-fast)` fails after architecture or infrastructure API merges, regenerate from repo root:
 
@@ -123,7 +151,7 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 ```
 
 ```bash
-cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-private-beta-wave-3.spec.ts live-api-invite-flow.spec.ts live-api-scim-invite-substitute-smoke.spec.ts --workers=1
+cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
 ## Golden-cohort apply (owner, after first green)

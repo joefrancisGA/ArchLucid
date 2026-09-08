@@ -268,6 +268,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/administration/extract-upload")?.whatToDoNext).toContain(
       "Start a review",
     );
+    expect(contextualHelpForPathname("/governance/infrastructure/extract-upload")?.whatIsThisPage).toContain(
+      "Extract and Upload",
+    );
   });
 
   it("resolves AI and model policy Category-1 help (AMO)", () => {
@@ -498,6 +501,10 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves teams integration Category-1 help (ITX)", () => {
     expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Teams integration");
     expect(contextualHelpForPathname("/integrations/teams")?.whatToDoNext).toContain("Teams connector");
+    expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Microsoft Teams");
+    expect(
+      contextualHelpForPathname("/integrations/teams", { productLineId: "security" })?.whatIsThisPage,
+    ).not.toContain("Microsoft Teams");
   });
 
   it("resolves validate review Category-1 help (REP)", () => {

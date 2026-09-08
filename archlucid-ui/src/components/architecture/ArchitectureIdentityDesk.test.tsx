@@ -16,6 +16,20 @@ vi.mock("@/hooks/use-rehydrate-in-flight-from-architecture", () => ({
   useRehydrateInFlightOperationsFromArchitecture: vi.fn(),
 }));
 
+const useArchitectureDraftQueryMock = vi.fn(() => ({
+  isLoading: false,
+  isError: false,
+  data: {
+    document: {
+      openQuestions: "Who owns quarterly access reviews?",
+    },
+  },
+}));
+
+vi.mock("@/hooks/use-architecture-draft-query", () => ({
+  useArchitectureDraftQuery: (...args: unknown[]) => useArchitectureDraftQueryMock(...args),
+}));
+
 const useShellInFlightOperationsMock = vi.fn(() => []);
 
 vi.mock("@/hooks/use-shell-in-flight-operations", () => ({
@@ -108,6 +122,22 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-start-review")).toHaveAttribute(
       "href",
       "/architecture/architectures/architecture-identity-001/reviews/new",
+    );
+  });
+
+  it("WS-19: shows open questions from the current drafting draft on the desk", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-open-questions")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-open-questions-body")).toHaveTextContent(
+      "Who owns quarterly access reviews?",
     );
   });
 

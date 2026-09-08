@@ -10,6 +10,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_NEW_REVIEW_NAV_LABEL, OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 
 import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { DRIFT_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-drift-page-shortcuts";
 
 export const WORKING_MODE_NEW_REVIEW_ROUTE = ARCHITECTURES_NEW_PATH;
 
@@ -274,7 +275,17 @@ export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+export const WORKSPACE_SETTINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+s",
+    label: "Save cost settings",
+    description: "Save tenant cost settings on the workspace settings page when the form is editable",
+  },
+];
+
 /** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
+export { DRIFT_WORKBENCH_PAGE_SHORTCUTS };
+
 export const ARCHITECTURE_DESK_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "alt+n",

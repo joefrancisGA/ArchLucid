@@ -2,35 +2,56 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import type { RefObject } from "react";
 import Link from "next/link";
-import { useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM,
+  parseRunsRowBaselineMenuRunIdFromSearch,
+  runsRowBaselineMenuDisclosureHrefFromSearch,
+} from "@/lib/runs/runs-row-baseline-menu-disclosure-url";
 import { showSuccess } from "@/lib/toast";
-
-function closeDetails(ref: RefObject<HTMLDetailsElement | null>): void {
-  const el = ref.current;
-
-  if (el !== null) {
-    el.open = false;
-  }
-}
 
 /**
  * Compact per-row menu on the reviews list: set the browser-local compare baseline (committed runs only).
  */
 export function RunsRowBaselineMenu(props: { runId: string }) {
-  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runsRowBaselineMenuRunIdParam = searchParams.get(RUNS_ROW_BASELINE_MENU_RUN_ID_PARAM);
+  const [openRunId, setOpenRunIdState] = useState(() => parseRunsRowBaselineMenuRunIdFromSearch(runsRowBaselineMenuRunIdParam));
+  const syncOpenRunIdToUrl = useCallback(
+    (runId: string | null) => {
+      router.replace(
+        runsRowBaselineMenuDisclosureHrefFromSearch(searchParams.toString(), runId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenRunId = useCallback(
+    (runId: string | null) => {
+      setOpenRunIdState(runId ?? "");
+      syncOpenRunIdToUrl(runId);
+    },
+    [syncOpenRunIdToUrl],
+  );
+  useEffect(() => {
+    setOpenRunIdState(parseRunsRowBaselineMenuRunIdFromSearch(runsRowBaselineMenuRunIdParam));
+  }, [runsRowBaselineMenuRunIdParam]);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const runEnc = encodeURIComponent(props.runId);
+  const menuOpen = openRunId === props.runId;
 
   const onSetBaseline = () => {
     persistCompareBaselineRunId(props.runId);
     showSuccess("Baseline review saved for compare.");
-    closeDetails(detailsRef);
+    setOpenRunId(null);
   };
 
   if (buyerPolished) {
@@ -60,9 +81,13 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
 
   return (
     <details
-      ref={detailsRef}
       className="relative inline-block text-left"
       data-testid={`runs-row-baseline-menu-${props.runId}`}
+      open={menuOpen}
+      onToggle={(event) => {
+        const nextOpen = event.currentTarget.open;
+        setOpenRunId(nextOpen ? props.runId : null);
+      }}
       onClick={(e) => {
         e.stopPropagation();
       }}

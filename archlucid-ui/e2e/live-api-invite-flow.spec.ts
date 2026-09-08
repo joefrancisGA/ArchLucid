@@ -6,16 +6,17 @@ import { expect, test } from "@playwright/test";
 
 import {
   createScimAdminToken,
-  primeJwtBrowserSession,
+  primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
-  requireLivePrivateBetaJwtEnv,
   submitAdminInviteFromUsersUi,
 } from "./helpers/live-private-beta-access";
-import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
+import { liveApiBase } from "./helpers/live-api-client";
 
 async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
+  await primePrivateBetaBrowserSessionIfJwtMode(page);
   await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
@@ -34,16 +35,6 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
   test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
     test.setTimeout(180_000);
-
-    if (resolveLiveJwtMode()) {
-      const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
-
-      if (bearer.length === 0) {
-        throw new Error(
-          "JWT mode requires ARCHLUCID_PROXY_BEARER_TOKEN on the UI process so /api/proxy forwards Authorization.",
-        );
-      }
-    }
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
@@ -68,11 +59,6 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {
     test.setTimeout(180_000);
 
-    if (resolveLiveJwtMode()) {
-      requireLivePrivateBetaJwtEnv();
-      await primeJwtBrowserSession(page, requireLivePrivateBetaJwtEnv().accessToken);
-    }
-
     const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;
 
     await gotoUsersInvitePage(page);
@@ -88,11 +74,6 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
   test("invite to existing directory user surfaces conflict copy in UI", async ({ page, request }) => {
     test.setTimeout(180_000);
-
-    if (resolveLiveJwtMode()) {
-      requireLivePrivateBetaJwtEnv();
-      await primeJwtBrowserSession(page, requireLivePrivateBetaJwtEnv().accessToken);
-    }
 
     const directoryEmail = `e2e-dir-user-${Date.now()}@example.com`;
     const scimToken = await createScimAdminToken(request);

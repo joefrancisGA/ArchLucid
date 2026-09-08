@@ -24,8 +24,11 @@ public static class GoldenCorpusHarnessEngineInventory
             ["policy-coverage"] = "Policy-filtered packs exercised in WK-22 sibling tests, not merge harness.",
             ["cost-breach"] = "Cost breach needs live cost telemetry — not on static golden graphs.",
             ["checklist-cluster-synthesis"] = "Post-gate synthesis — see ChecklistClusterSynthesisGoldenCorpusTests; merge harness does not emit clustered rows without dismiss posture.",
+            // Post-gate join of Decision-grade members; AnalyzeAsync is a catalog placeholder (DX-51).
+            ["decision-grade-fusion"] = "Post-gate synthesis; needs Decision-grade members — see DecisionGradeFusionApplicatorTests.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
             ["policy-declaration-inventory-contradiction"] = "Three-way pack contradiction needs filtered assigned pack — see PolicyDeclarationInventoryContradictionGoldenCorpusTests (DX-36).",
+            ["portfolio-shared-topology"] = "Effectful cross-system graph join; not in single-snapshot corpus.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

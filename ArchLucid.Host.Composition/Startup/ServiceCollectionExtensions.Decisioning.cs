@@ -1,4 +1,6 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.PortfolioRecurrence;
+using ArchLucid.Application.Findings.PortfolioSharedTopology;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
@@ -68,6 +70,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.SegmentationSemanticsFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.InsightGeneratorFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ChecklistClusterSynthesisFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DecisionGradeFusionFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
@@ -99,6 +102,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.SecretsLifecycleFindingEngine>();
         services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
+        services.AddPortfolioSharedTopologyFindingEngine();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioSharedTopologyFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
@@ -109,13 +114,20 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions.SectionPath));
+        services.Configure<ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions>(
+            configuration.GetSection(ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions.SectionPath));
         services.AddScoped<ArchLucid.Application.Findings.IPortfolioRecurrenceFindingOptionsResolver,
             ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptionsResolver>();
+        services.AddScoped<ArchLucid.Application.Findings.IPortfolioSharedTopologyFindingOptionsResolver,
+            ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptionsResolver>();
         services.AddScoped<Di.IPortfolioRecurrenceCurrentReviewIdentitySource,
             ArchLucid.Application.Findings.PortfolioRecurrenceCurrentReviewIdentitySource>();
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
         services.TryAddScoped<IInsightFindingGenerator, NoOpInsightFindingGenerator>();
+        services.TryAddScoped<IProseAssumptionFindingGenerator, NoOpProseAssumptionFindingGenerator>();
+        services.AddScoped<ArchLucid.Application.Findings.ProseAssumption.IProseAssumptionContradictionService,
+            ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionContradictionService>();
 
         RegisterPluginFindingEngines(services, configuration);
 
@@ -125,16 +137,21 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Decisioning.Services.Findings.FindingsEngineInvokeStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsInsightGeneratorStage,
             ArchLucid.Decisioning.Services.Findings.FindingsInsightGeneratorStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsProseAssumptionStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsProseAssumptionStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
             ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsChecklistClusterStage,
             ArchLucid.Decisioning.Services.Findings.FindingsChecklistClusterStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsDecisionGradeFusionStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsDecisionGradeFusionStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsSnapshotEmitStage,
             ArchLucid.Decisioning.Services.Findings.FindingsSnapshotEmitStage>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
             (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<Di.IFindingProvenanceValidator, Ds.FindingProvenanceValidator>();
         services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
         services.AddSingleton<FeasibilityVerdictBuilder>();
         services.AddSingleton<IAuthorityFeasibilityVerdictComposer, AuthorityFeasibilityVerdictComposer>();

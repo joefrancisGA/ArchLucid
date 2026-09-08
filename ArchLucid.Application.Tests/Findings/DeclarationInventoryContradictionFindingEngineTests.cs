@@ -3,8 +3,10 @@ using System.Text;
 
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
@@ -122,9 +124,20 @@ public sealed class DeclarationInventoryContradictionFindingEngineTests
         (DeclarationInventoryContradictionFindingEngine sut, FindingAnalysisContext context) =
             CreateSut(CreateAzurePackage(resourcesJson));
 
-        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
+        HeldCheckLedger ledger = new();
+        FindingAnalysisContext contextWithLedger = new()
+        {
+            RunId = context.RunId,
+            ContextSnapshotId = context.ContextSnapshotId,
+            EvidencePin = context.EvidencePin,
+            EvidencePins = context.EvidencePins,
+            HeldCheckLedger = ledger,
+        };
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, contextWithLedger, CancellationToken.None);
 
         findings.Should().BeEmpty();
+        ledger.BuildRollup().Should().BeEmpty();
     }
 
     [Fact]

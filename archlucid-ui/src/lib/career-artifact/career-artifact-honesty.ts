@@ -12,6 +12,13 @@ import {
   transparencyTrailIncompleteFinalizeReason,
 } from "@/lib/feasibility/transparency-trail-completeness";
 import { formatPreCommitGateDisabledCareerBlockedReason } from "@/lib/governance/pre-commit-gate-career-honesty";
+import {
+  formatSimulatorRehearsalCareerBlockedReason,
+  isRehearsalStructuralExecutionMode,
+  SIMULATOR_REHEARSAL_GUIDED_WARNING,
+  SIMULATOR_REHEARSAL_HEADER_BODY,
+  SIMULATOR_REHEARSAL_HEADER_TITLE,
+} from "@/lib/governance/simulator-career-honesty";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { getDecisionGradeFindingProvenanceViolations } from "@/lib/findings/decision-grade-finding-provenance-validator";
@@ -28,6 +35,8 @@ export type CareerArtifactHonestyInput = CareerExportCoverageHonestyInput & {
   readonly legacySealedReExport?: boolean;
   /** Block external sponsor distribution for demo/static/sample runs unless waiver copy is shown. */
   readonly blockExternalSponsorDistribution?: boolean;
+  /** LP-06 — rehearsal title/body are embedded on the export artifact. */
+  readonly simulatorRehearsalBannerOnArtifact?: boolean;
 };
 
 export type CareerArtifactHonestyVerdict = {
@@ -146,6 +155,13 @@ function buildHeaderLines(input: CareerArtifactHonestyInput): readonly string[] 
     lines.push(ASSERTED_TRAIL_EMPTY_CAREER_CLAIM_REASON);
   }
 
+  if (isRehearsalStructuralExecutionMode(input.structuralExecutionMode ?? null)) {
+    if (!lines.some((line) => line.includes(SIMULATOR_REHEARSAL_HEADER_TITLE))) {
+      lines.push(SIMULATOR_REHEARSAL_HEADER_TITLE);
+      lines.push(SIMULATOR_REHEARSAL_HEADER_BODY);
+    }
+  }
+
   return lines;
 }
 
@@ -227,6 +243,23 @@ export function evaluateCareerArtifactHonesty(
 
   if (demoSampleBlockedReason !== null) {
     blockedReasons.push(demoSampleBlockedReason);
+  }
+
+  const simulatorRehearsalBlockedReason = formatSimulatorRehearsalCareerBlockedReason({
+    workingDesk: input.workingDesk,
+    isSample: input.isSample,
+    structuralExecutionMode: input.structuralExecutionMode,
+    simulatorRehearsalBannerOnArtifact: input.simulatorRehearsalBannerOnArtifact,
+    artifactKind: input.artifactKind,
+  });
+
+  if (simulatorRehearsalBlockedReason !== null) {
+    blockedReasons.push(simulatorRehearsalBlockedReason);
+  } else if (
+    input.workingDesk !== true
+    && isRehearsalStructuralExecutionMode(input.structuralExecutionMode ?? null)
+  ) {
+    warnings.push(SIMULATOR_REHEARSAL_GUIDED_WARNING);
   }
 
   const trail = input.transparencyTrail ?? input.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;

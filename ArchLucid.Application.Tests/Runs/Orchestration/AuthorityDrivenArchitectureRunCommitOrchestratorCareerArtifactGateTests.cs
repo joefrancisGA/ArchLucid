@@ -6,13 +6,16 @@ using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.CareerArtifacts;
-using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -90,9 +93,115 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         exception.Result.Reason.Should().Be("1 required question is unanswered.");
     }
 
+    [SkippableFact]
+    public async Task CommitRunAsync_blocks_finalize_when_degraded_finding_coverage_on_working_desk()
+    {
+        Guid findingsSnapshotId = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        FindingsSnapshot degradedSnapshot = new()
+        {
+            FindingsSnapshotId = findingsSnapshotId,
+            RunId = RunGuid,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
+            EngineFailures =
+            [
+                new FindingEngineFailure
+                {
+                    EngineType = "cost",
+                    Category = "Cost",
+                    ErrorMessage = "offline",
+                    ExceptionType = nameof(InvalidOperationException),
+                    DurationMs = 1,
+                    OccurredUtc = DateTime.UtcNow,
+                },
+            ],
+            Findings =
+            [
+                new Finding
+                {
+                    FindingType = "RequirementFinding",
+                    Category = "Requirement",
+                    EngineType = "requirement",
+                    Title = "r",
+                    Rationale = "r",
+                    Severity = FindingSeverity.Info,
+                },
+            ],
+        };
+
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: degradedSnapshot,
+            findingsSnapshotId: findingsSnapshotId);
+
+        Func<Task> act = async () => await sut.CommitRunAsync(RunId, CancellationToken.None);
+
+        PreCommitGovernanceBlockedException exception = (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
+            .Which;
+
+        exception.Result.Blocked.Should().BeTrue();
+        exception.Result.Reason.Should().Contain("cost/Cost");
+        exception.Result.Reason.Should().Contain("Finding coverage is degraded");
+    }
+
+    [SkippableFact]
+    public async Task CommitRunAsync_blocks_finalize_when_simulator_mode_on_working_desk()
+    {
+        Guid findingsSnapshotId = Guid.Parse("cccccccccccccccccccccccccccccccc");
+        FindingsSnapshot measurementPassingSnapshot = CreateMeasurementFloorPassingSnapshot(findingsSnapshotId);
+
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: measurementPassingSnapshot,
+            findingsSnapshotId: findingsSnapshotId,
+            structuralExecutionMode: StructuralExecutionMode.Simulator);
+
+        Func<Task> act = async () => await sut.CommitRunAsync(RunId, CancellationToken.None);
+
+        PreCommitGovernanceBlockedException exception = (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
+            .Which;
+
+        exception.Result.Blocked.Should().BeTrue();
+        exception.Result.Reason.Should().Be(SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage);
+    }
+
+    private static FindingsSnapshot CreateMeasurementFloorPassingSnapshot(Guid snapshotId)
+    {
+        List<Finding> findings = [];
+
+        for (int index = 0; index < InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines; index++)
+        {
+            findings.Add(new Finding
+            {
+                FindingType = "RequirementFinding",
+                Category = $"Category{index}",
+                EngineType = $"engine{index}",
+                Title = "title",
+                Rationale = "rationale",
+                Severity = FindingSeverity.Info,
+            });
+        }
+
+        return new FindingsSnapshot
+        {
+            FindingsSnapshotId = snapshotId,
+            RunId = RunGuid,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+            Findings = findings,
+        };
+    }
+
     private static AuthorityDrivenArchitectureRunCommitOrchestrator CreateSut(
         out Mock<IArchitectureRequestRepository> requestRepository,
-        TransparencyTrail? transparencyTrail)
+        TransparencyTrail? transparencyTrail,
+        FindingsSnapshot? findingsSnapshot = null,
+        Guid? findingsSnapshotId = null,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real)
     {
         requestRepository = new Mock<IArchitectureRequestRepository>();
         requestRepository
@@ -104,7 +213,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             });
 
         Mock<IRunRepository> runRepository = new();
-        RunRecord runRecord = CreateReadyRunRecord();
+        RunRecord runRecord = CreateReadyRunRecord(findingsSnapshotId, structuralExecutionMode);
         runRepository
             .Setup(repository => repository.GetByIdAsync(TestScope, RunGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(runRecord);
@@ -142,6 +251,19 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActor()).Returns("unit-test-actor");
 
+        Mock<IUserWorkspaceModeReader> userWorkspaceModeReader = new();
+        userWorkspaceModeReader
+            .Setup(reader => reader.IsWorkingDeskAsync("unit-test-actor", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IFindingsSnapshotRepository> findingsSnapshotRepository = new();
+        if (findingsSnapshot is not null && findingsSnapshotId is Guid snapshotId)
+        {
+            findingsSnapshotRepository
+                .Setup(repository => repository.GetByIdAsync(TestScope, snapshotId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(findingsSnapshot);
+        }
+
         return new AuthorityDrivenArchitectureRunCommitOrchestrator(
             runRepository.Object,
             scopeProvider.Object,
@@ -156,15 +278,18 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             Mock.Of<IAuthorityCommitPersistenceStage>(),
             failureRecorder.Object,
             Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IFindingsSnapshotRepository>(),
+            findingsSnapshotRepository.Object,
             Mock.Of<IDecisionTraceRepository>(),
             Mock.Of<IArtifactBundleRepository>(),
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<IManifestHashService>(),
+            userWorkspaceModeReader.Object,
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 
-    private static RunRecord CreateReadyRunRecord() =>
+    private static RunRecord CreateReadyRunRecord(
+        Guid? findingsSnapshotId = null,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real) =>
         new()
         {
             RunId = RunGuid,
@@ -174,6 +299,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             ProjectId = "project-slug",
             ArchitectureRequestId = RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            FindingsSnapshotId = findingsSnapshotId,
+            StructuralExecutionMode = structuralExecutionMode,
         };
 
     private static IReadOnlyList<AgentResult> CreateCommitReadyAgentResults() =>

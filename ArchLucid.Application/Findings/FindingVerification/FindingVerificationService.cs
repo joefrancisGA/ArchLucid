@@ -4,10 +4,15 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Findings.FindingVerification;
 
@@ -18,7 +23,11 @@ public sealed class FindingVerificationService(
     ICrossReviewFindingCorrelationService correlationService,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IFindingVerificationScorer findingVerificationScorer,
-    IAuditService auditService) : IFindingVerificationService
+    IAuditService auditService,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    ILogger<FindingVerificationService> logger) : IFindingVerificationService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -40,6 +49,18 @@ public sealed class FindingVerificationService(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
+        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+
+    private readonly IIntegrationEventPublisher _integrationEventPublisher =
+        integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
+
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
+        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+
+    private readonly ILogger<FindingVerificationService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<FindingVerificationCreateReportResult> CreateReportAsync(
         ScopeContext scope,
@@ -169,6 +190,15 @@ public sealed class FindingVerificationService(
                     resultCount = record.Results.Count,
                 }),
             },
+            cancellationToken);
+
+        await FindingVerificationIntegrationEventPublishing.TryPublishCompletedAsync(
+            _integrationEventOutbox,
+            _integrationEventPublisher,
+            _integrationEventsOptions,
+            _logger,
+            scope,
+            record,
             cancellationToken);
 
         return new FindingVerificationCreateReportResult

@@ -3,6 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/defensible-record-00-index.md`](../../.cursor/prompts/defensible-record-00-index.md) (**DR-01–DR-16**)
 > **Predecessor:** [`PROFESSIONAL_CORE_COMPOSER_PROMPTS.md`](PROFESSIONAL_CORE_COMPOSER_PROMPTS.md) (**PC-01–PC-13** shipped) · [`PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md`](PROFESSIONAL_CORE_ACCEPTANCE_2026-09-06.md)
 > **Successor (wave 17 — issue #1 locator):** [`ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md`](ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md) (**AO-01–AO-50**) — do **not** add DR-17; paste AO files for Architecture-as-locator. Keep running DR for fail-closed leftovers.
+> **Later successor (wave 20 — persist leftovers):** [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) (**LP-01–LP-20**) — DR-04 pre-commit honesty leftover; do **not** add DR-17 for provenance or promote same-tx.
 
 # Defensible-record Composer prompts (DR-01–DR-16)
 

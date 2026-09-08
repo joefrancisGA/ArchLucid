@@ -6,12 +6,19 @@ import { OperatorShellSupportQuickLinks } from "@/components/help/OperatorShellS
 import { HelpDrawerDocHitRow, HelpDrawerGroupHeading } from "@/components/HelpSearchDrawerHits";
 import { HELP_DRAWER_ROW_LIST_CLASS } from "@/components/help/help-drawer-row-class";
 import type { HelpTabId } from "@/components/HelpPanel";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   HELP_SEARCH_PANEL_EMPTY_HINT,
   HELP_SEARCH_PANEL_EMPTY_TITLE,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   type HelpSearchPanelTopic,
 } from "@/lib/help/help-search-panel-catalog";
+import {
+  HELP_SEARCH_START_HERE_OPEN_PARAM,
+  helpSearchStartHereDisclosureHrefFromSearch,
+  parseHelpSearchStartHereOpenFromSearch,
+} from "@/lib/help/help-search-start-here-disclosure-url";
 import type { HelpDocSearchRecord } from "@/lib/help/help-index";
 import { HELP_ON_HELP_ON_THIS_PAGE_HEADING } from "@/lib/help/help-on-help";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -65,6 +72,32 @@ export function HelpSearchPanelResults({
   onOpenChange,
   onOpenGuidesTab,
 }: HelpSearchPanelResultsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpSearchStartHereParam = searchParams.get(HELP_SEARCH_START_HERE_OPEN_PARAM);
+  const [helpSearchStartHereOpen, setHelpSearchStartHereOpenState] = useState(() =>
+    parseHelpSearchStartHereOpenFromSearch(helpSearchStartHereParam),
+  );
+  const syncHelpSearchStartHereOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpSearchStartHereDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setHelpSearchStartHereOpen = useCallback(
+    (open: boolean) => {
+      setHelpSearchStartHereOpenState(open);
+      syncHelpSearchStartHereOpenToUrl(open);
+    },
+    [syncHelpSearchStartHereOpenToUrl],
+  );
+  useEffect(() => {
+    setHelpSearchStartHereOpenState(parseHelpSearchStartHereOpenFromSearch(helpSearchStartHereParam));
+  }, [helpSearchStartHereParam]);
   const { productLine } = useLocalizedProductCopy();
   const startHereCollapsedSummary = newToProductHelpCollapsedSummary(productLine);
 
@@ -239,7 +272,11 @@ export function HelpSearchPanelResults({
                   data-testid={`help-search-group-${group.id}`}
                 >
                   {collapsed ? (
-                    <details data-testid="help-search-start-here-disclosure">
+                    <details
+                      data-testid="help-search-start-here-disclosure"
+                      open={helpSearchStartHereOpen}
+                      onToggle={(event) => setHelpSearchStartHereOpen(event.currentTarget.open)}
+                    >
                       <summary className="flex cursor-pointer items-center justify-between gap-2 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-900">
                         {heading}
                         <span

@@ -47,7 +47,7 @@ export function localizeHelpCenterDisplay(
   productLineId: ProductLineId,
 ): HelpCenterDisplay {
   return {
-    title: display.title,
+    title: localizeHelpCopy(productLineId, display.title),
     summary: localizeHelpCopy(productLineId, display.summary),
   };
 }

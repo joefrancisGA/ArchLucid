@@ -12,8 +12,7 @@
     "label",
     "decisionGradeFindingTitles",
     "archlucidFindings",
-    "frontierBaseline",
-    "expectedNoveltyPercentage"
+    "frontierBaseline"
   ],
   "properties": {
     "schema": {
@@ -57,8 +56,12 @@
     },
     "frontierBaseline": {
       "type": "object",
-      "required": ["findings"],
+      "required": ["source", "findings"],
       "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["human-authored", "pilot-pending", "empty"]
+        },
         "findings": {
           "type": "array",
           "items": { "$ref": "#/$defs/baselineFinding" }
@@ -66,11 +69,30 @@
       }
     },
     "expectedNoveltyPercentage": {
-      "type": "number",
+      "type": ["number", "null"],
       "minimum": 0,
       "maximum": 100
+    },
+    "humanWouldChangeDecisionCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "humanWouldChangeDecisionSampleSize": {
+      "type": "integer",
+      "minimum": 0
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "label": { "const": "synthetic" } },
+        "required": ["label"]
+      },
+      "then": {
+        "required": ["expectedNoveltyPercentage"]
+      }
+    }
+  ],
   "$defs": {
     "archlucidFinding": {
       "type": "object",

@@ -474,6 +474,49 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         judged.Should().ContainSingle().Which.FindingId.Should().Be("high-rate");
     }
 
+    [Fact]
+    public void SelectEngineJudgedCandidates_orders_by_verification_prior_when_flag_enabled()
+    {
+        Finding lowRate = CreatePromotedEngineFinding(
+            "low-verification",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding highRate = CreatePromotedEngineFinding(
+            "high-verification",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> verificationRates = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["topology-coverage"] = 0.2,
+            ["review-pack-gap"] = 0.9,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [lowRate, highRate],
+            maxJudgedFindingsPerSnapshot: 1,
+            noveltyRatesByEngineType: null,
+            verificationPriorRatesByEngineType: verificationRates);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("high-verification");
+    }
+
+    [Fact]
+    public void ResolveVerificationPriorRate_uses_neutral_prior_for_missing_engine()
+    {
+        Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["known-engine"] = 0.9,
+        };
+
+        InsightDensityVerificationPriorLookup.ResolveVerificationPriorRate("unknown-engine", rates)
+            .Should()
+            .Be(EngineVerificationConfirmedRateAggregation.NeutralPriorRate);
+    }
+
     private static Finding CreatePromotedEngineFinding(
         string findingId = "engine-f1",
         string engineType = "topology",
@@ -522,7 +565,9 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         bool enableEngineJudge = false,
         int maxJudged = 12,
         bool preferHighNoveltyEngines = false,
+        bool preferHighVerificationEngines = false,
         IFindingInsightSignalRepository? insightSignalRepository = null,
+        IAppendOnlyFindingVerificationReportRepository? verificationReportRepository = null,
         IScopeContextProvider? scopeContextProvider = null)
     {
         Dictionary<string, string?> configValues = new(StringComparer.OrdinalIgnoreCase);
@@ -552,9 +597,11 @@ public sealed class PremiumInsightDensityLlmJudgeTests
                     EnableLlmJudgeForEngineFindings = enableEngineJudge,
                     MaxJudgedFindingsPerSnapshot = maxJudged,
                     PreferHighNoveltyEngines = preferHighNoveltyEngines,
+                    PreferHighVerificationEngines = preferHighVerificationEngines,
                 }),
             configuration,
             insightSignalRepository,
+            verificationReportRepository,
             scopeContextProvider,
             TimeProvider.System,
             NullLogger<PremiumInsightDensityLlmJudge>.Instance);

@@ -7,14 +7,18 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 import { useCreateArchitectureNavigation } from "@/hooks/use-create-architecture-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /** Header actions for `/architecture/architectures`: help + primary Create architecture (TB-1446). */
 export function ArchitecturesHubHeaderActions(): React.JSX.Element {
   const createArchitectureNavigation = useCreateArchitectureNavigation();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="architectures-hub-header-actions">
-      <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+      {buyerPolishedShell ? null : (
+        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+      )}
       <Button
         type="button"
         variant="primary"

@@ -117,6 +117,38 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
   );
 }
 
+export type PrimePrivateBetaBrowserPageOptions = {
+  /** When true (default), stub draft inventory before navigation. */
+  readonly stubDraftList?: boolean;
+};
+
+/** JwtBearer session priming plus the default private-beta page defaults (draft-list stub). */
+export async function primePrivateBetaBrowserPage(
+  page: Page,
+  accessToken: string,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (options?.stubDraftList !== false) {
+    await stubEmptyArchitectureDraftListRoute(page);
+  }
+
+  await primeJwtBrowserSession(page, accessToken);
+}
+
+/** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
+export async function primePrivateBetaBrowserSessionIfJwtMode(
+  page: Page,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (!resolveLiveJwtMode()) {
+    return;
+  }
+
+  const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+  await primePrivateBetaBrowserPage(page, accessToken, options);
+}
+
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
@@ -618,17 +650,29 @@ export async function provisionScimDirectoryUser(
 }
 
 async function openInviteForm(page: import("@playwright/test").Page): Promise<void> {
+  const inviteForm = page.getByTestId("settings-roles-invite-form");
+
+  if (await inviteForm.isVisible().catch(() => false)) {
+    return;
+  }
+
   const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
   const inviteSection = page.getByTestId("settings-roles-invite-section");
+  const invitePrimaryAction = page.getByTestId("settings-roles-invite-primary-action");
+  const inviteStartHereAction = page.getByTestId("settings-roles-start-here-invite");
 
   if (await invitePrimaryRegion.isVisible().catch(() => false)) {
     await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
+    await invitePrimaryAction.click();
+  } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
+    await inviteStartHereAction.click();
   } else {
     await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
     await inviteSection.locator("summary").click();
   }
 
-  await page.getByTestId("settings-roles-invite-form").waitFor({ state: "visible", timeout: 60_000 });
+  await inviteForm.waitFor({ state: "visible", timeout: 60_000 });
 }
 
 /** Submits an admin invite from the Users settings UI. */
@@ -642,4 +686,18 @@ export async function submitAdminInviteFromUsersUi(
   await page.getByTestId("settings-roles-invite-role").click();
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
   await page.getByTestId("settings-roles-invite-submit").click();
+
+  const pendingRow = page.locator("tr", { hasText: email });
+  const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
+
+  try {
+    await Promise.race([
+      pendingRow.waitFor({ state: "visible", timeout: 60_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 60_000 }),
+    ]);
+  } catch {
+    throw new Error(
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 60s after submit.`,
+    );
+  }
 }

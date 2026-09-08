@@ -1,5 +1,6 @@
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
+import { shouldSuppressReadyToFinalizeForSimulatorRehearsal } from "@/lib/governance/simulator-career-honesty";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { QualityGateModeInput } from "@/lib/governance/agent-output-quality-gate-career-honesty";
@@ -20,6 +21,10 @@ export function shouldSuppressReadyToFinalizeForCareerHonesty(
   input: RunPipelineFinalizeBlockedHonestyInput,
 ): boolean {
   if (shouldSuppressReadyToFinalizeForQualityGateHonesty(input)) {
+    return true;
+  }
+
+  if (shouldSuppressReadyToFinalizeForSimulatorRehearsal(input)) {
     return true;
   }
 

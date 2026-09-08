@@ -27,7 +27,7 @@ import {
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
-  primeJwtBrowserSession,
+  primePrivateBetaBrowserPage,
   requireLivePrivateBetaJwtEnv,
   resolveScopeFromAuthMe,
   writeJwtBrowserSession,
@@ -73,10 +73,13 @@ test.describe(
 
     requireLivePrivateBetaJwtEnv();
 
-    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
     if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
+      await warmPrivateBetaCreateRunPipeline(request, expectedScope);
+
       return;
     }
+
+    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
 
     const draftListRes = await request.get(
       `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
@@ -103,7 +106,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/403", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("operator-access-denied-heading")).toBeVisible({ timeout: 30_000 });
@@ -116,7 +119,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.route("**/api/proxy/api/auth/me**", async (route) => {
       if (route.request().method() !== "GET") {
         await route.continue();
@@ -145,7 +148,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.route("**/api/proxy/api/auth/me**", async (route) => {
       if (route.request().method() !== "GET") {
         await route.continue();
@@ -278,15 +281,11 @@ test.describe(
       timeout: 30_000,
     });
     await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId("invitation-secondary-sign-in-again")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("invitation-recovery-sign-in")).toBeVisible({ timeout: 30_000 });
     });
 
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
-
-    test.beforeAll(async ({ request }) => {
-      await warmPrivateBetaCreateRunPipeline(request);
-    });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
@@ -322,7 +321,7 @@ test.describe(
 
     expect(pendingMatch).toBe(true);
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const me = await fetchAuthMeViaProxy(page);
@@ -465,7 +464,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
@@ -539,7 +538,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
@@ -585,7 +584,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 

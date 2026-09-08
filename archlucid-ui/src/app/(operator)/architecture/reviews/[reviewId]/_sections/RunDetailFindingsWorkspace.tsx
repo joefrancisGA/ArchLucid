@@ -33,7 +33,8 @@ import {
 } from "@/lib/metric-count-presentation";
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
-import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
+import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
@@ -75,6 +76,10 @@ import {
 } from "@/lib/findings/review-findings-job-view-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
+  formatFindingStreamDualCountLine,
+} from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -100,6 +105,8 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly buyerSummaryOmitsAgentFindings?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
 };
@@ -299,6 +306,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       />
     </div>
   );
+  const sealedStreamCount = props.findings.filter((finding) => finding.streamBand !== "agent").length;
+  const agentStreamCount = props.findings.filter((finding) => finding.streamBand === "agent").length;
+  const showFindingStreamDualCount = architectWorkspaceChrome && (sealedStreamCount > 0 || agentStreamCount > 0);
   const findingsListProps = {
     runId: props.runId,
     findings: listFindings,
@@ -307,6 +317,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     headlineFindingCount: props.headlineFindingCount,
     headlineWarningCount: props.headlineWarningCount,
     usingExplanationFallback: props.usingExplanationFallback,
+    buyerSummaryOmitsAgentFindings: props.buyerSummaryOmitsAgentFindings,
     manifestRuleSetId: props.manifestRuleSetId,
     manifestRuleSetVersion: props.manifestRuleSetVersion,
     defaultExpandLowSeverity: false,
@@ -400,7 +411,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       }}
     >
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
-      <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
+      <SimulatorRunRehearsalCaption
+        structuralExecutionMode={props.structuralExecutionMode}
+        testId="run-detail-findings-simulator-rehearsal-caption"
+      />
       <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface && props.buyerPolishedShell !== true ? (
@@ -420,6 +434,23 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       ) : null}
       {metricCountEl}
+      {showFindingStreamDualCount ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-stream-dual-count"
+        >
+          {formatFindingStreamDualCountLine(sealedStreamCount, agentStreamCount)}
+        </p>
+      ) : null}
+      {props.buyerSummaryOmitsAgentFindings === true ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-buyer-summary-agent-findings-omission"
+          role="status"
+        >
+          {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
+        </p>
+      ) : null}
       {hiddenFilterHonesty.hasHidden ? (
         <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
       ) : null}

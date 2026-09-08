@@ -126,6 +126,24 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertTrue(any("fetchAuthMeWithBearer" in error for error in errors))
 
+    def test_invite_flow_requires_jwt_priming_helper(self) -> None:
+        errors: list[str] = []
+
+        sut._require_invite_flow_jwt_priming_wiring(
+            "await page.goto('/administration/users');",
+            errors,
+        )
+
+        self.assertTrue(any("primePrivateBetaBrowserSessionIfJwtMode" in error for error in errors))
+
+        errors.clear()
+        sut._require_invite_flow_jwt_priming_wiring(
+            "await primePrivateBetaBrowserSessionIfJwtMode(page);",
+            errors,
+        )
+
+        self.assertEqual(errors, [])
+
     def test_sandbox_mock_json_import_attribute_required(self) -> None:
         errors: list[str] = []
 

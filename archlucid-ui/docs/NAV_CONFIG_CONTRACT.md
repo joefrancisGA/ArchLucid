@@ -32,6 +32,8 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 **Sidebar link density (TB-2139 / TB-2243):** **`RoleNavDensityExpandControl`** is the **only** sidebar escape hatch — same component on desktop **`SidebarNav`** and mobile **`MobileNavDrawer`**. Copy uses **`SHOW_ALL_DESTINATIONS`** (`Show all sidebar links` / `Fewer sidebar links`). Role-shaped density may hide non-primary nav groups; authority and lifecycle gates still apply underneath.
 
+**Sidebar row presentation (ADR 0081):** Each sidebar nav row renders **one visible label line** (icon, badge, pin affordances allowed). **No visible helper, reason, or description copy** may appear directly beneath a link — including disabled Working bind-tool rows (AO-40). Disabled explanations use **`navLinkDisabledTitle`** via **`aria-describedby`** on an **`sr-only`** hint in **`SidebarNavLink`** only. Vitest guard: **`sidebar-nav-link-density-guard.test.ts`**.
+
 **Commit-state presentation (TB-524):** `nav-committed-architecture-review-promotion.ts` never adds or removes a row. Once `hasCommittedArchitectureReview` is true it moves **First review guide** to the end of the Architecture group and re-tags it `extended`, and re-tags Compare / Evidence graph / pilot outcomes `essential`.
 
 **Committed-review gate single input (TB-2330):** Pre-commit progressive disclosure reads **`useEffectiveNavCommittedArchitectureReview()`** only — principal commit flag plus buyer-polished shell override. **`useOperatorShellNavRows`**, **`CommandPalette`**, and **`use-is-operator-nav-href-reachable`** must not import **`useNavCommittedArchitectureReview`** directly; Vitest guard: `nav-committed-review-gate-drift-guard.test.ts`. Sidebar and command palette must agree on the same href set for a given tenant commit state.
@@ -40,17 +42,17 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-**8** groups, **77** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+**8** groups, **78** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
 
 | Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
 |-------------------------|----------------|-------------------|---------|------:|--------|
 | `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
 | `operate-analysis`      | Insights       | `review-workflow` | Operate | 11 | analysis slice — compare, graph, Q&A, sponsor value, workspace health KPIs, … |
 | `operate-governance`    | Approval       | `review-workflow` | Operate | 14 | decide/track loop — queue, findings, decisions, audit, alerts, approval setup |
-| `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 7 | inventory snapshots, diagrams, resource hub, Ask, remediation instances |
+| `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 8 | inventory snapshots, extract & upload, diagrams, resource hub, Ask, remediation instances |
 | `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
-| `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
+| `operator-admin`        | Administration | `platform-admin`  | Admin   | 17 | system health, tenant cost, settings, inventory upload, support, users |
 | `operator-system-admin` | Internal       | `system-admin`    | Admin   | 18 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
 
 Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `operator-admin` and `operator-system-admin`, which inline their labels. `OPERATOR_NAV_GROUP_LABELS` still exports `reports`, `operations`, and `help` values that no live group consumes.
@@ -67,7 +69,7 @@ One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|se
 | `architecture` (default for unlisted hrefs) | Architecture shell only |
 | `security` | Security shell only |
 
-**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, billing, trust, health, support — not AI usage / model governance / baseline / recycle bin), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`, including **Extract & upload** at `/governance/infrastructure/extract-upload`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, trust, health, support — not extract-upload, AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
 
 The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations from **Internal → Product line** (`/internal/product-line`, localStorage overlay). Product shell selection lives on that Internal page, not the home body.
 
@@ -85,7 +87,7 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **77** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
+Operator sidebar groups imply a URL prefix in the address bar. **78** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|

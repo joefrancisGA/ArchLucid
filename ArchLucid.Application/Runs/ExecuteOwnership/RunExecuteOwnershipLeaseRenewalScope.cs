@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -88,6 +90,10 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+        }
+        catch (ConflictException)
+        {
+            _executeCancellationSource.Cancel();
         }
         catch (Exception ex)
         {

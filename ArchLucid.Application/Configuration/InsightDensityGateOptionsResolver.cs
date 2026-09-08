@@ -41,45 +41,58 @@ public sealed class InsightDensityGateOptionsResolver(
             InsightDensityGateEffectiveOptionsMerger.ApplyExecutionModePolicy(
                 effective,
                 isRealExecutionMode,
-                llmJudgeOverridden: false,
-                llmJudgeTenantValue: false,
-                engineJudgeOverridden: false,
-                engineJudgeTenantValue: false);
+                InsightDensityTenantFlagOverrides.None);
 
             return effective;
-        }
-
-        bool llmJudgeOverridden = TryReadTenantBoolean(
-            scope.TenantId,
-            TenantSettingKeys.FindingsInsightDensityLlmJudgeEnabled,
-            cancellationToken,
-            out bool llmJudgeTenantValue);
-
-        if (llmJudgeOverridden)
-        {
-            effective.EnableLlmJudge = llmJudgeTenantValue;
-        }
-
-        bool engineJudgeOverridden = TryReadTenantBoolean(
-            scope.TenantId,
-            TenantSettingKeys.FindingsInsightDensityLlmJudgeEngineFindingsEnabled,
-            cancellationToken,
-            out bool engineJudgeTenantValue);
-
-        if (engineJudgeOverridden)
-        {
-            effective.EnableLlmJudgeForEngineFindings = engineJudgeTenantValue;
         }
 
         InsightDensityGateEffectiveOptionsMerger.ApplyExecutionModePolicy(
             effective,
             isRealExecutionMode,
-            llmJudgeOverridden,
-            llmJudgeTenantValue,
-            engineJudgeOverridden,
-            engineJudgeTenantValue);
+            ReadTenantFlagOverrides(scope.TenantId, cancellationToken));
 
         return effective;
+    }
+
+    private InsightDensityTenantFlagOverrides ReadTenantFlagOverrides(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        return new InsightDensityTenantFlagOverrides
+        {
+            LlmJudge = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityLlmJudgeEnabled,
+                cancellationToken),
+            LlmJudgeForEngineFindings = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityLlmJudgeEngineFindingsEnabled,
+                cancellationToken),
+            InsightGenerator = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityInsightGeneratorEnabled,
+                cancellationToken),
+            PreferHighNoveltyEngines = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityPreferHighNoveltyEnginesEnabled,
+                cancellationToken),
+            PreferHighVerificationEngines = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityPreferHighVerificationEnginesEnabled,
+                cancellationToken),
+        };
+    }
+
+    private InsightDensityTenantFlagOverride ReadTenantFlagOverride(
+        Guid tenantId,
+        string settingKey,
+        CancellationToken cancellationToken)
+    {
+        bool isOverridden = TryReadTenantBoolean(tenantId, settingKey, cancellationToken, out bool value);
+
+        return isOverridden
+            ? new InsightDensityTenantFlagOverride(IsOverridden: true, Value: value)
+            : InsightDensityTenantFlagOverride.Absent;
     }
 
     private bool TryReadTenantBoolean(
@@ -112,6 +125,12 @@ public sealed class InsightDensityGateOptionsResolver(
             MaxGeneratedInsightFindingsPerSnapshot = source.MaxGeneratedInsightFindingsPerSnapshot,
             PreferHighNoveltyEngines = source.PreferHighNoveltyEngines,
             NoveltyRateWindowDays = source.NoveltyRateWindowDays,
+            EnableProseAssumptionExtraction = source.EnableProseAssumptionExtraction,
+            MaxProseAssumptionCandidatesPerSnapshot = source.MaxProseAssumptionCandidatesPerSnapshot,
+            MaxProseAssumptionFindingsPerSnapshot = source.MaxProseAssumptionFindingsPerSnapshot,
+            PreferHighVerificationEngines = source.PreferHighVerificationEngines,
+            VerificationPriorMinSample = source.VerificationPriorMinSample,
+            VerificationPriorWindowDays = source.VerificationPriorWindowDays,
         };
     }
 }

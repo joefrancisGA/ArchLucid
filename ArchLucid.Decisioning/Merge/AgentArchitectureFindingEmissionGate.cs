@@ -5,7 +5,7 @@ using ArchLucid.Decisioning.Findings;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-///     TB-2222: strips prose-only agent findings and gates governance lift to typed emission paths.
+///     TB-2222 / LP-03: holds agent findings without Kind B provenance and gates governance lift to typed emission paths.
 /// </summary>
 public static class AgentArchitectureFindingEmissionGate
 {
@@ -13,16 +13,7 @@ public static class AgentArchitectureFindingEmissionGate
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (finding.Classification == FindingClassification.ChecklistCoverage)
-            return true;
-
-        if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId))
-            return true;
-
-        if (finding.EvidenceRefs is { Count: > 0 } refs && refs.Any(static r => !string.IsNullOrWhiteSpace(r)))
-            return true;
-
-        return false;
+        return AgentArchitectureFindingProvenanceValidator.HasKindBProvenance(finding);
     }
 
     public static void ApplyToResults(IReadOnlyList<AgentResult> results)
@@ -44,10 +35,21 @@ public static class AgentArchitectureFindingEmissionGate
                     continue;
                 }
 
-                result.WithheldFindings.Add(WithheldFindingSummaryMapper.FromStrippedAgentFinding(finding, result));
+                string withheldReason = ResolveWithheldReason(finding);
+                result.WithheldFindings.Add(WithheldFindingSummaryMapper.FromHeldAgentFinding(finding, result, withheldReason));
             }
 
             result.Findings = retained;
         }
+    }
+
+    private static string ResolveWithheldReason(ArchitectureFinding finding)
+    {
+        bool hasAnyRef = finding.EvidenceRefs is { Count: > 0 } refs
+                         && refs.Any(static reference => !string.IsNullOrWhiteSpace(reference));
+
+        return hasAnyRef
+            ? WithheldFindingReasons.ProvenanceHoldEmission
+            : WithheldFindingReasons.ProseOnlyEmission;
     }
 }

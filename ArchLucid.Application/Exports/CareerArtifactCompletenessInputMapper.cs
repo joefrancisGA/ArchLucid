@@ -19,6 +19,8 @@ public static class CareerArtifactCompletenessInputMapper
 
         bool resolvedLegacySealedReExport =
             legacySealedReExport || LegacySealedReExportHonestyResolver.Resolve(transparencyTrail);
+        bool simulatorRehearsalBannerOnArtifact =
+            SimulatorCareerHonestyPresenter.IsRehearsalStructuralExecutionMode(input.StructuralExecutionMode);
 
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Export,
@@ -34,6 +36,7 @@ public static class CareerArtifactCompletenessInputMapper
             AggregateQualityGateOutcome: input.AggregateQualityGateOutcome,
             LegacySealedReExport: resolvedLegacySealedReExport,
             BlockExternalSponsorDistribution: blockExternalSponsorDistribution,
+            SimulatorRehearsalBannerOnArtifact: simulatorRehearsalBannerOnArtifact,
             FindingsSnapshot: input.FindingsSnapshot);
     }
 
@@ -41,13 +44,19 @@ public static class CareerArtifactCompletenessInputMapper
         TransparencyTrail? transparencyTrail,
         int? enginesSucceeded,
         bool workingDesk,
-        bool preCommitGateEnabled)
+        bool preCommitGateEnabled,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Simulator,
+        bool degradedFindingCoverage = false,
+        IReadOnlyList<string>? degradedFindingCoverageFailedEngineLabels = null)
     {
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Finalize,
             TransparencyTrail: transparencyTrail,
             EnginesSucceeded: enginesSucceeded,
             WorkingDesk: workingDesk,
-            PreCommitGateEnabled: preCommitGateEnabled);
+            PreCommitGateEnabled: preCommitGateEnabled,
+            StructuralExecutionMode: structuralExecutionMode,
+            DegradedFindingCoverage: degradedFindingCoverage,
+            DegradedFindingCoverageFailedEngineLabels: degradedFindingCoverageFailedEngineLabels);
     }
 }

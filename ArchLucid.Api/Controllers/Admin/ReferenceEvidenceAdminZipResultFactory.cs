@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Security;
@@ -19,7 +20,16 @@ internal static class ReferenceEvidenceAdminZipResultFactory
         Guid filenameTenantId,
         CancellationToken cancellationToken)
     {
-        byte[]? zip = await exportService.BuildZipAsync(scope.TenantId, includeDemo, baseForLinks, cancellationToken);
+        byte[]? zip;
+
+        try
+        {
+            zip = await exportService.BuildZipAsync(scope.TenantId, includeDemo, baseForLinks, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return controller.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         if (zip is null || zip.Length == 0)
         {

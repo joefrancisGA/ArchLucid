@@ -2,10 +2,11 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/working-seat-00-index.md`](../../.cursor/prompts/working-seat-00-index.md) (**WS-01–WS-24**)
 > **Predecessor (wave 18 — desk URLs):** [`SYSTEM_DESK_COMPOSER_PROMPTS.md`](SYSTEM_DESK_COMPOSER_PROMPTS.md) (**SY-01–SY-100**) — nested tools and Alt+R. **Do not re-run SY.** This set owns **dual skin**: buyer polish on the paying seat.
+> **Successor (wave 20 — livelihood-proof persist gates):** [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) (**LP-01–LP-20**) — do **not** add WS-25; paste LP files for cited-analysis persist gates, promote/activate same-tx audit, and human-record leftovers. **Do not** paste WS to flip Simulator Mode or add finding-comment chat.
 
 # Working-seat Composer prompts (WS-01–WS-24)
 
-**Created:** 2026-09-07 · **Status:** ready to run · **Do not re-run** SY, AO, CA, DA, PC, DR, FC, LK, DX, or overlay waves except as a WS row names a leftover. **Do not paste this wave to add engines, MCP, or finding-comment chat.**
+**Created:** 2026-09-07 · **Status:** shipped (WS-24 close audit) · **Do not re-run** SY, AO, CA, DA, PC, DR, FC, LK, DX, or overlay waves except as a WS row names a leftover. **Do not paste this wave to add engines, MCP, or finding-comment chat.** Persist-gate leftovers are **LP-01–LP-20**.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves 14–18 named the architecture, nested the review job, and put Ask/Compare/Graph on the desk. **The paying seat is still scored and skinned as a buyer walkthrough.** `/al-ui-rate` still optimizes **buyer confidence**. `isBuyerPolishedOperatorShellEnv()` is demo/trial-false in production, but dozens of grandfathered call sites and Working fixtures still mount eval chrome. Guided / demo / trial **keep** that skin.
 

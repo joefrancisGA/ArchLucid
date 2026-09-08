@@ -27,10 +27,11 @@
 | `ArchitectureFinding.EvidenceRefs` | May be `[]`; schema-valid | Decision-grade agent findings require non-empty resolvable refs **or** hold/reject at emission |
 | Authority `Finding` / typed engines | `RelatedNodeIds` + `RulesApplied` on engines; no uniform provenance validator | Typed path: non-empty graph/rule provenance for decision-grade |
 | `FindingPayloadValidator` | Payload shape only | Extend or add `IFindingProvenanceValidator` for decision-grade |
-| `FindingsOrchestrator` | Validates payload; insight-density gate | Apply provenance validator before persist |
+| `FindingsOrchestrator` | Validates payload; insight-density gate; **typed Kind A hold after gate (LP-02)** | Apply provenance validator before persist |
 | `AgentResultParser` post-parse | Schema parse | Reject/hold decision-grade LLM findings lacking `ProvenanceKind` |
+| Agent architecture emission gate | Prose-only strip (TB-2222) | Kind **B** hold via `AgentArchitectureFindingProvenanceValidator` (LP-03) |
 | `FindingClaimCoverageEvaluator` | Computes ratio; logs | **Not** a commit gate today |
-| `AgentOutputSemanticScore.FindingCitationCoverageRatio` | Field exists; **inert in production** | Wire into PilotStrict Enforce/Block when **TB-1221** gates ship |
+| `AgentOutputSemanticScore.FindingCitationCoverageRatio` | **LP-04:** populated for Real/Mixed tasks in `AgentOutputTraceQualityEvaluator`; PilotStrict rejects below floor | Simulator/Fallback skip ratio (no fake score) |
 | Critic / Low confidence | Labels heuristic findings | **Not** proof of citation |
 | `Message` → `ComplianceTags` lift | **Closed (DR-15)** — pack `PolicyRuleId` only; prose quarantined to withheld band | N/A |
 
@@ -80,7 +81,7 @@ This contract **publishes** the matrix and gate names. Validator wiring and comm
 | Provenance validator (replay) | Decisioning | Pre-commit findings snapshot seal |
 | Prose quarantine | **TB-1196** / **DR-15** | `ComplianceTags` from pack `PolicyRuleId` only; prose candidates withheld |
 
-Commit does **not** today require per-finding provenance — buyers must not be told otherwise until gates ship.
+Commit does **not** today require per-finding provenance on all paths — PilotStrict citation coverage (LP-04) blocks Real career export when ratio is below floor; buyers must not be told every path is gated until commit validators ship.
 
 ---
 
@@ -118,7 +119,7 @@ Commit does **not** today require per-finding provenance — buyers must not be 
 | `scripts/ci/check_decision_grade_finding_provenance_honesty.py` | Fail all-findings-evidence-grounded / empty-EvidenceRefs-as-proof overclaims |
 | `DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md` | Drift guard (this file) |
 | `FindingFactory` / `AgentResultParser` / `AgentOutputQualityGate` | Verification cite list |
-| `FindingCitationCoverageRatio` | Inert until emission/commit gates ship |
+| `FindingCitationCoverageRatio` | **LP-04:** Real/Mixed trace evaluation + PilotStrict reject floor |
 
 Honesty CI shipped: **TB-1222**.
 

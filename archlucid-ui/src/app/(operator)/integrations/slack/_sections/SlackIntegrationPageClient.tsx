@@ -20,6 +20,8 @@ import {
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   slackIntegrationDefaultValues,
   slackIntegrationFormSchema,
@@ -52,6 +54,12 @@ import {
   parseSlackDisableIdFromSearch,
   slackDisableRouteHrefFromSearch,
 } from "@/lib/integrations/slack-disable-route-url";
+import {
+  SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  SLACK_INTEGRATION_PRIMARY_CONTENT_ID,
+  SLACK_INTEGRATION_SKIP_LINK_LABEL,
+  SLACK_INTEGRATION_SKIP_TARGET_ID,
+} from "@/lib/slack-integration-shell-page-copy";
 
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
@@ -59,6 +67,7 @@ const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fiel
 
 /** Slack alert routing — incoming webhook destinations for approval alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_SLACK_PATH;
   const searchParams = useSearchParams();
@@ -302,23 +311,8 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     }
   });
 
-  return (
-    <OperatorPageContainer
-      variant="workflow"
-      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
-      data-testid="integrations-slack-page"
-    >
-      <SlackIntegrationPageHeader
-        activeDestinationCount={activeDestinationCount}
-        refreshing={loading}
-        refreshDisabled={loading || testingForm || testingId !== null}
-        lastCheckedAt={lastCheckedAt}
-        onRefresh={() => void load()}
-      />
-
-      <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
-      <SlackIntegrationEvidenceOrientationStrip />
-
+  const workspaceBody = (
+    <>
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -376,6 +370,65 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           />
         </div>
       </FormProvider>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="integrations-slack-page"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SLACK_INTEGRATION_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SLACK_INTEGRATION_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? SLACK_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? SLACK_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <SlackIntegrationPageHeader
+          activeDestinationCount={activeDestinationCount}
+          refreshing={loading}
+          refreshDisabled={loading || testingForm || testingId !== null}
+          lastCheckedAt={lastCheckedAt}
+          onRefresh={() => void load()}
+        />
+
+        {!buyerPolishedShell ? (
+          <>
+            <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
+            <SlackIntegrationEvidenceOrientationStrip />
+          </>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <div
+            id={SLACK_INTEGRATION_SKIP_TARGET_ID}
+            data-testid={SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            {workspaceBody}
+          </div>
+        ) : (
+          workspaceBody
+        )}
+
+        {buyerPolishedShell ? (
+          <div data-testid="slack-integration-orientation-bottom">
+            <SlackIntegrationEvidenceOrientationStrip />
+          </div>
+        ) : null}
+      </div>
 
       <AlertRoutingSubscriptionDisableDialog
         target={pendingDisable}

@@ -9,6 +9,7 @@ import {
 import {
   LivelihoodDocumentGuardDialog,
   useLivelihoodDocumentGuards,
+  useLivelihoodIdleFormSnapshotPersistence,
 } from "@/hooks/use-livelihood-document-guards";
 import { findingInspectHasUnsavedEdits } from "@/lib/findings/finding-inspect-disposition-unsaved";
 
@@ -46,6 +47,70 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
     waiverBaseline: props.waiverBaseline,
   });
   const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
+
+  useLivelihoodIdleFormSnapshotPersistence({
+    surfaceId: "finding-inspect-disposition",
+    entityKey: `${props.runId}:${props.findingId}`,
+    when: hasUnsavedEdits,
+    fields: {
+      disposition: viewModel.disposition,
+      rationale: viewModel.rationale,
+      revisitDueUtc: viewModel.revisitDueUtc,
+      evidenceRequestText: viewModel.evidenceRequestText,
+      tradeOffAcknowledgment: viewModel.tradeOffAcknowledgment,
+      assignedToUserId: viewModel.assignedToUserId,
+      remediationDueUtc: viewModel.remediationDueUtc,
+      waiverRationale: viewModel.waiverRationale,
+      waiverOwnerUserId: viewModel.waiverOwnerUserId,
+      waiverExpiresAtUtc: viewModel.waiverExpiresAtUtc,
+      waiverEvidenceRef: viewModel.waiverEvidenceRef,
+    },
+    onRestore: (fields) => {
+      if (fields.disposition !== undefined) {
+        viewModel.setDisposition(fields.disposition as typeof viewModel.disposition);
+      }
+
+      if (fields.rationale !== undefined) {
+        viewModel.setRationale(fields.rationale);
+      }
+
+      if (fields.revisitDueUtc !== undefined) {
+        viewModel.setRevisitDueUtc(fields.revisitDueUtc);
+      }
+
+      if (fields.evidenceRequestText !== undefined) {
+        viewModel.setEvidenceRequestText(fields.evidenceRequestText);
+      }
+
+      if (fields.tradeOffAcknowledgment !== undefined) {
+        viewModel.setTradeOffAcknowledgment(fields.tradeOffAcknowledgment);
+      }
+
+      if (fields.assignedToUserId !== undefined) {
+        viewModel.setAssignedToUserId(fields.assignedToUserId);
+      }
+
+      if (fields.remediationDueUtc !== undefined) {
+        viewModel.setRemediationDueUtc(fields.remediationDueUtc);
+      }
+
+      if (fields.waiverRationale !== undefined) {
+        viewModel.setWaiverRationale(fields.waiverRationale);
+      }
+
+      if (fields.waiverOwnerUserId !== undefined) {
+        viewModel.setWaiverOwnerUserId(fields.waiverOwnerUserId);
+      }
+
+      if (fields.waiverExpiresAtUtc !== undefined) {
+        viewModel.setWaiverExpiresAtUtc(fields.waiverExpiresAtUtc);
+      }
+
+      if (fields.waiverEvidenceRef !== undefined) {
+        viewModel.setWaiverEvidenceRef(fields.waiverEvidenceRef);
+      }
+    },
+  });
 
   return (
     <>

@@ -19,3 +19,13 @@ export const IDENTITY_PROVIDERS_SAML_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Identity diagnostics", href: "/administration/identity-providers/diagnostics" },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
+
+const IDENTITY_PROVIDERS_SAML_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  "/administration/identity/sso-wizard",
+]);
+
+/** Orientation-strip Sources — excludes on-page SSO wizard CTAs. */
+export const IDENTITY_PROVIDERS_SAML_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  IDENTITY_PROVIDERS_SAML_SOURCES.filter(
+    (source) => !IDENTITY_PROVIDERS_SAML_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );

@@ -4,7 +4,7 @@ using System.Text;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Contracts.Findings.Payloads;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -203,6 +203,58 @@ public sealed class SecretsLifecycleFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_with_missing_inventory_zip_records_azure_code_and_emits_no_findings()
+    {
+        HeldCheckLedger ledger = new();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "kv-node",
+                    NodeType = GraphNodeTypes.SecurityBaseline,
+                    Label = "db-password",
+                },
+            ],
+        };
+
+        Mock<IAzureExtractorPackageRepository> packageRepository = new();
+        Guid packageId = Guid.NewGuid();
+        EffectfulFindingEngineTestSupport.SetupAzurePinnedDownloadMissing(packageRepository, TestScope, packageId);
+
+        Mock<ICloudInventoryExtractorPackageRepository> cloudRepository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        FindingAnalysisContext pinnedContext =
+            EffectfulFindingEngineTestSupport.CreateAzurePinnedContext(packageId, FixedNow.UtcDateTime);
+
+        FindingAnalysisContext context = new()
+        {
+            RunId = pinnedContext.RunId,
+            ContextSnapshotId = pinnedContext.ContextSnapshotId,
+            EvidencePin = pinnedContext.EvidencePin,
+            EvidencePins = pinnedContext.EvidencePins,
+            HeldCheckLedger = ledger,
+        };
+
+        SecretsLifecycleFindingEngine engine = new(
+            scopeProvider.Object,
+            packageRepository.Object,
+            cloudRepository.Object,
+            new FakeTimeProvider(FixedNow),
+            Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 90 }));
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+        ledger.BuildRollup().Should().ContainSingle(entry =>
+            entry.InputCode == HeldCheckInputCode.AzureInventoryZip
+            && entry.EngineTypes.Contains("secrets-lifecycle"));
     }
 
     private static (SecretsLifecycleFindingEngine Engine, FindingAnalysisContext Context) CreateSut(

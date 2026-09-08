@@ -1,5 +1,7 @@
 namespace ArchLucid.Decisioning.Findings;
 
+using ArchLucid.Contracts.Findings;
+
 /// <summary>Derive-at-read inputs for measurement-floor honesty (DX-15).</summary>
 public sealed class InsightDensityMeasurementFloorContext
 {
@@ -21,6 +23,13 @@ public sealed class InsightDensityMeasurementFloorContext
         get;
         init;
     }
+
+    /// <summary>Ranked missing-input rollup from held-check ledger (DX-52).</summary>
+    public IReadOnlyList<HeldCheckLedgerRollupEntry> HeldCheckLedgerEntries
+    {
+        get;
+        init;
+    } = [];
 
     public static IReadOnlyList<string> DeriveSkippedActorEngineTypes(
         int actorNodeCount,

@@ -75,11 +75,14 @@ export function SessionExpiredClient() {
   }
 
   return sessionExpiredChrome(
-    <SessionExpiredView
-      reason={reason}
-      onSignIn={handleSignIn}
-      returnUrl={rawReturnUrl}
-      sessionClearedAt={sessionClearedAt}
-    />,
+    <>
+      <SessionExpiredView
+        reason={reason}
+        onSignIn={handleSignIn}
+        returnUrl={rawReturnUrl}
+        sessionClearedAt={sessionClearedAt}
+      />
+      <PostAuthBootstrapExitActions />
+    </>,
   );
 }

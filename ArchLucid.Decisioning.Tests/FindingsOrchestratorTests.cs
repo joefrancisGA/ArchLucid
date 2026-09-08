@@ -107,7 +107,9 @@ public sealed class FindingsOrchestratorTests
             EngineType = "ok",
             Title = "ok-title",
             Rationale = "r",
-            Severity = FindingSeverity.Info
+            Severity = FindingSeverity.Info,
+            RelatedNodeIds = ["ok-title"],
+            Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
         Mock<IFindingEngine> bad = new(MockBehavior.Strict);
@@ -147,6 +149,8 @@ public sealed class FindingsOrchestratorTests
             Title = "ok-title",
             Rationale = "r",
             Severity = FindingSeverity.Info,
+            RelatedNodeIds = ["ok-title"],
+            Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
         Mock<IFindingEngine> badCost = new(MockBehavior.Strict);
@@ -252,6 +256,45 @@ public sealed class FindingsOrchestratorTests
     }
 
     [Fact]
+    public async Task GenerateFindingsSnapshotAsync_holds_typed_finding_without_kind_a_in_checklist_band()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding missingProvenance = new()
+        {
+            FindingId = "missing-kind-a",
+            FindingType = "TopologyGap",
+            Category = "Topology",
+            EngineType = "topology-gap",
+            Title = "CheckoutApiUnderSpecified",
+            Rationale = "CheckoutApiUnderSpecified",
+            Severity = FindingSeverity.Warning,
+            Trace = new ExplainabilityTrace
+            {
+                Notes = ["evidence:doc:manifest.json#services"],
+            },
+        };
+
+        Mock<IFindingEngine> engine = CreateEngine("topology-gap", "Topology", [missingProvenance]);
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
+            [engine.Object],
+            validator.Object,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        snapshot.Findings.Should().BeEmpty();
+        Finding held = snapshot.ChecklistCoverage.Should().ContainSingle().Subject;
+        held.FindingId.Should().Be("missing-kind-a");
+        held.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        held.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        held.Trace!.Notes.Should().Contain(note => note.StartsWith("provenance-hold:", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task GenerateFindingsSnapshotAsync_promotes_evidence_anchored_findings()
     {
         GraphSnapshot graph = EmptyGraph();
@@ -264,8 +307,10 @@ public sealed class FindingsOrchestratorTests
             Title = "CheckoutApiUnderSpecified",
             Rationale = "CheckoutApiUnderSpecified",
             Severity = FindingSeverity.Warning,
+            RelatedNodeIds = ["anchored"],
             Trace = new ExplainabilityTrace
             {
+                RulesApplied = ["test-rule"],
                 Notes = ["evidence:doc:manifest.json#services"],
             },
         };
@@ -348,7 +393,9 @@ public sealed class FindingsOrchestratorTests
             EngineType = "e1",
             Title = "Same",
             Rationale = "r1",
-            Severity = FindingSeverity.Warning
+            Severity = FindingSeverity.Warning,
+            RelatedNodeIds = ["same-a"],
+            Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
         Finding b = new()
         {
@@ -357,7 +404,9 @@ public sealed class FindingsOrchestratorTests
             EngineType = "e1",
             Title = "Same",
             Rationale = "r1",
-            Severity = FindingSeverity.Warning
+            Severity = FindingSeverity.Warning,
+            RelatedNodeIds = ["same-b"],
+            Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Security", [a, b]);
@@ -387,7 +436,9 @@ public sealed class FindingsOrchestratorTests
             EngineType = "e1",
             Title = "t",
             Rationale = "r",
-            Severity = FindingSeverity.Info
+            Severity = FindingSeverity.Info,
+            RelatedNodeIds = ["t"],
+            Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Requirement", [f]);
@@ -473,8 +524,10 @@ public sealed class FindingsOrchestratorTests
             },
             Trace = new ExplainabilityTrace
             {
+                RulesApplied = ["test-rule"],
                 Notes = ["evidence:doc:manifest.json#services"],
             },
+            RelatedNodeIds = ["good-payload"],
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Requirement", [invalid, valid]);
@@ -674,7 +727,7 @@ public sealed class FindingsOrchestratorTests
         FindingSeverity severity = FindingSeverity.Info,
         string rationale = "r")
     {
-        return new Finding
+        Finding finding = new()
         {
             FindingId = findingId,
             FindingType = "T",
@@ -684,6 +737,15 @@ public sealed class FindingsOrchestratorTests
             Rationale = rationale,
             Severity = severity,
         };
+
+        ApplyKindAProvenance(finding);
+        return finding;
+    }
+
+    private static void ApplyKindAProvenance(Finding finding)
+    {
+        finding.RelatedNodeIds = [finding.FindingId ?? "node-1"];
+        finding.Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] };
     }
 
     private static FindingsOrchestrator CreateSut(

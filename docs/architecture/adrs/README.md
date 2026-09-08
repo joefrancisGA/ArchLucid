@@ -76,6 +76,9 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0078](0078-career-artifact-honesty-contract.md) | Career artifact honesty contract — single fail-closed rules for stamp, finalize, and exports (**Status: Accepted** 2026-09-07; FC-02/03) |
 | [0079](0079-working-desk-is-the-work-surface.md) | Working architecture desk is the work surface — Ask/Compare/Graph/Search/Findings nest on the identity; inbox is secondary (**Status: Accepted** 2026-09-07; SY-80/100) |
 | [0080](0080-working-seat-never-buyer-polished.md) | Working seat is **never buyer-polished** — dense architect chrome is the product default; Guided/demo/trial keep eval skin (**Status: Accepted** 2026-09-07; WS-01) |
+| [0081](0081-sidebar-nav-rows-label-only.md) | Sidebar nav rows are **label-only** — no visible helper copy under links; disabled reasons are screen-reader hints only (**Status: Accepted** 2026-09-08) |
+| [0082](0082-decision-grade-provenance-fail-closed.md) | Decision-grade finding **provenance fail-closed** at emission and commit — ProvenanceKind A/B required; checklist/advisory exempt (**Status: Proposed** 2026-09-08; LP-01 / TB-1221 gates) |
+| [0083](0083-promote-activate-submit-same-tx-audit.md) | Promote / activate / submit Required durable audit **co-commits** with domain writes — same SQL UoW pattern as TB-956 approve/reject (**Status: Proposed** 2026-09-08; LP-08 contract, LP-09 wiring) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

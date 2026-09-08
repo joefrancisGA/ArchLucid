@@ -199,6 +199,10 @@
       "reason": "SN-02: literals localized via localizeProductCopy() at export boundaries"
     },
     {
+      "path": "src/lib/extract-upload-product-copy.ts",
+      "reason": "SN-02: extract-upload copy localized via localizeProductCopy() at export boundaries"
+    },
+    {
       "path": "src/lib/aws-cloud-connection-trust-policy-starter.ts",
       "reason": "SN-02: preserves {ArchLucid tenant ID} placeholders; labels localized at render"
     },

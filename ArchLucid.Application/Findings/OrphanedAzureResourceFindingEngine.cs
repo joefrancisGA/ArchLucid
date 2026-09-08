@@ -61,7 +61,12 @@ public sealed class OrphanedAzureResourceFindingEngine(
                 ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
+        {
+            // Missing-input fail-closed — not a happy empty inventory scan.
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.AzureInventoryZip);
+
             return [];
+        }
 
         string? orphanCandidatesJson =
             AzureInventoryZipJsonEntryReader.TryReadEntry(download.PackageBytes, "orphan-candidates.json");

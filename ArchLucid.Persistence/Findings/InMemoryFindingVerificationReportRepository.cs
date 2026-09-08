@@ -101,4 +101,40 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
 
         return Task.FromResult(latest);
     }
+
+    public Task<IReadOnlyList<FindingVerificationReportRecord>> ListByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        List<FindingVerificationReportRecord> reports = _reportsById.Values
+            .Where(record =>
+                record.TenantId == scope.TenantId
+                && record.WorkspaceId == scope.WorkspaceId
+                && record.ScopeProjectId == scope.ProjectId
+                && record.RunId == runId)
+            .OrderByDescending(record => record.CreatedUtc)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<FindingVerificationReportRecord>>(reports);
+    }
+
+    public Task<IReadOnlyList<EngineVerificationConfirmedRateRow>> ListConfirmedRatesByEngineTypeAsync(
+        ScopeContext scope,
+        DateTime fromUtc,
+        DateTime toUtcExclusive,
+        int minSample,
+        CancellationToken cancellationToken = default)
+    {
+        // In-memory host lacks FindingRecords join — tenant SQL aggregation is authoritative (DX-56).
+        _ = scope;
+        _ = fromUtc;
+        _ = toUtcExclusive;
+        _ = minSample;
+        _ = cancellationToken;
+
+        return Task.FromResult<IReadOnlyList<EngineVerificationConfirmedRateRow>>([]);
+    }
 }

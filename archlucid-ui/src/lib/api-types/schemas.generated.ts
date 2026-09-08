@@ -3699,6 +3699,7 @@ export interface components {
             conversationThreadId?: null | string;
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: string;
+            openQuestions?: null | string;
             /** Format: uuid */
             parentDraftId?: null | string;
             priorRunId?: null | string;
@@ -3892,6 +3893,22 @@ export interface components {
             /** Format: date-time */
             fromUtc?: string;
             rows?: components["schemas"]["EngineInsightNoveltyRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
+        EngineVerificationConfirmedRateRow: {
+            /** Format: int32 */
+            confirmedNumerator?: number;
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            engineType?: string;
+            /** Format: int32 */
+            verifiableDenominator?: number;
+        };
+        EngineVerificationConfirmedRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineVerificationConfirmedRateRow"][];
             /** Format: date-time */
             toUtcExclusive?: string;
         };
@@ -4549,6 +4566,22 @@ export interface components {
             /** Format: uuid */
             verificationFindingsSnapshotId?: null | string;
         };
+        FindingVerificationReportSummaryResponse: {
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            /** Format: int32 */
+            resultCount: number;
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
         FindingVerificationResultResponse: {
             findingId: string;
             status: components["schemas"]["FindingVerificationStatus"];
@@ -5037,6 +5070,14 @@ export interface components {
             nodeCount?: number;
             nodes?: components["schemas"]["GraphNodeVm"][];
         };
+        /** @enum {string} */
+        HeldCheckInputCode: "AzureInventoryZip" | "AwsInventoryZip" | "GcpInventoryZip" | "ActorNodes" | "RbacBindings" | "SecretRotationMetadata" | "ReplicaOrFailoverProperties" | "NetworkPolicyRules" | "PriorRunSnapshot" | "AssignedPolicyPack";
+        HeldCheckLedgerRollupEntry: {
+            /** Format: int32 */
+            engineCount?: number;
+            engineTypes?: string[];
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5318,6 +5359,7 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
             /** Format: int32 */
             judgeSkippedByCap?: number;
             /** Format: int32 */
@@ -6484,6 +6526,7 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
+            openQuestions?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
             workflowIntent?: null | string;

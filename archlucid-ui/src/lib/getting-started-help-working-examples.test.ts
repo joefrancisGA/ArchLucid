@@ -1,36 +1,32 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  architectureIdentityPath,
-  architectureNestedFindingsPath,
-  architectureNestedReviewPath,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_LIST_PATH,
 } from "@/lib/architecture/architecture-routes";
 import {
-  GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID,
+  resolveGettingStartedHelpDiagramSource,
+  resolveGettingStartedHelpPipelineDiagramAccessibleName,
+  resolveGettingStartedHelpPipelineIntro,
+  resolveGettingStartedHelpPipelineTextStages,
   resolveGettingStartedHelpPrimaryActions,
+  resolveGettingStartedHelpTechnicalTerms,
   resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
 import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
-import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
 describe("getting-started help Working examples (SY-87)", () => {
   it("uses architecture nested URLs in Working workflow steps instead of peer review Home links", () => {
     const steps = resolveGettingStartedHelpWorkflowSteps(true);
 
     expect(steps[0]?.href).toBe(ARCHITECTURES_NEW_PATH);
-    expect(steps[1]?.href).toBe(architectureIdentityPath(GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID));
-    expect(steps[2]?.href).toBe(architectureNestedFindingsPath(GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID));
-    expect(steps[4]?.href).toBe(
-      architectureNestedReviewPath(
-        GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID,
-        CUSTOMER_INTAKE_SAMPLE_RUN_ID,
-      ),
-    );
+    expect(steps[1]?.href).toBe("/architecture/architectures");
+    expect(steps[2]?.href).toBe("/architecture/architectures");
+    expect(steps[4]?.href).toBe(REVIEWS_LIST_PATH);
 
     for (const step of steps) {
       expect(step.href).not.toMatch(/^\/architecture\/reviews\/[^/]+$/);
+      expect(step.href).not.toContain("customer-intake-modernization");
     }
   });
 
@@ -48,5 +44,23 @@ describe("getting-started help Working examples (SY-87)", () => {
 
     expect(steps[1]?.href).toBe(REVIEWS_LIST_PATH);
     expect(steps[0]?.href).toBe("/architecture/reviews/new");
+  });
+
+  it("uses review-progress vocabulary on Working getting-started pipeline copy (WS-16 / WS-20)", () => {
+    const stages = resolveGettingStartedHelpPipelineTextStages(true);
+
+    expect(resolveGettingStartedHelpPipelineIntro(true)).not.toContain("Authority pipeline");
+    expect(resolveGettingStartedHelpPipelineDiagramAccessibleName(true)).toBe("Architecture review progress");
+    expect(stages.join(" ")).not.toContain("Authority pipeline");
+    expect(stages.join(" ")).toContain("Review analysis stages");
+    expect(resolveGettingStartedHelpDiagramSource(true)).not.toContain("Authority pipeline");
+    expect(resolveGettingStartedHelpTechnicalTerms(true).map((term) => term.term)).not.toContain(
+      "Authority orchestration",
+    );
+    expect(
+      resolveGettingStartedHelpPrimaryActions(true)
+        .map((action) => action.title)
+        .join(" "),
+    ).not.toMatch(/sample review/i);
   });
 });

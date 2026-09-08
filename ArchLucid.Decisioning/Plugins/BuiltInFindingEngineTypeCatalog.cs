@@ -64,9 +64,11 @@ public static class BuiltInFindingEngineTypeCatalog
             ["DeclarationPremiseConflictFindingEngine"] = "declaration-premise-conflict",
             ["OpenCommitmentFindingEngine"] = "open-commitment",
             ["PortfolioRecurrenceFindingEngine"] = "portfolio-recurrence",
+            ["PortfolioSharedTopologyFindingEngine"] = "portfolio-shared-topology",
             ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
             ["InsightGeneratorFindingEngine"] = "insight-generator",
             ["ChecklistClusterSynthesisFindingEngine"] = "checklist-cluster-synthesis",
+            ["DecisionGradeFusionFindingEngine"] = "decision-grade-fusion",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>
