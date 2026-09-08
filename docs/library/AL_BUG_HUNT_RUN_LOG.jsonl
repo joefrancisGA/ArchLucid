@@ -1478,3 +1478,4 @@
 {"at":"2026-09-08T11:31:24.3316934Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-09-08T11:39:41.4533643Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only"}
 {"at":"2026-09-08T11:53:48.2553253Z","zoneId":"api-governance-stickiness","outcome":"hit"}
+{"at":"2026-09-08T12:05:47.6486822Z","zoneId":"api-policy-packs","outcome":"hit"}
