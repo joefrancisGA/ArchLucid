@@ -10128,11 +10128,11 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — advisory-scans help TOC kept claim heading while band is omitted
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — recurrence-schedules help TOC kept claim heading while band is omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10146,6 +10146,12 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `policy-packs-help` registry slug vs `help-policy-packs` page slug — **invalid 2026-09-07 hunt #1282:** legacy `PolicyPacksHelpEvidenceOrientationStrip` is unused; live `/help/policy-packs` uses `help-policy-packs` slug (omitted) via `HelpPolicyPacksClaimOrientationStrip` and header claim fold
 - [x] (invalid) `help-data-handling` — strip passes claim while specialty guide may fold negation into header on buyer-polished shell — **invalid 2026-09-07 hunt #1282:** buyer shell renders claim once via orientation strip; operator shell uses `HelpDataHandlingTenantIsolationClaimDiscipline` without a conflicting markdown TOC claim heading
 - [x] (proven) `help-advisory-scans` / `ADVISORY_SCANS_HELP_GUIDE_HEADINGS` — claim TOC entry `#what-advisory-scans-are-not` survived while `help-advisory-scans` is omitted and claim renders in the header info strip or info aside without that anchor — **hit 2026-09-07 seed hunt #1291 (seed→hit):** sidebar and mobile TOC linked to a missing scroll target; fixed by passing `resolveGuideHeadingsForStrip("help-advisory-scans", …)` into `HelpAdvisoryScansGuideView`; regressions in `HelpAdvisoryScansGuideView.test.tsx` and `claim-discipline-policy.test.ts`
+- [x] (proven) `help-recurrence-schedules` / `HelpRecurrenceSchedulesGuideView` — claim TOC entry `#help-recurrence-schedules-claim-discipline-heading` survived while `help-recurrence-schedules` is omitted and claim renders only in orientation/header strips without that anchor — **hit 2026-09-08 seed hunt #1306 (seed→hit):** sidebar scroll-spy linked to a missing scroll target; fixed by passing filtered `guideHeadings` into `HelpTopicTableOfContents`; regressions in `HelpRecurrenceSchedulesGuideView.test.tsx` and `claim-discipline-policy.test.ts`
+- [ ] (candidate) `help-notifications` / `HelpNotificationsGuideView` — operator-shell TOC passes raw `NOTIFICATIONS_HELP_GUIDE_HEADINGS` while `help-notifications` is omitted and claim renders in header/aside strips without `#help-notifications-claim-discipline-heading`
+- [ ] (candidate) `help-workspace-settings` / `HelpWorkspaceSettingsGuideView` — TOC passes raw `WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS` while slug is omitted and claim renders in strip without matching h2 anchor
+- [ ] (candidate) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passes raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted; tests filter headings in assertions but view may still expose stale TOC link
+
+2026-09-08 seed hunt #1306 (hit): reseeded omitted-slug help guides; proved recurrence-schedules TOC/omit mismatch; seeded notifications, workspace-settings, and jira-integration raw-TOC candidates; 12 scoped unit tests passed.
 
 2026-09-07 seed hunt #1191 (hit): seeded zone from ABQ-09 churn hotspot; proved audit-trail-help omit gap broke TOC scroll targets after header claim fold.
 

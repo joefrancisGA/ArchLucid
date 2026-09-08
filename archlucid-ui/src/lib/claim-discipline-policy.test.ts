@@ -159,4 +159,22 @@ describe("claim-discipline-policy", () => {
       ),
     ).toEqual([]);
   });
+
+  it("omits help-recurrence-schedules claim heading from guide TOC when band is omitted", () => {
+    expect(shouldOmitClaimDisciplineBand("help-recurrence-schedules")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-recurrence-schedules",
+        [
+          { id: "how-recurrence-schedules-work", title: "How recurrence schedules work" },
+          { id: "help-recurrence-schedules-claim-discipline-heading", title: "Claim discipline" },
+          { id: "where-to-go-next", title: "Where to go next" },
+        ],
+        "help-recurrence-schedules-claim-discipline-heading",
+      ),
+    ).toEqual([
+      { id: "how-recurrence-schedules-work", title: "How recurrence schedules work" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ]);
+  });
 });
