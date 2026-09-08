@@ -153,7 +153,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
 });
 
 describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
-  it("omits shell-level related resources on guided-intake so the wizard can tuck them under clarifications", () => {
+  it("omits shell-level related resources on guided-intake and hides duplicate path hint", () => {
     searchParamsGet.mockImplementation((key: string) => (key === "path" ? "guided-intake" : null));
 
     render(
@@ -169,8 +169,19 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
     expect(screen.queryByTestId("reviews-new-settings-sources")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related resources" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "guided-intake")).toBe(BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE);
+
+    const primaryContent = screen.getByTestId("reviews-new-primary-content");
+    const firstViewport = screen.getByTestId(REVIEWS_NEW_FIRST_VIEWPORT_ID);
+    const pageTitle = screen.getByTestId("reviews-new-page-title");
+    const pathSwitcher = screen.getByTestId("reviews-new-path-switcher");
+
+    expect(primaryContent).toContainElement(pageTitle);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).not.toContainElement(pageTitle);
+    expect(firstViewport).toContainElement(pathSwitcher);
   });
 });
 
