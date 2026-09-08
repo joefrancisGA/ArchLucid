@@ -25,7 +25,9 @@ import {
   FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL,
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   FIRST_REVIEW_GUIDE_PATH,
   FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID,
@@ -42,7 +44,15 @@ import {
   FIRST_REVIEW_GUIDE_SOURCES,
   FIRST_REVIEW_GUIDE_SOURCES_INTRO,
 } from "@/lib/first-review-guide-evidence-copy";
+import {
+  FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_TEST_ID,
+  FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID,
+  FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL,
+  FIRST_REVIEW_GUIDE_SKIP_TARGET_ID,
+} from "@/lib/first-review-guide-page-copy";
 import { formatConversationListDate } from "@/lib/locale-datetime";
+
+import { FirstReviewGuideBuyerChrome } from "./FirstReviewGuideBuyerChrome";
 
 import { FirstReviewGuideProgressSummary } from "./FirstReviewGuideProgressSummary";
 import { FirstReviewGuideRequiredSetupPanel } from "./FirstReviewGuideRequiredSetupPanel";
@@ -191,6 +201,7 @@ function FirstReviewGuideSealedRecordProvenance(props: {
 
 export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClientProps) {
   const guide = useFirstReviewGuideState();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   useDeepLinkHashScroll(FIRST_REVIEW_GUIDE_PROGRESS_HEADING_ID, isFirstReviewGuideProgressDeepLinkHash);
   const primaryDisabledReason: WhyDisabledCtaReason | null =
     guide.headerActions.primaryDisabledReason !== null &&
@@ -201,131 +212,186 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
         }
       : null;
 
+  const firstReviewGuideHeaderChildren =
+    guide.isError ? (
+      <FirstReviewGuideContextErrorCallout onRetry={guide.retry} />
+    ) : guide.isPending ? (
+      <FirstReviewGuideHeaderLoadingSkeleton />
+    ) : (
+      <>
+        <div className="space-y-2" data-testid="first-review-guide-readiness">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusTag kind={readinessStatusKind(guide.readiness.kind)} label={guide.readiness.headline} />
+          </div>
+
+          {guide.readiness.detail !== null ? (
+            <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
+              {guide.readiness.detail}
+            </p>
+          ) : null}
+
+          {guide.sealedReviewRecord !== null ? (
+            <FirstReviewGuideSealedRecordProvenance sealedReviewRecord={guide.sealedReviewRecord} />
+          ) : null}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2" data-testid="first-review-guide-primary-actions">
+          {guide.headerActions.primaryDisabled ? (
+            <Button
+              disabled
+              aria-describedby="first-review-guide-primary-disabled-hint"
+              data-testid="first-review-guide-primary-disabled"
+            >
+              {guide.headerActions.primaryLabel}
+            </Button>
+          ) : (
+            <Button asChild variant="primary" data-testid="first-review-guide-primary">
+              <Link href={guide.headerActions.primaryHref}>{guide.headerActions.primaryLabel}</Link>
+            </Button>
+          )}
+
+          {guide.headerActions.secondaryHref !== null ? (
+            <Button variant="outline" asChild data-testid="first-review-guide-secondary">
+              <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
+            </Button>
+          ) : null}
+        </div>
+
+        <WhyDisabledCtaHint
+          id="first-review-guide-primary-disabled-hint"
+          reason={primaryDisabledReason}
+          testId="first-review-guide-primary-disabled-hint"
+          className={OPERATOR_SHORT_HELPER_MEASURE_CLASS}
+        />
+
+        {shouldShowEvaluationScopeHelper(guide.readiness.kind) ? (
+          <p
+            className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-review-guide-evaluation-scope"
+          >
+            {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
+          </p>
+        ) : null}
+
+        <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
+      </>
+    );
+
+  const firstReviewGuidePageHeader = (
+    <OperatorPageHeader
+      navHref={FIRST_REVIEW_GUIDE_PATH}
+      title={BUYER_ONBOARDING_PAGE_TITLE}
+      headingLevel="h1"
+      subtitle={BUYER_ONBOARDING_PAGE_LEAD}
+      claimDiscipline={buyerPolishedShell ? FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId="first-review-guide-claim-discipline"
+      actions={
+        buyerPolishedShell ? null : (
+          <PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />
+        )
+      }
+    >
+      {firstReviewGuideHeaderChildren}
+    </OperatorPageHeader>
+  );
+
+  const firstReviewGuideChecklistBody = (
+    <>
+      {guide.sealedReviewRecord === null && !buyerPolishedShell ? <OnboardingSampleReviewShortcut /> : null}
+
+      {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
+
+      <section
+        aria-labelledby="first-review-guide-progress-heading"
+        className="space-y-4"
+        data-testid="onboarding-progress"
+      >
+        <div className="space-y-2">
+          <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
+          </h2>
+
+          <FirstReviewGuideProgressSummary
+            progress={guide.progress}
+            isPending={guide.isPending}
+            isError={guide.isError}
+          />
+        </div>
+
+        <FirstReviewGuideWalkthrough
+          steps={guide.steps}
+          isPending={guide.isPending}
+          isError={guide.isError}
+          announceProgress={guide.hasLoadedContext}
+          progressPhase={guide.progress.phase}
+        />
+      </section>
+    </>
+  );
+
+  const firstReviewGuideWorkspaceGrid = (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+      <div className={OPERATOR_LAYOUT.sectionStack}>
+        {!buyerPolishedShell ? firstReviewGuidePageHeader : null}
+        {firstReviewGuideChecklistBody}
+      </div>
+
+      <FirstReviewGuideSupportPanel
+        className={OPERATOR_LAYOUT.stickyAsideTop}
+        sealedRunId={guide.sealedReviewRecord?.runId ?? null}
+      />
+    </div>
+  );
+
   return (
     <OperatorPageContainer
       variant="workflow"
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="first-review-guide-page"
     >
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
-        <div className={OPERATOR_LAYOUT.sectionStack}>
-          <OperatorPageHeader
-            navHref={FIRST_REVIEW_GUIDE_PATH}
-            title={BUYER_ONBOARDING_PAGE_TITLE}
-            headingLevel="h1"
-            subtitle={BUYER_ONBOARDING_PAGE_LEAD}
-            actions={<PageContextualHelpButton triggerText={FIRST_REVIEW_GUIDE_CONTEXTUAL_HELP_TRIGGER_LABEL} />}
+      {buyerPolishedShell ? (
+        <>
+          <a
+            href={`#${FIRST_REVIEW_GUIDE_SKIP_TARGET_ID}`}
+            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
           >
-            {guide.isError ? (
-              <FirstReviewGuideContextErrorCallout onRetry={guide.retry} />
-            ) : guide.isPending ? (
-              <FirstReviewGuideHeaderLoadingSkeleton />
-            ) : (
-              <>
-                <div className="space-y-2" data-testid="first-review-guide-readiness">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusTag kind={readinessStatusKind(guide.readiness.kind)} label={guide.readiness.headline} />
-                  </div>
+            {FIRST_REVIEW_GUIDE_SKIP_LINK_LABEL}
+          </a>
 
-                  {guide.readiness.detail !== null ? (
-                    <p className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
-                      {guide.readiness.detail}
-                    </p>
-                  ) : null}
-
-                  {guide.sealedReviewRecord !== null ? (
-                    <FirstReviewGuideSealedRecordProvenance sealedReviewRecord={guide.sealedReviewRecord} />
-                  ) : null}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2" data-testid="first-review-guide-primary-actions">
-                  {guide.headerActions.primaryDisabled ? (
-                    <Button
-                      disabled
-                      aria-describedby="first-review-guide-primary-disabled-hint"
-                      data-testid="first-review-guide-primary-disabled"
-                    >
-                      {guide.headerActions.primaryLabel}
-                    </Button>
-                  ) : (
-                    <Button asChild variant="primary" data-testid="first-review-guide-primary">
-                      <Link href={guide.headerActions.primaryHref}>{guide.headerActions.primaryLabel}</Link>
-                    </Button>
-                  )}
-
-                  {guide.headerActions.secondaryHref !== null ? (
-                    <Button variant="outline" asChild data-testid="first-review-guide-secondary">
-                      <Link href={guide.headerActions.secondaryHref}>{guide.headerActions.secondaryLabel}</Link>
-                    </Button>
-                  ) : null}
-                </div>
-
-                <WhyDisabledCtaHint
-                  id="first-review-guide-primary-disabled-hint"
-                  reason={primaryDisabledReason}
-                  testId="first-review-guide-primary-disabled-hint"
-                  className={OPERATOR_SHORT_HELPER_MEASURE_CLASS}
-                />
-
-                {shouldShowEvaluationScopeHelper(guide.readiness.kind) ? (
-                  <p
-                    className={cn("m-0", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="first-review-guide-evaluation-scope"
-                  >
-                    {FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
-                  </p>
-                ) : null}
-
-                <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
-              </>
-            )}
-          </OperatorPageHeader>
-
-          {guide.sealedReviewRecord === null ? <OnboardingSampleReviewShortcut /> : null}
-
-          {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
-
-          <section
-            aria-labelledby="first-review-guide-progress-heading"
-            className="space-y-4"
-            data-testid="onboarding-progress"
+          <div
+            id={FIRST_REVIEW_GUIDE_PRIMARY_CONTENT_ID}
+            data-testid="first-review-guide-primary-content"
+            className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
           >
-            <div className="space-y-2">
-              <h2 id="first-review-guide-progress-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE}
-              </h2>
+            {firstReviewGuidePageHeader}
 
-              <FirstReviewGuideProgressSummary
-                progress={guide.progress}
-                isPending={guide.isPending}
-                isError={guide.isError}
-              />
+            <div
+              id={FIRST_REVIEW_GUIDE_SKIP_TARGET_ID}
+              data-testid={FIRST_REVIEW_GUIDE_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <FirstReviewGuideBuyerChrome />
+              {firstReviewGuideWorkspaceGrid}
             </div>
+          </div>
+        </>
+      ) : (
+        firstReviewGuideWorkspaceGrid
+      )}
 
-            <FirstReviewGuideWalkthrough
-              steps={guide.steps}
-              isPending={guide.isPending}
-              isError={guide.isError}
-              announceProgress={guide.hasLoadedContext}
-              progressPhase={guide.progress.phase}
-            />
-          </section>
-        </div>
-
-        <FirstReviewGuideSupportPanel
-          className={OPERATOR_LAYOUT.stickyAsideTop}
-          sealedRunId={guide.sealedReviewRecord?.runId ?? null}
+      {!buyerPolishedShell ? (
+        <EvidenceOrientationClaimAndSourcesStrip
+          slug="first-review-guide"
+          claim={FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE}
+          sourcesIntro={FIRST_REVIEW_GUIDE_SOURCES_INTRO}
+          sources={FIRST_REVIEW_GUIDE_SOURCES}
+          claimElement="aside"
+          sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
         />
-      </div>
-
-      <EvidenceOrientationClaimAndSourcesStrip
-        slug="first-review-guide"
-        claim={FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE}
-        sourcesIntro={FIRST_REVIEW_GUIDE_SOURCES_INTRO}
-        sources={FIRST_REVIEW_GUIDE_SOURCES}
-        claimElement="aside"
-        sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-      />
+      ) : null}
 
       <OnboardingOptionalSetupSection />
     </OperatorPageContainer>
