@@ -10,7 +10,12 @@ export function governanceFindingsPickReviewForTriageHref(
     return pathname;
   }
 
-  const params = new URLSearchParams(currentSearch);
+  const currentParams = new URLSearchParams(currentSearch);
+  const hadArchitectureScope = currentParams.has("architectureId");
+  const params = hadArchitectureScope
+    ? new URLSearchParams()
+    : new URLSearchParams(currentSearch);
+
   params.set("runId", trimmedReviewId);
   params.delete("architectureId");
 

@@ -10011,11 +10011,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — clear-all-filters final navigation restored stale register/facet params
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pick-review from architecture scope kept stale register/facet params
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10028,14 +10028,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation restored stale register/facet params after state clears — **hit 2026-09-07 hunt #1280:** `clearAllFilters` ended with `governanceFindingsSearchHrefFromSearch`, which only cleared `q` and rebuilt from the render-scoped query string so `filter` / `findingJobView` / NL facet params survived; review/architecture scope preservation is intentional (`Clear review scope` is separate); fixed with `governanceFindingsClearAllFiltersHref`; regressions in `governance-findings-clear-all-filters-url.test.ts` and `use-governance-findings-queue-saved-views.test.ts`
 
 - [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review merged stale `architectureId` so run scope intersected architecture run-set and could hide all triage rows — **hit 2026-09-07 seed hunt #1290 (seed→hit):** `URLSearchParams` merge only set `runId` while `governanceFindingsRunScopedSavedViewHref` already clears architecture scope; fixed with `governanceFindingsPickReviewForTriageHref`; regressions in `governance-findings-pick-review-url.test.ts`.
-- [ ] (candidate) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run (needs reachability proof from scope-section UX).
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run — **hit 2026-09-08 hunt #1298:** `#1290` cleared `architectureId` only; architecture-scoped register/facet params survived pick-review navigation so run triage inherited architecture filters; fixed by rebuilding run-only URL when `architectureId` was present; regressions in `governance-findings-pick-review-url.test.ts`
 
-2026-09-07 seed hunt #1188 (hit): seeded zone from ABQ-09 churn hotspot; proved saved-view scope leak on workspace-wide load.
-
-2026-09-07 seed hunt #1279 (hit): reseeded run-scoped saved-view URL merge hypothesis from `onLoadFindingsSavedView` + `onPickReviewForTriage`; 5 scoped saved-view unit tests passed.
-
-2026-09-07 thorough hunt #1280 (hit): proved clear-all-filters stale URL restore; 5 scoped clear-all / saved-view unit tests passed.
-
+2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
 2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
 
 ---
