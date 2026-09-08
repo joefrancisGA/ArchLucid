@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Button } from "@/components/ui/button";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { extractUploadQuickStartDescription } from "@/lib/extract-upload-product-copy";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -19,12 +21,14 @@ export type AzureExtractorQuickStartCommandPanelProps = {
  * Copy-paste one-liner for Run-ArchLucidAzureExtractor.ps1 (Tier 1 quick start).
  */
 export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickStartCommandPanelProps) {
+  const { productLine } = useLocalizedProductCopy();
   const {
     testIdPrefix = "azure-extractor-quick-start",
     title = "Quick start (recommended)",
-    description = "From your ArchLucid checkout: sign in to Azure when prompted, then upload ./archlucid-azure-package.zip here.",
+    description,
     className,
   } = props;
+  const resolvedDescription = description ?? extractUploadQuickStartDescription(productLine);
   const commandLine = buildGetArchLucidAzurePackageCommandLine();
 
   return (
@@ -38,7 +42,7 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{title}</p>
-          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{resolvedDescription}</p>
         </div>
         <Button
           type="button"

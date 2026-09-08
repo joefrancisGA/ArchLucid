@@ -1,10 +1,14 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { extractorUploadConstraints } from "@/lib/usability/extractor-upload-constraints";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Up-front upload constraints for the Azure extractor settings page. */
 export function ExtractUploadConstraintsPanel() {
-  const constraints = extractorUploadConstraints();
+  const { productLine } = useLocalizedProductCopy();
+  const constraints = extractorUploadConstraints(undefined, productLine);
 
   return (
     <div
