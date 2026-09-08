@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
+import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-guards";
 import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -172,7 +173,9 @@ export function TenantCostSettingsDemoUnavailableCard() {
   );
 }
 
-export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) {
+export function TenantCostSettingsCardShell(
+  state: TenantCostSettingsFormState & { readonly tenantDisplayName: string },
+) {
   const {
     canEdit,
     costSettingsQuery,
@@ -195,15 +198,25 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
     helperCopy,
     saveSteps,
     saveEmphasizedStepId,
+    documentGuards,
+    tenantDisplayName,
   } = state;
 
   const eaDiscountNumeric = Number(eaDiscountPercentage.trim());
   const eaDerivedRateHelper = formatTenantCostSettingsEaDerivedRateHelper(eaDiscountNumeric);
   const tenantContext = readActiveTenantContext();
-  const tenantScopeLabel = resolveTenantOrganizationDisplayName(
+  const resolvedTenantLabel = resolveTenantOrganizationDisplayName(
+    tenantContext.tenantId,
+    tenantDisplayName,
+  );
+  const switcherTenantLabel = resolveTenantOrganizationDisplayName(
     tenantContext.tenantId,
     tenantContext.displayName,
   );
+  const tenantScopeLabel =
+    resolvedTenantLabel !== TENANT_ORGANIZATION_NAME_UNAVAILABLE
+      ? resolvedTenantLabel
+      : switcherTenantLabel;
   const showTenantScopeLabel = tenantScopeLabel !== TENANT_ORGANIZATION_NAME_UNAVAILABLE;
 
   return (
@@ -347,6 +360,12 @@ export function TenantCostSettingsCardShell(state: TenantCostSettingsFormState) 
           </form>
         )}
       </CardContent>
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
+      />
     </Card>
   );
 }

@@ -2,9 +2,11 @@ import {
   isCommandPaletteFinalizeReviewAvailable,
   isCommandPaletteReviewSaveAvailable,
   isCommandPaletteRoomElicitationAvailable,
+  isCommandPaletteTenantCostSettingsSaveAvailable,
 } from "@/lib/command-palette-work-action-dom";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
+export const COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT = "archlucid-command-palette-save-tenant-cost-settings";
 export const COMMAND_PALETTE_FINALIZE_REVIEW_EVENT = "archlucid-command-palette-finalize-review";
 export const COMMAND_PALETTE_UNDO_MUTATION_EVENT = "archlucid-command-palette-undo-mutation";
 export const COMMAND_PALETTE_FINDING_NEXT_EVENT = "archlucid-command-palette-finding-next";
@@ -24,6 +26,7 @@ export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
+  | "action-save-tenant-cost-settings"
   | "action-finalize-review"
   | "action-room-elicitation"
   | "action-undo-mutation"
@@ -54,6 +57,11 @@ const architectureDraftPathPattern = /^\/architecture\/architectures(\/|$)/;
 const reviewDetailPathPattern = /^\/architecture\/reviews\/[^/]+/;
 const findingsQueuePathPattern = /^\/governance\/findings(\/|$)/;
 const alertsPathPattern = /^\/governance\/alerts(\/|$)/;
+const workspaceSettingsPathPattern = /^\/administration\/workspace-settings(\/|$)/;
+
+export function isWorkspaceSettingsWorkPath(pathname: string): boolean {
+  return workspaceSettingsPathPattern.test(pathname);
+}
 
 export function isArchitectureDraftWorkPath(pathname: string): boolean {
   return architectureDraftPathPattern.test(pathname);
@@ -88,6 +96,13 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
     isAvailable: (pathname) =>
       isArchitectureDraftWorkPath(pathname)
       || (isReviewDetailWorkPath(pathname) && isCommandPaletteReviewSaveAvailable()),
+  },
+  {
+    id: "action-save-tenant-cost-settings",
+    label: "Save cost settings",
+    searchValue: "action save tenant cost settings workspace settings roi rates",
+    isAvailable: (pathname) =>
+      isWorkspaceSettingsWorkPath(pathname) && isCommandPaletteTenantCostSettingsSaveAvailable(),
   },
   {
     id: "action-finalize-review",
@@ -180,6 +195,7 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
 
 const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-save-draft": COMMAND_PALETTE_SAVE_DRAFT_EVENT,
+  "action-save-tenant-cost-settings": COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT,
   "action-finalize-review": COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
   "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,

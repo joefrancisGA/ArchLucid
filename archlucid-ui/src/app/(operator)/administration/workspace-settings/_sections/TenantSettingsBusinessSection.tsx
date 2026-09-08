@@ -37,6 +37,7 @@ function SectionHeading({ id, children }: SectionHeadingProps) {
 
 type Props = {
   readonly canEdit: boolean;
+  readonly tenantDisplayName: string;
   readonly buyerPolishedShell?: boolean;
   readonly advancedQualityOpen: boolean;
   readonly onAdvancedQualityToggle: (open: boolean) => void;
@@ -44,6 +45,7 @@ type Props = {
 
 export function TenantSettingsBusinessSection({
   canEdit,
+  tenantDisplayName,
   buyerPolishedShell = false,
   advancedQualityOpen,
   onAdvancedQualityToggle,
@@ -52,7 +54,7 @@ export function TenantSettingsBusinessSection({
     <>
       <SectionHeading id="tenant-settings-section-business">Business settings</SectionHeading>
 
-      <TenantCostSettingsCard canEdit={canEdit} />
+      <TenantCostSettingsCard canEdit={canEdit} tenantDisplayName={tenantDisplayName} />
 
       <Card>
         <CardHeader>

@@ -13,12 +13,14 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { WorkspaceScopeTenantSettingsVocabularyRail } from "@/components/WorkspaceScopeTenantSettingsVocabularyRail";
 import { TenantSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
+import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { TENANT_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/tenant-settings-evidence-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { resolveApiLoadFailurePresentation, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
   getEffectiveBrowserProxyScopeHeaders,
@@ -67,8 +69,24 @@ export function TenantSettingsPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const policyQuery = useWorkOwnershipDeletePolicyQuery({
+    enabled: !buyerPolishedShell && !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority,
+  });
+  const reconciledAuthorityRank = useMemo(() => {
+    if (!policyQuery.isError) {
+      return callerAuthorityRank;
+    }
+
+    const failure = toApiLoadFailure(policyQuery.error);
+
+    if (resolveApiLoadFailurePresentation(failure) === "forbidden") {
+      return Math.min(callerAuthorityRank, AUTHORITY_RANK.ExecuteAuthority);
+    }
+
+    return callerAuthorityRank;
+  }, [callerAuthorityRank, policyQuery.error, policyQuery.isError]);
   const canEditTenantSettings =
-    !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority && !buyerPolishedShell;
+    !isAuthorityLoading && reconciledAuthorityRank >= AUTHORITY_RANK.AdminAuthority && !buyerPolishedShell;
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_PATH;
   const searchParams = useSearchParams();
@@ -76,11 +94,16 @@ export function TenantSettingsPageView(props: Props) {
   const scope = getEffectiveBrowserProxyScopeHeaders();
   const workspacesQuery = useTenantWorkspacesListQuery();
   const [activeScopeSummary, setActiveScopeSummary] = useState<string>(TENANT_SETTINGS_SCOPE_UNRESOLVED_SUMMARY);
-  const [callerAuthorityLine, setCallerAuthorityLine] = useState<string | null>(null);
   const [tenantDisplayName, setTenantDisplayName] = useState(() => m.tenantDisplayName);
   const [advancedQualityOpen, setAdvancedQualityOpenState] = useState(() =>
     parseTenantSettingsQualityAdvancedOpenFromSearch(settingsQualityAdvancedOpenParam),
   );
+
+  useEffect(() => {
+    setAdvancedQualityOpenState(
+      parseTenantSettingsQualityAdvancedOpenFromSearch(settingsQualityAdvancedOpenParam),
+    );
+  }, [settingsQualityAdvancedOpenParam]);
 
   const activeProjectName = useMemo(() => {
     const workspaceId = scope["x-workspace-id"]?.trim() ?? "";
@@ -131,17 +154,25 @@ export function TenantSettingsPageView(props: Props) {
     setActiveScopeSummary(
       tenantSettingsEffectiveScopeSummary(headers, scopeRecord, activeProjectName),
     );
-    setCallerAuthorityLine(
-      tenantSettingsCallerAuthorityLine(
-        callerAuthorityRank,
-        resolveWorkspaceLabelForSummary(headers["x-workspace-id"] ?? "", scopeRecord),
-      ),
-    );
     const tenantContext = readActiveTenantContext();
     setTenantDisplayName(
       resolveTenantOrganizationDisplayName(tenantContext.tenantId, m.tenantDisplayName),
     );
-  }, [activeProjectName, callerAuthorityRank, m.tenantDisplayName]);
+  }, [activeProjectName, m.tenantDisplayName]);
+
+  const callerAuthorityLine = useMemo(() => {
+    if (isAuthorityLoading) {
+      return null;
+    }
+
+    const headers = getEffectiveBrowserProxyScopeHeaders();
+    const scopeRecord = readOperatorScopeFromStorage();
+
+    return tenantSettingsCallerAuthorityLine(
+      reconciledAuthorityRank,
+      resolveWorkspaceLabelForSummary(headers["x-workspace-id"] ?? "", scopeRecord),
+    );
+  }, [isAuthorityLoading, reconciledAuthorityRank]);
 
   useEffect(() => {
     const tenantContext = readActiveTenantContext();
@@ -222,7 +253,7 @@ export function TenantSettingsPageView(props: Props) {
           }
         />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_9.5rem] lg:items-start">
           <div
             id={TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID}
             data-testid={TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID}
@@ -276,6 +307,7 @@ export function TenantSettingsPageView(props: Props) {
 
             <TenantSettingsBusinessSection
               canEdit={canEditTenantSettings}
+              tenantDisplayName={tenantDisplayName}
               buyerPolishedShell={buyerPolishedShell}
               advancedQualityOpen={advancedQualityOpen}
               onAdvancedQualityToggle={setAdvancedQualityOpen}

@@ -36,6 +36,14 @@ vi.mock("@/hooks/use-tenant-workspaces-list-query", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-work-ownership-delete-policy-query", () => ({
+  useWorkOwnershipDeletePolicyQuery: () => ({
+    isError: false,
+    isPending: false,
+    data: { allowCreatorDeleteOwnedWork: false },
+  }),
+}));
+
 vi.mock("./TenantCostSettingsCard", () => ({
   TenantCostSettingsCard: () => <div data-testid="tenant-cost-settings-card-stub" />,
 }));

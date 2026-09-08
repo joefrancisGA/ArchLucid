@@ -13,6 +13,19 @@ export function queryVisibleArchitectureDraftSaveControl(): HTMLButtonElement | 
   return document.querySelector<HTMLButtonElement>('[data-testid="architecture-save-and-exit"]:not([disabled])');
 }
 
+/** Visible tenant cost settings save control on workspace settings. */
+export function queryVisibleTenantCostSettingsSaveControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>('[data-testid="tenant-cost-settings-save"]:not([disabled])');
+}
+
+export function isCommandPaletteTenantCostSettingsSaveAvailable(): boolean {
+  return queryVisibleTenantCostSettingsSaveControl() !== null;
+}
+
 /** Visible review-detail save controls for guarded livelihood fields (LD-09). */
 export function queryVisibleReviewDetailSaveControl(): HTMLButtonElement | null {
   if (typeof document === "undefined") {
