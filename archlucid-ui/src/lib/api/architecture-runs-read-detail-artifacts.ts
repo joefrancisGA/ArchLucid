@@ -52,12 +52,12 @@ export async function getRunTraces(
   runId: string,
   pageNumber = 1,
   pageSize = 50,
-): Promise<ApiResponseWithTrace<AgentExecutionTraceListPayload>> {
+): Promise<AgentExecutionTraceListPayload> {
   const q = new URLSearchParams();
   q.set("pageNumber", String(pageNumber));
   q.set("pageSize", String(pageSize));
 
-  return apiGetJsonWithTrace<AgentExecutionTraceListPayload>(
+  return apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
   );
 }
@@ -65,8 +65,8 @@ export async function getRunTraces(
 /** Trace-derived redacted invocation forensics (TB-110). */
 export async function getRunToolInvocationForensics(
   runId: string,
-): Promise<ApiResponseWithTrace<RunToolInvocationForensicsPayload>> {
-  return apiGetJsonWithTrace<RunToolInvocationForensicsPayload>(
+): Promise<RunToolInvocationForensicsPayload> {
+  return apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
   );
 }
@@ -74,8 +74,8 @@ export async function getRunToolInvocationForensics(
 /** On-demand structural evaluation of persisted `parsedResultJson` per trace (no OTel side effects in API). */
 export async function getRunAgentEvaluation(
   runId: string,
-): Promise<ApiResponseWithTrace<AgentOutputEvaluationSummaryPayload>> {
-  return apiGetJsonWithTrace<AgentOutputEvaluationSummaryPayload>(
+): Promise<AgentOutputEvaluationSummaryPayload> {
+  return apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
   );
 }
@@ -83,8 +83,8 @@ export async function getRunAgentEvaluation(
 /** Redaction-safe retrieval grounding diagnostics for one authority run. */
 export async function getRunRetrievalGrounding(
   runId: string,
-): Promise<ApiResponseWithTrace<RunRetrievalGroundingPayload>> {
-  return apiGetJsonWithTrace<RunRetrievalGroundingPayload>(
+): Promise<RunRetrievalGroundingPayload> {
+  return apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
   );
 }
