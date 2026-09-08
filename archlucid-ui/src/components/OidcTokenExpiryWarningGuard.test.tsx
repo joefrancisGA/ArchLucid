@@ -46,6 +46,37 @@ describe("OidcTokenExpiryWarningGuard (LI-14)", () => {
   });
 
   it("silently refreshes before the two-minute warning on meeting-safe surfaces", () => {
+    pathnameMock.value = "/architecture/reviews/run-1/print";
+    const now = Date.now();
+    getAccessTokenExpiresAtMsMock.mockReturnValue(
+      now + SESSION_TOKEN_EXPIRY_WARNING_MS + 30_000,
+    );
+
+    render(<OidcTokenExpiryWarningGuard />);
+
+    vi.advanceTimersByTime(1_100);
+
+    expect(ensureAccessTokenFreshMock).toHaveBeenCalled();
+    expect(screen.queryByTestId("session-token-expiry-warning")).toBeNull();
+  });
+
+  it("silently refreshes on finding inspect operator routes", () => {
+    pathnameMock.value = "/architecture/reviews/run-1/findings/finding-1";
+    const now = Date.now();
+    getAccessTokenExpiresAtMsMock.mockReturnValue(
+      now + SESSION_TOKEN_EXPIRY_WARNING_MS + 30_000,
+    );
+
+    render(<OidcTokenExpiryWarningGuard />);
+
+    vi.advanceTimersByTime(1_100);
+
+    expect(ensureAccessTokenFreshMock).toHaveBeenCalled();
+    expect(screen.queryByTestId("session-token-expiry-warning")).toBeNull();
+  });
+
+  it("silently refreshes on policy pack authoring routes", () => {
+    pathnameMock.value = "/governance/policy-packs";
     const now = Date.now();
     getAccessTokenExpiresAtMsMock.mockReturnValue(
       now + SESSION_TOKEN_EXPIRY_WARNING_MS + 30_000,
