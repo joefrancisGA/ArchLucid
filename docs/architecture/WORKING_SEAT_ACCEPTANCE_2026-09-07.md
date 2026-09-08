@@ -40,6 +40,7 @@ This audit does **not** claim DX density engines, FC validator rewrites, or insi
 | DX density engines | DX backlog | Not closed by this wave |
 | G-REAL-06 | GTM | Owner execution; not an engineering batch |
 | CPA SOC 2 / third-party pen test | G-REAL-05 / G-ASSURANCE-02 | GTM owner programs (TB-135/TB-136 tech Done) |
+| Cited analysis / promote same-tx / human-record leftovers | Wave 20 **LP-01–LP-20** | Chrome shipped; persist gates are [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) |
 
 ## Verification commands (focused)
 
@@ -63,3 +64,4 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
 
 - [OPERATOR_UI_EXPERIENCE_MODES.md](../library/OPERATOR_UI_EXPERIENCE_MODES.md) — Working = product instrument; Guided = eval teaching
 - [WORKING_SEAT_EVAL_LEAK_INVENTORY.md](WORKING_SEAT_EVAL_LEAK_INVENTORY.md) — leak priority list
+- [LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) — wave 20 persist gates (do not re-run WS)

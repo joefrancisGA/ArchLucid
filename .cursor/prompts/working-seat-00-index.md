@@ -2,6 +2,7 @@
      Origin: 2026-09-07 owner decision: stop buyer polish on the Working seat.
      Wave 19 after system-desk-00-index.md (SY-01–SY-100).
      SY nested the desk; this set makes Working the product, not an eval skin.
+     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after chrome.
      Do not implement from this index. -->
 
 # Working-seat mitigations — Composer prompt set (WS-01–WS-24)
