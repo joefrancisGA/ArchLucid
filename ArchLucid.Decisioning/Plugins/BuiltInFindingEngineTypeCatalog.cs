@@ -67,6 +67,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["SecretsLifecycleFindingEngine"] = "secrets-lifecycle",
             ["InsightGeneratorFindingEngine"] = "insight-generator",
             ["ChecklistClusterSynthesisFindingEngine"] = "checklist-cluster-synthesis",
+            ["DecisionGradeFusionFindingEngine"] = "decision-grade-fusion",
         };
 
     /// <summary>Every product <c>EngineType</c> (ordinal ignore-case).</summary>
