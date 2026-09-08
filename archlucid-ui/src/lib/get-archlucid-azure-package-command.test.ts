@@ -40,4 +40,15 @@ describe("buildGetArchLucidAzurePackageCommandLine", () => {
     expect(advanced).toContain(`-SubscriptionId '${subscriptionId}'`);
     expect(advanced).toContain("-IncludeCost");
   });
+
+  it("uses SecureNow script and ZIP names on the security product line", () => {
+    const quickStart = buildGetArchLucidAzurePackageCommandLine({ productLineId: "security" });
+    const advanced = buildAdvancedGetArchLucidAzurePackageCommandLine({ productLineId: "security" });
+
+    expect(quickStart).toContain("Run-SecureNowAzureExtractor.ps1");
+    expect(quickStart).not.toMatch(/\bArchLucid\b/);
+    expect(advanced).toContain("Get-SecureNowAzurePackage.ps1");
+    expect(advanced).toContain("-OutputPath '.\\securenow-azure-package.zip'");
+    expect(advanced).not.toMatch(/\bArchLucid\b/);
+  });
 });

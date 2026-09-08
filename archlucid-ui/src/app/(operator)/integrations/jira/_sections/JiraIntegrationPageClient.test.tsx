@@ -14,6 +14,15 @@ const featureMocks = vi.hoisted(() => ({
 }));
 let callerAuthorityRank = 0;
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
 }));
