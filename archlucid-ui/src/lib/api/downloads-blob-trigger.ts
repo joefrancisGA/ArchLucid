@@ -27,3 +27,5 @@ export {
   downloadArtifactBundleZip,
   downloadTraceabilityBundleZip,
 } from "./downloads-blob-trigger-artifact-bundle";
+
+export { downloadManifestMarkdownExport } from "./manifest-markdown-export-api";

@@ -7,6 +7,8 @@ import { useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { BUYER_DOWNLOAD_REVIEW_RECORD_JSON } from "@/lib/buyer/buyer-polish-copy";
 import { fetchManifestJsonText, manifestJsonDownloadFileName } from "@/lib/manifest-json-fetch";
+import { signedReviewRecordBlockedReason } from "@/lib/manifest/signed-review-record-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type DownloadManifestButtonProps = {
@@ -45,10 +47,13 @@ export function DownloadManifestButton(props: DownloadManifestButtonProps): Reac
       anchor.click();
       URL.revokeObjectURL(objectUrl);
     } catch (downloadError) {
+      const failure = toApiLoadFailure(downloadError);
+      const blockedReason = signedReviewRecordBlockedReason(failure);
       const message =
-        downloadError instanceof Error
+        blockedReason ??
+        (downloadError instanceof Error
           ? downloadError.message
-          : "Could not download review record JSON — check connectivity and try again.";
+          : "Could not download review record JSON — check connectivity and try again.");
       setError(message);
     } finally {
       setDownloading(false);

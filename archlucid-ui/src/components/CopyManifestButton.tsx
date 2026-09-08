@@ -7,6 +7,8 @@ import { useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { BUYER_COPY_REVIEW_RECORD_JSON } from "@/lib/buyer/buyer-polish-copy";
 import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
+import { signedReviewRecordBlockedReason } from "@/lib/manifest/signed-review-record-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type CopyManifestButtonProps = {
@@ -42,10 +44,13 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
         setCopied(false);
       }, 2_000);
     } catch (copyError) {
+      const failure = toApiLoadFailure(copyError);
+      const blockedReason = signedReviewRecordBlockedReason(failure);
       const message =
-        copyError instanceof Error
+        blockedReason ??
+        (copyError instanceof Error
           ? copyError.message
-          : "Could not copy review record JSON — check connectivity and try again.";
+          : "Could not copy review record JSON — check connectivity and try again.");
       setError(message);
     } finally {
       setCopying(false);

@@ -18,6 +18,7 @@ import {
   apiGet,
   apiGetJsonWithTrace,
 } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import type { RunToolInvocationForensicsPayload } from "./architecture-runs-read-types";
 
 /** Linkage graph + trace timeline for a coordinator architecture run. */
@@ -90,7 +91,9 @@ export async function getRunRetrievalGrounding(
 
 /** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/signed-review-record`). */
 export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
-  return apiGet<unknown>(`/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`);
+  return apiGetSealedManifestAware<unknown>(
+    `/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`,
+  );
 }
 
 /** Aggregate sponsor explanation (themes, posture, counts) with nested full explanation payload. */
