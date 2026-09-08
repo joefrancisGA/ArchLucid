@@ -60,6 +60,74 @@ public static class InsightDensityGateHumanCalibrationCalculator
         return rows;
     }
 
+    /// <summary>Builds engine-type residual map for Premium judge-cap selection (DX-67).</summary>
+    public static IReadOnlyDictionary<string, double>? TryBuildJudgeResidualMap(
+        IReadOnlyList<Finding> candidates,
+        IReadOnlyList<EngineInsightNoveltyRateRow>? noveltyRates)
+    {
+        ArgumentNullException.ThrowIfNull(candidates);
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
+
+        Dictionary<string, EngineInsightNoveltyRateRow> noveltyByEngine = (noveltyRates ?? [])
+            .GroupBy(static row => row.EngineType, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(static group => group.Key, static group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+        List<InsightDensityGateHumanCalibrationRow> rows = candidates
+            .Where(static finding => !string.IsNullOrWhiteSpace(finding.EngineType))
+            .GroupBy(static finding => finding.EngineType.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(group =>
+            {
+                List<int> scores = group
+                    .Select(static finding => finding.InsightDensityScore ?? 0)
+                    .OrderBy(static score => score)
+                    .ToList();
+
+                int medianScore = scores[scores.Count / 2];
+                noveltyByEngine.TryGetValue(group.Key, out EngineInsightNoveltyRateRow? noveltyRow);
+
+                double? noveltyRate = group.Count() >= NoveltySampleFloor && noveltyRow?.Rate is not null
+                    ? noveltyRow.Rate
+                    : null;
+
+                return new InsightDensityGateHumanCalibrationRow
+                {
+                    EngineType = group.Key,
+                    FindingCount = group.Count(),
+                    DecisionGradeCount = group.Count(),
+                    MedianScore = medianScore,
+                    DidNotThinkOfThatCount = noveltyRow?.DidNotThinkOfThatCount ?? 0,
+                    NoveltyRate = noveltyRate,
+                };
+            })
+            .OrderBy(static row => row.EngineType, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (rows.Count == 0)
+        {
+            return null;
+        }
+
+        ApplyResiduals(rows);
+
+        Dictionary<string, double> residuals = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (InsightDensityGateHumanCalibrationRow row in rows)
+        {
+            if (row.Residual is not double residual)
+            {
+                continue;
+            }
+
+            residuals[row.EngineType] = residual;
+        }
+
+        return residuals.Count == 0 ? null : residuals;
+    }
+
     internal static void ApplyResiduals(IList<InsightDensityGateHumanCalibrationRow> rows)
     {
         List<InsightDensityGateHumanCalibrationRow> scoredRows = rows
