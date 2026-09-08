@@ -13,9 +13,5 @@ export function OperatorHomeBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return (
-    <div data-testid="operator-home-orientation-top">
-      <OperatorHomeEvidenceOrientationStrip sources={OPERATOR_HOME_ORIENTATION_SOURCES} />
-    </div>
-  );
+  return <OperatorHomeEvidenceOrientationStrip sources={OPERATOR_HOME_ORIENTATION_SOURCES} />;
 }

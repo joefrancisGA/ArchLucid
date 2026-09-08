@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -12,9 +12,12 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
+import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
 import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_BACK_TO_LOOKUP_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_CLAIM_DISCIPLINE,
@@ -33,6 +36,7 @@ import {
   auditEvidenceLineageChainHrefFromSearch,
   parseAuditEvidenceLineageChainOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
+import { showError } from "@/lib/toast";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
@@ -54,8 +58,13 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const buyerPolishedShell = useProductionEvalChrome();
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
+  const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
   const [chainExpanded, setChainExpandedState] = useState(() =>
     parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
+  );
+  const lineageBlockedReason = useMemo(
+    () => (lineageQuery.isError ? auditEvidenceLineageBlockedReason(toApiLoadFailure(lineageQuery.error)) : null),
+    [lineageQuery.error, lineageQuery.isError],
   );
 
   const syncChainExpandedToUrl = useCallback(
@@ -90,6 +99,21 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     ? AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION
     : AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION;
 
+  const onDownloadEvidencePackage = useCallback(async () => {
+    setPackageDownloadBusy(true);
+
+    try {
+      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
+    } catch (error: unknown) {
+      showError(
+        "Audit evidence package download failed",
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setPackageDownloadBusy(false);
+    }
+  }, [props.assessmentId, props.snapshotId]);
+
   return (
     <div className="space-y-4 p-4" data-testid="audit-evidence-control-lineage-page">
       {buyerPolishedShell ? (
@@ -110,6 +134,18 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         breadcrumb={buyerPolishedShell ? <AuditEvidenceControlLineageBreadcrumb /> : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={packageDownloadBusy}
+              data-testid="audit-evidence-package-download"
+              onClick={() => {
+                void onDownloadEvidencePackage();
+              }}
+            >
+              {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
+            </Button>
             <PageContextualHelpButton />
           </div>
         }
@@ -178,7 +214,9 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
             ) : (
               <>
                 <StatusTag kind="needs-attention" label="Lineage unavailable" />
-                <p className={OPERATOR_TYPOGRAPHY.helper}>Could not load chain of custody for this control.</p>
+                <p className={OPERATOR_TYPOGRAPHY.helper}>
+                  {lineageBlockedReason ?? "Could not load chain of custody for this control."}
+                </p>
               </>
             )}
           </div>
