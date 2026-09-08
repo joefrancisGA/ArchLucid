@@ -1,4 +1,4 @@
-> **Scope:** Sample of high-impact `(proven)` rows — not a claim that all high bugs are user-visible, and not a SOC 2 or pen-test control.
+> **Scope:** Contributor-reference — sample of high-impact `(proven)` rows — not a claim that all high bugs are user-visible, and not a SOC 2 or pen-test control.
 
 # `/al-bug` severity calibration audit
 
