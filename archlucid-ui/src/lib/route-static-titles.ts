@@ -34,6 +34,7 @@ import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -100,6 +101,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/administration/api-keys": API_KEYS_PAGE_TITLE,
   "/account/preferences": "Preferences",
   "/administration/notifications": OPERATOR_NAV_LINK_LABELS.notifications,
+  [EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.connectionStatus,
