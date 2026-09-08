@@ -4,6 +4,16 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 /** Page chrome for `/architectures` — object-oriented architecture draft inventory. */
 export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
+export const ARCHITECTURES_HUB_PRIMARY_CONTENT_ID = "architectures-hub-primary-content" as const;
+
+export const ARCHITECTURES_HUB_FIRST_VIEWPORT_ID = "architectures-hub-first-viewport" as const;
+
+export const ARCHITECTURES_HUB_FIRST_VIEWPORT_TEST_ID = ARCHITECTURES_HUB_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURES_HUB_SKIP_TARGET_ID = ARCHITECTURES_HUB_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURES_HUB_SKIP_LINK_LABEL = "Skip to architecture drafts workspace" as const;
+
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
   "Saved architecture drafts for your account — sync across browsers where you sign in." as const;
 
