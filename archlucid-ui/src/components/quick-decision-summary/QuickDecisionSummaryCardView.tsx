@@ -4,6 +4,7 @@ import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExp
 import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE } from "@/lib/finding-stream-product-of-record-copy";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -101,14 +102,13 @@ export function QuickDecisionSummaryCardView({
             unmappedFindingCount={derived.policyPackImpact.unmappedFindingCount}
           />
         ) : null}
-        {props.usingExplanationFallback === true ? (
+        {props.buyerSummaryOmitsAgentFindings === true ? (
           <p
-            className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="quick-decision-explanation-fallback-notice"
+            className={cn("m-0", DESIGN_TOKENS.callout.info, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="quick-decision-buyer-summary-agent-findings-omission"
             role="status"
           >
-            Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not on
-            this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
+            {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
           </p>
         ) : null}
         {!derived.hasSourceFindings ? (
