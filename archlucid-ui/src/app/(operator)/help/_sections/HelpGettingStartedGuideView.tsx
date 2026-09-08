@@ -31,6 +31,10 @@ import {
   GETTING_STARTED_HELP_WORKFLOW_STEPS,
   gettingStartedHelpPageSubtitle,
   resolveGettingStartedHelpNextActionCards,
+  resolveGettingStartedHelpPipelineDiagramAccessibleName,
+  resolveGettingStartedHelpPipelineDiagramDescription,
+  resolveGettingStartedHelpPipelineIntro,
+  resolveGettingStartedHelpPipelineTextStages,
   resolveGettingStartedHelpPrimaryActions,
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
@@ -224,6 +228,12 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
   const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
   const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
   const workflowSteps = resolveGettingStartedHelpWorkflowSteps(isWorkingMode);
+  const pipelineIntro = localize(resolveGettingStartedHelpPipelineIntro(isWorkingMode));
+  const pipelineTextStages = resolveGettingStartedHelpPipelineTextStages(isWorkingMode).map((stage) =>
+    localize(stage),
+  );
+  const pipelineDiagramDescription = resolveGettingStartedHelpPipelineDiagramDescription(isWorkingMode);
+  const pipelineDiagramAccessibleName = resolveGettingStartedHelpPipelineDiagramAccessibleName(isWorkingMode);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -339,21 +349,19 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               )}
               data-testid="getting-started-pipeline-diagram"
             >
-              <p className="m-0">
-                Authority pipeline from architecture request through approval check and committed outputs:
-              </p>
+              <p className="m-0">{pipelineIntro}</p>
               <ol
                 className="m-0 list-decimal space-y-1 pl-5 text-al-text-secondary"
                 data-testid="getting-started-pipeline-text-stages"
               >
-                {GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES.map((stage) => (
+                {pipelineTextStages.map((stage) => (
                   <li key={stage}>{stage}</li>
                 ))}
               </ol>
               <MermaidDiagram
                 source={GETTING_STARTED_HELP_DIAGRAM_SOURCE}
-                accessibleName="Architecture review authority pipeline"
-                description={GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION}
+                accessibleName={pipelineDiagramAccessibleName}
+                description={pipelineDiagramDescription}
               />
             </div>
           </section>
