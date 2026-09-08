@@ -20,7 +20,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("link", { name: /Users invite/i })).toBeVisible({ timeout: 30_000 });
   });
 

@@ -73,10 +73,13 @@ test.describe(
 
     requireLivePrivateBetaJwtEnv();
 
-    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
     if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1") {
+      await warmPrivateBetaCreateRunPipeline(request, expectedScope);
+
       return;
     }
+
+    // CI stubs draft inventory in-browser; cold SQL can hang direct API draft-list for minutes.
 
     const draftListRes = await request.get(
       `${liveApiBase}/v1/architecture/draft?mine=true&page=1&pageSize=1`,
@@ -283,10 +286,6 @@ test.describe(
 
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
-
-    test.beforeAll(async ({ request }) => {
-      await warmPrivateBetaCreateRunPipeline(request);
-    });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
