@@ -21,7 +21,26 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     {
         TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(404).Should().Be(TenantIsolationNegativeTestVerdict.Pass);
         TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(403).Should().Be(TenantIsolationNegativeTestVerdict.Pass);
+        TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(401).Should().Be(TenantIsolationNegativeTestVerdict.Pass);
         TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(200).Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+    }
+
+    [Fact]
+    public void EvaluateDenyStatus_Treats429AsFailNotSkip()
+    {
+        TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(429)
+            .Should()
+            .Be(TenantIsolationNegativeTestVerdict.Fail, "rate limits block verification conservatively rather than silently passing isolation");
+    }
+
+    [Fact]
+    public void TryFindRunIdInRunList_FallsBackToSubstringSearchWhenJsonMalformed()
+    {
+        string json = $$"""not-json-prefix "runId": "{{RunId}}" garbage suffix""";
+
+        TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, RunId)
+            .Should()
+            .BeTrue("malformed list payloads fall back to substring search and fail closed on embedded foreign ids");
     }
 
     [Fact]
@@ -656,6 +675,42 @@ public sealed class TenantIsolationNegativeTestRunnerTests
             probe.Name == "primary-scope-run-visible" && probe.Verdict == TenantIsolationNegativeTestVerdict.Pass);
         report.Probes.Should().Contain(probe =>
             probe.Verdict == TenantIsolationNegativeTestVerdict.Skip && probe.Name != "primary-scope-run-visible");
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_WhenPrimaryRunInvisible_SkipsCrossTenantProbesAndReportsFail()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Run not found" }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().ContainSingle(probe => probe.Name == "primary-scope-run-visible");
+        report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
     }
 
     [Fact]

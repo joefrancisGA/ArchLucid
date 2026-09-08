@@ -1096,10 +1096,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1132,6 +1132,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Offline overall verdict stays PASS when a cross-tenant list probe is SKIP while other probes pass — **cheap-disproof 2026-09-07 hunt #1246:** intentional fixture-mode divergence from live-api (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped`); offline manifests replay authored scenarios rather than re-executing live pagination.
 
 2026-09-07 thorough hunt #1246 (dry): cheap-disproved offline scan-truncation manifest candidate; documented offline-vs-live overall SKIP divergence as valid-no-repro.
+
+- [x] (valid-no-repro) Primary sanity FAIL skips cross-tenant probes and reports overall FAIL — **cheap-disproof 2026-09-08 seed hunt #1371:** intentional gate when primary scope cannot read `--run-id`; blocks ship without claiming isolation passed; regression `RunLiveAsync_WhenPrimaryRunInvisible_SkipsCrossTenantProbesAndReportsFail`.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 429 on deny-status probes to FAIL not SKIP — **cheap-disproof 2026-09-08 seed hunt #1371:** conservative fail-closed when rate limited rather than treating throttling as denied access; regression `EvaluateDenyStatus_Treats429AsFailNotSkip`.
+- [x] (valid-no-repro) `TryFindRunIdInRunList` JsonException substring fallback false-negates structured run ids — **cheap-disproof 2026-09-08 seed hunt #1371:** malformed payloads still match embedded foreign ids via substring fallback (fail-closed); regression `TryFindRunIdInRunList_FallsBackToSubstringSearchWhenJsonMalformed`.
+- [x] (invalid) `RunListClaimsMorePages` misses `hasMore` encoded as JSON string `"true"` — **cheap-disproof 2026-09-08 seed hunt #1371:** `AuthorityReadsController` returns `CursorPagedResponse` with `bool HasMore` via `ArchLucidApiJsonSerializerOptions`; no string-typed writer in zone paths.
+
+2026-09-08 seed hunt #1371 (seed-only): reseeded cli-tenant-isolation after #1246 dry; cheap-disproof closed primary-skip, HTTP 429 deny, malformed-json fallback, and string-hasMore candidates; 25 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 
