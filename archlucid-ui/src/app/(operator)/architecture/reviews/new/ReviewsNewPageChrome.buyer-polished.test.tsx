@@ -204,8 +204,15 @@ describe("ReviewsNewPageChrome buyer-polished shell (REQ)", () => {
       BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
     );
     expect(screen.getByTestId("reviews-new-optional-cloud-hint")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "quick-review")).toBe(BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE);
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
+
+    const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });
