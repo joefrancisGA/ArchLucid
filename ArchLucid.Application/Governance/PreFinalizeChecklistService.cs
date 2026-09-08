@@ -28,8 +28,7 @@ public sealed partial class PreFinalizeChecklistService(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-    ISpecialistReviewService? specialistReviewService = null,
-    TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
+    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -117,7 +116,7 @@ public sealed partial class PreFinalizeChecklistService(
             FindingSeverity.Error,
             blocking: false));
 
-        items.Add(BuildEvidenceLinkageItem(runId, findings));
+        items.Add(BuildEvidenceLinkageItem(runId, findings, latestDispositions));
 
         PreCommitGateResult gateResult =
             await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);

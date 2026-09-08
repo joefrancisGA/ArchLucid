@@ -515,6 +515,149 @@ public sealed class PreFinalizeChecklistServiceTests
             && item.Status == PreFinalizeChecklistItemStatus.Blocking);
     }
 
+    [Fact]
+    public async Task BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-stale-remediation";
+        DateTimeOffset remediatedAt = DateTimeOffset.Parse("2024-01-01T12:00:00Z");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                Guid _,
+                IReadOnlyCollection<string> _,
+                DateTimeOffset since,
+                CancellationToken _) =>
+                remediatedAt >= since
+                    ?
+                    [
+                        new FindingReviewEventRecord
+                        {
+                            EventId = Guid.NewGuid(),
+                            TenantId = TestScope.TenantId,
+                            WorkspaceId = TestScope.WorkspaceId,
+                            ProjectId = TestScope.ProjectId,
+                            FindingId = findingId,
+                            Action = FindingReviewAction.RecordDisposition,
+                            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                            OccurredAtUtc = remediatedAt,
+                        },
+                    ]
+                    : []);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-no-linkage-remediated";
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        DateTimeOffset occurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z");
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = occurredAtUtc,
+                },
+            ]);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object,
+            linkageEngine: new FindingEvidenceLinkageFindingEngine());
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "evidence-linkage-gaps"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
     private static PreFinalizeChecklistService CreateSut(
         IRunRepository? runRepository = null,
         IArchitectureRequestRepository? architectureRequestRepository = null,
@@ -525,8 +668,7 @@ public sealed class PreFinalizeChecklistServiceTests
         IOptions<PreCommitGovernanceGateOptions>? gateOptions = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
-        TimeProvider? timeProvider = null)
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -579,7 +721,6 @@ public sealed class PreFinalizeChecklistServiceTests
                 Mock.Of<IPolicyPackVersionRepository>()),
             findingReviewTrailRepository ?? trailMock.Object,
             knowledgeModelAccess,
-            blockedReviewCheckProjector: blockedReviewCheckProjector,
-            timeProvider: timeProvider);
+            blockedReviewCheckProjector: blockedReviewCheckProjector);
     }
 }

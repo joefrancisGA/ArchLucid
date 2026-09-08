@@ -84,6 +84,19 @@ public sealed partial class ArchitectureReviewExportService(
             _manifestHashService,
             cancellationToken);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
+            scope,
+            workingDesk: true,
+            _configuration,
+            cancellationToken);
+
+        CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
+
         ArchitectureAnalysisRequest analysisRequest = new()
         {
             RunId = detail.Run.RunId,
@@ -102,16 +115,6 @@ public sealed partial class ArchitectureReviewExportService(
 
         string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
         string? explanationCallout = await TryBuildExplanationConfidenceCalloutAsync(detail, cancellationToken).ConfigureAwait(false);
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
-            detail,
-            _authorityQueryService,
-            _graphSnapshotRepository,
-            _agentExecutionTraceRepository,
-            scope,
-            workingDesk: true,
-            _configuration,
-            cancellationToken);
 
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(

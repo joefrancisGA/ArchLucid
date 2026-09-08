@@ -7,6 +7,7 @@ import {
   resolveRunDetailReviewPackageInspectEmphasizedStepId,
   resolveRunDetailReviewPackageInspectSteps,
 } from "@/lib/run-detail-review-package-inspect-checklist";
+import { resolveRunDetailFindingsReviewed } from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -59,15 +60,19 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     showGovernanceCtaCard,
   } = presentation;
   const runId = m.resolvedDetail.run.runId.trim();
+  const findingsReviewed = resolveRunDetailFindingsReviewed(
+    m.findingCountDisplay,
+    presentation.quickDecisionFindings,
+  );
   const reviewPackageInspectSteps = resolveRunDetailReviewPackageInspectSteps({
     reviewPicked: runId.length > 0,
     packageLoaded: Boolean(m.manifestId),
-    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+    findingsReviewed,
   });
   const reviewPackageInspectEmphasizedStepId = resolveRunDetailReviewPackageInspectEmphasizedStepId({
     reviewPicked: runId.length > 0,
     packageLoaded: Boolean(m.manifestId),
-    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+    findingsReviewed,
   });
 
   return (

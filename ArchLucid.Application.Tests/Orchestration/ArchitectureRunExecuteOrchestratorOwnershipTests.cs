@@ -56,7 +56,7 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         ownership
-            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationToken>()))
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
             .Returns(new RecordingRenewalScope(static () => { }));
         ownership
             .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))

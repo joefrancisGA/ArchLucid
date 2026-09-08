@@ -12,8 +12,6 @@ public sealed partial class PreFinalizeChecklistService
     private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
         findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
-    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
-
     private async Task<IReadOnlyDictionary<string, Disposition>> LoadLatestDispositionsAsync(
         ScopeContext scope,
         IReadOnlyList<Finding> findings,
@@ -29,7 +27,8 @@ public sealed partial class PreFinalizeChecklistService
         if (findingIds.Count == 0)
             return new Dictionary<string, Disposition>(StringComparer.OrdinalIgnoreCase);
 
-        DateTimeOffset since = _timeProvider.GetUtcNow() - FindingDispositionTrailWindow.BasisBreakdownLookback;
+        // Align with ArchitectureRiskRegisterReader latestDisposition CTE (no OccurredAtUtc cutoff).
+        DateTimeOffset since = DateTimeOffset.MinValue;
 
         IReadOnlyList<FindingReviewEventRecord> events =
             await _findingReviewTrailRepository

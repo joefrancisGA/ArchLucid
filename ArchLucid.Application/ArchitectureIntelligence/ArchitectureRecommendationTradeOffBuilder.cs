@@ -78,13 +78,10 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             return;
         }
 
-        ArchitectureRecommendation target = recommendations.First(
-            recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
-                firstDimension.ToString(),
-                StringComparison.Ordinal)
-                || recommendation.AffectedRequirementOrQualityAttribute.Equals(
-                    secondDimension.ToString(),
-                    StringComparison.Ordinal));
+        ArchitectureRecommendation target = FindRecommendationForDimension(recommendations, firstDimension)
+            ?? FindRecommendationForDimension(recommendations, secondDimension)
+            ?? throw new InvalidOperationException(
+                $"No recommendation exists for trade-off dimensions {firstDimension} and {secondDimension}.");
 
         string preferredResolution = BuildPreferredResolution(
             declaredPriorities,
@@ -133,5 +130,17 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         }
 
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
+    }
+
+    private static ArchitectureRecommendation? FindRecommendationForDimension(
+        IReadOnlyList<ArchitectureRecommendation> recommendations,
+        QualityDimension dimension)
+    {
+        string dimensionLabel = dimension.ToString();
+
+        return recommendations.FirstOrDefault(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
+                dimensionLabel,
+                StringComparison.Ordinal));
     }
 }

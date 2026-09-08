@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -8,7 +10,8 @@ namespace ArchLucid.Application.Runs.ExecuteOwnership;
 /// </summary>
 public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
 {
-    private readonly CancellationTokenSource _linkedCts;
+    private readonly CancellationTokenSource _executeCancellationSource;
+    private readonly CancellationTokenSource _loopCancellationSource;
     private readonly IRunExecuteOwnershipLeaseService _leaseService;
     private readonly ILogger _logger;
     private readonly Guid _runId;
@@ -18,25 +21,28 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         IRunExecuteOwnershipLeaseService leaseService,
         Guid runId,
         int renewIntervalSeconds,
-        CancellationToken parentCancellationToken,
+        CancellationTokenSource executeCancellationSource,
         ILogger logger)
     {
         _leaseService = leaseService;
         _runId = runId;
         _logger = logger;
-        _linkedCts = CancellationTokenSource.CreateLinkedTokenSource(parentCancellationToken);
-        _renewalTask = RunRenewalLoopAsync(renewIntervalSeconds, _linkedCts.Token);
+        _executeCancellationSource = executeCancellationSource;
+        _loopCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(executeCancellationSource.Token);
+        _renewalTask = RunRenewalLoopAsync(renewIntervalSeconds, _loopCancellationSource.Token);
     }
 
     public static RunExecuteOwnershipLeaseRenewalScope? TryBegin(
         IRunExecuteOwnershipLeaseService leaseService,
         IOptionsMonitor<RunExecuteOwnershipLeaseOptions> optionsMonitor,
         Guid runId,
-        CancellationToken cancellationToken,
+        CancellationTokenSource executeCancellationSource,
         ILogger logger)
     {
         if (!leaseService.IsEnabled)
             return null;
+
+        ArgumentNullException.ThrowIfNull(executeCancellationSource);
 
         RunExecuteOwnershipLeaseOptions options = optionsMonitor.CurrentValue;
         int leaseDurationSeconds = Math.Clamp(options.LeaseDurationSeconds, 30, 3600);
@@ -51,13 +57,13 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
             leaseService,
             runId,
             renewIntervalSeconds,
-            cancellationToken,
+            executeCancellationSource,
             logger);
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _linkedCts.CancelAsync().ConfigureAwait(false);
+        await _loopCancellationSource.CancelAsync().ConfigureAwait(false);
 
         try
         {
@@ -67,7 +73,7 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         {
         }
 
-        _linkedCts.Dispose();
+        _loopCancellationSource.Dispose();
     }
 
     private async Task RunRenewalLoopAsync(int renewIntervalSeconds, CancellationToken cancellationToken)
@@ -76,13 +82,18 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         {
             using PeriodicTimer timer = new(TimeSpan.FromSeconds(renewIntervalSeconds));
 
-            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+            do
             {
                 await _leaseService.RenewAsync(_runId, cancellationToken).ConfigureAwait(false);
             }
+            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+        }
+        catch (ConflictException)
+        {
+            _executeCancellationSource.Cancel();
         }
         catch (Exception ex) when (_logger.IsEnabled(LogLevel.Warning))
         {

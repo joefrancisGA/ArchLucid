@@ -73,19 +73,29 @@ public static partial class AzureExtractorPackageZipValidator
     {
         ArgumentNullException.ThrowIfNull(resourcesEntry);
 
+        return TryReadArrayRootSchemaError(resourcesEntry, AzureExtractorPackageZipEntryNames.Resources);
+    }
+
+    private static string? TryReadOptionalInventoryArraySchemaError(ZipArchiveEntry entry, string entryName) =>
+        TryReadArrayRootSchemaError(entry, entryName);
+
+    private static string? TryReadArrayRootSchemaError(ZipArchiveEntry entry, string entryName)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+
         try
         {
-            using Stream resourcesStream = resourcesEntry.Open();
-            using JsonDocument document = JsonDocument.Parse(resourcesStream);
+            using Stream stream = entry.Open();
+            using JsonDocument document = JsonDocument.Parse(stream);
 
             if (document.RootElement.ValueKind is JsonValueKind.Array)
                 return null;
 
-            return "resources.json root must be a JSON array.";
+            return $"{entryName} root must be a JSON array.";
         }
         catch (JsonException)
         {
-            return "resources.json is not valid JSON.";
+            return $"{entryName} is not valid JSON.";
         }
     }
 }

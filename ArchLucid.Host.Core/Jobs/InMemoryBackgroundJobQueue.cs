@@ -214,7 +214,11 @@ public sealed class InMemoryBackgroundJobQueue(
                         LogSanitizer.Sanitize(item.JobId),
                         nextRetry);
 
-                    _info[item.JobId] = terminalCandidate with
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeTerminalFailure) ||
+                        beforeTerminalFailure.State == BackgroundJobState.Canceled)
+                        continue;
+
+                    _info[item.JobId] = beforeTerminalFailure with
                     {
                         State = BackgroundJobState.Failed, CompletedUtc = TimeProvider.System.GetUtcNow(), RetryCount = nextRetry, Error = ex.Message
                     };

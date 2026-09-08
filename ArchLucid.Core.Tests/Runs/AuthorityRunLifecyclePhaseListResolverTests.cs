@@ -133,6 +133,36 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_waiting_for_results_without_progress_markers_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa02"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete()
     {
         RunRecord header = new()
@@ -142,6 +172,38 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
             GoldenManifestId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
         };
 
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa03"),
+            LegacyRunStatus = "   ",
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+        };
+
+        // SQL CK_Runs_LegacyRunStatus allowlist rejects whitespace-only LegacyRunStatus on persisted rows.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.NotStarted);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa04"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GoldenManifestId = null,
+        };
+
+        // FailedRunRetryAdmission retains ContextSnapshotId; list/export aligns with RunOperationProjector Running.
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }

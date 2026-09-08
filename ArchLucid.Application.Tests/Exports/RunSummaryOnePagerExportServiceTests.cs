@@ -14,6 +14,9 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.CareerArtifacts;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -102,6 +105,60 @@ public sealed class RunSummaryOnePagerExportServiceTests
         markdown.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
         markdown.Should().Contain("Trial notice");
         markdown.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
+    }
+
+    [Fact]
+    public async Task GenerateMarkdownAsync_throws_career_blocked_for_sample_workspace_run()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IAgentCompletionClient> completion = new();
+
+        Mock<IOptionsMonitor<GenerateRunSummaryOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new GenerateRunSummaryOptions { Enabled = true });
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(authority, runGuid, goldenManifest);
+
+        Mock<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository> agentTraces = new();
+        agentTraces
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
+
+        IConfiguration configuration = SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
+
+        RunSummaryOnePagerExportService sut = new(
+            runDetails.Object,
+            completion.Object,
+            options.Object,
+            scope.Object,
+            Mock.Of<ITenantRepository>(),
+            authority.Object,
+            manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
+            agentTraces.Object,
+            configuration);
+
+        Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
+
+        CareerArtifactExportBlockedException exception =
+            (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which;
+
+        exception.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        completion.Verify(
+            x => x.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

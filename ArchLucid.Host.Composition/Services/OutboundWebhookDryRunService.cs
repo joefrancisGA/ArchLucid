@@ -62,8 +62,21 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
             using HttpResponseMessage response =
                 await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-            (string preview, bool truncated) =
-                await ReadResponseBodyPreviewAsync(response.Content, cancellationToken).ConfigureAwait(false);
+            string preview = string.Empty;
+            bool truncated = false;
+
+            if (response.Content is not null)
+            {
+                try
+                {
+                    (preview, truncated) =
+                        await ReadResponseBodyPreviewAsync(response.Content, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    // Headers arrived; body preview is best-effort for operator diagnostics.
+                }
+            }
 
             return new OutboundWebhookDryRunResult
             {

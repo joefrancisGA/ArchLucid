@@ -87,10 +87,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_SOURCES,
   REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
-import { SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID } from "@/lib/sponsor-dashboard-help-guide-content";
 import {
-  SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE,
-  SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING,
   SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE,
   SPONSOR_DASHBOARD_HELP_SOURCES,
   SPONSOR_DASHBOARD_HELP_SOURCES_INTRO,
@@ -321,14 +318,12 @@ export function SponsorDashboardHelpEvidenceOrientationStrip(
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-sponsor-dashboard"
-      claim={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE}
-      claimHeading={SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING}
-      claimHeadingId={SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID}
       sourcesTitle={SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={SPONSOR_DASHBOARD_HELP_SOURCES_INTRO}
       sources={SPONSOR_DASHBOARD_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+      hubSecondary
     />
   );
 }

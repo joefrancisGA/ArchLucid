@@ -57,29 +57,13 @@ public sealed partial class DifficultyBasedExtractionRouter
 
     private static bool RequiresHumanReview(string sourceText)
     {
-        bool mentionsSensitive = ContainsAny(
+        return ContainsAny(
             sourceText,
             "regulation",
             "compliance",
             "pii",
             "gdpr",
             "hipaa");
-
-        if (!mentionsSensitive)
-        {
-            return false;
-        }
-
-        // Human-review signals must outrank superficial structured markers (JSON/YAML/tables).
-        if (LooksStructured(sourceText))
-        {
-            return true;
-        }
-
-        bool lowClarity = sourceText.Length < 200
-            || !sourceText.Contains(':', StringComparison.Ordinal);
-
-        return lowClarity;
     }
 
     private static bool LooksAmbiguous(string sourceText)

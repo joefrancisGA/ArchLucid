@@ -119,7 +119,7 @@ public static class AzureExtractorPackageInventoryReader
         using JsonDocument document = JsonDocument.Parse(stream);
 
         if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            return [];
+            throw new JsonException($"{entryName} root must be a JSON array.");
 
         return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
     }
