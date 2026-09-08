@@ -146,6 +146,8 @@ export function useFindingInspectGovernanceStickiness(
     setApplyChangePreviewOverride: dispositions.setApplyChangePreviewOverride,
     tradeOffAcknowledgment: dispositions.tradeOffAcknowledgment,
     setTradeOffAcknowledgment: dispositions.setTradeOffAcknowledgment,
+    architectRestatement: dispositions.architectRestatement,
+    setArchitectRestatement: dispositions.setArchitectRestatement,
     showIncrementalRereviewLink: dispositions.showIncrementalRereviewLink,
     submitRemediationAssignment: remediation.submitRemediationAssignment,
     submitDisposition: dispositions.submitDisposition,

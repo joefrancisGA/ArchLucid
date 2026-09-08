@@ -43,6 +43,17 @@ export function buildGovernanceFindingsSources(
   ] as const;
 }
 
+const GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVERNANCE_FINDINGS_PATH]);
+
+/** Operator orientation Sources — excludes self-href to `/governance/findings` (GFN). */
+export function buildGovernanceFindingsOrientationSources(
+  workingMode: boolean,
+): readonly EvidenceSourceLink[] {
+  return buildGovernanceFindingsSources(workingMode).filter(
+    (source) => !GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
+}
+
 /** Guided default — prefer {@link buildGovernanceFindingsSources}. */
 export const GOVERNANCE_FINDINGS_SOURCES: readonly EvidenceSourceLink[] =
   buildGovernanceFindingsSources(false);

@@ -133,7 +133,7 @@ paths = [
 ]
 
 [[allowlists]]
-description = "wave11 filter URL Vitest: CAIQ SIG evidence segment URL query param (caiqSigEvidenceSegmentKey), not an API secret"
+description = "wave11 URL helper Vitest: disclosure search-param fixtures (caiqSigEvidenceSegmentKey segment ids, not API secrets); generic-api-key false positive"
 paths = [
   '''(?:^|/)archlucid-ui/src/lib/wave11-filter-url-helpers\.test\.ts$''',
 ]

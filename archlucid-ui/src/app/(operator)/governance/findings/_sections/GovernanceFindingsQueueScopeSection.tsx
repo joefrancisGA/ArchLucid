@@ -103,7 +103,7 @@ export function GovernanceFindingsQueueScopeSection(
         />
       ) : null}
 
-      {!props.isAssignedToMe ? (
+      {!props.isAssignedToMe && !props.buyerPolishedShell ? (
         <ArchitecturePosturePillarOverview projectId={props.scopeRecordProjectId} enabled />
       ) : null}
     </>
