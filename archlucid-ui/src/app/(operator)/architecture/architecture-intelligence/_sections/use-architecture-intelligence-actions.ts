@@ -48,6 +48,7 @@ export function useArchitectureIntelligenceActions(
     setError,
     setPublishToProduct,
     setRunState,
+    setInterviewAnswers,
     setActiveRunId,
     setHydratedSourceTexts,
     setArchitectureDescription,
@@ -55,6 +56,7 @@ export function useArchitectureIntelligenceActions(
     markProductContextLoaded,
     loadingAction,
     actionGenerationRef,
+    invalidateInFlightActions,
   } = ctx;
 
   const runReasoningWithOptions = useCallback(
@@ -291,6 +293,7 @@ export function useArchitectureIntelligenceActions(
   ]);
 
   const loadGoldenFixture = useCallback(async () => {
+    invalidateInFlightActions();
     setLoadingAction("fixture");
     setError(null);
     const generation = actionGenerationRef.current;
@@ -307,6 +310,8 @@ export function useArchitectureIntelligenceActions(
         return;
       }
 
+      setRunState(null);
+      setInterviewAnswers({});
       setHydratedSourceTexts(sources);
       setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
@@ -324,12 +329,15 @@ export function useArchitectureIntelligenceActions(
     }
   }, [
     actionGenerationRef,
+    invalidateInFlightActions,
     markProductContextLoaded,
     setArchitectureDescription,
     setError,
     setHydratedSourceTexts,
+    setInterviewAnswers,
     setLoadingAction,
     setPrioritiesRaw,
+    setRunState,
   ]);
 
   const isBusy = loadingAction !== null;

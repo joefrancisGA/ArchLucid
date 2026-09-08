@@ -54,6 +54,7 @@ export type UseArchitectureIntelligenceProductContextResult = {
   setPrioritiesRaw: (value: string) => void;
   interviewAnswers: Record<string, string>;
   onInterviewAnswerChange: (questionId: string, value: string) => void;
+  setInterviewAnswers: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   activeRunId: string | null;
   setActiveRunId: (value: string | null) => void;
   hydratedSourceTexts: ClosedLoopReasoningSourceText[];
@@ -400,6 +401,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setPrioritiesRaw,
     interviewAnswers,
     onInterviewAnswerChange,
+    setInterviewAnswers,
     activeRunId,
     setActiveRunId: setActiveRunIdWithUrl,
     hydratedSourceTexts,

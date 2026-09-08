@@ -1309,11 +1309,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — in-flight reasoning POST applied stale results after deep-linked runId switch mid-request
+- **last-bug:** 2026-09-08 — load golden fixture left stale reasoning results after replacing hydrated intake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1330,6 +1330,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Clearing deep-linked `runId` from the URL leaves stale `activeRunId`, hydrated intake, and analyze affordances — **hit 2026-09-08 seed hunt #1333:** `useArchitectureIntelligenceProductContext` reset intake only on operator scope change, not when both `runId` and `contextRunId` search params are absent; fixed by resetting freeform intake when no URL run scope remains; regression in `clears hydrated intake and review scope when deep-linked runId is removed from the URL`
 - [x] (proven) Deep-linked review switch leaves publish-to-product toggle checked for the prior review — **hit 2026-09-08:** inbound-run effect cleared reasoning but not `publishToProduct`; fixed by resetting toggle on `inboundRunId` change; regression in `clears publish-to-product toggle when deep-linked review switches to another review`
 - [x] (proven) In-flight architecture reasoning POST applies stale results after deep-linked `runId` switch — **hit 2026-09-08 seed hunt #1342 (seed→hit):** `runReasoningWithOptions` always called `setRunState` on completion while inbound-run reset only cleared synchronous state; fixed with `actionGenerationRef` invalidation on scope/run reset and stale-completion guards in async actions; regression in `ignores stale reasoning results when inbound runId switches before run completes`
+- [x] (proven) `loadGoldenFixture` leaves stale reasoning results after replacing hydrated intake — **hit 2026-09-08 seed hunt #1344 (seed→hit):** fixture load updated description/priorities but not `runState`; fixed by invalidating in-flight actions and clearing reasoning/interview state on successful fixture hydration; regression in `clears reasoning results when golden fixture replaces hydrated intake`
+
+2026-09-08 seed hunt #1344 (seed→hit): reseeded intake replacement paths; proved stale reasoning after golden fixture load; 16 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-08 seed hunt #1342 (seed→hit): reseeded async action races; proved in-flight reasoning carryover on deep-linked run switch; 15 scoped `ArchitectureIntelligencePageClient` tests passed.
 
