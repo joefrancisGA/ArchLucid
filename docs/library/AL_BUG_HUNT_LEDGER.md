@@ -972,11 +972,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — Cost and DataArchitecture alternatives restated primary ProposedChange paths
+- **last-bug:** 2026-09-08 — PerformanceScalability alternatives restated primary capacity-expectation ProposedChange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -991,6 +991,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRecommendationAlternatives.Build` — security trust-boundary branch keys on title substring only, so non-public trust-boundary gaps can still receive public-exposure remediation alternatives while `ProposedChange` stays generic — **hit 2026-09-07 hunt #1294:** `Alternatives.Build` matched any title containing "trust boundary" while `ProposedChange.Build` requires both "public" and "trust boundary"; internal-tier gaps got private-network/API-gateway alternatives with generic primary copy; fixed by aligning the alternatives gate with ProposedChange; regressions in `ArchitectureRecommendationAlternativesTrustBoundaryTests`
 
 - [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Cost and DataArchitecture branches emit alternatives that restate the primary `ProposedChange` path — **hit 2026-09-08 seed hunt #1334:** Fail cost-ceiling and data-flow findings from specialist rules got guardrail/document-flow alternatives that paraphrased the primary recommendation; fixed by replacing alt[0] with spend-cap and classification-first paths distinct from primary; regressions in `ArchitectureRecommendationAlternativesDistinctnessTests`
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — PerformanceScalability branch emits alternatives that restate the primary capacity-expectation `ProposedChange` — **hit 2026-09-08 seed hunt #1336:** alt[0] paraphrased "Record a capacity expectation… peak load… scaling" with "Add a capacity expectation… peak load… scaling approach"; fixed by replacing alt[0] with autoscaling/load-test path distinct from primary; regression in `BuildRecommendations_performance_capacity_alternatives_are_distinct_from_proposed_change`
+
+2026-09-08 seed hunt #1336 (seed→hit): reseeded architecture-recommendation zone; proved PerformanceScalability alternative paraphrase of primary proposed change; 16 scoped recommendation tests passed.
 
 2026-09-08 seed hunt #1334 (hit): reseeded architecture-recommendation zone; proved Cost/DataArchitecture alternative paraphrase of primary proposed change; 26 scoped recommendation tests passed.
 2026-09-07 thorough hunt #1294 (hit): proved trust-boundary alternatives mismatch for non-public security gaps; aligned alternatives gate with ProposedChange public+trust-boundary predicate.

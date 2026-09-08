@@ -77,9 +77,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (record capacity expectation with peak load and scaling).
                 Create(
-                    "Add a capacity expectation that states peak load and scaling approach",
-                    "Peak load and scaling approach are recorded as a capacity expectation."),
+                    "Implement autoscaling and documented load tests before accepting peak production traffic",
+                    "Load tests prove the design meets peak traffic before production cutover."),
                 Create(
                     "Reduce stated load targets until capacity design is documented",
                     "Load targets match documented capacity, or capacity design is recorded first."),

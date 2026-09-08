@@ -69,6 +69,45 @@ public sealed class ArchitectureRecommendationAlternativesDistinctnessTests
             !RestatesMapCostDriversToCeiling(recommendation.ProposedChange, option.Path));
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void BuildRecommendations_performance_capacity_alternatives_are_distinct_from_proposed_change()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "perf",
+            Dimension = QualityDimension.PerformanceScalability,
+            Title = "Peak load is unspecified for the checkout service",
+            Rationale = "No capacity expectation records peak load or scaling approach.",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "Medium",
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel
+            {
+                ModelId = "m",
+                TenantId = "t",
+            },
+            [finding],
+            ["Performance"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("capacity expectation");
+        recommendation.ProposedChange.Should().Contain("peak load");
+
+        recommendation.AlternativeOptions.Should().OnlyContain(option =>
+            !RestatesRecordCapacityExpectation(recommendation.ProposedChange, option.Path));
+    }
+
+    private static bool RestatesRecordCapacityExpectation(string proposedChange, string alternativePath)
+    {
+        return proposedChange.Contains("capacity expectation", StringComparison.OrdinalIgnoreCase)
+            && proposedChange.Contains("peak load", StringComparison.OrdinalIgnoreCase)
+            && alternativePath.Contains("capacity expectation", StringComparison.OrdinalIgnoreCase)
+            && alternativePath.Contains("peak load", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool RestatesDocumentSensitiveDataFlows(string proposedChange, string alternativePath)
     {
         return proposedChange.Contains("Document data flows for sensitive data paths", StringComparison.OrdinalIgnoreCase)

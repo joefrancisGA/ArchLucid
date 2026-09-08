@@ -75,7 +75,7 @@ public sealed class ArchitectureRecommendationAlternativesTests
                 QualityDimension.PerformanceScalability,
                 "Peak load is unspecified"));
 
-        alternatives[0].Path.Should().Contain("capacity expectation");
+        alternatives[0].Path.Should().Contain("autoscaling");
         alternatives[1].Path.Should().Contain("load targets");
     }
 
