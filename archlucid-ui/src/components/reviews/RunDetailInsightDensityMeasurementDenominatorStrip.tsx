@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatHeldCheckLedgerRankedLabels,
@@ -19,6 +20,7 @@ export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly judgeSkippedByCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly className?: string;
   /** Hide engine-coverage copy when the review is in terminal failure (recovery owns the viewport). */
   readonly suppressOnTerminalFailure?: boolean;
@@ -40,8 +42,10 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
     judgeSkippedByCap: props.judgeSkippedByCap ?? null,
     heldCheckLedgerEntries: props.heldCheckLedgerEntries ?? [],
     heldCheckSecondPass: props.heldCheckSecondPass ?? null,
+    proseAssumptionRegisterEntries: props.proseAssumptionRegisterEntries ?? [],
   });
   const heldCheckLabels = formatHeldCheckLedgerRankedLabels(presentation.heldCheckLedgerEntries);
+  const proseAssumptionLabels = presentation.proseAssumptionRegisterLabels;
 
   return (
     <div className={cn("space-y-1", props.className)} data-testid="run-detail-stamp-measurement-denominator">
@@ -54,6 +58,16 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
       {heldCheckLabels.length > 0 ? (
         <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)} data-testid="held-check-ledger-list">
           {heldCheckLabels.map((label) => (
+            <li key={label}>{label}</li>
+          ))}
+        </ul>
+      ) : null}
+      {proseAssumptionLabels.length > 0 ? (
+        <ul
+          className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="prose-assumption-register-list"
+        >
+          {proseAssumptionLabels.map((label) => (
             <li key={label}>{label}</li>
           ))}
         </ul>

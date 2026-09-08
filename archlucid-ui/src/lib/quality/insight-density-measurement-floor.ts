@@ -1,5 +1,9 @@
 import { ACTOR_DEPENDENT_FINDING_ENGINE_TYPES } from "@/lib/findings/actor-dependent-finding-engine-types";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import {
+  formatProseAssumptionRegisterLabels,
+} from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import {
   formatHeldCheckInputCodeLabel,
   formatHeldCheckUnblockClause,
@@ -11,6 +15,8 @@ import {
 } from "@/lib/quality/insight-density-measurement-denominator";
 
 export type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary };
+export type { ProseAssumptionRegisterEntry };
+export { formatProseAssumptionRegisterLabels };
 
 /**
  * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
@@ -28,6 +34,7 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly judgeSkippedByCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
 };
 
 export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasurementFloorCounts & {
@@ -39,6 +46,8 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
   readonly heldCheckLedgerEntries: readonly HeldCheckLedgerRollupEntry[];
   readonly topHeldCheckUnblockClause: string | null;
   readonly heldCheckSecondPassClause: string | null;
+  readonly proseAssumptionRegisterEntries: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionRegisterLabels: readonly string[];
 };
 
 /** Minimum measured engines before Working career exports proceed without explicit incomplete confirmation (PC-01). */
@@ -198,6 +207,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const heldCheckLedgerEntries = options.heldCheckLedgerEntries ?? [];
   const topHeldCheckUnblockClause = resolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
   const heldCheckSecondPassClause = formatHeldCheckSecondPassClause(options.heldCheckSecondPass);
+  const proseAssumptionRegisterEntries = options.proseAssumptionRegisterEntries ?? [];
+  const proseAssumptionRegisterLabels = formatProseAssumptionRegisterLabels(proseAssumptionRegisterEntries);
 
   return {
     ...counts,
@@ -215,6 +226,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
     heldCheckLedgerEntries,
     topHeldCheckUnblockClause,
     heldCheckSecondPassClause,
+    proseAssumptionRegisterEntries,
+    proseAssumptionRegisterLabels,
   };
 }
 

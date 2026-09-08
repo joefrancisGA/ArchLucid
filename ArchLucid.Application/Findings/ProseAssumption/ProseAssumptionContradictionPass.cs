@@ -93,6 +93,57 @@ public static class ProseAssumptionContradictionPass
         return matches;
     }
 
+    public static bool HasConsistentInventoryMatch(
+        InventoryTopologyCloudProvider cloudProvider,
+        string resourcesJson,
+        GraphSnapshot graphSnapshot,
+        ProseAssumptionCandidate candidate)
+    {
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourcesJson);
+        ArgumentNullException.ThrowIfNull(candidate);
+
+        if (string.IsNullOrWhiteSpace(candidate.LogicalPropertyName)
+            || string.IsNullOrWhiteSpace(candidate.ImpliedPropertyValue))
+            return false;
+
+        Dictionary<string, JsonElement> inventoryRowsByResourceId = IndexInventoryRows(cloudProvider, resourcesJson);
+
+        if (inventoryRowsByResourceId.Count == 0)
+            return false;
+
+        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
+        {
+            string? topologyResourceId = TryReadTopologyResourceId(node, cloudProvider);
+
+            if (string.IsNullOrWhiteSpace(topologyResourceId))
+                continue;
+
+            string normalizedResourceId = NormalizeResourceId(topologyResourceId, cloudProvider);
+
+            if (!inventoryRowsByResourceId.TryGetValue(normalizedResourceId, out JsonElement inventoryRow))
+                continue;
+
+            if (!inventoryRow.TryGetProperty("properties", out JsonElement inventoryProperties))
+                continue;
+
+            if (!DeclarationInventorySecurityPropertyInventoryReader.TryReadInventoryValue(
+                    cloudProvider,
+                    inventoryProperties,
+                    candidate.LogicalPropertyName,
+                    out string? inventoryValue)
+                || string.IsNullOrWhiteSpace(inventoryValue))
+                continue;
+
+            if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(
+                    candidate.ImpliedPropertyValue,
+                    inventoryValue))
+                return true;
+        }
+
+        return false;
+    }
+
     private static Dictionary<string, JsonElement> IndexInventoryRows(
         InventoryTopologyCloudProvider cloudProvider,
         string resourcesJson)

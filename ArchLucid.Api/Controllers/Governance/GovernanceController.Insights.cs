@@ -18,6 +18,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
         [FromQuery] int maxDecisions = 20,

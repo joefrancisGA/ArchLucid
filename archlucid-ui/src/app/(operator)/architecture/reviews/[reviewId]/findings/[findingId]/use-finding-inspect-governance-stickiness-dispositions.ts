@@ -12,11 +12,12 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 import {
+  buildFindingApplyChangeDispositionAttestation,
   canConfirmFindingApplyChange,
   FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE,
   isFindingApplyChangeDisposition,
@@ -82,6 +83,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   resolveMutationError,
 }: UseFindingInspectGovernanceStickinessDispositionsInput) {
   const buyerPolishedShell = useProductionEvalChrome();
+  const isWorkingDesk = useProductionDeskChrome();
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [disposition, setDisposition] = useState<FindingDispositionKind>("Accepted");
   const [rationale, setRationale] = useState("");
@@ -160,6 +162,15 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setDispositionInlineSaveError(null);
 
     try {
+      const applyChangeAttestation = isFindingApplyChangeDisposition(disposition)
+        ? buildFindingApplyChangeDispositionAttestation({
+            isWorkingDesk,
+            runId,
+            findingId,
+            overrideRecorded: applyChangePreviewOverride,
+          })
+        : null;
+
       const saved = await recordFindingDisposition(findingId, {
         disposition,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
@@ -173,6 +184,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
           disposition === "NeedsEvidence" && evidenceRequestText.trim().length > 0
             ? evidenceRequestText.trim()
             : undefined,
+        impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
+        previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
       });
 
       const refreshed = await reload();
@@ -201,10 +214,19 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setDispositionInlineSaveError(null);
 
     try {
+      const applyChangeAttestation = buildFindingApplyChangeDispositionAttestation({
+        isWorkingDesk,
+        runId,
+        findingId,
+        overrideRecorded: applyChangePreviewOverride,
+      });
+
       const saved = await recordFindingDisposition(findingId, {
         disposition: "Remediated",
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
+        impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
+        previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
       });
 
       const refreshed = await reload();
@@ -271,6 +293,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     if (
       isFindingApplyChangeDisposition(kind) &&
       !canConfirmFindingApplyChange({
+        isWorkingDesk,
         runId,
         findingId,
         overrideRecorded: applyChangePreviewOverride,

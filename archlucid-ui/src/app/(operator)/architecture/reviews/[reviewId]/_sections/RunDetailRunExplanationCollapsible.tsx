@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
 import {
@@ -133,6 +134,7 @@ export function RunDetailRunExplanationCollapsible(
     parseRunFindingExplainabilityOpenFromSearch(runFindingExplainabilityOpenParam),
   );
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
+  const explanationBlockedReason = explainRunBlockedReason(explanationFailure);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
   const showImpactAnalysis = hasFindingsWhatIfAnalysisContent(
     quickDecisionFindings,
@@ -310,12 +312,13 @@ export function RunDetailRunExplanationCollapsible(
             </p>
             <OperatorApiProblem
               problem={explanationFailure.problem}
-              fallbackMessage={explanationFailure.message}
+              fallbackMessage={explanationBlockedReason ?? explanationFailure.message}
               correlationId={explanationFailure.correlationId}
               variant="warning"
             />
             <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+              {explanationBlockedReason ??
+                "The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404)."}
             </p>
             <OperatorSectionRetryButton label="Retry loading explanation" />
           </>

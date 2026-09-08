@@ -4,6 +4,8 @@ import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
 
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
+
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
   "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
 

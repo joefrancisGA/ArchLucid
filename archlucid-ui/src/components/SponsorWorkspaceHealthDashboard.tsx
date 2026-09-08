@@ -2,6 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
@@ -15,6 +18,11 @@ import {
   SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE,
   SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
 } from "@/lib/sponsor-workspace-health-page-copy";
+import {
+  SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM,
+  parseSponsorWorkspaceHealthSessionScopeOpenFromSearch,
+  sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch,
+} from "@/lib/governance/sponsor-workspace-health-session-scope-disclosure-url";
 import {
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -43,6 +51,34 @@ export function SponsorWorkspaceHealthDashboard({
     decisionsNeeded,
     kpiViewModel,
   } = useSponsorWorkspaceHealthDashboard();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const sponsorWorkspaceHealthSessionScopeParam = searchParams.get(SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_OPEN_PARAM);
+  const [sponsorWorkspaceHealthSessionScopeOpen, setSponsorWorkspaceHealthSessionScopeOpenState] = useState(() =>
+    parseSponsorWorkspaceHealthSessionScopeOpenFromSearch(sponsorWorkspaceHealthSessionScopeParam),
+  );
+  const syncSponsorWorkspaceHealthSessionScopeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setSponsorWorkspaceHealthSessionScopeOpen = useCallback(
+    (open: boolean) => {
+      setSponsorWorkspaceHealthSessionScopeOpenState(open);
+      syncSponsorWorkspaceHealthSessionScopeOpenToUrl(open);
+    },
+    [syncSponsorWorkspaceHealthSessionScopeOpenToUrl],
+  );
+  useEffect(() => {
+    setSponsorWorkspaceHealthSessionScopeOpenState(
+      parseSponsorWorkspaceHealthSessionScopeOpenFromSearch(sponsorWorkspaceHealthSessionScopeParam),
+    );
+  }, [sponsorWorkspaceHealthSessionScopeParam]);
 
   const layerHeader = (
     <LayerHeader
@@ -121,6 +157,8 @@ export function SponsorWorkspaceHealthDashboard({
           OPERATOR_TYPOGRAPHY.body,
         )}
         data-testid="sponsor-workspace-health-session-scope"
+        open={sponsorWorkspaceHealthSessionScopeOpen}
+        onToggle={(event) => setSponsorWorkspaceHealthSessionScopeOpen(event.currentTarget.open)}
       >
         <summary className="cursor-pointer font-semibold text-al-text-primary dark:text-neutral-100">
           {SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}

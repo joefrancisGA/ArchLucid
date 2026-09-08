@@ -19,20 +19,24 @@ public sealed class FindingsProseAssumptionStage(
         ArgumentNullException.ThrowIfNull(context);
         cancellationToken.ThrowIfCancellationRequested();
 
-        IReadOnlyList<Contracts.Findings.Finding> generated = await _proseAssumptionFindingGenerator.GenerateAsync(
+        ProseAssumptionGenerationResult result = await _proseAssumptionFindingGenerator.GenerateAsync(
             context.GraphSnapshot,
             context.AnalysisContext,
             cancellationToken).ConfigureAwait(false);
 
-        if (generated.Count == 0)
+        if (result.RegisterEntries.Count > 0)
+            context.ProseAssumptionRegisterEntries.AddRange(result.RegisterEntries);
+
+        if (result.Findings.Count == 0)
             return;
 
-        context.AllFindings.AddRange(generated);
+        context.AllFindings.AddRange(result.Findings);
         context.SuccessfulEngineTypes.Add("declaration-premise-conflict");
 
         _logger.LogDebug(
-            "Prose assumption pass appended {GeneratedCount} findings to snapshot run {RunId}.",
-            generated.Count,
+            "Prose assumption pass appended {GeneratedCount} findings and {RegisterCount} register rows to snapshot run {RunId}.",
+            result.Findings.Count,
+            result.RegisterEntries.Count,
             context.RunId);
     }
 }

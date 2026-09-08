@@ -5373,6 +5373,7 @@ export interface components {
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -7586,6 +7587,18 @@ export interface components {
             invariantKey?: string;
             tradeOffDescription?: string;
         };
+        /** @enum {string} */
+        ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionRegisterEntry: {
+            disposition?: components["schemas"]["ProseAssumptionDisposition"];
+            documentPath?: string;
+            evidenceRef?: string;
+            findingId?: null | string;
+            /** Format: int32 */
+            lineNumber?: number;
+            logicalPropertyName?: null | string;
+            statement?: string;
+        };
         ProvenanceEdge: {
             /** Format: uuid */
             fromNodeId?: string;
@@ -7992,6 +8005,8 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
