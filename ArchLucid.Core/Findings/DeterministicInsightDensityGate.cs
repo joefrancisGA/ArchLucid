@@ -87,11 +87,13 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("typed-engine-scored");
         }
 
-        bool genericWithoutEvidence = isGenericAdvice && !hasConcreteEvidence;
-        bool falsifiableWithoutEvidence = GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message)
-            && !hasConcreteEvidence;
-        bool demote = (score < _options.DemotionThreshold || genericWithoutEvidence || falsifiableWithoutEvidence)
-            && !hasConcreteEvidence;
+        bool hasFalsifiabilitySignal = GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message);
+        bool demote = InsightDensityDemotionPredicate.ShouldDemote(
+            score,
+            _options.DemotionThreshold,
+            isGenericAdvice,
+            hasFalsifiabilitySignal,
+            hasConcreteEvidence);
 
         return new InsightDensityGateResult
         {
