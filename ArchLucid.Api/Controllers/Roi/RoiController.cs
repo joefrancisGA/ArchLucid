@@ -175,7 +175,7 @@ public sealed class RoiController(
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<CrossTenantPortfolioSummaryResponse>> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
         string? directoryKey = RoleSyncService.TryDirectoryObjectKey(User);
         if (string.IsNullOrWhiteSpace(directoryKey))
