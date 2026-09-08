@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
-import { getRunPackageExportUrl } from "@/lib/api";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
@@ -18,6 +18,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 
 type SponsorDocxTarget = {
   readonly runId: string;
@@ -33,6 +34,8 @@ type SponsorExportOutputCardProps = {
   readonly previewActionLabel?: string;
   readonly previewHref?: string;
   readonly externalHref?: string;
+  readonly onPrimaryDownload?: () => Promise<void>;
+  readonly primaryDownloadBusy?: boolean;
   readonly testId?: string;
 };
 
@@ -40,7 +43,7 @@ function SponsorExportOutputCard(props: SponsorExportOutputCardProps): React.JSX
   const v = BUYER_SPONSOR_SUMMARY_VOCABULARY;
   const locked = props.locked;
   const showPreview = locked && props.previewHref !== undefined && props.previewActionLabel !== undefined;
-  const showPrimary = !locked && (props.primaryHref !== undefined || props.externalHref !== undefined);
+  const showPrimary = !locked && (props.primaryHref !== undefined || props.externalHref !== undefined || props.onPrimaryDownload !== undefined);
 
   return (
     <Card
@@ -67,23 +70,44 @@ function SponsorExportOutputCard(props: SponsorExportOutputCardProps): React.JSX
             </Button>
           ) : null}
           {showPrimary ? (
-            <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
-              {props.externalHref !== undefined ? (
-                <a
-                  href={props.externalHref}
-                  data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
-                >
-                  {props.primaryActionLabel}
-                </a>
-              ) : (
-                <Link
-                  href={props.primaryHref ?? "#"}
-                  data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
-                >
-                  {props.primaryActionLabel}
-                </Link>
-              )}
-            </Button>
+            props.onPrimaryDownload !== undefined ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="border-neutral-300 dark:border-neutral-600"
+                disabled={props.primaryDownloadBusy === true}
+                data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
+                onClick={() => {
+                  void props.onPrimaryDownload?.().catch((error: unknown) => {
+                    showError(
+                      props.primaryActionLabel ?? "Download",
+                      error instanceof Error ? error.message : "Download failed.",
+                    );
+                  });
+                }}
+              >
+                {props.primaryDownloadBusy === true ? "Downloading…" : props.primaryActionLabel}
+              </Button>
+            ) : (
+              <Button asChild size="sm" variant="outline" className="border-neutral-300 dark:border-neutral-600">
+                {props.externalHref !== undefined ? (
+                  <a
+                    href={props.externalHref}
+                    data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
+                  >
+                    {props.primaryActionLabel}
+                  </a>
+                ) : (
+                  <Link
+                    href={props.primaryHref ?? "#"}
+                    data-testid={props.testId !== undefined ? `${props.testId}-action` : undefined}
+                  >
+                    {props.primaryActionLabel}
+                  </Link>
+                )}
+              </Button>
+            )
           ) : null}
         </div>
       </CardContent>
@@ -112,6 +136,7 @@ export function SponsorExportsSection({
     committedOnly: true,
     mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
   });
+  const [docxDownloadBusy, setDocxDownloadBusy] = useState(false);
 
   const sponsorDocx = useMemo((): SponsorDocxTarget | null => {
     if (runsQuery.data === undefined) {
@@ -157,7 +182,20 @@ export function SponsorExportsSection({
               }) !== null
             }
             primaryActionLabel={v.sponsorExportsDocxAction}
-            externalHref={getRunPackageExportUrl(sponsorDocx.runId, "docx")}
+            onPrimaryDownload={
+              sponsorDocx !== null
+                ? async () => {
+                    setDocxDownloadBusy(true);
+
+                    try {
+                      await downloadRunPackageExport(sponsorDocx.runId, "docx");
+                    } finally {
+                      setDocxDownloadBusy(false);
+                    }
+                  }
+                : undefined
+            }
+            primaryDownloadBusy={docxDownloadBusy}
             testId="sponsor-exports-docx-download"
           />
         ) : null}

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { createAndDownloadComparisonPdf, getArchitecturePackageDocxUrl } from "@/lib/api";
+import { createAndDownloadComparisonPdf } from "@/lib/api";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import {
@@ -34,6 +35,8 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
 
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [docxDownloading, setDocxDownloading] = useState(false);
+  const [docxError, setDocxError] = useState<string | null>(null);
 
   const handleDownloadPdf = async () => {
     if (!lastComparedPair) return;
@@ -47,6 +50,23 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
       setPdfDownloading(false);
     }
   };
+
+  const handleDownloadDocx = async () => {
+    if (golden === null) return;
+    setDocxDownloading(true);
+    setDocxError(null);
+    try {
+      await downloadArchitecturePackageDocx(golden.baseRunId, golden.targetRunId, {
+        includeComparisonExplanation: true,
+      });
+    } catch (e: unknown) {
+      setDocxError(e instanceof Error ? e.message : "Failed to download DOCX package.");
+    } finally {
+      setDocxDownloading(false);
+    }
+  };
+
+  const showDocxDownload = golden !== null;
 
   const citeBaselineRunId = lastComparedPair?.left ?? leftTrim;
   const citeUpdatedRunId = lastComparedPair?.right ?? rightTrim;
@@ -96,13 +116,6 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     });
   }, [loading, verdictSummary, lastComparedPair]);
 
-  const docxHref =
-    golden !== null
-      ? getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
-          includeComparisonExplanation: true,
-        })
-      : null;
-
   return {
     ...props,
     summarizeCue,
@@ -110,7 +123,11 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     liveAnnouncement,
     pdfDownloading,
     pdfError,
+    docxDownloading,
+    docxError,
     handleDownloadPdf,
+    handleDownloadDocx,
+    showDocxDownload,
     citeBaselineRunId,
     citeUpdatedRunId,
     showPairCiteStrip,
@@ -125,7 +142,6 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     showTrustBanner,
     showVerdictSummary,
     verdictSummary,
-    docxHref,
   };
 }
 

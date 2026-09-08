@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
 import { normalizeRunIdForRecurrenceApi } from "@/components/runs/RunDetailRecurrenceScheduleCard";
@@ -34,6 +35,10 @@ import {
   buildRecurrenceArchitectureScopeLead,
   filterRecurrenceSchedulesForReviewScope,
 } from "@/lib/governance/recurrence-schedule-architecture-scope";
+import {
+  parseRecurrenceSchedulePostCommitOpenFromSearch,
+  recurrenceSchedulePostCommitDisclosureHrefFromSearch,
+} from "@/lib/governance/recurrence-schedule-post-commit-disclosure-url";
 
 const DEFAULT_CRON = "0 8 * * 1";
 const DEFAULT_NAME = "Weekly architecture review";
@@ -55,7 +60,37 @@ export function RecurrenceSchedulePostCommitCard({
   hasStickinessPrompt = false,
   pagePrimaryOwnedElsewhere = false,
 }: RecurrenceSchedulePostCommitCardProps) {
-  const [open, setOpen] = useState(hasStickinessPrompt);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const recurrenceSchedulePostCommitOpenParam = searchParams.get("recurrenceSchedulePostCommitOpen");
+  const [open, setOpenState] = useState(
+    () =>
+      parseRecurrenceSchedulePostCommitOpenFromSearch(recurrenceSchedulePostCommitOpenParam) || hasStickinessPrompt,
+  );
+  const syncOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(
+        recurrenceSchedulePostCommitDisclosureHrefFromSearch(searchParams.toString(), nextOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      setOpenState(nextOpen);
+      syncOpenToUrl(nextOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(
+      parseRecurrenceSchedulePostCommitOpenFromSearch(recurrenceSchedulePostCommitOpenParam) || hasStickinessPrompt,
+    );
+  }, [hasStickinessPrompt, recurrenceSchedulePostCommitOpenParam]);
+
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
   const [name, setName] = useState(DEFAULT_NAME);
   const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);

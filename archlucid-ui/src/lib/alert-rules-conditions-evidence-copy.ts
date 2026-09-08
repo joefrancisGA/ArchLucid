@@ -1,10 +1,13 @@
 import {
+  ALERT_RULES_CLAIM_DISCIPLINE,
   ALERT_RULES_FOLLOW_UPS_TITLE,
   ALERT_RULES_SOURCES,
   ALERT_RULES_SOURCES_INTRO,
 } from "@/lib/alert-rules-evidence-copy";
 import { GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+export const ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE = ALERT_RULES_CLAIM_DISCIPLINE;
 
 export const ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE = ALERT_RULES_FOLLOW_UPS_TITLE;
 

@@ -388,4 +388,186 @@ public sealed class DeterministicInsightDensityGateTests
             .Should()
             .BeGreaterThanOrEqualTo(0.85);
     }
+
+    [Fact]
+    public void Score_applies_high_duplication_for_same_engine_near_duplicate_peers()
+    {
+        const string sharedMessage =
+            "Machine actor reaches sensitive datastore through allow-listed write admin role on production sql.";
+
+        InsightDensityGateCandidate first = new(
+            "f-same-a",
+            sharedMessage,
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"]);
+        InsightDensityGateCandidate second = new(
+            "f-same-b",
+            sharedMessage + " environments",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"]);
+
+        InsightDensityGateResult result = Gate.Score(first, [first, second]);
+
+        result.PenaltyReasons.Should().Contain("high-duplication");
+        result.PenaltyReasons.Should().NotContain("cross-engine-corroboration");
+    }
+
+    [Fact]
+    public void Score_skips_duplication_penalty_for_distinct_engine_high_jaccard_without_shared_nodes()
+    {
+        const string sharedMessage =
+            "Machine actor reaches sensitive datastore through allow-listed write admin role on production sql.";
+
+        InsightDensityGateCandidate identityCandidate = new(
+            "f-cross-a",
+            sharedMessage,
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"]);
+        InsightDensityGateCandidate segmentationCandidate = new(
+            "f-cross-b",
+            sharedMessage + " segmentation semantics",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg-prod"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "segmentation-semantics",
+            relatedNodeIds: ["nsg-prod"]);
+
+        InsightDensityGateResult result = Gate.Score(identityCandidate, [identityCandidate, segmentationCandidate]);
+
+        result.PenaltyReasons.Should().NotContain(match => match.Contains("duplication", StringComparison.Ordinal));
+        result.PenaltyReasons.Should().NotContain("cross-engine-corroboration");
+    }
+
+    [Fact]
+    public void Score_adds_cross_engine_corroboration_for_preferred_engine_with_shared_node()
+    {
+        InsightDensityGateCandidate identityCandidate = new(
+            "f-corr-a",
+            "Machine actor reaches regulated datastore through Contributor role assignment.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"]);
+        InsightDensityGateCandidate segmentationCandidate = new(
+            "f-corr-b",
+            "Admin inbound port 3389 is open from Internet on the production NSG.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg-prod"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "segmentation-semantics",
+            relatedNodeIds: ["sql-prod"]);
+
+        InsightDensityGateResult result = Gate.Score(identityCandidate, [identityCandidate, segmentationCandidate]);
+
+        result.PenaltyReasons.Should().Contain("cross-engine-corroboration");
+        result.InsightDensityScore.Should().BeGreaterThanOrEqualTo(90);
+    }
+
+    [Fact]
+    public void Score_does_not_add_cross_engine_corroboration_for_non_preferred_engines()
+    {
+        InsightDensityGateCandidate topologyCandidate = new(
+            "f-cov-a",
+            "Topology coverage gap on sql-prod.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Warning,
+            category: "Topology",
+            isAgentArchitectureFinding: false,
+            engineType: "topology-coverage",
+            relatedNodeIds: ["sql-prod"]);
+        InsightDensityGateCandidate securityCandidate = new(
+            "f-cov-b",
+            "Security coverage gap on sql-prod.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "security-coverage",
+            relatedNodeIds: ["sql-prod"]);
+
+        InsightDensityGateResult result = Gate.Score(topologyCandidate, [topologyCandidate, securityCandidate]);
+
+        result.PenaltyReasons.Should().NotContain("cross-engine-corroboration");
+    }
+
+    [Fact]
+    public void Score_adds_cross_engine_corroboration_for_preferred_engine_with_coverage_peer()
+    {
+        InsightDensityGateCandidate identityCandidate = new(
+            "f-pref-a",
+            "Machine actor reaches regulated datastore through Contributor role assignment.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"]);
+        InsightDensityGateCandidate coverageCandidate = new(
+            "f-pref-b",
+            "Topology coverage note on sql-prod.",
+            ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+            FindingSeverity.Warning,
+            category: "Topology",
+            isAgentArchitectureFinding: false,
+            engineType: "topology-coverage",
+            relatedNodeIds: ["sql-prod"]);
+
+        InsightDensityGateResult result = Gate.Score(identityCandidate, [identityCandidate, coverageCandidate]);
+
+        result.PenaltyReasons.Should().Contain("cross-engine-corroboration");
+    }
+
+    [Fact]
+    public void FromFinding_copies_engine_type_and_related_node_ids()
+    {
+        Finding finding = new()
+        {
+            FindingId = "engine-f13",
+            EngineType = "identity-blast-radius",
+            Title = "Machine actor reaches sensitive datastore",
+            Severity = FindingSeverity.Error,
+            Category = "Security",
+            RelatedNodeIds = ["sql-prod", "sql-prod", " "],
+            EvidenceRefs = ["/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db"],
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        candidate.EngineType.Should().Be("identity-blast-radius");
+        candidate.RelatedNodeIds.Should().BeEquivalentTo(["sql-prod"]);
+    }
+
+    [Fact]
+    public void FromArchitectureFinding_leaves_engine_type_and_related_node_ids_empty()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "agent-f2",
+            Message = "SecretManagementUnderSpecified",
+            EvidenceRefs = ["doc:manifest.json#services"],
+            Severity = FindingSeverity.Warning,
+            Category = "Security",
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromArchitectureFinding(finding);
+
+        candidate.EngineType.Should().BeEmpty();
+        candidate.RelatedNodeIds.Should().BeEmpty();
+    }
 }

@@ -17,6 +17,10 @@ import {
   parseWorkspaceAiProbeDiagnosticsOpenFromSearch,
   workspaceAiProbeDiagnosticsDisclosureHrefFromSearch,
 } from "@/lib/reviews/workspace-ai-probe-diagnostics-disclosure-url";
+import {
+  parseWorkspaceAiProbeDebugMetadataOpenFromSearch,
+  workspaceAiProbeDebugMetadataDisclosureHrefFromSearch,
+} from "@/lib/reviews/workspace-ai-probe-debug-metadata-disclosure-url";
 import type { WorkspaceAiAvailabilityResult } from "@/lib/workspace-ai-availability";
 import {
   workspaceAiAvailabilityStatusLabel,
@@ -311,6 +315,34 @@ function WorkspaceAiProbeDiagnostics(props: {
   readonly compact?: boolean;
 }): React.JSX.Element {
   const { result, compact = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const workspaceAiProbeDebugMetadataOpenParam = searchParams.get("workspaceAiProbeDebugMetadataOpen");
+  const [debugMetadataOpen, setDebugMetadataOpenState] = useState(() =>
+    parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam),
+  );
+  const syncDebugMetadataOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        workspaceAiProbeDebugMetadataDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setDebugMetadataOpen = useCallback(
+    (open: boolean) => {
+      setDebugMetadataOpenState(open);
+      syncDebugMetadataOpenToUrl(open);
+    },
+    [syncDebugMetadataOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDebugMetadataOpenState(parseWorkspaceAiProbeDebugMetadataOpenFromSearch(workspaceAiProbeDebugMetadataOpenParam));
+  }, [workspaceAiProbeDebugMetadataOpenParam]);
+
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
   const debugEntries = filterProbeDebugMetadata(result.debug, deploymentName);
@@ -341,7 +373,11 @@ function WorkspaceAiProbeDiagnostics(props: {
       </div>
 
       {debugEntries.length > 0 ? (
-        <AdvancedOptionsAccordion triggerLabel="Debug metadata" defaultOpen={false}>
+        <AdvancedOptionsAccordion
+          triggerLabel="Debug metadata"
+          open={debugMetadataOpen}
+          onOpenChange={setDebugMetadataOpen}
+        >
           <div className={cn("m-0 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
             {debugEntries.map(([key, value]) => (
               <InlineMetadataLine key={key} label={key} value={value} className="break-all" />

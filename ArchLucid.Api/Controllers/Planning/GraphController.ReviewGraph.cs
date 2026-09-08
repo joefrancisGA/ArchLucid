@@ -1,4 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Pagination;
@@ -21,6 +23,7 @@ public sealed partial class GraphController
     [HttpGet("reviews/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
@@ -31,6 +34,21 @@ public sealed partial class GraphController
         if (detail.GraphSnapshot is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
                 ProblemTypes.ResourceNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
 
         KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
 
@@ -54,6 +72,7 @@ public sealed partial class GraphController
     [HttpGet("reviews/{runId:guid}/nodes")]
     [ProducesResponseType(typeof(GraphNodesPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitectureGraphNodesPage(
         Guid runId,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
@@ -67,6 +86,21 @@ public sealed partial class GraphController
         if (detail.GraphSnapshot is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
                 ProblemTypes.ResourceNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
 
         GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
         GraphNodesPageResponse body = MapArchitectureGraphPage(slice);

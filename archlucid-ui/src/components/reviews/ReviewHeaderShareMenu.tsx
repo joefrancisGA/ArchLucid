@@ -5,12 +5,12 @@ import { Share2, Users } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, type ReactElement, type SetStateAction } from "react";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
+import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
-import { buildReviewMeetingPacketSteps } from "@/components/reviews/ReviewMeetingPacketButton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { buildInviteReviewerHref, INVITE_REVIEWER_PAGE_TITLE } from "@/lib/invite-reviewer-flow";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 
 export type ReviewHeaderShareMenuProps = {
   readonly runId: string;
@@ -40,6 +41,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
   const searchParams = useSearchParams();
   const shareMenuOpenParam = searchParams.get("shareMenuOpen");
   const [open, setOpenState] = useState(() => parseReviewHeaderShareMenuOpenFromSearch(shareMenuOpenParam));
+  const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
 
   const syncShareMenuOpenToUrl = useCallback(
     (nextOpen: boolean) => {
@@ -72,6 +74,26 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
   });
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const shareMenuDisabled = props.disabled === true;
+
+  const onDownloadStep = useCallback(
+    (step: ReviewMeetingPacketStep) => {
+      if (step.exportFormat === undefined || collateralExportBlockedReason !== null) {
+        return;
+      }
+
+      setExportBusyStepId(step.id);
+
+      void downloadRunPackageExport(props.runId, step.exportFormat)
+        .catch((error: unknown) => {
+          showError(step.label, error instanceof Error ? error.message : "Download failed.");
+        })
+        .finally(() => {
+          setExportBusyStepId(null);
+          setOpen(false);
+        });
+    },
+    [collateralExportBlockedReason, props.runId, setOpen],
+  );
 
   if (shareMenuDisabled) {
     return (
@@ -145,7 +167,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
           <ul className="m-0 list-none space-y-2 p-0">
             {exportSteps.map((step) => (
               <li key={step.id}>
-                {step.href !== undefined ? (
+                {step.href !== undefined || step.exportFormat !== undefined ? (
                   step.downloadLabel !== undefined ? (
                     collateralExportBlockedReason !== null ? (
                       <span
@@ -157,9 +179,21 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
                       >
                         {step.label}
                       </span>
+                    ) : step.exportFormat !== undefined ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                        disabled={exportBusyStepId !== null}
+                        data-testid={`review-header-export-${step.id}`}
+                        onClick={() => onDownloadStep(step)}
+                      >
+                        {exportBusyStepId === step.id ? "Downloading…" : step.label}
+                      </Button>
                     ) : (
-                      <ExportTrackedAnchor
-                        href={step.href}
+                      <Link
+                        href={step.href ?? "#"}
                         className={cn(
                           buttonVariants({ variant: "outline", size: "sm" }),
                           "w-full justify-start",
@@ -168,11 +202,11 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
                         onClick={() => setOpen(false)}
                       >
                         {step.label}
-                      </ExportTrackedAnchor>
+                      </Link>
                     )
                   ) : (
                     <Link
-                      href={step.href}
+                      href={step.href ?? "#"}
                       className={cn(
                         buttonVariants({ variant: "outline", size: "sm" }),
                         "w-full justify-start",

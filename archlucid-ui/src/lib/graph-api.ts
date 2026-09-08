@@ -1,4 +1,5 @@
 import { fetchArchLucidJson } from "@/lib/api";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
@@ -11,7 +12,7 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
-  return fetchArchLucidJson<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+  return apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
 }
 
 export type ArchitectureGraphTemporalSnapshot =

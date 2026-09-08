@@ -171,13 +171,15 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                 <EnterpriseTableCell>
                   <div className="space-y-1">
                     <span data-testid="projects-recycle-bin-deleted-by">{PROJECTS_RECYCLE_BIN_DELETED_BY_NOT_RECORDED}</span>
-                    <Link
-                      href={GOVERNANCE_AUDIT_PATH}
-                      className={cn("block", OPERATOR_LINK.nav)}
-                      data-testid={`projects-recycle-bin-audit-trail-${project.projectId}`}
-                    >
-                      {PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL}
-                    </Link>
+                    {!buyerPolishedShell ? (
+                      <Link
+                        href={GOVERNANCE_AUDIT_PATH}
+                        className={cn("block", OPERATOR_LINK.nav)}
+                        data-testid={`projects-recycle-bin-audit-trail-${project.projectId}`}
+                      >
+                        {PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL}
+                      </Link>
+                    ) : null}
                   </div>
                 </EnterpriseTableCell>
                 {buyerPolishedShell ? null : (
@@ -551,16 +553,18 @@ export function ProjectsRecycleBinPage() {
             />
           ) : null}
 
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="projects-recycle-bin-audit-note"
-          >
-            {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
-            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
-              audit trail
-            </Link>
-            .
-          </p>
+          {!buyerPolishedShell ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="projects-recycle-bin-audit-note"
+            >
+              {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
+              <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+                audit trail
+              </Link>
+              .
+            </p>
+          ) : null}
         </div>
 
         {buyerPolishedShell ? <ProjectsRecycleBinBuyerChrome /> : null}

@@ -12,7 +12,7 @@ export async function RunAgentQualityWarningsSection(props: { readonly runId: st
 
   try
   {
-    evaluationPayload = (await getRunAgentEvaluation(runId)).data;
+    evaluationPayload = await getRunAgentEvaluation(runId);
   }
   catch
   {
@@ -21,7 +21,7 @@ export async function RunAgentQualityWarningsSection(props: { readonly runId: st
 
   try
   {
-    tracesPayload = (await getRunTraces(runId, 1, 100)).data;
+    tracesPayload = await getRunTraces(runId, 1, 100);
   }
   catch (e)
   {

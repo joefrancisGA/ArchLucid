@@ -176,6 +176,7 @@ public sealed class OpenCommitmentFindingEngineTests
     private static OpenCommitmentFindingEngine CreateEngine(
         Mock<IFindingReviewTrailRepository> trailRepo,
         Mock<IRiskExceptionService>? riskService = null,
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository>? operationalRepo = null,
         Mock<IFindingInspectReadRepository>? inspectRepo = null,
         DateTimeOffset? now = null,
         bool enabled = true)
@@ -193,6 +194,11 @@ public sealed class OpenCommitmentFindingEngineTests
             .Setup(s => s.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        operationalRepo ??= new Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository>();
+        operationalRepo
+            .Setup(r => r.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         inspectRepo ??= new Mock<IFindingInspectReadRepository>();
 
         FakeTimeProvider clock = new();
@@ -204,6 +210,7 @@ public sealed class OpenCommitmentFindingEngineTests
             scopeProvider.Object,
             trailRepo.Object,
             riskService.Object,
+            operationalRepo.Object,
             inspectRepo.Object,
             clock,
             Options.Create(options));

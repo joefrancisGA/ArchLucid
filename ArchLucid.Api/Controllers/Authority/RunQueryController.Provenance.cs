@@ -160,12 +160,18 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunTraces(
         [FromRoute] string runId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunTracesQueryResult result =
             await runProvenanceQueryService.GetRunTracesAsync(runId, pageNumber, pageSize, cancellationToken);
 
@@ -184,15 +190,49 @@ public sealed partial class RunQueryController
     [Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
     [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunToolInvocationForensics(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunToolInvocationForensicsQueryResult result =
             await runProvenanceQueryService.GetRunToolInvocationForensicsAsync(runId, cancellationToken);
 
         return result.Outcome == RunGraphQueryOutcome.Success
             ? Ok(result.Response)
             : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return null;
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runGuid.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }
