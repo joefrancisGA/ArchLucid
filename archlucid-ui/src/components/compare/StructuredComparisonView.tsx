@@ -1,6 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   EnterpriseTable,
@@ -16,6 +20,11 @@ import {
   BUYER_COMPARE_STRUCTURED_HEADING,
   BUYER_COMPARE_STRUCTURED_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
+import {
+  COMPARE_DECISION_TECHNICAL_KEY_PARAM,
+  compareDecisionTechnicalDisclosureHrefFromSearch,
+  parseCompareDecisionTechnicalKeyFromSearch,
+} from "@/lib/compare/compare-decision-technical-disclosure-url";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-format";
@@ -26,7 +35,11 @@ import type { RunSummary } from "@/types/authority";
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
 
-function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
+function DecisionDeltasTable(props: {
+  rows: DecisionDelta[];
+  openTechnicalKey: string;
+  onTechnicalKeyOpenChange: (decisionKey: string | null) => void;
+}) {
   if (props.rows.length === 0) {
     return null;
   }
@@ -49,7 +62,13 @@ function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
                 {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
               </div>
               {d.displayLabel?.trim() ? (
-                <details className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                <details
+                  className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  open={props.openTechnicalKey === d.decisionKey}
+                  onToggle={(event) =>
+                    props.onTechnicalKeyOpenChange(event.currentTarget.open ? d.decisionKey : null)
+                  }
+                >
                   <summary className="cursor-pointer select-none">Technical key</summary>
                   <code className={cn("mt-0.5 block font-mono", OPERATOR_TYPOGRAPHY.helper)}>{d.decisionKey}</code>
                 </details>
@@ -102,9 +121,36 @@ export function StructuredComparisonView(props: {
   /** Highlights already surfaced in the verdict summary — omit from the fold to avoid duplication. */
   summaryHighlightsForFold?: readonly string[];
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareDecisionTechnicalKeyParam = searchParams.get(COMPARE_DECISION_TECHNICAL_KEY_PARAM);
+  const [openTechnicalKey, setOpenTechnicalKeyState] = useState(() =>
+    parseCompareDecisionTechnicalKeyFromSearch(compareDecisionTechnicalKeyParam),
+  );
+  const syncOpenTechnicalKeyToUrl = useCallback(
+    (decisionKey: string | null) => {
+      router.replace(
+        compareDecisionTechnicalDisclosureHrefFromSearch(searchParams.toString(), decisionKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenTechnicalKey = useCallback(
+    (decisionKey: string | null) => {
+      setOpenTechnicalKeyState(decisionKey ?? "");
+      syncOpenTechnicalKeyToUrl(decisionKey);
+    },
+    [syncOpenTechnicalKeyToUrl],
+  );
   const golden = sortGoldenManifestComparison(props.golden);
   const foldDefaultOpen = props.buyerCompareUi !== true;
   const summaryHighlights = props.summaryHighlightsForFold ?? golden.summaryHighlights;
+
+  useEffect(() => {
+    setOpenTechnicalKeyState(parseCompareDecisionTechnicalKeyFromSearch(compareDecisionTechnicalKeyParam));
+  }, [compareDecisionTechnicalKeyParam]);
 
   const noMaterialDeltaSections =
     golden.decisionChanges.length === 0 &&
@@ -164,7 +210,11 @@ export function StructuredComparisonView(props: {
                         <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                           Material architecture deltas
                         </p>
-                        <DecisionDeltasTable rows={material} />
+                        <DecisionDeltasTable
+                          rows={material}
+                          openTechnicalKey={openTechnicalKey}
+                          onTechnicalKeyOpenChange={setOpenTechnicalKey}
+                        />
                       </div>
                     ) : null}
                     {metadata.length > 0 ? (
@@ -175,7 +225,11 @@ export function StructuredComparisonView(props: {
                         <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Identifier, hash, and timestamp fields may move without changing sponsor-facing posture.
                         </p>
-                        <DecisionDeltasTable rows={metadata} />
+                        <DecisionDeltasTable
+                          rows={metadata}
+                          openTechnicalKey={openTechnicalKey}
+                          onTechnicalKeyOpenChange={setOpenTechnicalKey}
+                        />
                       </div>
                     ) : null}
                   </>

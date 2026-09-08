@@ -65,7 +65,7 @@ export function AuditPageView(props: AuditPageViewProps) {
   const buyerPolishedShell = props.buyerPolishedShell;
   const effectiveRunId =
     props.runId.trim().length > 0 ? props.runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID;
-  const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(effectiveRunId)}`;
+  const reviewPackageHref = props.reviewPackageHref;
 
   const buyerOmitSearchFiltersChrome =
     buyerPolishedShell &&

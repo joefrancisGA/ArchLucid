@@ -1,6 +1,8 @@
 "use client";
 
 import { ProvenanceReferenceLink } from "@/components/ProvenanceReferenceLink";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -13,6 +15,11 @@ import {
 import { provenanceViewPanelProps } from "@/components/provenance/ProvenanceViewModeSwitcher";
 import type { ProvenanceViewMode } from "@/components/provenance/ProvenanceViewModeSwitcher";
 import { PROVENANCE_SECTION_TRACE_TIMELINE_LABEL } from "@/lib/provenance-evidence-copy";
+import {
+  PROVENANCE_TIMELINE_TECHNICAL_KIND_REFERENCE_ID_PARAM,
+  parseProvenanceTimelineTechnicalKindReferenceIdFromSearch,
+  provenanceTimelineTechnicalKindDisclosureHrefFromSearch,
+} from "@/lib/provenance/provenance-timeline-technical-kind-disclosure-url";
 import {
   provenanceTimelinePrimaryLabel,
   provenanceTimelineShowsTechnicalKind,
@@ -37,6 +44,37 @@ export function ProvenancePageWorkspaceTimeline({
   viewMode,
   onSelectNode,
 }: ProvenancePageWorkspaceTimelineProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const provenanceTimelineTechnicalKindReferenceIdParam = searchParams.get(
+    PROVENANCE_TIMELINE_TECHNICAL_KIND_REFERENCE_ID_PARAM,
+  );
+  const [openTechnicalKindReferenceId, setOpenTechnicalKindReferenceIdState] = useState(() =>
+    parseProvenanceTimelineTechnicalKindReferenceIdFromSearch(provenanceTimelineTechnicalKindReferenceIdParam),
+  );
+  const syncOpenTechnicalKindReferenceIdToUrl = useCallback(
+    (referenceId: string | null) => {
+      router.replace(
+        provenanceTimelineTechnicalKindDisclosureHrefFromSearch(searchParams.toString(), referenceId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenTechnicalKindReferenceId = useCallback(
+    (referenceId: string | null) => {
+      setOpenTechnicalKindReferenceIdState(referenceId ?? "");
+      syncOpenTechnicalKindReferenceIdToUrl(referenceId);
+    },
+    [syncOpenTechnicalKindReferenceIdToUrl],
+  );
+  useEffect(() => {
+    setOpenTechnicalKindReferenceIdState(
+      parseProvenanceTimelineTechnicalKindReferenceIdFromSearch(provenanceTimelineTechnicalKindReferenceIdParam),
+    );
+  }, [provenanceTimelineTechnicalKindReferenceIdParam]);
+
   return (
     <section
       className="scroll-mt-28"
@@ -92,6 +130,8 @@ export function ProvenancePageWorkspaceTimeline({
             graph.timeline.map((row) => {
               const relatedNode = graph.nodes.find((node) => node.referenceId === row.referenceId);
               const primaryLabel = provenanceTimelinePrimaryLabel(row);
+              const timelineRowReferenceId = `${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`;
+              const technicalKindOpen = openTechnicalKindReferenceId === timelineRowReferenceId;
 
               return (
                 <EnterpriseTableRow
@@ -114,7 +154,14 @@ export function ProvenancePageWorkspaceTimeline({
                       <span className="font-medium text-neutral-900 dark:text-neutral-100">{primaryLabel}</span>
                     )}
                     {provenanceTimelineShowsTechnicalKind(row) ? (
-                      <details className="mt-1">
+                      <details
+                        className="mt-1"
+                        open={technicalKindOpen}
+                        onToggle={(event) => {
+                          const nextOpen = event.currentTarget.open;
+                          setOpenTechnicalKindReferenceId(nextOpen ? timelineRowReferenceId : null);
+                        }}
+                      >
                         <summary
                           className={cn(
                             "cursor-pointer text-neutral-600 dark:text-neutral-400",

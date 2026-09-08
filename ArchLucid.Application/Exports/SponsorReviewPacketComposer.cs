@@ -23,7 +23,8 @@ public static partial class SponsorReviewPacketComposer
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions = null,
         SponsorReviewPacketPortfolioSignals? portfolioSignals = null,
         string? activeTrialExportNotice = null,
-        CareerExportCoverageHonestyInput? careerExportHonesty = null)
+        CareerExportCoverageHonestyInput? careerExportHonesty = null,
+        IReadOnlyList<FindingArchitectRestatementExportRow>? architectRestatements = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -50,6 +51,7 @@ public static partial class SponsorReviewPacketComposer
 
         AppendTopDecisionsSection(sb, topDecisions);
         AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
+        FindingArchitectRestatementExportComposer.AppendMarkdownSection(sb, architectRestatements ?? []);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
         AppendSponsorArtifactEvidenceBadgeSection(sb, roiSummary, detail);

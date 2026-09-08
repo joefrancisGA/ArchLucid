@@ -116,6 +116,14 @@ paths = [
   '''(?:^|/)archlucid-ui/src/components/feasibility/TransparencyTrailPanel\.test\.tsx$''',
   '''(?:^|/)archlucid-ui/src/lib/feasibility-verdict-transparency-trail\.test\.ts$''',
   '''(?:^|/)archlucid-ui/src/lib/feasibility/export-transparency-trail-section\.test\.ts$''',
+  '''(?:^|/)archlucid-ui/src/lib/feasibility/format-inferred-trail-entry-label\.test\.ts$''',
+  '''(?:^|/)ArchLucid\.Application\.Tests/Pilots/SponsorReviewCoverageHonestyMarkdownFormatterTests\.cs$''',
+]
+
+[[allowlists]]
+description = "Insight density Composer prompt packs: internal engineering docs with golden case-NN references and engine identifiers only — never credential values; generic-api-key false positives on cost/path golden prose"
+paths = [
+  '''(?:^|/)docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.*\.md$''',
 ]
 
 [[allowlists]]

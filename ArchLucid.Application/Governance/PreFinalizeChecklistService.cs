@@ -22,11 +22,14 @@ public sealed partial class PreFinalizeChecklistService(
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
+    IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     PreFinalizeExecuteBaselineDriftEvaluator executeBaselineDriftEvaluator,
-    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
+    ISpecialistReviewService? specialistReviewService = null,
+    TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,6 +56,9 @@ public sealed partial class PreFinalizeChecklistService(
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
 
+    private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
+        preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
+
     private readonly PreFinalizeExecuteBaselineDriftEvaluator _executeBaselineDriftEvaluator =
         executeBaselineDriftEvaluator ?? throw new ArgumentNullException(nameof(executeBaselineDriftEvaluator));
 
@@ -64,6 +70,8 @@ public sealed partial class PreFinalizeChecklistService(
     private readonly IBlockedReviewCheckProjector? _blockedReviewCheckProjector = blockedReviewCheckProjector;
 
     private readonly ISpecialistReviewService? _specialistReviewService = specialistReviewService;
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     public async Task<PreFinalizeChecklistResult> BuildAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -91,8 +99,10 @@ public sealed partial class PreFinalizeChecklistService(
         items.Add(BuildAssumedTechnologyItem(assumedTechnologyCount));
 
         List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
-        int criticalCount = CountActiveFindings(findings, FindingSeverity.Critical);
-        int errorCount = CountActiveFindings(findings, FindingSeverity.Error);
+        IReadOnlyDictionary<string, ArchLucid.Contracts.Findings.FindingDisposition> latestDispositions =
+            await LoadLatestDispositionsAsync(scope, findings, cancellationToken).ConfigureAwait(false);
+        int criticalCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Critical, latestDispositions);
+        int errorCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Error, latestDispositions);
 
         items.Add(BuildSeverityItem(
             "open-critical-findings",
@@ -109,9 +119,7 @@ public sealed partial class PreFinalizeChecklistService(
             FindingSeverity.Error,
             blocking: false));
 
-        items.Add(BuildEvidenceLinkageItem(runId, findings));
-
-        items.Add(await BuildProvisionalSynthesisItemAsync(scope, runId, cancellationToken).ConfigureAwait(false));
+        items.Add(BuildEvidenceLinkageItem(runId, findings, latestDispositions));
 
         PreCommitGateResult gateResult =
             await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);
@@ -123,7 +131,10 @@ public sealed partial class PreFinalizeChecklistService(
                 .ConfigureAwait(false);
         }
 
-        items.Add(BuildPreCommitGateItem(gateResult));
+        items.Add(await BuildProvisionalSynthesisItemAsync(scope, runId, cancellationToken).ConfigureAwait(false));
+
+        bool preCommitGateEnabled = _preCommitGovernanceGateOptions.Value.PreCommitGateEnabled;
+        items.Add(BuildPreCommitGateItem(gateResult, preCommitGateEnabled));
 
         items.AddRange(
             await BuildExecuteBaselineDriftItemsAsync(scope, run, cancellationToken).ConfigureAwait(false));
@@ -142,6 +153,7 @@ public sealed partial class PreFinalizeChecklistService(
             Items = items,
             AdvisoryCount = advisoryCount,
             BlockingCount = blockingCount,
+            PreCommitGateEnabled = preCommitGateEnabled,
         };
     }
 
@@ -175,12 +187,6 @@ public sealed partial class PreFinalizeChecklistService(
 
         return await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
     }
-
-    private static int CountActiveFindings(IReadOnlyList<Finding> findings, FindingSeverity severity) =>
-        findings.Count(finding =>
-            !finding.IsMuted
-            && finding.Severity == severity
-            && finding.EnforcementTier != FindingEnforcementTier.Advisory);
 
     private static PreFinalizeChecklistResult EmptyResult(string runId) =>
         new()
@@ -223,7 +229,23 @@ public sealed partial class PreFinalizeChecklistService(
                 .ConfigureAwait(false);
 
         if (request is null)
-            return [];
+        {
+            if (string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+                return [];
+
+            return
+            [
+                new PreFinalizeChecklistItem
+                {
+                    ItemId = "architecture-request-missing",
+                    Title = "Architecture request available for execute-baseline review",
+                    Detail =
+                        "Run references an architecture request that could not be loaded. Re-run execute or remediate data consistency before finalize.",
+                    Status = PreFinalizeChecklistItemStatus.Blocking,
+                    Count = 1,
+                },
+            ];
+        }
 
         return await _executeBaselineDriftEvaluator
             .EvaluateAsync(scope, request, run.GovernanceScopeJson, cancellationToken)

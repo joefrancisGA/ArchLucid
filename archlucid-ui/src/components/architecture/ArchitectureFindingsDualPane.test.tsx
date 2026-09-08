@@ -4,6 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 import { ArchitectureFindingsDualPane } from "@/components/architecture/ArchitectureFindingsDualPane";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
+vi.mock("@/hooks/use-working-back-locator", () => ({
+  useWorkingBackLocator: () => ({
+    architectureDeskHref: "/architecture/architectures/architecture-identity-001",
+    reviewJobHref:
+      "/architecture/architectures/architecture-identity-001/reviews/run-dual",
+  }),
+}));
+
 function makeFinding(
   overrides: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId" | "title">,
 ): QuickDecisionFinding {
@@ -73,6 +81,19 @@ describe("ArchitectureFindingsDualPane", () => {
       "href",
       expect.stringContaining("reviewTab=findings"),
     );
+  });
+
+  it("SY-27: falls back to nested pathname when architecture id is known", () => {
+    render(
+      <ArchitectureFindingsDualPane
+        runId="run-dual"
+        architectureId="architecture-identity-001"
+        findings={[]}
+        diagram={<div>Diagram</div>}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-dual-pane")).toBeInTheDocument();
   });
 
   it("shows empty findings copy when the list is empty", () => {

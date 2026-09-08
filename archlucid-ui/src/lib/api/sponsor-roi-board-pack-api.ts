@@ -42,3 +42,7 @@ export async function downloadSponsorRoiBoardPack(options: {
 export function formatSponsorRoiBoardPackApiError(error: unknown): string {
   return formatExportSealedManifestAwareApiError(error);
 }
+
+export function formatSponsorRoiBoardPackApiError(error: unknown): string {
+  return formatExportSealedManifestAwareApiError(error);
+}

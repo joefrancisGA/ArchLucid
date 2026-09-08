@@ -9,6 +9,7 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -48,7 +49,6 @@ vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   ),
   OperatorHomeGateDeferred: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   OperatorHomeStickinessCockpitDeferred: () => <div data-testid="operator-home-stickiness-cockpit" />,
-  DevTestingQuickSwitchPanelDeferred: () => <div data-testid="dev-testing-quick-switch" />,
   CtoDemoSponsorLandingRedirectDeferred: () => null,
 }));
 
@@ -253,24 +253,6 @@ describe("OperatorHomePageView", () => {
     },
   );
 
-  it.each([false, true])(
-    "mounts the dev testing quick switch after stickiness and sponsor ROI on first-run home (buyerPolishedShell=%s)",
-    (buyerPolishedShell) => {
-      render(<OperatorHomePageView model={mockHomeModel(buyerPolishedShell)} />);
-
-      const quickSwitch = screen.getByTestId("dev-testing-quick-switch");
-      const sponsorRoi = screen.getByTestId("home-block-sponsor-roi");
-
-      if (buyerPolishedShell) {
-        expect(screen.queryByTestId("operator-home-stickiness-cockpit")).toBeNull();
-        expect(sponsorRoi.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-        return;
-      }
-
-      expect(screen.queryByTestId("operator-home-stickiness-cockpit")).toBeNull();
-      expect(sponsorRoi.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    },
-  );
 
   it("shows the attention kind strip with helper copy on populated operator home (TB-2353)", () => {
     evalChromeShellState.current = false;

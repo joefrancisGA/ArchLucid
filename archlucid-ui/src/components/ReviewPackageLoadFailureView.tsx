@@ -265,7 +265,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
       />
       <OperatorRouteDiagnosticsPanel payload={diagnostics} />
       <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        ArchLucid Â· REVIEW LOAD FAILURE
+        ArchLucid · REVIEW LOAD FAILURE
       </p>
       <span data-testid="review-package-load-failure" className="sr-only">
         Review could not be opened

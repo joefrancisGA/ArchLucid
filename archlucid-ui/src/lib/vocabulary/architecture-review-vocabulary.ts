@@ -23,7 +23,7 @@ export const ARCHITECTURE_REVIEW_VOCABULARY = {
    */
   reviewManifestTraceHelp:
     "An architecture review contains the finalized review record, findings, decisions, evidence, and audit trail. It is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review was produced.",
-  /** LayerHeader and governance surfaces — same vocabulary as {@link reviewManifestTraceHelp}. */
+  /** LayerHeader and approval surfaces — same vocabulary as {@link reviewManifestTraceHelp}. */
   buyerReviewPackageScopeHelp:
     "An architecture review contains the finalized review record, findings, decisions, evidence, and audit trail. It is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review was produced.",
 } as const;

@@ -18,11 +18,14 @@ public sealed class GraphMaterializationContext
     {
         Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
         Nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
+        Edges = [];
     }
 
     public ContextSnapshot Snapshot { get; }
 
     public List<GraphNode> Nodes { get; }
+
+    public List<GraphEdge> Edges { get; }
 
     public bool HasCanonicalCostConstraints { get; set; }
 

@@ -61,6 +61,56 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
         joined.Should().Be("{\"allowed\":true}");
     }
 
+    [Fact]
+    public async Task CompleteJsonAsync_when_system_prompt_blocked_does_not_invoke_inner()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("blocked-system", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked system", "Hate", 6));
+
+        Mock<IAgentCompletionClient> inner = new();
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner.Object, guard.Object);
+
+        Func<Task> act = async () =>
+            await sut.CompleteJsonAsync("blocked-system", "user", cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        inner.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CompleteJsonAsync_when_user_prompt_blocked_does_not_invoke_inner()
+    {
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("safe-system", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(true, null, null, null));
+        guard.Setup(g => g.CheckInputAsync("blocked-user", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ContentSafetyResult(false, "blocked user", "Violence", 6));
+
+        Mock<IAgentCompletionClient> inner = new();
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner.Object, guard.Object);
+
+        Func<Task> act = async () =>
+            await sut.CompleteJsonAsync("safe-system", "blocked-user", cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        inner.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ContentSafetyEnforcingAgentCompletionClient CreateSut(
         IAgentCompletionClient inner,
         IContentSafetyGuard guard)

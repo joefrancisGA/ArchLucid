@@ -144,12 +144,12 @@ export const ADMIN_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     section: "Admin",
     note: "ITSM connectors (Admin) - AdminItsmConnectorsPageClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), health probes + wizard. Sibling IJX/ISX = buyer Jira/ServiceNow; IIO = OAuth callback. Not a signed-record Sources trail. Score 78/100 (2026-08-08) - admin connector hub hard-caps short of diligence packing. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
   },
-  /** Traffic workbook row ID for AI and model governance settings. Owner backlog shorthand: AMO (template formerly SEM on legacy settings path). */
+  /** Traffic workbook row ID for AI and model policy settings. Owner backlog shorthand: AMO (template formerly SEM on legacy settings path). */
   {
     rowId: "AMO",
     path: "/administration/model-governance",
     section: "Admin",
-    note: "AI and model governance (Settings/Admin) - ModelGovernanceSettingsPage with PageContextualHelpButton (topic map getting-started; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, execution profile / alias registry. Sibling ADI = ai-usage; ABI = billing; HBX = billing-and-plans help. Model profile controls - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "AI and model policy (Settings/Admin) - ModelGovernanceSettingsPage with PageContextualHelpButton (topic map getting-started; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, execution profile / alias registry. Sibling ADI = ai-usage; ABI = billing; HBX = billing-and-plans help. Model profile controls - not a signed-record Sources trail.admin hub at SET/ADY Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["ModelGovernanceSettingsPage", "cannot improve further toward 80"],
   },
   /** Traffic workbook row ID for OIDC identity-provider settings. Owner backlog shorthand: AOI (template formerly SOI on legacy settings path). */

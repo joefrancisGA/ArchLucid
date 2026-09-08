@@ -1,5 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 const getDraftRequest = vi.fn();
 const isArchitectureDraftHandoffAcknowledged = vi.fn();
@@ -90,10 +93,15 @@ import { ArchitectureDraftWorkspace } from "@/components/architecture/Architectu
 import {
   ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
+  ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE,
   ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE,
+  ARCHITECTURES_DRAFT_SOURCES,
 } from "@/lib/architectures-draft-evidence-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 
@@ -131,13 +139,23 @@ beforeEach(() => {
   });
 });
 
-describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
-  it("renders buyer subtitle with drafting scope, sources strip, and hides guidance disclosure", async () => {
+describe("ArchitectureDraftWorkspace buyer-polished detail shell (ARR)", () => {
+  it("renders skip link, first-viewport band, orientation above draft form, and Sources links", async () => {
     render(<ArchitectureDraftWorkspace draftId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toHaveTextContent("Claims intake");
     });
+
+    expect(screen.getByRole("link", { name: ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId("architecture-draft-detail-primary-content")).toHaveAttribute(
+      "id",
+      ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID,
+    );
+    expect(screen.queryByTestId("page-contextual-help-stub")).not.toBeInTheDocument();
 
     const workspaceLead = screen.getByTestId("architecture-draft-workspace-lead");
     expect(workspaceLead.textContent).toContain(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
@@ -149,5 +167,22 @@ describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
     expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Diligence artifact index" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId("architecture-draft-detail-primary-content");
+    const firstViewport = screen.getByTestId(ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID);
+    const orientationTop = screen.getByTestId("architecture-draft-detail-orientation-top");
+    const startReviewChecklist = screen.getByTestId("architecture-draft-start-review-setup-progress");
+    const sourcesSection = screen.getByTestId("architecture-draft-detail-sources");
+
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(startReviewChecklist);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(startReviewChecklist) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURES_DRAFT_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

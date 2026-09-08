@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
 import type { SettingsMasterVisibleSection } from "./settings-master-page-model";
@@ -28,6 +28,18 @@ const SECTIONS: readonly SettingsMasterVisibleSection[] = [
 ];
 
 describe("SettingsMasterSectionNav (TB-1202)", () => {
+  beforeEach(() => {
+    class IntersectionObserverMock {
+      observe(): void {}
+
+      disconnect(): void {}
+
+      unobserve(): void {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+  });
+
   it("renders same-page section jumps as hash links", () => {
     render(<SettingsMasterSectionNav sections={SECTIONS} />);
 

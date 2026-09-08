@@ -1,4 +1,6 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.PortfolioRecurrence;
+using ArchLucid.Application.Findings.PortfolioSharedTopology;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
@@ -9,6 +11,7 @@ using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Decisioning.Plugins;
+using ArchLucid.Decisioning.Risk;
 using ArchLucid.Host.Composition.Compliance;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
@@ -51,6 +54,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementExpectationFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCrossRunDiffFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DrRpoTopologyFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementSkuTierFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DanglingDeclarationReferenceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyStructureFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologyCrossRunDiffFindingEngine>();
@@ -61,10 +67,16 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.SecurityGapFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ExternalExposureFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SegmentationSemanticsFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.InsightGeneratorFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.ChecklistClusterSynthesisFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DecisionGradeFusionFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationSecurityBaselineFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.DeclarationPremiseConflictFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PrivilegedAccessFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.IdentityBlastRadiusFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.DataFlowTrustBoundaryFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
@@ -77,6 +89,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GraphAzureInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GraphAwsInventoryReconciliationFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GraphGcpInventoryReconciliationFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.DeclarationInventoryContradictionFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PolicyDeclarationInventoryContradictionFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OrphanedAwsResourceFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OrphanedGcpResourceFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsCostRecommendationFindingEngine>();
@@ -85,8 +99,11 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.AwsInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.GcpInventorySecurityBaselineFindingEngine>();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.OpenCommitmentFindingEngine>();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.SecretsLifecycleFindingEngine>();
         services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
+        services.AddPortfolioSharedTopologyFindingEngine();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioSharedTopologyFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
@@ -97,12 +114,20 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions.SectionPath));
+        services.Configure<ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions>(
+            configuration.GetSection(ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions.SectionPath));
         services.AddScoped<ArchLucid.Application.Findings.IPortfolioRecurrenceFindingOptionsResolver,
             ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptionsResolver>();
+        services.AddScoped<ArchLucid.Application.Findings.IPortfolioSharedTopologyFindingOptionsResolver,
+            ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptionsResolver>();
         services.AddScoped<Di.IPortfolioRecurrenceCurrentReviewIdentitySource,
             ArchLucid.Application.Findings.PortfolioRecurrenceCurrentReviewIdentitySource>();
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
+        services.TryAddScoped<IInsightFindingGenerator, NoOpInsightFindingGenerator>();
+        services.TryAddScoped<IProseAssumptionFindingGenerator, NoOpProseAssumptionFindingGenerator>();
+        services.AddScoped<ArchLucid.Application.Findings.ProseAssumption.IProseAssumptionContradictionService,
+            ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionContradictionService>();
 
         RegisterPluginFindingEngines(services, configuration);
 
@@ -110,17 +135,28 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Decisioning.Services.Findings.FindingsPolicyStampStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsEngineInvokeStage,
             ArchLucid.Decisioning.Services.Findings.FindingsEngineInvokeStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsInsightGeneratorStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsInsightGeneratorStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsProseAssumptionStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsProseAssumptionStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
             ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsChecklistClusterStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsChecklistClusterStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsDecisionGradeFusionStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsDecisionGradeFusionStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsSnapshotEmitStage,
             ArchLucid.Decisioning.Services.Findings.FindingsSnapshotEmitStage>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
             (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<Di.IFindingProvenanceValidator, Ds.FindingProvenanceValidator>();
         services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
         services.AddSingleton<FeasibilityVerdictBuilder>();
         services.AddSingleton<IAuthorityFeasibilityVerdictComposer, AuthorityFeasibilityVerdictComposer>();
+        services.TryAddScoped<Di.IFindingPayloadJsonCompletionClient, AgentCompletionClientFindingPayloadAdapter>();
+        services.AddScoped<ITradeoffDetectionEngine, TradeoffDetectionEngine>();
         services.TryAddSingleton<IDecisionIntakeTrailProvider, NullDecisionIntakeTrailProvider>();
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();

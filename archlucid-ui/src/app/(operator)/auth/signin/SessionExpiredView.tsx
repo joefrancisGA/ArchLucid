@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -14,11 +16,17 @@ import {
 import {
   formatSessionExpiredReturnHint,
   resolveReturnDestinationLabel,
+  SESSION_EXPIRED_CONTINUE_DESK_LABEL,
 } from "@/lib/auth/sign-in-return-destination";
 import {
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
 } from "@/lib/authentication-sign-in-inbound-copy";
+import {
+  SESSION_EXPIRED_SIGN_OUT_DETAILS_OPEN_PARAM,
+  parseSessionExpiredSignOutDetailsOpenFromSearch,
+  sessionExpiredSignOutDetailsDisclosureHrefFromSearch,
+} from "@/lib/auth/session-expired-sign-out-details-disclosure-url";
 import { appSiteHref } from "@/lib/site-urls";
 import { getSessionMessageCopy } from "@/app/(operator)/auth/signin/session-message-copy";
 
@@ -61,8 +69,40 @@ export function SessionExpiredView({
   sessionClearedAt,
   showReturnHome = true,
 }: SessionExpiredViewProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const sessionExpiredSignOutDetailsParam = searchParams.get(SESSION_EXPIRED_SIGN_OUT_DETAILS_OPEN_PARAM);
+  const [sessionExpiredSignOutDetailsOpen, setSessionExpiredSignOutDetailsOpenState] = useState(() =>
+    parseSessionExpiredSignOutDetailsOpenFromSearch(sessionExpiredSignOutDetailsParam),
+  );
+  const syncSessionExpiredSignOutDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        sessionExpiredSignOutDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setSessionExpiredSignOutDetailsOpen = useCallback(
+    (open: boolean) => {
+      setSessionExpiredSignOutDetailsOpenState(open);
+      syncSessionExpiredSignOutDetailsOpenToUrl(open);
+    },
+    [syncSessionExpiredSignOutDetailsOpenToUrl],
+  );
+  useEffect(() => {
+    setSessionExpiredSignOutDetailsOpenState(
+      parseSessionExpiredSignOutDetailsOpenFromSearch(sessionExpiredSignOutDetailsParam),
+    );
+  }, [sessionExpiredSignOutDetailsParam]);
   const copy = getSessionMessageCopy(reason);
   const returnDestinationLabel = resolveReturnDestinationLabel(returnUrl);
+  const continueDeskLabel =
+    returnDestinationLabel !== null && copy.showsReturnDestinationHint
+      ? SESSION_EXPIRED_CONTINUE_DESK_LABEL
+      : "Sign in";
   const formattedClearedAt =
     reason === "idle-timeout" && sessionClearedAt !== undefined && sessionClearedAt !== null
       ? formatSessionClearedAt(sessionClearedAt)
@@ -87,7 +127,12 @@ export function SessionExpiredView({
         </p>
       )}
       {formattedClearedAt === null ? null : (
-        <details className="mt-3" data-testid="session-expired-sign-out-disclosure">
+        <details
+          className="mt-3"
+          data-testid="session-expired-sign-out-disclosure"
+          open={sessionExpiredSignOutDetailsOpen}
+          onToggle={(event) => setSessionExpiredSignOutDetailsOpen(event.currentTarget.open)}
+        >
           <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {SESSION_EXPIRED_SIGN_OUT_DISCLOSURE_LABEL}
           </summary>
@@ -99,7 +144,7 @@ export function SessionExpiredView({
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button variant="primary" onClick={onSignIn} data-testid="session-expired-sign-in">
-          Sign in
+          {continueDeskLabel}
         </Button>
         {showReturnHome ? (
           <Link
