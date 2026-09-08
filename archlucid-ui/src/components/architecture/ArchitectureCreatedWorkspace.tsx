@@ -75,6 +75,7 @@ import {
 import {
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
   ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
@@ -487,6 +488,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     {ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER}
                   </p>
                 </section>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-findings-overview"
+                >
+                  {ARCHITECTURE_CREATED_FINDINGS_OVERVIEW}
+                </p>
               </div>
             ) : null}
             {buyerPolishedShell ? null : (
