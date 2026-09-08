@@ -886,6 +886,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       cloudResourceId,
                       hub.externalResourceId,
                       workbenchLinkAuditContext,
+                      runId,
                     )}
                   >
                     Open inventory diagrams
@@ -1161,6 +1162,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     cloudResourceId,
                     hub.externalResourceId,
                     workbenchLinkAuditContext,
+                    runId,
                   )}
                   data-testid="infra-resource-hub-diagrams-workbench"
                 >
@@ -1321,6 +1323,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     href={buildTerraformWorkbenchHref({
                       cloudResourceId,
                       snapshotId: resolvedSnapshotId,
+                      runId: runId.length > 0 ? runId : undefined,
                       assessmentId: workbenchLinkAuditContext?.assessmentId ?? null,
                       auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? null,
                       controlId: workbenchLinkAuditContext?.controlId ?? null,

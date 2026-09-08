@@ -58,6 +58,7 @@ export function buildScopedInfraWorkbenchHref(
         scopedContext.cloudResourceId,
         scopedContext.externalResourceId,
         scopedContext,
+        scopedContext.runId,
       );
     case "diagram-reconcile":
       return buildResourceHubDiagramReconcileWorkbenchHref(
@@ -71,6 +72,7 @@ export function buildScopedInfraWorkbenchHref(
       return buildTerraformWorkbenchHref({
         cloudResourceId: scopedContext.cloudResourceId,
         snapshotId: scopedContext.snapshotId,
+        runId: scopedContext.runId,
         assessmentId: scopedContext.assessmentId,
         auditEvidenceSnapshotId: scopedContext.auditEvidenceSnapshotId,
         controlId: scopedContext.controlId,

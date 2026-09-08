@@ -209,12 +209,14 @@ export function buildResourceHubDiagramsWorkbenchHref(
     readonly auditEvidenceSnapshotId?: string | null;
     readonly controlId?: string | null;
   },
+  runId?: string | null,
 ): string {
   const seedNodeId = externalResourceId?.trim() ?? "";
 
   return buildDiagramsWorkbenchHref({
     snapshotId,
     cloudResourceId,
+    runId,
     mermaidMode: seedNodeId.length > 0 ? "dependencyNeighborhood" : undefined,
     seedNodeId: seedNodeId.length > 0 ? seedNodeId : undefined,
     assessmentId: auditContext?.assessmentId,

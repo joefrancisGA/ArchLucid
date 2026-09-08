@@ -305,6 +305,30 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on overview inventory diagrams link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-diagrams-work")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on terraform tab terraform workbench link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-terraform-open-workbench")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
   it("preserves runId on findings remediation factory link", async () => {
     searchParams = new URLSearchParams(
       "tab=findings&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
@@ -437,7 +461,7 @@ describe("ResourceHubClient", () => {
 
     expect(await screen.findByTestId("infra-resource-hub-diagrams-workbench")).toHaveAttribute(
       "href",
-      `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg-net%2Fproviders%2FMicrosoft.Network%2FpublicIPAddresses%2Fgateway${AUDIT_WORKBENCH_SUFFIX}`,
+      expect.stringContaining("runId=run-1"),
     );
   });
 
