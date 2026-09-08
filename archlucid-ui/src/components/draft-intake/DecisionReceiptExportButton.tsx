@@ -1,9 +1,8 @@
 "use client";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Button } from "@/components/ui/button";
 import { downloadRunDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-decision-receipt";
-import { getDraftDecisionReceiptDownloadUrl } from "@/lib/api/downloads-api";
+import { downloadDraftDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-draft-decision-receipt";
 import {
   type DecisionReceiptContext,
   triggerDecisionReceiptDownload,
@@ -72,13 +71,22 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
 
   if (draftId.length > 0) {
     return (
-      <Button variant="outline" size="sm" disabled={props.disabled === true} asChild>
-        <ExportTrackedAnchor
-          href={getDraftDecisionReceiptDownloadUrl(draftId)}
-          data-testid="decision-receipt-export"
-        >
-          Download decision receipt (JSON)
-        </ExportTrackedAnchor>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled === true}
+        data-testid="decision-receipt-export"
+        onClick={() => {
+          void downloadDraftDecisionReceiptJson(draftId).catch((error: unknown) => {
+            showError(
+              "Decision receipt",
+              error instanceof Error ? error.message : "Download failed.",
+            );
+          });
+        }}
+      >
+        Download decision receipt (JSON)
       </Button>
     );
   }

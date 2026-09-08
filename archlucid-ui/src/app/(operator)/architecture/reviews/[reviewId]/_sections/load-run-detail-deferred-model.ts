@@ -1,11 +1,13 @@
 import { loadRunDetailPipelineTimelineCached } from "./load-run-detail-pipeline-timeline-cached";
 import { loadRunDetailWorkspaceContextBundleCached } from "./load-run-detail-workspace-context-bundle-cached";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import { resolveArchitectureGraphTemporalMinUtc } from "@/lib/resolve-architecture-graph-temporal-min-utc";
 import { resolveRunDetailSavingsSummary } from "@/lib/runs/run-detail-savings-summary-resolve";
+import { workspaceContextBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import type { ArtifactDescriptor, RunDetail } from "@/types/authority";
 
 import type {
@@ -138,7 +140,19 @@ async function loadChangesSinceLastReviewBanner(
       copy,
       blockedReason: null,
     };
-  } catch {
+  } catch (error: unknown) {
+    const blockedReason = workspaceContextBundleBlockedReason(toApiLoadFailure(error));
+
+    if (blockedReason !== null) {
+      return {
+        priorReviewDateLabel: "",
+        priorRunId: "",
+        currentRunId: context.resolvedDetail.run.runId,
+        copy: null,
+        blockedReason,
+      };
+    }
+
     return null;
   }
 }

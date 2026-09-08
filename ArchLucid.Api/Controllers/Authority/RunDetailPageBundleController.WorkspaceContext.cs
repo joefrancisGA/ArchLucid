@@ -19,9 +19,23 @@ public sealed partial class RunDetailPageBundleController
     [HttpGet("workspace-context-bundle")]
     [ProducesResponseType(typeof(RunDetailWorkspaceContextBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetWorkspaceContextBundle(Guid runId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        RunDetailDto? currentDetail =
+            await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (currentDetail is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(currentDetail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         RunSummaryDto? currentRun =
             await _queryService.GetRunSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);

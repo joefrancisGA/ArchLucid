@@ -17,6 +17,7 @@ import {
   OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT,
 } from "@/lib/buyer/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { evidenceGraphBlockedReason } from "@/lib/graph/evidence-graph-blocked-reason";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -42,8 +43,11 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
       ? `/architecture/reviews/${encodeURIComponent(runTrim)}`
       : "/architecture/reviews";
 
+  const blockedReason = evidenceGraphBlockedReason(failure);
   const heading = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_HEADING : BUYER_EVIDENCE_TRAIL_ERROR_HEADING;
-  const body = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_BODY : BUYER_EVIDENCE_TRAIL_ERROR_BODY;
+  const body =
+    blockedReason ??
+    (operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_BODY : BUYER_EVIDENCE_TRAIL_ERROR_BODY);
   const tryNext = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT : BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT;
 
   return (

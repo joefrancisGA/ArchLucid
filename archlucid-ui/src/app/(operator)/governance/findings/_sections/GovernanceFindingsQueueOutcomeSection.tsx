@@ -46,11 +46,12 @@ export function GovernanceFindingsQueueOutcomeSection(
                 : props.loadFailedPreset.title
           }
           description={
-            props.isAssignedToMe && props.buyerPolishedShell
+            props.loadFailure?.blockedReason ??
+            (props.isAssignedToMe && props.buyerPolishedShell
               ? "Your assigned findings did not load. Existing assignments are unchanged — retry the load or check connectivity before navigating away."
               : !props.isAssignedToMe && props.buyerPolishedShell
                 ? "The findings queue did not load. Your existing findings are unchanged — retry the load or check connectivity before navigating away."
-                : props.loadFailedPreset.description
+                : props.loadFailedPreset.description)
           }
           onRetry={() => {
             props.onRefresh();

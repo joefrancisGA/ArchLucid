@@ -30,7 +30,9 @@ export async function getArchitectureRiskRegister(
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet<ArchitectureRiskRegisterResponse>(`${governanceStickinessBase()}/risk-register${suffix}`);
+  return apiGetSealedManifestAware<ArchitectureRiskRegisterResponse>(
+    `${governanceStickinessBase()}/risk-register${suffix}`,
+  );
 }
 
 export async function getGovernanceAssignedToMeFindingsCount(
@@ -68,7 +70,7 @@ export async function fetchGovernanceFindingsRegistersBundle(options?: {
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
 
-  return apiGet(`${governanceStickinessBase()}/findings-registers-bundle${suffix}`);
+  return apiGetSealedManifestAware(`${governanceStickinessBase()}/findings-registers-bundle${suffix}`);
 }
 
 export async function getArchitectureDecisionRegister(
@@ -84,7 +86,9 @@ export async function getArchitectureDecisionRegister(
   if (typeof filters?.maxConfidence === "number") query.set("maxConfidence", String(filters.maxConfidence));
   if (filters?.buyerConfidenceSource) query.set("buyerConfidenceSource", filters.buyerConfidenceSource);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet<ArchitectureDecisionRegisterResponse>(`${governanceStickinessBase()}/decision-register${suffix}`);
+  return apiGetSealedManifestAware<ArchitectureDecisionRegisterResponse>(
+    `${governanceStickinessBase()}/decision-register${suffix}`,
+  );
 }
 
 export async function getGovernanceReviewsAwaitingAction(): Promise<GovernanceReviewsAwaitingActionResponse> {

@@ -63,6 +63,7 @@ public sealed partial class AuthorityQueryController
     [HttpGet("reviews/{runId:guid}/buyer-summary")]
     [ProducesResponseType(typeof(BuyerRunDetailSummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetBuyerRunDetailSummary(
@@ -74,6 +75,21 @@ public sealed partial class AuthorityQueryController
 
         if (result is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (result.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    result.GoldenManifest,
+                    runId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
 
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,

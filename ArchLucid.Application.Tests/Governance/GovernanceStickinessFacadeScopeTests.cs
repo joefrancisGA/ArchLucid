@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -1755,7 +1756,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
             auditService ?? Mock.Of<IAuditService>(),
             findingInspect ?? Mock.Of<IFindingInspectReadRepository>(),
             authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
-            manifestHashService ?? Mock.Of<IManifestHashService>());
+            manifestHashService ?? Mock.Of<IManifestHashService>(),
+            Mock.Of<IRunDetailQueryService>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(
