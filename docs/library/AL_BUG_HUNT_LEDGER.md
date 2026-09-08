@@ -319,11 +319,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 8
-- **bugs-found:** 7
+- **hunts:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — TaskId casing-only variants bypassed in-memory upsert supersession, leaving duplicate same-attempt rows that blocked commit via latest-per-task selector
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — TaskId whitespace/null variants skipped upsert supersession, leaving duplicate same-attempt rows that blocked commit via latest-per-task selector
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
@@ -341,6 +341,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` keyed by `TraceId` left superseded same-agent retries blocking commit — **hit 2026-09-03 (#578):** #507 over-correction kept rejected attempt 0 and accepted attempt 2 as separate groups for the same `AgentType`; fixed by grouping missing task ids per `agent:{AgentType}`; regression in `Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index` and `GetBlockingReasons_empty_task_id_same_agent_retry_ignores_superseded_rejected_trace`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` case-insensitive `TaskId` grouping vs persistence `SharesRunTaskAgent` ordinal match — **hit 2026-09-04 (#710):** casing-only TaskId variants skipped in-memory upsert supersession, leaving duplicate same-attempt rows; fixed `SharesRunTaskAgent` to use `OrdinalIgnoreCase` for `TaskId` (`ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_casing`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_casing`, `Select_when_task_id_differs_only_by_casing_chains_retries`, `GetBlockingReasons_when_task_id_differs_only_by_casing_chains_retries`)
 - [x] (invalid) `CommitOutputIntegrityService.EnsureCreateTimePinsUnchangedOrThrowAsync` returns when `header` is null — `EnsurePassOrThrowAsync` calls `EnsureArchitectureVersionPinnedOrThrowAsync` first, which throws when the run header is missing before pin verification runs
+- [x] (proven) `AgentExecutionTraceUpsertPolicy.SharesRunTaskAgent` — outer-whitespace and null/empty `TaskId` variants skipped upsert supersession while selector trimmed keys — **hit 2026-09-08 (#1330):** duplicate same-attempt rows let TraceId tiebreaker prefer rejected traces; fixed with `NormalizeTaskId` plus selector quality-preference tie-break; regression in `ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace`, `GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips authority lifecycle Complete gate while quality-gate and pin checks still run on trace payload
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Warned` traces never block PilotStrict commit even when `QualityWarning` is set (TB-2226 fail-closed scope is Rejected/`QualityRejected` only)
+
+2026-09-08 seed hunt #1330 (hit): reseeded commit-output-integrity; proved TaskId whitespace/null upsert drift vs selector trim; seeded lifecycle skip on non-Guid run id and Warned non-block candidates.
 
 2026-09-04 thorough hunt #710: proved TaskId casing upsert mismatch; cheap-disproof on null-header pin skip (architecture-version guard runs first).
 
