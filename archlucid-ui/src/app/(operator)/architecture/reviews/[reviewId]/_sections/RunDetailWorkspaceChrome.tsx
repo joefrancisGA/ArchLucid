@@ -25,8 +25,10 @@ import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav
 import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { formatActionActorName } from "@/lib/action-actor-display";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
+import { REVIEW_WORKSPACE_CLAIM_DISCIPLINE } from "@/lib/review-workspace-evidence-copy";
 import {
   deriveReviewRecordMetadataContext,
   isReviewPipelineIncomplete,
@@ -185,6 +187,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const runRecordMetaOpenParam = searchParams.get("runRecordMetaOpen");
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
@@ -240,6 +243,8 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         title={h1Title}
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
+        claimDiscipline={buyerPolishedShell ? REVIEW_WORKSPACE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="review-detail-claim-discipline"
         metadata={null}
         actions={
           <div className="flex min-w-0 flex-wrap items-start justify-end gap-2">

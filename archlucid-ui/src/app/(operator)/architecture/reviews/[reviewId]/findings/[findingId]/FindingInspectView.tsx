@@ -39,6 +39,7 @@ import {
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/findings/finding-policy-evidence-citations";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import { buildSeverityConstraintNoteForInspectPayload } from "@/lib/review-quality/finding-severity-constraint-note";
 import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
@@ -51,7 +52,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingEvidenceTraceBuyerChrome } from "./FindingEvidenceTraceBuyerChrome";
 import { FindingEvidenceTraceBreadcrumb } from "./FindingEvidenceTraceBreadcrumb";
-import { evidenceTracePageSubtitle } from "./evidence-trace-page-copy";
+import { evidenceTracePageSubtitle, EVIDENCE_TRACE_FIRST_VIEWPORT_ID, EVIDENCE_TRACE_PRIMARY_CONTENT_ID, EVIDENCE_TRACE_SKIP_LINK_LABEL, EVIDENCE_TRACE_SKIP_TARGET_ID } from "./evidence-trace-page-copy";
 import { EVIDENCE_TRACE_CLAIM_DISCIPLINE } from "@/lib/evidence-trace-evidence-copy";
 
 import { FindingSeverityConstraintNote } from "@/components/findings/FindingSeverityConstraintNote";
@@ -210,97 +211,126 @@ export function FindingInspectView({
     }),
   });
 
+  const evidenceTracePageHeader = (
+    <OperatorPageHeader
+      navHref={findingsQueueNavHref}
+      title={inspectHeroTitle}
+      headingLevel="h1"
+      breadcrumb={
+        buyerPolishedShell ? (
+          <FindingEvidenceTraceBreadcrumb findingDetailHref={findingDetailHref} findingLabel={findingTitle} />
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {findingInspectPageEyebrow(payload)}
+          </p>
+        )
+      }
+      subtitle={
+        buyerPolishedShell ? (
+          <p className="m-0">{evidenceTracePageSubtitle(buyerPolishedShell)}</p>
+        ) : (
+          <>
+            <p className="m-0">{EVIDENCE_TRACE_PAGE_SUBTITLE}</p>
+            <p className="m-0 mt-2">{findingDetailLeadSentence(payload)}</p>
+          </>
+        )
+      }
+      claimDiscipline={EVIDENCE_TRACE_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="finding-eru-claim-discipline"
+      subtitleClassName="max-w-3xl leading-relaxed"
+      actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
+    >
+      {!buyerPolishedShell ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? " — "}</span>
+        </p>
+      ) : null}
+      <p className="m-0">
+        <Link
+          href={findingDetailHref}
+          className={cn(OPERATOR_LINK.inline, "font-medium")}
+          data-testid="evidence-trace-back-to-finding"
+        >
+          Back to finding
+        </Link>
+      </p>
+    </OperatorPageHeader>
+  );
+
+  const evidenceTraceWorkspaceBody = (
+    <>
+      {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
+        <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
+      ) : null}
+
+      <FindingInspectFindingBody runId={runId} decodedFindingId={decodedFindingId} payload={payload} variant="inspect" />
+
+      {severityConstraintNote !== null ? <FindingSeverityConstraintNote note={severityConstraintNote} /> : null}
+
+      {findingJobView !== null ? <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} /> : null}
+    </>
+  );
+
   return (
     <OperatorPageContainer variant="dashboard" className={cn("p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
       <CanonicalObjectSecondaryViewStrip
         presentation={evidenceTraceSecondaryViewPresentation}
         testId="evidence-trace-secondary-view-strip"
       />
-      <IntegrationConnectChecklist
-        title="Evidence trace checklist"
-        steps={findingInspectSteps}
-        emphasizedStepId={findingInspectEmphasizedStepId}
-        testIdPrefix="finding-evidence-trace"
-      />
+      {!buyerPolishedShell ? (
+        <IntegrationConnectChecklist
+          title="Evidence trace checklist"
+          steps={findingInspectSteps}
+          emphasizedStepId={findingInspectEmphasizedStepId}
+          testIdPrefix="finding-evidence-trace"
+        />
+      ) : null}
       <section
         className="space-y-4"
         aria-label={inspectHeroTitle}
         data-testid="finding-evidence-trace-region"
       >
-        <div
-          className={
-            buyerPolishedShell
-              ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 border-2 p-5"
-              : undefined
-          }
-        >
-          <OperatorPageHeader
-            navHref={findingsQueueNavHref}
-            title={inspectHeroTitle}
-            headingLevel="h1"
-            breadcrumb={
-              buyerPolishedShell ? (
-                <FindingEvidenceTraceBreadcrumb
-                  findingDetailHref={findingDetailHref}
-                  findingLabel={findingTitle}
-                />
-              ) : (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {findingInspectPageEyebrow(payload)}
-                </p>
-              )
-            }
-            subtitle={
-              buyerPolishedShell ? (
-                <p className="m-0">{evidenceTracePageSubtitle(buyerPolishedShell)}</p>
-              ) : (
-                <>
-                  <p className="m-0">{EVIDENCE_TRACE_PAGE_SUBTITLE}</p>
-                  <p className="m-0 mt-2">{findingDetailLeadSentence(payload)}</p>
-                </>
-              )
-            }
-            claimDiscipline={EVIDENCE_TRACE_CLAIM_DISCIPLINE}
-            claimDisciplineTestId="finding-eru-claim-discipline"
-            subtitleClassName="max-w-3xl leading-relaxed"
-            actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
-          >
-            {!buyerPolishedShell ? (
-              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
-                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? " — "}</span>
-              </p>
-            ) : null}
-            <p className="m-0">
-              <Link
-                href={findingDetailHref}
-                className={cn(OPERATOR_LINK.inline, "font-medium")}
-                data-testid="evidence-trace-back-to-finding"
+        {buyerPolishedShell ? (
+          <>
+            <a href={`#${EVIDENCE_TRACE_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+              {EVIDENCE_TRACE_SKIP_LINK_LABEL}
+            </a>
+
+            <div
+              id={EVIDENCE_TRACE_PRIMARY_CONTENT_ID}
+              data-testid={EVIDENCE_TRACE_PRIMARY_CONTENT_ID}
+              className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+            >
+              <div data-testid="evidence-trace-workspace-header">{evidenceTracePageHeader}</div>
+
+              <div
+                id={EVIDENCE_TRACE_FIRST_VIEWPORT_ID}
+                data-testid={EVIDENCE_TRACE_FIRST_VIEWPORT_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
               >
-                Back to finding
-              </Link>
-            </p>
-          </OperatorPageHeader>
-          <FindingEvidenceTraceBuyerChrome runId={runId} findingId={decodedFindingId} />
-        </div>
-{policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
-          <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
-        ) : null}
+                <FindingEvidenceTraceBuyerChrome runId={runId} findingId={decodedFindingId} />
+                {evidenceTraceWorkspaceBody}
+              </div>
 
-        <FindingInspectFindingBody
-          runId={runId}
-          decodedFindingId={decodedFindingId}
-          payload={payload}
-          variant="inspect"
-        />
-
-        {severityConstraintNote !== null ? (
-          <FindingSeverityConstraintNote note={severityConstraintNote} />
-        ) : null}
-
-        {findingJobView !== null ? (
-          <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
-        ) : null}
+              <IntegrationConnectChecklist
+                title="Evidence trace checklist"
+                steps={findingInspectSteps}
+                emphasizedStepId={findingInspectEmphasizedStepId}
+                testIdPrefix="finding-evidence-trace"
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div>{evidenceTracePageHeader}</div>
+            <FindingEvidenceTraceBuyerChrome runId={runId} findingId={decodedFindingId} />
+            {evidenceTraceWorkspaceBody}
+          </>
+        )}
       </section>
 
       <section

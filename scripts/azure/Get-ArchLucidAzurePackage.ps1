@@ -808,3 +808,5 @@ finally
 {
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
 }
+
+exit 0
