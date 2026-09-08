@@ -259,6 +259,98 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_deduplicates_contributing_decision_ids_when_casing_differs_only()
+    {
+        const string decisionId = "dec-1";
+
+        ResolvedArchitectureDecision decision = new()
+        {
+            DecisionId = decisionId,
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        SynthesizedArtifact artifact = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [decisionId, decisionId.ToUpperInvariant()],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [artifact],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContributedToArtifact).Should().Be(1);
+    }
+
+    [Fact]
+    public void Build_deduplicates_related_node_ids_when_casing_differs_only()
+    {
+        const string graphNodeId = "obj-svc-api";
+        const string findingId = "find-case-dedup";
+
+        GraphSnapshot graphSnap = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = graphNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "api",
+                    Category = "compute",
+                },
+            ],
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Duplicate related ids",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId, graphNodeId.ToUpperInvariant()],
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode).Should().Be(1);
+    }
+
+    [Fact]
     public void Build_duplicate_finding_id_reuses_single_node()
     {
         Finding f = new()

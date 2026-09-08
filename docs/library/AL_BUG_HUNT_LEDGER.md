@@ -7828,11 +7828,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — declaration-identity actor edge used property-value casing on `ToNodeId` instead of canonical source node id
+- **last-bug:** 2026-09-08 — duplicate provenance edges when related/contribution ids differ only by case
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7848,12 +7848,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
 - [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
 - [x] (proven) `KnowledgeGraphService.BuildSnapshotAsync` truncation dropped valid edges when endpoint casing differed from kept node ids — **hit 2026-09-04 (#713):** `kept` used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; edges with `FromNodeId`/`ToNodeId` casing variants were removed during `MaxNodes` truncation; fixed with `OrdinalIgnoreCase` on `kept`; regression `BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId`
-- [x] (valid-no-repro) `ContributingDecisionIds.Distinct(StringComparer.Ordinal)` vs manifest decision id casing — `nodeMap` is `OrdinalIgnoreCase` so `ContributedToArtifact` edges still resolve; casing-only duplicates may emit duplicate edges (low severity parity gap with `AppliedRuleIds` dedup)
+- [x] (proven) `ProvenanceBuilder` — duplicate `ContributedToArtifact` edges when `ContributingDecisionIds` casing variants reference the same decision — **hit 2026-09-08 seed hunt #1353:** `Distinct(StringComparer.Ordinal)` kept `dec-1` and `DEC-1` while `nodeMap` resolves both; fixed with `OrdinalIgnoreCase` dedup matching `AppliedRuleIds`; regression `Build_deduplicates_contributing_decision_ids_when_casing_differs_only`
 - [x] (proven) κ→Γ projector dropped RELATES edges when `RelatedElementIds` casing differed from canonical `ElementId` — **hit 2026-09-07 (#1180):** `ArchitectureKnowledgeModelGraphProjector` indexed node ids with `StringComparer.Ordinal` while `GraphValidator` and inferrers treat ids case-insensitively; `RelatedElementIds` with casing variants failed `nodeIds.Contains` and omitted edges; fixed with `OrdinalIgnoreCase` canonical id map; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_case`
 - [x] (valid-no-repro) `ArchitectureKnowledgeModelGraphDeltaExtractor` uses ordinal node-id sets — **2026-09-08 hunt #1289:** `ExtractGraphDelta` node sets use `StringComparer.Ordinal` while graph build treats ids case-insensitively; would emit spurious Added/Removed pairs on casing-only snapshot diffs; no production caller (`ExtractGraphDelta` unused repo-wide)
 - [x] (proven) `ExplicitParentChildContainmentEdgeInferenceRule` — `parentNodeId` property value casing emitted on `FromNodeId` instead of canonical parent `NodeId` — **hit 2026-09-08 hunt #1289:** `NodeById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `PARENT-1` vs canonical `parent-1` broke ordinal edge→node joins; fixed by resolving `context.NodeById[parentId].NodeId`; regression `InferEdges_explicit_parent_child_rule_uses_canonical_parent_node_id_when_property_value_differs_only_by_case`
 - [x] (proven) `TopologyRelationshipEdgeInferenceRule` — `dependsOnNodeIds` / `connectedToNodeIds` target property values emitted non-canonical `ToNodeId` casing — **hit 2026-09-08 thorough hunt #1346:** `topologyById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `DS-1` vs canonical `ds-1` broke ordinal edge→node joins; fixed by resolving `topologyById[targetId].NodeId` for depends-on/exposes/connects paths; regressions `InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_depends_on_property_differs_only_by_case` and `..._connected_to_property_differs_only_by_case`
 - [x] (proven) `DeclarationIdentityEdgeMaterializer` — `declarationSourceNodeId` property value emitted non-canonical `ToNodeId` casing — **hit 2026-09-08 seed hunt #1351:** materializer used raw `sourceNodeId.Trim()` without resolving against graph nodes; `OBJ-ingress-1` vs canonical `obj-ingress-1` broke ordinal edge→node joins in diagram/pagination paths; fixed by resolving `nodeById[sourceId].NodeId` with `OrdinalIgnoreCase` lookup; regression `MaterializeFromDeclarationActors_uses_canonical_source_node_id_when_declaration_source_property_differs_only_by_case`
+- [x] (proven) `ProvenanceBuilder` — duplicate `InfluencedByGraphNode` edges when `RelatedNodeIds` casing variants reference the same graph node — **hit 2026-09-08 seed hunt #1353:** loop emitted one edge per list entry without case-insensitive dedup though `graphNodeIds`/`nodeMap` resolve the same node; fixed with `RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase)`; regression `Build_deduplicates_related_node_ids_when_casing_differs_only`
 
 2026-09-02 seed hunt #421 (hit): promoted graph→finding case-mismatch from `ProvenanceBuilder` vs `DefaultGraphEdgeInferer`/`GraphValidator` ordinal-ignore-case parity; proved with failing repro.
 
@@ -7866,6 +7867,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-08 thorough hunt #1346 (hit): proved topology relationship `ToNodeId` casing parity for depends-on and connects-to; 199 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-08 seed hunt #1351 (hit): seeded declaration-identity actor→topology edge casing parity from `DeclarationIdentityEdgeMaterializer` vs inferrer canonical-id pattern; proved with failing repro; 200 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
+
+2026-09-08 seed hunt #1353 (hit): promoted `ContributingDecisionIds` ordinal dedup gap and seeded `RelatedNodeIds` duplicate-edge parity; fixed case-insensitive dedup on both paths; 240 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 ---
 

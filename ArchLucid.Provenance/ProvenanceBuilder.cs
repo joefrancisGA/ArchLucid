@@ -125,7 +125,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
                 continue;
 
-            foreach (string relatedId in f.RelatedNodeIds)
+            foreach (string relatedId in f.RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string gk = $"graph:{relatedId}";
                 if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
@@ -158,7 +158,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
-            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
+            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string dk = $"decision:{dId}";
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
