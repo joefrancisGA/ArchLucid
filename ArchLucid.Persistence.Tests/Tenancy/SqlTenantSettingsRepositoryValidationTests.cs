@@ -70,4 +70,22 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
 
         json.Length.Should().BeGreaterThan(TenantSettingsSchemaLimits.SettingValueMaxLength);
     }
+
+    [Fact]
+    public void Serialized_allowed_engine_set_with_fourteen_aliases_exceeds_migration_setting_value_limit()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 14)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Length.Should().BeGreaterThan(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
 }
