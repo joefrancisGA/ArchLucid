@@ -10,4 +10,6 @@ public static class WithheldFindingReasons
     public const string EngineFailureAdvisory = "engine-failure-advisory";
 
     public const string ComplianceTagFromProse = "compliance-tag-from-prose";
+
+    public const string ProvenanceHoldEmission = "provenance-hold-emission";
 }

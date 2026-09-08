@@ -8,10 +8,17 @@ public static class WithheldFindingSummaryMapper
 {
     private const int TitleMaxLength = 160;
 
-    public static WithheldFindingSummary FromStrippedAgentFinding(ArchitectureFinding finding, AgentResult result)
+    public static WithheldFindingSummary FromStrippedAgentFinding(ArchitectureFinding finding, AgentResult result) =>
+        FromHeldAgentFinding(finding, result, WithheldFindingReasons.ProseOnlyEmission);
+
+    public static WithheldFindingSummary FromHeldAgentFinding(
+        ArchitectureFinding finding,
+        AgentResult result,
+        string reason)
     {
         ArgumentNullException.ThrowIfNull(finding);
         ArgumentNullException.ThrowIfNull(result);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
 
         string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
             ? Guid.NewGuid().ToString("N")
@@ -20,7 +27,7 @@ public static class WithheldFindingSummaryMapper
         return new WithheldFindingSummary
         {
             WithheldFindingId = $"emission-{result.ResultId}-{findingId}",
-            Reason = WithheldFindingReasons.ProseOnlyEmission,
+            Reason = reason,
             OriginAgentType = result.AgentType.ToString(),
             OriginEngineType = $"AgentArchitectureFinding-{result.AgentType}",
             Title = TruncateTitle(finding.Message),

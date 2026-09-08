@@ -29,6 +29,7 @@
 | `FindingPayloadValidator` | Payload shape only | Extend or add `IFindingProvenanceValidator` for decision-grade |
 | `FindingsOrchestrator` | Validates payload; insight-density gate; **typed Kind A hold after gate (LP-02)** | Apply provenance validator before persist |
 | `AgentResultParser` post-parse | Schema parse | Reject/hold decision-grade LLM findings lacking `ProvenanceKind` |
+| Agent architecture emission gate | Prose-only strip (TB-2222) | Kind **B** hold via `AgentArchitectureFindingProvenanceValidator` (LP-03) |
 | `FindingClaimCoverageEvaluator` | Computes ratio; logs | **Not** a commit gate today |
 | `AgentOutputSemanticScore.FindingCitationCoverageRatio` | Field exists; **inert in production** | Wire into PilotStrict Enforce/Block when **TB-1221** gates ship |
 | Critic / Low confidence | Labels heuristic findings | **Not** proof of citation |
