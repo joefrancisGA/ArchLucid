@@ -2,6 +2,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Decisioning.Services.Findings;
@@ -9,6 +10,7 @@ namespace ArchLucid.Decisioning.Services.Findings;
 public sealed class FindingsMergeAndGateStage(
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
     IInsightDensityGate insightDensityGate,
+    IFindingProvenanceValidator provenanceValidator,
     TimeProvider? timeProvider = null) : IFindingsMergeAndGateStage
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
@@ -16,6 +18,9 @@ public sealed class FindingsMergeAndGateStage(
 
     private readonly IInsightDensityGate _insightDensityGate =
         insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
+
+    private readonly IFindingProvenanceValidator _provenanceValidator =
+        provenanceValidator ?? throw new ArgumentNullException(nameof(provenanceValidator));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -93,6 +98,8 @@ public sealed class FindingsMergeAndGateStage(
             FindingEnforcementTierClassifier.ApplyToFinding(finding);
 
         FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
+
+        FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 

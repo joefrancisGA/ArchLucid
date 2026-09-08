@@ -151,6 +151,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
             (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<Di.IFindingProvenanceValidator, Ds.FindingProvenanceValidator>();
         services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
         services.AddSingleton<FeasibilityVerdictBuilder>();
         services.AddSingleton<IAuthorityFeasibilityVerdictComposer, AuthorityFeasibilityVerdictComposer>();

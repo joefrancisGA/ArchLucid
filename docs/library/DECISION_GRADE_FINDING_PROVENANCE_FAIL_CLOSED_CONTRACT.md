@@ -27,7 +27,7 @@
 | `ArchitectureFinding.EvidenceRefs` | May be `[]`; schema-valid | Decision-grade agent findings require non-empty resolvable refs **or** hold/reject at emission |
 | Authority `Finding` / typed engines | `RelatedNodeIds` + `RulesApplied` on engines; no uniform provenance validator | Typed path: non-empty graph/rule provenance for decision-grade |
 | `FindingPayloadValidator` | Payload shape only | Extend or add `IFindingProvenanceValidator` for decision-grade |
-| `FindingsOrchestrator` | Validates payload; insight-density gate | Apply provenance validator before persist |
+| `FindingsOrchestrator` | Validates payload; insight-density gate; **typed Kind A hold after gate (LP-02)** | Apply provenance validator before persist |
 | `AgentResultParser` post-parse | Schema parse | Reject/hold decision-grade LLM findings lacking `ProvenanceKind` |
 | `FindingClaimCoverageEvaluator` | Computes ratio; logs | **Not** a commit gate today |
 | `AgentOutputSemanticScore.FindingCitationCoverageRatio` | Field exists; **inert in production** | Wire into PilotStrict Enforce/Block when **TB-1221** gates ship |
