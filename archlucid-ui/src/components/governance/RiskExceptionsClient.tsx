@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { GovernanceApprovalStatusBanner } from "@/components/governance/GovernanceApprovalStatusBanner";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -13,6 +12,13 @@ import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exception
 import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
 import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_RISK_EXCEPTIONS_BUYER_START_HERE_HELPER,
+  GOVERNANCE_RISK_EXCEPTIONS_LOAD_ERROR,
+  GOVERNANCE_RISK_EXCEPTIONS_PAGE_LEAD,
+  GOVERNANCE_RISK_EXCEPTIONS_PRIMARY_CONTENT_ID,
+  GOVERNANCE_RISK_EXCEPTIONS_SKIP_LINK_LABEL,
+} from "@/lib/governance-risk-exceptions-page-copy";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
@@ -28,6 +34,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
 import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
 import { RiskExceptionsNextReviewFooterClient } from "@/components/governance/RiskExceptionsNextReviewFooterClient";
@@ -88,12 +95,17 @@ export default function RiskExceptionsClient() {
   const pageSubtitle = riskExceptionsPageSubtitle(buyerPolishedShell);
 
   return (
-    <OperatorPageContainer variant="dashboard">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"}>
       {buyerPolishedShell ? (
-        <GovernanceApprovalStatusBanner className="mb-3" />
-      ) : (
-        <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
-      )}
+        <a
+          href={`#${GOVERNANCE_RISK_EXCEPTIONS_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_RISK_EXCEPTIONS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <LayerHeader pageKey="exceptions" density="compact" className="mb-3" />
 
       <OperatorPageHeader
         navHref={GOVERNANCE_EXCEPTIONS_PATH}
@@ -104,16 +116,43 @@ export default function RiskExceptionsClient() {
         breadcrumb={buyerPolishedShell ? <RiskExceptionsBreadcrumb /> : undefined}
         actions={<PageContextualHelpButton />}
       />
-      <RiskExceptionsBuyerChrome />
+
       {buyerPolishedShell ? null : (
         <RiskExceptionsFindingsVocabularyRail currentSurfaceId="risk-exceptions" />
       )}
-      <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+
+      <div
+        id={buyerPolishedShell ? GOVERNANCE_RISK_EXCEPTIONS_PRIMARY_CONTENT_ID : undefined}
+        className={cn("mt-4", buyerPolishedShell ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
+        data-testid={
+          buyerPolishedShell ? "governance-risk-exceptions-primary-content" : "risk-exceptions-page-body"
+        }
+      >
+        {buyerPolishedShell ? (
+          <div
+            className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+            data-testid="governance-risk-exceptions-first-viewport"
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="governance-risk-exceptions-intro"
+            >
+              {GOVERNANCE_RISK_EXCEPTIONS_PAGE_LEAD}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-risk-exceptions-buyer-start-here-helper"
+            >
+              {GOVERNANCE_RISK_EXCEPTIONS_BUYER_START_HERE_HELPER}
+            </p>
+          </div>
+        ) : null}
+
         {loading ? <RiskExceptionsLoadingSkeleton /> : null}
 
         {loadError && buyerPolishedShell ? (
           <RiskExceptionsLoadFailure
-            message={loadError}
+            message={GOVERNANCE_RISK_EXCEPTIONS_LOAD_ERROR}
             retrying={retryingLoad}
             onRetry={handleRetryLoad}
           />
@@ -197,46 +236,47 @@ export default function RiskExceptionsClient() {
             ) : null}
             {scopedRunFilterActive ? (
               <>
-            {continueLastException !== null ? (
-              <RiskExceptionsContinueLastViewedRow
-                target={continueLastException}
-                onOpen={onContinueLastOpen}
-              />
-            ) : null}
-            {triageFirstExpiringTarget !== null ? (
-              <RiskExceptionsTriageFirstExpiringStrip
-                target={triageFirstExpiringTarget}
-                onExtend={onTriageExtend}
-              />
-            ) : null}
-            <WhyDisabledCtaHint
-              id={mutationDisabledHintId}
-              reason={mutationDisabledReason}
-              testId={mutationDisabledHintId}
-            />
-            <RiskExceptionsTable
-              scopedRecords={scopedRecords}
-              renewingId={renewingId}
-              busyId={busyId}
-              canMutate={canMutate}
-              mutationDisabledHintId={mutationDisabledHintId}
-              mutationDisabledReason={mutationDisabledReason}
-              renewExpiresAtUtc={renewExpiresAtUtc}
-              onRenewExpiresAtUtcChange={setRenewExpiresAtUtc}
-              renewRationale={renewRationale}
-              onRenewRationaleChange={setRenewRationale}
-              onSubmitRenew={(record) => void submitRenew(record)}
-              onCancelRenew={() => setRenewingId(null)}
-              onStartRenew={onStartRenew}
-              onRequestRevoke={setPendingRevoke}
-            />
+                {continueLastException !== null ? (
+                  <RiskExceptionsContinueLastViewedRow
+                    target={continueLastException}
+                    onOpen={onContinueLastOpen}
+                  />
+                ) : null}
+                {triageFirstExpiringTarget !== null ? (
+                  <RiskExceptionsTriageFirstExpiringStrip
+                    target={triageFirstExpiringTarget}
+                    onExtend={onTriageExtend}
+                  />
+                ) : null}
+                <WhyDisabledCtaHint
+                  id={mutationDisabledHintId}
+                  reason={mutationDisabledReason}
+                  testId={mutationDisabledHintId}
+                />
+                <RiskExceptionsTable
+                  scopedRecords={scopedRecords}
+                  renewingId={renewingId}
+                  busyId={busyId}
+                  canMutate={canMutate}
+                  mutationDisabledHintId={mutationDisabledHintId}
+                  mutationDisabledReason={mutationDisabledReason}
+                  renewExpiresAtUtc={renewExpiresAtUtc}
+                  onRenewExpiresAtUtcChange={setRenewExpiresAtUtc}
+                  renewRationale={renewRationale}
+                  onRenewRationaleChange={setRenewRationale}
+                  onSubmitRenew={(record) => void submitRenew(record)}
+                  onCancelRenew={() => setRenewingId(null)}
+                  onStartRenew={onStartRenew}
+                  onRequestRevoke={setPendingRevoke}
+                />
               </>
             ) : null}
           </>
         ) : null}
-      </div>
 
-      {scopedRunFilterActive ? <RiskExceptionsNextReviewFooterClient runId={scopedRunId} /> : null}
+        {scopedRunFilterActive ? <RiskExceptionsNextReviewFooterClient runId={scopedRunId} /> : null}
+        {buyerPolishedShell ? <RiskExceptionsBuyerChrome /> : null}
+      </div>
 
       <RiskExceptionsRevokeConfirm
         pendingRevoke={pendingRevoke}
