@@ -49,7 +49,7 @@ public sealed class ArchitectureRecommendationAlternativesTests
                 QualityDimension.Cost,
                 "Monthly ceiling is unspecified"));
 
-        alternatives[0].Path.Should().Contain("guardrails");
+        alternatives[0].Path.Should().Contain("spend caps");
         alternatives[1].Path.Should().Contain("ceiling");
     }
 
@@ -62,8 +62,8 @@ public sealed class ArchitectureRecommendationAlternativesTests
                 QualityDimension.DataArchitecture,
                 "Sensitive data flows are undocumented"));
 
-        alternatives[0].Path.Should().Contain("sensitive data");
-        alternatives[1].Path.Should().Contain("classification");
+        alternatives[0].Path.Should().Contain("classification");
+        alternatives[1].Path.Should().Contain("Defer sensitive data");
     }
 
     [Fact]

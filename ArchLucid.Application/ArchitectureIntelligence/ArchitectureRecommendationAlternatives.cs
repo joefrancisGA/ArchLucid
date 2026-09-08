@@ -49,9 +49,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (map drivers + guardrails or revise ceiling).
                 Create(
-                    "Map cost drivers to the stated ceiling with spend guardrails",
-                    "Each cost driver has a guardrail that keeps spend within the stated ceiling."),
+                    "Apply service-level spend caps and alerts without changing architecture cost drivers",
+                    "Spend caps and alerts enforce the stated ceiling without unmapped driver growth."),
                 Create(
                     "Revise the monthly ceiling with documented business rationale",
                     "The revised ceiling and business rationale are recorded and approved."),
@@ -62,9 +63,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (document flows, classification, and storage boundaries).
                 Create(
-                    "Document data flows for sensitive data paths before production",
-                    "Sensitive-data flows are recorded from source to sink before production processing."),
+                    "Record data classification and retention boundaries before expanding production data processing",
+                    "Classification and retention boundaries are recorded before new sensitive processing begins."),
                 Create(
                     "Defer sensitive data processing until classification and flows are recorded",
                     "No sensitive data is processed until classification and flow records exist."),
