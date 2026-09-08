@@ -41,13 +41,17 @@ public static class CareerArtifactCompletenessInputMapper
         TransparencyTrail? transparencyTrail,
         int? enginesSucceeded,
         bool workingDesk,
-        bool preCommitGateEnabled)
+        bool preCommitGateEnabled,
+        bool degradedFindingCoverage = false,
+        IReadOnlyList<string>? degradedFindingCoverageFailedEngineLabels = null)
     {
         return new CareerArtifactCompletenessInput(
             ArtifactKind: CareerArtifactKind.Finalize,
             TransparencyTrail: transparencyTrail,
             EnginesSucceeded: enginesSucceeded,
             WorkingDesk: workingDesk,
-            PreCommitGateEnabled: preCommitGateEnabled);
+            PreCommitGateEnabled: preCommitGateEnabled,
+            DegradedFindingCoverage: degradedFindingCoverage,
+            DegradedFindingCoverageFailedEngineLabels: degradedFindingCoverageFailedEngineLabels);
     }
 }

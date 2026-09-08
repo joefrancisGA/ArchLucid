@@ -20,6 +20,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string SampleWorkspaceExportCode = "sample_workspace_export_block";
     public const string AssertedEmptyCode = "asserted_trail_empty";
     public const string DecisionGradeProvenanceCode = "decision_grade_provenance";
+    public const string DegradedFindingCoverageCode = "degraded_finding_coverage";
 
     public const string FinalizeTrailMissingMessage =
         "Finalize requires a transparency trail with asserted, inferred, and skipped sections. Complete intake provenance or reload the package before sealing.";
@@ -49,6 +50,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
 
         EvaluateTransparencyTrail(input, blockReasons, warnings);
         EvaluateSkippedMust(input, blockReasons);
+        EvaluateDegradedFindingCoverage(input, blockReasons);
         EvaluateAssertedEmpty(input, blockReasons, warnings);
         EvaluateMeasurementFloor(input, blockReasons);
         EvaluatePreCommitGate(input, blockReasons);
@@ -113,6 +115,24 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
             : "Required intake questions are unanswered — resolve skipped MUST questions before sealing.";
 
         blockReasons.Add(new CareerArtifactBlockReason(SkippedMustCode, message));
+    }
+
+    private static void EvaluateDegradedFindingCoverage(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons)
+    {
+        if (!input.WorkingDesk || input.ArtifactKind != CareerArtifactKind.Finalize || !input.DegradedFindingCoverage)
+        {
+            return;
+        }
+
+        string labelText = input.DegradedFindingCoverageFailedEngineLabels is { Count: > 0 } labels
+            ? string.Join(", ", labels)
+            : "one or more finding engines";
+
+        blockReasons.Add(new CareerArtifactBlockReason(
+            DegradedFindingCoverageCode,
+            FormatDegradedFindingCoverageBlockedReason(labelText)));
     }
 
     private static void EvaluateAssertedEmpty(
@@ -277,6 +297,9 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         skippedMustCount == 1
             ? "1 required question is unanswered."
             : $"{skippedMustCount} required questions are unanswered.";
+
+    internal static string FormatDegradedFindingCoverageBlockedReason(string failedEngineLabels) =>
+        $"Finding coverage is degraded. Failed engines: {failedEngineLabels}. Finalize is blocked until coverage is restored.";
 
     internal static string? FormatQualityGateCareerExportBlockedReason(
         StructuralExecutionMode structuralExecutionMode,
