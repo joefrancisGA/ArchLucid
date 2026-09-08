@@ -1,6 +1,6 @@
 "use client";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { FindingEvidenceTraceClaimOrientationStrip } from "./FindingEvidenceTraceClaimOrientationStrip";
 
@@ -13,7 +13,9 @@ export type FindingEvidenceTraceBuyerChromeProps = {
 export function FindingEvidenceTraceBuyerChrome(
   props: FindingEvidenceTraceBuyerChromeProps,
 ): React.JSX.Element | null {
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  const evalChromeShell = useProductionEvalChrome();
+
+  if (!evalChromeShell) {
     return null;
   }
 

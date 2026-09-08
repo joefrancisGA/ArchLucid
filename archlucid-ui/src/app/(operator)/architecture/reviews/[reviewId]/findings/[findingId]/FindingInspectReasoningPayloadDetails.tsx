@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   findingInspectReasoningHrefFromSearch,
@@ -35,7 +35,7 @@ export function FindingInspectReasoningPayloadDetails({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const findingInspectReasoningOpenParam = searchParams.get("findingInspectReasoningOpen");
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const buyerPolished = resolveProductionEvalChromeFromStorage();
   const rationaleLabel = buyerPolished ? "Review rationale (technical)" : "View AI Reasoning";
   const evaluationLabel = buyerPolished ? "Structured evaluation record" : "AI Audit Inspection";
   const [reasoningOpen, setReasoningOpenState] = useState(() =>

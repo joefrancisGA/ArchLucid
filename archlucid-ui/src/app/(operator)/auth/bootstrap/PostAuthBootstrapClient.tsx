@@ -9,6 +9,7 @@ import { PostAuthBootstrapBuyerChrome } from "@/app/(operator)/auth/bootstrap/Po
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
 import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
+import { PostAuthBootstrapStepErrorRecovery } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapStepErrorRecovery";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
@@ -236,9 +237,15 @@ export function PostAuthBootstrapClient() {
             ))}
           </div>
           {errorMessage ? (
-            <p role="alert" className="mt-4 text-sm text-red-700">
-              {errorMessage}
-            </p>
+            <>
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {errorMessage}
+              </p>
+              <PostAuthBootstrapStepErrorRecovery
+                errorTitle={CREATE_WORKSPACE_COPY.invitationTitle}
+                errorCode="auth-bootstrap-invitation-accept-failed"
+              />
+            </>
           ) : null}
         </div>
     );
@@ -289,9 +296,15 @@ export function PostAuthBootstrapClient() {
             </div>
           )}
           {errorMessage ? (
-            <p role="alert" className="mt-4 text-sm text-red-700">
-              {errorMessage}
-            </p>
+            <>
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {errorMessage}
+              </p>
+              <PostAuthBootstrapStepErrorRecovery
+                errorTitle={CREATE_WORKSPACE_COPY.selectWorkspaceTitle}
+                errorCode="auth-bootstrap-workspace-select-failed"
+              />
+            </>
           ) : null}
         </div>
     );

@@ -8,7 +8,7 @@
 | --- | --- |
 | Workflow | `.github/workflows/private-beta-access-on-push.yml` |
 | Display name | `Operator UI: private-beta access-path (JwtBearer)` |
-| Spec | `archlucid-ui/e2e/live-api-private-beta-access.spec.ts` |
+| Specs (push workflow, `--workers=1`) | `live-api-private-beta-access.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-scim-invite-substitute-smoke.spec.ts` |
 | Timeout | 120 minutes (job); 45 minutes per Playwright test in CI |
 
 ## Happy path (CI step order)
@@ -18,7 +18,7 @@
 3. Mint RS256 JWT (`scripts/ci/mint_ci_jwt.py`) with Admin role + default tenant scope
 4. Shell warm (`scripts/ci/warm_private_beta_live_api_paths.sh`) — scope + invitations only when `LIVE_E2E_PRIVATE_BETA_ACCESS=1` (draft/create-run skipped; Playwright stubs draft and JIT-warms create-run)
 5. Post-warm `wait-for-api-ready.sh` (90×2s) — recovers transient **503** after warm without a single-shot `curl`
-6. Playwright `--workers=1` on `live-api-private-beta-access.spec.ts` (browser install completes **before** shell warm)
+6. Playwright `--workers=1` on all four private-beta specs (browser install completes **before** shell warm)
 
 ## Trunk hygiene during corset outages
 
@@ -40,6 +40,7 @@ Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh 
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
 | Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
 | Loader smoke + signin/invite Report Problem | #1792 / `159c5fab6a` | Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts`; TB-782 surfaces on `/auth/signin` + `/auth/invite` |
+| Wave 3 bootstrap recovery + diagnostics/deep-link smoke | #2154 / wave 3 | `live-api-private-beta-wave-3.spec.ts`; mid-flow Report Problem on `/auth/bootstrap`; `GITHUB_STEP_SUMMARY` failure triage |
 
 ## Common failure modes
 
@@ -122,7 +123,7 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 ```
 
 ```bash
-cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-invite-flow.spec.ts --workers=1
+cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-private-beta-wave-3.spec.ts live-api-invite-flow.spec.ts live-api-scim-invite-substitute-smoke.spec.ts --workers=1
 ```
 
 ## Golden-cohort apply (owner, after first green)
@@ -131,7 +132,7 @@ When `Operator UI: private-beta access-path (JwtBearer)` completes green at leas
 
 1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
 2. Re-run the ruleset script (or add the check in GitHub Rulesets UI).
-3. Confirm trunk push still runs both `live-api-private-beta-access.spec.ts` and `live-api-invite-flow.spec.ts` before sending beta invites.
+3. Confirm trunk push still runs all four private-beta specs (`live-api-private-beta-access`, `live-api-private-beta-wave-3`, `live-api-invite-flow`, `live-api-scim-invite-substitute-smoke`) before sending beta invites.
 
 **Do not** add the private-beta check to golden-cohort required checks until step 1 completes after a verified green run.
 

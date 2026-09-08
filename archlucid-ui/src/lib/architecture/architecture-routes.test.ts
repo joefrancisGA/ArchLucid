@@ -47,13 +47,13 @@ describe("architecture-routes", () => {
         parentArchitectureId: "architecture-identity-001",
         legacyDraftId: "draft-001",
       }),
-    ).toBe("/architecture/architectures/architecture-identity-001/reviews/new?path=guided-intake");
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/new");
     expect(
       startReviewFromDraftContextHref({
         draftArchitectureId: "architecture-identity-002",
         legacyDraftId: "draft-legacy",
       }),
-    ).toBe("/architecture/architectures/architecture-identity-002/reviews/new?path=guided-intake");
+    ).toBe("/architecture/architectures/architecture-identity-002/reviews/new");
   });
 
   it("pins identity desk child draft href for post-create navigation (CA-24 / AO-05)", () => {

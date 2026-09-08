@@ -12,4 +12,11 @@ public interface IAppendOnlyFindingVerificationReportRepository
         ScopeContext scope,
         Guid reportId,
         CancellationToken cancellationToken = default);
+
+    Task<FindingVerificationReportRecord?> TryGetLatestByPackagePairAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid sourceFindingsSnapshotId,
+        Guid? verificationFindingsSnapshotId,
+        CancellationToken cancellationToken = default);
 }

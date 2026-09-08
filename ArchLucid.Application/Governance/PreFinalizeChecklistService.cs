@@ -28,7 +28,8 @@ public sealed partial class PreFinalizeChecklistService(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
+    ISpecialistReviewService? specialistReviewService = null,
+    TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

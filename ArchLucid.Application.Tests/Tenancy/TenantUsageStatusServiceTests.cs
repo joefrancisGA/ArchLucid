@@ -115,7 +115,7 @@ public sealed class TenantUsageStatusServiceTests
         snapshot!.IsTrial.Should().BeFalse();
         snapshot.CommercialTier.Should().Be(CommercialPackagingTierLabels.Team);
         snapshot.SeatsUsed.Should().Be(4);
-        snapshot.SeatsLimit.Should().Be(CommercialPackagingLimits.TeamSeatsIncluded);
+        snapshot.SeatsLimit.Should().Be(CommercialPackagingLimits.TeamSeatsMax);
         snapshot.WorkspacesUsed.Should().Be(1);
         snapshot.WorkspacesLimit.Should().Be(CommercialPackagingLimits.TeamWorkspacesIncluded);
     }

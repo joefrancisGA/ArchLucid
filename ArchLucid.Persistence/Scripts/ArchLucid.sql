@@ -12096,6 +12096,16 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Scope_Run_Created
         ON dbo.FindingVerificationReports (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Idempotency
+        ON dbo.FindingVerificationReports (
+            TenantId,
+            WorkspaceId,
+            ScopeProjectId,
+            RunId,
+            SourceFindingsSnapshotId,
+            VerificationFindingsSnapshotId,
+            CreatedUtc DESC);
 END;
 GO
 

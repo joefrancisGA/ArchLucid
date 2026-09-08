@@ -9,14 +9,10 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
   useProductLine: () => ({ productLine: "security" }),
 }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
-  };
-});
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
@@ -28,6 +24,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { INFRASTRUCTURE_WORKBENCH_ROWS } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SECURENOW_COMPLIANCE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-compliance-home-copy";
 import { SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-infrastructure-home-copy";
@@ -71,5 +68,18 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       "/integrations/cloud-connections",
     );
+    expect(screen.queryByText(/\bAWS\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\bGCP\b/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Google Cloud/i)).not.toBeInTheDocument();
+  });
+
+  it("lists all six infrastructure workbench destinations in the hub intro", () => {
+    render(<InfrastructureOverviewClient secureNowHome />);
+
+    const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
+
+    expect(primaryContent).toHaveTextContent(/diagram reconciliation/i);
+    expect(primaryContent).toHaveTextContent(/All six destinations are available from this hub/i);
+    expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(6);
   });
 });

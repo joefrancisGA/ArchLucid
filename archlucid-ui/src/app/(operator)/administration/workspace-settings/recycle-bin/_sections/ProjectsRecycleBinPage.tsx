@@ -69,7 +69,7 @@ import {
   parseProjectsRecycleBinRestoreProjectIdFromSearch,
   projectsRecycleBinRestoreHrefFromSearch,
 } from "@/lib/administration/projects-recycle-bin-restore-url";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE,
@@ -214,7 +214,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
 
 /** Admin **Recycle Bin** — soft-deleted architecture projects scoped to this tenant (`GET /v1/tenant/workspaces/recycle-bin`). */
 export function ProjectsRecycleBinPage() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH;
   const searchParams = useSearchParams();

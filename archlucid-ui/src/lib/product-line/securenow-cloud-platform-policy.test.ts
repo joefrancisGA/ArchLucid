@@ -17,6 +17,7 @@ import {
   secureNowCloudConnectionsHelpSubtitle,
   secureNowCloudConnectionsHubContextualLead,
   secureNowCloudConnectionsSummary,
+  secureNowCloudInventoryEvidenceSummary,
 } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 describe("securenow-cloud-platform-policy", () => {
@@ -72,6 +73,8 @@ describe("securenow-cloud-platform-policy", () => {
   it("uses Azure-only SecureNow copy and multicloud Architecture copy", () => {
     expect(secureNowCloudConnectionsSummary()).toContain("Azure");
     expect(secureNowCloudConnectionsSummary()).not.toMatch(/\bAWS\b|\bGCP\b/i);
+    expect(secureNowCloudInventoryEvidenceSummary()).toContain("Azure");
+    expect(secureNowCloudInventoryEvidenceSummary()).not.toMatch(/\bAWS\b|\bGCP\b/i);
     expect(architectureCloudConnectionsSummary()).toMatch(/Azure, AWS, or GCP/);
     expect(cloudConnectionsSummaryForProductLine("security")).toBe(secureNowCloudConnectionsSummary());
     expect(cloudConnectionsSummaryForProductLine("architecture")).toBe(architectureCloudConnectionsSummary());

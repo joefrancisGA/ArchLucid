@@ -3,6 +3,7 @@
      still a job, not a system. Wave 18 after architecture-object-00-index.md
      (AO-01–50). AO made architecture the locator; this set makes the desk the
      work surface (ADR 0079). Do not merge DraftRequests and Runs.
+     Wave 19: working-seat-00-index.md (WS-01–WS-24) — buyer polish off Working.
      Do not implement from this index. -->
 
 # System-desk mitigations — Composer prompt set (SY-01–SY-100)
@@ -11,7 +12,7 @@ ArchLucid sells a **seat for a repeat professional** (`docs/ARCHLUCID_FOUNDATION
 
 **This set is wave 18. It owns only:** the paying desk still treats a **review / Insights tool** as the place you work. Wave 17 (**AO-01–50**) nested the review job and pointed Start at the architecture. Leftovers AO-50 did not ratchet: **Alt+R → `/architecture/reviews`**, Ask/Compare/Graph as **peer `/insights/*` products**, remaining **`reviewDetailPath`** mints, hub copy as Home.
 
-Later livelihood issues (insight density, dual buyer/Working skin, batch-priced what-if, career-export honesty leftovers, collaboration ACL) are **out of this wave**. Do not smuggle them in.
+Later livelihood issues (insight density, dual buyer/Working skin, batch-priced what-if, career-export honesty leftovers, collaboration ACL) are **out of this wave**. Dual skin is **WS-01–WS-24**. Do not smuggle them in.
 
 **Owner authorization (this wave):** on Working, the architecture desk is the **work surface**. Ask / Compare / Graph / Search / Findings **nest** under `/architecture/architectures/{architectureId}/`. `/architecture/reviews` is an **inbox**, never Monday morning, and **must not** own Alt+R. Guided / demo / trial may keep peer URLs. **Do not merge tables.** **Do not rewrite ADR 0068 / 0069 / 0072 / 0074 / 0077 bodies** — add **ADR 0079**; **Accept 0077** when locator evidence still holds.
 

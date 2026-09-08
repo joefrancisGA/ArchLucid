@@ -4,8 +4,9 @@
 
 # ADR 0078: Career artifact honesty contract
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-07
+- **Implemented:** 2026-09-07 (FC-02 / FC-03 / FC phases through FC-80 close)
 
 ## Context
 
@@ -29,6 +30,18 @@ This ADR **supersedes execution gaps only** — it does not rewrite Accepted ADR
 8. **Demo / sample:** Career artifacts from demo, static, or sample data carry **demo/sample** labeling and cannot be emailed as production proof without explicit waiver copy.
 9. **Shared validators:** Every career export and finalize path calls **`evaluateCareerArtifactHonesty()`** (UI) or **`CareerArtifactCompletenessValidator`** (server) before rendering; CI inventories (FC-04–08) enforce the call graph.
 10. **Legacy sealed records (ADR 0039):** Re-export of bytes sealed without trail shows an **honesty banner** (warning); bytes are not rewritten.
+
+## Implementation / Evidence
+
+Shared validators shipped; Decision above unchanged.
+
+| Layer | Entry point | Evidence |
+|-------|-------------|----------|
+| TypeScript | `evaluateCareerArtifactHonesty()` | `archlucid-ui/src/lib/career-artifact/career-artifact-honesty.ts`; guards in `career-artifact-honesty-guard.ts`; Vitest `career-artifact-honesty.test.ts` |
+| C# | `CareerArtifactCompletenessValidator` | `ArchLucid.Decisioning/CareerArtifacts/CareerArtifactCompletenessValidator.cs`; `ArchLucid.Decisioning.Tests/CareerArtifacts/CareerArtifactCompletenessValidatorTests.cs` |
+| Finalize gate | Orchestrator | `ArchLucid.Application.Tests/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifactGateTests.cs` |
+| Export surfaces | Sponsor / receipt / docx | `use-email-run-to-sponsor-banner.ts`, `DecisionReceiptServiceTests.cs`, `DocxExportControllerCareerHonestyTests.cs`, `CareerArtifactExportCompletenessGateTests.cs` |
+| CI inventories | FC-04–08 | `career-artifact-honesty-grandfather-inventory.ts`, `career-export-mounted-ui-paths.ts` |
 
 ## Trade-offs
 

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
@@ -51,7 +51,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
   const [chainExpanded, setChainExpandedState] = useState(() =>

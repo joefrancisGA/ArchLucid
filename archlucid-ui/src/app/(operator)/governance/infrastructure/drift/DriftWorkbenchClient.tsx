@@ -55,7 +55,7 @@ import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/Workben
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { driftWorkbenchHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-drift-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
@@ -100,7 +100,7 @@ function formatDiffLabel(diff: InfraEvidenceDiffSummary, selectedSnapshotId: str
 }
 
 export function DriftWorkbenchClient() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));

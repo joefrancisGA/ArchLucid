@@ -4,8 +4,9 @@
 
 # ADR 0079: Working architecture desk is the work surface
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-07
+- **Implemented:** 2026-09-07 (SY-01–SY-100; SY-80 / SY-100 close audit)
 
 ## Context
 
@@ -49,6 +50,16 @@ That bind-by-query shape keeps Insights as **sibling products** the architect le
 | Review job | `/architecture/architectures/{architectureId}/reviews/{reviewId}` |
 | Draft job | `/architecture/architectures/{architectureId}/drafts/{draftId}` |
 | Inbox (secondary) | `/architecture/reviews` |
+
+## Implementation / Evidence
+
+Nested desk routes and Working keyboard atlas shipped; Decision above unchanged.
+
+| Area | Evidence |
+|------|----------|
+| Acceptance guard | `archlucid-ui/src/lib/system-desk-acceptance-guard.test.ts` (Alt+R → desk not inbox; nested path helpers) |
+| Close audit | `docs/architecture/SYSTEM_DESK_ACCEPTANCE_2026-09-07.md` |
+| Wave index | `docs/architecture/SYSTEM_DESK_COMPOSER_PROMPTS.md` (SY-80 keyboard ratchet; SY-100 wave close) |
 
 ## Trade-offs
 

@@ -109,7 +109,7 @@ import type {
   ResourceHubTab,
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
@@ -310,7 +310,7 @@ function buildHubDiagramCorrespondenceAskHref(
 
 export function ResourceHubClient(props: ResourceHubClientProps) {
   const { cloudResourceId } = props;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();

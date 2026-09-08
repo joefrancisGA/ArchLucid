@@ -51,4 +51,16 @@ describe("resolveWorkingStartHref (ADR 0077 / AO-15)", () => {
     expect(result.reason).toBe("new-architecture");
     expect(result.href).toBe(ARCHITECTURES_NEW_PATH);
   });
+
+  it("WS-11: never returns guided-intake in Working start href", () => {
+    const cases = [
+      resolveWorkingStartHref({ lastOpenArchitectureId: "arch-identity-1" }),
+      resolveWorkingStartHref({ inFlightParentArchitectureId: "arch-in-flight" }),
+      resolveWorkingStartHref({}),
+    ];
+
+    for (const result of cases) {
+      expect(result.href).not.toContain("guided-intake");
+    }
+  });
 });

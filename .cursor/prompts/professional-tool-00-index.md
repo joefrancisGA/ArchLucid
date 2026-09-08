@@ -17,7 +17,8 @@
      Wave 13: durable-architecture-00-index.md (DA-01–12) — do not paste after CA.
      Wave 14: customer-architecture-00-index.md (CA-01–50).
      Wave 17: architecture-object-00-index.md (AO-01–50).
-     Wave 18: system-desk-00-index.md (SY-01–SY-100). -->
+     Wave 18: system-desk-00-index.md (SY-01–SY-100).
+     Wave 19: working-seat-00-index.md (WS-01–WS-24) — stop buyer polish on Working. -->
 
 # Professional-tool mitigations — Composer prompt set
 
