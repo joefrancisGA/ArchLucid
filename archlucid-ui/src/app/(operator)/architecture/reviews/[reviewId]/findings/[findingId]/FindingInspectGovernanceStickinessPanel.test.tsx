@@ -220,8 +220,19 @@ describe("FindingInspectGovernanceStickinessPanel pointer CAS (FP-08/FP-09)", ()
     listFindingDispositions.mockResolvedValue([]);
     recordFindingDisposition.mockResolvedValue(historyEvent({ eventId: "evt-first" }));
 
+    render(
+      <FindingInspectGovernanceStickinessPanel
+        findingId="sensitive-data-minimization-risk"
+        runId="customer-intake-modernization"
+      />,
+    );
+
     await waitForCurrentDisposition("No disposition recorded");
     await fillAcceptedDispositionAndConfirm();
+
+    await waitFor(() => {
+      expect(recordFindingDisposition).toHaveBeenCalled();
+    });
 
     const body = recordFindingDisposition.mock.calls[0]?.[1] as Record<string, unknown>;
     expect(body.expectedCurrentDispositionRowVersionBase64).toBeUndefined();
@@ -237,6 +248,7 @@ describe("FindingInspectGovernanceStickinessPanel pointer CAS (FP-08/FP-09)", ()
       <FindingInspectGovernanceStickinessPanel
         findingId="sensitive-data-minimization-risk"
         runId="customer-intake-modernization"
+        recommendation="Replace the public blob with a private endpoint because the trade-off is residual latency versus data exposure; validate with a canary."
       />,
     );
 
@@ -245,6 +257,7 @@ describe("FindingInspectGovernanceStickinessPanel pointer CAS (FP-08/FP-09)", ()
       target: { value: "Remediated after the change was applied in production." },
     });
     fireEvent.click(screen.getByTestId("finding-mark-remediated"));
+    fireEvent.click(screen.getByTestId("finding-apply-change-preview-override"));
     fireEvent.click(screen.getByRole("button", { name: "Record disposition" }));
 
     await waitFor(() => {
