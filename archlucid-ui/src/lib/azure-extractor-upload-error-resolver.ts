@@ -123,7 +123,7 @@ function guidanceForSemanticCode(
 
   switch (code) {
     case "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION":
-      return `Re-run ${packagerScript} from the current CDN script so manifest.json uses a supported schemaVersion, then upload the new ZIP.`;
+      return `Re-run ${packagerScript} from the current packager script download so manifest.json uses a supported schemaVersion, then upload the new ZIP.`;
     case "AZURE_EXTRACTOR_MISSING_MANIFEST":
       return "The ZIP must contain manifest.json at the archive root. Re-run the extractor script and upload the complete package.";
     case "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON":

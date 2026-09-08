@@ -78,6 +78,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
     expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
     expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
+    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(true);
     expect(securityLinks.map((link) => link.href)).toEqual([
       "/",
       "/governance/findings/assigned-to-me",
@@ -91,7 +92,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
 
     const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
 
-    expect(adminLinks.map((link) => link.href)).toContain("/administration/extract-upload");
+    expect(adminLinks.map((link) => link.href)).not.toContain("/administration/extract-upload");
   });
 
   it("merges Internal destinations under Administration instead of a separate Internal group", () => {

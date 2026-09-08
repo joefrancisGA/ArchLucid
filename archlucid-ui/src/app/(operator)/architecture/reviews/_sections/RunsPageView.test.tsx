@@ -158,7 +158,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => true,
+    isBuyerPolishedOperatorShellEnv: () => false,
     isBuyerSafeDemoMarketingChromeEnv: () => false,
     isOperatorExperienceFullShellEnv: vi.fn(() => false),
   };

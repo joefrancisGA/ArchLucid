@@ -51,14 +51,13 @@ describe("applyWorkingBindToolNavGate", () => {
     expect(shouldGateWorkingBindToolNavLink(ARCHITECTURES_LIST_PATH, input)).toBe(false);
   });
 
-  it("AO-40: marks gated links disabled with visible reason copy", () => {
+  it("AO-40: marks gated links disabled with screen-reader reason copy (ADR 0081)", () => {
     const gated = applyWorkingBindToolNavGateToLink(link(EVIDENCE_GRAPH_PATH), {
       workingMode: true,
       lastOpenArchitectureId: null,
     });
 
     expect(gated.navLinkDisabled).toBe(true);
-    expect(gated.navLinkDisabledReason).toBe(WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON);
     expect(gated.navLinkDisabledTitle).toBe(WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON);
   });
 });

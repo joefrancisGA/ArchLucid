@@ -94,5 +94,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
         services.AddScoped<IFindingVerificationScorer, FindingVerificationDeterministicScorer>();
         services.AddScoped<IFindingVerificationService, FindingVerificationService>();
+        services.AddScoped<IFindingVerificationReportQueryService, FindingVerificationReportQueryService>();
+        services.AddScoped<IFindingVerificationReportExportApplicationService, FindingVerificationReportExportApplicationService>();
     }
 }

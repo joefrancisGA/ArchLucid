@@ -66,6 +66,7 @@ export function fieldsAreEqual(left: ArchitectureDraftFieldState, right: Archite
     left.freeTextIntent === right.freeTextIntent &&
     left.businessOutcome === right.businessOutcome &&
     left.systemName === right.systemName &&
+    left.openQuestions === right.openQuestions &&
     JSON.stringify(left.structuredBrief) === JSON.stringify(right.structuredBrief)
   );
 }

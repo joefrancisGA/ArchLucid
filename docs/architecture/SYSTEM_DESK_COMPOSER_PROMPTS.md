@@ -3,6 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/system-desk-00-index.md`](../../.cursor/prompts/system-desk-00-index.md) (**SY-01–SY-100**)
 > **Predecessor (wave 17 — locator):** [`ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md`](ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md) (**AO-01–50**) — nested review URLs and Start-on-architecture. **Do not re-run AO.** This set owns leftovers AO-50 did not ratchet: Alt+R → inbox, peer Insights tools, remaining `reviewDetailPath` mints.
 > **Successor (wave 19 — Working never buyer-polished):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**) — do **not** add SY-101; paste WS files for dual skin.
+> **Later (wave 20 — persist gates after WS):** [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) (**LP-01–LP-20**) — do **not** paste SY for provenance or promote/activate audit.
 
 # System-desk Composer prompts (SY-01–SY-100)
 

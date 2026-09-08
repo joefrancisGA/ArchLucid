@@ -3,6 +3,7 @@ import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access"
 import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
+import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
 
 import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
@@ -83,6 +84,17 @@ function inlineCardMatchesQuery(normalizedQuery: string, terms: readonly string[
   return terms.join(" ").toLowerCase().includes(normalizedQuery);
 }
 
+function resolveSettingsMasterDestinationHref(
+  destination: SettingsMasterDestination,
+  productLine: ProductLineId,
+): string {
+  if (destination.id === "extract-upload") {
+    return extractUploadSettingsPathForProductLine(productLine);
+  }
+
+  return destination.href;
+}
+
 export function buildSettingsMasterVisibleSections(
   sections: readonly SettingsMasterSection[],
   input: SettingsMasterPageModelInput,
@@ -90,6 +102,7 @@ export function buildSettingsMasterVisibleSections(
   const normalizedQuery = normalizeSearchQuery(input.searchQuery);
   const isSearching = normalizedQuery.length > 0;
   const executePlus = input.callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
+  const productLine = input.productLine ?? DEFAULT_PRODUCT_LINE_ID;
 
   return sections
     .filter((section) => tierVisible(section.tier, input.showAdvanced, input.showInternalShell, isSearching))
@@ -112,7 +125,7 @@ export function buildSettingsMasterVisibleSections(
         }
 
         if (
-          !isPathAllowedForProductLine(destination.href, input.productLine ?? DEFAULT_PRODUCT_LINE_ID, {
+          !isPathAllowedForProductLine(resolveSettingsMasterDestinationHref(destination, productLine), productLine, {
             assignmentOverrides: input.productLineAssignmentOverrides,
           })
         ) {
@@ -124,7 +137,10 @@ export function buildSettingsMasterVisibleSections(
         }
 
         return true;
-      });
+      }).map((destination) => ({
+        ...destination,
+        href: resolveSettingsMasterDestinationHref(destination, productLine),
+      }));
 
       const showSupportBundle =
         section.id === "support"

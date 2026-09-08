@@ -52,6 +52,7 @@ internal static class FindingsOrchestratorComposer
             timeProvider);
 
         IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
+        IFindingsDecisionGradeFusionStage decisionGradeFusionStage = new FindingsDecisionGradeFusionStage();
 
         IFindingsSnapshotEmitStage snapshotEmitStage = new FindingsSnapshotEmitStage(
             NullLogger<FindingsSnapshotEmitStage>.Instance);
@@ -62,6 +63,7 @@ internal static class FindingsOrchestratorComposer
             insightGeneratorStage,
             mergeAndGateStage,
             checklistClusterStage,
+            decisionGradeFusionStage,
             snapshotEmitStage);
     }
 }

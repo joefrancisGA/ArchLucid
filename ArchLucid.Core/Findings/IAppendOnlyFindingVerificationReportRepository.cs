@@ -19,4 +19,9 @@ public interface IAppendOnlyFindingVerificationReportRepository
         Guid sourceFindingsSnapshotId,
         Guid? verificationFindingsSnapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<FindingVerificationReportRecord>> ListByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default);
 }

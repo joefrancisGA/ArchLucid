@@ -10,6 +10,8 @@ export const REVIEW_GUIDE_HELP_TOPIC_LABEL = "How the review guide works" as con
 export const REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE =
   "This guide is field reference for the architecture review wizard — not a full audit export. Open Reviews, Findings, or Audit when you need live records.";
 
+export const REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const REVIEW_GUIDE_HELP_SOURCES_INTRO =
   "Use these follow-ups when field reference turns into starting a review, first-run onboarding, or findings triage.";
 

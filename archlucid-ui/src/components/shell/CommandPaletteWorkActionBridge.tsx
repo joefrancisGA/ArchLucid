@@ -11,6 +11,7 @@ import {
   COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
   COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
   COMMAND_PALETTE_SAVE_DRAFT_EVENT,
+  COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT,
   COMMAND_PALETTE_UNDO_MUTATION_EVENT,
 } from "@/lib/command-palette-handler-actions";
 import {
@@ -18,6 +19,7 @@ import {
   queryVisibleFinalizeReviewControl,
   queryVisibleReviewDetailSaveControl,
   queryVisibleReviewRoomEnterControl,
+  queryVisibleTenantCostSettingsSaveControl,
 } from "@/lib/command-palette-work-action-dom";
 import {
   dispatchFocusedFindingDispositionShortcut,
@@ -53,6 +55,10 @@ function clickVisibleSaveControl(): void {
   }
 }
 
+function clickVisibleTenantCostSettingsSaveControl(): void {
+  queryVisibleTenantCostSettingsSaveControl()?.click();
+}
+
 function clickVisibleFinalizeReviewControl(): void {
   queryVisibleFinalizeReviewControl()?.click();
 }
@@ -70,6 +76,10 @@ export function CommandPaletteWorkActionBridge(): null {
   useEffect(() => {
     const onSaveDraft = () => {
       clickVisibleSaveControl();
+    };
+
+    const onSaveTenantCostSettings = () => {
+      clickVisibleTenantCostSettingsSaveControl();
     };
 
     const onFinalizeReview = () => {
@@ -125,6 +135,7 @@ export function CommandPaletteWorkActionBridge(): null {
     };
 
     window.addEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
+    window.addEventListener(COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT, onSaveTenantCostSettings);
     window.addEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
     window.addEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
     window.addEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);
@@ -136,6 +147,7 @@ export function CommandPaletteWorkActionBridge(): null {
 
     return () => {
       window.removeEventListener(COMMAND_PALETTE_SAVE_DRAFT_EVENT, onSaveDraft);
+      window.removeEventListener(COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT, onSaveTenantCostSettings);
       window.removeEventListener(COMMAND_PALETTE_FINALIZE_REVIEW_EVENT, onFinalizeReview);
       window.removeEventListener(COMMAND_PALETTE_ROOM_ELICITATION_EVENT, onRoomElicitation);
       window.removeEventListener(COMMAND_PALETTE_UNDO_MUTATION_EVENT, onUndoMutation);

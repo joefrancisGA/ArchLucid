@@ -33,12 +33,8 @@ export type NavLinkItem = {
   navBadge?: string;
   /** When true, render a non-navigable sidebar row (e.g. gated feature below privacy threshold). */
   navLinkDisabled?: boolean;
-  /** Screen-reader supplemental hint for disabled nav rows (never native `title`). */
+  /** Screen-reader supplemental hint for disabled nav rows (never native `title`). ADR 0081 — not visible sub-label copy. */
   navLinkDisabledTitle?: string;
-  /** Visible adjacent copy for disabled nav rows (AO-40 / LS-11). */
-  navLinkDisabledReason?: string;
-  /** Visible helper copy for disabled nav rows (AO-40 — not title-only). */
-  navLinkDisabledVisibleHint?: string;
 };
 
 /**

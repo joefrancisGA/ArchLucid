@@ -38,6 +38,8 @@ import {
   resolveGettingStartedHelpPrimaryActions,
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
+  resolveGettingStartedHelpTechnicalTerms,
+  resolveGettingStartedHelpDiagramSource,
   resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
 import {
@@ -234,6 +236,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
   );
   const pipelineDiagramDescription = resolveGettingStartedHelpPipelineDiagramDescription(isWorkingMode);
   const pipelineDiagramAccessibleName = resolveGettingStartedHelpPipelineDiagramAccessibleName(isWorkingMode);
+  const diagramSource = resolveGettingStartedHelpDiagramSource(isWorkingMode);
+  const technicalTerms = resolveGettingStartedHelpTechnicalTerms(isWorkingMode);
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
@@ -288,7 +292,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             </div>
           </section>
 
-          {isWorkingMode ? (
+          {!isWorkingMode ? (
             <details
               className={HELP_PAGE_LAYOUT.details}
               data-testid="getting-started-evaluating-architecture-section"
@@ -359,7 +363,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
                 ))}
               </ol>
               <MermaidDiagram
-                source={GETTING_STARTED_HELP_DIAGRAM_SOURCE}
+                source={diagramSource}
                 accessibleName={pipelineDiagramAccessibleName}
                 description={pipelineDiagramDescription}
               />
@@ -426,7 +430,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             onOpenChange={setTechnicalDetailsOpen}
           >
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY)}</p>
-            <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
+            <PlainLanguageTable terms={technicalTerms} testId="getting-started-technical-terms-table" />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Deeper engineering references:{" "}
               <Link href="/help/scope" className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>

@@ -101,4 +101,23 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
 
         return Task.FromResult(latest);
     }
+
+    public Task<IReadOnlyList<FindingVerificationReportRecord>> ListByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        List<FindingVerificationReportRecord> reports = _reportsById.Values
+            .Where(record =>
+                record.TenantId == scope.TenantId
+                && record.WorkspaceId == scope.WorkspaceId
+                && record.ScopeProjectId == scope.ProjectId
+                && record.RunId == runId)
+            .OrderByDescending(record => record.CreatedUtc)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<FindingVerificationReportRecord>>(reports);
+    }
 }
