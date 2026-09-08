@@ -2,4 +2,4 @@
 # Refresh this file when resetting the frozen branch to a new origin/master snapshot.
 branch=cursor/al-beta-private-beta-frozen-7730
 pinned_at_utc=2026-09-08T17:10:00Z
-pinned_sha=1cc6a05257
+pinned_sha=1cc6a052579ea232d4636d6f6b6917fc6485b2e9
