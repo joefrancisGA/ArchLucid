@@ -39,7 +39,10 @@ export function CompareResultsPanelDiffStack({
     showExecutionModeHonesty,
     governanceDiffState,
     verdictSummary,
-    docxHref,
+    showDocxDownload,
+    docxDownloading,
+    docxError,
+    handleDownloadDocx,
     pdfDownloading,
     pdfError,
     handleDownloadPdf,
@@ -63,16 +66,19 @@ export function CompareResultsPanelDiffStack({
             className="flex-1"
           />
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row lg:items-end">
-            {docxHref !== null ? (
-              <a
-                href={docxHref}
-                rel="noreferrer"
+            {showDocxDownload ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={docxDownloading || pdfDownloading}
+                onClick={() => void handleDownloadDocx()}
                 className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
                 data-testid="compare-download-docx-button"
               >
                 <FileText className="h-4 w-4" aria-hidden />
-                Download DOCX package
-              </a>
+                {docxDownloading ? "Downloading DOCX…" : "Download DOCX package"}
+              </Button>
             ) : null}
             <Button
               variant="outline"
@@ -87,6 +93,11 @@ export function CompareResultsPanelDiffStack({
             {pdfError ? (
               <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {pdfError}
+              </p>
+            ) : null}
+            {docxError ? (
+              <p role="alert" className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {docxError}
               </p>
             ) : null}
           </div>

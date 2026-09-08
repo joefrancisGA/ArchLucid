@@ -7,6 +7,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Runs;
@@ -158,12 +159,34 @@ public sealed partial class AuthorityQueryController
     [HttpGet("reviews/{runId:guid}/retrieval-grounding")]
     [ProducesResponseType(typeof(RunRetrievalGroundingResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunRetrievalGrounding(
         Guid runId,
         CancellationToken ct = default)
     {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         RunRetrievalGroundingResponse? result =
             await runRetrievalGroundingService.BuildAsync(runId.ToString("D"), ct);
 

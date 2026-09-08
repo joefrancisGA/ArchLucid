@@ -14,8 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
-import { getRunPackageExportUrl } from "@/lib/api/downloads-api";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import type { RunPackageExportFormat } from "@/lib/api/downloads-blob-urls";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildPackagePrintPath } from "@/lib/package-print-view";
 import {
@@ -26,6 +26,7 @@ import {
   reviewMeetingPacketPanelsHrefFromSearch,
 } from "@/lib/reviews/review-meeting-packet-panels-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 
 export type ReviewMeetingPacketStep = {
   readonly id: string;
@@ -33,6 +34,7 @@ export type ReviewMeetingPacketStep = {
   readonly description: string;
   readonly href?: string;
   readonly downloadLabel?: string;
+  readonly exportFormat?: RunPackageExportFormat;
 };
 
 export type ReviewMeetingPacketButtonProps = {
@@ -64,15 +66,15 @@ function buildMeetingPacketSteps(props: ReviewMeetingPacketButtonProps): readonl
       id: "decisions",
       label: "Decision record (DOCX)",
       description: "Consulting-style decision record export for CAB packets.",
-      href: getRunPackageExportUrl(runId, "docx"),
       downloadLabel: "Download DOCX",
+      exportFormat: "docx",
     },
     {
       id: "board-pack",
       label: "Review board package (PDF)",
       description: "Finalized review board PDF when the review is finalized.",
-      href: getRunPackageExportUrl(runId, "pdf"),
       downloadLabel: "Download PDF",
+      exportFormat: "pdf",
     },
     {
       id: "sponsor-synopsis",
@@ -103,6 +105,7 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
   const searchParams = useSearchParams();
   const meetingPacketOpenParam = searchParams.get("meetingPacketOpen");
   const [open, setOpenState] = useState(() => parseReviewMeetingPacketOpenFromSearch(meetingPacketOpenParam));
+  const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
   const steps = buildMeetingPacketSteps(props);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: props.runId,
@@ -128,6 +131,28 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
       });
     },
     [syncMeetingPacketOpenToUrl],
+  );
+
+  const onDownloadStep = useCallback(
+    (step: ReviewMeetingPacketStep) => {
+      if (step.exportFormat === undefined || collateralExportBlockedReason !== null) {
+        return;
+      }
+
+      setExportBusyStepId(step.id);
+
+      void downloadRunPackageExport(props.runId, step.exportFormat)
+        .catch((error: unknown) => {
+          showError(
+            step.downloadLabel ?? step.label,
+            error instanceof Error ? error.message : "Download failed.",
+          );
+        })
+        .finally(() => {
+          setExportBusyStepId(null);
+        });
+    },
+    [collateralExportBlockedReason, props.runId],
   );
 
   return (
@@ -158,7 +183,7 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
                 {index + 1}. {step.label}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{step.description}</p>
-              {step.href !== undefined ? (
+              {step.href !== undefined || step.exportFormat !== undefined ? (
                 <p className="m-0">
                   {step.downloadLabel !== undefined ? (
                     collateralExportBlockedReason !== null ? (
@@ -168,13 +193,23 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
                       >
                         {collateralExportBlockedReason}
                       </span>
-                    ) : (
-                      <ExportTrackedAnchor
-                        href={step.href}
+                    ) : step.exportFormat !== undefined ? (
+                      <button
+                        type="button"
                         className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)}
+                        disabled={exportBusyStepId !== null}
+                        data-testid={`review-meeting-packet-export-${step.id}`}
+                        onClick={() => onDownloadStep(step)}
+                      >
+                        {exportBusyStepId === step.id ? "Downloading…" : step.downloadLabel}
+                      </button>
+                    ) : (
+                      <a
+                        className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)}
+                        href={step.href}
                       >
                         {step.downloadLabel}
-                      </ExportTrackedAnchor>
+                      </a>
                     )
                   ) : (
                     <a className={cn("font-medium underline underline-offset-2", OPERATOR_TYPOGRAPHY.helper)} href={step.href}>

@@ -6,6 +6,7 @@ import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGround
 import { useRunRetrievalGroundingQuery } from "@/hooks/use-run-retrieval-grounding-query";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 
 type RunDetailRetrievalGroundingSectionProps = {
   readonly runId: string;
@@ -16,6 +17,7 @@ type RunDetailRetrievalGroundingSectionProps = {
 export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGroundingSectionProps) {
   const { data: payload, isPending, isError, error } = useRunRetrievalGroundingQuery(props.runId);
   const failure: ApiLoadFailureState | null = isError ? toApiLoadFailure(error) : null;
+  const blockedReason = runRetrievalGroundingBlockedReason(failure);
 
   if (isPending) {
     return null;
@@ -31,6 +33,7 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
     <RunRetrievalGroundingPanel
       payload={payload ?? null}
       failure={failure}
+      blockedReason={blockedReason}
       sectionId="run-retrieval-grounding"
       title="Retrieval grounding"
     />

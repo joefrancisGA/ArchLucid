@@ -1,6 +1,9 @@
 "use client";
 
 import { compareRunsEndToEnd } from "@/lib/api/architecture-runs";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { compareFindingCorrelationBlockedReason } from "@/lib/compare/compare-finding-correlation-blocked-reason";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import {
   coerceCompareFindingCorrelationMetadata,
   type CompareFindingCorrelationMetadata,
@@ -50,13 +53,16 @@ async function fetchCompareFindingCorrelation(
       compareQualityDelta: coerceCompareQualityDeltaCounts(response.report?.compareQualityDelta ?? null),
       softFailureMessage: null,
     };
-  } catch {
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareFindingCorrelationBlockedReason(failure);
+
     return {
       metadata: null,
       lifecycle: null,
       lifecycleRecords: [],
       compareQualityDelta: null,
-      softFailureMessage: "finding correlation metadata",
+      softFailureMessage: blockedReason ?? formatExportSealedManifestAwareApiError(error),
     };
   }
 }
