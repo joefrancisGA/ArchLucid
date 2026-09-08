@@ -6,7 +6,10 @@ import {
   ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_EVIDENCE_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ARCHITECTURE_CREATED_EVIDENCE_ORIENTATION_BOTTOM_TEST_ID,
+  ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW,
   ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_EVIDENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_LINK_LABEL,
@@ -99,6 +102,17 @@ describe("ArchitectureCreatedWorkspace buyer-polished Evidence tab (REE)", () =>
     expect(screen.getByTestId("architecture-created-evidence-intro")).toHaveTextContent(
       ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD,
     );
+    expect(screen.getByTestId("architecture-created-evidence-overview")).toHaveTextContent(
+      ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW,
+    );
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("architecture-created-evidence-intro"),
+    );
+    expect(
+      screen.getByTestId(ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("architecture-created-evidence-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("architecture-created-evidence-buyer-start-here-helper")).toHaveTextContent(
       ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER,
     );
@@ -115,7 +129,7 @@ describe("ArchitectureCreatedWorkspace buyer-polished Evidence tab (REE)", () =>
 
     const evidencePanel = screen.getByTestId("architecture-workspace-panel-evidence");
     const primaryContent = screen.getByTestId(ARCHITECTURE_CREATED_EVIDENCE_PRIMARY_CONTENT_ID);
-    const orientationBottom = within(evidencePanel).getByTestId("architecture-evidence-orientation-bottom");
+    const orientationBottom = within(evidencePanel).getByTestId(ARCHITECTURE_CREATED_EVIDENCE_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("architecture-evidence-sources");
 
     expect(evidencePanel).toContainElement(primaryContent);
