@@ -278,7 +278,7 @@ test.describe(
       timeout: 30_000,
     });
     await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTestId("invitation-secondary-sign-in-again")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("invitation-recovery-sign-in")).toBeVisible({ timeout: 30_000 });
     });
 
   test.describe("browser journeys", () => {

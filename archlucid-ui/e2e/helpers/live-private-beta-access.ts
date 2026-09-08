@@ -650,17 +650,29 @@ export async function provisionScimDirectoryUser(
 }
 
 async function openInviteForm(page: import("@playwright/test").Page): Promise<void> {
+  const inviteForm = page.getByTestId("settings-roles-invite-form");
+
+  if (await inviteForm.isVisible().catch(() => false)) {
+    return;
+  }
+
   const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
   const inviteSection = page.getByTestId("settings-roles-invite-section");
+  const invitePrimaryAction = page.getByTestId("settings-roles-invite-primary-action");
+  const inviteStartHereAction = page.getByTestId("settings-roles-start-here-invite");
 
   if (await invitePrimaryRegion.isVisible().catch(() => false)) {
     await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
+    await invitePrimaryAction.click();
+  } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
+    await inviteStartHereAction.click();
   } else {
     await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
     await inviteSection.locator("summary").click();
   }
 
-  await page.getByTestId("settings-roles-invite-form").waitFor({ state: "visible", timeout: 60_000 });
+  await inviteForm.waitFor({ state: "visible", timeout: 60_000 });
 }
 
 /** Submits an admin invite from the Users settings UI. */
@@ -673,5 +685,13 @@ export async function submitAdminInviteFromUsersUi(
   await page.getByTestId("settings-roles-invite-email").fill(email);
   await page.getByTestId("settings-roles-invite-role").click();
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+
+  const inviteResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
+    { timeout: 60_000 },
+  );
+
   await page.getByTestId("settings-roles-invite-submit").click();
+  await inviteResponse;
 }
