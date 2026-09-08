@@ -24,6 +24,5 @@ export function applyWorkingBindToolNavPresentation(
     ...link,
     navLinkDisabled: true,
     navLinkDisabledTitle: WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_HINT,
-    navLinkDisabledVisibleHint: WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_HINT,
   };
 }
