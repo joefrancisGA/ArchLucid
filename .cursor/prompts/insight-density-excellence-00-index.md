@@ -3,7 +3,7 @@
      docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md
      Do not implement from this index. -->
 
-# Insight-density excellence — Composer prompt set (DX-01–DX-62)
+# Insight-density excellence — Composer prompt set (DX-01–DX-68)
 
 Canonical prompts (copy-paste blocks):
 
@@ -15,7 +15,8 @@ Canonical prompts (copy-paste blocks):
 - **DX-47–DX-50 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
 - **DX-51–DX-56 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md)
 - **DX-57 (shipped `#2242` — do not re-run):** Real-mode ranking-prior defaults; no prompt file
-- **DX-58–DX-62 (ready):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
+- **DX-58–DX-62 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
+- **DX-63–DX-68 (ready):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -118,7 +119,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 
 **DX-57 shipped** (`#2242`, 2026-09-08). Real-mode effective-on for `PreferHighNoveltyEngines` / `PreferHighVerificationEngines`; tenant opt-out for those plus `EnableInsightGenerator`. Not a prompt file — do not re-run.
 
-**DX-58–DX-62 ready** (2026-09-08). Canonical prompts: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
+**DX-58–DX-62 shipped** (2026-09-08). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|
@@ -128,16 +129,28 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-61** | Prose assumption register | Yes with DX-58 | DX-55 shipped |
 | **DX-62** | Judge remaining-budget cap shrink | Yes with DX-58 | DX-02, DX-57 |
 
-Owner-gated (not default-on in DX-58–DX-62): **DX-59** threshold raise, live frontier corpus (**G-REAL-06**), `EnableProseAssumptionExtraction` default-on, Graph-RAG live ablation (**TB-883**).
+**DX-63–DX-68 ready** (2026-09-08). Canonical prompts: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
+
+| Prompt | Title | Parallel? | Depends on |
+|--------|-------|-----------|------------|
+| **DX-63** | Cross-engine corroboration scoring | First | DX-51, DX-59 shipped |
+| **DX-64** | Topology security drift vs prior graph | Yes with DX-63 | Prior graph load already ships |
+| **DX-65** | Path-engine impact witness on the gate | After DX-63 | DX-63, DX-26 shipped |
+| **DX-66** | `NotVerifiable` assumptions as held-check asks | Yes with DX-63 | DX-61, DX-52 shipped |
+| **DX-67** | Gate vs human novelty calibration | Yes with DX-63 | DX-13, DX-23, DX-58 shipped |
+| **DX-68** | IE-12 exception expiry into `open-commitment` | Yes with DX-63 | DX-05 shipped |
+
+Owner-gated (not default-on in DX-63–DX-68): live frontier corpus (**G-REAL-06**), `EnableProseAssumptionExtraction` default-on, Graph-RAG live ablation (**TB-883**), `PreferHighHumanAcceptResidual` (DX-67 flag, default false).
 
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
-- Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not. **DX-36–DX-50 add no new EngineType.** **DX-51** / **DX-53** add synthesis/contradiction engines only.
+- Path/contradiction engines DX-06–DX-09, DX-22 / DX-24 / DX-25, and follow-on **DX-32** / **DX-33** are authorized; coverage-only “node missing” engines are not. **DX-36–DX-50 add no new EngineType.** **DX-51** / **DX-53** add synthesis/contradiction engines only. **DX-64** adds `topology-security-drift` only.
 - **DX-47–DX-50 shipped** — do not re-run.
 - **DX-51–DX-56 shipped** — do not re-run.
 - **DX-57 shipped** (`#2242`) — do not re-run.
-- **DX-58–DX-62** — run from [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md); one prompt per chat. **DX-58–DX-62 add no new EngineType.**
+- **DX-58–DX-62 shipped** — do not re-run.
+- **DX-63–DX-68** — run from [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md); one prompt per chat. **Only DX-64 adds an EngineType** (`topology-security-drift`).
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
 - **DX-19** (ADR 0062 / TB-2033) shipped 2026-09-07 — do not re-run.
