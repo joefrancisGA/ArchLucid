@@ -45,7 +45,7 @@ import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-hel
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
 
-import { HelpTopicCatchallEvidenceOrientationStrip } from "@/components/help/HelpTopicCatchallEvidenceOrientationStrip";
+import { HelpTopicCatchallSourcesOrientationStrip } from "@/components/help/HelpTopicCatchallSourcesOrientationStrip";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -59,6 +59,7 @@ import {
   HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID,
   HELP_TOPIC_CATCHALL_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID,
+  HELP_TOPIC_CATCHALL_OVERVIEW,
   HELP_TOPIC_CATCHALL_PAGE_LEAD,
   HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID,
   HELP_TOPIC_CATCHALL_SKIP_LINK_LABEL,
@@ -379,15 +380,19 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                 {HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER}
               </p>
             </section>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-topic-catchall-overview"
+            >
+              {HELP_TOPIC_CATCHALL_OVERVIEW}
+            </p>
           </div>
           {developerRunbookLine}
           {caiqSigPostureCounts !== null ? (
             <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
           ) : null}
           {contentGrid}
-          <div data-testid={HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID}>
-            <HelpTopicCatchallEvidenceOrientationStrip />
-          </div>
+          <HelpTopicCatchallSourcesOrientationStrip />
         </div>
       ) : (
         <>
