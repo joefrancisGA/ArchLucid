@@ -1,4 +1,8 @@
 import { ACTOR_DEPENDENT_FINDING_ENGINE_TYPES } from "@/lib/findings/actor-dependent-finding-engine-types";
+import {
+  formatJudgeCapReductionClause,
+  type JudgeCapReductionFromFindingsSnapshot,
+} from "@/lib/findings/read-judge-skipped-by-cap";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import {
@@ -32,6 +36,8 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly actorNodeCount?: number;
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
@@ -118,10 +124,36 @@ function formatHeldCheckSecondPassClause(summary: HeldCheckSecondPassSummary | n
     : `Re-ran after ${label}: ${count} previously held engines produced findings.`;
 }
 
+function resolveJudgeCapReductionClause(
+  configuredCap: number | null | undefined,
+  effectiveCap: number | null | undefined,
+): string | null {
+  if (
+    configuredCap === null
+    || configuredCap === undefined
+    || effectiveCap === null
+    || effectiveCap === undefined
+    || Number.isNaN(configuredCap)
+    || Number.isNaN(effectiveCap)
+    || configuredCap <= 0
+    || effectiveCap >= configuredCap
+  ) {
+    return null;
+  }
+
+  const reduction: JudgeCapReductionFromFindingsSnapshot = {
+    configuredCap: Math.trunc(configuredCap),
+    effectiveCap: Math.max(0, Math.trunc(effectiveCap)),
+  };
+
+  return formatJudgeCapReductionClause(reduction);
+}
+
 function appendMeasurementFloorHonestySuffixes(
   baseLine: string,
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
+  judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
   heldCheckSecondPassClause: string | null,
 ): string {
@@ -139,6 +171,10 @@ function appendMeasurementFloorHonestySuffixes(
         ? "Premium insight-density judge skipped 1 finding by per-snapshot cap."
         : `Premium insight-density judge skipped ${judgeSkippedByCap} findings by per-snapshot cap.`,
     );
+  }
+
+  if (judgeCapReductionClause !== null) {
+    suffixes.push(judgeCapReductionClause);
   }
 
   if (topHeldCheckUnblockClause !== null) {
@@ -160,6 +196,7 @@ function buildMeasurementFloorLine(
   counts: InsightDensityMeasurementFloorCounts,
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
+  judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
   heldCheckSecondPassClause: string | null,
 ): string {
@@ -178,6 +215,7 @@ function buildMeasurementFloorLine(
     baseLine,
     skippedActorEngineTypes,
     judgeSkippedByCap,
+    judgeCapReductionClause,
     topHeldCheckUnblockClause,
     heldCheckSecondPassClause,
   );
@@ -204,6 +242,10 @@ export function formatInsightDensityMeasurementFloorPresentation(
     options.analysisStagesComplete === true,
   );
   const judgeSkippedByCap = normalizeJudgeSkippedByCap(options.judgeSkippedByCap);
+  const judgeCapReductionClause = resolveJudgeCapReductionClause(
+    options.judgeConfiguredCap,
+    options.judgeEffectiveCap,
+  );
   const heldCheckLedgerEntries = options.heldCheckLedgerEntries ?? [];
   const topHeldCheckUnblockClause = resolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
   const heldCheckSecondPassClause = formatHeldCheckSecondPassClause(options.heldCheckSecondPass);
@@ -216,6 +258,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
       counts,
       skippedActorEngineTypes,
       judgeSkippedByCap,
+      judgeCapReductionClause,
       topHeldCheckUnblockClause,
       heldCheckSecondPassClause,
     ),

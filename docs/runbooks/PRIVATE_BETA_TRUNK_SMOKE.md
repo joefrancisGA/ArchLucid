@@ -159,7 +159,7 @@ cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spe
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
 
-1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
+1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
 2. Re-run the ruleset script (or add the check in GitHub Rulesets UI).
 3. Confirm trunk push still runs all four private-beta specs (`live-api-private-beta-access`, `live-api-private-beta-wave-3`, `live-api-invite-flow`, `live-api-scim-invite-substitute-smoke`) before sending beta invites.
 

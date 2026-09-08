@@ -16,6 +16,7 @@ internal static class InsightDensityJudgeCandidateSelector
     internal static async Task<(IReadOnlyList<Finding> Judged, int SkippedByCap)> SelectEngineJudgedCandidatesAsync(
         IReadOnlyList<Finding> candidates,
         InsightDensityGateOptions options,
+        int maxJudgedFindingsPerSnapshot,
         IFindingInsightSignalRepository? insightSignalRepository,
         IAppendOnlyFindingVerificationReportRepository? verificationReportRepository,
         IScopeContextProvider? scopeContextProvider,
@@ -54,7 +55,7 @@ internal static class InsightDensityJudgeCandidateSelector
 
         return SelectEngineJudgedCandidates(
             candidates,
-            options.MaxJudgedFindingsPerSnapshot,
+            maxJudgedFindingsPerSnapshot,
             noveltyRatesByEngineType,
             verificationPriorRatesByEngineType);
     }

@@ -158,10 +158,10 @@ public sealed class AuthorityPipelineFindingsStage(
 
         try
         {
-            int judgeSkippedByCap = await _insightDensityLlmJudge
+            InsightDensityLlmJudgeApplyResult judgeResult = await _insightDensityLlmJudge
                 .ApplyToFindingsAsync(findingsSnapshot.Findings, cancellationToken);
 
-            ApplyJudgeSkippedByCap(findingsSnapshot, judgeSkippedByCap);
+            ApplyJudgeTelemetry(findingsSnapshot, judgeResult);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -221,17 +221,30 @@ public sealed class AuthorityPipelineFindingsStage(
         }
     }
 
-    private static void ApplyJudgeSkippedByCap(FindingsSnapshot snapshot, int judgeSkippedByCap)
+    private static void ApplyJudgeTelemetry(FindingsSnapshot snapshot, InsightDensityLlmJudgeApplyResult judgeResult)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(judgeResult);
 
-        if (judgeSkippedByCap <= 0)
+        if (judgeResult.SkippedByCap <= 0
+            && judgeResult.JudgeConfiguredCap is null
+            && judgeResult.JudgeEffectiveCap is null)
         {
             return;
         }
 
         snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
-        snapshot.InsightDensityCuration.JudgeSkippedByCap = judgeSkippedByCap;
+
+        if (judgeResult.SkippedByCap > 0)
+        {
+            snapshot.InsightDensityCuration.JudgeSkippedByCap = judgeResult.SkippedByCap;
+        }
+
+        if (judgeResult.JudgeConfiguredCap is not null && judgeResult.JudgeEffectiveCap is not null)
+        {
+            snapshot.InsightDensityCuration.JudgeConfiguredCap = judgeResult.JudgeConfiguredCap;
+            snapshot.InsightDensityCuration.JudgeEffectiveCap = judgeResult.JudgeEffectiveCap;
+        }
     }
 
     private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)

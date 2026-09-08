@@ -110,6 +110,21 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
     }
 
     [Fact]
+    public void Present_includes_judge_cap_reduction_clause_when_effective_cap_is_lower()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            JudgeConfiguredCap = 40,
+            JudgeEffectiveCap = 6,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16, context);
+
+        presentation.Sentence.Should().Contain("Premium judge cap reduced from 40 to 6 from remaining AI budget.");
+    }
+
+    [Fact]
     public void FormatCareerExportBlockedReason_returns_null_when_floor_is_met()
     {
         InsightDensityMeasurementFloorPresenter.FormatCareerExportBlockedReason(41).Should().BeNull();

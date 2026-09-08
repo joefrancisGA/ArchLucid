@@ -1402,6 +1402,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Findings/InsightDensityVerificationConfirmedRatesController.cs",
+      "class_name": "InsightDensityVerificationConfirmedRatesController",
+      "route_template": "v{version:apiVersion}/tenants/current/insight-density",
+      "normalized_prefix": "/v1/tenants/current/insight-density",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Governance/GovernanceController.cs",
       "class_name": "GovernanceController",
       "route_template": "v{version:apiVersion}/governance",
