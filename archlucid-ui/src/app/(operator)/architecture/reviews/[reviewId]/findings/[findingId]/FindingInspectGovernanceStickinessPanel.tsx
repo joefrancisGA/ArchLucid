@@ -190,6 +190,9 @@ export function FindingInspectGovernanceStickinessPanel(
         remediationBaseline={stickiness.remediationBaseline}
         dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
         dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
+        dispositionConflict={stickiness.dispositionConflict}
+        reloadDispositionConflict={stickiness.reloadDispositionConflict}
+        dismissDispositionConflict={stickiness.dismissDispositionConflict}
         dispositionBaseline={stickiness.dispositionBaseline}
         waiverBaseline={stickiness.waiverBaseline}
       />
