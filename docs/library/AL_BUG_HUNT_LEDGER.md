@@ -8067,9 +8067,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-08 — `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled
 - **related-pd-tb:** none
@@ -8107,8 +8107,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `sponsor-digest-weekly` / `weekly-sponsor-report` / `compliance-drift-escalation` / `trial-email-scan` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` parity tests added hunt #1256, 2026-09-07)
 - [x] (proven) `ScimTokenRotationReminderJob` runs on every Worker/Combined replica without leader election — **hit 2026-09-08 hunt #1302:** Application-layer job inserted duplicate `dbo.AdminNotifications` rows per replica; moved scan to `ScimTokenRotationReminderHostedService` with `HostLeaderElectionCoordinator` + `hosted:scim-token-rotation-reminder`; regressions in `ScimTokenRotationReminderHostedService_constructor_requires_leader_election_coordinator`, `AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderHostedService`, `ScimTokenRotationReminderIteration_queries_due_tokens`
 - [x] (proven) `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled — **hit 2026-09-08 hunt #1366 (seed→hit):** `RegisterCosmosPolyglotPersistence` lacked `hostingRole` gate; split Api+Worker deployments started change feed processors on Api replicas; fixed with Worker+Combined gate; regression in `AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService`
-- [ ] (candidate) `RegisterDataConsistencyReconciliation` registers budget reconciliation on Api — sibling Worker-only hosted services use leader election; reconciliation may be intentional for Api enqueue-only hosts
-- [ ] (candidate) Required-audit-trail / orphan-probe hosted services on Api — probe jobs gated by offload; Api role registration intent unclear without split-deployment citation
+- [x] (invalid) `RegisterDataConsistencyReconciliation` registers budget reconciliation on Api — **cheap-disproved hunt #1367:** reconciliation hosted services are Worker+Combined gated in `DataHealthJobsCompositionModule.Reconciliation.cs`; `QuickScanBudgetReconciliationHostedService` registers via storage registrar with `HostLeaderElectionCoordinator`; regression in `AddArchLucidApplicationServices_Api_role_does_not_register_DataConsistencyReconciliationHostedService` and `AddArchLucidApplicationServices_Api_role_registers_QuickScanBudgetReconciliationHostedService`
+- [x] (valid-no-repro) Orphan-probe / required-audit-trail hosted services register on Api — **cheap-disproved hunt #1367:** `SqlOperationalSingletonsRegistrar` registers without hostingRole gate but both executors use `HostLeaderElectionCoordinator`; container-offload parity preserved via `IArchLucidJob`; regression in `AddArchLucidApplicationServices_Api_role_registers_leader_elected_orphan_probe_hosted_services`
+
+2026-09-08 thorough hunt #1367 (dry): cheap-disproved both seeded Api-role candidates; systematic scan found no new hunt-ready registration gaps after #1366 audit change-feed fix.
 
 2026-09-08 seed hunt #1366 (hit): promoted Cosmos audit change-feed Api-role candidate; failing registration test; Worker+Combined hostingRole gate on `AuditEventChangeFeedHostedService`; seeded budget-reconciliation and orphan-probe Api-role follow-ups.
 
