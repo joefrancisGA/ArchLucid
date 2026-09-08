@@ -22,13 +22,14 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTabs,
   EnterpriseTabsContent,
   EnterpriseTabsList,
   EnterpriseTabsTrigger,
 } from "@/components/ui/enterprise-tabs";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
@@ -43,6 +44,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  formatInfraEvidenceChangeTypeLabel,
+  resolveInfraEvidenceChangeTypeStatusKind,
+} from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
   buildAuditEvidenceLineageUiPath,
   buildResourceHubDiagramReconcileWorkbenchHref,
@@ -993,8 +998,19 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             {change.property ?? change.changeType}
                           </Link>
                         </EnterpriseTableCell>
-                        <EnterpriseTableCell>{change.changeType}</EnterpriseTableCell>
-                        <EnterpriseTableCell>{change.riskClassification ?? "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <StatusTag
+                            kind={resolveInfraEvidenceChangeTypeStatusKind(change.changeType)}
+                            label={formatInfraEvidenceChangeTypeLabel(change.changeType)}
+                          />
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          {change.riskClassification != null ? (
+                            <SeverityTag severity={change.riskClassification} />
+                          ) : (
+                            "—"
+                          )}
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <Button asChild size="sm" variant="outline">
                             <Link

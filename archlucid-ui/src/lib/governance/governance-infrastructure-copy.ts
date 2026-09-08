@@ -124,6 +124,45 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot"
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL = "Diff vs other snapshot" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_BODY =
+  "Connect a read-only cloud account and wait for the first inventory capture before comparing drift." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_SNAPSHOTS_ACTION = "Open cloud connections" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_TITLE = "No diffs for this snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_DIFFS_BODY =
+  "Drift diffs appear after a second snapshot is captured for the same subscription." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE = "No drift rows in this diff" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY =
+  "Select a snapshot and diff to view property-level changes." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_SCOPED_BODY =
+  "No drift rows match the scoped cloud resource for this diff." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_FRESHNESS_LABEL = "Evidence scope" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL = "Resource contains" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL = "Risk" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL = "Change type" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_SOURCE_SNAPSHOT_LABEL = "Source snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_RECEIPT_TITLE = "Advisory export completed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_DISABLED_NO_SNAPSHOT =
+  "Select a snapshot before exporting advisory Terraform." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureRemediation;
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID = "infra-remediation-primary-content" as const;
