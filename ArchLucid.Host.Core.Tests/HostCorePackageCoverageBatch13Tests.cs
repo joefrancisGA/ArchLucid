@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.OperationalErrors;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
@@ -392,6 +393,47 @@ public sealed class HostCorePackageCoverageBatch13Tests
         await sut.StopAsync(CancellationToken.None);
 
         store.Verify(s => s.ReclaimExpiredBatchAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task OperationalErrorRetentionHostedService_purges_rows_under_leader_coordinator()
+    {
+        Mock<IOperationalErrorRepository> repository = new();
+        repository
+            .Setup(r => r.DeleteOlderThanAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        Mock<IOptionsMonitor<OperationalErrorOptions>> retentionOptions = new();
+        retentionOptions.Setup(o => o.CurrentValue).Returns(new OperationalErrorOptions { RetentionDays = 90 });
+
+        Mock<IOptionsMonitor<HostLeaderElectionOptions>> electionOptions = new();
+        electionOptions.Setup(o => o.CurrentValue).Returns(new HostLeaderElectionOptions { Enabled = false });
+
+        Mock<IHostLeaderLeaseRepository> leaseRepository = new();
+        HostLeaderElectionCoordinator coordinator = new(
+            electionOptions.Object,
+            leaseRepository.Object,
+            HostInstanceIdentifier.ForTests("test-instance"),
+            NullLogger<HostLeaderElectionCoordinator>.Instance);
+
+        OperationalErrorRetentionHostedService sut = new(
+            scopeFactory,
+            retentionOptions.Object,
+            NullLogger<OperationalErrorRetentionHostedService>.Instance,
+            coordinator);
+
+        await sut.StartAsync(CancellationToken.None);
+        await Task.Delay(100);
+        await sut.StopAsync(CancellationToken.None);
+
+        repository.Verify(
+            r => r.DeleteOlderThanAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     private sealed class TestLogger : ILogger

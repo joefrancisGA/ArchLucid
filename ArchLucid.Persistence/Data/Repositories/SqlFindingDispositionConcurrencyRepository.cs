@@ -25,6 +25,80 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
             IsolationLevel.ReadCommitted,
             cancellationToken);
 
+        FindingDispositionRecordResult result = await RecordInTransactionAsync(
+            connection,
+            transaction,
+            reviewEvent,
+            expectedCurrentRowVersion,
+            cancellationToken);
+
+        if (result.Status == FindingDispositionRecordStatus.Conflict)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+
+            return result;
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return result;
+    }
+
+    public async Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
+        IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reviewEvents);
+
+        if (reviewEvents.Count == 0)
+            throw new ArgumentException("At least one review event is required.", nameof(reviewEvents));
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+
+        List<byte[]> rowVersions = new(reviewEvents.Count);
+
+        foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+        {
+            FindingDispositionRecordResult result = await RecordInTransactionAsync(
+                connection,
+                transaction,
+                reviewEvent,
+                expectedCurrentRowVersion: null,
+                cancellationToken);
+
+            if (result.Status == FindingDispositionRecordStatus.Conflict)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+
+                return new FindingDispositionBulkRecordResult
+                {
+                    Status = FindingDispositionRecordStatus.Conflict,
+                    Conflict = result.Conflict,
+                };
+            }
+
+            rowVersions.Add(result.NewCurrentRowVersion ?? []);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return new FindingDispositionBulkRecordResult
+        {
+            Status = FindingDispositionRecordStatus.Recorded,
+            NewCurrentRowVersions = rowVersions,
+        };
+    }
+
+    private static async Task<FindingDispositionRecordResult> RecordInTransactionAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        FindingReviewEventRecord reviewEvent,
+        byte[]? expectedCurrentRowVersion,
+        CancellationToken cancellationToken)
+    {
         CurrentPointerRow? currentPointer = await connection.QuerySingleOrDefaultAsync<CurrentPointerRow>(
             new CommandDefinition(
                 """
@@ -129,8 +203,6 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                 FindingDispositionConflictDetail conflict =
                     await LoadConflictDetailAsync(connection, transaction, racedPointer.CurrentEventId, cancellationToken);
 
-                await transaction.RollbackAsync(cancellationToken);
-
                 return BuildConflictResult(conflict);
             }
         }
@@ -185,8 +257,6 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                 FindingDispositionConflictDetail conflict =
                     await LoadConflictDetailAsync(connection, transaction, racedPointer.CurrentEventId, cancellationToken);
 
-                await transaction.RollbackAsync(cancellationToken);
-
                 return BuildConflictResult(conflict);
             }
 
@@ -210,8 +280,6 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                     transaction,
                     cancellationToken: cancellationToken));
         }
-
-        await transaction.CommitAsync(cancellationToken);
 
         return new FindingDispositionRecordResult
         {

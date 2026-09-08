@@ -27,8 +27,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
 
         using IReviewResultCachePinScope pinScope = _reviewResultCache.PinScope(continueManifest, contentManifest);
 
-        if (pinScope.IsPinned
-            && !effectiveRequest.PublishToProduct
+        if (!effectiveRequest.PublishToProduct
             && _reviewResultCache.TryGet(continueManifest, out ClosedLoopReasoningResult? cachedContinue)
             && cachedContinue is not null)
         {
@@ -151,7 +150,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         }
 
         if (!effectiveRequest.PublishToProduct
-            && (isReviewCacheHit || shared.PublishedToProduct))
+            && shared.PublishedToProduct)
             ClosedLoopCacheHitPublishGuard.ApplyAnalysisOnlyCoalescedIsolation(effectiveRequest, isolated);
 
         // Live coalesced leaders keep PublishBlocked; analysis followers are stripped in

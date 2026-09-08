@@ -10,6 +10,8 @@ import {
 
   ClipboardList,
 
+  Landmark,
+
   FilePlus,
 
   Gauge,
@@ -204,7 +206,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           title: "Tenants — provision net-new tenants and shut off or resume tenant surfaces",
 
-          icon: Building2,
+          icon: Landmark,
 
           tier: "advanced",
 

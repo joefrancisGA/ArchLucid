@@ -175,6 +175,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(IntegrationsItsmOptions.SectionName));
         services.Configure<IntegrationsItsmOutboundOptions>(
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.Configure<FindingVerificationOptions>(
+            configuration.GetSection(FindingVerificationOptions.SectionName));
         services.AddSingleton<ItsmNativeIntegrationGate>();
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));

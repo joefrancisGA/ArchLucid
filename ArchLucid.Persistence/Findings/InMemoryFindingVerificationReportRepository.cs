@@ -78,4 +78,27 @@ public sealed class InMemoryFindingVerificationReportRepository : IAppendOnlyFin
 
         return Task.FromResult<FindingVerificationReportRecord?>(record);
     }
+
+    public Task<FindingVerificationReportRecord?> TryGetLatestByPackagePairAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid sourceFindingsSnapshotId,
+        Guid? verificationFindingsSnapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        FindingVerificationReportRecord? latest = _reportsById.Values
+            .Where(record =>
+                record.TenantId == scope.TenantId
+                && record.WorkspaceId == scope.WorkspaceId
+                && record.ScopeProjectId == scope.ProjectId
+                && record.RunId == runId
+                && record.SourceFindingsSnapshotId == sourceFindingsSnapshotId
+                && record.VerificationFindingsSnapshotId == verificationFindingsSnapshotId)
+            .OrderByDescending(record => record.CreatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(latest);
+    }
 }

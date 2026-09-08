@@ -16,7 +16,10 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID =
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL = "Skip to infrastructure workbenches" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD =
-  "Open Azure inventory evidence workbenches for snapshots, diagrams, resource hubs, grounded Ask, and remediation instances." as const;
+  "Open Azure inventory evidence workbenches for snapshots, diagrams, diagram reconciliation, resource hubs, grounded Ask, and remediation instances." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO =
+  "Azure inventory evidence workbenches for snapshots, diagrams, diagram reconciliation, resource hubs, grounded Ask, and remediation instances. All six destinations are available from this hub." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE = "Start here" as const;
 

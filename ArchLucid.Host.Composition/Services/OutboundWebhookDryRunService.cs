@@ -14,7 +14,7 @@ namespace ArchLucid.Host.Composition.Services;
 /// </summary>
 public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutboundWebhookDryRunService
 {
-    private const int PreviewMaxChars = 8192;
+    internal const int PreviewMaxChars = 8192;
 
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
@@ -62,9 +62,8 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
             using HttpResponseMessage response =
                 await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-            string full = await response.Content.ReadAsStringAsync(cancellationToken);
-            bool truncated = full.Length > PreviewMaxChars;
-            string preview = truncated ? full[..PreviewMaxChars] : full;
+            (string preview, bool truncated) =
+                await ReadResponseBodyPreviewAsync(response.Content, cancellationToken).ConfigureAwait(false);
 
             return new OutboundWebhookDryRunResult
             {
@@ -82,6 +81,44 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
                 TransportSucceeded = false, StatusCode = 0, Error = $"{ex.GetType().Name}: {ex.Message}"
             };
         }
+    }
+
+    private static async Task<(string Preview, bool Truncated)> ReadResponseBodyPreviewAsync(
+        HttpContent content,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        await using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        using StreamReader reader = new(
+            stream,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: true,
+            bufferSize: 1024,
+            leaveOpen: false);
+
+        char[] buffer = new char[1024];
+        StringBuilder builder = new(capacity: PreviewMaxChars + 1);
+
+        while (builder.Length < PreviewMaxChars + 1)
+        {
+            int toRead = Math.Min(buffer.Length, PreviewMaxChars + 1 - builder.Length);
+
+            int read = await reader.ReadAsync(buffer.AsMemory(0, toRead), cancellationToken).ConfigureAwait(false);
+
+            if (read == 0)
+                break;
+
+            builder.Append(buffer, 0, read);
+        }
+
+        bool truncated = builder.Length > PreviewMaxChars;
+
+        string preview = truncated
+            ? builder.ToString(0, PreviewMaxChars)
+            : builder.ToString();
+
+        return (preview, truncated);
     }
 
     internal static byte[] BuildSyntheticFindingCreatedWebhookBodyUtf8()

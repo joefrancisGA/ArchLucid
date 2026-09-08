@@ -45,12 +45,12 @@ export function resolveReviewDetailTabLifecycleStage(
     return "committed";
   }
 
-  if (input.showProgressTracker) {
-    return "analysis-in-progress";
-  }
-
   if (input.runCompleted) {
     return "pre-commit-complete";
+  }
+
+  if (input.showProgressTracker) {
+    return "analysis-in-progress";
   }
 
   return "draft";

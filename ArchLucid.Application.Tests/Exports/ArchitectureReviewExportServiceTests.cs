@@ -80,13 +80,13 @@ public sealed class ArchitectureReviewExportServiceTests
                 authorityQuery,
                 manifestHashService,
                 Mock.Of<IGraphSnapshotRepository>(),
-                Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+                SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
                 analysis,
                 scopeContextProvider,
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
                 explanation,
                 tenantReviewBoardCoverLogoStore: null,
-                Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+                SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
                 new ArchitectureReviewDocxBuilder(),
                 new ArchitectureReviewPdfBuilder());
         Mock<IScopeContextProvider> scopeMock = new();
@@ -98,13 +98,13 @@ public sealed class ArchitectureReviewExportServiceTests
             authorityQuery,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             explanation,
             tenantReviewBoardCoverLogoStore: null,
-            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());
     }

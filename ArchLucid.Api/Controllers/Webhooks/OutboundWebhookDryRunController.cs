@@ -67,7 +67,7 @@ public sealed class OutboundWebhookDryRunController(
                     targetAuthority = body.TargetUrl.GetLeftPart(UriPartial.Authority),
                     path = body.TargetUrl.AbsolutePath,
                     scheme = body.TargetUrl.Scheme,
-                    hasSharedSecret = body.SharedSecret is { Length: > 0 },
+                    hasSharedSecret = !string.IsNullOrEmpty(body.SharedSecret?.Trim()),
                     transportSucceeded = outcome.TransportSucceeded,
                     statusCode = outcome.StatusCode,
                     reasonPhrase = outcome.ReasonPhrase,

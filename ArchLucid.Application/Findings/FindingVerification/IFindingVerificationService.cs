@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Findings.FindingVerification;
 
 public interface IFindingVerificationService
 {
-    Task<FindingVerificationReportResponse> CreateReportAsync(
+    Task<FindingVerificationCreateReportResult> CreateReportAsync(
         ScopeContext scope,
         Guid runId,
         CreateFindingVerificationReportRequest request,

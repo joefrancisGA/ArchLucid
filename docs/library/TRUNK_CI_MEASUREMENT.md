@@ -12,6 +12,15 @@
 Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord
 ```
 
+## Latest measurement — 2026-09-07 (private-beta wave 2, cloud agent VM)
+
+| Signal | Result | Notes |
+|--------|--------|-------|
+| Private-beta E2E wave 2 | **Shipped** | Expired/revoked/accepted invite recovery, Auditor invitee, missing-role `/403`, OIDC callback failure, session-expired Report Problem, first-review-guide deep-link, non-admin invite 403 |
+| SCIM invite-substitute smoke | **Wired on push** | `live-api-scim-invite-substitute-smoke.spec.ts` + vocabulary rail |
+| AuthBetaReadinessInviteCallout | **SCIM + SSO wizard + sign-in domains** | Complements Users tab, invite-reviewer, identity-providers |
+| E2E invitation expiry harness | **Shipped** | `POST /v1/e2e/invitations/set-expires` |
+
 ## Latest measurement — 2026-09-07 (private-beta full batch, cloud agent VM)
 
 | Signal | Result | Notes |

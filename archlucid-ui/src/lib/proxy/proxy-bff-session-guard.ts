@@ -13,6 +13,7 @@ import {
 } from "@/lib/proxy/bff-session-cookie";
 import { respondWithProxyProblem } from "@/lib/proxy/proxy-problem-response";
 import type { ForwardMethod } from "@/lib/proxy/proxy-forward-types";
+import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 
 function isMutatingProxyMethod(method: ForwardMethod): boolean {
   return method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE";
@@ -87,17 +88,26 @@ export function enforceProxyBffSessionGuard(
   request: NextRequest,
   method: ForwardMethod,
   correlationId: string,
+  proxyPath?: string,
 ): ProxyBffSessionGuardResult {
   if (!isBffSessionCookieEnabled()) {
     return { allowed: true, payload: null, slideCookieHeaders: [] };
   }
 
+  const skipPublicAnonymousMutationGuard =
+    proxyPath !== undefined &&
+    proxyPath.length > 0 &&
+    isPublicAnonymousProxyPath(proxyPath);
   const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
   const payload = cookieValue !== null ? parseBffSessionCookieValue(cookieValue) : null;
   const browserBearer = request.headers.get("authorization")?.trim() ?? "";
 
   if (payload === null) {
-    if (isMutatingProxyMethod(method) && browserBearer.length === 0) {
+    if (
+      isMutatingProxyMethod(method) &&
+      browserBearer.length === 0 &&
+      !skipPublicAnonymousMutationGuard
+    ) {
       return {
         allowed: false,
         response: blockedMutationResponse(
@@ -114,6 +124,14 @@ export function enforceProxyBffSessionGuard(
   }
 
   if (Date.now() >= payload.exp) {
+    if (skipPublicAnonymousMutationGuard) {
+      return {
+        allowed: true,
+        payload: null,
+        slideCookieHeaders: buildBffSessionClearCookieHeaders(),
+      };
+    }
+
     return {
       allowed: false,
       response: blockedMutationResponse(
@@ -127,6 +145,14 @@ export function enforceProxyBffSessionGuard(
   }
 
   if (isBffSessionIdleExpired(payload)) {
+    if (skipPublicAnonymousMutationGuard) {
+      return {
+        allowed: true,
+        payload: null,
+        slideCookieHeaders: buildBffSessionClearCookieHeaders(),
+      };
+    }
+
     return {
       allowed: false,
       response: blockedMutationResponse(
@@ -139,7 +165,7 @@ export function enforceProxyBffSessionGuard(
     };
   }
 
-  if (isMutatingProxyMethod(method)) {
+  if (isMutatingProxyMethod(method) && !skipPublicAnonymousMutationGuard) {
     if (!isSameOriginProxyRequest(request)) {
       return {
         allowed: false,

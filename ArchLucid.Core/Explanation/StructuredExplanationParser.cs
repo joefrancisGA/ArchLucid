@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+
+using ArchLucid.Core.Json;
 
 namespace ArchLucid.Core.Explanation;
 
@@ -8,17 +9,8 @@ namespace ArchLucid.Core.Explanation;
 ///     Parses LLM output into <see cref="StructuredExplanation" />; never throws. Non-JSON or invalid payloads become a
 ///     fallback envelope.
 /// </summary>
-public static class StructuredExplanationParser
+public static partial class StructuredExplanationParser
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     /// <summary>
     ///     Returns <see langword="true" /> when <paramref name="rawText" /> is JSON that deserializes to a non-empty
     ///     <c>reasoning</c> field.
@@ -34,13 +26,52 @@ public static class StructuredExplanationParser
 
         try
         {
-            StructuredExplanationDto? dto =
-                JsonSerializer.Deserialize<StructuredExplanationDto>(rawText.Trim(), Options);
+            using JsonDocument document = JsonDocument.Parse(rawText.Trim());
+            JsonElement root = document.RootElement;
 
-            if (dto is null || string.IsNullOrWhiteSpace(dto.Reasoning))
+            if (root.ValueKind != JsonValueKind.Object)
                 return false;
 
-            structured = MapFromDto(dto);
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "reasoning", out JsonElement reasoningElement)
+                || reasoningElement.ValueKind != JsonValueKind.String)
+            {
+                return false;
+            }
+
+            string? reasoning = reasoningElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(reasoning))
+                return false;
+
+            int schemaVersion = 1;
+
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement schemaElement)
+                && StrictSchemaVersionReader.TryReadSchemaVersion(schemaElement, out int parsedSchemaVersion)
+                && parsedSchemaVersion > 0)
+            {
+                schemaVersion = parsedSchemaVersion;
+            }
+
+            decimal? confidence = null;
+
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
+            {
+                double? finiteConfidence = RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
+
+                if (finiteConfidence is { } numericConfidence)
+                    confidence = ClampConfidence((decimal)numericConfidence);
+            }
+
+            structured = new StructuredExplanation
+            {
+                SchemaVersion = schemaVersion,
+                Reasoning = reasoning.Trim(),
+                EvidenceRefs = TryReadStringList(root, "evidenceRefs") ?? [],
+                Confidence = confidence,
+                AlternativesConsidered = TryReadStringList(root, "alternativesConsidered"),
+                Caveats = TryReadStringList(root, "caveats"),
+            };
+
             return true;
         }
         catch (JsonException)
@@ -87,60 +118,5 @@ public static class StructuredExplanationParser
             return v / 100m;
 
         return v;
-    }
-
-    private static StructuredExplanation MapFromDto(StructuredExplanationDto dto)
-    {
-        int version = dto.SchemaVersion <= 0 ? 1 : dto.SchemaVersion;
-
-        return new StructuredExplanation
-        {
-            SchemaVersion = version,
-            Reasoning = dto.Reasoning!.Trim(),
-            EvidenceRefs = dto.EvidenceRefs ?? [],
-            Confidence = ClampConfidence(dto.Confidence),
-            AlternativesConsidered = dto.AlternativesConsidered,
-            Caveats = dto.Caveats
-        };
-    }
-
-    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private sealed class StructuredExplanationDto
-    {
-        public int SchemaVersion
-        {
-            get;
-            init;
-        } = 1;
-
-        public string? Reasoning
-        {
-            get;
-            init;
-        }
-
-        public List<string>? EvidenceRefs
-        {
-            get;
-            init;
-        }
-
-        public decimal? Confidence
-        {
-            get;
-            init;
-        }
-
-        public List<string>? AlternativesConsidered
-        {
-            get;
-            init;
-        }
-
-        public List<string>? Caveats
-        {
-            get;
-            init;
-        }
     }
 }

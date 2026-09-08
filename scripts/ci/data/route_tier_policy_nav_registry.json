@@ -1382,6 +1382,16 @@
       "nav_operator_href": "/governance/findings"
     },
     {
+      "controller_file": "Findings/FindingVerificationController.cs",
+      "class_name": "FindingVerificationController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Findings/InsightDensityNoveltyRatesController.cs",
       "class_name": "InsightDensityNoveltyRatesController",
       "route_template": "v{version:apiVersion}/tenants/current/insight-density",

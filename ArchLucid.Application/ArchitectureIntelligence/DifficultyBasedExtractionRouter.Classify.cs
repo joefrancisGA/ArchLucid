@@ -70,6 +70,12 @@ public sealed partial class DifficultyBasedExtractionRouter
             return false;
         }
 
+        // Human-review signals must outrank superficial structured markers (JSON/YAML/tables).
+        if (LooksStructured(sourceText))
+        {
+            return true;
+        }
+
         bool lowClarity = sourceText.Length < 200
             || !sourceText.Contains(':', StringComparison.Ordinal);
 
