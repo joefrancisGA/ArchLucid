@@ -146,6 +146,71 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
             cancellationToken);
     }
 
+    public async Task<FindingVerificationReportRecord?> TryGetLatestByPackagePairAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid sourceFindingsSnapshotId,
+        Guid? verificationFindingsSnapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string reportSql = """
+                                 SELECT TOP (1)
+                                     ReportId,
+                                     TenantId,
+                                     WorkspaceId,
+                                     ScopeProjectId,
+                                     RunId,
+                                     SourceManifestHash,
+                                     SourceFindingsSnapshotId,
+                                     VerificationFindingsSnapshotId,
+                                     ReportHash,
+                                     TriggeredByUserId,
+                                     CreatedUtc
+                                 FROM dbo.FindingVerificationReports
+                                 WHERE TenantId = @TenantId
+                                   AND WorkspaceId = @WorkspaceId
+                                   AND ScopeProjectId = @ScopeProjectId
+                                   AND RunId = @RunId
+                                   AND SourceFindingsSnapshotId = @SourceFindingsSnapshotId
+                                   AND (
+                                       (@VerificationFindingsSnapshotId IS NULL AND VerificationFindingsSnapshotId IS NULL)
+                                       OR VerificationFindingsSnapshotId = @VerificationFindingsSnapshotId)
+                                 ORDER BY CreatedUtc DESC;
+                                 """;
+
+        FindingVerificationReportSqlRow? header = await connection.QuerySingleOrDefaultAsync<FindingVerificationReportSqlRow>(
+            new CommandDefinition(
+                reportSql,
+                new
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    RunId = runId,
+                    SourceFindingsSnapshotId = sourceFindingsSnapshotId,
+                    VerificationFindingsSnapshotId = verificationFindingsSnapshotId,
+                },
+                cancellationToken: cancellationToken));
+
+        if (header is null)
+        {
+            return null;
+        }
+
+        return await GetByIdInternalAsync(
+            connection,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            header.ReportId,
+            cancellationToken);
+    }
+
     private static async Task<FindingVerificationReportRecord?> GetByIdInternalAsync(
         SqlConnection connection,
         Guid tenantId,

@@ -100,15 +100,21 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             {
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
-                await using IAsyncDisposable renewalScope =
-                    _runExecuteOwnershipLeaseService.BeginRenewalScope(runGuid, cancellationToken);
+                using CancellationTokenSource executeCancellation =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+                IAsyncDisposable renewalScope = _runExecuteOwnershipLeaseService.BeginRenewalScope(
+                    runGuid,
+                    executeCancellation);
 
                 try
                 {
-                    return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteRunCoreAsync(runId, actor, executeCancellation.Token).ConfigureAwait(false);
                 }
                 finally
                 {
+                    await renewalScope.DisposeAsync().ConfigureAwait(false);
+
                     await _runExecuteOwnershipLeaseService
                         .ReleaseAsync(runGuid, CancellationToken.None)
                         .ConfigureAwait(false);

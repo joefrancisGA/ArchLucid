@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatResourceHubWorkbenchPrimaryHubLabel,
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
@@ -60,5 +61,20 @@ describe("infra-evidence-workbench-hub-scope", () => {
       auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
       controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
     });
+  });
+
+  it("treats partial audit URL params as stale", () => {
+    expect(
+      hasStaleInfraEvidenceAuditUrlParams(
+        new URLSearchParams("assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+      ),
+    ).toBe(true);
+    expect(
+      hasStaleInfraEvidenceAuditUrlParams(
+        new URLSearchParams(
+          "assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+        ),
+      ),
+    ).toBe(false);
   });
 });

@@ -4,6 +4,8 @@ import {
 
   Bell,
 
+  BrainCircuit,
+
   Building2,
 
   Cpu,
@@ -26,6 +28,8 @@ import {
 
   ShieldCheck,
 
+  Upload,
+
   UserPlus,
 
   Users,
@@ -35,6 +39,7 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
 import { SETTINGS_NOTIFICATIONS_PATH, SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
@@ -55,7 +60,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
       surface: "platform-admin",
 
-      caption: "Settings, billing, users, connector health, and support.",
+      caption: "Settings, billing, users, inventory upload, connector health, and support.",
 
       links: [
 
@@ -90,6 +95,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           tier: "extended",
 
           requiredAuthority: "ReadAuthority",
+
+        },
+
+        {
+
+          href: EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
+
+          label: OPERATOR_NAV_LINK_LABELS.extractUpload,
+
+          title: "Extract & upload — run the local inventory script and upload a ZIP",
+
+          icon: Upload,
+
+          tier: "extended",
+
+          requiredAuthority: "ExecuteAuthority",
 
         },
 
@@ -232,7 +253,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           title: "AI models — workspace execution profile, allowed models, and task-to-model mappings",
 
-          icon: ShieldCheck,
+          icon: BrainCircuit,
 
           tier: "extended",
 

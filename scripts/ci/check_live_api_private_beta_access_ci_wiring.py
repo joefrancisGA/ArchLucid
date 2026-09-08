@@ -11,6 +11,7 @@ from pathlib import Path
 _CI_REL = ".github/workflows/ci.yml"
 _PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
 _SPEC = "live-api-private-beta-access.spec.ts"
+_WAVE3_SPEC = "live-api-private-beta-wave-3.spec.ts"
 _INVITE_FLOW_SPEC = "live-api-invite-flow.spec.ts"
 _CLIENT_REL = "archlucid-ui/e2e/helpers/live-api-client.ts"
 _PRIVATE_BETA_TIMEOUT_FN = "liveE2ePrivateBetaAccessPlaywrightTimeoutMs"
@@ -314,6 +315,14 @@ def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors:
         )
 
 
+def _require_invite_flow_jwt_priming_wiring(invite_flow_text: str, errors: list[str]) -> None:
+    if "primePrivateBetaBrowserSessionIfJwtMode" not in invite_flow_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_INVITE_FLOW_SPEC}: must call primePrivateBetaBrowserSessionIfJwtMode "
+            "before /administration/users (JwtBearer CI requires session priming)",
+        )
+
+
 def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
     path = repo_root() / _SANDBOX_MOCKS_REL
 
@@ -344,6 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     errors: list[str] = []
 
     helper_path = root / _PRIVATE_BETA_HELPER_REL
+    invite_flow_path = root / "archlucid-ui" / "e2e" / _INVITE_FLOW_SPEC
 
     if not spec_path.is_file():
         errors.append(f"missing private-beta access spec: archlucid-ui/e2e/{_SPEC}")
@@ -358,6 +368,12 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
         _require_private_beta_create_run_wiring(spec_text, client_text, errors)
         _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
+
+    if invite_flow_path.is_file():
+        invite_flow_text = invite_flow_path.read_text(encoding="utf-8", errors="replace")
+        _require_invite_flow_jwt_priming_wiring(invite_flow_text, errors)
+    else:
+        errors.append(f"missing private-beta invite-flow spec: archlucid-ui/e2e/{_INVITE_FLOW_SPEC}")
 
     if not ci_path.is_file():
         errors.append(f"missing {_CI_REL}")
@@ -414,6 +430,12 @@ def main(argv: list[str] | None = None) -> int:
             errors.append(
                 f"{_PUSH_REL}: must run {_INVITE_FLOW_SPEC} on trunk push "
                 "(admin invite round-trip guards private-beta invite surfaces)",
+            )
+
+        if _WAVE3_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_WAVE3_SPEC} on trunk push "
+                "(diagnostics, sign-in recovery, deep-link returnUrl, duplicate-invite idempotency)",
             )
 
     retrigger_path = root / _RETRIGGER_SCRIPT

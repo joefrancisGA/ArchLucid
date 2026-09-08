@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   howProductWorksHelpSourceLink,
+  localizeHelpCenterDisplay,
   localizeHelpSearchPanelTopic,
   newToProductHelpCollapsedSummary,
 } from "@/lib/help/help-product-copy";
@@ -38,5 +39,20 @@ describe("help-product-copy", () => {
     expect(localized.title).toBe("How SecureNow works");
     expect(localized.description).toContain("SecureNow");
     expect(localized.description).not.toContain("ArchLucid");
+  });
+
+  it("shortens Microsoft Teams in SecureNow help center titles", () => {
+    expect(
+      localizeHelpCenterDisplay(
+        {
+          title: "Microsoft Teams notifications",
+          summary: "Configure Microsoft Teams channel destinations for alert delivery.",
+        },
+        "security",
+      ),
+    ).toEqual({
+      title: "Teams notifications",
+      summary: "Configure Teams channel destinations for alert delivery.",
+    });
   });
 });

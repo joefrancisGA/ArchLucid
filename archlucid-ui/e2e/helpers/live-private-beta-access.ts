@@ -117,6 +117,38 @@ export async function primeJwtBrowserSession(page: Page, accessToken: string): P
   );
 }
 
+export type PrimePrivateBetaBrowserPageOptions = {
+  /** When true (default), stub draft inventory before navigation. */
+  readonly stubDraftList?: boolean;
+};
+
+/** JwtBearer session priming plus the default private-beta page defaults (draft-list stub). */
+export async function primePrivateBetaBrowserPage(
+  page: Page,
+  accessToken: string,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (options?.stubDraftList !== false) {
+    await stubEmptyArchitectureDraftListRoute(page);
+  }
+
+  await primeJwtBrowserSession(page, accessToken);
+}
+
+/** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
+export async function primePrivateBetaBrowserSessionIfJwtMode(
+  page: Page,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (!resolveLiveJwtMode()) {
+    return;
+  }
+
+  const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+  await primePrivateBetaBrowserPage(page, accessToken, options);
+}
+
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
@@ -432,6 +464,55 @@ export async function revokeAdminUserInvite(
   }
 }
 
+/** E2E harness — force invitation expiry for expired-invite recovery UI smoke (TB-797 wave 2). */
+export async function expireAdminUserInvitation(
+  request: APIRequestContext,
+  invitationId: string,
+  expiresUtc: Date = new Date(Date.now() - 60_000),
+): Promise<void> {
+  const trimmedId = invitationId.trim();
+
+  if (trimmedId.length === 0) {
+    throw new Error("expireAdminUserInvitation requires a non-empty invitation id.");
+  }
+
+  const res = await request.post(`${liveApiBase}/v1/e2e/invitations/set-expires`, {
+    headers: liveE2eHarnessHeaders(),
+    data: {
+      invitationId: trimmedId,
+      expiresUtc: expiresUtc.toISOString(),
+    },
+  });
+
+  if (res.status() !== 204) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/e2e/invitations/set-expires failed ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
+/** Non-admin principals must not create invitations (TB-797 wave 2). */
+export async function assertNonAdminCannotInvite(
+  request: APIRequestContext,
+  bearerAccessToken: string,
+  email: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/v1/admin/users/invite`, {
+    headers: liveJsonHeaders(null, bearerAccessToken),
+    data: { email, appRole: "Reader", message: "TB-797 non-admin invite probe" },
+  });
+
+  if (res.status() !== 403) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/admin/users/invite as non-admin expected 403, got ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {
   const res = await request.get(`${liveApiBase}/v1/admin/users/invitations`, {
     headers: liveJsonHeaders(),
@@ -514,4 +595,83 @@ export async function assertJwtScopeBindingRejectsForgedTenantHeader(
       `TB-925 scope binding: expected GET /v1/admin/users/invitations with forged x-tenant-id → 403, got ${invitationsRes.status()}: ${body.slice(0, 400)}`,
     );
   }
+}
+
+export type LiveScimAdminToken = {
+  id: string;
+  plaintextToken: string;
+};
+
+/** Mints a SCIM provisioning token for directory-user seeding in live E2E. */
+export async function createScimAdminToken(request: APIRequestContext): Promise<LiveScimAdminToken> {
+  const res = await request.post(`${liveApiBase}/v1/admin/scim/tokens`, {
+    headers: liveJsonHeaders(),
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  const created = (await res.json()) as { id?: string; plaintextToken?: string };
+
+  if (!created.id || !created.plaintextToken) {
+    throw new Error("SCIM token response missing id or plaintextToken.");
+  }
+
+  return { id: created.id, plaintextToken: created.plaintextToken };
+}
+
+/** Provisions a directory user via SCIM so invite-to-existing-email returns 409. */
+export async function provisionScimDirectoryUser(
+  request: APIRequestContext,
+  email: string,
+  scimBearerToken: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/scim/v2/Users`, {
+    headers: {
+      Authorization: `Bearer ${scimBearerToken}`,
+      "Content-Type": "application/scim+json",
+      Accept: "application/scim+json",
+    },
+    data: {
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+      userName: email,
+      active: true,
+    },
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /scim/v2/Users failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+}
+
+async function openInviteForm(page: import("@playwright/test").Page): Promise<void> {
+  const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
+  const inviteSection = page.getByTestId("settings-roles-invite-section");
+
+  if (await invitePrimaryRegion.isVisible().catch(() => false)) {
+    await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else {
+    await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
+    await inviteSection.locator("summary").click();
+  }
+
+  await page.getByTestId("settings-roles-invite-form").waitFor({ state: "visible", timeout: 60_000 });
+}
+
+/** Submits an admin invite from the Users settings UI. */
+export async function submitAdminInviteFromUsersUi(
+  page: import("@playwright/test").Page,
+  email: string,
+  roleLabel: string = "Reader",
+): Promise<void> {
+  await openInviteForm(page);
+  await page.getByTestId("settings-roles-invite-email").fill(email);
+  await page.getByTestId("settings-roles-invite-role").click();
+  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+  await page.getByTestId("settings-roles-invite-submit").click();
 }

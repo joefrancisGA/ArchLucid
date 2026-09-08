@@ -125,20 +125,6 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     );
   });
 
-  it("WS-12: with open draft and reviews, continue architecture is primary and Start review is absent", () => {
-    useArchitectureIdentityQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: identityFixture,
-      refetch: vi.fn(),
-    });
-
-    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
-
-    expect(screen.getByTestId("architecture-identity-continue-architecture")).toBeInTheDocument();
-    expect(screen.queryByTestId("architecture-identity-start-review")).not.toBeInTheDocument();
-  });
-
   it("WS-19: shows open questions from the current drafting draft on the desk", () => {
     useArchitectureIdentityQueryMock.mockReturnValue({
       isLoading: false,
@@ -153,6 +139,20 @@ describe("ArchitectureIdentityDesk (DA-04 / AO-20 Working fixture)", () => {
     expect(screen.getByTestId("architecture-identity-open-questions-body")).toHaveTextContent(
       "Who owns quarterly access reviews?",
     );
+  });
+
+  it("WS-12: with open draft and reviews, continue architecture is primary and Start review is absent", () => {
+    useArchitectureIdentityQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: identityFixture,
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureIdentityDesk architectureId={architectureId} />);
+
+    expect(screen.getByTestId("architecture-identity-continue-architecture")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-identity-start-review")).not.toBeInTheDocument();
   });
 
   it("shows spawn-locked handoff controls instead of continue draft", () => {

@@ -6,7 +6,7 @@ let searchParams = new URLSearchParams(
 );
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   usePathname: () => "/governance/infrastructure/drift",
   useSearchParams: () => searchParams,
 }));

@@ -668,9 +668,8 @@ describe("useArchitectureDraftAutosave", () => {
 
     await waitFor(() => {
       expect(onNewDraftRecoveryHydrated).toHaveBeenCalledTimes(1);
+      expect(result.current.recoveredLocally).toBe(true);
     });
-
-    expect(result.current.recoveredLocally).toBe(true);
 
     await waitFor(() => {
       expect(createDraftRequest).toHaveBeenCalledTimes(1);
@@ -678,6 +677,9 @@ describe("useArchitectureDraftAutosave", () => {
 
     expect(clearArchitectureNewDraftRecovery).toHaveBeenCalledTimes(1);
     expect(result.current.hasPersistedDraft).toBe(true);
-    expect(result.current.recoveredLocally).toBe(false);
+
+    await waitFor(() => {
+      expect(result.current.recoveredLocally).toBe(false);
+    });
   });
 });

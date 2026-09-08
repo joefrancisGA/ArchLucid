@@ -55,7 +55,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
         {
             using JsonDocument document = JsonDocument.Parse(json);
 
-            if (!TryReadSupportedSchemaVersion(document.RootElement, out _))
+            if (!TryReadSupportedSchemaVersion(document.RootElement, out int schemaVersion))
                 return null;
 
             if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(
@@ -74,7 +74,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
 
             return new AgentExecutionFailureSummary
             {
-                SchemaVersion = SupportedSchemaVersion,
+                SchemaVersion = schemaVersion,
                 FailureClass = failureClass,
             };
         }
@@ -107,6 +107,6 @@ public static class RunAuthorityPipelineDeadLetterDetection
             return false;
         }
 
-        return schemaVersion == SupportedSchemaVersion;
+        return schemaVersion >= SupportedSchemaVersion;
     }
 }

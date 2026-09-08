@@ -1,11 +1,18 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Findings.FindingVerification;
 
@@ -13,7 +20,14 @@ public sealed class FindingVerificationService(
     IAuthorityQueryService authorityQueryService,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IAppendOnlyFindingVerificationReportRepository verificationReportRepository,
-    IAuditService auditService) : IFindingVerificationService
+    ICrossReviewFindingCorrelationService correlationService,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IFindingVerificationScorer findingVerificationScorer,
+    IAuditService auditService,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    ILogger<FindingVerificationService> logger) : IFindingVerificationService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -24,10 +38,31 @@ public sealed class FindingVerificationService(
     private readonly IAppendOnlyFindingVerificationReportRepository _verificationReportRepository =
         verificationReportRepository ?? throw new ArgumentNullException(nameof(verificationReportRepository));
 
+    private readonly ICrossReviewFindingCorrelationService _correlationService =
+        correlationService ?? throw new ArgumentNullException(nameof(correlationService));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IFindingVerificationScorer _findingVerificationScorer =
+        findingVerificationScorer ?? throw new ArgumentNullException(nameof(findingVerificationScorer));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    public async Task<FindingVerificationReportResponse> CreateReportAsync(
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
+        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+
+    private readonly IIntegrationEventPublisher _integrationEventPublisher =
+        integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
+
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
+        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+
+    private readonly ILogger<FindingVerificationService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    public async Task<FindingVerificationCreateReportResult> CreateReportAsync(
         ScopeContext scope,
         Guid runId,
         CreateFindingVerificationReportRequest request,
@@ -53,6 +88,24 @@ public sealed class FindingVerificationService(
         }
 
         FindingsSnapshot sourceSnapshot = detail.FindingsSnapshot;
+
+        FindingVerificationReportRecord? existingReport =
+            await _verificationReportRepository.TryGetLatestByPackagePairAsync(
+                scope,
+                runId,
+                sourceSnapshot.FindingsSnapshotId,
+                request.VerificationFindingsSnapshotId,
+                cancellationToken);
+
+        if (existingReport is not null)
+        {
+            return new FindingVerificationCreateReportResult
+            {
+                Response = MapResponse(existingReport),
+                CreatedNewReport = false,
+            };
+        }
+
         FindingsSnapshot? verificationSnapshot = null;
 
         if (request.VerificationFindingsSnapshotId is Guid verificationSnapshotId)
@@ -69,14 +122,23 @@ public sealed class FindingVerificationService(
         }
 
         IReadOnlyList<Finding> findings = CollectPackageFindings(sourceSnapshot);
+        CrossReviewFindingCorrelationResult correlation = BuildCorrelation(sourceSnapshot, verificationSnapshot);
+        IReadOnlyDictionary<string, FindingDisposition> dispositions =
+            await LoadDispositionsAsync(scope, correlation.UnmatchedLeftFindingIds, cancellationToken);
+
+        FindingVerificationScoringContext scoringContext = new()
+        {
+            VerificationFindingsSnapshotId = request.VerificationFindingsSnapshotId,
+            VerificationSnapshot = verificationSnapshot,
+            Correlation = correlation,
+            Dispositions = dispositions,
+        };
 
         List<FindingVerificationResultAppend> resultAppends = findings
             .Select(finding =>
             {
-                (FindingVerificationStatus status, string traceText) = FindingVerificationSlice1Scorer.Score(
-                    finding,
-                    request.VerificationFindingsSnapshotId,
-                    verificationSnapshot);
+                (FindingVerificationStatus status, string traceText) =
+                    _findingVerificationScorer.Score(finding, scoringContext);
 
                 return new FindingVerificationResultAppend
                 {
@@ -130,7 +192,58 @@ public sealed class FindingVerificationService(
             },
             cancellationToken);
 
-        return MapResponse(record);
+        await FindingVerificationIntegrationEventPublishing.TryPublishCompletedAsync(
+            _integrationEventOutbox,
+            _integrationEventPublisher,
+            _integrationEventsOptions,
+            _logger,
+            scope,
+            record,
+            cancellationToken);
+
+        return new FindingVerificationCreateReportResult
+        {
+            Response = MapResponse(record),
+            CreatedNewReport = true,
+        };
+    }
+
+    private CrossReviewFindingCorrelationResult BuildCorrelation(
+        FindingsSnapshot sourceSnapshot,
+        FindingsSnapshot? verificationSnapshot)
+    {
+        if (verificationSnapshot is null)
+        {
+            return new CrossReviewFindingCorrelationResult();
+        }
+
+        IReadOnlyList<ArchitectureFinding> sourceFindings =
+            FindingVerificationFindingProjection.ProjectSnapshotFindings(sourceSnapshot);
+
+        IReadOnlyList<ArchitectureFinding> verificationFindings =
+            FindingVerificationFindingProjection.ProjectSnapshotFindings(verificationSnapshot);
+
+        return _correlationService.Correlate(sourceFindings, verificationFindings);
+    }
+
+    private async Task<IReadOnlyDictionary<string, FindingDisposition>> LoadDispositionsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> findingIds,
+        CancellationToken cancellationToken)
+    {
+        if (findingIds.Count == 0)
+        {
+            return new Dictionary<string, FindingDisposition>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        IReadOnlyList<FindingReviewEventRecord> reviewEvents =
+            await _findingReviewTrailRepository.ListForFindingIdsSinceUtcAsync(
+                scope.TenantId,
+                findingIds,
+                DateTimeOffset.MinValue,
+                cancellationToken);
+
+        return CrossReviewLatestDispositionMap.Build(reviewEvents);
     }
 
     private static IReadOnlyList<Finding> CollectPackageFindings(FindingsSnapshot snapshot)

@@ -60,7 +60,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => audit.Object);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
-        RegisterSealedManifestGuardServices(services, runId);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -115,7 +115,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        RegisterSealedManifestGuardServices(services, runId);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -166,7 +166,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        RegisterSealedManifestGuardServices(services, runId);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -225,7 +225,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        RegisterSealedManifestGuardServices(services, runId);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         RunExportBlobPushOutboxProcessor sut = new(
@@ -241,33 +241,4 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         stopped[0].GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
     }
 
-    private static void RegisterSealedManifestGuardServices(ServiceCollection services, Guid runId)
-    {
-        ManifestDocument goldenManifest = new()
-        {
-            ManifestId = Guid.NewGuid(),
-            RunId = runId,
-            ManifestHash = "sealed-outbox-test-hash",
-        };
-
-        Mock<IAuthorityQueryService> authority = new();
-        authority
-            .Setup(query => query.GetRunDetailForManifestCompareAsync(
-                It.IsAny<ScopeContext>(),
-                runId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
-            {
-                Run = new RunRecord { RunId = runId },
-                GoldenManifest = goldenManifest,
-            });
-
-        Mock<IManifestHashService> manifestHash = new();
-        manifestHash
-            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns(goldenManifest.ManifestHash!);
-
-        services.AddScoped(_ => authority.Object);
-        services.AddScoped(_ => manifestHash.Object);
-    }
 }
