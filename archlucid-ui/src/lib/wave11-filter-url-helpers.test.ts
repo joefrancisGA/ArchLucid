@@ -5338,6 +5338,96 @@ describe("wave67 filter url helpers", () => {
   });
 });
 
+describe("wave68 filter url helpers", () => {
+  it("finding inspect evidence citation, alerts inbox triage overflow, ask assistant more sources, scope switcher technical details, sponsor workspace health session scope, advisory sample disposition, architecture created overflow, citation chips technical citation, architecture diagram version history, report problem details params", async () => {
+    const {
+      findingInspectEvidenceCitationDisclosureHrefFromSearch,
+      parseFindingInspectEvidenceCitationArtifactIdFromSearch,
+    } = await import("@/lib/findings/finding-inspect-evidence-citation-disclosure-url");
+    const {
+      alertsInboxTriageOverflowDisclosureHrefFromSearch,
+      parseAlertsInboxTriageOverflowAlertIdFromSearch,
+    } = await import("@/lib/alerts/alerts-inbox-triage-overflow-disclosure-url");
+    const {
+      askAssistantMoreSourcesDisclosureHrefFromSearch,
+      parseAskAssistantMoreSourcesOpenFromSearch,
+    } = await import("@/lib/insights/ask-assistant-more-sources-disclosure-url");
+    const {
+      parseScopeSwitcherTechnicalDetailsOpenFromSearch,
+      scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/scope-switcher-technical-details-disclosure-url");
+    const {
+      parseSponsorWorkspaceHealthSessionScopeOpenFromSearch,
+      sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/sponsor-workspace-health-session-scope-disclosure-url");
+    const {
+      advisorySampleDispositionDisclosureHrefFromSearch,
+      parseAdvisorySampleDispositionOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-sample-disposition-disclosure-url");
+    const {
+      architectureCreatedOverflowDisclosureHrefFromSearch,
+      parseArchitectureCreatedOverflowOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-overflow-disclosure-url");
+    const {
+      citationChipsTechnicalCitationDisclosureHrefFromSearch,
+      parseCitationChipsTechnicalCitationKeyFromSearch,
+    } = await import("@/lib/explanation/citation-chips-technical-citation-disclosure-url");
+    const {
+      architectureDiagramVersionHistoryDisclosureHrefFromSearch,
+      parseArchitectureDiagramVersionHistoryOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-diagram-version-history-disclosure-url");
+    const {
+      parseReportProblemDetailsOpenFromSearch,
+      reportProblemDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/support/report-problem-details-disclosure-url");
+
+    expect(parseFindingInspectEvidenceCitationArtifactIdFromSearch("artifact-1")).toBe("artifact-1");
+    expect(
+      findingInspectEvidenceCitationDisclosureHrefFromSearch(
+        "",
+        "artifact-1",
+        "/architecture/reviews/run-1/findings/f-1",
+      ),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectEvidenceCitationArtifactId=artifact-1");
+    expect(parseAlertsInboxTriageOverflowAlertIdFromSearch("alert-1")).toBe("alert-1");
+    expect(alertsInboxTriageOverflowDisclosureHrefFromSearch("tab=open", "alert-1", "/governance/alerts")).toBe(
+      "/governance/alerts?tab=open&alertsInboxTriageOverflowAlertId=alert-1",
+    );
+    expect(parseAskAssistantMoreSourcesOpenFromSearch("1")).toBe(true);
+    expect(askAssistantMoreSourcesDisclosureHrefFromSearch("", true, "/insights/ask")).toBe(
+      "/insights/ask?askAssistantMoreSourcesOpen=1",
+    );
+    expect(parseScopeSwitcherTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch("runId=demo", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runId=demo&scopeSwitcherTechnicalDetailsOpen=1",
+    );
+    expect(parseSponsorWorkspaceHealthSessionScopeOpenFromSearch("1")).toBe(true);
+    expect(
+      sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch("", true, "/governance/sponsor-workspace-health"),
+    ).toBe("/governance/sponsor-workspace-health?sponsorWorkspaceHealthSessionScopeOpen=1");
+    expect(parseAdvisorySampleDispositionOpenFromSearch("true")).toBe(true);
+    expect(advisorySampleDispositionDisclosureHrefFromSearch("tab=scans", true, "/advisory/scans")).toBe(
+      "/advisory/scans?tab=scans&advisorySampleDispositionOpen=1",
+    );
+    expect(parseArchitectureCreatedOverflowOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedOverflowDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1/created"),
+    ).toBe("/architecture/reviews/run-1/created?tab=overview&architectureCreatedOverflowOpen=1");
+    expect(parseCitationChipsTechnicalCitationKeyFromSearch("citation-key-1")).toBe("citation-key-1");
+    expect(
+      citationChipsTechnicalCitationDisclosureHrefFromSearch("", "citation-key-1", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?citationChipsTechnicalCitationKey=citation-key-1");
+    expect(parseArchitectureDiagramVersionHistoryOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDiagramVersionHistoryDisclosureHrefFromSearch("tab=diagram", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=diagram&architectureDiagramVersionHistoryOpen=1");
+    expect(parseReportProblemDetailsOpenFromSearch("1")).toBe(true);
+    expect(reportProblemDetailsDisclosureHrefFromSearch("", true, "/support/report-problem")).toBe(
+      "/support/report-problem?reportProblemDetailsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
