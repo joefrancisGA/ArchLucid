@@ -1516,3 +1516,4 @@
 {"at":"2026-09-08T17:00:15.5994688Z","zoneId":"agent-runtime-safety","outcome":"hit"}
 {"at":"2026-09-08T17:09:16.3217845Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-09-08T17:22:40.4327919Z","zoneId":"extraction-router","outcome":"hit"}
+{"at":"2026-09-08T17:30:38.0486034Z","zoneId":"agent-runtime-safety","outcome":"seed-only"}

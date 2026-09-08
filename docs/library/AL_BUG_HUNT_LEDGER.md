@@ -1861,7 +1861,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -1899,6 +1899,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ContextLengthGuardAgentCompletionClient` token truncation used `TokenAwareContextBudget.TruncateToTokenBudget` without `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — **hit 2026-09-08 thorough hunt #1308:** oversized topology user prompts truncated inside the architecture quarantine without `CUSTOMER_CONTENT_END`, leaving trusted task framing inside customer DATA; fixed via `TruncateUserPromptPreservingCustomerContentBounds`; regression in `CompleteJsonAsync_truncation_preserves_customer_content_end_marker_in_topology_prompt`
 
 2026-09-08 thorough hunt #1308 (hit): proved context-length guard TB-949 truncation parity gap seeded in #1337; 129 scoped agent-runtime-safety unit tests passed.
+
+- [x] (invalid) `PolicyEvidence.Tags` / `PolicyId` sanitizer parity — **cheap-disproof 2026-09-08 seed hunt #1340:** `AgentUserPromptBuilder` renders policy `Title`, `Summary`, and `RequiredControls` only; `Tags` and `PolicyId` never reach agent user prompts; regression `TopologyUserPrompt_does_not_render_policy_tags_or_prior_manifest_inventory_lists`
+- [x] (invalid) `PriorManifestEvidence.ExistingServices` / `ExistingDatastores` / `ExistingRequiredControls` sanitizer parity — **cheap-disproof 2026-09-08 seed hunt #1340:** same builder renders only prior `Version` and `Summary`; inventory lists are markdown-export-only; regression `TopologyUserPrompt_does_not_render_policy_tags_or_prior_manifest_inventory_lists`
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` drops `CUSTOMER_CONTENT_END` when truncating multi-section topology user prompts — **cheap-disproof 2026-09-08 seed hunt #1340:** architecture + task quarantine sections keep the last open section closed under char budget; regression `TruncatePreservingSectionBounds_closes_last_open_section_in_multi_quarantine_prompt`
+- [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard` fail-open on inner throw skips deny-list scrub while circuit-open fail-open scrubs — **cheap-disproof 2026-09-08 seed hunt #1340 / reconfirmed:** pre-threshold inner throw returns allow without `RedactAlways`; production `AzureContentSafetyGuard` maps SDK failures via `HandleSdkFailure` rather than throwing; regression `When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold`
+
+- [ ] (candidate) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — surfaced in `AgentEvidenceGroundingIndex` for evaluation grounding, not `AgentUserPromptBuilder`; promote only if a prompt composer starts rendering package `CloudProvider`
+
+2026-09-08 seed hunt #1340 (seed-only): reseeded after #1308/#1337 hits; cheap-disproof closed policy-tag/prior-list sanitizer parity and multi-section truncation/circuit-breaker scrub candidates; 132 scoped agent-runtime-safety unit tests passed.
 
 ---
 
