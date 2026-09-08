@@ -2263,18 +2263,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
-- **status:** exhausted
+- **status:** open
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 435
-- **bugs-found:** 3498
+- **hunts:** 436
+- **bugs-found:** 3499
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — DustAccessKey/DutchAccessKey/DutyAccessKey redaction, advice doesntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — `GraphSnapshotKnowledgeModelMerger` duplicate nodes when context/model node ids differ only by case
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -6203,6 +6203,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot need` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_need_suffix_phrasing`).
 
 2026-09-07 seed hunt #1163 (hit): reseeded after #1162 closure; proved twelve hunt-ready rows — DustAccessKey/DutchAccessKey/DutyAccessKey redaction parity and advice doesntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — ordinal `modelNodeIds` / edge keys allowed duplicate nodes and edges when context ids differed only by case from κ-projected model graph — **hit 2026-09-08 seed hunt #1290:** `modelNodeIds` and edge dedup used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; context node `SHARED` merged alongside model node `shared`; fixed with `OrdinalIgnoreCase`; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph`
+- [ ] (candidate) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` (same parity family as #713 truncation filter)
+
+2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
 
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
