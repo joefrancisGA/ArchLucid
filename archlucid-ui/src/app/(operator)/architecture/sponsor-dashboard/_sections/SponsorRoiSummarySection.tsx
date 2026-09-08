@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
+import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
 
@@ -82,6 +83,10 @@ export function SponsorRoiSummarySection({
   const coverageHonestyQuery = useAskRunCoverageHonestyQuery(scopedReviewTrimmed, {
     enabled: scopedReviewTrimmed.length > 0,
   });
+  const scopedDeltasQuery = usePilotRunDeltasQuery(scopedReviewTrimmed, {
+    enabled: scopedReviewTrimmed.length > 0,
+  });
+  const scopedRoiFreshness = scopedDeltasQuery.data?.roiSourceFreshnessDisposition?.trim() ?? "";
   const scopedReviewExportBlockedReason = useMemo(() => {
     if (scopedReviewTrimmed.length === 0) {
       return null;
@@ -323,7 +328,16 @@ export function SponsorRoiSummarySection({
         <SponsorRoiBoardPackEvidenceBanner
           summary={displayData}
           includeNarrative={includeBoardPackNarrative}
+          roiSourceFreshnessDisposition={scopedRoiFreshness.length > 0 ? scopedRoiFreshness : null}
         />
+        {scopedRoiFreshness.length > 0 ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="exec-roi-scoped-freshness-strip"
+          >
+            Scoped review ROI source freshness: {scopedRoiFreshness.toUpperCase()}
+          </p>
+        ) : null}
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Latest finalized review per system in this workspace. {BUYER_SPONSOR_DATA_SOURCE_NOTE}
         </CardDescription>

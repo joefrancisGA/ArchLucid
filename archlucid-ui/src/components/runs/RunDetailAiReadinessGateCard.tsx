@@ -45,23 +45,35 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
   }
 
   const pilotStrictOk = isAgentOutputPilotStrictSponsorSafe(payload);
+  const roiSourceFreshness = (payload.roiSourceFreshnessDisposition ?? "").trim().toUpperCase();
+  const freshnessHold = roiSourceFreshness === "HOLD";
+  const freshnessWarn = roiSourceFreshness === "WARN";
+  const gatePassed = pilotStrictOk && !freshnessHold;
   const llmCalls = payload.proofPackageCompleteness?.llmCallCount;
   const llmResolved = payload.proofPackageCompleteness?.llmCallCountResolved === true;
 
   return (
     <div
       className={cn("mb-4 px-4 py-3", OPERATOR_TYPOGRAPHY.body,
-        pilotStrictOk ? operatorSemanticSurface("ready") : operatorSemanticSurface("warn"),
+        gatePassed && !freshnessWarn ? operatorSemanticSurface("ready") : operatorSemanticSurface("warn"),
       )}
       data-testid="run-detail-ai-readiness-gate"
     >
       <p className="m-0 font-semibold">
-        {pilotStrictOk ? "AI readiness: Strict quality checks passed" : "AI readiness: HOLD — review before sponsor send"}
+        {gatePassed && !freshnessWarn
+          ? "AI readiness: Strict quality checks passed"
+          : freshnessHold
+            ? "AI readiness: HOLD — ROI source freshness blocks sponsor send"
+            : freshnessWarn
+              ? "AI readiness: WARN — review ROI source freshness before sponsor send"
+              : "AI readiness: HOLD — review before sponsor send"}
       </p>
       <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
-        {pilotStrictOk
+        {gatePassed && !freshnessWarn
           ? "No strict AI quality trace or faithfulness failures are attested for this committed review on real-mode hosts."
-          : "Strict AI quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
+          : freshnessHold || freshnessWarn
+            ? `Server ROI source freshness is ${roiSourceFreshness}. Open the first-value report and observability summary before external PDF send.`
+            : "Strict AI quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
         {llmResolved && typeof llmCalls === "number" ? (
           <>
             {" "}

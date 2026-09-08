@@ -1,6 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
   getBearerToken,
@@ -104,9 +104,5 @@ export async function downloadInfraEvidenceMermaidPng(
 }
 
 export function formatInfraEvidenceMermaidApiError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return toApiLoadFailure(error).message;
+  return formatInfraEvidenceSealedManifestAwareApiError(error);
 }
