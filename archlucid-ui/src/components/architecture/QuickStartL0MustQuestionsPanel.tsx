@@ -28,6 +28,10 @@ import {
   firstPilotL0MustQuestionsDisclosureHrefFromSearch,
   parseFirstPilotL0MustQuestionsOpenFromSearch,
 } from "@/lib/first-pilot/first-pilot-l0-must-questions-disclosure-url";
+import {
+  guidedIntakeViewAllClarificationsDisclosureHrefFromSearch,
+  parseGuidedIntakeViewAllClarificationsOpenFromSearch,
+} from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type QuickStartL0MustQuestionsPanelProps = {
@@ -69,6 +73,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const l0MustQuestionsOpenParam = searchParams.get(FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM);
+  const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
   const [panelOpen, setPanelOpenState] = useState<boolean>(
     () => parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam) || true,
   );
@@ -110,7 +115,37 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [viewAllClarifications, setViewAllClarifications] = useState(false);
+  const [viewAllClarifications, setViewAllClarificationsState] = useState(() =>
+    parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
+  );
+
+  const syncViewAllClarificationsToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setViewAllClarifications = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
+      setViewAllClarificationsState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncViewAllClarificationsToUrl(next);
+
+        return next;
+      });
+    },
+    [syncViewAllClarificationsToUrl],
+  );
+
+  useEffect(() => {
+    setViewAllClarificationsState(
+      parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
+    );
+  }, [guidedIntakeViewAllClarificationsOpenParam]);
 
   useEffect(() => {
     if ((props.inferredQuestionKeys?.size ?? 0) > 0) {

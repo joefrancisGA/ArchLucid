@@ -17,11 +17,7 @@ export function useRunRetrievalGroundingQuery(
 
   return createOperatorQueryHook<RunRetrievalGroundingPayload | null>({
     queryKey: operatorQueryKeys.runRetrievalGrounding(trimmed),
-    queryFn: async () => {
-      const response = await getRunRetrievalGrounding(trimmed);
-
-      return response.data;
-    },
+    queryFn: async () => getRunRetrievalGrounding(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,
   });
 }

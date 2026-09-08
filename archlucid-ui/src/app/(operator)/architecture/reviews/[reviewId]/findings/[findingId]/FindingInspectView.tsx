@@ -364,6 +364,7 @@ export function FindingInspectView({
           recommendation={recommendedActionText}
           recommendedActions={payload.recommendedActions}
           approvedDecisionTitles={approvedDecisionTitles}
+          latestDispositionRowVersionBase64={payload.latestDispositionRowVersionBase64}
         />
 
         <FindingInspectItsmWorkflowPanel

@@ -175,7 +175,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           </div>
         ) : null}
 
-        <div className={contentGridClass}>
+        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
@@ -241,7 +241,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
         {buyerPolishedShell ? (

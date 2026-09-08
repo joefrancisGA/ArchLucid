@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
@@ -20,6 +21,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  parseWizardStepDescriptionAdvancedOpenFromSearch,
+  wizardStepDescriptionAdvancedDisclosureHrefFromSearch,
+} from "@/lib/wizard/wizard-step-description-advanced-disclosure-url";
 
 function mergeUniqueStrings(existing: readonly string[], incoming: readonly string[]): string[] {
   const seen = new Set(existing.map((value) => value.trim().toLowerCase()).filter((value) => value.length > 0));
@@ -49,6 +54,36 @@ function mergeUniqueStrings(existing: readonly string[], incoming: readonly stri
  * Step 3: primary description + dynamic inline requirements.
  */
 export function WizardStepDescription() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardStepDescriptionAdvancedOpenParam = searchParams.get("wizardStepDescriptionAdvancedOpen");
+  const [descriptionAdvancedOpen, setDescriptionAdvancedOpenState] = useState(() =>
+    parseWizardStepDescriptionAdvancedOpenFromSearch(wizardStepDescriptionAdvancedOpenParam),
+  );
+  const syncDescriptionAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        wizardStepDescriptionAdvancedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setDescriptionAdvancedOpen = useCallback(
+    (open: boolean) => {
+      setDescriptionAdvancedOpenState(open);
+      syncDescriptionAdvancedOpenToUrl(open);
+    },
+    [syncDescriptionAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDescriptionAdvancedOpenState(
+      parseWizardStepDescriptionAdvancedOpenFromSearch(wizardStepDescriptionAdvancedOpenParam),
+    );
+  }, [wizardStepDescriptionAdvancedOpenParam]);
+
   const { control, watch, setValue, formState, clearErrors, getValues } = useFormContext<WizardFormValues>();
   const { errors } = formState;
   const { markAiSuggested } = useWizardAiSuggestedFields();
@@ -208,7 +243,11 @@ export function WizardStepDescription() {
           ) : null}
         </div>
 
-        <AdvancedOptionsAccordion className="mt-2">
+        <AdvancedOptionsAccordion
+          className="mt-2"
+          open={descriptionAdvancedOpen}
+          onOpenChange={setDescriptionAdvancedOpen}
+        >
           <div>
             <WizardFieldHint
               htmlFor="wizard-inline-req-0"

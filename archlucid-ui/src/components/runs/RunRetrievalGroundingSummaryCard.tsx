@@ -1,10 +1,14 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/runs/RunRetrievalGraphRagDiagnosticsStrip";
 import { RunRetrievalExemplarStylePriorStrip } from "@/components/runs/RunRetrievalExemplarStylePriorStrip";
+import { downloadRunRetrievalGroundingJson } from "@/lib/api/downloads-blob-trigger-retrieval-grounding-json";
 import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
+import { showError } from "@/lib/toast";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 function dispositionClass(disposition: string): string {
@@ -81,12 +85,20 @@ export function RunRetrievalGroundingSummaryCard(props: {
         <RunRetrievalExemplarStylePriorStrip summary={summary} />
 
         <p className="m-0">
-          <a
+          <button
+            type="button"
             className="font-medium underline underline-offset-2"
-            href={`/api/proxy/v1/authority/reviews/${encodeURIComponent(props.runId)}/retrieval-grounding`}
+            onClick={() => {
+              void downloadRunRetrievalGroundingJson(props.runId).catch((error: unknown) => {
+                showError(
+                  "Retrieval grounding JSON",
+                  error instanceof Error ? error.message : "Download failed.",
+                );
+              });
+            }}
           >
             Open full retrieval-grounding JSON
-          </a>
+          </button>
         </p>
       </CardContent>
     </Card>

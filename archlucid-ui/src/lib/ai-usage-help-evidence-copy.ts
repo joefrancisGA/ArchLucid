@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 
 export const AI_USAGE_HELP_CANONICAL_PATH = "/help/ai-usage" as const;
@@ -13,6 +14,10 @@ export const AI_USAGE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AI_USAGE_HELP_SOURCES_INTRO =
   "Use these follow-ups when estimated spend turns into billing controls, execution profiles, or activity records.";
+
+export const AI_USAGE_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "estimated spend turns into billing controls, execution profiles, or activity records",
+);
 
 /** Operator Sources — no self-href to the AI usage settings surface or tile-covered destinations. */
 export const AI_USAGE_HELP_SOURCES: readonly EvidenceSourceLink[] = [

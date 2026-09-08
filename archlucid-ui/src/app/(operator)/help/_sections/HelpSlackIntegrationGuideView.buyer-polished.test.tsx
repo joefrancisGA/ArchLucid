@@ -39,6 +39,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/slack-integration",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
@@ -88,6 +90,8 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-slack-integration-header-actions")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc-mobile")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-slack-integration-sources")).toBeInTheDocument();
 

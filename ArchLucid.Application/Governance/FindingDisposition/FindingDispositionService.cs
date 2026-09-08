@@ -81,6 +81,7 @@ public sealed class FindingDispositionService(
             throw new ArgumentException("Reviewer user id is required.", nameof(reviewerUserId));
 
         List<FindingReviewEventRecord> records = new(requests.Count);
+        List<byte[]?> expectedRowVersions = new(requests.Count);
 
         bool isWorkingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(reviewerUserId, cancellationToken);
 
@@ -90,10 +91,11 @@ public sealed class FindingDispositionService(
             FindingDispositionValidation.Validate(request);
             FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation(request, isWorkingDesk);
             records.Add(BuildReviewEventRecord(request, scope, reviewerUserId));
+            expectedRowVersions.Add(TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64));
         }
 
         FindingDispositionBulkRecordResult bulkResult =
-            await _concurrencyRepository.RecordBulkAsync(records, cancellationToken).ConfigureAwait(false);
+            await _concurrencyRepository.RecordBulkAsync(records, expectedRowVersions, cancellationToken).ConfigureAwait(false);
 
         if (bulkResult.Status == FindingDispositionRecordStatus.Conflict)
         {

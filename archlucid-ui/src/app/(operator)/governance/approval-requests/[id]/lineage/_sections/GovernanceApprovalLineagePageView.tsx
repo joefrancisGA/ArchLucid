@@ -13,11 +13,15 @@ import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import {
+  APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
+  APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
+  APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
+  APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
 } from "@/lib/approval-lineage-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import { GovernanceApprovalLineageBuyerChrome } from "./GovernanceApprovalLineageBuyerChrome";
@@ -125,6 +129,40 @@ export function GovernanceApprovalLineagePageView({
         className={cn(buyerPolishedShell ? "scroll-mt-24 space-y-4" : "space-y-4")}
         data-testid={buyerPolishedShell ? "approval-lineage-primary-content" : undefined}
       >
+        {buyerPolishedShell ? (
+          <div
+            data-testid={APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="approval-lineage-intro"
+            >
+              {APPROVAL_LINEAGE_PAGE_LEAD}
+            </p>
+            <section
+              className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="approval-lineage-start-here-panel"
+              aria-labelledby="approval-lineage-start-here-heading"
+            >
+              <h2
+                id="approval-lineage-start-here-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {APPROVAL_LINEAGE_START_HERE_CARD_TITLE}
+              </h2>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="approval-lineage-buyer-start-here-helper"
+              >
+                {APPROVAL_LINEAGE_BUYER_START_HERE_HELPER}
+              </p>
+            </section>
+          </div>
+        ) : null}
         {scopedRunId.length > 0 ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}

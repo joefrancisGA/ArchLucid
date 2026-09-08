@@ -20,8 +20,9 @@ import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence
 import { buildAgentTraceRawSnapshotByTraceId } from "@/lib/agent-trace-raw-snapshot";
 import { getRunAgentEvaluation, getRunTraces, getRunToolInvocationForensics } from "@/lib/api";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
 import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationScoreRow,
@@ -174,19 +175,19 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   let evaluationFailure: ApiLoadFailureState | null = null;
   let toolInvocationPayload: RunToolInvocationForensicsPayload | null = null;
   try {
-    tracesPayload = (await getRunTraces(runId, 1, 100)).data;
+    tracesPayload = await getRunTraces(runId, 1, 100);
   } catch (e) {
     tracesFailure = toApiLoadFailure(e);
   }
 
   try {
-    evaluationPayload = (await getRunAgentEvaluation(runId)).data;
+    evaluationPayload = await getRunAgentEvaluation(runId);
   } catch (e) {
     evaluationFailure = toApiLoadFailure(e);
   }
 
   try {
-    toolInvocationPayload = (await getRunToolInvocationForensics(runId)).data;
+    toolInvocationPayload = await getRunToolInvocationForensics(runId);
   } catch {
     toolInvocationPayload = null;
   }
@@ -239,6 +240,15 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       {tracesFailure ? (
         <>
           <p className={cn("mb-2 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Traces could not be loaded.</p>
+          {runAgentForensicsBlockedReason(tracesFailure) !== null ? (
+            <p
+              role="alert"
+              className={cn("mb-2 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-agent-traces-blocked-reason"
+            >
+              {runAgentForensicsBlockedReason(tracesFailure)}
+            </p>
+          ) : null}
           <OperatorApiProblem
             problem={tracesFailure.problem}
             fallbackMessage={tracesFailure.message}
@@ -253,6 +263,15 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
           <p className={cn("mb-2 mt-3 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>
             On-demand evaluation could not be loaded.
           </p>
+          {runAgentForensicsBlockedReason(evaluationFailure) !== null ? (
+            <p
+              role="alert"
+              className={cn("mb-2 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-agent-evaluation-blocked-reason"
+            >
+              {runAgentForensicsBlockedReason(evaluationFailure)}
+            </p>
+          ) : null}
           <OperatorApiProblem
             problem={evaluationFailure.problem}
             fallbackMessage={evaluationFailure.message}

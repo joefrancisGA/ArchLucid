@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -1727,6 +1728,67 @@ public sealed class GovernanceStickinessFacadeScopeTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task RecordBulkDispositionAsync_copies_client_expected_row_versions_and_ignores_extra_keys()
+    {
+        const string findingId = "finding-bulk-cas";
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(r => r.GetInspectAsync(
+                CallerScope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions>()))
+            .ReturnsAsync(new FindingInspectResponse
+            {
+                FindingId = findingId,
+                LatestDispositionRowVersionBase64 = "SEED=",
+            });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == findingId
+                    && requests[0].ExpectedCurrentDispositionRowVersionBase64 == "AQID"),
+                CallerScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingDispositionEventDto
+                {
+                    FindingId = findingId,
+                    CurrentDispositionRowVersionBase64 = "NEW=",
+                },
+            ]);
+
+        GovernanceStickinessFacade sut = CreateSut(
+            findingInspect: inspect.Object,
+            dispositionService: dispositions.Object);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Accepted,
+            Rationale = "bulk",
+            ExpectedCurrentDispositionRowVersionBase64ByFindingId = new Dictionary<string, string>
+            {
+                [findingId] = "AQID",
+                ["other-finding"] = "IGNORED=",
+            },
+        };
+
+        RecordBulkFindingDispositionResponse response =
+            await sut.RecordBulkDispositionAsync(request, CancellationToken.None);
+
+        response.ProcessedCount.Should().Be(1);
+        response.CurrentDispositionRowVersionBase64ByFindingId.Should().ContainKey(findingId);
+        response.CurrentDispositionRowVersionBase64ByFindingId![findingId].Should().Be("NEW=");
+    }
+
     private static GovernanceStickinessFacade CreateSut(
         IArchitectureRiskRegisterService? riskRegister = null,
         IFindingInspectReadRepository? findingInspect = null,
@@ -1762,7 +1824,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
             auditService ?? Mock.Of<IAuditService>(),
             findingInspect ?? Mock.Of<IFindingInspectReadRepository>(),
             authorityQuery ?? Mock.Of<IAuthorityQueryService>(),
-            manifestHashService ?? Mock.Of<IManifestHashService>());
+            manifestHashService ?? Mock.Of<IManifestHashService>(),
+            Mock.Of<IRunDetailQueryService>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateTrailRepositoryReturningForeignAndInScopeEvents(

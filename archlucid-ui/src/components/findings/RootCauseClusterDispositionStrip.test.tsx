@@ -5,10 +5,12 @@ import { RootCauseClusterDispositionStrip } from "@/components/findings/RootCaus
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 const recordBulkFindingDisposition = vi.fn();
+const listFindingDispositions = vi.fn();
 const routerRefresh = vi.fn();
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
+  listFindingDispositions: (...args: unknown[]) => listFindingDispositions(...args),
 }));
 
 vi.mock("@/lib/await-minimum-visible-duration", () => ({
@@ -16,7 +18,9 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh }),
+  useRouter: () => ({ refresh: routerRefresh, replace: vi.fn() }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 function finding(
@@ -40,8 +44,20 @@ function finding(
 describe("RootCauseClusterDispositionStrip", () => {
   beforeEach(() => {
     recordBulkFindingDisposition.mockReset();
+    listFindingDispositions.mockReset();
     routerRefresh.mockReset();
     recordBulkFindingDisposition.mockResolvedValue({ processedCount: 2 });
+    listFindingDispositions.mockImplementation(async (findingId: string) => {
+      if (findingId === "a") {
+        return [{ currentDispositionRowVersionBase64: "AAA=" }];
+      }
+
+      if (findingId === "b") {
+        return [{ currentDispositionRowVersionBase64: "BBB=" }];
+      }
+
+      return [];
+    });
   });
 
   it("renders cluster actions when two related findings are open", () => {
@@ -83,7 +99,16 @@ describe("RootCauseClusterDispositionStrip", () => {
     fireEvent.click(screen.getByRole("button", { name: "Accept cluster" }));
 
     await waitFor(() => {
-      expect(recordBulkFindingDisposition).toHaveBeenCalled();
+      expect(recordBulkFindingDisposition).toHaveBeenCalledWith(
+        expect.objectContaining({
+          findingIds: ["a", "b"],
+          expectedCurrentDispositionRowVersionBase64ByFindingId: {
+            a: "AAA=",
+            b: "BBB=",
+          },
+        }),
+        expect.any(Object),
+      );
       expect(screen.getByTestId("root-cause-cluster-disposition-success")).toHaveTextContent(
         "Marked 2 finding(s) as accepted.",
       );

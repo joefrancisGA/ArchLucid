@@ -135,7 +135,6 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              type="button"
               variant="outline"
               size="sm"
               disabled={packageDownloadBusy}

@@ -8003,6 +8003,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -8010,6 +8013,9 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
+            currentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];

@@ -3,6 +3,7 @@
      (all-day use; livelihoods may depend on the sealed record). Wave 20 after
      working-seat-00-index.md (WS-01–WS-24 shipped). Owns leftover fail-closed
      gates: cited analysis, human judgment as record, promote/activate same-tx.
+     Wave 21 leftover (inspect/bulk CAS token): finding-pointer-00-index.md.
      Do not implement from this index. -->
 
 # Livelihood-proof mitigations — Composer prompt set (LP-01–LP-20)
@@ -43,6 +44,7 @@ Do **not** collapse desktop review workspace tabs behind **More**. Do **not** re
 | **TB-1221 / TB-1222** | Provenance **contract** + honesty CI | Contract Done; LP implements gates |
 | **DX-01–56** | Insight-density engines | Do not paste |
 | Overlay waves | Chrome | Do not re-run / do not fork |
+| **FP-01–24** | Wave 21 finding-pointer CAS (inspect/bulk token) | [`finding-pointer-00-index.md`](finding-pointer-00-index.md) — do not paste LP to attach inspect row versions |
 
 If a row lists a WS/FC/DR/DX owner, **do not re-implement that file**. Implement only the leftover in *What to build*.
 

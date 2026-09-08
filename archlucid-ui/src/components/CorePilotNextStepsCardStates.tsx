@@ -10,6 +10,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { CorePilotFirstReviewCheckpointStrip } from "@/components/CorePilotFirstReviewCheckpointStrip";
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
 import {
   corePilotStepBadgeLabel,
   type CorePilotCommitProgressState,
@@ -18,6 +19,14 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import {
+  corePilotNextStepsCompleteDisclosureHrefFromSearch,
+  parseCorePilotNextStepsCompleteOpenFromSearch,
+} from "@/lib/operator/core-pilot-next-steps-complete-disclosure-url";
+import {
+  corePilotNextStepsDisclosureHrefFromSearch,
+  parseCorePilotNextStepsOpenFromSearch,
+} from "@/lib/operator/core-pilot-next-steps-disclosure-url";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator/operator-nav-labels";
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
@@ -91,6 +100,15 @@ export function CorePilotNextStepsCommittedState(props: CorePilotNextStepsCardSt
   const reviewHref =
     props.firstCommittedRunId !== null ? `/architecture/reviews/${props.firstCommittedRunId}` : "/architecture/reviews";
 
+  const [nextStepsCompleteExpanded, setNextStepsCompleteExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath,
+    "corePilotNextStepsCompleteOpen",
+    parseCorePilotNextStepsCompleteOpenFromSearch,
+    corePilotNextStepsCompleteDisclosureHrefFromSearch,
+    true,
+    [NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY],
+  );
+
   return (
     <OperatorHomeDisclosureSection
       title="Review workflow complete"
@@ -99,6 +117,8 @@ export function CorePilotNextStepsCommittedState(props: CorePilotNextStepsCardSt
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}
       legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
       defaultExpanded={true}
+      expanded={nextStepsCompleteExpanded}
+      onExpandedChange={setNextStepsCompleteExpanded}
       collapsedSummary="First review finalized — open detail, CLI shortcuts, and optional Operate links."
       headerAside={<StepBadge label={corePilotStepBadgeLabel("committed")} />}
     >
@@ -157,6 +177,15 @@ export function CorePilotNextStepsCommittedState(props: CorePilotNextStepsCardSt
 }
 
 export function CorePilotNextStepsHasRunState(props: CorePilotNextStepsCardStateProps): ReactElement {
+  const [nextStepsExpanded, setNextStepsExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath,
+    "corePilotNextStepsOpen",
+    parseCorePilotNextStepsOpenFromSearch,
+    corePilotNextStepsDisclosureHrefFromSearch,
+    false,
+    [NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY],
+  );
+
   return (
     <OperatorHomeDisclosureSection
       title="Recommended first session path"
@@ -165,6 +194,8 @@ export function CorePilotNextStepsHasRunState(props: CorePilotNextStepsCardState
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}
       legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
       defaultExpanded={false}
+      expanded={nextStepsExpanded}
+      onExpandedChange={setNextStepsExpanded}
       collapsedSummary={`${corePilotStepBadgeLabel("has-run")} — evidence and finalize steps for your in-progress review.`}
       headerAside={<StepBadge label={corePilotStepBadgeLabel("has-run")} />}
     >

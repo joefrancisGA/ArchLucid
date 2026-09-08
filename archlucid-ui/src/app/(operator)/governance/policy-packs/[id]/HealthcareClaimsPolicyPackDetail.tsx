@@ -8,12 +8,10 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import {
   OPERATOR_LAYOUT,
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -23,6 +21,8 @@ import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/defi
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+import { HealthcareClaimsPolicyPackTechnicalDetailsDisclosure } from "./HealthcareClaimsPolicyPackTechnicalDetailsDisclosure";
 
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -118,21 +118,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         </Button>
       </nav>
 
-      <Collapsible>
-        <CollapsibleTrigger className={cn(OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.optional)}>
-          Technical identifiers &amp; lifecycle metadata
-        </CollapsibleTrigger>
-        <CollapsibleContent className={cn("mt-2 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          <p className="m-0">
-            Rule-set id <span className="font-mono">healthcare-claims-v3</span> · Effective version{" "}
-            <span className="font-mono">{CLAIMS_INTAKE_RULE_SET_VERSION}</span>
-          </p>
-          <p className="m-0">
-            Approval recorded against the finalized Claims Intake architecture package — cross-check the
-            Approval tab for promotion readiness.
-          </p>
-        </CollapsibleContent>
-      </Collapsible>
+      <HealthcareClaimsPolicyPackTechnicalDetailsDisclosure />
     </OperatorPageContainer>
   );
 }

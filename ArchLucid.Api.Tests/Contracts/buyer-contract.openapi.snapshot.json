@@ -27224,6 +27224,16 @@
               "string"
             ]
           },
+          "expectedCurrentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "findingIds": {
             "items": {
               "type": "string"
@@ -27256,6 +27266,16 @@
       },
       "RecordBulkFindingDispositionResponse": {
         "properties": {
+          "currentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "processedCount": {
             "format": "int32",
             "type": "integer"
