@@ -54,4 +54,16 @@ public static class HeldCheckInputCodeLabels
             ? $"Re-ran after {label}: 1 previously held engine produced findings."
             : $"Re-ran after {label}: {count} previously held engines produced findings.";
     }
+
+    public static string? FormatProseAssumptionAskClause(ProseAssumptionHeldCheckAsk ask)
+    {
+        ArgumentNullException.ThrowIfNull(ask);
+
+        string label = ToOperatorLabel(ask.InputCode);
+        string reason = string.IsNullOrWhiteSpace(ask.EvidenceRef)
+            ? ask.Statement
+            : $"{ask.Statement} ({ask.EvidenceRef})";
+
+        return $"Upload {label} to verify: '{reason}'.";
+    }
 }

@@ -18,14 +18,18 @@ vi.mock("@/lib/resolve-nav-link-for-pathname", () => ({
 }));
 
 import { AdvisorySchedulesBuyerChrome } from "@/components/advisory/AdvisorySchedulesBuyerChrome";
+import { ADVISORY_SCHEDULES_CLAIM_DISCIPLINE } from "@/lib/advisory-schedules-evidence-copy";
 
 describe("AdvisorySchedulesBuyerChrome", () => {
-  it("renders Sources orientation in buyer-polished shell", () => {
+  it("renders claim discipline and Sources orientation in buyer-polished shell", () => {
     demoEnvMock.buyerPolished = true;
 
     render(<AdvisorySchedulesBuyerChrome />);
 
     expect(screen.getByTestId("advisory-schedules-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-schedules-claim-discipline")).toHaveTextContent(
+      ADVISORY_SCHEDULES_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.getByTestId("advisory-schedules-sources")).toBeInTheDocument();
   });
 

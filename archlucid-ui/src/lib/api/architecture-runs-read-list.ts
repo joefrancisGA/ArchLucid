@@ -4,10 +4,10 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   type ApiResponseWithTrace,
   apiGet,
-  apiGetJsonWithTrace,
   apiPostJson,
 } from "./http";
 import type {
@@ -43,7 +43,9 @@ export async function getBuyerRunDetailSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options);
+  return apiGetSealedManifestAware<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options).then(
+    (data) => ({ data, traceId: null }),
+  );
 }
 
 /** TB-112: record run-level approve / reject / request-remediation. */

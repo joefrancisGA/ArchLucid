@@ -5,7 +5,11 @@
 
 # Finding-pointer CAS Composer prompts (FP-01–FP-24)
 
+<<<<<<< HEAD
 **Created:** 2026-09-08 · **Status:** shipped — close audit [`FINDING_POINTER_CAS_ACCEPTANCE_2026-09-08.md`](FINDING_POINTER_CAS_ACCEPTANCE_2026-09-08.md) · **Do not re-run** LP, WS, DR, RS, or overlay waves except as an FP row names a leftover.
+=======
+**Created:** 2026-09-08 · **Status:** ready to run **after LP-01–18** (or in parallel except FP vs LP-17 on ITSM inbound, which already sends the pointer token) · **Do not re-run** LP, WS, DR, RS, or overlay waves except as an FP row names a leftover.
+>>>>>>> origin/master
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. **ADR 0076** already fail-closes a racing second writer with **409** when `dbo.FindingCurrentDispositions.RowVersionStamp` does not match `expectedCurrentDispositionRowVersionBase64`. Keyboard triage already sends that token. The richest livelihood surface does not.
 

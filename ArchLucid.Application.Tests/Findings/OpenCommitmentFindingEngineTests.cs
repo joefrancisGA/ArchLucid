@@ -173,9 +173,155 @@ public sealed class OpenCommitmentFindingEngineTests
         finding.Trace!.Notes.Should().NotContain(note => note.StartsWith("evidence:graph-node:", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_emits_expiring_waiver_for_active_operational_exception()
+    {
+        DateTimeOffset now = new(2026, 8, 26, 12, 0, 0, TimeSpan.Zero);
+        Guid findingGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        string findingId = findingGuid.ToString("N");
+
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository> operationalRepo = new();
+        operationalRepo
+            .Setup(r => r.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ArchLucid.Persistence.InfraEvidence.OperationalSecurityExceptionRecord
+                {
+                    ExceptionId = Guid.NewGuid(),
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    FindingId = findingGuid,
+                    ExpirationUtc = now.AddDays(3).UtcDateTime,
+                    Status = ArchLucid.Core.InfraEvidence.OperationalSecurityExceptionStatus.Active,
+                },
+            ]);
+
+        Mock<IFindingInspectReadRepository> inspectRepo = new();
+        inspectRepo
+            .Setup(r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingReviewTrailRepository> trailRepo = new();
+        trailRepo
+            .Setup(r => r.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        OpenCommitmentFindingEngine engine = CreateEngine(
+            trailRepo,
+            operationalRepo: operationalRepo,
+            inspectRepo: inspectRepo,
+            now: now);
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("Operational security exception");
+        OpenCommitmentFindingPayload payload = finding.Payload.Should().BeOfType<OpenCommitmentFindingPayload>().Subject;
+        payload.SignalKind.Should().Be(nameof(OpenCommitmentSignalKind.ExpiringWaiver));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_skips_revoked_operational_exception()
+    {
+        DateTimeOffset now = new(2026, 8, 26, 12, 0, 0, TimeSpan.Zero);
+        Guid findingGuid = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository> operationalRepo = new();
+        operationalRepo
+            .Setup(r => r.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ArchLucid.Persistence.InfraEvidence.OperationalSecurityExceptionRecord
+                {
+                    ExceptionId = Guid.NewGuid(),
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    FindingId = findingGuid,
+                    ExpirationUtc = now.AddDays(3).UtcDateTime,
+                    Status = ArchLucid.Core.InfraEvidence.OperationalSecurityExceptionStatus.Revoked,
+                },
+            ]);
+
+        Mock<IFindingReviewTrailRepository> trailRepo = new();
+        trailRepo
+            .Setup(r => r.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        OpenCommitmentFindingEngine engine = CreateEngine(trailRepo, operationalRepo: operationalRepo, now: now);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_deduplicates_operational_exception_when_risk_waiver_already_emitted()
+    {
+        DateTimeOffset now = new(2026, 8, 26, 12, 0, 0, TimeSpan.Zero);
+        Guid findingGuid = Guid.Parse("cccccccccccccccccccccccccccccccc");
+        string findingId = findingGuid.ToString("N");
+
+        Mock<IRiskExceptionService> riskService = new();
+        riskService
+            .Setup(s => s.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new RiskExceptionRecord
+                {
+                    FindingId = findingId,
+                    ExpiresAtUtc = now.AddDays(3),
+                },
+            ]);
+
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository> operationalRepo = new();
+        operationalRepo
+            .Setup(r => r.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new ArchLucid.Persistence.InfraEvidence.OperationalSecurityExceptionRecord
+                {
+                    ExceptionId = Guid.NewGuid(),
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    FindingId = findingGuid,
+                    ExpirationUtc = now.AddDays(3).UtcDateTime,
+                    Status = ArchLucid.Core.InfraEvidence.OperationalSecurityExceptionStatus.Active,
+                },
+            ]);
+
+        Mock<IFindingInspectReadRepository> inspectRepo = new();
+        inspectRepo
+            .Setup(r => r.GetInspectAsync(
+                It.IsAny<ScopeContext>(),
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingReviewTrailRepository> trailRepo = new();
+        trailRepo
+            .Setup(r => r.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        OpenCommitmentFindingEngine engine = CreateEngine(
+            trailRepo,
+            riskService: riskService,
+            operationalRepo: operationalRepo,
+            inspectRepo: inspectRepo,
+            now: now);
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(new GraphSnapshot(), null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().Contain("Risk waiver");
+    }
+
     private static OpenCommitmentFindingEngine CreateEngine(
         Mock<IFindingReviewTrailRepository> trailRepo,
         Mock<IRiskExceptionService>? riskService = null,
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository>? operationalRepo = null,
         Mock<IFindingInspectReadRepository>? inspectRepo = null,
         DateTimeOffset? now = null,
         bool enabled = true)
@@ -188,10 +334,24 @@ public sealed class OpenCommitmentFindingEngineTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         });
 
-        riskService ??= new Mock<IRiskExceptionService>();
-        riskService
-            .Setup(s => s.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        Mock<IRiskExceptionService> riskServiceMock = riskService ?? new Mock<IRiskExceptionService>();
+
+        if (riskService is null)
+        {
+            riskServiceMock
+                .Setup(s => s.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+        }
+
+        Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository> operationalRepoMock =
+            operationalRepo ?? new Mock<ArchLucid.Persistence.InfraEvidence.IOperationalSecurityExceptionRepository>();
+
+        if (operationalRepo is null)
+        {
+            operationalRepoMock
+                .Setup(r => r.ListByTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync([]);
+        }
 
         inspectRepo ??= new Mock<IFindingInspectReadRepository>();
 
@@ -203,7 +363,8 @@ public sealed class OpenCommitmentFindingEngineTests
         return new OpenCommitmentFindingEngine(
             scopeProvider.Object,
             trailRepo.Object,
-            riskService.Object,
+            riskServiceMock.Object,
+            operationalRepoMock.Object,
             inspectRepo.Object,
             clock,
             Options.Create(options));

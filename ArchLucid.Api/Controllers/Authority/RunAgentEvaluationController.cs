@@ -1,5 +1,7 @@
 ﻿using ArchLucid.Api.Evaluation;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Authorization;
@@ -8,6 +10,7 @@ using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -30,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class RunAgentEvaluationController(
+    IAuthorityQueryService authorityQueryService,
     IRunRepository authorityRunRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
@@ -39,7 +43,8 @@ public sealed class RunAgentEvaluationController(
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
     IOptionsMonitor<AgentOutputQualityGateOptions> qualityGateOptions,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     /// <summary>
     ///     Returns recorded (authoritative) and advisory-current agent-evaluation perspectives (TB-973).
@@ -48,6 +53,7 @@ public sealed class RunAgentEvaluationController(
     [HttpGet("/v{version:apiVersion}/architecture/review/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunAgentEvaluation(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -56,6 +62,27 @@ public sealed class RunAgentEvaluationController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (TryParseRunId(runId, out Guid runGuid))
+        {
+            RunDetailDto? detail =
+                await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+
+            if (detail?.GoldenManifest is not null)
+            {
+                try
+                {
+                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                        detail.GoldenManifest,
+                        runGuid.ToString("D"),
+                        manifestHashService);
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
+            }
+        }
 
         IReadOnlyList<AgentExecutionTrace> traces =
             await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);

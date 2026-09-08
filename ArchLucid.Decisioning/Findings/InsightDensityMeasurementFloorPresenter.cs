@@ -28,7 +28,10 @@ public static class InsightDensityMeasurementFloorPresenter
             context?.JudgeEffectiveCap);
         IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries =
             context?.HeldCheckLedgerEntries ?? [];
+        IReadOnlyList<ProseAssumptionHeldCheckAsk> proseAssumptionHeldCheckAsks =
+            context?.ProseAssumptionHeldCheckAsks ?? [];
         string? topHeldCheckUnblockClause = ResolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
+        string? proseAssumptionHeldCheckClause = ResolveProseAssumptionHeldCheckClause(proseAssumptionHeldCheckAsks);
         string? heldCheckSecondPassClause = HeldCheckInputCodeLabels.FormatSecondPassClause(context?.HeldCheckSecondPass);
 
         return new InsightDensityMeasurementFloorPresentation
@@ -44,6 +47,7 @@ public static class InsightDensityMeasurementFloorPresenter
                 judgeSkippedByCap,
                 judgeCapReductionClause,
                 topHeldCheckUnblockClause,
+                proseAssumptionHeldCheckClause,
                 heldCheckSecondPassClause),
             MeetsCareerExportFloor = meetsFloor,
             SkippedActorEngineTypes = skippedActorEngineTypes,
@@ -52,6 +56,16 @@ public static class InsightDensityMeasurementFloorPresenter
             TopHeldCheckUnblockClause = topHeldCheckUnblockClause,
             HeldCheckSecondPassClause = heldCheckSecondPassClause,
         };
+    }
+
+    internal static string? ResolveProseAssumptionHeldCheckClause(IReadOnlyList<ProseAssumptionHeldCheckAsk> asks)
+    {
+        if (asks.Count == 0)
+        {
+            return null;
+        }
+
+        return HeldCheckInputCodeLabels.FormatProseAssumptionAskClause(asks[0]);
     }
 
     internal static string? ResolveTopHeldCheckUnblockClause(IReadOnlyList<HeldCheckLedgerRollupEntry> entries)
@@ -156,6 +170,7 @@ public static class InsightDensityMeasurementFloorPresenter
         int? judgeSkippedByCap,
         string? judgeCapReductionClause,
         string? topHeldCheckUnblockClause,
+        string? proseAssumptionHeldCheckClause,
         string? heldCheckSecondPassClause)
     {
         string baseSentence;
@@ -182,6 +197,7 @@ public static class InsightDensityMeasurementFloorPresenter
             judgeSkippedByCap,
             judgeCapReductionClause,
             topHeldCheckUnblockClause,
+            proseAssumptionHeldCheckClause,
             heldCheckSecondPassClause);
     }
 
@@ -191,6 +207,7 @@ public static class InsightDensityMeasurementFloorPresenter
         int? judgeSkippedByCap,
         string? judgeCapReductionClause,
         string? topHeldCheckUnblockClause,
+        string? proseAssumptionHeldCheckClause,
         string? heldCheckSecondPassClause)
     {
         List<string> suffixes = [];
@@ -217,6 +234,11 @@ public static class InsightDensityMeasurementFloorPresenter
         if (!string.IsNullOrWhiteSpace(topHeldCheckUnblockClause))
         {
             suffixes.Add(topHeldCheckUnblockClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(proseAssumptionHeldCheckClause))
+        {
+            suffixes.Add(proseAssumptionHeldCheckClause);
         }
 
         if (!string.IsNullOrWhiteSpace(heldCheckSecondPassClause))

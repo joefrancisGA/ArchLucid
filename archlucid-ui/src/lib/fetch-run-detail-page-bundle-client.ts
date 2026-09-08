@@ -1,4 +1,5 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { apiGetJsonWithTrace } from "@/lib/api/http";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import {
@@ -35,12 +36,12 @@ export async function fetchRunDetailCriticalPageBundle(
     }
   }
 
-  const response = await apiGetJsonWithTrace<RunDetailCriticalPageBundle>(
+  const data = await apiGetSealedManifestAware<RunDetailCriticalPageBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/critical-page-bundle`,
     options,
   );
 
-  return response;
+  return { data, traceId: null };
 }
 
 export type RunDetailTimelinesBundle = {
@@ -74,10 +75,8 @@ export async function fetchRunDetailWorkspaceContextBundle(
     }
   }
 
-  const response = await apiGetJsonWithTrace<RunDetailWorkspaceContextBundle>(
+  return apiGetSealedManifestAware<RunDetailWorkspaceContextBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
     options,
   );
-
-  return response.data;
 }

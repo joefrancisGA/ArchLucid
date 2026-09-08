@@ -1,6 +1,6 @@
 "use client";
 
-import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
+import { ArchitectureCreatedFindingsClaimOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsClaimOrientationStrip";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
@@ -14,7 +14,7 @@ export function ArchitectureCreatedFindingsBuyerChrome(): React.JSX.Element | nu
 
   return (
     <div data-testid="architecture-findings-orientation-bottom" className={HELP_PAGE_LAYOUT.readingBody}>
-      <ArchitectureCreatedFindingsEvidenceOrientationStrip />
+      <ArchitectureCreatedFindingsClaimOrientationStrip />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import type { ComparisonReplayCostEstimateResponse } from "@/lib/api/comparison-
 import { fetchArchitectureComparisonReplayCostEstimate } from "@/lib/api/comparison-replay-cost-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { comparisonReplayCostBlockedReason } from "@/lib/compare/comparison-replay-cost-blocked-reason";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReplayValidationModeId } from "@/lib/replay-validation-workflow";
@@ -210,7 +211,20 @@ export function ArchitectureComparisonReplayCostSection() {
           </p>
         </div>
 
-        {failure !== null ? <OperatorApiProblem failure={failure} /> : null}
+        {failure !== null ? (
+          <>
+            {comparisonReplayCostBlockedReason(failure) !== null ? (
+              <p
+                role="alert"
+                className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="comparison-replay-cost-blocked-reason"
+              >
+                {comparisonReplayCostBlockedReason(failure)}
+              </p>
+            ) : null}
+            <OperatorApiProblem failure={failure} />
+          </>
+        ) : null}
 
         {estimate !== null ? (
           <div className="rounded-md border border-amber-400/70 bg-white/80 px-3 py-2 dark:border-amber-600 dark:bg-neutral-950">

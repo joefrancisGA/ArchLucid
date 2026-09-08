@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -16,6 +17,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(ArchitectureRiskRegisterResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRiskRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
@@ -34,13 +36,20 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        ArchitectureRiskRegisterResponse response = await _facade.GetRiskRegisterAsync(
-            projectId,
-            maxRows,
-            assignedToMe,
-            cancellationToken);
+        try
+        {
+            ArchitectureRiskRegisterResponse response = await _facade.GetRiskRegisterAsync(
+                projectId,
+                maxRows,
+                assignedToMe,
+                cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("risk-register/assigned-to-me-count")]
@@ -132,6 +141,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(GovernanceFindingsRegistersBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFindingsRegistersBundle(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
@@ -149,16 +159,24 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GovernanceFindingsRegistersBundleResponse body =
-            await _facade.GetFindingsRegistersBundleAsync(projectId, maxRows, cancellationToken);
+        try
+        {
+            GovernanceFindingsRegistersBundleResponse body =
+                await _facade.GetFindingsRegistersBundleAsync(projectId, maxRows, cancellationToken);
 
-        return Ok(body);
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("decision-register")]
     [ProducesResponseType(typeof(ArchitectureDecisionRegisterResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDecisionRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
@@ -202,12 +220,19 @@ public sealed partial class GovernanceStickinessController
             BuyerConfidenceSource = buyerConfidenceSource,
         };
 
-        ArchitectureDecisionRegisterResponse response = await _facade.GetDecisionRegisterAsync(
-            projectId,
-            maxRows,
-            filters,
-            cancellationToken);
+        try
+        {
+            ArchitectureDecisionRegisterResponse response = await _facade.GetDecisionRegisterAsync(
+                projectId,
+                maxRows,
+                filters,
+                cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 }

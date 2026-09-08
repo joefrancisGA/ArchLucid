@@ -56,4 +56,11 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Upload asks derived from NotVerifiable prose assumptions (DX-66).</summary>
+    public IReadOnlyList<ProseAssumptionHeldCheckAsk>? ProseAssumptionHeldCheckAsks
+    {
+        get;
+        set;
+    }
 }

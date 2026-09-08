@@ -64,20 +64,43 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("severity-calibration");
         }
 
-        double duplicationSimilarity = InsightDensityTextSimilarity.MaxPeerSimilarity(
-            candidate.Message,
-            snapshotPeers,
-            candidate.CandidateKey);
+        (double duplicationSimilarity, InsightDensityGateCandidate? duplicationPeer) =
+            InsightDensityTextSimilarityWithPeer.MaxPeerSimilarityWithPeer(
+                candidate.Message,
+                snapshotPeers,
+                candidate.CandidateKey);
 
-        if (duplicationSimilarity >= _options.HighDuplicationSimilarityThreshold)
+        bool applyDuplicationPenalty = ShouldApplyDuplicationPenalty(candidate, duplicationPeer);
+
+        if (applyDuplicationPenalty && duplicationSimilarity >= _options.HighDuplicationSimilarityThreshold)
         {
             score -= 30;
             penaltyReasons.Add("high-duplication");
         }
-        else if (duplicationSimilarity >= _options.ModerateDuplicationSimilarityThreshold)
+        else if (applyDuplicationPenalty && duplicationSimilarity >= _options.ModerateDuplicationSimilarityThreshold)
         {
             score -= 15;
             penaltyReasons.Add("moderate-duplication");
+        }
+
+        if (HasCrossEngineCorroboration(candidate, snapshotPeers))
+        {
+            score = Math.Min(100, score + 10);
+            penaltyReasons.Add("cross-engine-corroboration");
+        }
+
+        if (hasConcreteEvidence && candidate.ImpactHopCount is int hopCount)
+        {
+            if (hopCount >= 4)
+            {
+                score = Math.Min(100, score + 10);
+                penaltyReasons.Add("impact-witness");
+            }
+            else if (hopCount >= 2)
+            {
+                score = Math.Min(100, score + 5);
+                penaltyReasons.Add("impact-witness");
+            }
         }
 
         score = Math.Clamp(score, 0, 100);
@@ -104,5 +127,74 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
                 : FindingClassification.DecisionGradeFinding,
             PenaltyReasons = penaltyReasons,
         };
+    }
+
+    private static bool ShouldApplyDuplicationPenalty(
+        InsightDensityGateCandidate candidate,
+        InsightDensityGateCandidate? duplicationPeer)
+    {
+        if (duplicationPeer is null)
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(duplicationPeer.EngineType))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(candidate.EngineType))
+        {
+            return true;
+        }
+
+        return candidate.EngineType.Equals(duplicationPeer.EngineType, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasCrossEngineCorroboration(
+        InsightDensityGateCandidate candidate,
+        IReadOnlyList<InsightDensityGateCandidate> snapshotPeers)
+    {
+        if (!InsightDensityPreferredEngineTypes.IsPreferred(candidate.EngineType))
+        {
+            return false;
+        }
+
+        if (candidate.RelatedNodeIds.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (InsightDensityGateCandidate peer in snapshotPeers)
+        {
+            if (string.Equals(peer.CandidateKey, candidate.CandidateKey, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(peer.EngineType))
+            {
+                continue;
+            }
+
+            if (peer.EngineType.Equals(candidate.EngineType, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (peer.RelatedNodeIds.Count == 0)
+            {
+                continue;
+            }
+
+            if (candidate.RelatedNodeIds.Any(nodeId =>
+                    peer.RelatedNodeIds.Any(peerNodeId =>
+                        peerNodeId.Equals(nodeId, StringComparison.OrdinalIgnoreCase))))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

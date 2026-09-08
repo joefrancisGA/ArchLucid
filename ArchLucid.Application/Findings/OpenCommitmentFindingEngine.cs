@@ -7,6 +7,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Options;
@@ -18,6 +19,7 @@ public sealed class OpenCommitmentFindingEngine(
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IRiskExceptionService riskExceptionService,
+    IOperationalSecurityExceptionRepository operationalSecurityExceptionRepository,
     IFindingInspectReadRepository findingInspectReadRepository,
     TimeProvider clock,
     IOptions<OpenCommitmentFindingOptions> options) : IEffectfulFindingEngine
@@ -30,6 +32,10 @@ public sealed class OpenCommitmentFindingEngine(
 
     private readonly IRiskExceptionService _riskExceptionService =
         riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly IOperationalSecurityExceptionRepository _operationalSecurityExceptionRepository =
+        operationalSecurityExceptionRepository
+        ?? throw new ArgumentNullException(nameof(operationalSecurityExceptionRepository));
 
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
@@ -83,6 +89,29 @@ public sealed class OpenCommitmentFindingEngine(
             now,
             _options.WaiverExpiryWarningDays);
 
+        IReadOnlyList<OperationalSecurityExceptionRecord> operationalExceptions =
+            await _operationalSecurityExceptionRepository
+                .ListByTenantAsync(scope.TenantId, ct)
+                .ConfigureAwait(false);
+
+        HashSet<string> findingsPresent = await BuildFindingsPresentSetAsync(
+            scope,
+            sourceFindingIds,
+            operationalExceptions,
+            ct);
+
+        HashSet<string> graphCloudResourceTokens = CollectGraphCloudResourceTokens(graphSnapshot);
+
+        signals = signals
+            .Concat(OpenCommitmentOperationalExceptionClassifier.Classify(
+                operationalExceptions,
+                signals,
+                findingsPresent,
+                graphCloudResourceTokens,
+                now,
+                _options.WaiverExpiryWarningDays))
+            .ToList();
+
         List<OpenCommitmentSignal> orderedSignals = signals
             .OrderBy(static signal => GetKindPriority(signal.Kind))
             .ThenByDescending(static signal => signal.DaysOverdueOrUntilExpiry)
@@ -118,6 +147,72 @@ public sealed class OpenCommitmentFindingEngine(
         }
 
         return inspectByFindingId;
+    }
+
+    private async Task<HashSet<string>> BuildFindingsPresentSetAsync(
+        ScopeContext scope,
+        IReadOnlySet<string> sourceFindingIds,
+        IReadOnlyList<OperationalSecurityExceptionRecord> operationalExceptions,
+        CancellationToken ct)
+    {
+        HashSet<string> findingsPresent = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string findingId in sourceFindingIds)
+        {
+            FindingInspectResponse? inspect = await _findingInspectReadRepository
+                .GetInspectAsync(scope, findingId, ct, FindingInspectReadOptions.MetadataOnly)
+                .ConfigureAwait(false);
+
+            if (inspect is not null)
+            {
+                findingsPresent.Add(findingId);
+            }
+        }
+
+        foreach (OperationalSecurityExceptionRecord exception in operationalExceptions)
+        {
+            if (exception.FindingId is not Guid findingGuid || findingGuid == Guid.Empty)
+            {
+                continue;
+            }
+
+            string findingId = findingGuid.ToString("N");
+            FindingInspectResponse? inspect = await _findingInspectReadRepository
+                .GetInspectAsync(scope, findingId, ct, FindingInspectReadOptions.MetadataOnly)
+                .ConfigureAwait(false);
+
+            if (inspect is not null)
+            {
+                findingsPresent.Add(findingId);
+            }
+        }
+
+        return findingsPresent;
+    }
+
+    private static HashSet<string> CollectGraphCloudResourceTokens(GraphSnapshot graphSnapshot)
+    {
+        HashSet<string> tokens = new(StringComparer.OrdinalIgnoreCase);
+
+        if (graphSnapshot.Nodes is null)
+        {
+            return tokens;
+        }
+
+        foreach (GraphNode node in graphSnapshot.Nodes)
+        {
+            if (!string.IsNullOrWhiteSpace(node.NodeId))
+            {
+                tokens.Add(node.NodeId.Trim());
+            }
+
+            if (!string.IsNullOrWhiteSpace(node.SourceId))
+            {
+                tokens.Add(node.SourceId.Trim());
+            }
+        }
+
+        return tokens;
     }
 
     private static HashSet<string> CollectSourceFindingIds(
@@ -280,6 +375,18 @@ public sealed class OpenCommitmentFindingEngine(
 
     private static string BuildTitle(OpenCommitmentSignal signal)
     {
+        if (string.Equals(signal.ReasonToken, "operational-security-exception", StringComparison.OrdinalIgnoreCase))
+        {
+            return signal.Kind switch
+            {
+                OpenCommitmentSignalKind.ExpiredWaiver =>
+                    $"Operational security exception for finding {signal.SourceFindingId} expired on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                OpenCommitmentSignalKind.ExpiringWaiver =>
+                    $"Operational security exception for finding {signal.SourceFindingId} expires on {signal.DueOrExpiryUtc:yyyy-MM-dd}",
+                _ => $"Operational security exception open on finding {signal.SourceFindingId}",
+            };
+        }
+
         return signal.Kind switch
         {
             OpenCommitmentSignalKind.ExpiredWaiver =>
@@ -301,20 +408,36 @@ public sealed class OpenCommitmentFindingEngine(
         OpenCommitmentTopologyJoiner.JoinResult joinResult,
         bool stillOpenOnCurrentGraph)
     {
-        string baseRationale = signal.Kind switch
+        string baseRationale;
+
+        if (string.Equals(signal.ReasonToken, "operational-security-exception", StringComparison.OrdinalIgnoreCase))
         {
-            OpenCommitmentSignalKind.ExpiredWaiver =>
-                $"An active risk waiver protecting finding {signal.SourceFindingId} expired {signal.DaysOverdueOrUntilExpiry} day(s) ago on {signal.DueOrExpiryUtc:u}.",
-            OpenCommitmentSignalKind.ExpiringWaiver =>
-                $"Risk waiver protecting finding {signal.SourceFindingId} expires in {signal.DaysOverdueOrUntilExpiry} day(s) on {signal.DueOrExpiryUtc:u}.",
-            OpenCommitmentSignalKind.OverdueDeferral =>
-                $"Finding {signal.SourceFindingId} was deferred with revisit due {signal.DueOrExpiryUtc:u}, which is now {signal.DaysOverdueOrUntilExpiry} day(s) overdue.",
-            OpenCommitmentSignalKind.UnansweredEvidenceRequest =>
-                $"Finding {signal.SourceFindingId} still needs evidence with no later disposition recorded since {signal.DueOrExpiryUtc:u}.",
-            OpenCommitmentSignalKind.OverdueRemediation =>
-                $"Remediation for finding {signal.SourceFindingId} was assigned with due date {signal.DueOrExpiryUtc:u}, now {signal.DaysOverdueOrUntilExpiry} day(s) overdue.",
-            _ => $"Open governance commitment recorded for finding {signal.SourceFindingId}.",
-        };
+            baseRationale = signal.Kind switch
+            {
+                OpenCommitmentSignalKind.ExpiredWaiver =>
+                    $"An operational security exception protecting finding {signal.SourceFindingId} expired {signal.DaysOverdueOrUntilExpiry} day(s) ago on {signal.DueOrExpiryUtc:u}.",
+                OpenCommitmentSignalKind.ExpiringWaiver =>
+                    $"Operational security exception protecting finding {signal.SourceFindingId} expires in {signal.DaysOverdueOrUntilExpiry} day(s) on {signal.DueOrExpiryUtc:u}.",
+                _ => $"Operational security exception recorded for finding {signal.SourceFindingId}.",
+            };
+        }
+        else
+        {
+            baseRationale = signal.Kind switch
+            {
+                OpenCommitmentSignalKind.ExpiredWaiver =>
+                    $"An active risk waiver protecting finding {signal.SourceFindingId} expired {signal.DaysOverdueOrUntilExpiry} day(s) ago on {signal.DueOrExpiryUtc:u}.",
+                OpenCommitmentSignalKind.ExpiringWaiver =>
+                    $"Risk waiver protecting finding {signal.SourceFindingId} expires in {signal.DaysOverdueOrUntilExpiry} day(s) on {signal.DueOrExpiryUtc:u}.",
+                OpenCommitmentSignalKind.OverdueDeferral =>
+                    $"Finding {signal.SourceFindingId} was deferred with revisit due {signal.DueOrExpiryUtc:u}, which is now {signal.DaysOverdueOrUntilExpiry} day(s) overdue.",
+                OpenCommitmentSignalKind.UnansweredEvidenceRequest =>
+                    $"Finding {signal.SourceFindingId} still needs evidence with no later disposition recorded since {signal.DueOrExpiryUtc:u}.",
+                OpenCommitmentSignalKind.OverdueRemediation =>
+                    $"Remediation for finding {signal.SourceFindingId} was assigned with due date {signal.DueOrExpiryUtc:u}, now {signal.DaysOverdueOrUntilExpiry} day(s) overdue.",
+                _ => $"Open governance commitment recorded for finding {signal.SourceFindingId}.",
+            };
+        }
 
         if (stillOpenOnCurrentGraph && joinResult.MatchedNode is GraphNode matchedNode)
         {

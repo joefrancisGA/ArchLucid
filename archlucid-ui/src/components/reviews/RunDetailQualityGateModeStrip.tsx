@@ -32,7 +32,7 @@ export function RunDetailQualityGateModeStrip(
   const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
   const evaluationQuery = useQuery({
     queryKey: operatorQueryKeys.runAgentEvaluation(props.runId),
-    queryFn: async () => (await getRunAgentEvaluation(props.runId)).data,
+    queryFn: () => getRunAgentEvaluation(props.runId),
     enabled: isWorkingMode,
     retry: false,
   });

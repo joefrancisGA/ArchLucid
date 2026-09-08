@@ -29,6 +29,7 @@ import {
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;
   failure: ApiLoadFailureState | null;
+  blockedReason?: string | null;
   sectionId?: string;
   title?: string;
 };
@@ -133,6 +134,15 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
         {failure ? (
           <>
             <p className={cn("mb-2 font-semibold", OPERATOR_TYPOGRAPHY.body)}>Retrieval grounding could not be loaded.</p>
+            {props.blockedReason !== null && props.blockedReason !== undefined ? (
+              <p
+                role="alert"
+                className={cn("mb-2 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="run-retrieval-grounding-blocked-reason"
+              >
+                {props.blockedReason}
+              </p>
+            ) : null}
             <OperatorApiProblem
               problem={failure.problem}
               fallbackMessage={failure.message}

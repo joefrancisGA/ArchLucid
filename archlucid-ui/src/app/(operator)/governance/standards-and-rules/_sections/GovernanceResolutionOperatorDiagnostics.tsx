@@ -23,6 +23,10 @@ import {
   governanceResolutionCandidatesDisclosureHrefFromSearch,
   parseGovernanceResolutionCandidatesItemKeyFromSearch,
 } from "@/lib/governance/governance-resolution-candidates-disclosure-url";
+import {
+  governanceResolutionRawOutputDisclosureHrefFromSearch,
+  parseGovernanceResolutionRawOutputOpenFromSearch,
+} from "@/lib/governance/governance-resolution-raw-output-disclosure-url";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveStandardsRulesPolicyPackProvenanceLabel } from "@/lib/standards-rules-rows";
@@ -98,6 +102,31 @@ export function GovernanceResolutionOperatorDiagnostics(
     );
   }, [governanceResolutionCandidatesItemKeyParam]);
 
+  const governanceResolutionRawOutputOpenParam = searchParams.get("governanceResolutionRawOutputOpen");
+  const [rawOutputOpen, setRawOutputOpenState] = useState(() =>
+    parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam),
+  );
+  const syncRawOutputOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceResolutionRawOutputDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setRawOutputOpen = useCallback(
+    (open: boolean) => {
+      setRawOutputOpenState(open);
+      syncRawOutputOpenToUrl(open);
+    },
+    [syncRawOutputOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRawOutputOpenState(parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam));
+  }, [governanceResolutionRawOutputOpenParam]);
+
   return (
     <>
       <section className="mb-7" aria-labelledby="governance-conflicts-heading">
@@ -136,7 +165,12 @@ export function GovernanceResolutionOperatorDiagnostics(
           )}
         </ul>
 
-        <AdvancedOptionsAccordion className="mt-5" triggerLabel={governanceResolutionRawOutputAccordionLabel}>
+        <AdvancedOptionsAccordion
+          className="mt-5"
+          triggerLabel={governanceResolutionRawOutputAccordionLabel}
+          open={rawOutputOpen}
+          onOpenChange={setRawOutputOpen}
+        >
           <div className="grid gap-4">
             <h4 className={cn("mt-0 mb-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Effective content</h4>
             <pre

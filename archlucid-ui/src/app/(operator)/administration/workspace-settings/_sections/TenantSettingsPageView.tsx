@@ -234,26 +234,28 @@ export function TenantSettingsPageView(props: Props) {
           claimDiscipline={buyerPolishedShell ? TENANT_SETTINGS_CLAIM_DISCIPLINE : undefined}
           claimDisciplineTestId={TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           metadata={
-            <>
-              <span
-                className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="tenant-settings-active-scope-summary"
-              >
-                {activeScopeSummary}
-              </span>
-              {callerAuthorityLine !== null ? (
+            buyerPolishedShell ? undefined : (
+              <>
                 <span
-                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="tenant-settings-caller-authority"
+                  className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="tenant-settings-active-scope-summary"
                 >
-                  {callerAuthorityLine}
+                  {activeScopeSummary}
                 </span>
-              ) : null}
-            </>
+                {callerAuthorityLine !== null ? (
+                  <span
+                    className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="tenant-settings-caller-authority"
+                  >
+                    {callerAuthorityLine}
+                  </span>
+                ) : null}
+              </>
+            )
           }
         />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_9.5rem] lg:items-start">
+        <div className={buyerPolishedShell ? cn("space-y-6", OPERATOR_LAYOUT.sectionStack) : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_9.5rem] lg:items-start"}>
           <div
             id={TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID}
             data-testid={TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID}

@@ -305,6 +305,9 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new RequiredCapabilityCoverageFindingEngine(new RequiredCapabilityCoverageAnalyzer()),
             new DataFlowTrustBoundaryFindingEngine(),
             new TopologyAntiPatternFindingEngine(),
+            new TopologySecurityDriftFindingEngine(
+                new Moq.Mock<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>().Object,
+                _scopeContextProvider),
         ];
     }
 

@@ -46,8 +46,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
   const { runId, systemName, manifestId, manifestVersion, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const evalChromeShell = useProductionEvalChrome();
   const workingDesk = useProductionDeskChrome();
-  const [traceabilityBusy, setTraceabilityBusy] = useState(false);
-  const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
   const packageCommitted =
     manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
   const sealedManifestVersion = manifestVersion ?? (packageCommitted ? manifestId?.trim() ?? null : null);
@@ -55,6 +53,8 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
     runId,
     manifestVersion: sealedManifestVersion,
   });
+  const [traceabilityBusy, setTraceabilityBusy] = useState(false);
+  const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
 
   const onDownloadTraceabilityBundle = useCallback(async () => {
     if (collateralExportBlockedReason !== null) {
