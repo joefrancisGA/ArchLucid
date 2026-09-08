@@ -46,6 +46,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER,
   AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID,
   AUTHENTICATION_SIGN_IN_HELP_SKIP_LINK_LABEL,
@@ -79,6 +80,10 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     expect(screen.queryByTestId("help-topic-sign-in-failure-triage")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-authentication-sign-in-related-topics")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-authentication-sign-in-intro")).toHaveTextContent(
+      AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
+    );
     expect(screen.getByRole("heading", { level: 2, name: AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID);
@@ -88,6 +93,7 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     const orientationBottom = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
+    expect(buyerFirstViewport).toContainElement(screen.getByTestId("help-authentication-sign-in-intro"));
     expect(buyerFirstViewport).toContainElement(actionPanel);
     expect(actionPanel).toHaveTextContent(AUTHENTICATION_SIGN_IN_HELP_ACTION_PANEL_TITLE);
     expect(within(actionPanel).getByRole("link", { name: "Start your evaluation" })).toHaveAttribute(
