@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>();
@@ -36,6 +36,9 @@ import {
   BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { REVIEWS_NEW_ORIENTATION_SOURCES } from "@/lib/reviews-new-evidence-copy";
 import {
   REVIEWS_NEW_FIRST_VIEWPORT_ID,
   REVIEWS_NEW_PRIMARY_CONTENT_ID,
@@ -136,9 +139,16 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
       BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
     );
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "detailed")).toBe(BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE);
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
+
+    const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });
 
