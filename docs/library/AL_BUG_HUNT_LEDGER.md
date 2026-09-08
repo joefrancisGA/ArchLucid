@@ -10148,12 +10148,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ## Zone: chatops-delivery
 
 - **id:** chatops-delivery
-- **status:** open
+- **status:** cooling
 - **impact:** medium
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -10165,13 +10165,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message — **hit 2026-09-08 hunt #1368:** hook only caller is `AuthorityRunCompletedChatOpsIntegrationEventHandler`; swallowing defeated `IntegrationEventServiceBusMessageDispatch` abandon semantics; fixed to throw when every enabled target fails; handler no longer catches; regressions in `NotifyAsync_throws_when_every_enabled_target_delivery_fails`, `NotifyAsync_throws_when_only_enabled_target_delivery_fails`, `HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed`
 - [x] (valid-no-repro) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target — **cheap-disproved hunt #1368:** partial success intentionally completes the integration event (`NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds`); per-target dedup/outbox not in scope for informational ChatOps fan-out
+- [x] (valid-no-repro) Enabled ChatOps target with non-HTTPS or blank webhook URL completes integration event without delivery — **cheap-disproved hunt #1369:** `DeliverIfEnabledAsync` skips before attempt; misconfiguration guard; regressions in existing hook skip tests and `HandleAsync_completes_when_enabled_target_uses_non_https_webhook_url`
+- [x] (valid-no-repro) Integration handler rejects unsupported `schemaVersion` values — **cheap-disproved hunt #1369:** forward-compatible single producer; handler accepts future schema versions; regression in `HandleAsync_accepts_future_schemaVersion_without_rejecting_payload`
+- [x] (invalid) HTTP 4xx webhook responses trap Service Bus in an infinite abandon loop distinct from 5xx — **cheap-disproved hunt #1369:** `WebhookOutboundHttpRetryPolicy` excludes 4xx; all-target failure throws for one abandon cycle; subscription max-delivery dead-letters poison messages; regression in `NotifyAsync_throws_when_all_enabled_targets_return_http_400`
 
-2026-09-08 thorough hunt #1368 (hit): proved all-target ChatOps delivery swallow blocked Service Bus retry; partial sibling success remains best-effort by design.
-
-### Hypotheses
-
-- [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message — **hit 2026-09-08 hunt #1368:** hook only caller is `AuthorityRunCompletedChatOpsIntegrationEventHandler`; swallowing defeated `IntegrationEventServiceBusMessageDispatch` abandon semantics; fixed to throw when every enabled target fails; handler no longer catches; regressions in `NotifyAsync_throws_when_every_enabled_target_delivery_fails`, `NotifyAsync_throws_when_only_enabled_target_delivery_fails`, `HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed`
-- [x] (valid-no-repro) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target — **cheap-disproved hunt #1368:** partial success intentionally completes the integration event (`NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds`); per-target dedup/outbox not in scope for informational ChatOps fan-out
+2026-09-08 seed hunt #1369 (seed-only): reseeded after #1368 fix; cheap-disproved three post-fix candidates; zone set to cooling with all hypotheses closed.
 
 2026-09-08 thorough hunt #1368 (hit): proved all-target ChatOps delivery swallow blocked Service Bus retry; partial sibling success remains best-effort by design.
 

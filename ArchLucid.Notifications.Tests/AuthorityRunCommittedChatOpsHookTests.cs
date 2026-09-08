@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Notifications;
 
 using FluentAssertions;
@@ -408,6 +410,50 @@ public sealed class AuthorityRunCommittedChatOpsHookTests
         {
             SlackNotifyOnAuthorityRunCompleted = true,
             SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 1,
+        };
+
+        Func<Task> act = async () => await sut.NotifyAsync(notice, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*ChatOps webhook delivery failed for all enabled targets*");
+    }
+
+    [Fact]
+    public async Task NotifyAsync_throws_when_all_enabled_targets_return_http_400()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        delivery.Setup(d =>
+                d.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("client error", inner: null, statusCode: HttpStatusCode.BadRequest));
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z",
+            TeamsNotifyOnAuthorityRunCompleted = true,
+            TeamsIncomingWebhookAbsoluteUri = "https://outlook.office.com/webhook/abc",
         };
 
         Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
