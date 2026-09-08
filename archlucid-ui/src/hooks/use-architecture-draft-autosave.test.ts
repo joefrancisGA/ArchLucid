@@ -32,6 +32,16 @@ vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
   upsertArchitectureDraftRegistryEntry: vi.fn(),
 }));
 
+const readArchitectureNewDraftRecovery = vi.fn();
+const clearArchitectureNewDraftRecovery = vi.fn();
+const writeArchitectureNewDraftRecovery = vi.fn();
+
+vi.mock("@/lib/architecture/architecture-new-draft-recovery", () => ({
+  readArchitectureNewDraftRecovery: () => readArchitectureNewDraftRecovery(),
+  clearArchitectureNewDraftRecovery: () => clearArchitectureNewDraftRecovery(),
+  writeArchitectureNewDraftRecovery: (...args: unknown[]) => writeArchitectureNewDraftRecovery(...args),
+}));
+
 import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture/architecture-creation-bootstrap";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -88,6 +98,10 @@ describe("useArchitectureDraftAutosave", () => {
     createDraftRequest.mockReset();
     getDraftRequest.mockReset();
     patchDraftRequest.mockReset();
+    readArchitectureNewDraftRecovery.mockReset();
+    clearArchitectureNewDraftRecovery.mockReset();
+    writeArchitectureNewDraftRecovery.mockReset();
+    readArchitectureNewDraftRecovery.mockReturnValue(null);
   });
 
   it("does not immediately re-PATCH after saving only the architecture name on a bootstrap draft", async () => {
@@ -598,5 +612,72 @@ describe("useArchitectureDraftAutosave", () => {
     expect(onImmutableDraftDetected).toHaveBeenCalledTimes(1);
     expect(result.current.saveState).toBe("idle");
     expect(result.current.conflictMessage).toBeNull();
+  });
+
+  it("hydrates local recovery and creates a server draft when saveable (WS-15)", async () => {
+    const recoveredFields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent("recovered"),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "Recovered architecture",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    readArchitectureNewDraftRecovery.mockReturnValue({
+      fields: recoveredFields,
+      actorSet,
+      queuedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    createDraftRequest.mockResolvedValueOnce({
+      draftId: "draft-recovered",
+      architectureId: "arch-recovered",
+      tenantId: "tenant",
+      workspaceId: "ws",
+      projectId: "default",
+      status: "Drafting",
+      document: {
+        freeTextIntent: recoveredFields.freeTextIntent,
+        businessOutcome: recoveredFields.businessOutcome,
+        systemName: recoveredFields.systemName,
+        actorSet,
+        workflowIntent: "create-architecture",
+        structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      },
+      createdUtc: "2026-09-08T12:00:00.000Z",
+      updatedUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    getDraftRequest.mockResolvedValue(
+      draftResponse(recoveredFields, "2026-09-08T12:00:00.000Z"),
+    );
+    patchDraftRequest.mockResolvedValue(
+      draftResponse(recoveredFields, "2026-09-08T12:00:30.000Z"),
+    );
+
+    const onNewDraftRecoveryHydrated = vi.fn();
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        draftId: "new",
+        fields: recoveredFields,
+        actorSet,
+        deferCreateUntilFirstSave: true,
+        onNewDraftRecoveryHydrated,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(onNewDraftRecoveryHydrated).toHaveBeenCalledTimes(1);
+    });
+
+    expect(result.current.recoveredLocally).toBe(true);
+
+    await waitFor(() => {
+      expect(createDraftRequest).toHaveBeenCalledTimes(1);
+    });
+
+    expect(clearArchitectureNewDraftRecovery).toHaveBeenCalledTimes(1);
+    expect(result.current.hasPersistedDraft).toBe(true);
+    expect(result.current.recoveredLocally).toBe(false);
   });
 });
