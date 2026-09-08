@@ -1483,3 +1483,4 @@
 {"at":"2026-09-08T12:19:58.5594842Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-08T12:24:30.810154Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-08T12:33:56.1808956Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
+{"at":"2026-09-08T12:38:30.8513164Z","zoneId":"architecture-intelligence-orchestrator","outcome":"dry"}
