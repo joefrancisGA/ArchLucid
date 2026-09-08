@@ -13,3 +13,11 @@ export function formatPreCommitGateDisabledCareerBlockedReason(
 
   return PRE_COMMIT_GATE_DISABLED_CAREER_COPY;
 }
+
+/** LP-18 / DR-04 — suppress Ready-to-finalize when Working host leaves pre-finalize gate off. */
+export function shouldSuppressReadyToFinalizeForPreCommitGateHonesty(input: {
+  readonly workingDesk?: boolean;
+  readonly preCommitGateEnabled?: boolean | null;
+}): boolean {
+  return input.workingDesk === true && input.preCommitGateEnabled === false;
+}

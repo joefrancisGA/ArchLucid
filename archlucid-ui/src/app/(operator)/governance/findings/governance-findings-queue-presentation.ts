@@ -7,7 +7,9 @@ import {
   type RiskRegisterFilter,
 } from "@/lib/architecture/architecture-risk-register-page";
 import {
-  BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
+  GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER,
+} from "@/lib/governance-findings-page-copy";
+import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -248,7 +250,7 @@ export function resolveGovernanceFindingsPageSubtitle(
   }
 
   return buyerPolishedShell
-    ? BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD
+    ? GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER
     : ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE;
 }
 

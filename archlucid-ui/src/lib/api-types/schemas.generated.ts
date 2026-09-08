@@ -4324,6 +4324,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            architectRestatement?: null | string;
             currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
@@ -5372,7 +5373,12 @@ export interface components {
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
+            judgeConfiguredCap?: null | number;
+            /** Format: int32 */
+            judgeEffectiveCap?: null | number;
+            /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -6843,6 +6849,7 @@ export interface components {
             governanceRejections?: number;
             /** Format: int32 */
             policyPackAssignments?: number;
+            roiSourceFreshnessDisposition?: string;
             /** Format: int32 */
             runDetailCap?: number;
             runDetailsTruncated?: boolean;
@@ -7586,6 +7593,18 @@ export interface components {
             invariantKey?: string;
             tradeOffDescription?: string;
         };
+        /** @enum {string} */
+        ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionRegisterEntry: {
+            disposition?: components["schemas"]["ProseAssumptionDisposition"];
+            documentPath?: string;
+            evidenceRef?: string;
+            findingId?: null | string;
+            /** Format: int32 */
+            lineNumber?: number;
+            logicalPropertyName?: null | string;
+            statement?: string;
+        };
         ProvenanceEdge: {
             /** Format: uuid */
             fromNodeId?: string;
@@ -7990,10 +8009,13 @@ export interface components {
             updatedFindingIds: string[];
         };
         RecordFindingDispositionRequest: {
+            architectRestatement?: null | string;
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             rationale?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;

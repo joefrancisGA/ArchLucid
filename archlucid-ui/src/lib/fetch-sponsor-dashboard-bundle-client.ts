@@ -1,5 +1,8 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { sponsorDashboardBundleBlockedReason } from "@/lib/roi/sponsor-dashboard-bundle-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
@@ -15,7 +18,14 @@ export type SponsorDashboardBundle = {
 
 /** Browser fetch for sponsor dashboard bundle (ROI summary + 30d drift trend). */
 export async function fetchSponsorDashboardBundleClient(): Promise<SponsorDashboardBundle> {
-  return proxyJsonGet<SponsorDashboardBundle>(SPONSOR_DASHBOARD_BUNDLE_PATH);
+  try {
+    return await proxyJsonGet<SponsorDashboardBundle>(SPONSOR_DASHBOARD_BUNDLE_PATH);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = sponsorDashboardBundleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(error));
+  }
 }
 
 /** Imperative read through the shared TanStack Query cache. */

@@ -22,6 +22,20 @@ public sealed class InsightDensityCurationSummary
         set;
     }
 
+    /// <summary>Configured Premium judge cap before remaining-budget shrink (DX-62).</summary>
+    public int? JudgeConfiguredCap
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Effective Premium judge cap after remaining-budget shrink (DX-62).</summary>
+    public int? JudgeEffectiveCap
+    {
+        get;
+        set;
+    }
+
     /// <summary>Ranked missing-input rollup persisted after engine invocation (DX-52).</summary>
     public IReadOnlyList<HeldCheckLedgerRollupEntry>? HeldCheckLedgerEntries
     {
@@ -31,6 +45,13 @@ public sealed class InsightDensityCurationSummary
 
     /// <summary>Inventory-upload second-pass delta when findings were regenerated (DX-60).</summary>
     public HeldCheckSecondPassSummary? HeldCheckSecondPass
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Grounded prose assumptions that did not all become contradiction findings (DX-61).</summary>
+    public IReadOnlyList<ProseAssumptionRegisterEntry>? ProseAssumptionRegisterEntries
     {
         get;
         set;

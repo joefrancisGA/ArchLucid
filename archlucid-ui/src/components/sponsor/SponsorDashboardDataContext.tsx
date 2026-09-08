@@ -4,6 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useSponsorDashboardBundleQuery } from "@/hooks/use-sponsor-dashboard-bundle-query";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { sponsorDashboardBundleBlockedReason } from "@/lib/roi/sponsor-dashboard-bundle-blocked-reason";
 import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
@@ -35,9 +37,12 @@ export function SponsorDashboardDataProvider({ children }: { children: ReactNode
     (summary === null && !bundleQuery.isFetched);
   const summaryError =
     bundleQuery.isError
-      ? bundleQuery.error instanceof Error
-        ? bundleQuery.error.message
-        : "Failed to load sponsor KPIs."
+      ? (() => {
+          const failure = toApiLoadFailure(bundleQuery.error);
+          const blockedReason = sponsorDashboardBundleBlockedReason(failure);
+
+          return blockedReason ?? failure.message;
+        })()
       : null;
 
   const driftPoints = useMemo(

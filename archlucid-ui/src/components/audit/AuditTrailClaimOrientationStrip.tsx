@@ -3,7 +3,7 @@ import {
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   AUDIT_TRAIL_FOLLOW_UPS_TITLE,
-  AUDIT_TRAIL_SOURCES,
+  AUDIT_TRAIL_ORIENTATION_SOURCES,
   AUDIT_TRAIL_SOURCES_INTRO,
 } from "@/lib/audit-trail-evidence-copy";
 
@@ -14,7 +14,8 @@ export function AuditTrailClaimOrientationStrip(): React.JSX.Element {
       slug="audit-trail"
       sourcesTitle={AUDIT_TRAIL_FOLLOW_UPS_TITLE}
       sourcesIntro={AUDIT_TRAIL_SOURCES_INTRO}
-      sources={AUDIT_TRAIL_SOURCES}
+      sources={AUDIT_TRAIL_ORIENTATION_SOURCES}
+      hubSecondary
     />
   );
 }

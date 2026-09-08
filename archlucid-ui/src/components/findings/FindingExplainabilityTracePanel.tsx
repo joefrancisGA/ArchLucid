@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { getFindingExplainability } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
 import {
   findingEvidenceCountPlainLine,
   findingTraceCompletenessPlainEnglish,
@@ -130,6 +131,16 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
             <strong>Loading explainability trace…</strong>
           </OperatorLoadingNotice>
         </div>
+      ) : null}
+
+      {failure !== null && findingExplainBlockedReason(failure) !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-explainability-trace-sealed-manifest-blocked-reason"
+        >
+          {findingExplainBlockedReason(failure)}
+        </p>
       ) : null}
 
       {failure !== null && unavailableCopy !== null ? (

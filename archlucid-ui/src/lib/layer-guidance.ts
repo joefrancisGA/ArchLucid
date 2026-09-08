@@ -28,6 +28,7 @@ export type LayerGuidancePageKey =
   | "webhooks"
   | "governance-dashboard"
   | "governance-findings"
+  | "decision-register"
   | "governance-setup"
   | "governance-resolution"
   | "governance-workflow"
@@ -132,6 +133,17 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
     enterpriseFootnote:
       "Each risk should remain traceable to the review, evidence, policy rule, and sealed review record that produced it.",
+    omitReviewPackageScopeHelp: true,
+  },
+  "decision-register": {
+    layerBadge: "Approval",
+    headline: "Portfolio decision register — approvals, dispositions, and follow-ups across reviews.",
+    useWhen:
+      "Filter and export recorded decisions, then open the linked review or finding for evidence and audit context.",
+    firstPilotNote:
+      "After Pilot proof when sponsors need a workspace-wide decision ledger beyond a single review package.",
+    enterpriseFootnote:
+      "Read-only export and filters; disposition and approval writes stay on review detail and workflow surfaces.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-setup": {
@@ -396,6 +408,15 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
     enterpriseFootnote:
       "Review administrators and approval reviewers use review detail for deep inspection; approval remains the authoritative checkpoint.",
+  },
+  "decision-register": {
+    headline: "Portfolio decision register — approvals, dispositions, and follow-ups across reviews.",
+    useWhen:
+      "Filter and export recorded decisions, then open the linked review or finding for evidence and audit context.",
+    firstPilotNote: null,
+    enterpriseFootnote:
+      "Read-only export and filters; disposition and approval writes stay on review detail and workflow surfaces.",
+    omitReviewPackageScopeHelp: true,
   },
   "policy-packs": {
     useWhen: "See which policy packs apply in this workspace and how they combine.",

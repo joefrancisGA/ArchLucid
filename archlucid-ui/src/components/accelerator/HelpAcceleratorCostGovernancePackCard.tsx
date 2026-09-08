@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   AcceleratorCostGovernanceCloudPicker,
@@ -25,6 +27,11 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
+import {
+  HELP_ACCELERATOR_COST_GOVERNANCE_TECHNICAL_OPEN_PARAM,
+  helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch,
+  parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch,
+} from "@/lib/accelerator/help-accelerator-cost-governance-technical-disclosure-url";
 import { cn } from "@/lib/utils";
 
 type HelpAcceleratorCostGovernancePackCardProps = {
@@ -37,7 +44,36 @@ export function HelpAcceleratorCostGovernancePackCard(
   props: HelpAcceleratorCostGovernancePackCardProps,
 ): React.JSX.Element {
   const { prerequisiteStatus, onRetry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const technicalOpenParam = searchParams.get(HELP_ACCELERATOR_COST_GOVERNANCE_TECHNICAL_OPEN_PARAM);
+  const [technicalOpen, setTechnicalOpenState] = useState(() =>
+    parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch(technicalOpenParam),
+  );
   const { selectedPackId, setSelectedPackId } = useAcceleratorCostGovernancePackSelection();
+
+  const syncTechnicalOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalOpenState(open);
+      syncTechnicalOpenToUrl(open);
+    },
+    [syncTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalOpenState(parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch(technicalOpenParam));
+  }, [technicalOpenParam]);
   const selectedPack = selectedPackId === null ? null : resolveAcceleratorCostGovernancePackEntry(selectedPackId);
   const ctaState = resolvePackCtaState(prerequisiteStatus, selectedPackId ?? ACCELERATOR_COST_GOVERNANCE_GROUP_ID);
   const cloudSelectionRequiredId = `help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-cloud-required`;
@@ -79,6 +115,8 @@ export function HelpAcceleratorCostGovernancePackCard(
         title="Technical outputs and file detail"
         summaryAriaLabel={`Technical outputs and file detail for ${ACCELERATOR_COST_GOVERNANCE_GROUP.buyerJob}`}
         sectionTestId={`help-accelerator-chooser-pack-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}-technical`}
+        open={technicalOpen}
+        onToggle={setTechnicalOpen}
       >
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="font-medium text-al-text-primary">Inputs: </span>

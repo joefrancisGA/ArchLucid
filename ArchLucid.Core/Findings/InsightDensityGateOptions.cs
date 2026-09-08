@@ -6,14 +6,15 @@ public sealed class InsightDensityGateOptions
     public const string SectionPath = "ArchLucid:Findings:InsightDensityGate";
 
     /// <summary>
-    ///     Scores below this value demote when the candidate also lacks architecture anchors and concrete evidence.
-    ///     Default 50 balances obvious checklist phrasing against evidence-bound findings.
+    ///     Scores below this value demote when the candidate also lacks resolvable package evidence.
+    ///     Default 65 sits between coverage-shaped golden medians (60) and path/contradiction medians (75–85)
+    ///     measured on case-01..case-63 after DX-50. Host JSON override still wins.
     /// </summary>
     public int DemotionThreshold
     {
         get;
         set;
-    } = 50;
+    } = 65;
 
     /// <summary>Jaccard similarity at or above this value applies the maximum duplication penalty.</summary>
     public double HighDuplicationSimilarityThreshold

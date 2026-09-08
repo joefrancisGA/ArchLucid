@@ -32,6 +32,7 @@ public sealed class RunSummaryOnePagerExportService(
     IManifestHashService manifestHashService,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
     IConfiguration configuration) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
@@ -62,12 +63,15 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
-
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -122,6 +126,19 @@ public sealed class RunSummaryOnePagerExportService(
             .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
             .ToArray();
 
+        IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
+            await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(
+                detail,
+                _findingReviewTrailRepository,
+                scope,
+                cancellationToken);
+
+        StringBuilder architectRestatementMarkdown = new();
+        FindingArchitectRestatementExportComposer.AppendMarkdownSection(architectRestatementMarkdown, architectRestatements);
+        string? architectRestatementMarkdownText = architectRestatementMarkdown.Length == 0
+            ? null
+            : architectRestatementMarkdown.ToString().Trim();
+
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
@@ -132,7 +149,8 @@ public sealed class RunSummaryOnePagerExportService(
                 SponsorReport,
                 topTitles,
                 activeTrialExportNotice,
-                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty));
+                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
+                architectRestatementMarkdown: architectRestatementMarkdownText);
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
@@ -25,13 +25,9 @@ import {
 } from "@/components/operator/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  getArchitectureRequestDownloadUrl,
-  getBundleDownloadUrl,
-  getRunExportDownloadUrl,
-  getRunPackageExportUrl,
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
-} from "@/lib/api";
+import { getArchitectureRequestDownloadUrl, getBundleDownloadUrl, getRunExportDownloadUrl, getRunPackageExportUrl, SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
@@ -141,6 +137,27 @@ export function RunDetailArtifactsExportsSection(
     },
     [pathname, router, searchParams],
   );
+
+  const [bundleBusy, setBundleBusy] = useState(false);
+
+  const onDownloadEvidenceBundle = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setBundleBusy(true);
+
+    void downloadArtifactBundleZip(manifestId)
+      .catch((error: unknown) => {
+        showError(
+          "Evidence bundle",
+          error instanceof Error ? error.message : "Could not download artifact bundle.",
+        );
+      })
+      .finally(() => {
+        setBundleBusy(false);
+      });
+  }, [collateralExportBlockedReason, manifestId]);
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
@@ -342,12 +359,16 @@ export function RunDetailArtifactsExportsSection(
                       </p>
                     </>
                   ) : (
-                    <ExportTrackedAnchor
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
-                      href={getBundleDownloadUrl(manifestId)}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={bundleBusy}
+                      data-testid="run-detail-evidence-bundle-export"
+                      onClick={onDownloadEvidenceBundle}
                     >
-                      Download evidence bundle
-                    </ExportTrackedAnchor>
+                      {bundleBusy ? "Downloading…" : "Download evidence bundle"}
+                    </Button>
                   )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>

@@ -527,7 +527,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
         FindingDispositionService dispositionService = new(
             Mock.Of<IFindingDispositionConcurrencyRepository>(),
             CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId),
-            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>());
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
+            Mock.Of<ArchLucid.Core.UserPreferences.IUserWorkspaceModeReader>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,
@@ -574,7 +575,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
         FindingDispositionService dispositionService = new(
             Mock.Of<IFindingDispositionConcurrencyRepository>(),
             trail.Object,
-            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>());
+            Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
+            Mock.Of<ArchLucid.Core.UserPreferences.IUserWorkspaceModeReader>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,

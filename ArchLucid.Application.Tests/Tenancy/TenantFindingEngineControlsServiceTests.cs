@@ -237,7 +237,7 @@ public sealed class TenantFindingEngineControlsServiceTests
     InsightDensityGateOptions effective = resolver.Resolve();
 
     effective.EnableLlmJudge.Should().BeTrue();
-    effective.DemotionThreshold.Should().Be(50);
+    effective.DemotionThreshold.Should().Be(65);
   }
 
   [Fact]

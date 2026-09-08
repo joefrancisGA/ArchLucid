@@ -45,6 +45,7 @@ import {
   parseTeamsRemoveConfirmOpenFromSearch,
   teamsNotificationsRemoveConfirmHrefFromSearch,
 } from "@/lib/integrations/teams-notifications-remove-confirm-url";
+import { teamsIntegrationHasUnsavedEdits } from "@/lib/teams-integration-form-unsaved";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this Teams connection. Check the fields and try again.";
 
@@ -152,6 +153,11 @@ export function useTeamsNotificationsIntegrationPage(
 
     return secretValidation?.outcome === "valid";
   }, [secretName, secretValidation]);
+
+  const hasUnsavedEdits = useMemo(
+    () => teamsIntegrationHasUnsavedEdits(conn, catalog, secretName, label, enabledTriggers),
+    [catalog, conn, enabledTriggers, label, secretName],
+  );
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -409,5 +415,6 @@ export function useTeamsNotificationsIntegrationPage(
     requestRemove,
     cancelRemove,
     confirmRemove,
+    hasUnsavedEdits,
   };
 }

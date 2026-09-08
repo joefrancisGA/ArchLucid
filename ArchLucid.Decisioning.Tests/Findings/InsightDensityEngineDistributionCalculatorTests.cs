@@ -161,7 +161,7 @@ public sealed class InsightDensityEngineDistributionCalculatorTests
         InsightDensityEngineDistributionRow row = distribution.Rows.Single();
         row.NoConcreteEvidenceCount.Should().Be(1);
         row.WouldDemoteAt65Count.Should().Be(1);
-        row.WouldDemoteIfUnprotectedCount.Should().Be(0);
+        row.WouldDemoteIfUnprotectedCount.Should().Be(1);
     }
 
     [Fact]

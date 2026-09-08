@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>();
@@ -36,6 +36,9 @@ import {
   BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
   reviewsNewPageSubtitle,
 } from "@/lib/reviews-new-page-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { REVIEWS_NEW_ORIENTATION_SOURCES } from "@/lib/reviews-new-evidence-copy";
 import {
   REVIEWS_NEW_FIRST_VIEWPORT_ID,
   REVIEWS_NEW_PRIMARY_CONTENT_ID,
@@ -136,14 +139,21 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
       BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
     );
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "detailed")).toBe(BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE);
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
+
+    const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });
 
 describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
-  it("omits shell-level related resources on guided-intake so the wizard can tuck them under clarifications", () => {
+  it("omits shell-level related resources on guided-intake and hides duplicate path hint", () => {
     searchParamsGet.mockImplementation((key: string) => (key === "path" ? "guided-intake" : null));
 
     render(
@@ -159,8 +169,19 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
     expect(screen.queryByTestId("reviews-new-settings-sources")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Related resources" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "guided-intake")).toBe(BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE);
+
+    const primaryContent = screen.getByTestId("reviews-new-primary-content");
+    const firstViewport = screen.getByTestId(REVIEWS_NEW_FIRST_VIEWPORT_ID);
+    const pageTitle = screen.getByTestId("reviews-new-page-title");
+    const pathSwitcher = screen.getByTestId("reviews-new-path-switcher");
+
+    expect(primaryContent).toContainElement(pageTitle);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).not.toContainElement(pageTitle);
+    expect(firstViewport).toContainElement(pathSwitcher);
   });
 });
 
@@ -183,8 +204,15 @@ describe("ReviewsNewPageChrome buyer-polished shell (REQ)", () => {
       BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE,
     );
     expect(screen.getByTestId("reviews-new-optional-cloud-hint")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "quick-review")).toBe(BUYER_REVIEWS_NEW_QUICK_REVIEW_PAGE_SUBTITLE);
     expectFirstViewportOrientationAboveWorkspace("reviews-new-path-switcher");
+
+    const sourcesSection = screen.getByTestId("reviews-new-settings-sources");
+    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_NEW_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

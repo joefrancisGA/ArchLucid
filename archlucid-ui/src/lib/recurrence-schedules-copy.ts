@@ -6,6 +6,13 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE =
   "Automate recurring review cadences scoped to architecture identities.";
 
+export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE_BUYER =
+  "See active schedules, next run times, and enablement for this workspace.";
+
+export function recurrenceSchedulesPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? RECURRENCE_SCHEDULES_PAGE_SUBTITLE_BUYER : RECURRENCE_SCHEDULES_PAGE_SUBTITLE;
+}
+
 export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE = "How recurrence schedules work";
 
 /** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1130). */

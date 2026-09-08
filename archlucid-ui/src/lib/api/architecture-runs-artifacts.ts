@@ -4,17 +4,23 @@ import {
   type ApiGetOptions,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
-  apiGet,
 } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ManifestSummary> {
-  return apiGet<ManifestSummary>(`/v1/authority/signed-review-records/${manifestId}/summary`, options);
+  return apiGetSealedManifestAware<ManifestSummary>(
+    `/v1/authority/signed-review-records/${manifestId}/summary`,
+    options,
+  );
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
@@ -22,7 +28,10 @@ export async function listArtifacts(
   manifestId: string,
   options?: ApiGetOptions,
 ): Promise<ArtifactDescriptor[]> {
-  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-review-records/${manifestId}`, options);
+  return apiGetSealedManifestAware<ArtifactDescriptor[]>(
+    `/v1/artifacts/signed-review-records/${manifestId}`,
+    options,
+  );
 }
 
 /** JSON metadata for one artifact (no binary download). */
@@ -30,7 +39,7 @@ export async function getArtifactDescriptor(
   manifestId: string,
   artifactId: string,
 ): Promise<ArtifactDescriptor> {
-  return apiGet<ArtifactDescriptor>(
+  return apiGetSealedManifestAware<ArtifactDescriptor>(
     `/v1/artifacts/signed-review-records/${manifestId}/artifact/${artifactId}/descriptor`,
   );
 }
@@ -58,15 +67,17 @@ export async function fetchArtifactContentUtf8(
   await ensureOidcBearerReady();
   const path = `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = await resolveBinaryGetRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const requestHeaders = withCorrelationHeaders(headers);
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
   const response = await fetch(url, {
     cache: "no-store",
-    headers: h,
+    headers: correlatedHeaders,
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const contentType = response.headers.get("content-type") ?? "application/octet-stream";

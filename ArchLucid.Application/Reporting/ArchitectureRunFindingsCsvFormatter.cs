@@ -215,7 +215,9 @@ public static class ArchitectureRunFindingsCsvFormatter
         if (tracking is null)
             return string.Empty;
 
-        return tracking.HumanReviewStatus.ToString();
+        return FindingHumanReviewDispositionDivergence.FormatHumanReviewStatusForExport(
+            tracking.HumanReviewStatus,
+            tracking.LatestDisposition);
     }
 
     private static string FormatDisposition(RunFindingExternalTrackingProjection? tracking)

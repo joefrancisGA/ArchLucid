@@ -5,12 +5,19 @@
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import {
+  parseFilenameFromContentDisposition,
+  triggerBrowserBlobDownload,
+} from "./downloads-blob-trigger-browser";
 import {
   apiGet,
   apiPostJson,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
 
@@ -106,23 +113,21 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");
-  const response = await fetch(url, { cache: "no-store", headers: requestHeaders });
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
 
   if (!response.ok) {
     const text = await response.text();
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = await response.blob();
-  const disposition = response.headers.get("Content-Disposition") ?? "";
-  const fileNameMatch = /filename="?([^";]+)"?/i.exec(disposition);
-  const fileName = fileNameMatch?.[1] ?? `architecture-run-${runId}-findings.csv`;
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = objectUrl;
-  anchor.download = fileName;
-  anchor.click();
-  URL.revokeObjectURL(objectUrl);
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `architecture-run-${runId}-findings.csv`;
+
+  await triggerBrowserBlobDownload(blob, fileName);
 }
 
 /** Mutes a finding for a run (ExecuteAuthority); persists to relational findings snapshot. */

@@ -1,8 +1,17 @@
+"use client";
+
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
-import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import {
+  PRODUCT_CONCEPTS_GLOSSARY_SECTION_OPEN_PARAM,
+  parseProductConceptsGlossarySectionOpenFromSearch,
+  productConceptsGlossarySectionDisclosureHrefFromSearch,
+} from "@/lib/operator/product-concepts-glossary-section-disclosure-url";
 
 type GlossaryEntry = {
   readonly term: string;
@@ -87,9 +96,58 @@ export function ProductConceptsGlossary({
   className,
   defaultOpen = false,
 }: ProductConceptsGlossaryProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const glossarySectionOpenParam = searchParams.get(PRODUCT_CONCEPTS_GLOSSARY_SECTION_OPEN_PARAM);
+  const [sectionOpen, setSectionOpenState] = useState(
+    () => parseProductConceptsGlossarySectionOpenFromSearch(glossarySectionOpenParam) || defaultOpen === true,
+  );
+
+  const syncSectionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        productConceptsGlossarySectionDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSectionOpen = useCallback(
+    (open: boolean) => {
+      setSectionOpenState(open);
+      syncSectionOpenToUrl(open);
+    },
+    [syncSectionOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseProductConceptsGlossarySectionOpenFromSearch(glossarySectionOpenParam)) {
+      setSectionOpenState(true);
+
+      return;
+    }
+
+    if (glossarySectionOpenParam !== null) {
+      setSectionOpenState(false);
+
+      return;
+    }
+
+    if (defaultOpen === true) {
+      setSectionOpenState(true);
+    }
+  }, [defaultOpen, glossarySectionOpenParam]);
+
   return (
     <div className={className}>
-      <CollapsibleSection title="Terminology reference" defaultOpen={defaultOpen}>
+      <CollapsibleSection
+        title="Terminology reference"
+        open={sectionOpen}
+        onToggle={setSectionOpen}
+        sectionTestId="product-concepts-glossary-terms"
+      >
         <dl className={cn("m-0 space-y-3", OPERATOR_TYPOGRAPHY.body)}>
           {entries.map((entry) => (
             <div key={entry.term}>

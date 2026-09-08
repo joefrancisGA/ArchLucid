@@ -60,6 +60,24 @@ public sealed class DraftDocumentMutatorTests
     }
 
     [Fact]
+    public void SyncTransparencyFromDocument_DoesNotAssertOpenQuestions()
+    {
+        DraftRequestDocument document = new()
+        {
+            FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            OpenQuestions = "Who owns quarterly access reviews?",
+            BusinessOutcome = "Reduce manual triage time",
+        };
+
+        DraftDocumentMutator.SyncTransparencyFromDocument(document);
+
+        document.TransparencyTrail.Asserted.Should().Contain(entry =>
+            entry.Key == "businessOutcome" && entry.Value == "Reduce manual triage time");
+        document.TransparencyTrail.Asserted.Should().NotContain(entry =>
+            entry.Key.Contains("open", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void RecordAssertedAnswer_RecordsAssertedTrailEntry()
     {
         DraftRequestDocument document = new()

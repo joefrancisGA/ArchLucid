@@ -23,6 +23,9 @@ public static class InsightDensityMeasurementFloorPresenter
         bool meetsFloor = measured is not null && measured.Value >= CareerExportMeasurementFloorMinEngines;
         IReadOnlyList<string> skippedActorEngineTypes = ResolveSkippedActorEngineTypes(context);
         int? judgeSkippedByCap = NormalizeJudgeSkippedByCap(context?.JudgeSkippedByCap);
+        string? judgeCapReductionClause = ResolveJudgeCapReductionClause(
+            context?.JudgeConfiguredCap,
+            context?.JudgeEffectiveCap);
         IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries =
             context?.HeldCheckLedgerEntries ?? [];
         string? topHeldCheckUnblockClause = ResolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
@@ -39,6 +42,7 @@ public static class InsightDensityMeasurementFloorPresenter
                 harness,
                 skippedActorEngineTypes,
                 judgeSkippedByCap,
+                judgeCapReductionClause,
                 topHeldCheckUnblockClause,
                 heldCheckSecondPassClause),
             MeetsCareerExportFloor = meetsFloor,
@@ -70,6 +74,22 @@ public static class InsightDensityMeasurementFloorPresenter
         return InsightDensityMeasurementFloorContext.DeriveSkippedActorEngineTypes(
             context.ActorNodeCount,
             context.AnalysisStagesComplete);
+    }
+
+    private static string? ResolveJudgeCapReductionClause(int? configuredCap, int? effectiveCap)
+    {
+        if (configuredCap is null or <= 0 || effectiveCap is null)
+        {
+            return null;
+        }
+
+        if (effectiveCap >= configuredCap)
+        {
+            return null;
+        }
+
+        return
+            $"Premium judge cap reduced from {configuredCap.Value} to {effectiveCap.Value} from remaining AI budget.";
     }
 
     private static int? NormalizeJudgeSkippedByCap(int? judgeSkippedByCap)
@@ -134,6 +154,7 @@ public static class InsightDensityMeasurementFloorPresenter
         int harness,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
+        string? judgeCapReductionClause,
         string? topHeldCheckUnblockClause,
         string? heldCheckSecondPassClause)
     {
@@ -159,6 +180,7 @@ public static class InsightDensityMeasurementFloorPresenter
             baseSentence,
             skippedActorEngineTypes,
             judgeSkippedByCap,
+            judgeCapReductionClause,
             topHeldCheckUnblockClause,
             heldCheckSecondPassClause);
     }
@@ -167,6 +189,7 @@ public static class InsightDensityMeasurementFloorPresenter
         string baseSentence,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
+        string? judgeCapReductionClause,
         string? topHeldCheckUnblockClause,
         string? heldCheckSecondPassClause)
     {
@@ -184,6 +207,11 @@ public static class InsightDensityMeasurementFloorPresenter
                 judgeSkippedByCap.Value == 1
                     ? "Premium insight-density judge skipped 1 finding by per-snapshot cap."
                     : $"Premium insight-density judge skipped {judgeSkippedByCap.Value} findings by per-snapshot cap.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(judgeCapReductionClause))
+        {
+            suffixes.Add(judgeCapReductionClause);
         }
 
         if (!string.IsNullOrWhiteSpace(topHeldCheckUnblockClause))

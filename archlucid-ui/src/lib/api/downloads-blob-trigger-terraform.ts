@@ -1,8 +1,10 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
   isBrowser,
-  throwApiRequestError,
 } from "./http";
 import { getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
 import {
@@ -35,7 +37,8 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/zip"]);

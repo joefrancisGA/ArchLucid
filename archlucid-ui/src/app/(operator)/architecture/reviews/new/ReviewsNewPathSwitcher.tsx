@@ -17,6 +17,7 @@ import {
 } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
@@ -91,6 +92,7 @@ export function ReviewsNewPathSwitcher() {
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
   const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const commitQuery = useCorePilotCommitContextQuery();
   const isReturningTenant =
     commitQuery.isPending || commitQuery.data?.hasCommittedManifest === true;
@@ -209,12 +211,14 @@ export function ReviewsNewPathSwitcher() {
                   {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
                 </button>
               ) : null}
-              <p
-                className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="reviews-new-path-hint"
-              >
-                <InlineGuidanceText text={pathHints[activePath]} />
-              </p>
+              {!buyerPolishedShell ? (
+                <p
+                  className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="reviews-new-path-hint"
+                >
+                  <InlineGuidanceText text={pathHints[activePath]} />
+                </p>
+              ) : null}
               <div data-testid="reviews-new-path-panel">
                 <ReviewsNewActiveWizard activePath={activePath} />
               </div>

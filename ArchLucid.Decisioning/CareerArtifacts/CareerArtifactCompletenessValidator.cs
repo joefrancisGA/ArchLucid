@@ -187,7 +187,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         CareerArtifactCompletenessInput input,
         List<CareerArtifactBlockReason> blockReasons)
     {
-        if (!input.WorkingDesk || input.ArtifactKind != CareerArtifactKind.Finalize)
+        if (!input.WorkingDesk)
         {
             return;
         }

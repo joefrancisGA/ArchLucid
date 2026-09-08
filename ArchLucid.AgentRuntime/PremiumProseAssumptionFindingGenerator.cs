@@ -61,7 +61,7 @@ public sealed class PremiumProseAssumptionFindingGenerator(
     private readonly ILogger<PremiumProseAssumptionFindingGenerator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<IReadOnlyList<Finding>> GenerateAsync(
+    public async Task<ProseAssumptionGenerationResult> GenerateAsync(
         GraphSnapshot graphSnapshot,
         FindingAnalysisContext? analysisContext,
         CancellationToken cancellationToken = default)
@@ -69,18 +69,18 @@ public sealed class PremiumProseAssumptionFindingGenerator(
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         if (!IsRealExecutionMode())
-            return [];
+            return ProseAssumptionGenerationResult.Empty;
 
         InsightDensityGateOptions options = _gateOptionsResolver.Resolve(cancellationToken);
 
         if (!options.EnableProseAssumptionExtraction || !IsPremiumDeploymentConfigured())
-            return [];
+            return ProseAssumptionGenerationResult.Empty;
 
         IReadOnlyList<ContextDocumentRequest> documents = await LoadDocumentsAsync(analysisContext, cancellationToken)
             .ConfigureAwait(false);
 
         if (documents.Count == 0)
-            return [];
+            return ProseAssumptionGenerationResult.Empty;
 
         Dictionary<string, string> documentBodiesByPath = documents
             .Where(document => !string.IsNullOrWhiteSpace(document.Name) && !string.IsNullOrWhiteSpace(document.Content))
@@ -111,14 +111,17 @@ public sealed class PremiumProseAssumptionFindingGenerator(
         }
 
         if (groundedCandidates.Count == 0)
-            return [];
+            return ProseAssumptionGenerationResult.Empty;
 
-        return await _contradictionService.EmitContradictionsAsync(
+        ProseAssumptionContradictionOutcome outcome = await _contradictionService.EmitOutcomeAsync(
             groundedCandidates,
             graphSnapshot,
             analysisContext,
             options.MaxProseAssumptionFindingsPerSnapshot,
+            options.MaxProseAssumptionCandidatesPerSnapshot,
             cancellationToken).ConfigureAwait(false);
+
+        return new ProseAssumptionGenerationResult(outcome.Findings, outcome.RegisterEntries);
     }
 
     private async Task AppendPremiumCandidatesAsync(

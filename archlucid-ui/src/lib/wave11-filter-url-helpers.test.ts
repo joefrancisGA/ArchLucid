@@ -5338,6 +5338,556 @@ describe("wave67 filter url helpers", () => {
   });
 });
 
+describe("wave68 filter url helpers", () => {
+  it("finding inspect evidence citation, alerts inbox triage overflow, ask assistant more sources, scope switcher technical details, sponsor workspace health session scope, advisory sample disposition, architecture created overflow, citation chips technical citation, architecture diagram version history, report problem details params", async () => {
+    const {
+      findingInspectEvidenceCitationDisclosureHrefFromSearch,
+      parseFindingInspectEvidenceCitationArtifactIdFromSearch,
+    } = await import("@/lib/findings/finding-inspect-evidence-citation-disclosure-url");
+    const {
+      alertsInboxTriageOverflowDisclosureHrefFromSearch,
+      parseAlertsInboxTriageOverflowAlertIdFromSearch,
+    } = await import("@/lib/alerts/alerts-inbox-triage-overflow-disclosure-url");
+    const {
+      askAssistantMoreSourcesDisclosureHrefFromSearch,
+      parseAskAssistantMoreSourcesOpenFromSearch,
+    } = await import("@/lib/insights/ask-assistant-more-sources-disclosure-url");
+    const {
+      parseScopeSwitcherTechnicalDetailsOpenFromSearch,
+      scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/scope-switcher-technical-details-disclosure-url");
+    const {
+      parseSponsorWorkspaceHealthSessionScopeOpenFromSearch,
+      sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/sponsor-workspace-health-session-scope-disclosure-url");
+    const {
+      advisorySampleDispositionDisclosureHrefFromSearch,
+      parseAdvisorySampleDispositionOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-sample-disposition-disclosure-url");
+    const {
+      architectureCreatedOverflowDisclosureHrefFromSearch,
+      parseArchitectureCreatedOverflowOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-overflow-disclosure-url");
+    const {
+      citationChipsTechnicalCitationDisclosureHrefFromSearch,
+      parseCitationChipsTechnicalCitationKeyFromSearch,
+    } = await import("@/lib/explanation/citation-chips-technical-citation-disclosure-url");
+    const {
+      architectureDiagramVersionHistoryDisclosureHrefFromSearch,
+      parseArchitectureDiagramVersionHistoryOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-diagram-version-history-disclosure-url");
+    const {
+      parseReportProblemDetailsOpenFromSearch,
+      reportProblemDetailsDisclosureHrefFromSearch,
+    } = await import("@/lib/support/report-problem-details-disclosure-url");
+
+    expect(parseFindingInspectEvidenceCitationArtifactIdFromSearch("artifact-1")).toBe("artifact-1");
+    expect(
+      findingInspectEvidenceCitationDisclosureHrefFromSearch(
+        "",
+        "artifact-1",
+        "/architecture/reviews/run-1/findings/f-1",
+      ),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectEvidenceCitationArtifactId=artifact-1");
+    expect(parseAlertsInboxTriageOverflowAlertIdFromSearch("alert-1")).toBe("alert-1");
+    expect(alertsInboxTriageOverflowDisclosureHrefFromSearch("tab=open", "alert-1", "/governance/alerts")).toBe(
+      "/governance/alerts?tab=open&alertsInboxTriageOverflowAlertId=alert-1",
+    );
+    expect(parseAskAssistantMoreSourcesOpenFromSearch("1")).toBe(true);
+    expect(askAssistantMoreSourcesDisclosureHrefFromSearch("", true, "/insights/ask")).toBe(
+      "/insights/ask?askAssistantMoreSourcesOpen=1",
+    );
+    expect(parseScopeSwitcherTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch("runId=demo", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runId=demo&scopeSwitcherTechnicalDetailsOpen=1",
+    );
+    expect(parseSponsorWorkspaceHealthSessionScopeOpenFromSearch("1")).toBe(true);
+    expect(
+      sponsorWorkspaceHealthSessionScopeDisclosureHrefFromSearch("", true, "/governance/sponsor-workspace-health"),
+    ).toBe("/governance/sponsor-workspace-health?sponsorWorkspaceHealthSessionScopeOpen=1");
+    expect(parseAdvisorySampleDispositionOpenFromSearch("true")).toBe(true);
+    expect(advisorySampleDispositionDisclosureHrefFromSearch("tab=scans", true, "/advisory/scans")).toBe(
+      "/advisory/scans?tab=scans&advisorySampleDispositionOpen=1",
+    );
+    expect(parseArchitectureCreatedOverflowOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedOverflowDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1/created"),
+    ).toBe("/architecture/reviews/run-1/created?tab=overview&architectureCreatedOverflowOpen=1");
+    expect(parseCitationChipsTechnicalCitationKeyFromSearch("citation-key-1")).toBe("citation-key-1");
+    expect(
+      citationChipsTechnicalCitationDisclosureHrefFromSearch("", "citation-key-1", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?citationChipsTechnicalCitationKey=citation-key-1");
+    expect(parseArchitectureDiagramVersionHistoryOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureDiagramVersionHistoryDisclosureHrefFromSearch("tab=diagram", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=diagram&architectureDiagramVersionHistoryOpen=1");
+    expect(parseReportProblemDetailsOpenFromSearch("1")).toBe(true);
+    expect(reportProblemDetailsDisclosureHrefFromSearch("", true, "/support/report-problem")).toBe(
+      "/support/report-problem?reportProblemDetailsOpen=1",
+    );
+  });
+});
+
+describe("wave69 filter url helpers", () => {
+  it("architecture created home overflow, architecture intelligence technical, artifact review raw content, finding causal chain, ask review anchors, architecture structured section, compare decision technical, manifest top decisions area, wizard advanced section, finding derivation evidence params", async () => {
+    const {
+      architectureCreatedHomeOverflowDisclosureHrefFromSearch,
+      parseArchitectureCreatedHomeOverflowOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-home-overflow-disclosure-url");
+    const {
+      architectureIntelligenceTechnicalDisclosureHrefFromSearch,
+      parseArchitectureIntelligenceTechnicalOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-intelligence-technical-disclosure-url");
+    const {
+      artifactReviewRawContentDisclosureHrefFromSearch,
+      parseArtifactReviewRawContentOpenFromSearch,
+    } = await import("@/lib/artifacts/artifact-review-raw-content-disclosure-url");
+    const {
+      findingCausalChainDisclosureHrefFromSearch,
+      parseFindingCausalChainOpenFromSearch,
+    } = await import("@/lib/findings/finding-causal-chain-disclosure-url");
+    const {
+      askReviewAnchorsDisclosureHrefFromSearch,
+      parseAskReviewAnchorsOpenFromSearch,
+    } = await import("@/lib/insights/ask-review-anchors-disclosure-url");
+    const {
+      architectureStructuredSectionDisclosureHrefFromSearch,
+      parseArchitectureStructuredSectionKeyFromSearch,
+    } = await import("@/lib/architecture/architecture-structured-section-disclosure-url");
+    const {
+      compareDecisionTechnicalDisclosureHrefFromSearch,
+      parseCompareDecisionTechnicalKeyFromSearch,
+    } = await import("@/lib/compare/compare-decision-technical-disclosure-url");
+    const {
+      manifestTopDecisionsAreaDisclosureHrefFromSearch,
+      parseManifestTopDecisionsAreaKeyFromSearch,
+    } = await import("@/lib/manifests/manifest-top-decisions-area-disclosure-url");
+    const {
+      parseWizardAdvancedSectionKeyFromSearch,
+      wizardAdvancedSectionDisclosureHrefFromSearch,
+    } = await import("@/lib/wizard/wizard-advanced-section-disclosure-url");
+    const {
+      findingDerivationEvidenceDisclosureHrefFromSearch,
+      parseFindingDerivationEvidenceOpenFromSearch,
+    } = await import("@/lib/findings/finding-derivation-evidence-disclosure-url");
+
+    expect(parseArchitectureCreatedHomeOverflowOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedHomeOverflowDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/created"),
+    ).toBe("/architecture/reviews/run-1/created?architectureCreatedHomeOverflowOpen=1");
+    expect(parseArchitectureIntelligenceTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureIntelligenceTechnicalDisclosureHrefFromSearch("tab=runs", true, "/architecture/architecture-intelligence"),
+    ).toBe("/architecture/architecture-intelligence?tab=runs&architectureIntelligenceTechnicalOpen=1");
+    expect(parseArtifactReviewRawContentOpenFromSearch("1")).toBe(true);
+    expect(artifactReviewRawContentDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/artifacts/a-1")).toBe(
+      "/architecture/reviews/run-1/artifacts/a-1?artifactReviewRawContentOpen=1",
+    );
+    expect(parseFindingCausalChainOpenFromSearch("true")).toBe(true);
+    expect(findingCausalChainDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/run-1/findings/f-1")).toBe(
+      "/architecture/reviews/run-1/findings/f-1?tab=findings&findingCausalChainOpen=1",
+    );
+    expect(parseAskReviewAnchorsOpenFromSearch("1")).toBe(true);
+    expect(askReviewAnchorsDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askReviewAnchorsOpen=1",
+    );
+    expect(parseArchitectureStructuredSectionKeyFromSearch("overview")).toBe("overview");
+    expect(
+      architectureStructuredSectionDisclosureHrefFromSearch("tab=structured", "overview", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=structured&architectureStructuredSectionKey=overview");
+    expect(parseCompareDecisionTechnicalKeyFromSearch("decision-key-1")).toBe("decision-key-1");
+    expect(
+      compareDecisionTechnicalDisclosureHrefFromSearch("", "decision-key-1", "/insights/compare-two-reviews"),
+    ).toBe("/insights/compare-two-reviews?compareDecisionTechnicalKey=decision-key-1");
+    expect(parseManifestTopDecisionsAreaKeyFromSearch("Security")).toBe("Security");
+    expect(
+      manifestTopDecisionsAreaDisclosureHrefFromSearch("", "Security", "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestTopDecisionsAreaKey=Security");
+    expect(parseWizardAdvancedSectionKeyFromSearch("documents")).toBe("documents");
+    expect(wizardAdvancedSectionDisclosureHrefFromSearch("step=advanced", "documents", "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=advanced&wizardAdvancedSectionKey=documents",
+    );
+    expect(parseFindingDerivationEvidenceOpenFromSearch("true")).toBe(true);
+    expect(
+      findingDerivationEvidenceDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingDerivationEvidenceOpen=1");
+  });
+});
+
+describe("wave70 filter url helpers", () => {
+  it("first pilot technical commands, help technical reference group/mobile, help azure role details, caiq sig evidence segment, help mermaid diagram source, help topic toc mobile/group, transparency trail, product learning summary notes, recommendation learning weights params", async () => {
+    const {
+      firstPilotTechnicalCommandsDisclosureHrefFromSearch,
+      parseFirstPilotTechnicalCommandsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-technical-commands-disclosure-url");
+    const {
+      helpTechnicalReferenceGroupDisclosureHrefFromSearch,
+      parseHelpTechnicalReferenceGroupKeyFromSearch,
+    } = await import("@/lib/help/help-technical-reference-group-disclosure-url");
+    const {
+      helpTechnicalReferenceMobileDisclosureHrefFromSearch,
+      parseHelpTechnicalReferenceMobileOpenFromSearch,
+    } = await import("@/lib/help/help-technical-reference-mobile-disclosure-url");
+    const {
+      helpAzureRoleDetailsDisclosureHrefFromSearch,
+      parseHelpAzureRoleDetailsKeyFromSearch,
+    } = await import("@/lib/help/help-azure-role-details-disclosure-url");
+    const {
+      caiqSigEvidenceSegmentDisclosureHrefFromSearch,
+      parseCaiqSigEvidenceSegmentKeyFromSearch,
+    } = await import("@/lib/help/caiq-sig-evidence-segment-disclosure-url");
+    const {
+      helpMermaidDiagramSourceDisclosureHrefFromSearch,
+      parseHelpMermaidDiagramSourceOpenFromSearch,
+    } = await import("@/lib/help/help-mermaid-diagram-source-disclosure-url");
+    const {
+      helpTopicTocMobileDisclosureHrefFromSearch,
+      parseHelpTopicTocMobileOpenFromSearch,
+    } = await import("@/lib/help/help-topic-toc-mobile-disclosure-url");
+    const {
+      helpTopicTocGroupDisclosureHrefFromSearch,
+      parseHelpTopicTocGroupKeyFromSearch,
+    } = await import("@/lib/help/help-topic-toc-group-disclosure-url");
+    const {
+      parseTransparencyTrailOpenFromSearch,
+      transparencyTrailHrefFromSearch,
+    } = await import("@/lib/reviews/transparency-trail-open-url");
+    const {
+      parseProductLearningSummaryNotesOpenFromSearch,
+      productLearningSummaryNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/product-learning-summary-notes-disclosure-url");
+    const {
+      parseRecommendationLearningWeightsOpenFromSearch,
+      recommendationLearningWeightsDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/recommendation-learning-weights-disclosure-url");
+
+    expect(parseFirstPilotTechnicalCommandsOpenFromSearch("1")).toBe(true);
+    expect(firstPilotTechnicalCommandsDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotTechnicalCommandsOpen=1",
+    );
+    expect(parseHelpTechnicalReferenceGroupKeyFromSearch("api-reference")).toBe("api-reference");
+    expect(
+      helpTechnicalReferenceGroupDisclosureHrefFromSearch("", "api-reference", "/help/technical-reference"),
+    ).toBe("/help/technical-reference?helpTechnicalReferenceGroupKey=api-reference");
+    expect(parseHelpTechnicalReferenceMobileOpenFromSearch("true")).toBe(true);
+    expect(helpTechnicalReferenceMobileDisclosureHrefFromSearch("tab=overview", true, "/help/technical-reference")).toBe(
+      "/help/technical-reference?tab=overview&helpTechnicalReferenceMobileOpen=1",
+    );
+    expect(parseHelpAzureRoleDetailsKeyFromSearch("contributor")).toBe("contributor");
+    expect(helpAzureRoleDetailsDisclosureHrefFromSearch("", "contributor", "/help/azure-cloud-connection")).toBe(
+      "/help/azure-cloud-connection?helpAzureRoleDetailsKey=contributor",
+    );
+    expect(parseCaiqSigEvidenceSegmentKeyFromSearch("caiq-sig-evidence-gap-0")).toBe("caiq-sig-evidence-gap-0");
+    const caiqSigEvidenceSegmentKey = "caiq-sig-evidence-gap-0";
+    expect(
+      caiqSigEvidenceSegmentDisclosureHrefFromSearch("tab=responses", caiqSigEvidenceSegmentKey, "/help/caiq-sig"),
+    ).toBe(`/help/caiq-sig?tab=responses&caiqSigEvidenceSegmentKey=${caiqSigEvidenceSegmentKey}`);
+    expect(parseHelpMermaidDiagramSourceOpenFromSearch("1")).toBe(true);
+    expect(helpMermaidDiagramSourceDisclosureHrefFromSearch("", true, "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?helpMermaidDiagramSourceOpen=1",
+    );
+    expect(parseHelpTopicTocMobileOpenFromSearch("true")).toBe(true);
+    expect(helpTopicTocMobileDisclosureHrefFromSearch("topic=overview", true, "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?topic=overview&helpTopicTocMobileOpen=1",
+    );
+    expect(parseHelpTopicTocGroupKeyFromSearch("getting-started")).toBe("getting-started");
+    expect(helpTopicTocGroupDisclosureHrefFromSearch("", "getting-started", "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?helpTopicTocGroupKey=getting-started",
+    );
+    expect(parseTransparencyTrailOpenFromSearch("1")).toBe(true);
+    expect(transparencyTrailHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&transparencyTrailOpen=1",
+    );
+    expect(parseProductLearningSummaryNotesOpenFromSearch("true")).toBe(true);
+    expect(productLearningSummaryNotesDisclosureHrefFromSearch("", true, "/internal/product-learning")).toBe(
+      "/internal/product-learning?productLearningSummaryNotesOpen=1",
+    );
+    expect(parseRecommendationLearningWeightsOpenFromSearch("1")).toBe(true);
+    expect(
+      recommendationLearningWeightsDisclosureHrefFromSearch("tab=ops", true, "/internal/recommendation-learning"),
+    ).toBe("/internal/recommendation-learning?tab=ops&recommendationLearningWeightsOpen=1");
+  });
+});
+
+describe("wave71 filter url helpers", () => {
+  it("compare structured section, help accelerator chooser pack technical, reviews new more ways, sponsor dashboard supporting metrics, run detail provenance identifiers, finding inspect technical rule, help data handling tenant isolation sources, run detail sponsor briefing, evidence gap forecast, review chain of custody section params", async () => {
+    const {
+      compareStructuredSectionDisclosureHrefFromSearch,
+      parseCompareStructuredSectionKeyFromSearch,
+    } = await import("@/lib/compare/compare-structured-section-disclosure-url");
+    const {
+      helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch,
+      parseHelpAcceleratorChooserPackTechnicalKeyFromSearch,
+    } = await import("@/lib/help/help-accelerator-chooser-pack-technical-disclosure-url");
+    const {
+      parseReviewsNewMoreWaysToStartOpenFromSearch,
+      reviewsNewMoreWaysToStartDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url");
+    const {
+      parseSponsorDashboardSupportingMetricsOpenFromSearch,
+      sponsorDashboardSupportingMetricsDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-dashboard-supporting-metrics-disclosure-url");
+    const {
+      parseRunDetailProvenanceIdentifiersOpenFromSearch,
+      runDetailProvenanceIdentifiersDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-provenance-identifiers-disclosure-url");
+    const {
+      findingInspectTechnicalRuleDisclosureHrefFromSearch,
+      parseFindingInspectTechnicalRuleOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-technical-rule-disclosure-url");
+    const {
+      helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch,
+      parseHelpDataHandlingTenantIsolationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-data-handling-tenant-isolation-sources-disclosure-url");
+    const {
+      parseRunDetailSponsorBriefingOpenFromSearch,
+      runDetailSponsorBriefingDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-sponsor-briefing-disclosure-url");
+    const {
+      evidenceGapForecastDisclosureHrefFromSearch,
+      parseEvidenceGapForecastOpenFromSearch,
+    } = await import("@/lib/evidence/evidence-gap-forecast-disclosure-url");
+    const {
+      parseReviewChainOfCustodySectionKeyFromSearch,
+      reviewChainOfCustodySectionDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/review-chain-of-custody-section-disclosure-url");
+
+    expect(parseCompareStructuredSectionKeyFromSearch("decision-changes")).toBe("decision-changes");
+    expect(
+      compareStructuredSectionDisclosureHrefFromSearch("", "decision-changes", "/insights/compare-two-reviews"),
+    ).toBe("/insights/compare-two-reviews?compareStructuredSectionKey=decision-changes");
+    expect(parseHelpAcceleratorChooserPackTechnicalKeyFromSearch("greenfield")).toBe("greenfield");
+    expect(
+      helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch("", "greenfield", "/help/accelerator-chooser"),
+    ).toBe("/help/accelerator-chooser?helpAcceleratorChooserPackTechnicalKey=greenfield");
+    expect(parseReviewsNewMoreWaysToStartOpenFromSearch("1")).toBe(true);
+    expect(reviewsNewMoreWaysToStartDisclosureHrefFromSearch("path=quick", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=quick&reviewsNewMoreWaysToStartOpen=1",
+    );
+    expect(parseSponsorDashboardSupportingMetricsOpenFromSearch("true")).toBe(true);
+    expect(
+      sponsorDashboardSupportingMetricsDisclosureHrefFromSearch("", true, "/architecture/sponsor-dashboard"),
+    ).toBe("/architecture/sponsor-dashboard?sponsorDashboardSupportingMetricsOpen=1");
+    expect(parseRunDetailProvenanceIdentifiersOpenFromSearch("1")).toBe(true);
+    expect(
+      runDetailProvenanceIdentifiersDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=overview&runDetailProvenanceIdentifiersOpen=1");
+    expect(parseFindingInspectTechnicalRuleOpenFromSearch("true")).toBe(true);
+    expect(
+      findingInspectTechnicalRuleDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectTechnicalRuleOpen=1");
+    expect(parseHelpDataHandlingTenantIsolationSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch("", true, "/help/data-handling"),
+    ).toBe("/help/data-handling?helpDataHandlingTenantIsolationSourcesOpen=1");
+    expect(parseRunDetailSponsorBriefingOpenFromSearch("true")).toBe(true);
+    expect(
+      runDetailSponsorBriefingDisclosureHrefFromSearch("tab=package", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=package&runDetailSponsorBriefingOpen=1");
+    expect(parseEvidenceGapForecastOpenFromSearch("1")).toBe(true);
+    expect(evidenceGapForecastDisclosureHrefFromSearch("step=upload", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=upload&evidenceGapForecastOpen=1",
+    );
+    expect(parseReviewChainOfCustodySectionKeyFromSearch("who-and-when")).toBe("who-and-when");
+    expect(
+      reviewChainOfCustodySectionDisclosureHrefFromSearch("", "who-and-when", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?reviewChainOfCustodySectionKey=who-and-when");
+  });
+});
+
+describe("wave72 filter url helpers", () => {
+  it("engineering troubleshooting sources, accelerator cost governance technical, sponsor dashboard/scorecard, audit lineage route/spine, first pilot l0, glossary section, infra resource hub technical params", async () => {
+    const {
+      helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch,
+      parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-runbook-sources-disclosure-url");
+    const {
+      helpEngineeringTroubleshootingSourcesDisclosureHrefFromSearch,
+      parseHelpEngineeringTroubleshootingSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-sources-disclosure-url");
+    const {
+      helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch,
+      parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch,
+    } = await import("@/lib/accelerator/help-accelerator-cost-governance-technical-disclosure-url");
+    const {
+      parseSponsorDashboardHowItWorksOpenFromSearch,
+      sponsorDashboardHowItWorksDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-dashboard-how-it-works-disclosure-url");
+    const {
+      parseSponsorScorecardEmptyPreviewOpenFromSearch,
+      sponsorScorecardEmptyPreviewDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-scorecard-empty-preview-disclosure-url");
+    const {
+      auditEvidenceLineageRouteIdentifiersDisclosureHrefFromSearch,
+      parseAuditEvidenceLineageRouteIdentifiersOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-route-identifiers-disclosure-url");
+    const {
+      auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch,
+      parseAuditEvidenceLineageSpineTechnicalOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-spine-technical-disclosure-url");
+    const {
+      firstPilotL0MustQuestionsDisclosureHrefFromSearch,
+      parseFirstPilotL0MustQuestionsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-l0-must-questions-disclosure-url");
+    const {
+      parseProductConceptsGlossarySectionOpenFromSearch,
+      productConceptsGlossarySectionDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/product-concepts-glossary-section-disclosure-url");
+    const {
+      infraResourceHubTechnicalDisclosureHrefFromSearch,
+      parseInfraResourceHubTechnicalKeyFromSearch,
+    } = await import("@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url");
+
+    expect(parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch("", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?helpEngineeringTroubleshootingRunbookSourcesOpen=1");
+    expect(parseHelpEngineeringTroubleshootingSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      helpEngineeringTroubleshootingSourcesDisclosureHrefFromSearch("symptom=auth", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?symptom=auth&helpEngineeringTroubleshootingSourcesOpen=1");
+    expect(parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch("1")).toBe(true);
+    expect(
+      helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch("", true, "/help/accelerator-chooser"),
+    ).toBe("/help/accelerator-chooser?helpAcceleratorCostGovernanceTechnicalOpen=1");
+    expect(parseSponsorDashboardHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(sponsorDashboardHowItWorksDisclosureHrefFromSearch("", true, "/architecture/sponsor-dashboard")).toBe(
+      "/architecture/sponsor-dashboard?sponsorDashboardHowItWorksOpen=1",
+    );
+    expect(parseSponsorScorecardEmptyPreviewOpenFromSearch("1")).toBe(true);
+    expect(sponsorScorecardEmptyPreviewDisclosureHrefFromSearch("", true, "/insights/architecture-scorecard")).toBe(
+      "/insights/architecture-scorecard?sponsorScorecardEmptyPreviewOpen=1",
+    );
+    expect(parseAuditEvidenceLineageRouteIdentifiersOpenFromSearch("true")).toBe(true);
+    expect(
+      auditEvidenceLineageRouteIdentifiersDisclosureHrefFromSearch(
+        "",
+        true,
+        "/governance/audit-evidence/a1/snapshots/s1/controls/c1",
+      ),
+    ).toBe("/governance/audit-evidence/a1/snapshots/s1/controls/c1?auditEvidenceLineageRouteIdentifiersOpen=1");
+    expect(parseAuditEvidenceLineageSpineTechnicalOpenFromSearch("1")).toBe(true);
+    expect(
+      auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch(
+        "expanded=1",
+        true,
+        "/governance/audit-evidence/a1/snapshots/s1/controls/c1",
+      ),
+    ).toBe(
+      "/governance/audit-evidence/a1/snapshots/s1/controls/c1?expanded=1&auditEvidenceLineageSpineTechnicalOpen=1",
+    );
+    expect(parseFirstPilotL0MustQuestionsOpenFromSearch("1")).toBe(true);
+    expect(firstPilotL0MustQuestionsDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotL0MustQuestionsOpen=1",
+    );
+    expect(parseProductConceptsGlossarySectionOpenFromSearch("true")).toBe(true);
+    expect(productConceptsGlossarySectionDisclosureHrefFromSearch("q=review", true, "/help")).toBe(
+      "/help?q=review&productConceptsGlossarySectionOpen=1",
+    );
+    expect(parseInfraResourceHubTechnicalKeyFromSearch("cloudResourceId")).toBe("cloudResourceId");
+    expect(parseInfraResourceHubTechnicalKeyFromSearch("invalid")).toBe("");
+    expect(
+      infraResourceHubTechnicalDisclosureHrefFromSearch(
+        "tab=overview",
+        "terraformAddress",
+        "/governance/infrastructure/resources/res-1",
+      ),
+    ).toBe(
+      "/governance/infrastructure/resources/res-1?tab=overview&infraResourceHubTechnicalKey=terraformAddress",
+    );
+  });
+});
+
+describe("wave73 filter url helpers", () => {
+  it("infra ask simulator, remediation/drift/diagram workbench resource ids, resource row arm id, governance findings resource group, advisory schedule advanced params", async () => {
+    const {
+      infraAskSimulatorDisclosureHrefFromSearch,
+      parseInfraAskSimulatorDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-ask-simulator-disclosure-url");
+    const {
+      infraRemediationResourceIdDisclosureHrefFromSearch,
+      parseInfraRemediationResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-resource-id-disclosure-url");
+    const {
+      infraRemediationFindingIdDisclosureHrefFromSearch,
+      parseInfraRemediationFindingIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-finding-id-disclosure-url");
+    const {
+      infraRemediationVerifyHintDisclosureHrefFromSearch,
+      parseInfraRemediationVerifyHintDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-remediation-verify-hint-disclosure-url");
+    const {
+      infraDriftResourceIdDisclosureHrefFromSearch,
+      parseInfraDriftResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-drift-resource-id-disclosure-url");
+    const {
+      infraDiagramReconcileResourceIdDisclosureHrefFromSearch,
+      parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-diagram-reconcile-resource-id-disclosure-url");
+    const {
+      infraDiagramsResourceIdDisclosureHrefFromSearch,
+      parseInfraDiagramsResourceIdDisclosureOpenFromSearch,
+    } = await import("@/lib/infra-evidence/infra-diagrams-resource-id-disclosure-url");
+    const {
+      infraResourceRowArmIdDisclosureHrefFromSearch,
+      parseInfraResourceRowArmIdDisclosureKeyFromSearch,
+    } = await import("@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url");
+    const {
+      governanceFindingsResourceGroupDisclosureHrefFromSearch,
+      parseGovernanceFindingsResourceGroupKeyFromSearch,
+    } = await import("@/lib/governance/governance-findings-resource-group-disclosure-url");
+    const {
+      advisoryScheduleAdvancedDisclosureHrefFromSearch,
+      parseAdvisoryScheduleAdvancedOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-schedule-advanced-disclosure-url");
+
+    expect(parseInfraAskSimulatorDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraAskSimulatorDisclosureHrefFromSearch("cloudResourceId=res-1", true, "/governance/infrastructure/ask")).toBe(
+      "/governance/infrastructure/ask?cloudResourceId=res-1&infraAskSimulatorDisclosureOpen=1",
+    );
+    expect(parseInfraRemediationResourceIdDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraRemediationResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?infraRemediationResourceIdDisclosureOpen=1");
+    expect(parseInfraRemediationFindingIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(
+      infraRemediationFindingIdDisclosureHrefFromSearch("findingId=f-1", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?findingId=f-1&infraRemediationFindingIdDisclosureOpen=1");
+    expect(parseInfraRemediationVerifyHintDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraRemediationVerifyHintDisclosureHrefFromSearch("", true, "/governance/infrastructure/remediation"),
+    ).toBe("/governance/infrastructure/remediation?infraRemediationVerifyHintDisclosureOpen=1");
+    expect(parseInfraDriftResourceIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraDriftResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/drift")).toBe(
+      "/governance/infrastructure/drift?infraDriftResourceIdDisclosureOpen=1",
+    );
+    expect(parseInfraDiagramReconcileResourceIdDisclosureOpenFromSearch("true")).toBe(true);
+    expect(
+      infraDiagramReconcileResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/diagram-reconcile"),
+    ).toBe("/governance/infrastructure/diagram-reconcile?infraDiagramReconcileResourceIdDisclosureOpen=1");
+    expect(parseInfraDiagramsResourceIdDisclosureOpenFromSearch("1")).toBe(true);
+    expect(infraDiagramsResourceIdDisclosureHrefFromSearch("", true, "/governance/infrastructure/diagrams")).toBe(
+      "/governance/infrastructure/diagrams?infraDiagramsResourceIdDisclosureOpen=1",
+    );
+    expect(parseInfraResourceRowArmIdDisclosureKeyFromSearch("res-uuid-1")).toBe("res-uuid-1");
+    expect(
+      infraResourceRowArmIdDisclosureHrefFromSearch(
+        "workQueue=drift",
+        "res-uuid-1",
+        "/governance/infrastructure/resources",
+      ),
+    ).toBe("/governance/infrastructure/resources?workQueue=drift&infraResourceRowArmIdDisclosureKey=res-uuid-1");
+    expect(parseGovernanceFindingsResourceGroupKeyFromSearch("rg-prod")).toBe("rg-prod");
+    expect(
+      governanceFindingsResourceGroupDisclosureHrefFromSearch("", "rg-prod", "/governance/findings"),
+    ).toBe("/governance/findings?governanceFindingsResourceGroupKey=rg-prod");
+    expect(parseAdvisoryScheduleAdvancedOpenFromSearch("1")).toBe(true);
+    expect(advisoryScheduleAdvancedDisclosureHrefFromSearch("tab=schedules", true, "/insights/advisory-scans")).toBe(
+      "/insights/advisory-scans?tab=schedules&advisoryScheduleAdvancedOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

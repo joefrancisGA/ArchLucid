@@ -1,14 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { getBundleDownloadUrl } from "@/lib/api";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
@@ -19,6 +19,7 @@ import {
 } from "@/lib/governance/manifest-buyer-bundle-download-disclosure-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
+import { showError } from "@/lib/toast";
 
 export type ManifestBuyerBundleDownloadSectionProps = {
   readonly manifestId: string;
@@ -28,9 +29,10 @@ export type ManifestBuyerBundleDownloadSectionProps = {
 };
 
 function bundleDownloadCopyAndAction(
-  manifestId: string,
   blockedHintId: string,
   downloadsDisabled: boolean,
+  busy: boolean,
+  onDownload: () => void,
 ): ReactElement {
   return (
     <>
@@ -42,15 +44,16 @@ function bundleDownloadCopyAndAction(
         {BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        {downloadsDisabled ? (
-          <Button variant="primary" size="sm" disabled aria-describedby={blockedHintId}>
-            Download finalized review
-          </Button>
-        ) : (
-          <Button variant="primary" size="sm" asChild>
-            <a href={getBundleDownloadUrl(manifestId)}>Download finalized review</a>
-          </Button>
-        )}
+        <Button
+          type="button"
+          variant="primary"
+          size="sm"
+          disabled={downloadsDisabled || busy}
+          aria-describedby={downloadsDisabled ? blockedHintId : undefined}
+          onClick={onDownload}
+        >
+          {busy ? "Downloading…" : "Download finalized review"}
+        </Button>
       </div>
     </>
   );
@@ -66,6 +69,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
     parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam),
   );
   const { manifestId, runId, expanded } = props;
+  const [busy, setBusy] = useState(false);
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: runId.trim(),
     manifestVersion: manifestId.trim(),
@@ -74,7 +78,27 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
     sealedManifestBlockedReason === null ? null : whyDisabledNeedsPrerequisite(sealedManifestBlockedReason);
   const blockedHintId = "manifest-buyer-bundle-download-blocked-hint";
   const downloadsDisabled = deliverableDisabledReason !== null;
-  const action = bundleDownloadCopyAndAction(manifestId, blockedHintId, downloadsDisabled);
+
+  const onDownload = useCallback(() => {
+    if (downloadsDisabled) {
+      return;
+    }
+
+    setBusy(true);
+
+    void downloadArtifactBundleZip(manifestId)
+      .catch((error: unknown) => {
+        showError(
+          "Bundle download",
+          error instanceof Error ? error.message : "Could not download artifact bundle.",
+        );
+      })
+      .finally(() => {
+        setBusy(false);
+      });
+  }, [downloadsDisabled, manifestId]);
+
+  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
 
   const syncBundleOpenToUrl = useCallback(
     (open: boolean) => {
@@ -97,6 +121,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   useEffect(() => {
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
+
 
   if (expanded === true) {
     return (

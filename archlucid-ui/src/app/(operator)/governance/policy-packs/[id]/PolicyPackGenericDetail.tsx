@@ -30,7 +30,7 @@ import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
@@ -88,6 +88,7 @@ function resolveEnablementStatusTag(isEnabled: boolean, isGloballyActive: boolea
 
 export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const policyPacksHubHref =
     scopedReviewId.length > 0 ? buildPolicyPacksHrefWithReviewId(scopedReviewId) : GOVERNANCE_POLICY_PACKS_PATH;
@@ -106,7 +107,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   });
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
       <OperatorPageHeader
         navHref={policyPacksHubHref}
         title={packName}
@@ -126,8 +127,6 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           </Button>
         }
       />
-
-      <PolicyPackDetailBuyerChrome />
 
       <Card>
         <CardContent className={cn("space-y-2 pt-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>

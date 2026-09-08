@@ -24,6 +24,20 @@ public sealed class InsightDensityMeasurementFloorContext
         init;
     }
 
+    /// <summary>Configured Premium judge cap before remaining-budget shrink (DX-62).</summary>
+    public int? JudgeConfiguredCap
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Effective Premium judge cap after remaining-budget shrink (DX-62).</summary>
+    public int? JudgeEffectiveCap
+    {
+        get;
+        init;
+    }
+
     /// <summary>Ranked missing-input rollup from held-check ledger (DX-52).</summary>
     public IReadOnlyList<HeldCheckLedgerRollupEntry> HeldCheckLedgerEntries
     {

@@ -58,33 +58,41 @@ public sealed class RoiController(
     [HttpGet("sponsor-dashboard-bundle")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorDashboardBundleResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorDashboardBundleAsync(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        DateTime toUtc = TimeProvider.System.UtcNowDateTime();
-        DateTime fromUtc = toUtc.AddDays(-30);
-        TimeSpan bucketSize = TimeSpan.FromMinutes(1440);
-
-        Task<SponsorRoiSummaryResponse> sponsorTask =
-            _sponsorRoiSummaryService.BuildAsync(cancellationToken);
-
-        Task<IReadOnlyList<ComplianceDriftTrendPoint>> driftTask =
-            _complianceDriftTrendService.GetTrendAsync(
-                scope.TenantId,
-                fromUtc,
-                toUtc,
-                bucketSize,
-                cancellationToken);
-
-        await Task.WhenAll(sponsorTask, driftTask).ConfigureAwait(false);
-
-        SponsorDashboardBundleResponse body = new()
+        try
         {
-            SponsorReport = await sponsorTask.ConfigureAwait(false),
-            ComplianceDriftTrend = await driftTask.ConfigureAwait(false)
-        };
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
+            DateTime toUtc = TimeProvider.System.UtcNowDateTime();
+            DateTime fromUtc = toUtc.AddDays(-30);
+            TimeSpan bucketSize = TimeSpan.FromMinutes(1440);
 
-        return Ok(body);
+            Task<SponsorRoiSummaryResponse> sponsorTask =
+                _sponsorRoiSummaryService.BuildAsync(cancellationToken);
+
+            Task<IReadOnlyList<ComplianceDriftTrendPoint>> driftTask =
+                _complianceDriftTrendService.GetTrendAsync(
+                    scope.TenantId,
+                    fromUtc,
+                    toUtc,
+                    bucketSize,
+                    cancellationToken);
+
+            await Task.WhenAll(sponsorTask, driftTask).ConfigureAwait(false);
+
+            SponsorDashboardBundleResponse body = new()
+            {
+                SponsorReport = await sponsorTask.ConfigureAwait(false),
+                ComplianceDriftTrend = await driftTask.ConfigureAwait(false)
+            };
+
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>
@@ -95,6 +103,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
         try
@@ -165,6 +174,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CrossTenantPortfolioSummaryResponse>> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
         string? directoryKey = RoleSyncService.TryDirectoryObjectKey(User);
@@ -186,6 +196,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
         try
@@ -209,6 +220,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
         try

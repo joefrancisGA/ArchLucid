@@ -180,6 +180,7 @@ export function SocraticIntakeWizard() {
         />
         <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
+      {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       {draftId !== null && step >= 1 ? (
         <div data-testid="socratic-intake-advanced-options">
           <SocraticIntakeWizardAdvancedRail
@@ -355,8 +356,6 @@ export function SocraticIntakeWizard() {
           onSubmit={submitDraft}
         />
       ) : null}
-
-      {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </div>
   );

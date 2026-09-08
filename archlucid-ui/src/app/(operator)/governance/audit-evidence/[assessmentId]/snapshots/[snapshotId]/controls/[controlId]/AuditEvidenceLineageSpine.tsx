@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { cn } from "@/lib/utils";
@@ -14,6 +16,11 @@ import {
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import { buildResourceHubAuditLineageHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+import {
+  AUDIT_EVIDENCE_LINEAGE_SPINE_TECHNICAL_OPEN_PARAM,
+  auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch,
+  parseAuditEvidenceLineageSpineTechnicalOpenFromSearch,
+} from "@/lib/governance/audit-evidence-lineage-spine-technical-disclosure-url";
 
 type AuditEvidenceLineageSpineProps = {
   readonly lineage: AuditEvidenceLineageRecord;
@@ -52,6 +59,35 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
   const checkbox = deriveAuditLineageCheckboxPresentation(props.lineage);
   const evaluation = props.lineage.evaluation;
   const buyerPolishedShell = props.buyerPolishedShell ?? false;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const spineTechnicalOpenParam = searchParams.get(AUDIT_EVIDENCE_LINEAGE_SPINE_TECHNICAL_OPEN_PARAM);
+  const [spineTechnicalOpen, setSpineTechnicalOpenState] = useState(() =>
+    parseAuditEvidenceLineageSpineTechnicalOpenFromSearch(spineTechnicalOpenParam),
+  );
+
+  const syncSpineTechnicalOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSpineTechnicalOpen = useCallback(
+    (open: boolean) => {
+      setSpineTechnicalOpenState(open);
+      syncSpineTechnicalOpenToUrl(open);
+    },
+    [syncSpineTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSpineTechnicalOpenState(parseAuditEvidenceLineageSpineTechnicalOpenFromSearch(spineTechnicalOpenParam));
+  }, [spineTechnicalOpenParam]);
 
   if (!props.expanded) {
     return (
@@ -224,6 +260,8 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
           title="Technical identifiers"
           sectionTestId="audit-evidence-spine-technical-identifiers"
           summaryLine="Control and evaluation IDs for API integrations"
+          open={spineTechnicalOpen}
+          onToggle={setSpineTechnicalOpen}
         >
           <TechnicalIdentifierRow label="controlId" value={props.lineage.controlId} />
           {evaluation ? (

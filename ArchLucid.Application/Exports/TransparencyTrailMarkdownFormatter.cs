@@ -29,13 +29,17 @@ public static class TransparencyTrailMarkdownFormatter
 
         TransparencyTrail completeTrail = trail!;
 
+        (IReadOnlyList<AssertedTrailEntry> asserted, IReadOnlyList<OpenQuestionsWorkingDocumentExportEntry> workingDocumentOpenQuestions) =
+            OpenQuestionsExportHonesty.SanitizeAssertedForCareerExport(completeTrail.Asserted);
+
         sb.AppendLine("## Transparency trail");
         sb.AppendLine();
         sb.AppendLine("What was asserted, inferred, and skipped for this review.");
         sb.AppendLine();
-        AppendAssertedSection(sb, completeTrail.Asserted);
+        AppendAssertedSection(sb, asserted);
         AppendInferredSection(sb, completeTrail.Inferred);
         AppendSkippedSections(sb, completeTrail.Skipped);
+        OpenQuestionsExportHonesty.AppendWorkingDocumentMarkdownSection(sb, workingDocumentOpenQuestions);
         sb.AppendLine();
     }
 

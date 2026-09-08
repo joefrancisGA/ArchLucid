@@ -3,6 +3,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
+import { triggerBrowserBlobDownload } from "./downloads-blob-trigger-browser";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /** Downloads sponsor ROI board pack from GET /v1/roi/sponsor-report/board-pack. */
@@ -33,13 +34,9 @@ export async function downloadSponsorRoiBoardPack(options: {
   }
 
   const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download =
-    options.format === "pdf" ? "sponsor-roi-board-pack.pdf" : "sponsor-roi-board-pack.md";
-  anchor.click();
-  URL.revokeObjectURL(url);
+  const fileName = options.format === "pdf" ? "sponsor-roi-board-pack.pdf" : "sponsor-roi-board-pack.md";
+
+  await triggerBrowserBlobDownload(blob, fileName);
 }
 
 export function formatSponsorRoiBoardPackApiError(error: unknown): string {
