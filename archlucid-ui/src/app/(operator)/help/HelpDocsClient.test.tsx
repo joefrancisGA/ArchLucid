@@ -173,4 +173,28 @@ describe("HelpDocsClient", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("filters entries by category name when title and summary omit the token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "security" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
 });

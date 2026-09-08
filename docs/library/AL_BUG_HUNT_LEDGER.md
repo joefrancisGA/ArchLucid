@@ -1241,8 +1241,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Index lists topics the current role is not allowed to open (fixed: generate_doc_index no longer bleeds internal-runbook titles onto public slugs)
 - [x] (proven) Fetched doc-index rows duplicate static quick links when the same URL appears under a different category or title — **hit 2026-08-23:** `mergeDocIndex` deduped only on `category|title|url`, so `/help/choose-your-next-step` rendered twice (Getting Started static + Go-to-Market fetched) and `/help/admin-diagnostics` showed both static and fetched titles.
 - [x] (proven) `HelpDocsClient` renders only `CATEGORY_ORDER` sections — fetched doc-index rows with a category outside that list merge into `grouped` but never render — **hit 2026-09-04 (#670):** append unknown categories after the fixed order via `helpDocCategoriesForDisplay`; regression in `HelpDocsClient.test.tsx`.
-- [ ] (candidate) Help hub search filter matches only `title` and `summary`, not `category` — operators filtering by section name (e.g. "Security") may see "No results" when no row text contains the token.
-- [ ] (candidate) Debounced `router.replace` for `?q=` can leave the search input and URL briefly out of sync when the operator clears the box and immediately navigates away.
+- [x] (proven) Help hub search filter matched only `title` and `summary`, not `category` — **hit 2026-09-08 thorough hunt #1348:** filtering `"security"` hid Security-section rows such as Policy packs whose title/summary omit the token; fixed by indexing `e.category` in filter haystack; regression `filters entries by category name when title and summary omit the token`
+- [x] (valid-no-repro) Debounced `router.replace` for `?q=` leaves search input and URL briefly out of sync when the operator clears the box and immediately navigates away — **cheap-disproof 2026-09-08 thorough hunt #1348:** `clearSearch` and Escape call immediate `router.replace`; pending debounce is cleared on unmount when navigating to a topic route, so a late timer cannot rewrite the destination URL
+
+2026-09-08 thorough hunt #1348 (hit): proved category-name search gap; cheap-disproof closed debounced URL sync on navigate-away candidate; 6 scoped HelpDocsClient tests passed.
 
 2026-09-04 seed hunt #670: proved unknown-category doc-index omission; seeded category-name search and debounced URL sync candidates.
 
