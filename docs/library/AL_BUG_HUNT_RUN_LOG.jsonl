@@ -1508,3 +1508,4 @@
 {"at":"2026-09-08T16:03:47.3870868Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-09-08T16:13:16.2591598Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-09-08T16:24:08.4232542Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-09-08T16:29:49.5927842Z","zoneId":"weekly-digest-email","outcome":"hit"}
