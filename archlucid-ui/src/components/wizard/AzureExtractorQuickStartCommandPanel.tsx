@@ -4,7 +4,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Button } from "@/components/ui/button";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
-import { extractUploadQuickStartDescription } from "@/lib/extract-upload-product-copy";
+import {
+  extractUploadQuickStartCheckoutLead,
+  extractUploadQuickStartDescription,
+  extractUploadQuickStartDescriptionBody,
+} from "@/lib/extract-upload-product-copy";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -29,6 +33,8 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
     className,
   } = props;
   const resolvedDescription = description ?? extractUploadQuickStartDescription(productLine);
+  const checkoutLead = extractUploadQuickStartCheckoutLead(productLine);
+  const descriptionBody = extractUploadQuickStartDescriptionBody(productLine);
   const commandLine = buildGetArchLucidAzurePackageCommandLine({ productLineId: productLine });
 
   return (
@@ -42,7 +48,16 @@ export function AzureExtractorQuickStartCommandPanel(props: AzureExtractorQuickS
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{title}</p>
-          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{resolvedDescription}</p>
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {description ? (
+              resolvedDescription
+            ) : (
+              <>
+                <span className="font-semibold text-neutral-800 dark:text-neutral-200">{checkoutLead}</span>
+                {descriptionBody}
+              </>
+            )}
+          </p>
         </div>
         <Button
           type="button"

@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const navCommittedReviewMock = vi.hoisted(() => vi.fn(() => false));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -11,7 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
-  useNavCommittedArchitectureReview: () => false,
+  useNavCommittedArchitectureReview: () => navCommittedReviewMock(),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -53,6 +55,10 @@ vi.mock("@/components/operator-home/OperatorHomeCompactStartingActionsSection", 
   OperatorHomeCompactStartingActionsSection: () => <div data-testid="operator-home-start-something" />,
 }));
 
+vi.mock("@/components/operator-home/OperatorHomeBuyerChrome", () => ({
+  OperatorHomeBuyerChrome: () => <div data-testid="operator-home-buyer-chrome-strip" />,
+}));
+
 vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   OperatorHomeRefreshProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
   useOperatorHomeRefresh: () => ({
@@ -69,9 +75,13 @@ import {
   OPERATOR_HOME_PAGE_SUBTITLE,
 } from "@/lib/operator/operator-home-page-copy";
 import {
+  OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
+  OPERATOR_HOME_SKIP_TARGET_ID,
 } from "./operator-home-page-surface-copy";
+import { OPERATOR_HOME_CLAIM_DISCIPLINE } from "@/lib/operator/operator-home-evidence-copy";
 
 function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashboard"]>): OperatorHomePageViewModel {
   return {
@@ -92,32 +102,48 @@ function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashbo
 }
 
 describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
+  beforeEach(() => {
+    navCommittedReviewMock.mockReturnValue(false);
+  });
+
   it("renders skip link, contextual help, and no buyer subtitle on first-run overview", () => {
     render(<OperatorHomePageView model={mockHomeModel()} />);
 
     expect(screen.getByRole("link", { name: OPERATOR_HOME_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`,
+      `#${OPERATOR_HOME_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByTestId("operator-home-primary-content")).toHaveAttribute(
+    expect(screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID)).toHaveAttribute(
       "id",
       OPERATOR_HOME_PRIMARY_CONTENT_ID,
     );
+    expect(screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID)).toHaveAttribute(
+      "id",
+      OPERATOR_HOME_SKIP_TARGET_ID,
+    );
+    expect(screen.getByTestId(OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+      OPERATOR_HOME_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
-    expect(screen.queryByTestId("operator-home-page-subtitle")).toBeEmptyDOMElement();
+    expect(screen.queryByTestId("operator-home-orientation-bottom")).toBeNull();
+    expect(screen.queryByTestId("operator-home-page-subtitle")).not.toBeInTheDocument();
     expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
-    const primaryContent = screen.getByTestId("operator-home-primary-content");
+    const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
     const orderedLandmarks = ["operator-home-hero-section"]
-      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
+      .map((testId) => firstViewport.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
+    expect(primaryContent).toContainElement(firstViewport);
     expect(orderedLandmarks).toEqual(["operator-home-hero-section"]);
   });
 
   it("renders returning-home hierarchy with metrics and unfinished work before recent reviews", () => {
+    navCommittedReviewMock.mockReturnValue(true);
+
     render(
       <OperatorHomePageView
         model={mockHomeModel({
@@ -126,7 +152,7 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
               runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               projectId: "default",
               createdUtc: "2026-01-01T00:00:00Z",
-              hasGoldenManifest: false,
+              hasGoldenManifest: true,
             },
           ],
           totalCount: 1,
@@ -134,13 +160,13 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       />,
     );
 
-    const primaryContent = screen.getByTestId("operator-home-primary-content");
+    const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
     const orderedLandmarks = [
       "operator-home-workspace-metrics-strip",
       "operator-home-start-something",
       "home-block-runs-dashboard",
     ]
-      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
+      .map((testId) => firstViewport.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
@@ -151,5 +177,13 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     ]);
     expect(screen.queryByTestId("operator-home-hero-section")).toBeNull();
     expect(screen.queryByTestId("operator-home-recommended-next-card")).toBeNull();
+    expect(screen.getByTestId("operator-home-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-buyer-chrome-strip")).toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
+    const orientationBottom = screen.getByTestId("operator-home-orientation-bottom");
+
+    expect(primaryContent).toContainElement(orientationBottom);
+    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

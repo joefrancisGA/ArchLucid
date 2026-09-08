@@ -13,6 +13,9 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
     public const string WarnedDispositionCareerExportBlockedReason =
         "Quality gate disposition is Warned — resolve warnings before career export";
 
+    public const string RejectedDispositionCareerExportBlockedReason =
+        "Quality gate disposition is Rejected — PilotStrict citation coverage or other floors block career export";
+
     public static string FormatStampQualityGateModeLabel(AgentOutputQualityGateMode? recordedMode, AgentOutputQualityGateMode hostMode)
     {
         AgentOutputQualityGateMode mode = recordedMode ?? hostMode;
@@ -42,6 +45,12 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
         }
 
         if (aggregateQualityGateOutcome == AgentOutputQualityGateOutcome.Warned)
+        {
+            return true;
+        }
+
+        if (hostQualityGateMode == AgentOutputQualityGateMode.PilotStrict
+            && aggregateQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
         {
             return true;
         }
@@ -76,6 +85,12 @@ public static class AgentOutputQualityGateCareerHonestyPresenter
         if (aggregateQualityGateOutcome == AgentOutputQualityGateOutcome.Warned)
         {
             return WarnedDispositionCareerExportBlockedReason;
+        }
+
+        if (hostQualityGateMode == AgentOutputQualityGateMode.PilotStrict
+            && aggregateQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
+        {
+            return RejectedDispositionCareerExportBlockedReason;
         }
 
         return WarnOnlyWorkingBannerMessage;

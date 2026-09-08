@@ -48,8 +48,10 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
+  OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
+  OPERATOR_HOME_SKIP_TARGET_ID,
 } from "./operator-home-page-surface-copy";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
@@ -76,6 +78,7 @@ function OperatorHomePageChrome(props: {
   return (
     <>
       <OperatorHomePageHeader
+        buyerPolishedShell={props.buyerPolishedShell}
         subtitle={
           operatorHomePageSubtitle(
             props.buyerPolishedShell,
@@ -266,6 +269,21 @@ function OperatorHomePageBody(props: {
     promotedAttentionKind,
     attentionCountsByKind,
   });
+  const workspaceSections = props.buyerPolishedShell
+    ? sections.filter((section) => section.id !== "buyer-chrome")
+    : sections;
+  const buyerChromeSection = props.buyerPolishedShell
+    ? sections.find((section) => section.id === "buyer-chrome")
+    : undefined;
+
+  const renderSection = (section: OperatorHomeSectionDescriptor): React.JSX.Element | null =>
+    renderOperatorHomeSection({
+      section,
+      model: props.model,
+      buyerPolishedShell: props.buyerPolishedShell,
+      workspaceMetrics,
+      workingMode: props.workingMode,
+    });
 
   return (
     <OperatorHomeWorkspaceActivityProvider
@@ -274,14 +292,25 @@ function OperatorHomePageBody(props: {
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
       <WorkspaceModeGuidedWorkingOfferHost />
-      {sections.map((section) =>
-        renderOperatorHomeSection({
-          section,
-          model: props.model,
-          buyerPolishedShell: props.buyerPolishedShell,
-          workspaceMetrics,
-          workingMode: props.workingMode,
-        }),
+      {props.buyerPolishedShell ? (
+        <>
+          <div
+            id={OPERATOR_HOME_SKIP_TARGET_ID}
+            data-testid={OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            )}
+          >
+            {workspaceSections.map((section) => renderSection(section))}
+          </div>
+          {buyerChromeSection !== undefined ? (
+            <div data-testid="operator-home-orientation-bottom">
+              {renderSection(buyerChromeSection)}
+            </div>
+          ) : null}
+        </>
+      ) : (
+        sections.map((section) => renderSection(section))
       )}
     </OperatorHomeWorkspaceActivityProvider>
   );
@@ -299,7 +328,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
       <OperatorHomeRefreshProvider>
         {isWorkingMode ? null : <OperatorHomeDeferredOnboarding />}
         <a
-          href={`#${OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
+          href={`#${evalChromeShell ? OPERATOR_HOME_SKIP_TARGET_ID : OPERATOR_HOME_PRIMARY_CONTENT_ID}`}
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
           {OPERATOR_HOME_SKIP_LINK_LABEL}
