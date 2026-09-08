@@ -46,7 +46,7 @@ public sealed class ChecklistClusterSynthesisGoldenCorpusTests
             graph,
             CancellationToken.None);
 
-        harnessSnapshot.Findings.Should().NotBeEmpty();
+        GoldenCorpusHarnessTestSupport.AllFindings(harnessSnapshot).Should().NotBeEmpty();
 
         List<Finding> declarationFindings = directDeclarationFindings.Take(6).ToList();
 

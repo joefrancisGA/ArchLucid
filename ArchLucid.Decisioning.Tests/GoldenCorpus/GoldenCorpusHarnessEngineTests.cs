@@ -1,11 +1,14 @@
 using System.Reflection;
 
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Time.Testing;
+
+using Moq;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
@@ -34,7 +37,8 @@ public sealed class GoldenCorpusHarnessEngineTests
 
         createEngines.Should().NotBeNull();
 
-        object? enginesObject = createEngines!.Invoke(harness, null);
+        Mock<IGraphSnapshotRepository> graphSnapshotRepository = new();
+        object? enginesObject = createEngines!.Invoke(harness, [graphSnapshotRepository.Object]);
         enginesObject.Should().BeAssignableTo<IFindingEngine[]>();
 
         IFindingEngine[] engines = (IFindingEngine[])enginesObject!;
@@ -50,6 +54,7 @@ public sealed class GoldenCorpusHarnessEngineTests
         engineTypes.Should().Contain(typeof(DataFlowTrustBoundaryFindingEngine));
         engineTypes.Should().Contain(typeof(SecurityBaselineExpectationFindingEngine));
         engineTypes.Should().Contain(typeof(RequiredCapabilityCoverageFindingEngine));
-        engineTypes.Count.Should().Be(25, "harness graph engine registration is a merge-blocking contract (WK-06 + DX-24/25/36/49 golden fixtures + topology-anti-pattern)");
+        engineTypes.Should().Contain(typeof(TopologySecurityDriftFindingEngine));
+        engineTypes.Count.Should().Be(26, "harness graph engine registration is a merge-blocking contract (WK-06 + DX-24/25/36/49 golden fixtures + topology-anti-pattern + topology-security-drift)");
     }
 }
