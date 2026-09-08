@@ -86,6 +86,33 @@ public sealed class AuthSignInRoutingServiceTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_allows_email_code_for_unverified_ipv4_literal_domain_registry_row()
+    {
+        Guid tenantId = Guid.NewGuid();
+        AuthSignInRoutingService sut = CreateSut(out InMemoryTenantSignInEmailDomainRepository domains, out _, out _, out _);
+
+        domains.Seed(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "127.0.0.1",
+                NormalizedDomain = "127.0.0.1",
+                VerificationStatus = AuthDomainVerificationStatus.Unverified,
+                EnforcementMode = AuthDomainEnforcementMode.SsoRequiredForVerifiedDomain,
+                RequireEnterpriseSso = true,
+                CreatedUtc = DateTimeOffset.UtcNow,
+                DnsVerificationToken = "token"
+            });
+
+        AuthSignInRoutingEvaluation result = await sut.EvaluateAsync(
+            new AuthSignInRoutingRequest { NormalizedEmail = "user@127.0.0.1" },
+            CancellationToken.None);
+
+        Assert.True(result.AllowEmailCode);
+        Assert.False(result.SsoRequired);
+    }
+
+    [Fact]
     public async Task EvaluateAsync_requires_sso_for_verified_enforced_domain()
     {
         Guid tenantId = Guid.NewGuid();

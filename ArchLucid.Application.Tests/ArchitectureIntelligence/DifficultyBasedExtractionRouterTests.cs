@@ -136,4 +136,75 @@ public sealed class DifficultyBasedExtractionRouterTests
             element.Kind == ArchitectureElementKind.Contradiction
             && element.Name == "Contradiction");
     }
+
+    [Fact]
+    public void Classify_returns_human_review_for_long_sensitive_prose_without_structure()
+    {
+        string source =
+            "GDPR compliance policy: customer records must be retained for seven years after account closure. "
+            + new string('a', 220);
+
+        ExtractionDifficulty difficulty = _router.Classify(source);
+
+        difficulty.Should().Be(ExtractionDifficulty.HumanReviewRequired);
+    }
+
+    [Fact]
+    public void Extract_does_not_stamp_long_sensitive_prose_directly_established()
+    {
+        string source =
+            "GDPR compliance policy: customer records must be retained for seven years after account closure. "
+            + new string('a', 220)
+            + "\nComponent: Compliance API";
+
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(source, "art-gdpr-prose");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.Provenance.SupportStatus.Should().Be(SupportStatus.NotYetEvaluated);
+        component.ExtractionConfidence.Should().BeApproximately(0.35, 0.001);
+    }
+
+    [Fact]
+    public void Classify_returns_human_review_for_long_structured_gdpr_json()
+    {
+        string source =
+            """
+            {
+              "gdpr": "retention policy for customer records",
+              "owner": "security",
+              "notes": "field: value"
+            }
+            """ + new string('x', 220);
+
+        ExtractionDifficulty difficulty = _router.Classify(source);
+
+        difficulty.Should().Be(ExtractionDifficulty.HumanReviewRequired);
+    }
+
+    [Fact]
+    public void Extract_does_not_stamp_sensitive_structured_content_directly_established()
+    {
+        string source =
+            """
+            {
+              "gdpr": "retention policy for customer records",
+              "owner": "security",
+              "notes": "field: value"
+            }
+            """ + new string('x', 220) + "\nComponent: Compliance API";
+
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(source, "art-gdpr-json");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.Provenance.SupportStatus.Should().Be(SupportStatus.NotYetEvaluated);
+        component.ExtractionConfidence.Should().BeApproximately(0.35, 0.001);
+    }
 }

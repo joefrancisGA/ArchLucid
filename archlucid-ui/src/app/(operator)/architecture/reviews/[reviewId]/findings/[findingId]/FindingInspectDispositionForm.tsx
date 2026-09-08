@@ -69,6 +69,8 @@ export type FindingInspectDispositionFormProps = Pick<
   | "setApplyChangePreviewOverride"
   | "tradeOffAcknowledgment"
   | "setTradeOffAcknowledgment"
+  | "architectRestatement"
+  | "setArchitectRestatement"
   | "showIncrementalRereviewLink"
   | "submitRemediationAssignment"
   | "submitDisposition"
@@ -110,6 +112,8 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     setApplyChangePreviewOverride,
     tradeOffAcknowledgment,
     setTradeOffAcknowledgment,
+    architectRestatement,
+    setArchitectRestatement,
     showIncrementalRereviewLink,
     submitRemediationAssignment,
     submitDisposition,
@@ -294,6 +298,19 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             />
           </label>
         ) : null}
+        <label className="grid gap-1">
+          <span className="font-medium">Architect restatement (for ARB)</span>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Your wording for what you will tell the ARB. This is append-only on the disposition trail and does not
+            rewrite sealed engine finding text.
+          </span>
+          <textarea
+            className="min-h-16 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            value={architectRestatement}
+            onChange={(event) => setArchitectRestatement(event.target.value)}
+            data-testid="finding-disposition-architect-restatement"
+          />
+        </label>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"

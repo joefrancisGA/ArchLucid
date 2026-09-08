@@ -67,6 +67,32 @@ public sealed class ExtractorAdvisorCostClassifierTests
         findings[0].RecommendationId.Should().Be("aws-rec-1");
         findings[0].Title.Should().Be("Idle EBS volume");
         findings[0].EstimatedAnnualSavingsUsd.Should().Be(480m);
+        findings[0].InventoryResourceId.Should().BeNull();
+    }
+
+    [Fact]
+    public void ClassifyFromAdvisorCostJson_reads_inventory_resource_id_from_resourceMetadata()
+    {
+        const string json =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "rec-1",
+                  "finding": "Idle VM",
+                  "resourceMetadata": {
+                    "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/providers/Microsoft.Compute/virtualMachines/vm-demo"
+                  }
+                }
+              ]
+            }
+            """;
+
+        IReadOnlyList<AdvisorCostRecommendationFinding> findings =
+            ExtractorAdvisorCostClassifier.ClassifyFromAdvisorCostJson(json);
+
+        findings.Should().ContainSingle();
+        findings[0].InventoryResourceId.Should().Contain("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/");
     }
 
     [Fact]

@@ -268,6 +268,53 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_cost_notes()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "cost-notes-hash",
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Cost = new CostSection
+            {
+                CostRisks = ["Over-provisioned SKU"],
+                Notes = ["Illustrative only — list pricing"],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Note: Illustrative only — list pricing");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_cost_notes()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Cost = new CostSection
+            {
+                CostRisks = ["Idle dev/test capacity"],
+                Notes = ["Illustrative only — list pricing"],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Cost Note: Illustrative only — list pricing");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_decisions()
     {
         ManifestDocument manifest = new()

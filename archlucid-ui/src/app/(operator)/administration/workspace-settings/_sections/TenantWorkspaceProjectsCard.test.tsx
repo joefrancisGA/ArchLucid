@@ -99,25 +99,31 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
   });
 
   it("lists projects and disables delete for the workspace default project", async () => {
-    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(
+      <TenantWorkspaceProjectsCard tenantDisplayName="Acme Architecture" scope={{ "x-tenant-id": "tenant-1" }} />,
+    );
 
     expect(await screen.findByTestId("tenant-workspace-projects-list")).toBeInTheDocument();
     expect(screen.getByText("Core")).toBeInTheDocument();
     expect(screen.getByText("Edge")).toBeInTheDocument();
+    expect(screen.getByText("Current scope")).toBeInTheDocument();
 
     const deleteButtons = screen.getAllByTestId("tenant-workspace-project-delete");
-    expect(deleteButtons[0]).toBeDisabled();
-    expect(deleteButtons[0]).toHaveAttribute("aria-describedby", "tenant-project-delete-hint-proj-default");
-    expect(screen.getByText(PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON)).toBeInTheDocument();
-    expect(deleteButtons[1]).not.toBeDisabled();
-    expect(deleteButtons[1]).not.toHaveAttribute("aria-describedby");
+    expect(deleteButtons).toHaveLength(1);
+    expect(deleteButtons[0]).not.toBeDisabled();
+    expect(screen.getByTestId("tenant-project-delete-hint-proj-default")).toHaveTextContent(
+      PROJECT_DELETE_DEFAULT_PROJECT_DISABLED_REASON,
+    );
   });
 
   it("requires confirm before DELETE and calls the tenant project endpoint", async () => {
-    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(
+      <TenantWorkspaceProjectsCard tenantDisplayName="Acme Architecture" scope={{ "x-tenant-id": "tenant-1" }} />,
+    );
 
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
-    fireEvent.click(deleteButtons[1]!);
+    expect(deleteButtons).toHaveLength(1);
+    fireEvent.click(deleteButtons[0]!);
 
     expect(
       await screen.findByRole("heading", { name: PROJECT_DELETE_CONFIRM_TITLE }),
@@ -157,10 +163,13 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
       },
     );
 
-    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
+    renderWithOperatorQuery(
+      <TenantWorkspaceProjectsCard tenantDisplayName="Acme Architecture" scope={{ "x-tenant-id": "tenant-1" }} />,
+    );
 
     const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
-    fireEvent.click(deleteButtons[1]!);
+    expect(deleteButtons).toHaveLength(1);
+    fireEvent.click(deleteButtons[0]!);
 
     expect(await screen.findByTestId("project-delete-active-scope-warning")).toBeInTheDocument();
   });
@@ -168,16 +177,14 @@ describe("TenantWorkspaceProjectsCard (TB-1179)", () => {
   it("disables delete affordances below Execute authority", async () => {
     navAuth.callerAuthorityRank = 1;
 
-    renderWithOperatorQuery(<TenantWorkspaceProjectsCard />);
-
-    const deleteButtons = await screen.findAllByTestId("tenant-workspace-project-delete");
-    for (const button of deleteButtons) {
-      expect(button).toBeDisabled();
-      expect(button.getAttribute("aria-describedby")).toMatch(/^tenant-project-delete-hint-/);
-    }
-
-    expect(screen.getAllByText(PROJECT_DELETE_EXECUTE_DISABLED_REASON).length).toBeGreaterThanOrEqual(
-      deleteButtons.length,
+    renderWithOperatorQuery(
+      <TenantWorkspaceProjectsCard tenantDisplayName="Acme Architecture" scope={{ "x-tenant-id": "tenant-1" }} />,
     );
+
+    await screen.findByTestId("tenant-workspace-projects-list");
+    const deleteButtons = screen.queryAllByTestId("tenant-workspace-project-delete");
+    expect(deleteButtons).toHaveLength(0);
+    expect(screen.queryByTestId("tenant-workspace-projects-all-protected")).not.toBeInTheDocument();
+    expect(screen.getByText(PROJECT_DELETE_EXECUTE_DISABLED_REASON)).toBeInTheDocument();
   });
 });

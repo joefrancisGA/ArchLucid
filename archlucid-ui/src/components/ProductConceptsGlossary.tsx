@@ -36,14 +36,14 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "A versioned rule set applied during analysis. Controls which checks run and how findings are classified (e.g. Azure CIS, custom policy packs).",
   },
   {
-    term: "Governance approval",
+    term: "Approval",
     definition:
       "An architect or authority decision recorded against a finalized review — Approved, Approved with monitoring, or Rejected. Drives downstream workflow.",
   },
   {
     term: "Audit trail",
     definition:
-      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, and governance approval recorded.",
+      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, and approval recorded.",
   },
   {
     term: "Risk exception",
@@ -63,7 +63,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Compare",
     definition:
-      "Side-by-side diff of two reviews — findings, review record changes, and governance approval deltas.",
+      "Side-by-side diff of two reviews — findings, review record changes, and approval deltas.",
   },
   {
     term: "Proof packet",

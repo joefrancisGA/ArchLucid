@@ -1,6 +1,6 @@
 {
   "schema": "archlucid.insight-density-frontier-delta-summary.v1",
-  "generatedUtc": "2026-08-26T05:17:16.095740+00:00",
+  "generatedUtc": "2026-09-08T13:04:12.702251+00:00",
   "rollup": "PASS",
   "scenarioCount": 3,
   "matchSimilarityThreshold": 0.6,
@@ -8,6 +8,7 @@
   "hasPositivePercentScenario": true,
   "allScenariosMatchExpected": true,
   "claimBoundary": "Offline eval-corpus fixtures only. Hand-authored baseline transcripts are a regression instrument \u2014 not evidence that ArchLucid beats any named frontier model.",
+  "shipGateNote": "Ship gate (owner, after G-REAL-06): \u226540% novel vs committed human-authored baseline AND \u226580% of sampled Decision-grade findings marked DidNotThinkOfThat or human would-change-decision. Not enforced in CI today.",
   "scenarios": [
     {
       "scenarioId": "empty-baseline",

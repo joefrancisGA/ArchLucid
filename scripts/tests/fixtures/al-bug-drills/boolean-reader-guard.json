@@ -1,0 +1,8 @@
+{
+  "path": "ArchLucid.Core/Json/JsonBooleanStringReader.cs",
+  "old": "return true;",
+  "new": "return false;",
+  "zoneId": "core-json-boolean",
+  "expectedClass": "boolean-coercion",
+  "_comment": "Snippet-only fixture for ABQ-33 unit tests. Do not apply to tracked Core on the agent branch. Drills must not push bugsmash."
+}

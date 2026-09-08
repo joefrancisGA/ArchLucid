@@ -67,6 +67,13 @@ public class Finding
         set;
     } = [];
 
+    /// <summary>Package-resolvable citation refs for insight-density dismiss scoring (ADR 0070).</summary>
+    public List<string> EvidenceRefs
+    {
+        get;
+        set;
+    } = [];
+
     public List<string> RecommendedActions
     {
         get;

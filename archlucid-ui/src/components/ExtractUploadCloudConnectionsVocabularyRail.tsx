@@ -2,7 +2,9 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
+import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
 import {
   buildExtractUploadCloudConnectionsPairwiseRail,
   type ExtractUploadCloudConnectionsSurfaceId,
@@ -27,6 +29,8 @@ export type ExtractUploadCloudConnectionsVocabularyRailProps = {
 export function ExtractUploadCloudConnectionsVocabularyRail(
   props: ExtractUploadCloudConnectionsVocabularyRailProps,
 ): JSX.Element {
+  const { productLine } = useProductLine();
+  const extractUploadHref = extractUploadSettingsPathForProductLine(productLine);
   const pairwiseModel =
     props.model !== undefined
       ? {
@@ -36,7 +40,7 @@ export function ExtractUploadCloudConnectionsVocabularyRail(
           currentLink: props.model.extractUploadLink,
           peerLink: props.model.cloudConnectionsLink,
         }
-      : buildExtractUploadCloudConnectionsPairwiseRail();
+      : buildExtractUploadCloudConnectionsPairwiseRail(extractUploadHref);
 
   return (
     <PairwiseVocabularyRailFromModel

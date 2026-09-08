@@ -11,7 +11,9 @@
 
 ## Decision in one line
 
-V1 keeps **append-only finding dispositions** (both racing writes persist; **current** = latest `OccurredAtUtc`) and **last-writer `HumanReviewStatus`** on the correlated snapshot row. **Governance approval requests** remain a separate **first-wins CAS** (`TryTransitionFromReviewableAsync`; loser **409**). Do not conflate finding approve/reject with approval-queue mutex semantics.
+**Working (ADR 0076):** append-only `FindingReviewEvents` **plus** a CAS-protected **current pointer** (`dbo.FindingCurrentDispositions` / `RowVersionStamp`). The second racing writer receives **409** with the winner's disposition; history may still contain both events only when the loser retried after reload. **Governance approval requests** remain separate first-wins CAS (`TryTransitionFromReviewableAsync`).
+
+**V1 (TB-986, superseded for current pointer):** both racing writes succeeded; **current** = latest `OccurredAtUtc`. See ADR 0076 for the Working target.
 
 ---
 
@@ -19,8 +21,8 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 
 | Option | Decision | Follow-on |
 | --- | --- | --- |
-| **A — Append-only + UX honesty** | **Shipped** | **TB-987** (stale-current UX, divergence disclosure); **TB-988** (race regression tests) |
-| **B — Contradictory-disposition mutex (409)** | **Deferred** | Requires explicit product/API change; do not implement silently under **TB-987** |
+| **A — Append-only + UX honesty** | **Shipped (V1)** | **TB-987** (stale-current UX); **TB-988** (race regression tests) |
+| **B — Contradictory-disposition mutex (409)** | **Working via ADR 0076 (2026-09-06)** | Current pointer CAS; 409 payload; RS-11 conflict UI |
 
 ---
 
