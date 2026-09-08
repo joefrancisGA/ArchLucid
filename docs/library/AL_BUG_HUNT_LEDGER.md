@@ -2092,11 +2092,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — bare leading `"No …"` prohibitive intent false-matched private-network conflict phrases
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — tradeoff acknowledgment substring-matched `unacceptable`; admin ingress matched `block ssh` inside `unblock ssh`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2123,6 +2123,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SecurityDeltaRegressionClassifier` ranked `gap` before `planned` and treated remediation phrases as worst-tier regression — **hit 2026-09-05 (#810 seed):** Compliant→`Gap remediation planned` fired false compliance alerts; rank planned/remediation phrases before bare `gap`; regression `IsRegression_gap_remediation_planned_from_compliant_is_not_regression`
 - [x] (proven) `FindingSnapshotMergeKey.FromFinding` used case-sensitive `PolicyRuleId` — **hit 2026-09-05 (#810 seed):** `SEC-01` vs `sec-01` duplicated ADR-0063 merge keys; lowercased policy rule id segment; regression `Merge_joins_policy_rule_ids_case_insensitively`
 - [x] (proven) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent false-matched affirmative conflict phrases — **hit 2026-09-07 hunt #1287:** `IsPhraseNegated` covered `"No requirement to …"` / `"Do not …"` but not bare leading `"no"` before `"private network"`; fixed with word-bounded `"no"` negation suffix; regression in `Classify_does_not_fire_private_network_conflict_for_prohibitive_no_private_network_phrase`.
+- [x] (proven) `TradeoffAcknowledgmentResolver.AcceptsSacrifice` — negated acceptance text false-matched acknowledgment tokens — **hit 2026-09-08 (#1329):** `"unacceptable"` substring-matched `"accept"`; fixed with rejection phrases and whole-token acceptance matching; regression in `ResolveAcknowledgmentAnswerKey_returns_null_when_answer_contains_unacceptable` and `DetectAsync_does_not_acknowledge_tradeoff_when_l0_answer_is_unacceptable`.
+- [x] (proven) `DeclarationPremiseConflictClassifier.AdminIngressIntentMatches` — `"block ssh"` matched inside `"unblock ssh"` — **hit 2026-09-08 (#1329):** prefix negation for embedded block phrases; regression in `Classify_does_not_fire_admin_ingress_conflict_for_unblock_ssh_phrase`.
+- [ ] (candidate) `TradeoffRequirementConflictDetector.DetectConflict` — bare substring tokens (`sla`, `pci`, `mfa`, `budget`) in requirement prose false-trigger conflicting tradeoffs.
+- [ ] (candidate) `IdentityRegulatedDatastoreClassifier.IsDatastoreNode` — `"sql"` substring matches inside `"nosql"` labels and false-classifies Cosmos/NoSQL nodes as SQL datastores.
+- [ ] (candidate) `IdentityBlastRadiusRoleNames.IsWriteAdminRole` — `"Contributor"`/`"Owner"` substring tokens match inside deny-list role names such as `"Non-Contributor Access Reviewer"`.
+- [ ] (candidate) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings.
+
+2026-09-08 seed hunt #1329 (hit): reseeded decisioning; proved tradeoff acknowledgment negation gap and admin-ingress unblock prefix false match; seeded tradeoff requirement, identity blast-radius, and topology cluster heuristic candidates.
 
 2026-09-07 thorough hunt #1287 (hit): proved bare `"No …"` negation gap on private-network premise conflict matching.
 

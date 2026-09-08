@@ -1496,3 +1496,4 @@
 {"at":"2026-09-08T14:22:57.3585401Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T14:28:03.3027856Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T14:36:31.7865225Z","zoneId":"artifact-synthesis","outcome":"hit"}
+{"at":"2026-09-08T14:44:18.3657156Z","zoneId":"decisioning","outcome":"hit"}
