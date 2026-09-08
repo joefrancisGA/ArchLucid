@@ -108,6 +108,7 @@ import {
 } from "@/lib/compare-evidence-copy";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
 import {
+  COMPARE_PAGE_LEAD,
   COMPARE_PAGE_SUBTITLE_BUYER,
   COMPARE_START_HERE_HELPER,
   COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
@@ -125,7 +126,7 @@ describe("CompareForm buyer-polished shell (CXX)", () => {
     evalChromeMock.enabled = true;
   });
 
-  it("renders skip link, header claim discipline, first-viewport preview, and bottom Sources", () => {
+  it("renders skip link, intro lead, header claim discipline, first-viewport preview, and bottom Sources", () => {
     render(<CompareForm />);
 
     expect(screen.getByRole("link", { name: COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -148,6 +149,7 @@ describe("CompareForm buyer-polished shell (CXX)", () => {
     const orientationBottom = screen.getByTestId(COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("compare-two-reviews-intro")).toHaveTextContent(COMPARE_PAGE_LEAD);
     expect(firstViewport).toContainElement(dimensionsPreview);
     expect(screen.getByTestId("compare-two-reviews-start-here-helper")).toHaveTextContent(COMPARE_START_HERE_HELPER);
     expect(primaryContent).toContainElement(workspace);
