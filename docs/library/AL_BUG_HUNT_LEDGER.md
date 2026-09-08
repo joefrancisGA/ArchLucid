@@ -9435,11 +9435,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — bulk disposition CAS conflict returned HTTP 404; pre-finalize severity counts absorbed foreign-project dispositions
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pre-commit gate ignored stickiness dispositions while checklist severity counts were disposition-aware
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9459,8 +9459,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` / `CrossReviewLatestDispositionMap` — tenant-only trail query ignored workspace/project so sibling-project `Remediated` cleared in-scope critical counts — **hit 2026-09-07 hunt #1231 (seed→hit):** filter events to request scope before map build; regression in `BuildAsync_does_not_clear_critical_findings_from_foreign_project_disposition`
 - [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` can miss older remediated dispositions while risk register CTE has no time cutoff — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback`
 - [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignored stickiness dispositions (severity path is disposition-aware) — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated`
+- [x] (proven) `PreCommitGovernanceGate` / `PreCommitGateEvaluator` — pre-commit gate ignored stickiness dispositions while checklist `open-critical-findings` cleared after `Remediated` — **hit 2026-09-08 hunt #1310 (seed→hit):** gate filtered only muted/advisory findings; fixed by loading scoped disposition trail via shared `PreFinalizeLatestDispositionLoader` and `PreFinalizeActiveFindingCounter.IsBlockingForPreCommitGate`; regressions `Evaluate_ignores_remediated_findings_when_blocking_on_critical`, `EvaluateAsync_allows_when_critical_finding_is_remediated`, `BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches`
+- [ ] (candidate) `ArchitectureRiskRegisterReader` latestDisposition CTE — workspace-scoped trail query may still attribute sibling-project dispositions when listing register rows for one project
+- [ ] (candidate) `RiskExceptionDispositionGuard` — tenant-wide disposition trail lookup without workspace/project filter may reject or allow waivers from foreign-project events
+- [ ] (candidate) `GovernancePostureController` severity aggregates — posture counts may include remediated snapshot findings if disposition trail is not applied symmetrically with checklist
 
-2026-09-07 seed hunt #1231 (hit): reseeded stickiness/posture/checklist zone; proved bulk disposition CAS HTTP 404 mapping and foreign-project disposition bleed into pre-finalize severity counts; seeded 730-day lookback and evidence-linkage disposition parity candidates.
+2026-09-08 seed hunt #1310 (hit): reseeded stickiness zone after hypothesis exhaustion; proved pre-commit gate disposition blind spot vs checklist parity; seeded three register/posture/guard stickiness candidates.
 2026-09-07 thorough hunt #1221 (hit): proved bulk stickiness disposition partial persist; cheap-disproved global architecture-request lookup cross-tenant reachability.
 2026-09-07 seed hunt #1220 (hit): reseeded stickiness/checklist zone after hypothesis exhaustion; proved disposition-blind pre-finalize severity counts; seeded bulk-disposition atomicity hunt-ready row.
 2026-09-07 thorough hunt #1207 (hit): proved orphan ArchitectureRequest fail-open on pre-finalize execute-baseline drift; cheap-disproved checklist GET idempotency and two cross-zone parity candidates.
