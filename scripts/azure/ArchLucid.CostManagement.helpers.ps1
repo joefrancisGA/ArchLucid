@@ -98,20 +98,13 @@ function Invoke-ArchLucidAzureCliAzRestCaptured([Parameter(Mandatory)][string[]]
     try {
 
         $proc = Start-Process `
-
-                -FilePath $azExe `
-
-                -ArgumentList @($vector.ToArray()) `
-
-                -NoNewWindow `
-
-                -Wait `
-
-                -PassThru `
-
-                -RedirectStandardOutput $stdoutPath `
-
-                -RedirectStandardError $stderrPath
+            -FilePath $azExe `
+            -ArgumentList @($vector.ToArray()) `
+            -NoNewWindow `
+            -Wait `
+            -PassThru `
+            -RedirectStandardOutput $stdoutPath `
+            -RedirectStandardError $stderrPath
 
 
 
@@ -786,9 +779,7 @@ function Get-ArchLucidActualCostSummary(
 
 
         Invoke-ArchLucidActualCostPagedQuery -PostUrl "$apiVersionTagged" `
-
             -CompressedBody $serializedRequest `
-
             -DiagTokenForWarnings $correlator
 
 
@@ -834,8 +825,7 @@ function Get-ArchLucidActualCostSummary(
 
 
         return Merge-ArchLucidPagedCostManagementRowsIntoSummary `
-
-                -Pages @($batch.Pages) -BillingPeriodLabel $Timeframe
+            -Pages @($batch.Pages) -BillingPeriodLabel $Timeframe
 
 
 
