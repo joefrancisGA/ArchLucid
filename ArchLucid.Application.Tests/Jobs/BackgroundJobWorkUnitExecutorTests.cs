@@ -7,6 +7,7 @@ using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 
@@ -288,5 +289,71 @@ public sealed class BackgroundJobWorkUnitExecutorTests
         Func<Task> act = async () => _ = await sut.ExecuteAsync(unit, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*upstream unavailable*");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_FindingVerification_ReturnsJsonResult()
+    {
+        Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        Guid reportId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        Mock<IFindingVerificationService> findingVerification = new();
+        findingVerification
+            .Setup(service => service.CreateReportAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                runId,
+                It.IsAny<CreateFindingVerificationReportRequest>(),
+                "operator@test",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingVerificationCreateReportResult
+                {
+                    CreatedNewReport = true,
+                    Response = new FindingVerificationReportResponse
+                    {
+                        ReportId = reportId,
+                        RunId = runId,
+                        SourceManifestHash = "sha256-demo",
+                        ReportHash = "sha256-report-hash",
+                        CreatedUtc = DateTime.UtcNow,
+                        Results = [],
+                    },
+                });
+
+        BackgroundJobWorkUnitExecutor sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IArchitectureAnalysisService>(),
+            Mock.Of<IArchitectureAnalysisDocxExportService>(),
+            Mock.Of<IArchitectureAnalysisConsultingDocxExportService>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<ITenantDeletionService>(),
+            Mock.Of<IItsmOutboundIssueCreationService>(),
+            findingVerification.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
+
+        FindingVerificationWorkUnit unit = new(
+            new FindingVerificationJobPayload(
+                tenantId,
+                workspaceId,
+                projectId,
+                runId,
+                null,
+                "operator@test",
+                "finding-verification:corr"));
+
+        BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
+
+        file.FileName.Should().Be("finding-verification-report.json");
+        file.ContentType.Should().Be("application/json");
+
+        FindingVerificationReportResponse? parsed =
+            JsonSerializer.Deserialize<FindingVerificationReportResponse>(file.Bytes);
+
+        parsed.Should().NotBeNull();
+        parsed!.ReportId.Should().Be(reportId);
+        parsed.RunId.Should().Be(runId);
     }
 }
