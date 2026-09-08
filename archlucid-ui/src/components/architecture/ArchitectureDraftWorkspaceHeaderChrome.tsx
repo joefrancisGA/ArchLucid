@@ -16,6 +16,7 @@ import {
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE } from "@/lib/architectures-draft-evidence-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
@@ -48,6 +49,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
     parentArchitectureId,
     draft,
   } = props;
+  const hideContextualHelp = isBuyerPolishedOperatorShellEnv();
 
   return (
     <>
@@ -102,7 +104,7 @@ export function ArchitectureDraftWorkspaceHeaderChrome(
                 linkedReviewId={linkedReviewId}
                 parentArchitectureId={parentArchitectureId}
               />
-              <PageContextualHelpButton />
+              {hideContextualHelp ? null : <PageContextualHelpButton />}
             </div>
             <ArchitectureDraftDeleteControl
               draftId={draftId}

@@ -311,7 +311,10 @@ public sealed partial class DocxExportService(
         else
         {
             List<(string Category, string Title, string SelectedOption)> decRows = manifest.Decisions
-                .Select(d => (d.Category, d.Title, d.SelectedOption))
+                .Select(d => (
+                    SanitizeArtifactText(d.Category),
+                    SanitizeArtifactText(d.Title),
+                    SanitizeArtifactText(d.SelectedOption)))
                 .ToList();
             WordDocumentBuilder.AddThreeColumnTable(
                 body,

@@ -13373,6 +13373,50 @@
         },
         "type": "object"
       },
+      "EngineVerificationConfirmedRateRow": {
+        "properties": {
+          "confirmedNumerator": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "confirmedRate": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "verifiableDenominator": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "EngineVerificationConfirmedRatesResponse": {
+        "properties": {
+          "fromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/EngineVerificationConfirmedRateRow"
+            },
+            "type": "array"
+          },
+          "toUtcExclusive": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "EntityTagHeaderValue": {
         "properties": {
           "isWeak": {
@@ -17593,6 +17637,34 @@
         },
         "type": "object"
       },
+      "HeldCheckSecondPassStatus": {
+        "enum": [
+          "Completed",
+          "NotEligible",
+          "NoPriorLedger",
+          "NoNewFindings"
+        ],
+        "type": "string"
+      },
+      "HeldCheckSecondPassSummary": {
+        "properties": {
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "newDecisionGradeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HeldCheckSecondPassStatus"
+          },
+          "unblockedEngineCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "HolisticCriticRequest": {
         "properties": {
           "focus": {
@@ -18465,6 +18537,16 @@
             "type": [
               "null",
               "array"
+            ]
+          },
+          "heldCheckSecondPass": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HeldCheckSecondPassSummary"
+              }
             ]
           },
           "judgeSkippedByCap": {
@@ -44282,13 +44364,23 @@
           },
           "409": {
             "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -45020,6 +45112,9 @@
     },
     {
       "name": "InsightDensityNoveltyRates"
+    },
+    {
+      "name": "InsightDensityVerificationConfirmedRates"
     },
     {
       "name": "InternalArchitectureDiagnostics"

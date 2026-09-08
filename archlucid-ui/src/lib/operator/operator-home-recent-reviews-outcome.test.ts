@@ -136,6 +136,27 @@ describe("deriveHomePreviewTabCounts", () => {
     expect(counts.recentTotalCount).toBe(3);
     expect(counts.approved).toBe(0);
   });
+
+  it("excludes archived runs from attention and approved tab counts", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "active-attention",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "archived-approved",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+
+    const counts = deriveHomePreviewTabCounts({ previewItems: items });
+
+    expect(counts.attention).toBe(1);
+    expect(counts.approved).toBe(0);
+  });
 });
 
 describe("isExampleOnlyOverviewRunList", () => {

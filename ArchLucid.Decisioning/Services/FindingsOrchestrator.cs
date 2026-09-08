@@ -10,6 +10,7 @@ public sealed class FindingsOrchestrator(
     IFindingsPolicyStampStage policyStampStage,
     IFindingsEngineInvokeStage engineInvokeStage,
     IFindingsInsightGeneratorStage insightGeneratorStage,
+    IFindingsProseAssumptionStage proseAssumptionStage,
     IFindingsMergeAndGateStage mergeAndGateStage,
     IFindingsChecklistClusterStage checklistClusterStage,
     IFindingsDecisionGradeFusionStage decisionGradeFusionStage,
@@ -23,6 +24,9 @@ public sealed class FindingsOrchestrator(
 
     private readonly IFindingsInsightGeneratorStage _insightGeneratorStage =
         insightGeneratorStage ?? throw new ArgumentNullException(nameof(insightGeneratorStage));
+
+    private readonly IFindingsProseAssumptionStage _proseAssumptionStage =
+        proseAssumptionStage ?? throw new ArgumentNullException(nameof(proseAssumptionStage));
 
     private readonly IFindingsMergeAndGateStage _mergeAndGateStage =
         mergeAndGateStage ?? throw new ArgumentNullException(nameof(mergeAndGateStage));
@@ -59,6 +63,10 @@ public sealed class FindingsOrchestrator(
         await _policyStampStage.ExecuteAsync(context, ct);
         await _engineInvokeStage.ExecuteAsync(context, ct);
         await _insightGeneratorStage.ExecuteAsync(context, ct);
+
+        // Prose assumptions must be emitted before the gate so extracted contradictions are scored and
+        // demoted by the same predicate as every other finding (DX-55; no separate classification path).
+        await _proseAssumptionStage.ExecuteAsync(context, ct);
         await _mergeAndGateStage.ExecuteAsync(context, ct);
         await _checklistClusterStage.ExecuteAsync(context, ct);
         await _decisionGradeFusionStage.ExecuteAsync(context, ct);

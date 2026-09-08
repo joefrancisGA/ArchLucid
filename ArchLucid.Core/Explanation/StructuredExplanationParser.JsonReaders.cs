@@ -63,6 +63,17 @@ public static partial class StructuredExplanationParser
         if (reasoningElement.ValueKind == JsonValueKind.String)
             return reasoningElement.GetString();
 
+        if (reasoningElement.ValueKind == JsonValueKind.Object)
+        {
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(reasoningElement, "text", out JsonElement textElement)
+                || textElement.ValueKind != JsonValueKind.String)
+            {
+                return null;
+            }
+
+            return textElement.GetString();
+        }
+
         if (reasoningElement.ValueKind != JsonValueKind.Array)
             return null;
 

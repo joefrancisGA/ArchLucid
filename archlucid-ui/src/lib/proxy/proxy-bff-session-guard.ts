@@ -11,34 +11,13 @@ import {
   slideBffSessionActivity,
   type BffSessionPayload,
 } from "@/lib/proxy/bff-session-cookie";
+import { isSameOriginBffRequest } from "@/lib/proxy/bff-session-request";
 import { respondWithProxyProblem } from "@/lib/proxy/proxy-problem-response";
 import type { ForwardMethod } from "@/lib/proxy/proxy-forward-types";
 import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 
 function isMutatingProxyMethod(method: ForwardMethod): boolean {
   return method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE";
-}
-
-function isSameOriginProxyRequest(request: NextRequest): boolean {
-  const origin = request.headers.get("origin")?.trim() ?? "";
-
-  if (origin.length > 0) {
-    return origin === request.nextUrl.origin;
-  }
-
-  const secFetchSite = request.headers.get("sec-fetch-site")?.trim().toLowerCase() ?? "";
-
-  if (secFetchSite === "same-origin" || secFetchSite === "same-site") {
-    return true;
-  }
-
-  const referer = request.headers.get("referer")?.trim() ?? "";
-
-  if (referer.startsWith(request.nextUrl.origin)) {
-    return true;
-  }
-
-  return false;
 }
 
 function appendSetCookieHeaders(response: NextResponse, cookieHeaders: readonly string[]): void {
@@ -166,7 +145,7 @@ export function enforceProxyBffSessionGuard(
   }
 
   if (isMutatingProxyMethod(method) && !skipPublicAnonymousMutationGuard) {
-    if (!isSameOriginProxyRequest(request)) {
+    if (!isSameOriginBffRequest(request)) {
       return {
         allowed: false,
         response: blockedMutationResponse(

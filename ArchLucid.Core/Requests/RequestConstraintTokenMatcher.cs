@@ -138,7 +138,7 @@ internal static class RequestConstraintTokenMatcher
 
         char connector = haystack[tokenIndex - 1];
 
-        if (connector != '-' && connector != '_')
+        if (!IsCompoundIdentifierDelimiter(connector))
             return false;
 
         return char.IsLetterOrDigit(haystack[tokenIndex - 2]);
@@ -151,10 +151,15 @@ internal static class RequestConstraintTokenMatcher
 
         char connector = haystack[afterToken];
 
-        if (connector != '-' && connector != '_')
+        if (!IsCompoundIdentifierDelimiter(connector))
             return false;
 
         return char.IsLetterOrDigit(haystack[afterToken + 1]);
+    }
+
+    private static bool IsCompoundIdentifierDelimiter(char connector)
+    {
+        return connector is '-' or '_' or '.' or '/';
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)

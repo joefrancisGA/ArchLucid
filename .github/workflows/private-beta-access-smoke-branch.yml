@@ -1,13 +1,13 @@
 # Isolated private-beta Playwright lane for merge-heavy trunk windows.
-# Push once to cursor/al-beta-private-beta-smoke-lane-7730 (or workflow_dispatch) to get a
-# full smoke without master ref concurrency cancelling the run mid-Playwright.
+# Push once to cursor/al-beta-private-beta-frozen-7730 (frozen pin — do not merge master
+# into that branch until smoke finishes) or workflow_dispatch.
 # Job steps mirror private-beta-access-on-push.yml — keep in sync when that workflow changes.
 name: Private-beta access smoke branch
 
 on:
   push:
     branches:
-      - cursor/al-beta-private-beta-smoke-lane-7730
+      - cursor/al-beta-private-beta-frozen-7730
   workflow_dispatch:
 
 concurrency:
@@ -179,10 +179,10 @@ jobs:
           ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
             bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
           npx playwright test --workers=1 \
-            live-api-private-beta-access.spec.ts \
-            live-api-private-beta-wave-3.spec.ts \
+            live-api-scim-invite-substitute-smoke.spec.ts \
             live-api-invite-flow.spec.ts \
-            live-api-scim-invite-substitute-smoke.spec.ts
+            live-api-private-beta-wave-3.spec.ts \
+            live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)
         if: always()
@@ -220,6 +220,7 @@ jobs:
         if: failure()
         run: |
           python3 scripts/ci/report_private_beta_playwright_failure_triage.py \
+            --lane smoke-branch \
             --markdown-out dist/private-beta-playwright-failure-triage.md \
             --json-out dist/private-beta-playwright-failure-triage.json
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then

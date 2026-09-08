@@ -110,6 +110,15 @@ export const IDENTITY_PROVIDERS_SAML_PAGE_INTRO =
 export const IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE =
   "Set identity provider metadata and map groups to workspace roles before enabling SAML sign-in for all users.";
 
+export const BUYER_IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE =
+  "Configure identity provider metadata and map groups to workspace roles before enabling SAML sign-in for all users." as const;
+
+export function identityProvidersSamlPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? BUYER_IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE
+    : IDENTITY_PROVIDERS_SAML_PAGE_SUBTITLE;
+}
+
 export const IDENTITY_PROVIDERS_OIDC_PAGE_TITLE = "OIDC/JWT status";
 export const IDENTITY_PROVIDERS_OIDC_PAGE_INTRO =
   "Review OpenID Connect authority, audience, discovery status, and role claim mapping.";

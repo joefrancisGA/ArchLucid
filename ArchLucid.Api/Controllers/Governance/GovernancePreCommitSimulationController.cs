@@ -74,6 +74,7 @@ public sealed class GovernancePreCommitSimulationController(
     [ProducesResponseType(typeof(PreFinalizeChecklistResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetChecklistAsync(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
@@ -133,6 +134,8 @@ public sealed class GovernancePreCommitSimulationController(
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(PreCommitGateResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SimulateAsync(
         [FromBody] PreCommitSyntheticSimulationRequest? body,
         CancellationToken cancellationToken = default)

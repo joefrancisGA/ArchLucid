@@ -46,6 +46,7 @@ public sealed class PolicyPackGovernanceDryRunService(
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
     ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
 {
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
@@ -83,6 +84,9 @@ public sealed class PolicyPackGovernanceDryRunService(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     /// <inheritdoc/>
     public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId,
@@ -145,8 +149,21 @@ public sealed class PolicyPackGovernanceDryRunService(
             _findingEvidenceLinkageFindingEngineOptions.Value,
             cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyDictionary<string, ArchLucid.Contracts.Findings.FindingDisposition> latestDispositions =
+            await PreFinalizeLatestDispositionLoader.LoadAsync(
+                _findingReviewTrailRepository,
+                scope,
+                findings,
+                cancellationToken).ConfigureAwait(false);
+
         PreCommitGateResult gate = gateActive
-            ? PreCommitGateEvaluator.Evaluate(findings, mergedCritical, mergedMin, packLabel, _preCommitOptions.Value.WarnOnlySeverities)
+            ? PreCommitGateEvaluator.Evaluate(
+                findings,
+                mergedCritical,
+                mergedMin,
+                packLabel,
+                _preCommitOptions.Value.WarnOnlySeverities,
+                latestDispositions)
             : PreCommitGateResult.Allowed();
         List<string> passed = ["policy_pack_content_json: parsed", "target: resolved run under tenant/workspace/project scope"];
         List<string> failed = [];

@@ -208,6 +208,7 @@ public static class CareerExportCoverageHonestyComposer
             AnalysisStagesComplete = input.CoverageContext.AnalysisStagesComplete,
             JudgeSkippedByCap = input.JudgeSkippedByCap,
             HeldCheckLedgerEntries = input.FindingsSnapshot?.InsightDensityCuration?.HeldCheckLedgerEntries ?? [],
+            HeldCheckSecondPass = input.FindingsSnapshot?.InsightDensityCuration?.HeldCheckSecondPass,
         };
     }
 

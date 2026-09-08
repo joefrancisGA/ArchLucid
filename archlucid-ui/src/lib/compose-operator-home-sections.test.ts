@@ -78,6 +78,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     ]);
     expect(sections.some((section) => section.id === "stickiness")).toBe(false);
     expect(sections.some((section) => section.id === "buyer-chrome")).toBe(true);
+    expect(sections.at(-1)?.id).toBe("buyer-chrome");
   });
 
   it("uses hero-only spine for operator shell eval-empty", () => {

@@ -125,6 +125,19 @@ public sealed class CommercialPackagingTierResolverTests
         label.Should().Be(CommercialPackagingTierLabels.Team);
     }
 
+    [SkippableFact]
+    public void ResolveCommercialTierLabel_returns_team_at_ten_seat_one_workspace_subscription_boundary()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard);
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 10, 1, "Active");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 1, 10);
+
+        label.Should().Be(
+            CommercialPackagingTierLabels.Team,
+            "PRICING §3 Team max and Professional base bundle both allow 10 seats + 1 workspace; subscription caps alone cannot disambiguate without checkout SKU metadata");
+    }
+
     private static TenantRecord PaidTenant(TenantTier tier, string? trialStatus = null)
     {
         return new TenantRecord

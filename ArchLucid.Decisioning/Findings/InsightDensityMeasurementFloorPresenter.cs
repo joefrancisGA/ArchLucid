@@ -26,6 +26,7 @@ public static class InsightDensityMeasurementFloorPresenter
         IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries =
             context?.HeldCheckLedgerEntries ?? [];
         string? topHeldCheckUnblockClause = ResolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
+        string? heldCheckSecondPassClause = HeldCheckInputCodeLabels.FormatSecondPassClause(context?.HeldCheckSecondPass);
 
         return new InsightDensityMeasurementFloorPresentation
         {
@@ -38,12 +39,14 @@ public static class InsightDensityMeasurementFloorPresenter
                 harness,
                 skippedActorEngineTypes,
                 judgeSkippedByCap,
-                topHeldCheckUnblockClause),
+                topHeldCheckUnblockClause,
+                heldCheckSecondPassClause),
             MeetsCareerExportFloor = meetsFloor,
             SkippedActorEngineTypes = skippedActorEngineTypes,
             JudgeSkippedByCap = judgeSkippedByCap,
             HeldCheckLedgerEntries = heldCheckLedgerEntries,
             TopHeldCheckUnblockClause = topHeldCheckUnblockClause,
+            HeldCheckSecondPassClause = heldCheckSecondPassClause,
         };
     }
 
@@ -131,7 +134,8 @@ public static class InsightDensityMeasurementFloorPresenter
         int harness,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
-        string? topHeldCheckUnblockClause)
+        string? topHeldCheckUnblockClause,
+        string? heldCheckSecondPassClause)
     {
         string baseSentence;
 
@@ -155,14 +159,16 @@ public static class InsightDensityMeasurementFloorPresenter
             baseSentence,
             skippedActorEngineTypes,
             judgeSkippedByCap,
-            topHeldCheckUnblockClause);
+            topHeldCheckUnblockClause,
+            heldCheckSecondPassClause);
     }
 
     private static string AppendHonestySuffixes(
         string baseSentence,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
-        string? topHeldCheckUnblockClause)
+        string? topHeldCheckUnblockClause,
+        string? heldCheckSecondPassClause)
     {
         List<string> suffixes = [];
 
@@ -183,6 +189,11 @@ public static class InsightDensityMeasurementFloorPresenter
         if (!string.IsNullOrWhiteSpace(topHeldCheckUnblockClause))
         {
             suffixes.Add(topHeldCheckUnblockClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(heldCheckSecondPassClause))
+        {
+            suffixes.Add(heldCheckSecondPassClause);
         }
 
         if (suffixes.Count == 0)
