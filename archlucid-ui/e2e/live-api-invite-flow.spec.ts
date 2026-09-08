@@ -16,6 +16,7 @@ async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promi
   await primePrivateBetaBrowserSessionIfJwtMode(page);
   await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
 }
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
