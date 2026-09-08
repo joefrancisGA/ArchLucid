@@ -100,6 +100,7 @@ export type IdentityProvidersSettingsShellProps = {
   readonly showAdminFallbackNotice?: boolean;
   readonly headerBreadcrumb?: React.ReactNode;
   readonly primaryContentId?: string;
+  readonly skipTargetId?: string;
   readonly skipLinkLabel?: string;
   readonly onRefresh: () => void;
   readonly children: React.ReactNode;
@@ -123,7 +124,7 @@ export function IdentityProvidersSettingsShell(props: IdentityProvidersSettingsS
         <a
           href={`#${
             buyerPolishedShell
-              ? IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID
+              ? (props.skipTargetId ?? IDENTITY_PROVIDERS_SETTINGS_SKIP_TARGET_ID)
               : (props.primaryContentId ?? IDENTITY_PROVIDERS_SETTINGS_PRIMARY_CONTENT_ID)
           }`}
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
