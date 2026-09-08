@@ -69,7 +69,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const l0MustQuestionsOpenParam = searchParams.get(FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM);
-  const [panelOpen, setPanelOpenState] = useState(
+  const [panelOpen, setPanelOpenState] = useState<boolean>(
     () => parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam) || true,
   );
   const total = UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.length;
