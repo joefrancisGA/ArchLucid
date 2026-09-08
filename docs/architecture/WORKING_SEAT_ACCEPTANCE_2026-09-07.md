@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — wave 19 (WS-01–WS-24) close-audit evidence for Working-seat buyer-polish eviction; not buyer-facing copy.
+
 # Working-seat wave close audit (WS-24)
 
 > **Date:** 2026-09-07 (wave 19 — WS-01–WS-24)  
