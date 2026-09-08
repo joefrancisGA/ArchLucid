@@ -56,6 +56,9 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope(static () => { }));
+        ownership
             .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
             .Callback<Guid, CancellationToken>((_, token) => releaseToken = token)
             .Returns(Task.CompletedTask);
@@ -79,6 +82,16 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
         ownership.Verify(s => s.AcquireAsync(runGuid, cts.Token), Times.Once);
         ownership.Verify(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
         releaseToken.Should().Be(CancellationToken.None);
+    }
+
+    private sealed class RecordingRenewalScope(Action onDispose) : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync()
+        {
+            onDispose();
+
+            return ValueTask.CompletedTask;
+        }
     }
 
     private static ArchitectureRunExecuteOrchestrator CreateSut(

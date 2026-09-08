@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE,
   ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE,
+  ARCHITECTURE_DRAFT_AUTOSAVE_RECOVERED_LOCALLY_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR,
@@ -65,11 +66,17 @@ describe("architecture-draft-detail-page-copy", () => {
   it("tells the truth about autosave after a server draft id exists", () => {
     expect(resolveArchitectureDraftAutosaveSentence(false)).toBe(ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE);
     expect(resolveArchitectureDraftAutosaveSentence(true)).toBe(ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE);
+    expect(resolveArchitectureDraftAutosaveSentence(false, true)).toBe(
+      ARCHITECTURE_DRAFT_AUTOSAVE_RECOVERED_LOCALLY_SENTENCE,
+    );
     expect(resolveArchitectureDraftDetailPageSubtitleBuyer(true, true)).toContain(
       ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE,
     );
     expect(resolveArchitectureDraftDetailPageSubtitleBuyer(true, true)).not.toContain(
       ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE,
+    );
+    expect(resolveArchitectureDraftDetailPageSubtitleBuyer(false, false, true)).toContain(
+      ARCHITECTURE_DRAFT_AUTOSAVE_RECOVERED_LOCALLY_SENTENCE,
     );
   });
 });

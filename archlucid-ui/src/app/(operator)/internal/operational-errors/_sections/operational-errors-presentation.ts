@@ -40,6 +40,53 @@ export function formatOperationalErrorUtc(isoUtc: string): string {
   return new Date(parsed).toISOString().replace("T", " ").replace(".000Z", " UTC");
 }
 
+function escapeOperationalErrorClipboardCell(value: string): string {
+  const normalized = value.replace(/\r\n/g, "\n").trim();
+
+  if (/[",\n]/.test(normalized)) {
+    return `"${normalized.replace(/"/g, '""')}"`;
+  }
+
+  return normalized;
+}
+
+function operationalErrorClipboardCell(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return escapeOperationalErrorClipboardCell(String(value));
+}
+
+/** Tabular clipboard export for the filtered operational-errors list (CSV, header row included). */
+export function buildOperationalErrorsTableClipboardText(rows: readonly OperationalErrorRow[]): string {
+  const header = [
+    "Occurred (UTC)",
+    "Category",
+    "Status",
+    "Path",
+    "Message",
+    "Correlation",
+    "Tenant",
+  ];
+
+  const lines = rows.map((row) =>
+    [
+      formatOperationalErrorUtc(row.occurredUtc),
+      row.category,
+      row.httpStatusCode,
+      row.requestPath,
+      row.message,
+      row.correlationId,
+      row.tenantId,
+    ]
+      .map(operationalErrorClipboardCell)
+      .join(","),
+  );
+
+  return [header.join(","), ...lines].join("\n");
+}
+
 export function rowMatchesOperationalErrorFilters(
   row: OperationalErrorRow,
   categoryFilter: string,

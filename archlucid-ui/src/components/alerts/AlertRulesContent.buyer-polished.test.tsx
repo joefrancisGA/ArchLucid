@@ -5,16 +5,29 @@ import {
   ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
 } from "@/lib/alert-rule-conditions-copy";
+import {
+  ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE,
+  ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE,
+} from "@/lib/alert-rules-conditions-evidence-copy";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => true,
-  isOperatorExperienceFullShellEnv: () => false,
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => true,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+    isOperatorExperienceFullShellEnv: () => false,
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   listAlertRules: vi.fn().mockResolvedValue([]),
@@ -56,7 +69,16 @@ describe("AlertRulesContent buyer-polished shell (GLR)", () => {
     );
     expect(screen.queryByText("Writes below: API-enforced.")).not.toBeInTheDocument();
     expect(screen.queryByTestId("alert-rules-create-action")).not.toBeInTheDocument();
+    expect(screen.getByTestId("alert-rules-conditions-claim-discipline")).toHaveTextContent(
+      ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByRole("heading", { level: 2, name: ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-conditions-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-conditions-sources")).toBeInTheDocument();
+
+    const layout = screen.getByTestId("alert-rules-layout");
+    const orientationBottom = screen.getByTestId("alert-rules-conditions-orientation-bottom");
+
+    expect(layout.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

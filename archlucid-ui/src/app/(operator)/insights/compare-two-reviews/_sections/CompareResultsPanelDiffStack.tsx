@@ -1,7 +1,8 @@
 "use client";
 
 import { Download, FileText } from "lucide-react";
-import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
@@ -13,14 +14,20 @@ import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndi
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import {
+  compareSponsorNarrativeDisclosureHrefFromSearch,
+  parseCompareSponsorNarrativeOpenFromSearch,
+} from "@/lib/insights/compare-sponsor-narrative-disclosure-url";
+import {
+  compareTechnicalAppendixDisclosureHrefFromSearch,
+  parseCompareTechnicalAppendixOpenFromSearch,
+} from "@/lib/insights/compare-technical-appendix-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { CompareFindingCorrelationSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareFindingCorrelationSection";
 import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffSection";
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
-import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
-import { showError } from "@/lib/toast";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
 export function CompareResultsPanelDiffStack({
@@ -28,6 +35,62 @@ export function CompareResultsPanelDiffStack({
 }: {
   readonly viewModel: CompareResultsPanelViewModel;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareTechnicalAppendixOpenParam = searchParams.get("compareTechnicalAppendixOpen");
+  const compareSponsorNarrativeOpenParam = searchParams.get("compareSponsorNarrativeOpen");
+  const [technicalAppendixOpen, setTechnicalAppendixOpenState] = useState(() =>
+    parseCompareTechnicalAppendixOpenFromSearch(compareTechnicalAppendixOpenParam),
+  );
+  const [sponsorNarrativeOpen, setSponsorNarrativeOpenState] = useState(() =>
+    parseCompareSponsorNarrativeOpenFromSearch(compareSponsorNarrativeOpenParam),
+  );
+
+  const syncTechnicalAppendixOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareTechnicalAppendixDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalAppendixOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalAppendixOpenState(open);
+      syncTechnicalAppendixOpenToUrl(open);
+    },
+    [syncTechnicalAppendixOpenToUrl],
+  );
+
+  const syncSponsorNarrativeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareSponsorNarrativeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSponsorNarrativeOpen = useCallback(
+    (open: boolean) => {
+      setSponsorNarrativeOpenState(open);
+      syncSponsorNarrativeOpenToUrl(open);
+    },
+    [syncSponsorNarrativeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalAppendixOpenState(parseCompareTechnicalAppendixOpenFromSearch(compareTechnicalAppendixOpenParam));
+  }, [compareTechnicalAppendixOpenParam]);
+
+  useEffect(() => {
+    setSponsorNarrativeOpenState(parseCompareSponsorNarrativeOpenFromSearch(compareSponsorNarrativeOpenParam));
+  }, [compareSponsorNarrativeOpenParam]);
+
   const {
     hasResultsToNavigate,
     golden,
@@ -52,32 +115,6 @@ export function CompareResultsPanelDiffStack({
     pdfError,
     handleDownloadPdf,
   } = viewModel;
-
-  const [manifestExportBusy, setManifestExportBusy] = useState(false);
-
-  const handleDownloadManifestCompareExport = useCallback(async () => {
-    if (golden === null) {
-      return;
-    }
-
-    setManifestExportBusy(true);
-
-    try {
-      await downloadManifestCompareExport({
-        leftRunId: golden.baseRunId,
-        rightRunId: golden.targetRunId,
-        leftManifestVersion: leftPickedSummary?.currentManifestVersion ?? leftPickedSummary?.goldenManifestId,
-        rightManifestVersion: rightPickedSummary?.currentManifestVersion ?? rightPickedSummary?.goldenManifestId,
-      });
-    } catch (error: unknown) {
-      showError(
-        "Manifest compare export failed",
-        error instanceof Error ? error.message : "Download failed.",
-      );
-    } finally {
-      setManifestExportBusy(false);
-    }
-  }, [golden, leftPickedSummary, rightPickedSummary]);
 
   return (
     <>
@@ -109,20 +146,6 @@ export function CompareResultsPanelDiffStack({
               >
                 <FileText className="h-4 w-4" aria-hidden />
                 {docxDownloading ? "Downloading DOCX…" : "Download DOCX package"}
-              </Button>
-            ) : null}
-            {golden !== null ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={manifestExportBusy || docxDownloading || pdfDownloading}
-                onClick={() => void handleDownloadManifestCompareExport()}
-                className={cn(OPERATOR_LINK.inline, "inline-flex items-center gap-1.5 text-sm")}
-                data-testid="compare-download-manifest-compare-export-button"
-              >
-                <Download className="h-4 w-4" aria-hidden />
-                {manifestExportBusy ? "Downloading compare export…" : "Download compare export (Markdown)"}
               </Button>
             ) : null}
             <Button
@@ -223,6 +246,10 @@ export function CompareResultsPanelDiffStack({
           <details
             id="compare-technical"
             className="group mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
+            open={technicalAppendixOpen}
+            onToggle={(event) => {
+              setTechnicalAppendixOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("flex cursor-pointer items-center gap-2 text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
@@ -240,6 +267,10 @@ export function CompareResultsPanelDiffStack({
           <details
             id="compare-ai"
             className="group mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+            open={sponsorNarrativeOpen}
+            onToggle={(event) => {
+              setSponsorNarrativeOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
           >
             <summary className={cn("flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />

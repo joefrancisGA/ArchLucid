@@ -162,11 +162,11 @@ public sealed class QuickScanDistributedConcurrencyService(
                 {
                     promoteResult = await _store.TryPromoteAsync(promoteRequest, cancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogError(ex, "Quick Scan distributed concurrency promote failed.");
 
-                    await _store.AbandonQueueEntryAsync(waitingQueueEntryId, cancellationToken).ConfigureAwait(false);
+                    await _store.AbandonQueueEntryAsync(waitingQueueEntryId, CancellationToken.None).ConfigureAwait(false);
 
                     return QuickScanDistributedConcurrencyAdmissionResult.Reject(
                         QuickScanConcurrencyRejectionReason.StoreUnavailable);
@@ -196,7 +196,7 @@ public sealed class QuickScanDistributedConcurrencyService(
             throw;
         }
 
-        await _store.AbandonQueueEntryAsync(waitingQueueEntryId, cancellationToken).ConfigureAwait(false);
+        await _store.AbandonQueueEntryAsync(waitingQueueEntryId, CancellationToken.None).ConfigureAwait(false);
 
         _telemetry.RecordConcurrencyRejection(telemetryContext, QuickScanConcurrencyRejectionReason.QueueTimeout);
 

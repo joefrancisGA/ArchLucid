@@ -45,10 +45,10 @@ describe("GovernanceSetupGuidePageView", () => {
     // TB-1135: no orphan program chip competing with the H1 product name.
     expect(screen.queryByText("First 30 days")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent(
-      "0 of 2 tracked steps complete",
+      "0 of 3 tracked steps complete",
     );
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent(
-      "3 steps you confirm yourself",
+      "2 steps you confirm yourself",
     );
     expect(screen.getByTestId("governance-setup-progress-coach")).toHaveTextContent(
       "Start with “Set the policy baseline” below.",
@@ -87,9 +87,9 @@ describe("GovernanceSetupGuidePageView", () => {
     expect(screen.getByTestId("governance-setup-step-1-cta")).toHaveAttribute("data-cta-variant", "primary");
     expect(screen.getByTestId("governance-setup-step-2-cta")).toHaveAttribute("data-cta-variant", "outline");
     expect(screen.getByTestId("governance-setup-step-5-cta")).toHaveAttribute("data-cta-variant", "outline");
-    expect(screen.getAllByText("Not started")).toHaveLength(2);
-    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL)).toHaveLength(3);
-    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_HELPER)).toHaveLength(3);
+    expect(screen.getAllByText("Not started")).toHaveLength(3);
+    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL)).toHaveLength(2);
+    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_HELPER)).toHaveLength(2);
     // TB-1138: no all-Pending foundation theater under an untouched checklist.
     expect(screen.queryByTestId("governance-setup-foundation-panel")).not.toBeInTheDocument();
     expect(screen.queryByText("Governance foundation")).not.toBeInTheDocument();
@@ -108,7 +108,7 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent(
-      "1 of 2 tracked steps complete",
+      "1 of 3 tracked steps complete",
     );
     expect(screen.getByTestId("governance-setup-progress-coach")).toHaveTextContent(
       "Next: Configure alert ownership",
@@ -127,22 +127,22 @@ describe("GovernanceSetupGuidePageView", () => {
     );
     // TB-1138: foundation panel appears once a mapped indicator is complete.
     expect(screen.getByTestId("governance-setup-foundation-panel")).toBeInTheDocument();
-    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL)).toHaveLength(5);
+    expect(screen.getAllByText(GOVERNANCE_SETUP_STEP_NOT_TRACKED_STATUS_LABEL)).toHaveLength(3);
   });
 
-  it("renders tracked-complete coach when both tracked steps are complete", () => {
+  it("renders tracked-complete coach when all tracked steps are complete", () => {
     render(
       <GovernanceSetupGuidePageView
         model={{
           steps: GOVERNANCE_SETUP_GUIDE_STEPS,
           foundationIndicators: GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
-          stepStatuses: ["complete", "not-started", "complete", "not-started", "not-started"],
+          stepStatuses: ["complete", "not-started", "complete", "complete", "not-started"],
         }}
       />,
     );
 
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent(
-      "2 of 2 tracked steps complete",
+      "3 of 3 tracked steps complete",
     );
     expect(screen.getByTestId("governance-setup-progress-coach")).toHaveTextContent(
       GOVERNANCE_SETUP_ALL_TRACKED_COMPLETE_COACH,

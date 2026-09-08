@@ -50,7 +50,8 @@ describe("HelpSponsorDashboardGuideView buyer-polished shell", () => {
     expect(screen.queryByText(SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-sponsor-dashboard-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline").textContent).toContain(
+    expect(screen.queryByTestId("help-sponsor-dashboard-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline-strip")).toHaveTextContent(
       SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
 

@@ -15,6 +15,10 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { postFindingMute } from "@/lib/api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -41,6 +45,8 @@ export function QuickDecisionFindingMuteDialog(
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasUnsavedReason = props.open && reason.trim().length > 0;
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedReason });
 
   function close(): void {
     setReason("");
@@ -75,19 +81,20 @@ export function QuickDecisionFindingMuteDialog(
   }
 
   return (
-    <Dialog
-      open={props.open}
-      onOpenChange={(open) => {
-        if (!open) {
-          close();
+    <>
+      <Dialog
+        open={props.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            close();
 
-          return;
-        }
+            return;
+          }
 
-        props.onOpenChange(true);
-      }}
-    >
-      <DialogContent className="sm:max-w-md">
+          props.onOpenChange(true);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Mute finding</DialogTitle>
           <DialogDescription>
@@ -125,6 +132,13 @@ export function QuickDecisionFindingMuteDialog(
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
+      />
+    </>
   );
 }

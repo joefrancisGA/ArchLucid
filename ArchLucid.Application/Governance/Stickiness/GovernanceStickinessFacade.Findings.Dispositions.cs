@@ -38,6 +38,10 @@ public sealed partial class GovernanceStickinessFacade
             TradeOffAcknowledgment = request.TradeOffAcknowledgment,
             RevisitDueUtc = request.RevisitDueUtc,
             EvidenceRequestText = request.EvidenceRequestText,
+            ImpactPreviewCompleted = request.ImpactPreviewCompleted,
+            PreviewOverrideReason = request.PreviewOverrideReason,
+            ArchitectRestatement = request.ArchitectRestatement,
+            ExpectedCurrentDispositionRowVersionBase64 = request.ExpectedCurrentDispositionRowVersionBase64,
         };
 
         return await _findingDispositionService.RecordAsync(
@@ -59,7 +63,6 @@ public sealed partial class GovernanceStickinessFacade
             .Select(id => id.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-        List<string> updated = [];
         List<FindingInspectResponse> findingsInScope = [];
 
         foreach (string normalizedFindingId in normalizedFindingIds)
@@ -88,6 +91,10 @@ public sealed partial class GovernanceStickinessFacade
                 ct);
         }
 
+        List<RecordFindingDispositionRequest> normalizedRequests = new(findingsInScope.Count);
+        Dictionary<string, string>? expectedByFindingId = CopyExpectedVersionsByFindingId(
+            request.ExpectedCurrentDispositionRowVersionBase64ByFindingId);
+
         foreach (FindingInspectResponse finding in findingsInScope)
         {
             string normalizedFindingId = finding.FindingId;
@@ -102,7 +109,16 @@ public sealed partial class GovernanceStickinessFacade
                     : request.TradeOffAcknowledgment;
             }
 
-            RecordFindingDispositionRequest normalized = new()
+            string? expectedCurrentDispositionRowVersionBase64 = null;
+
+            if (expectedByFindingId is not null
+                && expectedByFindingId.TryGetValue(normalizedFindingId, out string? mappedVersion)
+                && !string.IsNullOrWhiteSpace(mappedVersion))
+            {
+                expectedCurrentDispositionRowVersionBase64 = mappedVersion;
+            }
+
+            normalizedRequests.Add(new RecordFindingDispositionRequest
             {
                 FindingId = normalizedFindingId,
                 RunId = authorityRunId == Guid.Empty ? null : authorityRunId,
@@ -111,23 +127,47 @@ public sealed partial class GovernanceStickinessFacade
                 TradeOffAcknowledgment = tradeOffAcknowledgment,
                 RevisitDueUtc = request.RevisitDueUtc,
                 EvidenceRequestText = request.EvidenceRequestText,
-            };
-
-            await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
-            updated.Add(normalizedFindingId);
+                ExpectedCurrentDispositionRowVersionBase64 = expectedCurrentDispositionRowVersionBase64,
+            });
         }
 
-        if (updated.Count == 0)
+        if (normalizedRequests.Count == 0)
         {
             throw new ArgumentException(
                 "None of the provided findings were found in the current scope.",
                 nameof(request.FindingIds));
         }
 
+        IReadOnlyList<FindingDispositionEventDto> recorded = await _findingDispositionService.RecordBulkAsync(
+            normalizedRequests,
+            scope,
+            actorId,
+            ct);
+
+        List<string> updated = recorded
+            .Select(static dto => dto.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .ToList();
+
+        Dictionary<string, string> currentByFindingId = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (FindingDispositionEventDto dto in recorded)
+        {
+            if (string.IsNullOrWhiteSpace(dto.FindingId)
+                || string.IsNullOrWhiteSpace(dto.CurrentDispositionRowVersionBase64))
+            {
+                continue;
+            }
+
+            currentByFindingId[dto.FindingId.Trim()] = dto.CurrentDispositionRowVersionBase64;
+        }
+
         return new RecordBulkFindingDispositionResponse
         {
             ProcessedCount = updated.Count,
             UpdatedFindingIds = updated,
+            CurrentDispositionRowVersionBase64ByFindingId = currentByFindingId.Count == 0 ? null : currentByFindingId,
         };
     }
 
@@ -148,5 +188,28 @@ public sealed partial class GovernanceStickinessFacade
             return [];
 
         return await _findingDispositionService.ListHistoryAsync(scope, finding.FindingId, ct);
+    }
+
+    private static Dictionary<string, string>? CopyExpectedVersionsByFindingId(
+        IReadOnlyDictionary<string, string>? clientMap)
+    {
+        if (clientMap is null || clientMap.Count == 0)
+        {
+            return null;
+        }
+
+        Dictionary<string, string> expectedByFindingId = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, string> entry in clientMap)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Key) || string.IsNullOrWhiteSpace(entry.Value))
+            {
+                continue;
+            }
+
+            expectedByFindingId[entry.Key.Trim()] = entry.Value.Trim();
+        }
+
+        return expectedByFindingId.Count == 0 ? null : expectedByFindingId;
     }
 }

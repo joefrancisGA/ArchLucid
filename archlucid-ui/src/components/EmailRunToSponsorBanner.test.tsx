@@ -25,6 +25,17 @@ const mockTelemetry = vi.mocked(recordSponsorBannerFirstCommitBadge);
 
 const bannerProps = { runId: "run-42", manifestId: "manifest-fixture" } as const;
 
+function mockJsonFetchResponse(body: unknown, ok = true): Response {
+  const text = JSON.stringify(body);
+
+  return {
+    ok,
+    status: ok ? 200 : 500,
+    json: async () => body,
+    text: async () => text,
+  } as Response;
+}
+
 function stubFetchForBannerMocks(init?: {
   readonly trialFirstCommitUtc?: string | null;
   readonly deltasBody?: unknown;
@@ -58,24 +69,15 @@ function stubFetchForBannerMocks(init?: {
       const url = typeof input === "string" ? input : input.toString();
 
       if (url.includes("/v1/tenant/trial-status")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ firstCommitUtc: trialUtc }),
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse({ firstCommitUtc: trialUtc }));
       }
 
       if (url.includes("/v1/tenant/baseline")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => roiBaselinePayload,
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse(roiBaselinePayload));
       }
 
       if (url.includes("/pilot-run-deltas")) {
-        return Promise.resolve({
-          ok: deltasOk,
-          json: async () => deltasBody,
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse(deltasBody, deltasOk));
       }
 
       return Promise.reject(new Error(`unexpected fetch: ${url}`));
@@ -140,26 +142,19 @@ describe("EmailRunToSponsorBanner", () => {
       const url = typeof input === "string" ? input : input.toString();
 
       if (url.includes("/v1/tenant/trial-status")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ firstCommitUtc: null }),
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse({ firstCommitUtc: null }));
       }
 
       if (url.includes("/v1/tenant/baseline")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
-        } as Response);
+        return Promise.resolve(
+          mockJsonFetchResponse({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        );
       }
 
       if (url.includes("/pilot-run-deltas")) {
         return new Promise<Response>((resolve) => {
           resolveDeltas = (body: unknown) => {
-            resolve({
-              ok: true,
-              json: async () => body,
-            } as Response);
+            resolve(mockJsonFetchResponse(body));
           };
         });
       }
@@ -278,23 +273,18 @@ describe("EmailRunToSponsorBanner", () => {
       const url = typeof input === "string" ? input : input.toString();
 
       if (url.includes("/v1/tenant/trial-status")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ firstCommitUtc: anchorIso }),
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse({ firstCommitUtc: anchorIso }));
       }
 
       if (url.includes("/v1/tenant/baseline")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
-        } as Response);
+        return Promise.resolve(
+          mockJsonFetchResponse({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        );
       }
 
       if (url.includes("/pilot-run-deltas")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({
+        return Promise.resolve(
+          mockJsonFetchResponse({
             isDemoTenant: false,
             proofPackageCompleteness: {
               demoTenantWarningRequired: false,
@@ -302,7 +292,7 @@ describe("EmailRunToSponsorBanner", () => {
               roiEvidenceConfidence: "Strong",
             },
           }),
-        } as Response);
+        );
       }
 
       return Promise.reject(new Error(`unexpected fetch ${url}`));
@@ -328,23 +318,18 @@ describe("EmailRunToSponsorBanner", () => {
       const url = typeof input === "string" ? input : input.toString();
 
       if (url.includes("/v1/tenant/trial-status")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ firstCommitUtc: anchorIso }),
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse({ firstCommitUtc: anchorIso }));
       }
 
       if (url.includes("/v1/tenant/baseline")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
-        } as Response);
+        return Promise.resolve(
+          mockJsonFetchResponse({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        );
       }
 
       if (url.includes("/pilot-run-deltas")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({
+        return Promise.resolve(
+          mockJsonFetchResponse({
             isDemoTenant: false,
             proofPackageCompleteness: {
               demoTenantWarningRequired: false,
@@ -352,7 +337,7 @@ describe("EmailRunToSponsorBanner", () => {
               roiEvidenceConfidence: "Strong",
             },
           }),
-        } as Response);
+        );
       }
 
       return Promise.reject(new Error(`unexpected fetch ${url}`));
@@ -376,23 +361,18 @@ describe("EmailRunToSponsorBanner", () => {
       const url = typeof input === "string" ? input : input.toString();
 
       if (url.includes("/v1/tenant/trial-status")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ firstCommitUtc: anchorIso }),
-        } as Response);
+        return Promise.resolve(mockJsonFetchResponse({ firstCommitUtc: anchorIso }));
       }
 
       if (url.includes("/v1/tenant/baseline")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
-        } as Response);
+        return Promise.resolve(
+          mockJsonFetchResponse({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+        );
       }
 
       if (url.includes("/pilot-run-deltas")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({
+        return Promise.resolve(
+          mockJsonFetchResponse({
             isDemoTenant: false,
             proofPackageCompleteness: {
               demoTenantWarningRequired: false,
@@ -400,7 +380,7 @@ describe("EmailRunToSponsorBanner", () => {
               roiEvidenceConfidence: "Strong",
             },
           }),
-        } as Response);
+        );
       }
 
       return Promise.reject(new Error(`unexpected fetch ${url}`));
@@ -493,6 +473,30 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
   });
 
+  it("blocks sponsor PDF when career artifact honesty fails (FC-48)", async () => {
+    stubFetchForBannerMocks();
+
+    render(
+      <EmailRunToSponsorBanner
+        {...bannerProps}
+        careerArtifactHonesty={{
+          progressSummary: null,
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: 35,
+          workingDesk: true,
+          transparencyTrail: { asserted: [], inferred: [], skipped: [] },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-career-artifact-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+  });
+
   it("hides the badge when trial-status returns 5xx", async () => {
     vi.stubGlobal(
       "fetch",
@@ -500,24 +504,18 @@ describe("EmailRunToSponsorBanner", () => {
         const url = typeof input === "string" ? input : input.toString();
 
         if (url.includes("/v1/tenant/trial-status")) {
-          return Promise.resolve({
-            ok: false,
-            status: 503,
-            json: async () => ({}),
-          } as Response);
+          return Promise.resolve(mockJsonFetchResponse({}, false));
         }
 
         if (url.includes("/v1/tenant/baseline")) {
-          return Promise.resolve({
-            ok: true,
-            json: async () => ({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
-          } as Response);
+          return Promise.resolve(
+            mockJsonFetchResponse({ baselineReviewCycleHours: 40, manualPrepHoursPerReview: 8 }),
+          );
         }
 
         if (url.includes("/pilot-run-deltas")) {
-          return Promise.resolve({
-            ok: true,
-            json: async () => ({
+          return Promise.resolve(
+            mockJsonFetchResponse({
               isDemoTenant: false,
               proofPackageCompleteness: {
                 demoTenantWarningRequired: false,
@@ -525,7 +523,7 @@ describe("EmailRunToSponsorBanner", () => {
                 roiEvidenceConfidence: "Strong",
               },
             }),
-          } as Response);
+          );
         }
 
         return Promise.reject(new Error(`unexpected fetch: ${url}`));

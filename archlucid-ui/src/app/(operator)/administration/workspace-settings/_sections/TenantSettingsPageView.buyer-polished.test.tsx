@@ -39,14 +39,19 @@ vi.mock("@/components/SupportBundleDownloadButton", () => ({
   SupportBundleDownloadButton: () => <button type="button">Download support bundle</button>,
 }));
 
-vi.mock("@/lib/active-tenant-context-display", () => ({
-  readActiveTenantContext: () => ({
-    displayName: "Acme Architecture",
-    tenantId: "tenant-1",
-    workspaceId: "workspace-1",
-    workspaceLabel: "Pilot",
-  }),
-}));
+vi.mock("@/lib/active-tenant-context-display", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/active-tenant-context-display")>();
+
+  return {
+    ...actual,
+    readActiveTenantContext: () => ({
+      displayName: "Acme Architecture",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      workspaceLabel: "Pilot",
+    }),
+  };
+});
 
 import {
   TENANT_SETTINGS_CLAIM_DISCIPLINE,
@@ -111,6 +116,8 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
       TENANT_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByRole("button", { name: "Page help" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-active-scope-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-caller-authority")).not.toBeInTheDocument();
     expect(screen.queryByTestId("workspace-scope-vocabulary-rail-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tenant-workspace-projects-card-stub")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Download support bundle" })).not.toBeInTheDocument();

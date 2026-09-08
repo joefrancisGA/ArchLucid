@@ -141,6 +141,10 @@ export function isSystemAdministrationNavGroupVisible(
   presetId: NavShellPresetId = resolveNavShellPresetId(),
   showVendorInternalNav = false,
 ): boolean {
+  if (presetId !== "full") {
+    return false;
+  }
+
   if (!showVendorInternalNav) {
     return false;
   }
@@ -154,4 +158,16 @@ export function isSystemAdministrationNavGroupVisible(
   }
 
   return true;
+}
+
+/** Whether the Internal (vendor staff) nav group should render for the active preset. */
+export function isVendorInternalNavGroupVisible(
+  presetId: NavShellPresetId = resolveNavShellPresetId(),
+  showVendorInternalNav = false,
+): boolean {
+  if (presetId !== "full") {
+    return false;
+  }
+
+  return showVendorInternalNav;
 }

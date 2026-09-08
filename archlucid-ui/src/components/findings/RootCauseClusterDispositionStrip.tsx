@@ -15,6 +15,13 @@ import {
   governanceBulkDispositionSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
 import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import {
+  formatFindingDispositionBulkConflictMessage,
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -55,6 +62,9 @@ export function RootCauseClusterDispositionStrip(
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+    null,
+  );
   const [pendingClusterKey, setPendingClusterKeyState] = useState<string | null>(null);
   const [pendingDisposition, setPendingDispositionState] = useState<ClusterDisposition | null>(null);
 
@@ -132,6 +142,7 @@ export function RootCauseClusterDispositionStrip(
 
     setInlineErrorMessage(null);
     setSuccessMessage(null);
+    setDispositionConflict(null);
     setPendingClusterDisposition(clusterKey, disposition);
   }
 
@@ -143,16 +154,23 @@ export function RootCauseClusterDispositionStrip(
     setBusy(true);
     setInlineErrorMessage(null);
     setSuccessMessage(null);
+    setDispositionConflict(null);
 
     const startedAtMs = Date.now();
     const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
     try {
+      const expectedCurrentDispositionRowVersionBase64ByFindingId =
+        await collectExpectedCurrentDispositionRowVersionByFindingId(pendingCluster.findingIds);
+
       const result = await recordBulkFindingDisposition(
         {
           findingIds: [...pendingCluster.findingIds],
           disposition: pendingDisposition,
           rationale: trimmedReason,
+          ...(Object.keys(expectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
+            ? {}
+            : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
         },
         { idempotencyKey },
       );
@@ -168,7 +186,15 @@ export function RootCauseClusterDispositionStrip(
         governanceBulkDispositionSuccessMessage(result.processedCount, pendingDisposition),
       );
       router.refresh();
-    } catch {
+    } catch (error: unknown) {
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setInlineErrorMessage(null);
+        return;
+      }
+
       setInlineErrorMessage(GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
     } finally {
       setBusy(false);
@@ -249,6 +275,23 @@ export function RootCauseClusterDispositionStrip(
       </ul>
       {inlineErrorMessage !== null ? (
         <OperatorMutationInlineError className="mt-2" message={inlineErrorMessage} />
+      ) : null}
+      {dispositionConflict !== null ? (
+        <div className="mt-2">
+          <FindingDispositionConflictPanel
+            conflict={dispositionConflict}
+            message={formatFindingDispositionBulkConflictMessage(dispositionConflict)}
+            onReload={() => {
+              setDispositionConflict(null);
+              setPendingClusterDisposition(null, null);
+              router.refresh();
+            }}
+            onDismiss={() => {
+              setDispositionConflict(null);
+            }}
+            testId="root-cause-cluster-disposition-conflict"
+          />
+        </div>
       ) : null}
       <ConfirmationDialog
         open={pendingCluster !== null && pendingDisposition !== null}

@@ -7,4 +7,5 @@ public enum DecisionReceiptRunBuildOutcome
     NotFound,
     SealedReceiptIncomplete,
     SealedHashMismatch,
+    CareerArtifactBlocked,
 }

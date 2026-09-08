@@ -1,6 +1,7 @@
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -86,5 +87,19 @@ internal static class PolicyPackGovernanceDryRunSealedManifestTestSupport
             .Returns(hash);
 
         return manifestHash.Object;
+    }
+
+    internal static IFindingReviewTrailRepository CreateEmptyFindingReviewTrailRepository()
+    {
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repository => repository.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return trail.Object;
     }
 }

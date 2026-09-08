@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -12,6 +14,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
+import {
+  parseReviewFailureTechnicalMetadataOpenFromSearch,
+  reviewFailureTechnicalMetadataDisclosureHrefFromSearch,
+} from "@/lib/reviews/review-failure-technical-metadata-disclosure-url";
 
 export type ReviewFailureTechnicalMetadataDisclosureProps = {
   readonly runId: string;
@@ -26,6 +32,36 @@ export type ReviewFailureTechnicalMetadataDisclosureProps = {
 export function ReviewFailureTechnicalMetadataDisclosure(
   props: ReviewFailureTechnicalMetadataDisclosureProps,
 ): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reviewFailureTechnicalMetadataOpenParam = searchParams.get("reviewFailureTechnicalMetadataOpen");
+  const [open, setOpenState] = useState(() =>
+    parseReviewFailureTechnicalMetadataOpenFromSearch(reviewFailureTechnicalMetadataOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        reviewFailureTechnicalMetadataDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseReviewFailureTechnicalMetadataOpenFromSearch(reviewFailureTechnicalMetadataOpenParam));
+  }, [reviewFailureTechnicalMetadataOpenParam]);
+
   const input: ReviewFailureTechnicalMetadataInput = {
     runId: props.runId,
     lastFailureSummary: props.lastFailureSummary ?? null,
@@ -44,11 +80,14 @@ export function ReviewFailureTechnicalMetadataDisclosure(
   return (
     <details
       className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
-      open
       data-testid="review-package-failure-technical-metadata"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Failure metadata
+        Technical failure detail
       </summary>
       <dl className={cn("m-0 mt-3 space-y-2", OPERATOR_TYPOGRAPHY.helper)}>
         {rows.map((row) => (

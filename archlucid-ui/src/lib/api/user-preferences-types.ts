@@ -41,6 +41,7 @@ export type UserPreferencesResponse = {
 };
 
 export type DeskContinuityDto = {
+  readonly lastOpenArchitectureId?: string | null;
   readonly lastOpenReviewId?: string | null;
   readonly lastOpenDraftId?: string | null;
   readonly lastVisitWatermarkUtc?: string | null;
@@ -143,6 +144,7 @@ export function defaultUserPreferencesResponse(): UserPreferencesResponse {
 
 export function defaultDeskContinuityDto(): DeskContinuityDto {
   return {
+    lastOpenArchitectureId: null,
     lastOpenReviewId: null,
     lastOpenDraftId: null,
     lastVisitWatermarkUtc: null,

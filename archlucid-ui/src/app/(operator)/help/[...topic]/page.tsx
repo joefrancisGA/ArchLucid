@@ -20,11 +20,14 @@ import { CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS } from "@/lib/cloud-connect
 import {
   getProductDocumentationEntry,
   listProductDocumentationEntries,
+  normalizeHelpTopicSlug,
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 import { loadHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 import { resolveHelpTopicView } from "@/lib/help/help-topic-view-resolver";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
 export const revalidate = 3600;
@@ -35,7 +38,9 @@ type HelpTopicPageProps = {
 };
 
 function helpSlugFromTopicSegments(topic: string[]): string {
-  return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
+  return normalizeHelpTopicSlug(
+    topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/"),
+  );
 }
 
 export async function generateStaticParams(): Promise<Array<{ topic: string[] }>> {
@@ -118,6 +123,10 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
+    return <HelpTopicNotFoundView />;
+  }
+
+  if (isHelpTopicExcludedForProductLine(entry.slug, resolveProductLineIdFromEnv())) {
     return <HelpTopicNotFoundView />;
   }
 

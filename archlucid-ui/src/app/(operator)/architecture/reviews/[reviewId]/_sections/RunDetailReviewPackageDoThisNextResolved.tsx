@@ -15,7 +15,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
-import { RunDetailMeasurementFloorFinalizeStrip } from "@/components/reviews/RunDetailMeasurementFloorFinalizeStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -24,9 +23,12 @@ import type {
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -46,6 +48,14 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly graphSnapshot?: unknown;
   readonly analysisStagesComplete?: boolean;
   readonly enginesSucceeded?: number | null;
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -158,6 +168,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
           usesCustomerAiConnection,
           effectiveSessionMode: sessionAiReadiness.sessionMode,
+          feasibilityVerdictKind: props.feasibilityVerdict?.kind ?? null,
         }),
       );
     });
@@ -200,12 +211,21 @@ export function RunDetailReviewPackageDoThisNextResolved(
     return doThisNextLoadingSkeleton();
   }
 
+  const suppressMeasurementDenominator = isReviewPipelineTerminalFailure(
+    props.pipelineDiagnosticContext ?? {
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    },
+  );
+
   return (
     <>
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
         manifestVersion={props.manifestId}
+        suppressMeasurementDenominator={suppressMeasurementDenominator}
+        pipelineTerminalFailure={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}
@@ -213,8 +233,15 @@ export function RunDetailReviewPackageDoThisNextResolved(
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
+        withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        judgeSkippedByCap={props.judgeSkippedByCap}
+        judgeConfiguredCap={props.judgeConfiguredCap}
+        judgeEffectiveCap={props.judgeEffectiveCap}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
+        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
       />
-      <RunDetailMeasurementFloorFinalizeStrip enginesSucceeded={props.enginesSucceeded} />
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined

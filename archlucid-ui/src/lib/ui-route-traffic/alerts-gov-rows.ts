@@ -39,7 +39,7 @@ export const ALERTS_GOV_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["DecisionRegisterClient", "Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for Governance findings queue. Owner backlog shorthand: GFN. */
+  /** Traffic workbook row ID for Policy findings queue. Owner backlog shorthand: GFN. */
   {
     rowId: "GFN",
     path: GOVERNANCE_FINDINGS_PATH,
@@ -48,14 +48,14 @@ export const ALERTS_GOV_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     noteMustContain: ["cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for Governance setup guide. Owner backlog shorthand: GFX. */
+  /** Traffic workbook row ID for Approval setup guide. Owner backlog shorthand: GFX. */
   {
     rowId: "GFX",
     path: "/governance/setup",
     section: "Alerts/gov",
-    note: "Governance setup guide (Alerts/gov) - GovernanceSetupGuidePageView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), outcome-framed steps and progress coach. Links into audited config workspaces. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - setup checklist hard-caps without live config depth. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Approval setup guide (Alerts/gov) - GovernanceSetupGuidePageView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), outcome-framed steps and progress coach. Links into audited config workspaces. Not a signed-record Sources trail. Score 62/100 (2026-08-08) - setup checklist hard-caps without live config depth. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
   },
-  /** Traffic workbook row ID for governance approval queue. Owner backlog shorthand: GOP. */
+  /** Traffic workbook row ID for approval queue. Owner backlog shorthand: GOP. */
   {
     rowId: "GOP",
     path: GOVERNANCE_APPROVAL_QUEUE_PATH,
@@ -96,7 +96,7 @@ export const ALERTS_GOV_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "GRS",
     path: "/governance/standards-and-rules",
     section: "Alerts/gov",
-    note: "Standards & rules (Alerts/gov) - GovernanceResolutionPageClient with PageContextualHelpButton (topic map policy-packs; Category-1 registry), applied-rule table and resolution diagnostics. Sibling GPP = policy-packs hub; GPI = pack detail. Not a signed-record Sources trail. Score 68/100 (2026-08-08) - governance resolution hub at GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Standards & rules (Alerts/gov) - GovernanceResolutionPageClient with PageContextualHelpButton (topic map policy-packs; Category-1 registry), applied-rule table and resolution diagnostics. Sibling GPP = policy-packs hub; GPI = pack detail. Not a signed-record Sources trail. Score 68/100 (2026-08-08) - policy resolution hub at GFN Evidence band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["Score 68", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },

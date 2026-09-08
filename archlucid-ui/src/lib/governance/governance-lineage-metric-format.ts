@@ -1,5 +1,5 @@
 /**
- * Display helpers for governance approval lineage — keeps NaN/non-numeric API drift out of buyer-facing UI.
+ * Display helpers for approval lineage — keeps NaN/non-numeric API drift out of buyer-facing UI.
  */
 
 /** Whole counts from lineage payloads. */
