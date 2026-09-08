@@ -945,7 +945,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -976,6 +976,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — connect-guard rejection surfaces as generic `TransportSucceeded=false` / `Error` string — **cheap-disproof 2026-09-08 seed hunt #1362:** operator probe contract; `Error` still names the block (`private network`); regression `ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect`
 - [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — hard-coded `tenantId: Guid.Empty` in synthetic envelope — **cheap-disproof 2026-09-08 seed hunt #1362:** `note` field documents non-persistent sample; dry-run endpoint contract per OpenAPI
 - [x] (invalid) `OutboundWebhookDryRunService.ProbeAuthorityRunCompletedAsync` — authority-run payload builder not invoked by zone controller (`DryRunAsync` calls `ProbeAsync` only, `OutboundWebhookDryRunController.cs` L48-49) — **cheap-disproof 2026-09-08 seed hunt #1362:** simulate endpoint owns authority payload path; out of dry-run trust boundary
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — hostname resolution failure during SSRF preflight returns `400` (`TryGetRejectionReasonAfterDnsResolveAsync`, L42-46) but the same class of failure at connect time returns `200` with `TransportSucceeded=false` (`OutboundHttpsConnectGuard` + `ProbeWithBodyAsync` catch, service L90-95) — **cheap-disproof 2026-09-08 seed hunt #1363:** validation rejects before probe; connect/probe failures stay in response body (same split as transport contract #1266)
+- [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — fresh `id` / `findingId` / `runId` GUIDs on every probe (`OutboundWebhookDryRunService.cs` L144-151) block byte-identical replay for subscriber idempotency tests — **cheap-disproof 2026-09-08 seed hunt #1363:** OpenAPI `OutboundWebhookDryRunExamplesOperationFilter` documents synthetic sample; each dry-run POST is intentionally unique
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — API response includes `ResponseBodyPreview` (`L56-57`) while audit omits preview (#1362) — subscriber may return secrets in body to the operator who initiated the probe — **cheap-disproof 2026-09-08 seed hunt #1363:** ExecuteAuthority-gated operator diagnostic; audit omission is the conservative store
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ReadResponseBodyPreviewAsync` — UTF-8 `StreamReader` with BOM detection (`L106-111`) can mis-render non-UTF-8 subscriber bodies in preview — **cheap-disproof 2026-09-08 seed hunt #1363:** preview is best-effort after headers; status/reason preserved (#1267 class)
+
+2026-09-08 seed hunt #1363 (seed-only): reseeded after #1362; cheap-disproof closed DNS outcome split, unique synthetic ids, operator preview trust boundary, and BOM preview limitation; 22 scoped controller/service tests passed.
 
 2026-09-08 seed hunt #1362 (seed-only): reseeded after #1361 connect-guard hit; cheap-disproof closed audit preview omission, connect error shape, synthetic tenant id, and unreachable authority payload path; 22 scoped controller/service tests passed.
 
