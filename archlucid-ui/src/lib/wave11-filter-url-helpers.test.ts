@@ -5514,6 +5514,100 @@ describe("wave69 filter url helpers", () => {
   });
 });
 
+describe("wave70 filter url helpers", () => {
+  it("first pilot technical commands, help technical reference group/mobile, help azure role details, caiq sig evidence segment, help mermaid diagram source, help topic toc mobile/group, transparency trail, product learning summary notes, recommendation learning weights params", async () => {
+    const {
+      firstPilotTechnicalCommandsDisclosureHrefFromSearch,
+      parseFirstPilotTechnicalCommandsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-technical-commands-disclosure-url");
+    const {
+      helpTechnicalReferenceGroupDisclosureHrefFromSearch,
+      parseHelpTechnicalReferenceGroupKeyFromSearch,
+    } = await import("@/lib/help/help-technical-reference-group-disclosure-url");
+    const {
+      helpTechnicalReferenceMobileDisclosureHrefFromSearch,
+      parseHelpTechnicalReferenceMobileOpenFromSearch,
+    } = await import("@/lib/help/help-technical-reference-mobile-disclosure-url");
+    const {
+      helpAzureRoleDetailsDisclosureHrefFromSearch,
+      parseHelpAzureRoleDetailsKeyFromSearch,
+    } = await import("@/lib/help/help-azure-role-details-disclosure-url");
+    const {
+      caiqSigEvidenceSegmentDisclosureHrefFromSearch,
+      parseCaiqSigEvidenceSegmentKeyFromSearch,
+    } = await import("@/lib/help/caiq-sig-evidence-segment-disclosure-url");
+    const {
+      helpMermaidDiagramSourceDisclosureHrefFromSearch,
+      parseHelpMermaidDiagramSourceOpenFromSearch,
+    } = await import("@/lib/help/help-mermaid-diagram-source-disclosure-url");
+    const {
+      helpTopicTocMobileDisclosureHrefFromSearch,
+      parseHelpTopicTocMobileOpenFromSearch,
+    } = await import("@/lib/help/help-topic-toc-mobile-disclosure-url");
+    const {
+      helpTopicTocGroupDisclosureHrefFromSearch,
+      parseHelpTopicTocGroupKeyFromSearch,
+    } = await import("@/lib/help/help-topic-toc-group-disclosure-url");
+    const {
+      parseTransparencyTrailOpenFromSearch,
+      transparencyTrailHrefFromSearch,
+    } = await import("@/lib/reviews/transparency-trail-open-url");
+    const {
+      parseProductLearningSummaryNotesOpenFromSearch,
+      productLearningSummaryNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/product-learning-summary-notes-disclosure-url");
+    const {
+      parseRecommendationLearningWeightsOpenFromSearch,
+      recommendationLearningWeightsDisclosureHrefFromSearch,
+    } = await import("@/lib/internal/recommendation-learning-weights-disclosure-url");
+
+    expect(parseFirstPilotTechnicalCommandsOpenFromSearch("1")).toBe(true);
+    expect(firstPilotTechnicalCommandsDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotTechnicalCommandsOpen=1",
+    );
+    expect(parseHelpTechnicalReferenceGroupKeyFromSearch("api-reference")).toBe("api-reference");
+    expect(
+      helpTechnicalReferenceGroupDisclosureHrefFromSearch("", "api-reference", "/help/technical-reference"),
+    ).toBe("/help/technical-reference?helpTechnicalReferenceGroupKey=api-reference");
+    expect(parseHelpTechnicalReferenceMobileOpenFromSearch("true")).toBe(true);
+    expect(helpTechnicalReferenceMobileDisclosureHrefFromSearch("tab=overview", true, "/help/technical-reference")).toBe(
+      "/help/technical-reference?tab=overview&helpTechnicalReferenceMobileOpen=1",
+    );
+    expect(parseHelpAzureRoleDetailsKeyFromSearch("contributor")).toBe("contributor");
+    expect(helpAzureRoleDetailsDisclosureHrefFromSearch("", "contributor", "/help/azure-cloud-connection")).toBe(
+      "/help/azure-cloud-connection?helpAzureRoleDetailsKey=contributor",
+    );
+    expect(parseCaiqSigEvidenceSegmentKeyFromSearch("caiq-sig-evidence-gap-0")).toBe("caiq-sig-evidence-gap-0");
+    expect(
+      caiqSigEvidenceSegmentDisclosureHrefFromSearch("tab=responses", "caiq-sig-evidence-gap-0", "/help/caiq-sig"),
+    ).toBe("/help/caiq-sig?tab=responses&caiqSigEvidenceSegmentKey=caiq-sig-evidence-gap-0");
+    expect(parseHelpMermaidDiagramSourceOpenFromSearch("1")).toBe(true);
+    expect(helpMermaidDiagramSourceDisclosureHrefFromSearch("", true, "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?helpMermaidDiagramSourceOpen=1",
+    );
+    expect(parseHelpTopicTocMobileOpenFromSearch("true")).toBe(true);
+    expect(helpTopicTocMobileDisclosureHrefFromSearch("topic=overview", true, "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?topic=overview&helpTopicTocMobileOpen=1",
+    );
+    expect(parseHelpTopicTocGroupKeyFromSearch("getting-started")).toBe("getting-started");
+    expect(helpTopicTocGroupDisclosureHrefFromSearch("", "getting-started", "/help/topics/architecture")).toBe(
+      "/help/topics/architecture?helpTopicTocGroupKey=getting-started",
+    );
+    expect(parseTransparencyTrailOpenFromSearch("1")).toBe(true);
+    expect(transparencyTrailHrefFromSearch("tab=overview", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=overview&transparencyTrailOpen=1",
+    );
+    expect(parseProductLearningSummaryNotesOpenFromSearch("true")).toBe(true);
+    expect(productLearningSummaryNotesDisclosureHrefFromSearch("", true, "/internal/product-learning")).toBe(
+      "/internal/product-learning?productLearningSummaryNotesOpen=1",
+    );
+    expect(parseRecommendationLearningWeightsOpenFromSearch("1")).toBe(true);
+    expect(
+      recommendationLearningWeightsDisclosureHrefFromSearch("tab=ops", true, "/internal/recommendation-learning"),
+    ).toBe("/internal/recommendation-learning?tab=ops&recommendationLearningWeightsOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

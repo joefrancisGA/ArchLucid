@@ -7,12 +7,8 @@ import {
   readHeldCheckLedgerFromFindingsSnapshot,
   readHeldCheckSecondPassFromFindingsSnapshot,
 } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
-<<<<<<< HEAD
 import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
-=======
 import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
-import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
->>>>>>> origin/master
 import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
