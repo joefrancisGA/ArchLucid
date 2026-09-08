@@ -96,6 +96,37 @@ export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
   "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), approval gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
 
+export const GETTING_STARTED_HELP_PIPELINE_WORKING_TEXT_STAGES = [
+  "Architecture request opens a review session and feeds context ingestion.",
+  "Review analysis stages: evidence intake, findings, decisions, and export-ready outputs.",
+  "Approval gate: allow commits the sealed review record; block or warn policy holds finalize.",
+  "Committed outputs: sealed review record and downloadable exports.",
+] as const;
+
+export const GETTING_STARTED_HELP_PIPELINE_WORKING_DIAGRAM_DESCRIPTION =
+  "Stages from architecture request through context ingestion, review analysis (evidence intake, findings, decisions, outputs), approval gate, and committed outputs (sealed review record and exports).";
+
+export const GETTING_STARTED_HELP_PIPELINE_WORKING_INTRO =
+  "Review flow from architecture request through approval check and committed outputs:";
+
+export function resolveGettingStartedHelpPipelineTextStages(workingMode: boolean): readonly string[] {
+  return workingMode ? GETTING_STARTED_HELP_PIPELINE_WORKING_TEXT_STAGES : GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES;
+}
+
+export function resolveGettingStartedHelpPipelineDiagramDescription(workingMode: boolean): string {
+  return workingMode
+    ? GETTING_STARTED_HELP_PIPELINE_WORKING_DIAGRAM_DESCRIPTION
+    : GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION;
+}
+
+export function resolveGettingStartedHelpPipelineIntro(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_PIPELINE_WORKING_INTRO : "Authority pipeline from architecture request through approval check and committed outputs:";
+}
+
+export function resolveGettingStartedHelpPipelineDiagramAccessibleName(workingMode: boolean): string {
+  return workingMode ? "Architecture review progress" : "Architecture review authority pipeline";
+}
+
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
   readonly definition: string;

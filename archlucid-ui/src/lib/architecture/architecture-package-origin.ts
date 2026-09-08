@@ -40,8 +40,17 @@ export type PipelineJobLabel = {
 export function resolvePipelineJobLabel(
   run: RunSummary | null,
   buyerAssessmentCopy: boolean,
+  workingDeskProgressCopy = false,
 ): PipelineJobLabel {
   const origin = run === null ? null : resolveRunSummaryPackageOrigin(run);
+
+  if (workingDeskProgressCopy) {
+    return {
+      heading: "Review progress",
+      progressAriaLabel: "Review stages completed",
+      stageSummaryNoun: "review",
+    };
+  }
 
   if (origin === "created") {
     return {

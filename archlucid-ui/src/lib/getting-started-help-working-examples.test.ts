@@ -9,6 +9,9 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import {
   GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID,
+  resolveGettingStartedHelpPipelineDiagramAccessibleName,
+  resolveGettingStartedHelpPipelineIntro,
+  resolveGettingStartedHelpPipelineTextStages,
   resolveGettingStartedHelpPrimaryActions,
   resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
@@ -48,5 +51,14 @@ describe("getting-started help Working examples (SY-87)", () => {
 
     expect(steps[1]?.href).toBe(REVIEWS_LIST_PATH);
     expect(steps[0]?.href).toBe("/architecture/reviews/new");
+  });
+
+  it("uses review-progress vocabulary on Working getting-started pipeline copy (WS-16)", () => {
+    const stages = resolveGettingStartedHelpPipelineTextStages(true);
+
+    expect(resolveGettingStartedHelpPipelineIntro(true)).not.toContain("Authority pipeline");
+    expect(resolveGettingStartedHelpPipelineDiagramAccessibleName(true)).toBe("Architecture review progress");
+    expect(stages.join(" ")).not.toContain("Authority pipeline");
+    expect(stages.join(" ")).toContain("Review analysis stages");
   });
 });

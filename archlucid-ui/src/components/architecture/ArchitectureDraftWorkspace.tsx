@@ -194,6 +194,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     acceptServerBaseline,
     syncServerUpdatedUtc,
     hasPersistedDraft,
+    recoveredLocally,
     markDirty,
     keepLocalDraftOnConflict,
   } = useArchitectureDraftAutosave({
@@ -306,7 +307,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = displayName;
-  const workspaceLead = architectureDraftDetailPageSubtitle(buyerPolishedShell, reviewReadiness.isValid);
+  const workspaceLead = architectureDraftDetailPageSubtitle(
+    buyerPolishedShell,
+    reviewReadiness.isValid,
+    hasPersistedDraft,
+    recoveredLocally,
+  );
 
   const scopeUnderstandingInput = useMemo(
     () => ({
