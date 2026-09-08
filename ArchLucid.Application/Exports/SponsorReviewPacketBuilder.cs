@@ -32,6 +32,7 @@ public sealed class SponsorReviewPacketBuilder(
     IManifestHashService manifestHashService,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
     IConfiguration configuration) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
@@ -59,6 +60,9 @@ public sealed class SponsorReviewPacketBuilder(
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -118,6 +122,13 @@ public sealed class SponsorReviewPacketBuilder(
             _configuration,
             cancellationToken);
 
+        IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
+            await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(
+                detail,
+                _findingReviewTrailRepository,
+                scope,
+                cancellationToken);
+
         return SponsorReviewPacketComposer.ComposeMarkdown(
             detail,
             SponsorReport,
@@ -127,7 +138,8 @@ public sealed class SponsorReviewPacketBuilder(
             topDecisions,
             portfolioSignals,
             activeTrialExportNotice,
-            careerExportHonesty);
+            careerExportHonesty,
+            architectRestatements);
     }
 
     private static string BuildDeterministicSponsorReport(

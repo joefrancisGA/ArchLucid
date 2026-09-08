@@ -146,6 +146,9 @@ public sealed class FindingDispositionService(
                 && !string.IsNullOrWhiteSpace(request.EvidenceRequestText)
                 ? request.EvidenceRequestText.Trim()
                 : null,
+            ArchitectRestatement = string.IsNullOrWhiteSpace(request.ArchitectRestatement)
+                ? null
+                : request.ArchitectRestatement.Trim(),
         };
     }
 
@@ -165,6 +168,7 @@ public sealed class FindingDispositionService(
             Rationale = dto.Rationale,
             RevisitDueUtc = dto.RevisitDueUtc,
             EvidenceRequestText = dto.EvidenceRequestText,
+            ArchitectRestatement = dto.ArchitectRestatement,
             OccurredAtUtc = dto.OccurredAtUtc,
             RunId = dto.RunId,
             CurrentDispositionRowVersionBase64 = Convert.ToBase64String(newCurrentRowVersion),
@@ -289,6 +293,7 @@ public sealed class FindingDispositionService(
             Rationale = record.Notes,
             RevisitDueUtc = record.RevisitDueUtc,
             EvidenceRequestText = record.EvidenceRequestText,
+            ArchitectRestatement = record.ArchitectRestatement,
             OccurredAtUtc = record.OccurredAtUtc,
             RunId = record.RunId,
         };

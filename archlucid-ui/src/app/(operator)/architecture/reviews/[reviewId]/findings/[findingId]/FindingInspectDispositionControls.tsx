@@ -36,6 +36,7 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
       revisitDueUtc: viewModel.revisitDueUtc,
       evidenceRequestText: viewModel.evidenceRequestText,
       tradeOffAcknowledgment: viewModel.tradeOffAcknowledgment,
+      architectRestatement: viewModel.architectRestatement,
     },
     dispositionBaseline: props.dispositionBaseline,
     waiver: {
@@ -58,6 +59,7 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
       revisitDueUtc: viewModel.revisitDueUtc,
       evidenceRequestText: viewModel.evidenceRequestText,
       tradeOffAcknowledgment: viewModel.tradeOffAcknowledgment,
+      architectRestatement: viewModel.architectRestatement,
       assignedToUserId: viewModel.assignedToUserId,
       remediationDueUtc: viewModel.remediationDueUtc,
       waiverRationale: viewModel.waiverRationale,
@@ -84,6 +86,10 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
 
       if (fields.tradeOffAcknowledgment !== undefined) {
         viewModel.setTradeOffAcknowledgment(fields.tradeOffAcknowledgment);
+      }
+
+      if (fields.architectRestatement !== undefined) {
+        viewModel.setArchitectRestatement(fields.architectRestatement);
       }
 
       if (fields.assignedToUserId !== undefined) {
@@ -139,6 +145,8 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         setApplyChangePreviewOverride={viewModel.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={viewModel.tradeOffAcknowledgment}
         setTradeOffAcknowledgment={viewModel.setTradeOffAcknowledgment}
+        architectRestatement={viewModel.architectRestatement}
+        setArchitectRestatement={viewModel.setArchitectRestatement}
         showIncrementalRereviewLink={viewModel.showIncrementalRereviewLink}
         submitRemediationAssignment={viewModel.submitRemediationAssignment}
         submitDisposition={viewModel.submitDisposition}

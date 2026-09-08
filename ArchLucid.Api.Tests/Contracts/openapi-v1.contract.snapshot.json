@@ -14989,6 +14989,12 @@
       },
       "FindingDispositionEventDto": {
         "properties": {
+          "architectRestatement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "currentDispositionRowVersionBase64": {
             "type": [
               "null",
@@ -27242,6 +27248,12 @@
       },
       "RecordFindingDispositionRequest": {
         "properties": {
+          "architectRestatement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "disposition": {
             "$ref": "#/components/schemas/FindingDisposition"
           },

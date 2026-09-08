@@ -40,6 +40,7 @@ public sealed partial class GovernanceStickinessFacade
             EvidenceRequestText = request.EvidenceRequestText,
             ImpactPreviewCompleted = request.ImpactPreviewCompleted,
             PreviewOverrideReason = request.PreviewOverrideReason,
+            ArchitectRestatement = request.ArchitectRestatement,
             ExpectedCurrentDispositionRowVersionBase64 = request.ExpectedCurrentDispositionRowVersionBase64,
         };
 

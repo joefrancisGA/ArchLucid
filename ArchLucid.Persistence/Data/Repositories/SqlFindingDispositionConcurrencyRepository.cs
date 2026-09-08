@@ -297,10 +297,10 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
         const string sql = """
                            INSERT INTO dbo.FindingReviewEvents
                            (EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText)
+                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement)
                            VALUES
                            (@EventId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @ReviewerUserId, @Action, @Notes,
-                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText);
+                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText, @ArchitectRestatement);
                            """;
 
         await connection.ExecuteAsync(
@@ -321,6 +321,7 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                     Disposition = reviewEvent.Disposition?.ToString(),
                     RevisitDueUtc = reviewEvent.RevisitDueUtc?.UtcDateTime,
                     reviewEvent.EvidenceRequestText,
+                    reviewEvent.ArchitectRestatement,
                 },
                 transaction,
                 cancellationToken: cancellationToken));

@@ -19,6 +19,7 @@ export async function recordFindingDisposition(
     expectedCurrentDispositionRowVersionBase64?: string;
     impactPreviewCompleted?: boolean;
     previewOverrideReason?: string;
+    architectRestatement?: string;
   },
   options?: { readonly idempotencyKey?: string },
 ): Promise<FindingDispositionEvent> {

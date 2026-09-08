@@ -62,6 +62,13 @@ public sealed class RecordFindingDispositionRequest
         init;
     }
 
+    /// <summary>Append-only architect wording for ARB narrative — not sealed engine finding text (LP-15).</summary>
+    public string? ArchitectRestatement
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Optimistic concurrency token for <c>dbo.FindingCurrentDispositions</c> (ADR 0076). Required when a current
     ///     disposition pointer already exists; omit only for the first disposition on a finding.

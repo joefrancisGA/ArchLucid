@@ -47,6 +47,13 @@ public sealed class FindingDispositionEventDto
         init;
     }
 
+    /// <summary>Append-only architect wording captured on this disposition event (LP-15).</summary>
+    public string? ArchitectRestatement
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset OccurredAtUtc
     {
         get;

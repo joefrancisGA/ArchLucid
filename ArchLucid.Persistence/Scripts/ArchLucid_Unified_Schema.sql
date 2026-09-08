@@ -1599,6 +1599,10 @@ IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
 
+IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
+    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
+
 GO
 
 IF OBJECT_ID(N'dbo.RiskExceptions', N'U') IS NULL
@@ -7606,6 +7610,10 @@ GO
 IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.FindingReviewEvents', N'EvidenceRequestText') IS NULL
     ALTER TABLE dbo.FindingReviewEvents ADD EvidenceRequestText NVARCHAR(MAX) NULL;
+
+IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingReviewEvents', N'ArchitectRestatement') IS NULL
+    ALTER TABLE dbo.FindingReviewEvents ADD ArchitectRestatement NVARCHAR(MAX) NULL;
 
 GO
 

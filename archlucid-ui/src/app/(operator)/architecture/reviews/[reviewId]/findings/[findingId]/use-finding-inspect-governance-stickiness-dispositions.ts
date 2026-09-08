@@ -94,6 +94,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   );
   const [applyChangePreviewOverride, setApplyChangePreviewOverride] = useState(false);
   const [tradeOffAcknowledgment, setTradeOffAcknowledgment] = useState("");
+  const [architectRestatement, setArchitectRestatement] = useState("");
   const [showIncrementalRereviewLink, setShowIncrementalRereviewLink] = useState(false);
   const [dispositionLastSavedUtc, setDispositionLastSavedUtc] = useState<string | null>(null);
   const [dispositionInlineSaveError, setDispositionInlineSaveError] = useState<string | null>(null);
@@ -109,6 +110,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       revisitDueUtc,
       evidenceRequestText,
       tradeOffAcknowledgment,
+      architectRestatement,
     };
   }
 
@@ -186,6 +188,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
             : undefined,
         impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
+        architectRestatement:
+          architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
       });
 
       const refreshed = await reload();
@@ -227,6 +231,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
         runId,
         impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
+        architectRestatement:
+          architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
       });
 
       const refreshed = await reload();
@@ -324,6 +330,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setApplyChangePreviewOverride,
     tradeOffAcknowledgment,
     setTradeOffAcknowledgment,
+    architectRestatement,
+    setArchitectRestatement,
     showIncrementalRereviewLink,
     submitDisposition,
     submitExplicitRemediation,
