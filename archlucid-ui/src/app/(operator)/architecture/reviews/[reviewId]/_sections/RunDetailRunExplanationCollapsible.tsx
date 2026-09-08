@@ -52,6 +52,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly buyerPolishedArtifactTable: boolean;
   readonly quickDecisionFindings: QuickDecisionFinding[];
   readonly quickDecisionFromExplanationFallback: boolean;
+  readonly buyerSummaryOmitsAgentFindings?: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
@@ -90,6 +91,7 @@ export function RunDetailRunExplanationCollapsible(
     buyerPolishedArtifactTable,
     quickDecisionFindings,
     quickDecisionFromExplanationFallback,
+    buyerSummaryOmitsAgentFindings,
     findingWireSnapshots,
     findingCountDisplay,
     warningCountDisplay,
@@ -228,6 +230,7 @@ export function RunDetailRunExplanationCollapsible(
           headlineFindingCount={findingCountDisplay}
           headlineWarningCount={warningCountDisplay}
           usingExplanationFallback={quickDecisionFromExplanationFallback}
+          buyerSummaryOmitsAgentFindings={buyerSummaryOmitsAgentFindings}
           manifestRuleSetId={manifestRuleSetId}
           manifestRuleSetVersion={manifestRuleSetVersion}
           providerNeutralWorkItems={providerNeutralWorkItems}
