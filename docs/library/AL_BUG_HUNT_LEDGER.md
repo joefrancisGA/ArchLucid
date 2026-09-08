@@ -1177,11 +1177,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1191,6 +1191,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Failed load still shows a previous tenant's cached rows — props-only client; loader clears runs upstream when hub load fails.
 - [x] (invalid) Empty state is skipped so a spinner never ends after a 403 — no spinner in `RunsListClient`; 403 surfaces via `OperatorApiProblem` upstream.
 - [x] (proven) Space on a compare checkbox bubbled to the row keyboard handler and opened the inspector — fixed by ignoring checkbox targets in `activateRowKeyboard` (matching click behavior).
+- [x] (proven) Buyer featured cards (`showBuyerPackageCards`) rendered `RunsListBuyerFeaturedCard` without row activation while the docked inspector stayed visible — **hit 2026-09-08 seed hunt #1355:** card shell click/keyboard now routes through `activateBuyerFeaturedCard` with the same link/checkbox guards as the work-queue table; regression `buyer-polished: card layout opens inspector preview when the card shell is activated`.
+- [x] (proven) Escape on the filter search field cleared filter text but bubbled to the window inspector-close handler — **hit 2026-09-08 seed hunt #1355:** filter `onKeyDown` now calls `stopPropagation` when clearing on Escape; regression `Escape in the filter field clears the query without closing an open inspector`.
+- [x] (valid-no-repro) `runsListFilterOpen` URL-synced `<details>` branch — `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) matches the outer hide-filters gate, so the disclosure element is unreachable and deep links have no mount target in current UX.
+
+2026-09-08 seed hunt #1355 (hit): reseeded ui-runs-list; proved buyer card inspector activation gap and filter Escape inspector-dismiss leak; cheap-disproved runsListFilterOpen disclosure reachability; 16 scoped `RunsListClient` tests passed.
 
 ---
 
