@@ -232,11 +232,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 10
-- **bugs-found:** 6
+- **hunts:** 11
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — RealizedValueAttestationUpsertValidation NoteMaxLength exceeded TenantSettings JSON budget
+- **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -267,6 +267,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `SqlTenantSettingsRepository.UpsertCoreAsync` accepted `SettingValue` payloads longer than migration `173` `NVARCHAR(512)` — **hit 2026-09-08:** realized-value attestation JSON at `NoteMaxLength` 2000 exceeds column limit; added `TenantSettingsWriteGuard.EnsureSettingValueLength` before MERGE; regressions in `EnsureSettingValueLength_rejects_values_longer_than_migration_nvarchar_512_limit` and `Serialized_realized_value_attestation_at_note_max_length_exceeds_migration_setting_value_limit`.
 - [x] (proven) `RealizedValueAttestationUpsertValidation.NoteMaxLength` (2000) exceeds what `dbo.TenantSettings.SettingValue` can store (512) — **hit 2026-09-08 (#1322):** HTTP/application validation allowed 2000-char notes while serialized attestation JSON exceeds migration `NVARCHAR(512)`; aligned `NoteMaxLength` to 204 (both notes populated), added `EnsureSerializedAttestationFitsOrThrow` before upsert, shared `TenantSettingsSchemaLimits.SettingValueMaxLength`; regressions `SaveAttestationAsync_throws_when_serialized_attestation_exceeds_tenant_setting_value_limit`, `SaveAttestationAsync_persists_when_both_notes_at_note_max_length`, `Serialized_realized_value_attestation_at_note_max_length_fits_migration_setting_value_limit`
 - [x] (valid-no-repro) `CachingTenantSettingsRepository` concurrent `DeleteAsync` on same key clears `WriteInFlightKeys` before first delete wrapper completes — **cheap-disproof 2026-09-08 (#1322):** same non-refcounted slot as prior upsert rows; inner delete idempotency plus generation bumps still expose absent final state; parity with `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag` and delete cached-hit regressions (#1239)
+- [x] (proven) `WorkspaceAllowedEngineSetService.SetAsync` — allowed-engine alias JSON for 14+ catalog aliases exceeds migration `NVARCHAR(512)` without application validation — **hit 2026-09-08 seed hunt #1323:** SettingsController PUT `allowed-engine-set` serializes full alias list to `ModelGovernance.AllowedEngineAliases`; repository guard alone surfaced late `ArgumentException`; added `EnsureSerializedPayloadFitsTenantSettings` before upsert; regressions `SetAsync_throws_when_serialized_allowed_engine_set_exceeds_tenant_setting_value_limit`, `SetAsync_persists_when_default_catalog_alias_count_fits_tenant_setting_value_limit`, `Serialized_allowed_engine_set_with_fourteen_aliases_exceeds_migration_setting_value_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — inner upsert failure after pre-write generation bump skips cache invalidation — **cheap-disproof 2026-09-08 seed hunt #1323:** failed upsert still leaves `TryGetAsync` reading last committed SQL value via bumped generation miss path; regression `TenantSettings_TryGetAsync_returns_last_committed_value_when_upsert_fails_after_generation_bump`
+- [ ] (candidate) `InMemoryTenantSettingsRepository.UpsertAsync` — omits `TenantSettingsWriteGuard` length enforcement used by `SqlTenantSettingsRepository`; dev/in-memory stacks accept oversize JSON that production SQL rejects — watch for new callers tested only against in-memory decorator stacks
+
+2026-09-08 seed hunt #1323 (hit): reseeded after attestation alignment; proved allowed-engine-set JSON budget gap; cheap-disproof closed failed-upsert generation-bump stale-read candidate; seeded in-memory write-guard parity candidate.
 
 2026-09-08 thorough hunt #1322 (hit): proved attestation note validation vs TenantSettings JSON budget mismatch; cheap-disproof closed concurrent delete write-in-flight candidate.
 
