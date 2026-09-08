@@ -96,6 +96,9 @@ export function ExtractUploadSettingsPageClient() {
     setUploadError: upload.setUploadError,
   });
   const demo = useExtractUploadDemo({
+    router,
+    pathname,
+    searchParams,
     onUpload: upload.onUpload,
     clearUploadState: upload.clearUploadState,
     setUploadError: upload.setUploadError,
