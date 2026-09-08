@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { primeJwtBrowserSession, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
+import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
 import { resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
 
@@ -16,7 +16,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
@@ -29,7 +29,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });

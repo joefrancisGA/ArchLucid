@@ -27,7 +27,7 @@ import {
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
-  primeJwtBrowserSession,
+  primePrivateBetaBrowserPage,
   requireLivePrivateBetaJwtEnv,
   resolveScopeFromAuthMe,
   writeJwtBrowserSession,
@@ -103,7 +103,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/403", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("operator-access-denied-heading")).toBeVisible({ timeout: 30_000 });
@@ -116,7 +116,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.route("**/api/proxy/api/auth/me**", async (route) => {
       if (route.request().method() !== "GET") {
         await route.continue();
@@ -145,7 +145,7 @@ test.describe(
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.route("**/api/proxy/api/auth/me**", async (route) => {
       if (route.request().method() !== "GET") {
         await route.continue();
@@ -322,7 +322,7 @@ test.describe(
 
     expect(pendingMatch).toBe(true);
 
-    await primeJwtBrowserSession(page, accessToken);
+    await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const me = await fetchAuthMeViaProxy(page);
@@ -465,7 +465,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
@@ -539,7 +539,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
@@ -585,7 +585,7 @@ test.describe(
 
     expect(inviteeSession.redirectPath).toBe("/architecture/first-review-guide?source=invitation");
 
-    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
 
