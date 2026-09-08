@@ -40,11 +40,8 @@ git push origin cursor/al-beta-private-beta-frozen-7730
 ## Artifacts
 
 Same as [PRIVATE_BETA_TRUNK_SMOKE.md](./PRIVATE_BETA_TRUNK_SMOKE.md) smoke-branch section (`-smoke-branch` suffix).
-<<<<<<< HEAD
-=======
 
 ```bash
 # After the workflow finishes (success or failure):
 bash scripts/ci/fetch_private_beta_smoke_artifacts.sh <run-id> ./frozen-triage --lane smoke-branch
 ```
->>>>>>> origin/cursor/al-beta-private-beta-jwt-refresh-7730
