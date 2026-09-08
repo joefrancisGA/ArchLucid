@@ -24,6 +24,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
     IInsightDensityGateOptionsResolver gateOptionsResolver,
     IConfiguration configuration,
     IFindingInsightSignalRepository? insightSignalRepository,
+    IAppendOnlyFindingVerificationReportRepository? verificationReportRepository,
     IScopeContextProvider? scopeContextProvider,
     TimeProvider timeProvider,
     ILogger<PremiumInsightDensityLlmJudge> logger) : IInsightDensityLlmJudge
@@ -44,6 +45,9 @@ public sealed partial class PremiumInsightDensityLlmJudge(
         configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly IFindingInsightSignalRepository? _insightSignalRepository = insightSignalRepository;
+
+    private readonly IAppendOnlyFindingVerificationReportRepository? _verificationReportRepository =
+        verificationReportRepository;
 
     private readonly IScopeContextProvider? _scopeContextProvider = scopeContextProvider;
 
@@ -81,6 +85,7 @@ public sealed partial class PremiumInsightDensityLlmJudge(
                 candidates,
                 options,
                 _insightSignalRepository,
+                _verificationReportRepository,
                 _scopeContextProvider,
                 _timeProvider,
                 _logger,

@@ -53,9 +53,12 @@ internal static class InsightDensityGateEffectiveOptionsMerger
             tenantValue: false,
             isRealExecutionMode);
 
+        // Prose assumption extraction stays opt-in via host config even in Real mode (DX-55).
         if (!isRealExecutionMode)
         {
+            effective.EnableProseAssumptionExtraction = false;
             effective.PreferHighNoveltyEngines = false;
+            effective.PreferHighVerificationEngines = false;
         }
     }
 }

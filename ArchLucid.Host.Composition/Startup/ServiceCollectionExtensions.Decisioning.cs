@@ -125,6 +125,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
         services.TryAddScoped<IInsightFindingGenerator, NoOpInsightFindingGenerator>();
+        services.TryAddScoped<IProseAssumptionFindingGenerator, NoOpProseAssumptionFindingGenerator>();
+        services.AddScoped<ArchLucid.Application.Findings.ProseAssumption.IProseAssumptionContradictionService,
+            ArchLucid.Application.Findings.ProseAssumption.ProseAssumptionContradictionService>();
 
         RegisterPluginFindingEngines(services, configuration);
 
@@ -134,6 +137,8 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Decisioning.Services.Findings.FindingsEngineInvokeStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsInsightGeneratorStage,
             ArchLucid.Decisioning.Services.Findings.FindingsInsightGeneratorStage>();
+        services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsProseAssumptionStage,
+            ArchLucid.Decisioning.Services.Findings.FindingsProseAssumptionStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsMergeAndGateStage,
             ArchLucid.Decisioning.Services.Findings.FindingsMergeAndGateStage>();
         services.AddScoped<ArchLucid.Decisioning.Services.Findings.IFindingsChecklistClusterStage,

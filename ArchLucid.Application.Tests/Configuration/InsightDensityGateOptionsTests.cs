@@ -21,6 +21,9 @@ public sealed class InsightDensityGateOptionsTests
 
         options.PreferHighNoveltyEngines.Should().BeFalse();
         options.NoveltyRateWindowDays.Should().Be(90);
+        options.EnableProseAssumptionExtraction.Should().BeFalse();
+        options.PreferHighVerificationEngines.Should().BeFalse();
+        options.VerificationPriorMinSample.Should().Be(20);
     }
 
     [Fact]
@@ -46,6 +49,25 @@ public sealed class InsightDensityGateOptionsTests
         InsightDensityGateOptions effective = resolver.Resolve();
 
         effective.PreferHighNoveltyEngines.Should().BeFalse();
+    }
+
+    [Fact]
+    public void InsightDensityGateOptionsResolver_forces_prose_assumption_off_in_simulator()
+    {
+        InsightDensityGateOptionsResolver resolver = new(
+            Options.Create(new InsightDensityGateOptions
+            {
+                EnableProseAssumptionExtraction = true,
+                PreferHighVerificationEngines = true,
+            }),
+            new FixedScopeContextProvider(new ScopeContext { TenantId = Guid.NewGuid() }),
+            new InMemoryTenantSettingsRepository(),
+            new FixedEffectiveAgentExecutionModeAccessor(DevAgentExecutionModeHeaderNames.Simulator));
+
+        InsightDensityGateOptions effective = resolver.Resolve();
+
+        effective.EnableProseAssumptionExtraction.Should().BeFalse();
+        effective.PreferHighVerificationEngines.Should().BeFalse();
     }
 
     private sealed class FixedScopeContextProvider(ScopeContext scope) : IScopeContextProvider

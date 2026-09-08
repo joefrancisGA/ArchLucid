@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Findings;
@@ -23,5 +24,12 @@ public interface IAppendOnlyFindingVerificationReportRepository
     Task<IReadOnlyList<FindingVerificationReportRecord>> ListByRunIdAsync(
         ScopeContext scope,
         Guid runId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<EngineVerificationConfirmedRateRow>> ListConfirmedRatesByEngineTypeAsync(
+        ScopeContext scope,
+        DateTime fromUtc,
+        DateTime toUtcExclusive,
+        int minSample,
         CancellationToken cancellationToken = default);
 }
