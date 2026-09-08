@@ -1476,3 +1476,4 @@
 {"at":"2026-09-08T11:21:47.3497967Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-08T11:26:48.3715549Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-09-08T11:31:24.3316934Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-09-08T11:39:41.4533643Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only"}

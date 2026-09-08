@@ -9948,10 +9948,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
+- **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -9972,6 +9972,13 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (proven) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` / `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — review cache hit cleared `PublishBlocked` for trust-gated analysis reruns — **hit 2026-09-07 (#1226):** storage sanitizer dropped publish-block metadata and finalize called `ApplyAnalysisOnlyCoalescedIsolation` on every cache hit; identical blocked full/continue reruns returned `PublishBlocked=false`; fixed by preserving publish-block fields in `SanitizeForStorage` and limiting analysis-only isolation to coalesced publish leaders (`SanitizeForStorage_preserves_publish_block_metadata`, `RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`, `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`)
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` vs `Build` lookup/storage key parity when request carries hyphenated run id — **cheap-disproof 2026-09-07 (#1226):** content hashes match for same baseline (`BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id`)
 - [x] (valid-no-repro) `ClosedLoopPublishStage` / continue path — blocked continue rerun cache storage under persisted baseline — **cheap-disproof 2026-09-07 (#1226):** second identical continue with `AlwaysBlockedTrustPublishGate` is cache hit (`RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`)
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ReviewTier` omitted from content hash — **cheap-disproof 2026-09-08 (#1309):** `tier=` participates in `HashContent`; `Build_changes_content_hash_when_review_tier_changes`
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — `PublishToProduct=true` with `persistModel=false` skips cache write while analysis path stores; subsequent analysis could inherit stale blocked analysis entry — **cheap-disproof 2026-09-08 (#1309):** blocked publish live rerun intentionally does not overwrite analysis cache; `RunAsync_publish_blocked_live_run_does_not_overwrite_analysis_cache_entry`
+- [x] (valid-no-repro) `FinalizeCoalescedReviewResult` / `ApplyCacheHitPolicy` — identical incomplete-framing rerun cache hit clears `ReviewCompleteBlocked` — **cheap-disproof 2026-09-08 (#1309):** intentional analysis-only cache-hit isolation; `RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked`
+- [ ] (candidate) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs (pin holds same storage key; eviction resumes on unpin)
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent
+
+2026-09-08 seed hunt #1309 (seed-only): reseeded orchestrator/cache after git churn; cheap-disproof closed review-tier, publish-storage asymmetry, and incomplete-framing cache-hit candidates; kept pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
 
 2026-09-07 seed hunt #1226 (hit): reseeded orchestrator/cache manifest paths; proved review cache hits stripped publish-block truth for blocked analysis reruns.
 2026-09-07 thorough hunt #1218 (hit): proved pin-cap saturation skipped review cache read/write; disproved remaining cache-cap and continue-manifest partition candidates.

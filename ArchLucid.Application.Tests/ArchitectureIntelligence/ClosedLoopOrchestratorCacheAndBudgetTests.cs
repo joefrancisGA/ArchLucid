@@ -374,4 +374,106 @@ public sealed class ClosedLoopOrchestratorCacheAndBudgetTests
                 scope.Dispose();
         }
     }
+
+    [Fact]
+    public async Task RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-cache-incomplete-framing",
+            DeclaredPriorities = ["Security"],
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(request);
+        first.CacheHit.Should().BeFalse();
+        first.Interview.IsFramingComplete.Should().BeFalse();
+        first.ReviewCompleteBlocked.Should().BeTrue();
+
+        ClosedLoopReasoningResult second = await orchestrator.RunAsync(request);
+        second.CacheHit.Should().BeTrue();
+        second.ReviewCompleteBlocked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunAsync_publish_blocked_live_run_does_not_overwrite_analysis_cache_entry()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.RemoveAll<ITrustPublishGate>();
+        services.AddSingleton<ITrustPublishGate, AlwaysBlockedTrustPublishGate>();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest analysisRequest = new()
+        {
+            TenantId = "tenant-cache-publish-no-overwrite",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            DeclaredPriorities = ["Security"],
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure customer onboarding",
+                ["system-boundary"] = "Public API and billing worker",
+                ["fixed-decisions"] = "Azure is the cloud provider",
+                ["critical-quality-attributes"] = "Security and reliability",
+                ["unacceptable-failures"] = "Data breach",
+                ["architecture-kind"] = "Greenfield integration",
+            },
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = """
+                        Public API exposes customer records without authentication.
+                        Billing worker is an unowned component.
+                        """,
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult analysis = await orchestrator.RunAsync(analysisRequest);
+        analysis.CacheHit.Should().BeFalse();
+        analysis.PublishBlocked.Should().BeTrue();
+
+        ClosedLoopReasoningRequest publishRequest = new()
+        {
+            TenantId = analysisRequest.TenantId,
+            RunId = analysisRequest.RunId,
+            DeclaredPriorities = analysisRequest.DeclaredPriorities,
+            FramingAnswers = analysisRequest.FramingAnswers,
+            SourceTexts = analysisRequest.SourceTexts,
+            PublishToProduct = true,
+        };
+
+        ClosedLoopReasoningResult publish = await orchestrator.RunAsync(publishRequest);
+        publish.CacheHit.Should().BeFalse();
+        publish.PublishBlocked.Should().BeTrue();
+
+        ClosedLoopReasoningResult analysisAgain = await orchestrator.RunAsync(analysisRequest);
+        analysisAgain.CacheHit.Should().BeTrue();
+        analysisAgain.PublishBlocked.Should().BeTrue();
+    }
 }
