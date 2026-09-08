@@ -21,6 +21,9 @@ export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastru
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastructure/terraform";
 
+export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
+  "/governance/infrastructure/extract-upload";
+
 export function isGovernanceInfrastructureRoutePath(pathname: string | null | undefined): boolean {
   if (pathname === null || pathname === undefined) {
     return false;

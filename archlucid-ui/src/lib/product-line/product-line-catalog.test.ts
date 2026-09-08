@@ -35,6 +35,8 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/integrations/azure-boards");
     expect(hrefs).toContain("/integrations/slack");
     expect(hrefs).toContain("/integrations/webhooks");
+    expect(hrefs).toContain("/administration/extract-upload");
+    expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
   });
 
   it("shows infrastructure workbenches and hides architecture reviews in the Security shell", () => {
@@ -59,7 +61,8 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/integrations/teams");
     expect(hrefs).toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
-    expect(hrefs).toContain("/administration/extract-upload");
+    expect(hrefs).toContain("/governance/infrastructure/extract-upload");
+    expect(hrefs).not.toContain("/administration/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
     expect(hrefs).not.toContain("/integrations/azure-boards");
     expect(hrefs).not.toContain("/integrations/slack");
@@ -130,7 +133,10 @@ describe("product-line catalog", () => {
     ).toBe(false);
     expect(isPathAllowedForProductLine("/administration/auth-domains", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/identity/sso-wizard", "security")).toBe(true);
-    expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/extract-upload", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/administration/extract-upload", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/governance/findings/assigned-to-me", "security")).toBe(true);
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/azure-boards", "security")).toBe(false);
