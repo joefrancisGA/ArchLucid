@@ -94,6 +94,62 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         operationOrder.Should().ContainInOrder("acquire", "delete");
     }
 
+    [Fact]
+    public async Task ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string runId = runGuid.ToString("N");
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-selective-ownership",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            PinnedPolicyPackIdsJson = "[]",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Callback(() => header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope());
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null))
+            .ReturnsAsync([]);
+
+        Mock<IAgentExecutor> executor = new();
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            executor.Object,
+            resultRepo.Object,
+            ownership.Object,
+            header);
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(runId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*committed*");
+
+        resultRepo.Verify(
+            r => r.DeleteForRunTaskAsync(runId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private sealed class RecordingRenewalScope : IAsyncDisposable
     {
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -104,9 +160,10 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         Guid runGuid,
         IAgentExecutor executor,
         IAgentResultRepository resultRepo,
-        IRunExecuteOwnershipLeaseService ownershipLeaseService)
+        IRunExecuteOwnershipLeaseService ownershipLeaseService,
+        RunRecord? header = null)
     {
-        RunRecord header = new()
+        header ??= new RunRecord
         {
             RunId = runGuid,
             TenantId = TestScope.TenantId,
