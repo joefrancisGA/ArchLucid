@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     Orders engine findings for Premium judge-cap selection (DX-21/DX-34 preferred engines; DX-35 novelty sort).
+///     Orders engine findings for Premium judge-cap selection (DX-21/DX-34 preferred engines; DX-35 novelty; DX-56 verification priors).
 /// </summary>
 internal static class InsightDensityJudgeCandidateSelector
 {
@@ -17,12 +17,14 @@ internal static class InsightDensityJudgeCandidateSelector
         IReadOnlyList<Finding> candidates,
         InsightDensityGateOptions options,
         IFindingInsightSignalRepository? insightSignalRepository,
+        IAppendOnlyFindingVerificationReportRepository? verificationReportRepository,
         IScopeContextProvider? scopeContextProvider,
         TimeProvider timeProvider,
         ILogger logger,
         CancellationToken cancellationToken)
     {
         IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null;
+        IReadOnlyDictionary<string, double>? verificationPriorRatesByEngineType = null;
 
         if (ShouldApplyNoveltySort(options)
             && insightSignalRepository is not null
@@ -37,19 +39,42 @@ internal static class InsightDensityJudgeCandidateSelector
                 cancellationToken);
         }
 
+        if (ShouldApplyVerificationSort(options)
+            && verificationReportRepository is not null
+            && scopeContextProvider is not null)
+        {
+            verificationPriorRatesByEngineType = await InsightDensityVerificationPriorLookup.TryLoadVerificationPriorsAsync(
+                options,
+                verificationReportRepository,
+                scopeContextProvider,
+                timeProvider,
+                logger,
+                cancellationToken);
+        }
+
         return SelectEngineJudgedCandidates(
             candidates,
             options.MaxJudgedFindingsPerSnapshot,
-            noveltyRatesByEngineType);
+            noveltyRatesByEngineType,
+            verificationPriorRatesByEngineType);
     }
 
     internal static (IReadOnlyList<Finding> Judged, int SkippedByCap) SelectEngineJudgedCandidates(
         IReadOnlyList<Finding> candidates,
         int maxJudgedFindingsPerSnapshot,
-        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null)
+        IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null,
+        IReadOnlyDictionary<string, double>? verificationPriorRatesByEngineType = null)
     {
         IOrderedEnumerable<Finding> orderedQuery = candidates
             .OrderByDescending(static finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType));
+
+        if (verificationPriorRatesByEngineType is not null)
+        {
+            orderedQuery = orderedQuery.ThenByDescending(finding =>
+                InsightDensityVerificationPriorLookup.ResolveVerificationPriorRate(
+                    finding.EngineType,
+                    verificationPriorRatesByEngineType));
+        }
 
         if (noveltyRatesByEngineType is not null)
         {
@@ -76,6 +101,13 @@ internal static class InsightDensityJudgeCandidateSelector
     private static bool ShouldApplyNoveltySort(InsightDensityGateOptions options)
     {
         return options.PreferHighNoveltyEngines
+            && options.EnableLlmJudge
+            && options.EnableLlmJudgeForEngineFindings;
+    }
+
+    private static bool ShouldApplyVerificationSort(InsightDensityGateOptions options)
+    {
+        return options.PreferHighVerificationEngines
             && options.EnableLlmJudge
             && options.EnableLlmJudgeForEngineFindings;
     }
