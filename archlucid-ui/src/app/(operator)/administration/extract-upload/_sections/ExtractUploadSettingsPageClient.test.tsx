@@ -116,6 +116,28 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("extract-upload-header-extractor-version")).toHaveTextContent("Extractor script: v2.4.1");
   });
 
+  it("renders advanced inventory command on a light code surface for readable contrast", () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return new Response("{}", { status: 404 });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    const advancedCommand = screen.getByTestId("extract-upload-advanced-command");
+
+    expect(advancedCommand.className).toContain("bg-white");
+    expect(advancedCommand.className).not.toContain("bg-neutral-950");
+    expect(advancedCommand).toHaveTextContent("Get-ArchLucidAzurePackage.ps1");
+  });
+
   it("uses unbroken Step 1 and Step 2 numbering with demo in the aside", () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);

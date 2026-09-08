@@ -6,6 +6,10 @@ import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigatio
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import {
+  resolveWorkingBackHref,
+  resolveWorkingReviewFindingsBackHref,
+} from "@/lib/architecture/working-back-href";
 import { getFindingEvidenceTraceHref, resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
@@ -52,6 +56,7 @@ export function FindingDetailPageView(props: Props) {
     linkedManifestHref,
     pageTitle,
     statedConstraintContext,
+    parentArchitectureId,
   } = model;
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
@@ -82,10 +87,11 @@ export function FindingDetailPageView(props: Props) {
 
   const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId, findingsQueueRunId);
   const findingsQueueNavHref = resolveFindingsQueueNavHref(findingsQueueRunId);
-  const reviewFindingsHref = `/architecture/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+  const workingBackInput = { reviewId: runId, architectureId: parentArchitectureId };
+  const reviewFindingsHref = resolveWorkingReviewFindingsBackHref(workingBackInput);
   const reviewPackageHref = isDemoRunIdEligibleForStaticFallback(runId)
     ? getShowcaseManifestHref()
-    : `/architecture/reviews/${encodeURIComponent(runId)}`;
+    : resolveWorkingBackHref(workingBackInput);
   const decisionSummary =
     inspectPayload !== null ? deriveFindingDecisionSummary(inspectPayload, decodedFindingId) : null;
   const evidenceBasisSummary = summarizeEvidenceBasis(inspectPayload);
@@ -159,6 +165,7 @@ export function FindingDetailPageView(props: Props) {
     sponsorPlainEnglishInput,
     showBuyerPolishedBody,
     buyerHeroSubtitle,
+    transparencyTrail: model.transparencyTrail,
   };
 
   return (

@@ -7,8 +7,23 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
 };
 
 /** Buyer-visible one-line summary after an architecture intelligence run. */
-export function formatArchitectureIntelligenceRunHeadline(result: ClosedLoopReasoningResult): string {
+export function formatArchitectureIntelligenceRunHeadline(
+  result: ClosedLoopReasoningResult,
+  options?: { readonly assertedTrailEmpty?: boolean },
+): string {
   const findingCount = result.integrityPassedFindingIds?.length ?? 0;
+
+  if (options?.assertedTrailEmpty === true) {
+    if (findingCount === 0) {
+      return "Analysis complete · No governed findings yet";
+    }
+
+    if (findingCount === 1) {
+      return "Analysis complete · 1 governed finding";
+    }
+
+    return `Analysis complete · ${findingCount} governed findings`;
+  }
 
   return `Analysis complete · ${formatEvidenceBackedFindingsPhrase(findingCount)}`;
 }

@@ -26,6 +26,12 @@ vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/integration-readiness",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { HelpIntegrationReadinessGuideView } from "@/app/(operator)/help/_sections/HelpIntegrationReadinessGuideView";
 import {
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
@@ -76,16 +82,16 @@ describe("HelpTopicIntegrationReadiness (HEI)", () => {
 
     expect(connectionStatusLink).toHaveAttribute("href", INTEGRATION_READINESS_HELP_PRIMARY_ACTION.href);
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId(INTEGRATION_READINESS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
+    expect(screen.getByTestId("help-integration-readiness-claim-discipline-strip")).toHaveTextContent(
       INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
     );
-    expect(screen.queryByTestId("help-integration-readiness-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId(INTEGRATION_READINESS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).not.toBeInTheDocument();
     expect(screen.queryByTestId("integration-readiness-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("help-integration-readiness-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("integration-readiness-help-sources")).toBeInTheDocument();
     expect(screen.getByTestId(INTEGRATION_READINESS_HELP_RELATED_TEST_ID)).toBeInTheDocument();
 
-    const sourcesSection = screen.getByTestId("help-integration-readiness-sources");
+    const sourcesSection = screen.getByTestId("integration-readiness-help-sources");
 
     for (const source of filterWhereToGoNextFollowUpLinks(INTEGRATION_READINESS_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
@@ -94,12 +100,10 @@ describe("HelpTopicIntegrationReadiness (HEI)", () => {
 
     const firstViewport = screen.getByTestId(INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID);
     const statusGlossary = screen.getByTestId("help-integration-readiness-status-glossary");
-    const orientationBottom = screen.getByTestId("help-integration-readiness-orientation-bottom");
 
     expect(
       firstViewport.compareDocumentPosition(statusGlossary) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(firstViewport).queryByRole("columnheader", { name: /^ready$/i })).toBeNull();
 
     const configureBody = screen.getByTestId("help-integration-readiness-configure-body");

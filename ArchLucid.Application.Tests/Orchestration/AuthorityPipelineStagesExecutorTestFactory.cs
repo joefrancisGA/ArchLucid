@@ -328,7 +328,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 publicSiteOptions,
                 Mock.Of<IAuthorityQueryService>(),
                 Mock.Of<IManifestHashService>(),
-                NullLogger<AuthorityPipelineFindingsStage>.Instance),
+                NullLogger<AuthorityPipelineFindingsStage>.Instance,
+                Mock.Of<IAgentResultRepository>()),
             new AuthorityPipelineDecisioningStage(
                 decision.Object,
                 stagePersistence,

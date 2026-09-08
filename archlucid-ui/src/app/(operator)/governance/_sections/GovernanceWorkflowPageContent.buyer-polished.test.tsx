@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import {
+  APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+  GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
+  GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
+} from "@/lib/approval-queue-evidence-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
@@ -130,7 +135,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Approval",
-      headline: "Submit finalized architecture outputs for governance approval review and promotion.",
+      headline: "Submit finalized architecture outputs for approval review and promotion.",
       useWhen: "Pick one review and move from submission through approval.",
       firstPilotNote: null,
       enterpriseFootnote: "Approvals follow the configured approval path.",
@@ -212,15 +217,24 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-context-strip")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("approval-queue-header-claim-discipline")).toHaveTextContent(
+      APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+    );
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Workspace health" })).toHaveAttribute(
       "href",
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
-    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-approval-queue-primary-content")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-approval-queue-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
-    expect(screen.queryAllByText("How governance approval works")).toHaveLength(1);
+    expect(screen.queryByText("How approval works")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();

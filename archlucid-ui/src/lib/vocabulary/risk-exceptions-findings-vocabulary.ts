@@ -1,7 +1,7 @@
 /**
  * TB-2249 — Risk exceptions ≠ Findings vocabulary rail.
  *
- * Why two governance surfaces exist:
+ * Why two approval surfaces exist:
  * - Risk exceptions (`/governance/exceptions`) is the *waiver register* for
  *   time-bounded exceptions against findings (renew / revoke).
  * - Findings queue (`/governance/findings`) is the cross-review *risk register*

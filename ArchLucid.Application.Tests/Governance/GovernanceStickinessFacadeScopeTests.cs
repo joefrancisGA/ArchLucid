@@ -14,6 +14,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -524,8 +525,10 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .ReturnsAsync(new FindingInspectResponse { FindingId = "finding-1" });
 
         FindingDispositionService dispositionService = new(
+            Mock.Of<IFindingDispositionConcurrencyRepository>(),
+            CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId),
             Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
-            CreateTrailRepositoryReturningForeignAndInScopeEvents(foreignWorkspaceId));
+            Mock.Of<ArchLucid.Core.UserPreferences.IUserWorkspaceModeReader>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,
@@ -570,8 +573,10 @@ public sealed class GovernanceStickinessFacadeScopeTests
             ]);
 
         FindingDispositionService dispositionService = new(
+            Mock.Of<IFindingDispositionConcurrencyRepository>(),
+            trail.Object,
             Mock.Of<ArchLucid.Application.Governance.FindingReview.IFindingReviewTrailAppendService>(),
-            trail.Object);
+            Mock.Of<ArchLucid.Core.UserPreferences.IUserWorkspaceModeReader>());
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: findings.Object,
@@ -1363,7 +1368,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         GovernanceStickinessFacade sut = CreateSut(
             runRepository: runs.Object,
-            recurrenceCalculator: calculator.Object);
+            recurrenceCalculator: calculator.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         CreateArchitectureReviewRecurrenceScheduleRequest request = new()
         {
@@ -1492,13 +1499,6 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .ReturnsAsync((FindingInspectResponse?)null);
 
         Mock<IFindingDispositionService> disposition = new();
-        disposition
-            .Setup(s => s.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(r => r.FindingId == "in-scope-finding"),
-                CallerScope,
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "in-scope-finding" });
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: inspect.Object,
@@ -1517,8 +1517,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
             .WithMessage("*Finding was not found*");
 
         disposition.Verify(
-            s => s.RecordAsync(
-                It.IsAny<RecordFindingDispositionRequest>(),
+            s => s.RecordBulkAsync(
+                It.IsAny<IReadOnlyList<RecordFindingDispositionRequest>>(),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
@@ -1541,12 +1541,13 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == findingId),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1 && requests[0].FindingId == findingId),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = findingId }]);
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: inspect.Object,
@@ -1565,8 +1566,8 @@ public sealed class GovernanceStickinessFacadeScopeTests
         response.ProcessedCount.Should().Be(1);
         response.UpdatedFindingIds.Should().Equal(findingId);
         dispositions.Verify(
-            d => d.RecordAsync(
-                It.IsAny<RecordFindingDispositionRequest>(),
+            d => d.RecordBulkAsync(
+                It.IsAny<IReadOnlyList<RecordFindingDispositionRequest>>(),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
@@ -1590,14 +1591,15 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request =>
-                    request.FindingId == findingId
-                    && request.TradeOffAcknowledgment == rationale),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == findingId
+                    && requests[0].TradeOffAcknowledgment == rationale),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = findingId }]);
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: inspect.Object,
@@ -1633,14 +1635,15 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request =>
-                    request.FindingId == findingId
-                    && request.EvidenceRequestText == evidenceRequestText),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == findingId
+                    && requests[0].EvidenceRequestText == evidenceRequestText),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = findingId }]);
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: inspect.Object,
@@ -1686,19 +1689,22 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request =>
-                    request.FindingId == findingId
-                    && request.RunId == authorityRunId),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == findingId
+                    && requests[0].RunId == authorityRunId),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = findingId }]);
 
         GovernanceStickinessFacade sut = CreateSut(
             findingInspect: inspect.Object,
             runRepository: runs.Object,
-            dispositionService: dispositions.Object);
+            dispositionService: dispositions.Object,
+            authorityQuery: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(CallerScope),
+            manifestHashService: PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService());
 
         RecordBulkFindingDispositionRequest request = new()
         {
@@ -1712,8 +1718,9 @@ public sealed class GovernanceStickinessFacadeScopeTests
 
         response.ProcessedCount.Should().Be(1);
         dispositions.Verify(
-            d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(r => r.RunId == authorityRunId),
+            d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1 && requests[0].RunId == authorityRunId),
                 CallerScope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),

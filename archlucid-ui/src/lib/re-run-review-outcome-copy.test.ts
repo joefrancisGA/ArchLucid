@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildReRunReviewConfirmDescription,
   formatReRunReviewStartedHeadline,
   formatReRunReviewTerminalHeadline,
   resolveReRunReviewAttemptNumber,
@@ -31,5 +32,33 @@ describe("re-run-review-outcome-copy", () => {
     expect(reRunReviewOutcomePhaseFromOperationState("Running")).toBe("running");
     expect(reRunReviewOutcomePhaseFromOperationState("Failed")).toBe("failed");
     expect(reRunReviewOutcomePhaseFromOperationState("unknown")).toBeNull();
+  });
+
+  it("builds a single confirm paragraph without repeating AI budget consumption", () => {
+    expect(buildReRunReviewConfirmDescription(3, null)).toEqual({
+      kind: "ready",
+      text: "Attempt 3 will re-invoke architecture analysis on this review.",
+    });
+    expect(
+      buildReRunReviewConfirmDescription(3, {
+        monthlyBudgetMonitoringActive: true,
+        blocksLlmExecution: false,
+        remainingBudgetUsd: 12.5,
+      }),
+    ).toEqual({
+      kind: "ready",
+      text:
+        "Attempt 3 will re-invoke architecture analysis on this review. About $12.50 of this month's AI budget allowance remains.",
+    });
+    expect(
+      buildReRunReviewConfirmDescription(3, {
+        monthlyBudgetMonitoringActive: true,
+        blocksLlmExecution: true,
+        remainingBudgetUsd: 0,
+      }),
+    ).toEqual({
+      kind: "blocked",
+      text: "The AI budget for this workspace is exhausted, so attempt 3 cannot re-run this review.",
+    });
   });
 });

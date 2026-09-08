@@ -38,6 +38,10 @@ public sealed partial class GovernanceStickinessFacade
             TradeOffAcknowledgment = request.TradeOffAcknowledgment,
             RevisitDueUtc = request.RevisitDueUtc,
             EvidenceRequestText = request.EvidenceRequestText,
+            ImpactPreviewCompleted = request.ImpactPreviewCompleted,
+            PreviewOverrideReason = request.PreviewOverrideReason,
+            ArchitectRestatement = request.ArchitectRestatement,
+            ExpectedCurrentDispositionRowVersionBase64 = request.ExpectedCurrentDispositionRowVersionBase64,
         };
 
         return await _findingDispositionService.RecordAsync(
@@ -59,7 +63,6 @@ public sealed partial class GovernanceStickinessFacade
             .Select(id => id.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-        List<string> updated = [];
         List<FindingInspectResponse> findingsInScope = [];
 
         foreach (string normalizedFindingId in normalizedFindingIds)
@@ -88,6 +91,8 @@ public sealed partial class GovernanceStickinessFacade
                 ct);
         }
 
+        List<RecordFindingDispositionRequest> normalizedRequests = new(findingsInScope.Count);
+
         foreach (FindingInspectResponse finding in findingsInScope)
         {
             string normalizedFindingId = finding.FindingId;
@@ -102,7 +107,7 @@ public sealed partial class GovernanceStickinessFacade
                     : request.TradeOffAcknowledgment;
             }
 
-            RecordFindingDispositionRequest normalized = new()
+            normalizedRequests.Add(new RecordFindingDispositionRequest
             {
                 FindingId = normalizedFindingId,
                 RunId = authorityRunId == Guid.Empty ? null : authorityRunId,
@@ -111,18 +116,27 @@ public sealed partial class GovernanceStickinessFacade
                 TradeOffAcknowledgment = tradeOffAcknowledgment,
                 RevisitDueUtc = request.RevisitDueUtc,
                 EvidenceRequestText = request.EvidenceRequestText,
-            };
-
-            await _findingDispositionService.RecordAsync(normalized, scope, actorId, ct);
-            updated.Add(normalizedFindingId);
+            });
         }
 
-        if (updated.Count == 0)
+        if (normalizedRequests.Count == 0)
         {
             throw new ArgumentException(
                 "None of the provided findings were found in the current scope.",
                 nameof(request.FindingIds));
         }
+
+        IReadOnlyList<FindingDispositionEventDto> recorded = await _findingDispositionService.RecordBulkAsync(
+            normalizedRequests,
+            scope,
+            actorId,
+            ct);
+
+        List<string> updated = recorded
+            .Select(static dto => dto.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .ToList();
 
         return new RecordBulkFindingDispositionResponse
         {

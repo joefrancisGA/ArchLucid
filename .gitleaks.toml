@@ -116,12 +116,29 @@ paths = [
   '''(?:^|/)archlucid-ui/src/components/feasibility/TransparencyTrailPanel\.test\.tsx$''',
   '''(?:^|/)archlucid-ui/src/lib/feasibility-verdict-transparency-trail\.test\.ts$''',
   '''(?:^|/)archlucid-ui/src/lib/feasibility/export-transparency-trail-section\.test\.ts$''',
+  '''(?:^|/)archlucid-ui/src/lib/feasibility/format-inferred-trail-entry-label\.test\.ts$''',
+  '''(?:^|/)ArchLucid\.Application\.Tests/Pilots/SponsorReviewCoverageHonestyMarkdownFormatterTests\.cs$''',
+]
+
+[[allowlists]]
+description = "Insight density Composer prompt packs: internal engineering docs with golden case-NN references and engine identifiers only — never credential values; generic-api-key false positives on cost/path golden prose"
+paths = [
+  '''(?:^|/)docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.*\.md$''',
 ]
 
 [[allowlists]]
 description = "server-operator-scope Vitest: ARCHLUCID_PROXY_BEARER_TOKEN env stub only (not a real JWT/API key); generic-api-key false positive on retired eyJ-prefixed fixture in git history"
 paths = [
   '''(?:^|/)archlucid-ui/src/lib/server-operator-scope\.test\.ts$''',
+]
+
+[[allowlists]]
+description = "wave11 URL helper Vitest: disclosure search-param fixtures (caiqSigEvidenceSegmentKey segment ids, not API secrets); generic-api-key false positive"
+paths = [
+  '''(?:^|/)archlucid-ui/src/lib/wave11-filter-url-helpers\.test\.ts$''',
+]
+regexes = [
+  '''caiqSigEvidenceSegmentKey=''',
 ]
 
 [[allowlists]]
@@ -137,6 +154,12 @@ paths = [
 ]
 regexes = [
   "PROJ-389-ambiguous",
+]
+
+[[allowlists]]
+description = "ITSM inbound disposition sync unit test: base64 PointerToken fixture (decodes to pointer-token), not an API key; generic-api-key false positive on PointerToken assignment"
+paths = [
+  '''(?:^|/)ArchLucid\.Application\.Tests/Integrations/Itsm/ItsmInboundDispositionSyncTests\.cs$''',
 ]
 
 [[allowlists]]

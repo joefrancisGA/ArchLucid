@@ -16,8 +16,10 @@ import {
   ACCESS_DENIED_FOLLOW_UPS_TITLE,
 } from "@/lib/access-denied-evidence-copy";
 import {
-  ACCESS_DENIED_PRIMARY_CONTENT_ID,
+  ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID,
+  ACCESS_DENIED_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ACCESS_DENIED_SKIP_LINK_LABEL,
+  ACCESS_DENIED_SKIP_TARGET_ID,
 } from "@/lib/access-denied-page-copy";
 
 vi.mock("@/lib/oidc/config", () => ({
@@ -72,23 +74,29 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 import { OperatorAccessDeniedPageClient } from "./OperatorAccessDeniedPageClient";
 
 describe("OperatorAccessDeniedPageClient buyer-polished shell", () => {
-  it("renders skip link, breadcrumb, and orientation above recovery actions", () => {
+  it("renders skip link, first-viewport band, and orientation above recovery actions", () => {
     render(<OperatorAccessDeniedPageClient />);
 
     expect(screen.getByRole("link", { name: ACCESS_DENIED_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${ACCESS_DENIED_PRIMARY_CONTENT_ID}`,
+      `#${ACCESS_DENIED_SKIP_TARGET_ID}`,
     );
     expect(screen.queryByTestId("access-denied-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("access-denied-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId(ACCESS_DENIED_HEADER_CLAIM_DISCIPLINE_TEST_ID).textContent).toContain(
       ACCESS_DENIED_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.queryByTestId("access-denied-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ACCESS_DENIED_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
+    const primaryContent = screen.getByTestId("access-denied-primary-content");
+    const firstViewport = screen.getByTestId(ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID);
     const orientation = screen.getByTestId("access-denied-orientation-top");
     const useDifferentAccount = screen.getByTestId("operator-access-denied-use-different-account");
+    const adminDetails = screen.getByTestId("operator-access-denied-admin-details");
 
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientation);
     expect(orientation.compareDocumentPosition(useDifferentAccount) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByTestId("access-denied-primary-content")).toContainElement(orientation);
+    expect(firstViewport.compareDocumentPosition(adminDetails) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

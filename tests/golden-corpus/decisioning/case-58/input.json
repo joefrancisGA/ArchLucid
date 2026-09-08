@@ -1,0 +1,41 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000058",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000058",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000058-0000-4000-8000-000000000058",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000058",
+    "runId": "20000000-0000-4000-8000-000000000058",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-4025d687cca52f630c571b2eb2403d31",
+        "nodeType": "TopologyResource",
+        "label": "pay-logs-cfn-demo",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-cfn-golden-58",
+        "properties": {
+          "resourceType": "aws::s3::bucket",
+          "tf.bucketname": "pay-logs-cfn-demo",
+          "tf.publicnetworkaccess": "disabled",
+          "publicNetworkAccess": "disabled",
+          "arn": "arn:aws:s3:::pay-logs-cfn-demo",
+          "resourceId": "arn:aws:s3:::pay-logs-cfn-demo"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "azurePackageId": "00000000-0000-0000-0000-000000000000",
+    "resourcesJson": "[]",
+    "cloudProvider": "Aws",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000058",
+    "cloudResourcesJson": "[\n  {\n    \u0022name\u0022: \u0022arn:aws:s3:::pay-logs-cfn-demo\u0022,\n    \u0022resourceType\u0022: \u0022AWS::S3::Bucket\u0022,\n    \u0022location\u0022: \u0022us-east-1\u0022,\n    \u0022properties\u0022: {\n      \u0022publiclyAccessible\u0022: true\n    }\n  }\n]",
+    "extraZipEntries": []
+  }
+}

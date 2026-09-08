@@ -1,3 +1,4 @@
+import { EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK } from "@/lib/evidence-graph-operator-source-link";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const COMPARISON_REPLAY_HELP_CANONICAL_PATH = "/help/comparison-replay" as const;
@@ -21,5 +22,5 @@ export const COMPARISON_REPLAY_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Validate review", href: "/internal/validate-route" },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK,
 ] as const;

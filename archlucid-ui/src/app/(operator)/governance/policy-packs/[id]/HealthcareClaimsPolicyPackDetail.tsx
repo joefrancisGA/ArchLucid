@@ -22,8 +22,7 @@ import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
-
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type HealthcareClaimsPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -34,12 +33,13 @@ type HealthcareClaimsPolicyPackDetailProps = {
  */
 export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPackDetailProps) {
   const { policyPackId } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", CLAIMS_INTAKE_RULE_SET_VERSION);
   const versionBadgeLabel = `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`;
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={canonicalPackLabel}
@@ -68,8 +68,6 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         </div>
       </OperatorPageHeader>
 
-      <PolicyPackDetailBuyerChrome />
-
       <Card>
         <CardHeader>
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>What sponsors see first</h2>
@@ -77,7 +75,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <CardContent>
           <ul className={cn("m-0 list-disc space-y-2 ps-5 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             <li>Explicit minimization checks where identifiers cross trust boundaries.</li>
-            <li>Required evidence artifacts for regulators — finalized review records, graph excerpts, and governance approval stay linked.</li>
+            <li>Required evidence artifacts for regulators — finalized review records, graph excerpts, and approval stay linked.</li>
             <li>Operational drift hooks when unstructured attachments spike risk.</li>
           </ul>
         </CardContent>
@@ -92,7 +90,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
             <div>
               <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Identity &amp; lineage</dt>
               <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Tie findings to review record versions and governance approval so remediation retains provenance.
+                Tie findings to review record versions and approval so remediation retains provenance.
               </dd>
             </div>
             <div>
@@ -130,7 +128,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
             <span className="font-mono">{CLAIMS_INTAKE_RULE_SET_VERSION}</span>
           </p>
           <p className="m-0">
-            Governance approval recorded against the finalized Claims Intake architecture package — cross-check the
+            Approval recorded against the finalized Claims Intake architecture package — cross-check the
             Approval tab for promotion readiness.
           </p>
         </CollapsibleContent>

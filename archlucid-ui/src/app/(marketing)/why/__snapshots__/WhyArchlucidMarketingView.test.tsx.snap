@@ -19,7 +19,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       >
         <div>
           <p
-            class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-al-text-primary dark:text-neutral-100"
             data-testid="why-brand-category-eyebrow"
           >
             Architecture Proof Engine
@@ -41,14 +41,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             data-testid="why-hero-cta-row"
           >
             <a
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
               data-testid="why-hero-primary-cta"
               href="/see-it"
             >
               See a finalized sample review
             </a>
             <a
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
               data-testid="why-hero-secondary-cta"
               href="/signup"
             >
@@ -58,7 +58,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </div>
         <a
           aria-label="See a finalized sample review — open the public proof slice"
-          class="group block overflow-hidden rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 marketing-hero-visual"
+          class="group block overflow-hidden rounded-lg border border-neutral-200 bg-al-surface-raised text-left shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-900 marketing-hero-visual"
           data-testid="why-hero-proof-card"
           href="/see-it"
         >
@@ -99,7 +99,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
   >
     <p
-      class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-al-text-primary dark:text-neutral-100"
     >
       First-principles outcome
     </p>
@@ -465,7 +465,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
-            class="font-medium text-teal-800 dark:text-teal-300"
+            class="font-medium text-al-text-secondary dark:text-neutral-300"
           >
             ArchLucid:
           </span>
@@ -494,7 +494,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
-            class="font-medium text-teal-800 dark:text-teal-300"
+            class="font-medium text-al-text-secondary dark:text-neutral-300"
           >
             ArchLucid:
           </span>
@@ -523,7 +523,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
-            class="font-medium text-teal-800 dark:text-teal-300"
+            class="font-medium text-al-text-secondary dark:text-neutral-300"
           >
             ArchLucid:
           </span>
@@ -552,7 +552,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
-            class="font-medium text-teal-800 dark:text-teal-300"
+            class="font-medium text-al-text-secondary dark:text-neutral-300"
           >
             ArchLucid:
           </span>
@@ -581,7 +581,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
         >
           <span
-            class="font-medium text-teal-800 dark:text-teal-300"
+            class="font-medium text-al-text-secondary dark:text-neutral-300"
           >
             ArchLucid:
           </span>
@@ -622,9 +622,15 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       data-testid="why-market-landscape-disclosure"
     >
       <summary
-        class="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+        class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
         data-testid="why-market-landscape-disclosure-trigger"
       >
+        <span
+          aria-hidden="true"
+          class="shrink-0 font-bold text-neutral-900 transition-transform group-open:rotate-90 dark:text-neutral-100"
+        >
+          ▸
+        </span>
         <span
           class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
         >
@@ -954,9 +960,15 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       data-testid="why-hard-comparison-disclosure"
     >
       <summary
-        class="cursor-pointer list-none px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
+        class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden"
         data-testid="why-hard-comparison-disclosure-trigger"
       >
+        <span
+          aria-hidden="true"
+          class="shrink-0 font-bold text-neutral-900 transition-transform group-open:rotate-90 dark:text-neutral-100"
+        >
+          ▸
+        </span>
         <span
           class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
         >
@@ -1379,14 +1391,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
     >
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
         data-testid="why-proof-ladder-primary-cta"
         href="/see-it"
       >
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
         data-testid="why-proof-ladder-sample-cta"
         href="/showcase/customer-intake-modernization"
       >
@@ -1432,14 +1444,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
     >
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-10 rounded-md px-6"
         data-testid="why-closing-primary-cta"
         href="/see-it"
       >
         See a finalized sample review
       </a>
       <a
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 font-semibold border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6 text-[15px]"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 h-10 rounded-md px-6"
         data-testid="why-closing-secondary-cta"
         href="/signup"
       >

@@ -102,8 +102,11 @@ describe("ReRunReviewButton", () => {
     fireEvent.click(screen.getByTestId("re-run-review-button"));
 
     expect(screen.getByTestId("re-run-review-confirm-dialog")).toBeInTheDocument();
-    expect(screen.getByText(/Attempt/)).toHaveTextContent("3");
-    expect(screen.getByText(/Metered AI budget will be consumed/)).toBeInTheDocument();
+    expect(screen.getByTestId("re-run-review-confirm-description")).toHaveTextContent(
+      /Attempt 3 will re-invoke architecture analysis on this review/i,
+    );
+    expect(screen.queryByText(/Metered AI budget will be consumed/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/uses AI budget/i)).not.toBeInTheDocument();
     expect(executeArchitectureRunAsync).not.toHaveBeenCalled();
   });
 

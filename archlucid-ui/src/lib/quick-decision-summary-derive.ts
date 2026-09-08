@@ -15,6 +15,7 @@ export {
   extractQuickDecisionFindingsFromRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
+  resolveRunDetailFindingStreams,
   extractIacStubForFinding,
   findingHasNoSourceEvidence,
   sortQuickDecisionFindings,

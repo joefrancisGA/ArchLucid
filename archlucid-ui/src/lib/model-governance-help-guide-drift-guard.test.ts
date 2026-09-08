@@ -115,7 +115,7 @@ describe("model-governance help negation drift guard", () => {
     }
   });
 
-  it("links the primary action to administration model governance", () => {
+  it("links the primary action to administration model policy", () => {
     expect(MODEL_GOVERNANCE_HELP_PRIMARY_ACTION.href).toBe("/administration/model-governance");
   });
 });

@@ -1,6 +1,7 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 
 export const HELP_HUB_CANONICAL_PATH = "/help" as const;
 
@@ -19,6 +20,10 @@ export const HELP_HUB_CLAIM_DISCIPLINE =
 export const HELP_HUB_SOURCES_INTRO =
  "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity records.";
 
+export const HELP_HUB_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "browsing Help turns into workflow orientation, assurance, or activity records",
+);
+
 
 /** Operator Sources — no self-href to the Help hub. */
 export const HELP_HUB_SOURCES: readonly EvidenceSourceLink[] = [
@@ -29,3 +34,10 @@ export const HELP_HUB_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Assurance status", href: "/assurance-status" },
  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
+
+const HELP_HUB_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([HELP_HUB_CANONICAL_PATH]);
+
+/** Operator orientation Sources — excludes self-href to `/help` (HEL). */
+export const HELP_HUB_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = HELP_HUB_SOURCES.filter(
+  (source) => !HELP_HUB_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);
