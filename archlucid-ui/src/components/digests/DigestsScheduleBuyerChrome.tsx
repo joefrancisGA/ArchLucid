@@ -5,7 +5,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DIGESTS_SCHEDULE_ORIENTATION_SOURCES } from "@/lib/digests-schedule-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
-/** Buyer default: mount Sources orientation after primary workspace sponsor schedule form (ARS). */
+/** Buyer default: mount Sources orientation above primary sponsor schedule workspace (ARD). */
 export function DigestsScheduleBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
