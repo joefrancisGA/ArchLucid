@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.CareerArtifacts;
 
 namespace ArchLucid.Application.Exports;
@@ -51,5 +52,16 @@ public static class CareerArtifactExportCompletenessGate
         {
             throw new CareerArtifactExportBlockedException(block.Message, block.Code);
         }
+    }
+
+    public static void EnsureCanExportFromHonestyMaterial(CareerExportCoverageHonestyInput careerExportHonesty)
+    {
+        ArgumentNullException.ThrowIfNull(careerExportHonesty);
+
+        TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
+        CareerArtifactCompletenessInput validatorInput = CareerArtifactCompletenessInputMapper.MapForExport(
+            careerExportHonesty,
+            transparencyTrail);
+        EnsureCanExport(careerExportHonesty, validatorInput);
     }
 }

@@ -12,7 +12,7 @@ public interface IRunExecuteOwnershipLeaseService
     Task RenewAsync(Guid runId, CancellationToken cancellationToken);
 
     /// <summary>Starts periodic lease renewal until disposed (no-op when leasing is disabled).</summary>
-    IAsyncDisposable BeginRenewalScope(Guid runId, CancellationToken cancellationToken);
+    IAsyncDisposable BeginRenewalScope(Guid runId, CancellationTokenSource executeCancellationSource);
 
     Task ReleaseAsync(Guid runId, CancellationToken cancellationToken);
 

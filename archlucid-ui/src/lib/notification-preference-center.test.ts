@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
 import {
   BUYER_NOTIFICATION_PREFERENCE_CENTER_PAGE_SUBTITLE,
   NOTIFICATION_PREFERENCE_CHANNELS,
@@ -64,6 +65,10 @@ describe("notification-preference-center (TB-2203)", () => {
     expect(architectureChannels.find((channel) => channel.id === "teams")?.title).toBe(
       "Microsoft Teams",
     );
+    expect(localizeProductCopy("security", NOTIFICATION_PREFERENCE_STATUS_HINTS.configureInTeams)).toBe(
+      "Configure which events post to Teams on the Teams integration page.",
+    );
+    expect(NOTIFICATION_PREFERENCE_STATUS_HINTS.configureInTeams).toContain("Microsoft Teams");
   });
 
   it("lists digests, alerts inbox/rules, Teams, and Slack with honest configure CTAs", () => {

@@ -225,6 +225,41 @@ public sealed class CareerArtifactCompletenessValidatorTests
     }
 
     [Fact]
+    public void Evaluate_blocks_finalize_when_degraded_finding_coverage_on_working_desk()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Finalize,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            DegradedFindingCoverage: true,
+            DegradedFindingCoverageFailedEngineLabels: ["PolicyEngine/Security"]);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.DegradedFindingCoverageCode
+            && reason.Message.Contains("PolicyEngine/Security", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Evaluate_allows_finalize_when_degraded_finding_coverage_on_guided_desk()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Finalize,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: false,
+            DegradedFindingCoverage: true,
+            DegradedFindingCoverageFailedEngineLabels: ["PolicyEngine/Security"]);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeTrue();
+    }
+
+    [Fact]
     public void Evaluate_finalize_warns_when_asserted_trail_empty()
     {
         CareerArtifactCompletenessInput input = new(

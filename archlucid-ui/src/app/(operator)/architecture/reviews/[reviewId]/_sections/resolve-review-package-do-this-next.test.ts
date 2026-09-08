@@ -164,6 +164,18 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.href).toBeNull();
   });
 
+  it("surfaces finalize guidance when run completed without manifest even if showProgressTracker is true", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      runCompleted: true,
+    });
+
+    expect(next.kind).toBe("finalize-package");
+    expect(next.sentence).toContain("finalize");
+    expect(next.href).toBeNull();
+  });
+
   it("routes infeasible completed runs to decision receipt export instead of finalize (FC-33)", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,

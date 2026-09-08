@@ -102,6 +102,27 @@ public static partial class AzureExtractorPackageZipValidator
                 };
             }
 
+            foreach (string optionalEntryName in AzureExtractorPackageZipEntryNames.OptionalInventoryEntryNames)
+            {
+                ZipArchiveEntry? optionalEntry = FindEntry(archive, optionalEntryName);
+
+                if (optionalEntry is null)
+                    continue;
+
+                string? optionalError = TryReadOptionalInventoryArraySchemaError(optionalEntry, optionalEntryName);
+
+                if (optionalError is not null)
+                {
+                    return new AzureExtractorZipValidationResult
+                    {
+                        IsValid = false,
+                        ErrorDetail = optionalError,
+                        IsSchemaRejection = true,
+                        FileEntryCount = fileEntryCount,
+                    };
+                }
+            }
+
             return new AzureExtractorZipValidationResult
             {
                 IsValid = true,

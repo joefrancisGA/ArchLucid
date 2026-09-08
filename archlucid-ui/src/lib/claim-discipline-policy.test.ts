@@ -7,6 +7,7 @@ import {
   resolveGuideHeadingsForStrip,
   shouldOmitClaimDisciplineBand,
 } from "@/lib/claim-discipline-policy";
+import { SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE } from "@/lib/sponsor-dashboard-help-evidence-copy";
 
 describe("claim-discipline-policy", () => {
   it("omits low-risk operational slugs", () => {
@@ -138,8 +139,42 @@ describe("claim-discipline-policy", () => {
     ).toEqual([auditTrailHeadings[0], auditTrailHeadings[2]]);
   });
 
+  it("omits help-sponsor-dashboard when claim discipline lives on the header info strip", () => {
+    expect(shouldOmitClaimDisciplineBand("help-sponsor-dashboard")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("help-sponsor-dashboard", SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE)).toBeUndefined();
+  });
+
   it("omits audit-trail-help when claim discipline is folded into the page header", () => {
     expect(shouldOmitClaimDisciplineBand("audit-trail-help")).toBe(true);
     expect(resolveClaimDisciplineForStrip("audit-trail-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits help-advisory-scans when claim discipline is folded into the page header", () => {
+    expect(shouldOmitClaimDisciplineBand("help-advisory-scans")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-advisory-scans",
+        [{ id: "what-advisory-scans-are-not", title: "Claim discipline" }],
+        "what-advisory-scans-are-not",
+      ),
+    ).toEqual([]);
+  });
+
+  it("omits help-recurrence-schedules claim heading from guide TOC when band is omitted", () => {
+    expect(shouldOmitClaimDisciplineBand("help-recurrence-schedules")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-recurrence-schedules",
+        [
+          { id: "how-recurrence-schedules-work", title: "How recurrence schedules work" },
+          { id: "help-recurrence-schedules-claim-discipline-heading", title: "Claim discipline" },
+          { id: "where-to-go-next", title: "Where to go next" },
+        ],
+        "help-recurrence-schedules-claim-discipline-heading",
+      ),
+    ).toEqual([
+      { id: "how-recurrence-schedules-work", title: "How recurrence schedules work" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ]);
   });
 });

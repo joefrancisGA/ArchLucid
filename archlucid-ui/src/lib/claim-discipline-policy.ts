@@ -113,6 +113,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-structured-brief",
   "help-slack-integration",
   "help-soc2-self-assessment",
+  "help-sponsor-dashboard",
   "help-sponsor-report",
   "help-system-health",
   "help-teams-integration",

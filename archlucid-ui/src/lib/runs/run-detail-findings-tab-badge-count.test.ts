@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { resolveRunDetailFindingsTabBadgeCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
+import {
+  resolveRunDetailFindingsReviewed,
+  resolveRunDetailFindingsTabBadgeCount,
+} from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 function baseFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFinding {
   return {
@@ -33,5 +36,10 @@ describe("resolveRunDetailFindingsTabBadgeCount", () => {
   it("returns null when neither explanation nor detail snapshot exposes triage-visible findings", () => {
     expect(resolveRunDetailFindingsTabBadgeCount(null, [])).toBeNull();
     expect(resolveRunDetailFindingsTabBadgeCount(0, [])).toBeNull();
+  });
+
+  it("reports findings reviewed when explanation count is deferred but detail snapshot has triage-visible findings", () => {
+    expect(resolveRunDetailFindingsReviewed(null, [baseFinding()])).toBe(true);
+    expect((null ?? 0) > 0).toBe(false);
   });
 });

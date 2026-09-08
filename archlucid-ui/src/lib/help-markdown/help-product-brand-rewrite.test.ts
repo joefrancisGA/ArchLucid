@@ -17,6 +17,15 @@ describe("applyHelpProductBrandRewrite", () => {
     );
   });
 
+  it("shortens Microsoft Teams to Teams on the security line", () => {
+    const source = "Configure Microsoft Teams channel destinations for alert delivery.";
+
+    expect(applyHelpProductBrandRewrite(source, "security")).toBe(
+      "Configure Teams channel destinations for alert delivery.",
+    );
+    expect(applyHelpProductBrandRewrite(source, "architecture")).toBe(source);
+  });
+
   it("preserves script placeholders and company/legal lines", () => {
     const markdown = [
       "Use {ArchLucid tenant ID} in the trust policy.",

@@ -22,13 +22,14 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTabs,
   EnterpriseTabsContent,
   EnterpriseTabsList,
   EnterpriseTabsTrigger,
 } from "@/components/ui/enterprise-tabs";
-import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
@@ -43,6 +44,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  formatInfraEvidenceChangeTypeLabel,
+  resolveInfraEvidenceChangeTypeStatusKind,
+} from "@/lib/infra-evidence/infra-evidence-drift-display";
 import {
   buildAuditEvidenceLineageUiPath,
   buildResourceHubDiagramReconcileWorkbenchHref,
@@ -90,6 +95,10 @@ import {
   parseResourceExplorerWorkQueueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import {
+  hasStaleInfraEvidenceAuditUrlParams,
+  parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
@@ -145,12 +154,14 @@ function buildHubDriftChangeWorkbenchHref(
 function buildHubDriftChangeAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   change: CloudResourceInventoryChangeSummary,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId,
+    runId: runId.length > 0 ? runId : undefined,
     diffId: change.diffId,
     hubTab: "drift",
     ...auditContext,
@@ -160,12 +171,14 @@ function buildHubDriftChangeAskHref(
 function buildHubFindingAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   findingId: string,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     findingId,
     hubTab: "findings",
     ...auditContext,
@@ -175,12 +188,14 @@ function buildHubFindingAskHref(
 function buildHubRemediationAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   instanceId: string,
   auditContext: InfrastructureAskAuditContext = {},
 ): string {
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     instanceId,
     hubTab: "remediation",
     ...auditContext,
@@ -190,6 +205,7 @@ function buildHubRemediationAskHref(
 function buildHubAuditLineageAskHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   context: {
     readonly assessmentId: string;
     readonly auditEvidenceSnapshotId: string;
@@ -199,6 +215,7 @@ function buildHubAuditLineageAskHref(
   return buildInfrastructureAskHref({
     cloudResourceId,
     snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+    runId: runId.length > 0 ? runId : undefined,
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
@@ -209,15 +226,14 @@ function buildHubAuditLineageAskHref(
 function buildHubAuditLineageTabHref(
   cloudResourceId: string,
   snapshotId: string,
+  runId: string,
   context: {
     readonly assessmentId: string;
     readonly auditEvidenceSnapshotId: string;
     readonly controlId: string;
   },
 ): string {
-  return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
-    tab: "audit",
-    snapshotId: snapshotId.length > 0 ? snapshotId : undefined,
+  return buildHubScopedTabHref(cloudResourceId, "audit", snapshotId, runId, {
     assessmentId: context.assessmentId,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
     controlId: context.controlId,
@@ -449,16 +465,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     [askAuditContext],
   );
 
-  const hasStaleAuditUrlParams = useMemo(() => {
-    const hasAnyAuditParam =
-      assessmentId.length > 0
-      || auditEvidenceSnapshotId.length > 0
-      || controlId.length > 0;
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
 
-    return hasAnyAuditParam && workbenchLinkAuditContext == null;
-  }, [assessmentId, auditEvidenceSnapshotId, controlId, workbenchLinkAuditContext]);
-
-  const auditScopeActive = workbenchLinkAuditContext != null;
+  const auditScopeActive = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams) != null;
 
   const auditScopeChipHref = useMemo(() => {
     if (!auditScopeActive) {
@@ -731,7 +743,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         </section>
       ) : null}
 
-      {workbenchLinkAuditContext != null ? (
+      {auditScopeActive && workbenchLinkAuditContext != null ? (
         <InfraEvidenceAuditScopeBar
           cloudResourceId={cloudResourceId}
           auditScope={{
@@ -934,7 +946,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {resolvedAuditLineage != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-open-audit-work">
                     <Link
-                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -993,12 +1005,23 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             {change.property ?? change.changeType}
                           </Link>
                         </EnterpriseTableCell>
-                        <EnterpriseTableCell>{change.changeType}</EnterpriseTableCell>
-                        <EnterpriseTableCell>{change.riskClassification ?? "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          <StatusTag
+                            kind={resolveInfraEvidenceChangeTypeStatusKind(change.changeType)}
+                            label={formatInfraEvidenceChangeTypeLabel(change.changeType)}
+                          />
+                        </EnterpriseTableCell>
+                        <EnterpriseTableCell>
+                          {change.riskClassification != null ? (
+                            <SeverityTag severity={change.riskClassification} />
+                          ) : (
+                            "—"
+                          )}
+                        </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                              href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                               data-testid={`infra-resource-hub-drift-ask-${change.changeId}`}
                             >
                               Ask
@@ -1065,7 +1088,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-drift-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1103,7 +1126,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <EnterpriseTableCell>
                         <Button asChild size="sm" variant="outline">
                           <Link
-                            href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, change, askAuditContext)}
+                            href={buildHubDriftChangeAskHref(cloudResourceId, resolvedSnapshotId, runId, change, askAuditContext)}
                             data-testid={`infra-resource-hub-drift-tab-ask-${change.changeId}`}
                           >
                             Ask
@@ -1200,7 +1223,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-diagram-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1354,7 +1377,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 {resolvedAuditLineage != null ? (
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-terraform-open-audit-tab">
                     <Link
-                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -1397,7 +1420,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-findings-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1475,7 +1498,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id, askAuditContext)}
+                                    href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
                                     data-testid={`infra-resource-hub-finding-ask-${item.id}`}
                                   >
                                     Ask
@@ -1485,7 +1508,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
-                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, item.id, askAuditContext)}
+                                  href={buildHubFindingAskHref(cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext)}
                                   data-testid={`infra-resource-hub-architecture-finding-ask-${item.id}`}
                                 >
                                   Ask
@@ -1556,7 +1579,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               {resolvedAuditLineage != null ? (
                 <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-remediation-open-audit-tab">
                   <Link
-                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, {
+                    href={buildHubAuditLineageTabHref(cloudResourceId, resolvedSnapshotId, runId, {
                       assessmentId: resolvedAuditLineage.assessmentId,
                       auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                       controlId: resolvedAuditLineage.controlId,
@@ -1600,7 +1623,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </Button>
                           <Button asChild size="sm" variant="outline">
                             <Link
-                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, item.instanceId, askAuditContext)}
+                              href={buildHubRemediationAskHref(cloudResourceId, resolvedSnapshotId, runId, item.instanceId, askAuditContext)}
                               data-testid={`infra-resource-hub-remediation-ask-${item.instanceId}`}
                             >
                               Ask
@@ -1642,7 +1665,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </Button>
                   <Button asChild variant="outline" size="sm" data-testid="infra-resource-hub-audit-ask">
                     <Link
-                      href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                      href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
                         assessmentId: resolvedAuditLineage.assessmentId,
                         auditEvidenceSnapshotId: resolvedAuditLineage.auditEvidenceSnapshotId,
                         controlId: resolvedAuditLineage.controlId,
@@ -1714,7 +1737,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"
-                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, {
+                              href={buildHubAuditLineageAskHref(cloudResourceId, resolvedSnapshotId, runId, {
                                 assessmentId: match.assessmentId,
                                 auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
                                 controlId: match.controlId,
