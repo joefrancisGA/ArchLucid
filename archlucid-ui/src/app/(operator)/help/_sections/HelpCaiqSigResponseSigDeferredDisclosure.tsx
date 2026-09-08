@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement, type ReactNode } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import {
   helpCaiqSigResponseSigDeferredDisclosureHrefFromSearch,
   parseHelpCaiqSigResponseSigDeferredOpenFromSearch,
@@ -16,7 +17,11 @@ type HelpCaiqSigResponseSigDeferredDisclosureProps = {
   readonly bodyClassName?: string;
   readonly detailsTestId: string;
   readonly bodyTestId: string;
-  readonly children: ReactNode;
+  readonly markdownBody: string;
+  readonly tableCaption: string;
+  readonly sourceDocPath: string;
+  readonly helpTopicSlug: string;
+  readonly preparedMarkdownOverride: string;
 };
 
 /** CAIQ/SIG deferred markdown appendix synced to URL (server-safe wrapper). */
@@ -64,7 +69,14 @@ export function HelpCaiqSigResponseSigDeferredDisclosure(
       open={open}
       onOpenChange={setOpen}
     >
-      {props.children}
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={props.markdownBody}
+        tableCaption={props.tableCaption}
+        presentation="help"
+        sourceDocPath={props.sourceDocPath}
+        helpTopicSlug={props.helpTopicSlug}
+        preparedMarkdownOverride={props.preparedMarkdownOverride}
+      />
     </HelpLazyDetails>
   );
 }

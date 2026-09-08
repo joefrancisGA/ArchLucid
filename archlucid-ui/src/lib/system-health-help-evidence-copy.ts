@@ -1,4 +1,5 @@
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
@@ -16,6 +17,10 @@ export const SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE =
 export const SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SYSTEM_HEALTH_HELP_SOURCES_INTRO = SYSTEM_HEALTH_SOURCES_INTRO;
+
+export const SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "readiness and dependency questions turn into connection status, troubleshooting, or audit trails",
+);
 
 /** Help Sources — no self-href to `/help/system-health`. */
 export const SYSTEM_HEALTH_HELP_SOURCES: readonly EvidenceOrientationLink[] = [

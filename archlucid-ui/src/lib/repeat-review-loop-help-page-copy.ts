@@ -15,3 +15,6 @@ export const REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID =
 
 export const REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER =
   "Use the start-loop actions below to compare packages or open your next review, then follow the recommended loop steps and reference sections." as const;
+
+export const REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD =
+  "Compare packages, replay checks, and collect export-ready proof after your first finalized architecture review." as const;

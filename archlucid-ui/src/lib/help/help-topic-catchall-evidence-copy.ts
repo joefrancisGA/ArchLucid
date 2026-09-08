@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 /** Workbook path pattern for HE. catch-all dispatcher. */
@@ -11,8 +12,9 @@ export const HELP_TOPIC_CATCHALL_CLAIM_HEADING_ID = "help-topic-catchall-claim-d
 
 export const HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE = "Where to go next";
 
-export const HELP_TOPIC_CATCHALL_SOURCES_INTRO =
-  "Use these follow-ups when a residual markdown topic turns into first-run orientation, troubleshooting, or the help hub.";
+export const HELP_TOPIC_CATCHALL_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "a residual markdown topic turns into first-run orientation, troubleshooting, or the help hub",
+);
 
 
 /** Operator Sources — no self-href to the catch-all path pattern. */

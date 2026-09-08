@@ -3,12 +3,11 @@
 import Link from "next/link";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { AzureCloudConnectionEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { azureConnectionStatusTagKind } from "@/lib/azure-connection-present";
 import {
   CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -22,12 +21,14 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 import { AzureConnectionDataProvider, useAzureConnectionData } from "./AzureConnectionDataContext";
+import { AzureCloudConnectionSourcesOrientationStrip } from "./AzureCloudConnectionSourcesOrientationStrip";
 import { AzureConnectionDetailsPanel } from "./AzureConnectionDetailsPanel";
 import { AzureConnectionRecentActivityPanel } from "./AzureConnectionRecentActivityPanel";
 import { AzureConnectionValidatePanel } from "./AzureConnectionValidatePanel";
 import {
   AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
   AZURE_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AZURE_CLOUD_CONNECTION_PAGE_LEAD,
   AZURE_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   AZURE_CLOUD_CONNECTION_SKIP_LINK_LABEL,
   AZURE_CLOUD_CONNECTION_SKIP_TARGET_ID,
@@ -177,6 +178,7 @@ function AzureConnectionDetailBody(): React.ReactElement {
 
 export function AzureCloudConnectionDetailClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <AzureConnectionDataProvider>
@@ -210,6 +212,11 @@ export function AzureCloudConnectionDetailClient() {
                 OPERATOR_LAYOUT.sectionStack,
               )}
             >
+              <div className="space-y-4" data-testid="azure-cloud-connection-buyer-intro">
+                <p className={readingBodyClass} data-testid="azure-cloud-connection-intro">
+                  {AZURE_CLOUD_CONNECTION_PAGE_LEAD}
+                </p>
+              </div>
               <AzureCloudConnectionStartHerePanel />
               <AzureConnectionDetailBody />
             </div>
@@ -217,11 +224,7 @@ export function AzureCloudConnectionDetailClient() {
             <AzureConnectionDetailBody />
           )}
 
-          {buyerPolishedShell ? (
-            <div data-testid="azure-cloud-connection-orientation-bottom">
-              <AzureCloudConnectionEvidenceOrientationStrip />
-            </div>
-          ) : null}
+          {buyerPolishedShell ? <AzureCloudConnectionSourcesOrientationStrip /> : null}
         </div>
       </OperatorPageContainer>
     </AzureConnectionDataProvider>

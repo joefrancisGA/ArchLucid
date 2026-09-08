@@ -1,6 +1,6 @@
 "use client";
 
-import { ApprovalQueueEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ApprovalQueueClaimOrientationStrip } from "./ApprovalQueueClaimOrientationStrip";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
@@ -12,7 +12,7 @@ export function GovernanceApprovalQueueBuyerChrome(): React.JSX.Element | null {
 
   return (
     <div data-testid="governance-approval-queue-orientation-bottom" className={HELP_PAGE_LAYOUT.readingBody}>
-      <ApprovalQueueEvidenceOrientationStrip />
+      <ApprovalQueueClaimOrientationStrip />
     </div>
   );
 }

@@ -21,11 +21,19 @@ public sealed partial class RunCoverageController
     [HttpGet("{runId:guid}/coverage/acknowledgement")]
     [ProducesResponseType(typeof(RunAcknowledgedCoverageDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetAcknowledgedCoverage(Guid runId, CancellationToken cancellationToken)
     {
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             RunAcknowledgedCoverageDocument? document =
                 await acknowledgementService.GetAsync(scope, runId, cancellationToken);
 

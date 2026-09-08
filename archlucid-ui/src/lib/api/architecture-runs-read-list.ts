@@ -61,12 +61,14 @@ export async function recordRunOperatorGovernanceDisposition(
 
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
 export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
-  return apiGet<StageTimelineSummary[]>(
+  return apiGetSealedManifestAware<StageTimelineSummary[]>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
   );
 }
 
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
-  return apiGet<PipelineTimelineItem[]>(`/v1/authority/reviews/${runId}/pipeline-timeline`);
+  return apiGetSealedManifestAware<PipelineTimelineItem[]>(
+    `/v1/authority/reviews/${runId}/pipeline-timeline`,
+  );
 }

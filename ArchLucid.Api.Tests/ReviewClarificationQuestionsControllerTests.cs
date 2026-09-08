@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -138,7 +139,9 @@ public sealed class ReviewClarificationQuestionsControllerTests
             clarificationAnswerReReviewCoordinator ?? Mock.Of<IClarificationAnswerReReviewCoordinator>(),
             clarificationResolvedFindingMuter ?? Mock.Of<IClarificationResolvedFindingMuter>(),
             audit ?? Mock.Of<IAuditService>(),
-            scopeProvider.Object)
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<ArchLucid.Decisioning.Interfaces.IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

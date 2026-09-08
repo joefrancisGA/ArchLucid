@@ -34,6 +34,7 @@ import {
   REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID,
   REVIEW_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  REVIEW_GUIDE_HELP_PAGE_LEAD,
   REVIEW_GUIDE_HELP_PAGE_SUBTITLE_BUYER,
   REVIEW_GUIDE_HELP_PRIMARY_CONTENT_ID,
   REVIEW_GUIDE_HELP_SKIP_LINK_LABEL,
@@ -49,7 +50,7 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
   const entry = getProductDocumentationEntry("review-guide");
   const loaded = tryLoadProductDocumentation("review-guide");
 
-  it("renders skip link, header claim discipline, first-viewport start here, and bottom Sources", () => {
+  it("renders skip link, intro lead, header claim discipline, first-viewport start here, and bottom Sources", () => {
     if (entry === undefined || loaded === null) {
       throw new Error("Expected review-guide documentation to load.");
     }
@@ -82,6 +83,7 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
     const orientationBottom = screen.getByTestId(REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("help-review-guide-intro")).toHaveTextContent(REVIEW_GUIDE_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
     expect(
       within(actionPanel).getByRole("link", { name: REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.label }),

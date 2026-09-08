@@ -1,5 +1,6 @@
 import { fetchArchLucidJson } from "@/lib/api";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
@@ -52,6 +53,14 @@ export async function getArchitectureGraphTemporalSnapshot(
   }
 
   if (!response.ok) {
+    if (response.status === 409) {
+      try {
+        throwApiRequestError(response, text);
+      } catch (error: unknown) {
+        throw new Error(formatExportSealedManifestAwareApiError(error));
+      }
+    }
+
     throwApiRequestError(response, text);
   }
 
@@ -115,7 +124,9 @@ export async function getArchitectureGraphPage(
     pageSize: String(pageSize),
   });
 
-  return fetchArchLucidJson<GraphNodesPageResponse>(`/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`);
+  return apiGetSealedManifestAware<GraphNodesPageResponse>(
+    `/v1/evidence-graph/reviews/${runId}/nodes?${q.toString()}`,
+  );
 }
 
 /**

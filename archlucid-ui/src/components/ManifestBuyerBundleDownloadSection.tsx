@@ -122,7 +122,6 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
 
-
   if (expanded === true) {
     return (
       <Card
