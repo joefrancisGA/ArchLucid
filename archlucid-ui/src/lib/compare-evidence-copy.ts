@@ -8,6 +8,8 @@ export const COMPARE_CLAIM_DISCIPLINE =
 export const COMPARE_SOURCES_INTRO =
   "Pick two finalized reviews below, then open Reviews, Evidence trail, or Compare help when you need orientation before treating the diff as authoritative.";
 
+export const COMPARE_FOLLOW_UPS_TITLE = "Where to go next";
+
 
 /** Operator Sources — no self-href to compare-two-reviews. */
 export const COMPARE_SOURCES: readonly EvidenceSourceLink[] = [
