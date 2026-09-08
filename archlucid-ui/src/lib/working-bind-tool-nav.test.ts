@@ -19,7 +19,6 @@ describe("applyWorkingBindToolNavPresentation (AO-40)", () => {
     const presented = applyWorkingBindToolNavPresentation(navLink(EVIDENCE_GRAPH_PATH), null, true);
 
     expect(presented.navLinkDisabled).toBe(true);
-    expect(presented.navLinkDisabledVisibleHint).toBe(WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_HINT);
     expect(presented.navLinkDisabledTitle).toBe(WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_HINT);
   });
 
@@ -31,7 +30,6 @@ describe("applyWorkingBindToolNavPresentation (AO-40)", () => {
     );
 
     expect(presented.navLinkDisabled).toBeUndefined();
-    expect(presented.navLinkDisabledVisibleHint).toBeUndefined();
   });
 
   it("does not gate non-bind destinations or Guided mode", () => {

@@ -5,7 +5,7 @@ import {
   requiresOpenArchitecture,
 } from "@/lib/routing/working-route-roles";
 
-/** Visible + screen-reader copy when Working bind tools lack a last-open architecture (AO-40 / LS-11). */
+/** Screen-reader copy when Working bind tools lack a last-open architecture (AO-40 / LS-11 / ADR 0081). */
 export const WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON =
   "Open an architecture identity desk first.";
 
@@ -48,7 +48,6 @@ export function applyWorkingBindToolNavGateToLink(
   return {
     ...link,
     navLinkDisabled: true,
-    navLinkDisabledReason: WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON,
     navLinkDisabledTitle: WORKING_BIND_TOOL_REQUIRES_ARCHITECTURE_REASON,
   };
 }
