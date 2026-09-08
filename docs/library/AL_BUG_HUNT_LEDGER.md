@@ -7202,11 +7202,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — `not-enterprise-*` marketplace planId false-positive Enterprise tier
+- **last-bug:** 2026-09-08 — `anti-enterprise-*` / `without-enterprise-*` marketplace planId false-positive Enterprise tier
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7219,7 +7219,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — multi-`@` input truncates via `LastIndexOf('@')` — **disproved 2026-09-07 (#1204):** standard email-to-domain extraction for admin paste (`user@host.contoso.com` → `host.contoso.com`); multi-`@` suffix behavior documented (`TryNormalize_uses_suffix_after_last_at_for_multi_at_malformed_input`); no reachable DNS hijack without malformed operator input
 - [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — string boolean/`on` quantity synonyms fall back while JSON boolean `true` coerces to one seat — **disproved 2026-09-07 (#1204):** intentional asymmetry locked by `ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity` and `ReadQuantity_uses_fallback_for_on_synonym_quantity`; JSON boolean true path covered by `ReadQuantity_reads_boolean_quantity_instead_of_fallback`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `not-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 (#1315):** #1169 guarded `non` only; `not-enterprise-standard` still matched delimiter-bounded `enterprise`; fixed by skipping enterprise when adjacent token is `not`; regression `TierStorageCodeFromPlanId_does_not_false_positive_on_not_enterprise_delimited_plan`
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — Professional 10-seat base bundle vs Team 10-seat cap collision — locus resolver subscription branch; `SeatsPurchased=10` and `WorkspacesPurchased=1` match both Team max (PRICING §3) and Professional bundle (10+1); reachability via marketplace `ChangeQuantity` and usage-status/LLM budget callers, but `BillingSubscriptionSnapshot` lacks plan label so seat counts alone cannot disambiguate without breaking Team add-on max
+- [x] (valid-no-repro) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — Professional 10-seat base bundle vs Team 10-seat cap collision — **cheap-disproof 2026-09-08 (#1319):** PRICING §3 intentionally overlaps Team max (10 seats + 1 workspace) with Professional base bundle; `BillingSubscriptionSnapshot.TierCode` stores tenant tier (`Standard`) not checkout SKU; seat-cap inference cannot disambiguate without breaking Team add-on max or persisting checkout plan metadata; regression documents boundary `ResolveCommercialTierLabel_returns_team_at_ten_seat_one_workspace_subscription_boundary`
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `anti-enterprise-*` / `without-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 hunt #1319:** #1315 guarded `non`/`not` only; `contoso-anti-enterprise-standard` and `without-enterprise-plan` still matched delimiter-bounded `enterprise`; fixed with shared `IsEnterpriseNegationToken`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_anti_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_without_enterprise_delimited_plan`
+
+2026-09-08 thorough hunt #1319 (hit): cheap-disproved Team/Professional 10-seat collision as intentional packaging boundary; proved `anti`/`without` enterprise negation gaps symmetric to #1315; scoped CommercialTenant unit tests passed.
 
 2026-09-08 seed hunt #1315 (hit): reseeded Identity/Billing/Budgeting; proved `not-enterprise-*` marketplace planId tier false-positive; seeded Team/Professional 10-seat collision candidate.
 2026-09-07 seed hunt #1169 (hit): reseeded Identity/Billing/Budgeting Core; proved `enterprise-non-*` marketplace planId tier false-positive beyond #880 non-enterprise guard; restored JSON boolean quantity coercion regression blocking scoped tests.
