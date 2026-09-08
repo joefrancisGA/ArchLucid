@@ -16,12 +16,16 @@ import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-re
 import type { ArchitectureRiskRegisterSummary } from "@/lib/architecture/architecture-risk-register-page";
 import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
 import type { FindingJobView } from "@/lib/findings/finding-job-view";
-import { GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID } from "@/lib/governance-findings-page-copy";
+import {
+  GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER,
+  GOVERNANCE_FINDINGS_PAGE_LEAD,
+  GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
+} from "@/lib/governance-findings-page-copy";
 import { GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID } from "@/lib/governance/governance-assigned-to-me-page-copy";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import type { GovernanceAssignedToMeFetchBasis } from "@/lib/governance/governance-assigned-to-me-fetch-basis";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsQueueAssignedToMeShellProps = {
@@ -124,8 +128,32 @@ export function GovernanceFindingsQueueAssignedToMeShell(
     <div
       id={primaryContentId}
       className={cn("mt-4 scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
-      data-testid="governance-findings-queue-body"
+      data-testid={
+        props.buyerPolishedShell && !props.isAssignedToMe
+          ? "governance-findings-primary-content"
+          : "governance-findings-queue-body"
+      }
     >
+      {props.buyerPolishedShell && !props.isAssignedToMe ? (
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="governance-findings-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-findings-intro"
+          >
+            {GOVERNANCE_FINDINGS_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-findings-buyer-start-here-helper"
+          >
+            {GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       <GovernanceFindingsQueueScopeSection {...props} />
       <GovernanceFindingsQueueToolbarSection {...props} />
       <GovernanceFindingsQueueResultsSection {...props} />

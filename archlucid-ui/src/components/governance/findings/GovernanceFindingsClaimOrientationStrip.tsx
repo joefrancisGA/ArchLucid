@@ -5,7 +5,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE,
   GOVERNANCE_FINDINGS_SOURCES_INTRO,
-  buildGovernanceFindingsSources,
+  buildGovernanceFindingsOrientationSources,
 } from "@/lib/governance/governance-findings-evidence-copy";
 
 /** Claim discipline + Sources index for the policy findings queue (GFN). */
@@ -17,7 +17,7 @@ export function GovernanceFindingsClaimOrientationStrip(): React.JSX.Element {
       slug="governance-findings"
       sourcesTitle={GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_FINDINGS_SOURCES_INTRO}
-      sources={buildGovernanceFindingsSources(isWorkingMode)}
+      sources={buildGovernanceFindingsOrientationSources(isWorkingMode)}
       hubSecondary
     />
   );
