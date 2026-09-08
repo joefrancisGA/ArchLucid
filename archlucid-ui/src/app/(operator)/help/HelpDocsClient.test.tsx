@@ -197,4 +197,28 @@ describe("HelpDocsClient", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("filters entries by documentation url path when title summary and category omit the token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Indexed search" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "search-review-evidence" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Indexed search" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
 });
