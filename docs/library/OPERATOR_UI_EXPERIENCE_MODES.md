@@ -54,6 +54,8 @@ API: `GET /v1/user/preferences` returns `workspaceMode` and `workspaceModeGradua
 
 Frontend: `WorkspaceModeProvider` in `archlucid-ui/src/app/layout.tsx`; `useTeachingChromeVisible()` gates teaching surfaces.
 
+**WS-23 ratchet:** `resolveProductionEvalChrome()` must stay **true** for Guided, demo, static showcase, and frictionless trial; production **Working** must stay **false**. Vitest: `production-desk-chrome.test.ts`, `*.working-eval-leakage.test.tsx`, and `ArchitecturesHubBuyerChrome.working-eval-leakage.test.tsx`. Working = all-day instrument; Guided = eval teaching product — do not auto-switch modes.
+
 ## Related
 
 - [operator-shell.md](operator-shell.md) — workflow and nav behavior
