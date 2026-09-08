@@ -2,6 +2,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAuthenticationSignInActionPanel } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInActionPanel";
 import { HelpAuthenticationSignInHeaderActions } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInHeaderActions";
 import { HelpAuthenticationSignInRelatedTopics } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInRelatedTopics";
+import { HelpAuthenticationSignInSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAuthenticationSignInSourcesOrientationStrip";
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import { HelpTopicSignInFailureTriageLine } from "@/components/help/HelpTopicSignInFailureTriageLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -19,6 +20,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER,
   AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID,
   AUTHENTICATION_SIGN_IN_HELP_SKIP_LINK_LABEL,
@@ -99,6 +101,7 @@ export function HelpAuthenticationSignInGuideView(
   );
   const showSectionNav = !buyerPolishedShell && headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const contentGridClass = resolveHelpPageContentGridClass(showSectionNav ? headings.length : 0);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   const pageBody = (
     <>
@@ -127,6 +130,11 @@ export function HelpAuthenticationSignInGuideView(
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="help-authentication-sign-in-buyer-intro">
+            <p className={readingBodyClass} data-testid="help-authentication-sign-in-intro">
+              {AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD}
+            </p>
+          </div>
           <HelpAuthenticationSignInActionPanel />
           <p
             className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -164,7 +172,7 @@ export function HelpAuthenticationSignInGuideView(
 
       {buyerPolishedShell ? (
         <div data-testid={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-          <AuthenticationSignInHelpEvidenceOrientationStrip />
+          <HelpAuthenticationSignInSourcesOrientationStrip />
         </div>
       ) : null}
     </>

@@ -1,0 +1,21 @@
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
+  AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE,
+  AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO,
+  AUTHENTICATION_SIGN_IN_HELP_SOURCES,
+} from "@/lib/authentication-sign-in-help-evidence-copy";
+
+/** Sources-only follow-ups for `/help/authentication-sign-in` buyer-polished shell (HEA). */
+export function HelpAuthenticationSignInSourcesOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="authentication-sign-in-help"
+      sourcesTestId="authentication-sign-in-help-sources"
+      sourcesTitle={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO}
+      sources={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      hubSecondary
+    />
+  );
+}
