@@ -46,6 +46,7 @@ import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import {
   JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
   JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  JIRA_INTEGRATION_PAGE_LEAD,
   JIRA_INTEGRATION_PAGE_SUBTITLE_BUYER,
   JIRA_INTEGRATION_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_SKIP_LINK_LABEL,
@@ -122,8 +123,10 @@ describe("JiraIntegrationPageClient buyer-polished shell (IJX)", () => {
     const sourcesSection = screen.getByTestId("jira-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("jira-integration-intro")).toHaveTextContent(JIRA_INTEGRATION_PAGE_LEAD);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(pageMain);
+    expect(firstViewport).toContainElement(screen.getByTestId("jira-integration-intro"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {

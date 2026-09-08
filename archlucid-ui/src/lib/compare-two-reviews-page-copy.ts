@@ -17,3 +17,6 @@ export const COMPARE_PAGE_SUBTITLE_BUYER =
 
 export const COMPARE_START_HERE_HELPER =
   "Pick baseline and updated reviews below, then compare to see structured changes before sharing a leadership summary." as const;
+
+export const COMPARE_PAGE_LEAD =
+  "Structured changes in scope, findings, decisions, and evidence between two finalized architecture reviews." as const;

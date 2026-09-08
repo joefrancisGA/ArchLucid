@@ -12,6 +12,9 @@ export const JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 export const JIRA_INTEGRATION_PAGE_SUBTITLE_BUYER =
   "Connect with Atlassian, review connection health, then save workspace routing overrides for project key, severity filters, and issue-type mapping." as const;
 
+export const JIRA_INTEGRATION_PAGE_LEAD =
+  "Connect with Atlassian and configure outbound ticket routing from architecture findings." as const;
+
 export function jiraIntegrationPageSubtitle(buyerPolishedShell: boolean, operatorSubtitle: string): string {
   return buyerPolishedShell ? JIRA_INTEGRATION_PAGE_SUBTITLE_BUYER : operatorSubtitle;
 }

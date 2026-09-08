@@ -1,4 +1,5 @@
 import { EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK } from "@/lib/evidence-graph-operator-source-link";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -7,6 +8,10 @@ export const COMPARE_CLAIM_DISCIPLINE =
 
 export const COMPARE_SOURCES_INTRO =
   "Pick two finalized reviews below, then open Reviews, Evidence trail, or Compare help when you need orientation before treating the diff as authoritative.";
+
+export const COMPARE_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "structured diffs turn into reviews, evidence trail, or leadership summaries",
+);
 
 export const COMPARE_FOLLOW_UPS_TITLE = "Where to go next";
 

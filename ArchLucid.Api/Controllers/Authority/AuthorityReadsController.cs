@@ -168,8 +168,29 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}/review-trail")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrail(Guid runId, CancellationToken ct = default)
     {
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         IReadOnlyList<RunPipelineTimelineItemResponse>? body =
             await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
@@ -185,8 +206,29 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}/review-trail/rationale")]
     [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailRationale(Guid runId, CancellationToken ct = default)
     {
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
         return rationale is null

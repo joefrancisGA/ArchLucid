@@ -48,6 +48,7 @@ import {
   CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID,
   CORE_PILOT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  CORE_PILOT_HELP_PAGE_LEAD,
   CORE_PILOT_HELP_PAGE_SUBTITLE_BUYER,
   CORE_PILOT_HELP_PRIMARY_CONTENT_ID,
   CORE_PILOT_HELP_SKIP_LINK_LABEL,
@@ -97,6 +98,8 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("core-pilot-help-closing-panel")).not.toBeInTheDocument();
     expect(screen.queryByTestId("core-pilot-related-guides")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-core-pilot-intro")).toHaveTextContent(CORE_PILOT_HELP_PAGE_LEAD);
     expect(screen.getByRole("heading", { level: 2, name: CORE_PILOT_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(CORE_PILOT_HELP_PRIMARY_CONTENT_ID);
@@ -106,6 +109,7 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     const orientationBottom = screen.getByTestId(CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
+    expect(buyerFirstViewport).toContainElement(screen.getByTestId("help-core-pilot-intro"));
     expect(buyerFirstViewport).toContainElement(summaryCard);
     expect(
       within(summaryCard).getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }),

@@ -27,10 +27,16 @@ public sealed partial class RunQueryController
     [Produces("application/json")]
     [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetInteractiveGraphSnapshot(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunInteractiveGraphQueryResult result =
             await runGraphQueryService.GetInteractiveGraphSnapshotAsync(runId, cancellationToken);
 
@@ -123,10 +129,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/decisions")]
     [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunDecisions(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunDecisionsQueryResult result =
             await runProvenanceQueryService.GetRunDecisionsAsync(runId, cancellationToken);
 
@@ -141,10 +153,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/evidence")]
     [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunEvidence(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunEvidenceQueryResult result =
             await runProvenanceQueryService.GetRunEvidenceAsync(runId, cancellationToken);
 

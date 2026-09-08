@@ -128,31 +128,6 @@ export function GovernanceResolutionOperatorDiagnostics(
     );
   }, [governanceResolutionCandidatesItemKeyParam]);
 
-  const governanceResolutionRawOutputOpenParam = searchParams.get("governanceResolutionRawOutputOpen");
-  const [rawOutputOpen, setRawOutputOpenState] = useState(() =>
-    parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam),
-  );
-  const syncRawOutputOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        governanceResolutionRawOutputDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setRawOutputOpen = useCallback(
-    (open: boolean) => {
-      setRawOutputOpenState(open);
-      syncRawOutputOpenToUrl(open);
-    },
-    [syncRawOutputOpenToUrl],
-  );
-
-  useEffect(() => {
-    setRawOutputOpenState(parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam));
-  }, [governanceResolutionRawOutputOpenParam]);
-
   return (
     <>
       <section className="mb-7" aria-labelledby="governance-conflicts-heading">
