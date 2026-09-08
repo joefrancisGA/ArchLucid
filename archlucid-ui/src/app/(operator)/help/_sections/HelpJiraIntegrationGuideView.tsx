@@ -14,10 +14,12 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
   JIRA_INTEGRATION_HELP_BEFORE_YOU_START_BODY,
   JIRA_INTEGRATION_HELP_BREADCRUMB_TOPIC_TITLE,
+  JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
   JIRA_INTEGRATION_HELP_CONNECTION_PRECONDITION,
   JIRA_INTEGRATION_HELP_FEATURE_ITEMS,
   JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
@@ -52,7 +54,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator Jira integration orientation for `/help/jira-integration`. */
 export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
-  const contentGridClass = resolveHelpPageContentGridClass(JIRA_INTEGRATION_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-jira-integration",
+    JIRA_INTEGRATION_HELP_GUIDE_HEADINGS,
+    JIRA_INTEGRATION_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -160,7 +167,7 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
 
         </div>
 
-        <HelpTopicTableOfContents headings={JIRA_INTEGRATION_HELP_GUIDE_HEADINGS} />
+        <HelpTopicTableOfContents headings={guideHeadings} />
       </div>
     </article>
   );
