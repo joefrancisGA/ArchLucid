@@ -1504,3 +1504,4 @@
 {"at":"2026-09-08T15:28:24.7254853Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
 {"at":"2026-09-08T15:36:58.6663845Z","zoneId":"architecture-recommendation","outcome":"hit"}
 {"at":"2026-09-08T15:41:59.3318362Z","zoneId":"core-requests-constraints","outcome":"hit"}
+{"at":"2026-09-08T15:58:16.2122061Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}

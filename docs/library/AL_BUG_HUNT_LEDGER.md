@@ -10157,11 +10157,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — pick-review from architecture scope kept stale register/facet params
+- **last-bug:** 2026-09-08 — Clear review scope link dropped register/facet filters
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10176,6 +10176,9 @@ ABQ-09 churn hotspot.
 - [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review merged stale `architectureId` so run scope intersected architecture run-set and could hide all triage rows — **hit 2026-09-07 seed hunt #1290 (seed→hit):** `URLSearchParams` merge only set `runId` while `governanceFindingsRunScopedSavedViewHref` already clears architecture scope; fixed with `governanceFindingsPickReviewForTriageHref`; regressions in `governance-findings-pick-review-url.test.ts`.
 - [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run — **hit 2026-09-08 hunt #1298:** `#1290` cleared `architectureId` only; architecture-scoped register/facet params survived pick-review navigation so run triage inherited architecture filters; fixed by rebuilding run-only URL when `architectureId` was present; regressions in `governance-findings-pick-review-url.test.ts`
 
+- [x] (proven) `GovernanceFindingsQueueScopeSection` — Clear review scope link used bare `navHref` and dropped register/facet/search params — **hit 2026-09-08 seed hunt #1336:** `#1280` preserved scope on clear-all-filters but clear review scope reset the entire query string; fixed with `governanceFindingsClearReviewScopeHref` and client wiring; regressions in `governance-findings-clear-review-scope-url.test.ts` and `GovernanceFindingsQueueScopeSection.test.tsx`
+
+2026-09-08 seed hunt #1336 (hit): reseeded ui-governance-findings-queue; proved clear review scope dropped active filters; 16 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
 2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
 
