@@ -106,6 +106,14 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 
 For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
 
+**Download artifacts from a finished smoke run:**
+
+```bash
+bash scripts/ci/fetch_private_beta_smoke_artifacts.sh <run-id> ./triage-out --lane smoke-branch
+```
+
+Use `--lane trunk` for `private-beta-access-on-push` or `--lane full-matrix` for `ci.yml` `ui-e2e-live-beta-access`.
+
 **OpenAPI drift on push corset:** when `.NET: OpenAPI v1 contract snapshot (fail-fast)` fails after architecture or infrastructure API merges, regenerate from repo root:
 
 ```bash

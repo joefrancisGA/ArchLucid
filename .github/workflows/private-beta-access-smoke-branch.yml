@@ -220,6 +220,7 @@ jobs:
         if: failure()
         run: |
           python3 scripts/ci/report_private_beta_playwright_failure_triage.py \
+            --lane smoke-branch \
             --markdown-out dist/private-beta-playwright-failure-triage.md \
             --json-out dist/private-beta-playwright-failure-triage.json
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
