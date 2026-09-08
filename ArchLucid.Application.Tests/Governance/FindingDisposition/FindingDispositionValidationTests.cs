@@ -245,4 +245,34 @@ public sealed class FindingDispositionValidationTests
 
         act.Should().Throw<ArgumentException>().WithMessage("*disposition*");
     }
+
+    [Fact]
+    public void Validate_rejects_negative_disposition_enum_value()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = (Disposition)(-1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*disposition*");
+    }
+
+    [Fact]
+    public void Validate_deferred_accepts_revisit_due_at_max_value()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.MaxValue,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().NotThrow();
+    }
 }

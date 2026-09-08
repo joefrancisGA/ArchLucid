@@ -40,6 +40,126 @@ internal static class SimpleTerraformResourceBlockParser
 
     internal readonly record struct SimpleTerraformResourceBlock(string TerraformType, string Name, string Body);
 
+    private static readonly Regex ForEachAssignmentRegex = new(
+        """
+        ^\s*for_each\s*=\s*(?:#[^{]*|//[^{]*)?\{
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    private static readonly Regex ForEachMultilineAssignmentRegex = new(
+        """
+        ^\s*for_each\s*=\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    private static readonly Regex MapEntryKeyRegex = new(
+        """
+        ^\s*(?<key>[A-Za-z0-9_-]+)\s*(?:=|:)\s*
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleHeaderRegex = new(
+        """
+        module\s+"(?<name>[^"]+)"|module\s+'(?<name>[^']+)'
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex ModuleSourceAssignmentRegex = new(
+        """
+        ^\s*source\s*=\s*(?<value>.+?)\s*$
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+
+    internal readonly record struct SimpleTerraformModuleBlock(string Name, string Source, string Body);
+
+    internal static bool TryExtractLiteralForEachKeys(string body, out IReadOnlyList<string> keys)
+    {
+        keys = [];
+
+        if (string.IsNullOrWhiteSpace(body))
+            return false;
+
+        if (!TryExtractLiteralForEachMapBody(body, out string mapBody))
+            return false;
+
+        List<string> parsedKeys = [];
+
+        foreach (string line in mapBody.Split('\n'))
+        {
+            string trimmed = line.Trim();
+
+            if (trimmed.Length == 0 || trimmed.StartsWith('#') || trimmed.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            Match keyMatch = MapEntryKeyRegex.Match(trimmed);
+
+            if (!keyMatch.Success)
+                continue;
+
+            string key = keyMatch.Groups["key"].Value.Trim();
+
+            if (!string.IsNullOrWhiteSpace(key))
+                parsedKeys.Add(key.ToLowerInvariant());
+        }
+
+        if (parsedKeys.Count == 0)
+            return false;
+
+        keys = parsedKeys;
+
+        return true;
+    }
+
+    private static bool TryExtractLiteralForEachMapBody(string body, out string mapBody)
+    {
+        mapBody = string.Empty;
+
+        Match inlineMatch = ForEachAssignmentRegex.Match(body);
+
+        if (inlineMatch.Success)
+        {
+            int braceIndex = body.IndexOf('{', inlineMatch.Index);
+
+            if (braceIndex >= 0)
+            {
+                mapBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(body, braceIndex);
+
+                return !string.IsNullOrWhiteSpace(mapBody);
+            }
+        }
+
+        Match multilineMatch = ForEachMultilineAssignmentRegex.Match(body);
+
+        if (!multilineMatch.Success)
+            return false;
+
+        string[] lines = body.Split('\n');
+        int startLineIndex = body[..multilineMatch.Index].Count(static c => c == '\n');
+        bool inBlockComment = false;
+
+        for (int lineIndex = startLineIndex + 1; lineIndex < lines.Length; lineIndex++)
+        {
+            string line = lines[lineIndex].Trim();
+
+            if (InfrastructureDeclarationLineCommentScanner.TryConsumeBlockComment(ref line, ref inBlockComment))
+                continue;
+
+            if (line.Length == 0 || line.StartsWith('#') || line.StartsWith("//", StringComparison.Ordinal))
+                continue;
+
+            if (!line.StartsWith("{", StringComparison.Ordinal))
+                return false;
+
+            string fromHere = string.Join('\n', lines[lineIndex..]);
+            int braceIndex = fromHere.IndexOf('{', StringComparison.Ordinal);
+            mapBody = InfrastructureDeclarationBraceBodyExtractor.ExtractBalancedBraceBody(fromHere, braceIndex);
+
+            return !string.IsNullOrWhiteSpace(mapBody);
+        }
+
+        return false;
+    }
+
     internal static IReadOnlyList<SimpleTerraformResourceBlock> ExtractBlocks(string content)
     {
         if (string.IsNullOrWhiteSpace(content))
@@ -71,6 +191,59 @@ internal static class SimpleTerraformResourceBlockParser
         return blocks;
     }
 
+    internal static IReadOnlyList<SimpleTerraformModuleBlock> ExtractModuleBlocks(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return [];
+
+        MatchCollection matches = ModuleHeaderRegex.Matches(content);
+
+        if (matches.Count == 0)
+            return [];
+
+        List<SimpleTerraformModuleBlock> blocks = [];
+
+        for (int index = 0; index < matches.Count; index++)
+        {
+            Match match = matches[index];
+            string name = match.Groups["name"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            int bodyStart = match.Index + match.Length;
+            int bodyEnd = index + 1 < matches.Count ? matches[index + 1].Index : content.Length;
+            string body = content[bodyStart..bodyEnd];
+
+            if (!TryExtractModuleSource(body, out string source))
+                continue;
+
+            blocks.Add(new SimpleTerraformModuleBlock(name, source, body));
+        }
+
+        return blocks;
+    }
+
+    private static bool TryExtractModuleSource(string moduleBody, out string source)
+    {
+        source = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(moduleBody))
+            return false;
+
+        Match match = ModuleSourceAssignmentRegex.Match(moduleBody);
+
+        if (!match.Success)
+            return false;
+
+        source = match.Groups["value"].Value.Trim();
+        source = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(source);
+        source = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(source);
+        source = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(source);
+
+        return !string.IsNullOrWhiteSpace(source);
+    }
+
     internal static void ParseBodyIntoProperties(string body, Dictionary<string, string> properties)
     {
         ArgumentNullException.ThrowIfNull(properties);
@@ -92,6 +265,12 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
 
             if (line.StartsWith("${", StringComparison.Ordinal))
+                continue;
+
+            if (string.Equals(line, "for_each", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each ", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each=", StringComparison.OrdinalIgnoreCase)
+                || line.StartsWith("for_each =", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             Match arrayMatch = ArrayAssignmentRegex.Match(line);

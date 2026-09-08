@@ -72,7 +72,7 @@ Try in order:
 
 #### 3b — Run `/al-ui-rate` phases for this route
 
-Use the route **ID** from the workbook table. Delegate Phase 1 to **Opus High** with the screenshot path(s) and the **verbatim critique brief** from `al-ui-rate.md`.
+Use the route **ID** from the workbook table. Delegate Phase 1 to **Opus High** with the screenshot path(s), **`Resolved mode: Guided/demo`** (these are buyer-facing eval routes), and the **Guided/demo critique brief** verbatim from `al-ui-rate.md` — not the Working instrument brief.
 
 | Phase | Action |
 |-------|--------|

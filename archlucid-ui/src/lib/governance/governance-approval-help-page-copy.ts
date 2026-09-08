@@ -4,7 +4,7 @@ export const GOVERNANCE_APPROVAL_HELP_FIRST_VIEWPORT_TEST_ID = "help-governance-
 
 export const GOVERNANCE_APPROVAL_HELP_SKIP_TARGET_ID = GOVERNANCE_APPROVAL_HELP_FIRST_VIEWPORT_TEST_ID;
 
-export const GOVERNANCE_APPROVAL_HELP_SKIP_LINK_LABEL = "Skip to governance approval workspace" as const;
+export const GOVERNANCE_APPROVAL_HELP_SKIP_LINK_LABEL = "Skip to approval workspace" as const;
 
 export const GOVERNANCE_APPROVAL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-governance-approval-header-claim-discipline" as const;

@@ -33,6 +33,8 @@ public sealed class InMemoryTenantSettingsRepository : ITenantSettingsRepository
 
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
+        TenantSettingsWriteGuard.EnsureSettingValueLength(settingValue);
+
         _values[(tenantId, normalizedKey)] = settingValue.Trim();
 
         return Task.CompletedTask;

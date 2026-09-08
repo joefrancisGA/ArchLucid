@@ -47,7 +47,7 @@ public sealed class TenantTrialConversionStage(
         if (tenant is null)
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.TenantNotFound };
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
         {
             if (IsIdempotentConvertedRetry(tenant, tier))
                 return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };

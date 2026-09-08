@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-08-02
+**Last reviewed:** 2026-09-07
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history. Historical ADRs removed 2026-08-02 are listed in [`redirects.md`](../../redirects.md#historical-adrs-removed-2026-08-02). **Completed decisions roll-up:** [`completed_adrs.md`](completed_adrs.md).
 
@@ -57,19 +57,28 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0056](0056-manifest-online-fine-tuning-governance.md) | Manifest online fine-tuning governance (RAG-V2-003 / TB-594) (**Status: Accepted**) |
 | [0057](0057-graph-rag-community-summarization-scope-decision.md) | Graph-RAG community summarization (RAG-V2-001 remainder) scope decision — options record; recommends keeping deferred pending G-REAL-06 pilot signal (**Status: Accepted** — decision-only, no feature code authorized) |
 | [0058](0058-bounded-generative-question-tier.md) | Bounded generative question tier (L2g) + retrospective question mining (**Status: Proposed**) |
-| [0059](0059-spa-bff-http-only-session-plan.md) | SPA BFF / HttpOnly session plan for GA (XSS residual H-10) (**Status: Proposed**) |
+| [0059](0059-spa-bff-http-only-session-plan.md) | SPA BFF / HttpOnly session plan for GA (XSS residual H-10) (**Status: Accepted** 2026-09-06; LK-05–07) |
 | [0060](0060-ai-model-chooser-provider-scope.md) | AI model chooser — provider scope, BYO Azure OpenAI, activation gates (**Status: Accepted** 2026-07-18) |
 | [0061](0061-ddos-protection-posture-v1.md) | DDoS protection posture for V1 — Front Door platform DDoS; defer Network Protection (~$2,944/mo) until revisit triggers (**Status: Accepted** 2026-07-21; TB-908) |
 | [0064](0064-buyer-vocabulary-api-and-schema-alignment.md) | Buyer-vocabulary API + spine SQL rename on **v1** (no v2) — review/finalize/signed-review-record (**Status: Accepted** 2026-08-05) |
 | [0065](0065-curated-multi-engine-model-catalog.md) | Multi-engine model catalog — informed user choice with evaluation evidence **attached not gating**, fail-closed capability ladder + data boundary, two-tier selection authority; **supersedes ADR 0060 D1** (**Status: Accepted** 2026-08-07; TB-2103–TB-2110) |
 | [0067](0067-create-architecture-and-review-co-equal-entry-points.md) | **Create architecture** and **Review** as co-equal entry points — no ordinal/funnel framing on the pair, symmetric CTA-inventory guard coverage; parity of entry points **not** of artifacts (**Status: Accepted** 2026-08-12) |
 | [0068](0068-architecture-synthesis-and-review-evaluation-kernels.md) | Architecture synthesis and review evaluation are **two kernels** (Option K) — synthesis is not `IAgentExecutor` execute; review remains `AuthorityPipelineStagesExecutor`; amends ADR 0067 implementation standing only (**Status: Accepted** 2026-08-17) |
-| [0069](0069-working-desk-one-work-object.md) | Working desk is **one resumable work object** — supersedes ADR 0067 peer start CTAs for Working only; Guided keeps co-equal Create + Review (**Status: Proposed** 2026-09-05) |
-| [0070](0070-insight-density-controls-typed-engines.md) | Insight-density score **controls** typed-engine `FindingClassification` — demotion to checklist when predicate fails; R5 category-protect unchanged (**Status: Proposed** 2026-09-05) |
+| [0069](0069-working-desk-one-work-object.md) | Working desk is **one resumable work object** — supersedes ADR 0067 peer start CTAs for Working only; Guided keeps co-equal Create + Review (**Status: Accepted** 2026-09-05) |
+| [0070](0070-insight-density-controls-typed-engines.md) | Insight-density score **controls** typed-engine `FindingClassification` — demotion to checklist when predicate fails; R5 category-protect unchanged (**Status: Accepted** 2026-09-05) |
 | [0071](0071-working-document-undo-vs-sealed-amend.md) | Working-document undo vs sealed amend — bounded draft undo stack; 300s toast unchanged (**Status: Accepted** 2026-09-05) |
 | [0072](0072-working-canonical-work-identity.md) | Working canonical work URL after spawn — handoff not second desk; ADR 0068 tables unchanged (**Status: Accepted** 2026-09-05) |
 | [0073](0073-transparency-trail-finalize-export-gate.md) | Transparency trail is a finalize and export gate — null trail blocks seal (**Status: Accepted** 2026-09-05) |
 | [0074](0074-customer-visible-architecture-identity.md) | Customer-visible durable architecture identity — `dbo.Architectures` as named parent; drafts and reviews as children; supersedes stale “no Architectures nav” assessment for Working (**Status: Accepted** 2026-09-05) |
+| [0075](0075-coordinator-audit-echo-fail-closed.md) | Coordinator audit echo fail-closed on governed mutations — finalize `Run.CommitCompleted` echo must not swallow durable write failures (**Status: Accepted** 2026-09-06) |
+| [0076](0076-finding-disposition-conflict-409.md) | Finding disposition current-pointer conflict (409) — ADR 0076 / DR-08 (**Status: Accepted** 2026-09-06) |
+| [0077](0077-working-architecture-is-the-locator.md) | Working architecture is the locator — review nests under identity; supersedes 0069/0072 Working URL clauses (**Status: Accepted** 2026-09-07; SY-01) |
+| [0078](0078-career-artifact-honesty-contract.md) | Career artifact honesty contract — single fail-closed rules for stamp, finalize, and exports (**Status: Accepted** 2026-09-07; FC-02/03) |
+| [0079](0079-working-desk-is-the-work-surface.md) | Working architecture desk is the work surface — Ask/Compare/Graph/Search/Findings nest on the identity; inbox is secondary (**Status: Accepted** 2026-09-07; SY-80/100) |
+| [0080](0080-working-seat-never-buyer-polished.md) | Working seat is **never buyer-polished** — dense architect chrome is the product default; Guided/demo/trial keep eval skin (**Status: Accepted** 2026-09-07; WS-01) |
+| [0081](0081-sidebar-nav-rows-label-only.md) | Sidebar nav rows are **label-only** — no visible helper copy under links; disabled reasons are screen-reader hints only (**Status: Accepted** 2026-09-08) |
+| [0082](0082-decision-grade-provenance-fail-closed.md) | Decision-grade finding **provenance fail-closed** at emission and commit — ProvenanceKind A/B required; checklist/advisory exempt (**Status: Proposed** 2026-09-08; LP-01 / TB-1221 gates) |
+| [0083](0083-promote-activate-submit-same-tx-audit.md) | Promote / activate / submit Required durable audit **co-commits** with domain writes — same SQL UoW pattern as TB-956 approve/reject (**Status: Proposed** 2026-09-08; LP-08 contract, LP-09 wiring) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

@@ -16,7 +16,7 @@ describe("MarketingAssuranceStatusPage buyer-polished shell (SEC)", () => {
     render(page);
 
     expect(screen.getByRole("link", { name: ASSURANCE_STATUS_SKIP_LINK_LABEL })).toBeInTheDocument();
-    expect(screen.getByTestId("assurance-status-breadcrumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("assurance-status-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("assurance-status-orientation-top")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Assurance status" })).toBeInTheDocument();
   });

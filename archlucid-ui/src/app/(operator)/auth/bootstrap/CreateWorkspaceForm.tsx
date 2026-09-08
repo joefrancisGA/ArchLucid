@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { PostAuthBootstrapStepErrorRecovery } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapStepErrorRecovery";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -227,9 +228,15 @@ export function CreateWorkspaceForm({
           </label>
         </div>
         {errorMessage ? (
-          <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-            {errorMessage}
-          </p>
+          <>
+            <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+              {errorMessage}
+            </p>
+            <PostAuthBootstrapStepErrorRecovery
+              errorTitle={CREATE_WORKSPACE_COPY.title}
+              errorCode="auth-bootstrap-create-workspace-failed"
+            />
+          </>
         ) : null}
         <div className="flex flex-wrap gap-3">
           <Button type="submit" variant="primary" disabled={pending} data-testid="create-workspace-submit">

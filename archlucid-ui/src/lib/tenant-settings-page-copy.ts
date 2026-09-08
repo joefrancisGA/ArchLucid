@@ -22,13 +22,23 @@ export const TENANT_SETTINGS_ORGANIZATION_IDP_NOTE =
   "Organization name is managed by your identity provider." as const;
 
 export const TENANT_SETTINGS_PAGE_SUBTITLE =
-  "Configure this workspace and the tenant-wide defaults its reviews inherit." as const;
+  "Workspace defaults and tenant-wide cost rates for reviews in this workspace." as const;
 
 /** Vocabulary rail current-surface label — not the deprecated "Tenant settings" peer name. */
 export const TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL = "Workspace settings" as const;
 
 export const TENANT_COST_SETTINGS_EA_DISCOUNT_HELPER =
-  "Enter 0 for list pricing. Enter 15 to price Azure savings at 85% of retail." as const;
+  "Enter your Enterprise Agreement discount off Azure retail — enter 0 for list pricing." as const;
+
+export function formatTenantCostSettingsEaDerivedRateHelper(eaDiscountPercentage: number): string | null {
+  if (!Number.isFinite(eaDiscountPercentage) || eaDiscountPercentage < 0 || eaDiscountPercentage > 100) {
+    return null;
+  }
+
+  const retailMultiplier = (100 - eaDiscountPercentage) / 100;
+
+  return `Effective Azure retail multiplier: ${retailMultiplier.toFixed(3)} (${eaDiscountPercentage}% off list).`;
+}
 
 export const TENANT_COST_SETTINGS_SAVE_READINESS_MESSAGE =
   "Fix the highlighted values to save." as const;
@@ -97,6 +107,7 @@ export function tenantSettingsActiveScopeSummary(scope: OperatorScopeRecord | nu
 export function tenantSettingsEffectiveScopeSummary(
   scopeHeaders: Record<string, string>,
   scopeRecord: OperatorScopeRecord | null,
+  projectNameFromApi?: string | null,
 ): string {
   const workspaceId = scopeHeaders["x-workspace-id"]?.trim() ?? "";
   const projectId = scopeHeaders["x-project-id"]?.trim() ?? "";
@@ -115,10 +126,13 @@ export function tenantSettingsEffectiveScopeSummary(
     recordMatchesHeaders && scopeRecord.workspaceLabel.trim().length > 0
       ? scopeRecord.workspaceLabel.trim()
       : fallbackLabels.workspace;
+  const apiProjectName = projectNameFromApi?.trim() ?? "";
   const projectLabel =
-    recordMatchesHeaders && scopeRecord.projectLabel.trim().length > 0
-      ? scopeRecord.projectLabel.trim()
-      : fallbackLabels.project;
+    apiProjectName.length > 0
+      ? apiProjectName
+      : recordMatchesHeaders && scopeRecord.projectLabel.trim().length > 0
+        ? scopeRecord.projectLabel.trim()
+        : fallbackLabels.project;
 
   return `Active scope: ${formatScopeSwitcherTriggerLabel({
     workspaceLabel,

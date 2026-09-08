@@ -7,6 +7,7 @@ import {
   DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY,
   DEV_ROLE_OVERRIDE_COOKIE,
   DEV_SHELL_EXPERIENCE_COOKIE,
+  readDevShellExperienceOverrideFromDocument,
   reloadAfterDevTestingOverrideChange,
 } from "@/lib/dev-testing-overrides";
 
@@ -53,7 +54,7 @@ describe("DevTestingShellShortcuts", () => {
     vi.unstubAllEnvs();
   });
 
-  it("toggles the home quick-switch panel with Ctrl+Shift+H", async () => {
+  it("toggles the dev quick-switch drawer with Ctrl+Shift+H", async () => {
     render(
       <>
         <DevTestingShellShortcuts />
@@ -61,7 +62,12 @@ describe("DevTestingShellShortcuts", () => {
       </>,
     );
 
+    expect(screen.queryByTestId("dev-testing-quick-switch")).toBeNull();
+
+    fireEvent.keyDown(window, { key: "H", ctrlKey: true, shiftKey: true });
+
     expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
+    expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBe("0");
 
     fireEvent.keyDown(window, { key: "H", ctrlKey: true, shiftKey: true });
 
@@ -70,13 +76,14 @@ describe("DevTestingShellShortcuts", () => {
     });
 
     expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBe("1");
+  });
 
-    fireEvent.keyDown(window, { key: "H", ctrlKey: true, shiftKey: true });
+  it("cycles shell density override with Alt+Shift+D and reloads", () => {
+    render(<DevTestingShellShortcuts />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("dev-testing-quick-switch")).toBeInTheDocument();
-    });
+    fireEvent.keyDown(window, { key: "D", altKey: true, shiftKey: true });
 
-    expect(localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY)).toBeNull();
+    expect(readDevShellExperienceOverrideFromDocument()).toBe("buyer-polished");
+    expect(reloadAfterDevTestingOverrideChange).toHaveBeenCalledTimes(1);
   });
 });

@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 
 import { ArchLucidMark } from "@/components/brand/ArchLucidMark";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
+import { PRODUCT_LINE_DISPLAY_NAME } from "@/lib/product-line/product-line-display-name";
 
 /**
  * Layout variants:
@@ -25,12 +26,19 @@ export type ArchLucidLogoProps = {
   className?: string;
   /** Extra classes for the wordmark text (ignored by the `mark` variant). */
   wordmarkClassName?: string;
+  /** Visible wordmark text. Defaults to the Architecture product name. */
+  wordmarkText?: string;
+  /**
+   * When false, omit the ArchLucid SVG mark and keep the wordmark text.
+   * SecureNow chrome uses text-only branding.
+   */
+  showMark?: boolean;
   navyColor?: string;
   tealColor?: string;
 };
 
-const WORDMARK_TEXT = "ArchLucid";
-const DEFAULT_ACCESSIBLE_NAME = "ArchLucid";
+const DEFAULT_WORDMARK_TEXT = PRODUCT_LINE_DISPLAY_NAME.architecture;
+const DEFAULT_ACCESSIBLE_NAME = PRODUCT_LINE_DISPLAY_NAME.architecture;
 
 /** Per-variant defaults kept in one place so callers rarely pass `size`. */
 type VariantLayout = {
@@ -81,6 +89,8 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
       size,
       className,
       wordmarkClassName,
+      wordmarkText = DEFAULT_WORDMARK_TEXT,
+      showMark = true,
       navyColor = ARCHLUCID_BRAND.navy,
       tealColor = ARCHLUCID_BRAND.teal,
     },
@@ -91,6 +101,18 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
     const accessibleName = title ?? DEFAULT_ACCESSIBLE_NAME;
 
     if (variant === "mark") {
+      if (!showMark) {
+        return (
+          <span
+            ref={ref}
+            className={cn("inline-flex shrink-0 items-center leading-none", className)}
+            style={{ color: navyColor }}
+          >
+            {wordmarkText}
+          </span>
+        );
+      }
+
       return (
         <span
           ref={ref}
@@ -111,15 +133,17 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
         ref={ref}
         className={cn(
           "inline-flex shrink-0 items-center",
-          layout.rootClassName,
+          showMark ? layout.rootClassName : undefined,
           className,
         )}
       >
-        <ArchLucidMark
-          size={markSize}
-          navyColor={navyColor}
-          tealColor={tealColor}
-        />
+        {showMark ? (
+          <ArchLucidMark
+            size={markSize}
+            navyColor={navyColor}
+            tealColor={tealColor}
+          />
+        ) : null}
 
         <span
           className={cn(
@@ -129,7 +153,7 @@ export const ArchLucidLogo = forwardRef<HTMLSpanElement, ArchLucidLogoProps>(
           )}
           style={{ color: navyColor }}
         >
-          {WORDMARK_TEXT}
+          {wordmarkText}
         </span>
       </span>
     );

@@ -11,6 +11,8 @@ import { HELP_HUB_CLAIM_DISCIPLINE } from "@/lib/help/help-hub-evidence-copy";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpProductGuide } from "./HelpProductGuide";
@@ -18,6 +20,8 @@ import { HelpProductGuide } from "./HelpProductGuide";
 /** Help Center hub body for `/help` (HEL). */
 export function HelpPageView(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useLocalizedProductCopy();
+  const howProductWorksLabel = howProductWorksTitle(productLine);
 
   const heading = (
     <PageHeading
@@ -30,7 +34,7 @@ export function HelpPageView(): React.JSX.Element {
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
             href="/help/getting-started#how-archlucid-works"
           >
-            How ArchLucid works
+            {howProductWorksLabel}
           </Link>{" "}
           for the workflow, the{" "}
           <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/faq">

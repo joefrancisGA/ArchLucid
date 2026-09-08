@@ -39,14 +39,19 @@ vi.mock("@/components/SupportBundleDownloadButton", () => ({
   SupportBundleDownloadButton: () => <button type="button">Download support bundle</button>,
 }));
 
-vi.mock("@/lib/active-tenant-context-display", () => ({
-  readActiveTenantContext: () => ({
-    displayName: "Acme Architecture",
-    tenantId: "tenant-1",
-    workspaceId: "workspace-1",
-    workspaceLabel: "Pilot",
-  }),
-}));
+vi.mock("@/lib/active-tenant-context-display", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/active-tenant-context-display")>();
+
+  return {
+    ...actual,
+    readActiveTenantContext: () => ({
+      displayName: "Acme Architecture",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      workspaceLabel: "Pilot",
+    }),
+  };
+});
 
 import {
   TENANT_SETTINGS_CLAIM_DISCIPLINE,

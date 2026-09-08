@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
 import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_AUDIT_PATH,
@@ -28,11 +28,32 @@ export const GOVERNANCE_FINDINGS_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
 
 
 /** Operator Sources — no self-href to the findings queue. */
-export const GOVERNANCE_FINDINGS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
-  { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
-  { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
-  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Findings help", href: inAppHelpHref("findings") },
-] as const;
+export function buildGovernanceFindingsSources(
+  workingMode: boolean,
+): readonly EvidenceSourceLink[] {
+  const reviewsParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+
+  return [
+    { label: reviewsParent.label, href: reviewsParent.href },
+    { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
+    { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
+    { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
+    { label: "Search review evidence", href: "/insights/search-review-evidence" },
+    { label: "Findings help", href: inAppHelpHref("findings") },
+  ] as const;
+}
+
+const GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([GOVERNANCE_FINDINGS_PATH]);
+
+/** Operator orientation Sources — excludes self-href to `/governance/findings` (GFN). */
+export function buildGovernanceFindingsOrientationSources(
+  workingMode: boolean,
+): readonly EvidenceSourceLink[] {
+  return buildGovernanceFindingsSources(workingMode).filter(
+    (source) => !GOVERNANCE_FINDINGS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+  );
+}
+
+/** Guided default — prefer {@link buildGovernanceFindingsSources}. */
+export const GOVERNANCE_FINDINGS_SOURCES: readonly EvidenceSourceLink[] =
+  buildGovernanceFindingsSources(false);

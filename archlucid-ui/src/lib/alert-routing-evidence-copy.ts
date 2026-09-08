@@ -7,15 +7,25 @@ export const ALERT_ROUTING_TAB_PATH = governanceAlertRulesTabHref("notifications
 export const ALERT_ROUTING_CLAIM_DISCIPLINE =
   "This page sets where qualifying alerts are sent and shows delivery attempts. It is not proof for auditors on its own. Open the Alert inbox or Conditions tab before treating delivery setup as audit evidence.";
 
+export const ALERT_ROUTING_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const ALERT_ROUTING_SOURCES_INTRO =
   "Use these follow-ups when routing setup needs inbox triage, condition rules, or channel integrations.";
 
 
 /** Operator Sources — no self-href to the Notifications tab. */
 export const ALERT_ROUTING_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Notifications tab", href: ALERT_ROUTING_TAB_PATH },
   { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
   { label: "Alert conditions", href: governanceAlertRulesTabHref("rules") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
+
+const ALERT_ROUTING_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([ALERT_ROUTING_TAB_PATH]);
+
+/** Notifications-tab orientation Sources — excludes self-href to `?tab=notifications` (GON). */
+export const ALERT_ROUTING_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = ALERT_ROUTING_SOURCES.filter(
+  (source) => !ALERT_ROUTING_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);

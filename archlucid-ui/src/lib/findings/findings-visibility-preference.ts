@@ -1,4 +1,5 @@
 import type { FindingsVisibilityPreferences } from "@/lib/api/user-preferences-types";
+import { isWorkingWorkspaceMode, type WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 
 export const FINDINGS_VISIBILITY_STORAGE_KEY = "archlucid.findings-visibility.v1.personal";
 
@@ -9,6 +10,20 @@ export const DEFAULT_FINDINGS_VISIBILITY_PREFERENCES: FindingsVisibilityPreferen
   showLowConfidenceEnabled: false,
   showAdvisoryEnabled: false,
 };
+
+/** WS-13: Working seats show low-confidence rows by default so architects can reject them. */
+export function resolveDefaultShowLowConfidenceEnabled(workspaceMode: WorkspaceModeId): boolean {
+  return isWorkingWorkspaceMode(workspaceMode);
+}
+
+export function resolveFindingsVisibilityDefaults(
+  workspaceMode: WorkspaceModeId,
+): FindingsVisibilityPreferences {
+  return {
+    ...DEFAULT_FINDINGS_VISIBILITY_PREFERENCES,
+    showLowConfidenceEnabled: resolveDefaultShowLowConfidenceEnabled(workspaceMode),
+  };
+}
 
 function dispatchFindingsVisibilityChanged(): void {
   window.dispatchEvent(new CustomEvent(FINDINGS_VISIBILITY_CHANGED_EVENT));
@@ -24,16 +39,18 @@ function normalizeBooleanFlag(value: string | null | undefined): boolean {
   return trimmed === "true" || trimmed === "1";
 }
 
-export function readFindingsVisibilityFromStorage(): FindingsVisibilityPreferences {
+export function readFindingsVisibilityFromStorage(
+  workspaceMode: WorkspaceModeId = "working",
+): FindingsVisibilityPreferences {
   if (typeof window === "undefined") {
-    return DEFAULT_FINDINGS_VISIBILITY_PREFERENCES;
+    return resolveFindingsVisibilityDefaults(workspaceMode);
   }
 
   try {
     const raw = window.localStorage.getItem(FINDINGS_VISIBILITY_STORAGE_KEY);
 
     if (raw === null || raw.trim().length === 0) {
-      return DEFAULT_FINDINGS_VISIBILITY_PREFERENCES;
+      return resolveFindingsVisibilityDefaults(workspaceMode);
     }
 
     const parsed = JSON.parse(raw) as Partial<FindingsVisibilityPreferences>;
@@ -45,7 +62,7 @@ export function readFindingsVisibilityFromStorage(): FindingsVisibilityPreferenc
     };
   }
   catch {
-    return DEFAULT_FINDINGS_VISIBILITY_PREFERENCES;
+    return resolveFindingsVisibilityDefaults(workspaceMode);
   }
 }
 
@@ -66,11 +83,16 @@ export function findingsVisibilityFromUserPreferencesResponse(
     readonly findingsShowLowConfidenceEnabledIsExplicit: boolean;
     readonly findingsShowAdvisoryEnabled: boolean;
     readonly findingsShowAdvisoryEnabledIsExplicit: boolean;
+    readonly workspaceMode: WorkspaceModeId;
   },
 ): FindingsVisibilityPreferences {
+  const showLowConfidenceEnabled = remote.findingsShowLowConfidenceEnabledIsExplicit
+    ? remote.findingsShowLowConfidenceEnabled
+    : resolveDefaultShowLowConfidenceEnabled(remote.workspaceMode);
+
   return {
     hideGenericEnabled: remote.findingsHideGenericEnabled,
-    showLowConfidenceEnabled: remote.findingsShowLowConfidenceEnabled,
+    showLowConfidenceEnabled,
     showAdvisoryEnabled: remote.findingsShowAdvisoryEnabled,
   };
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpPathChooserEvaluatorSessionStrip } from "@/app/(operator)/help/_sections/HelpPathChooserEvaluatorSessionStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpPathChooserReferenceAppendixDisclosure } from "@/app/(operator)/help/_sections/HelpPathChooserReferenceAppendixDisclosure";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -206,9 +206,8 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
             data-testid="help-path-chooser-content"
             id="reference-detail"
           >
-            <HelpLazyDetails
+            <HelpPathChooserReferenceAppendixDisclosure
               className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
-              data-testid="help-path-chooser-reference-appendix"
               summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
               summary="Buyer orientation reference (pass/hold, stop rules, deferred scope)"
               preface={
@@ -227,7 +226,7 @@ export function HelpPathChooserGuideView(props: HelpPathChooserGuideViewProps): 
                 helpTopicSlug={entry.slug}
                 preparedMarkdownOverride={preparedMarkdown}
               />
-            </HelpLazyDetails>
+            </HelpPathChooserReferenceAppendixDisclosure>
           </section>
         </div>
 

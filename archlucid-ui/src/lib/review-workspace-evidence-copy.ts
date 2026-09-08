@@ -1,7 +1,8 @@
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingReviewsInboxParentLink } from "@/lib/resolve-working-evidence-parent-link";
 import type { PageHelpTopic } from "@/lib/usability/page-help-topic-rows";
 
 export const REVIEW_WORKSPACE_HELP_TOPIC_LABEL = "Review workspace" as const;
@@ -24,7 +25,7 @@ export const REVIEW_WORKSPACE_CONTEXTUAL_HELP = {
   taskSteps: [
     "Check Overview for status, blockers, and the recommended next action.",
     "Triage findings and capture any missing evidence.",
-    "Finalize on Activity when findings are ready and governance gates are clear.",
+    "Finalize on Activity when findings are ready and approval gates are clear.",
   ],
 } as const;
 
@@ -56,24 +57,32 @@ export function pathIsReviewWorkspaceDetail(pathname: string): boolean {
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or finalized review record detail when you need the full package.";
 
+export const REVIEW_WORKSPACE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
   "Use these follow-ups when package work needs evidence search, findings triage, or activity records.";
 
 
 /** Build operator Sources for a run — never self-links the review detail path. */
-export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSourceLink[] {
+export function buildReviewWorkspaceSources(
+  runId: string,
+  architectureId?: string | null,
+  options?: { readonly workingMode?: boolean },
+): readonly EvidenceSourceLink[] {
   const trimmed = runId.trim();
+  const workingMode = options?.workingMode === true;
+  const reviewsParent = resolveWorkingReviewsInboxParentLink(workingMode);
   const evidenceHref =
     trimmed.length > 0
       ? `/insights/evidence-graph?runId=${encodeURIComponent(trimmed)}`
       : "/insights/evidence-graph";
   const findingsHref =
     trimmed.length > 0
-      ? `${reviewDetailPath(trimmed)}?reviewTab=findings`
+      ? `${resolveArchitectureReviewHref(trimmed, architectureId)}?reviewTab=findings`
       : GOVERNANCE_FINDINGS_PATH;
 
   return [
-    { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
+    { label: reviewsParent.label, href: reviewsParent.href },
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: evidenceHref },
     { label: "Findings tab", href: findingsHref },

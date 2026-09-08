@@ -9,8 +9,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
+import { JIRA_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/jira-integration-evidence-copy";
 import {
   JIRA_ACTION_REFRESHING,
   JIRA_CONNECT_WITH_ATLASSIAN_LABEL,
@@ -20,6 +22,10 @@ import {
   JIRA_PAGE_SUBTITLE,
   JIRA_READINESS_LINK_LABEL,
 } from "@/lib/jira-integration-page-copy";
+import {
+  JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  jiraIntegrationPageSubtitle,
+} from "@/lib/jira-integration-shell-page-copy";
 import type {
   JiraAtlassianOAuthConnectGate,
   JiraConnectionStatusPresentation,
@@ -38,13 +44,17 @@ export type JiraIntegrationPageHeaderProps = {
 };
 
 export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <OperatorPageHeader
       title={JIRA_INTEGRATION_PAGE_TITLE}
       titleTestId="jira-page-title"
       navHref={INTEGRATIONS_JIRA_PATH}
       headingLevel="h1"
-      subtitle={JIRA_PAGE_SUBTITLE}
+      subtitle={jiraIntegrationPageSubtitle(buyerPolishedShell, JIRA_PAGE_SUBTITLE)}
+      claimDiscipline={buyerPolishedShell ? JIRA_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={buyerPolishedShell ? JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
       statusBadge={
         <StatusTag
           kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
@@ -55,7 +65,7 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
       actions={
         <div className="flex flex-col items-end gap-2" data-testid="jira-header-actions">
           <div className="flex flex-wrap items-center gap-2">
-            <PageContextualHelpButton />
+            {buyerPolishedShell ? null : <PageContextualHelpButton />}
             <Button
               type="button"
               variant="primary"
@@ -71,13 +81,15 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
               busy={props.refreshing}
               onClick={() => void props.onRefresh()}
             />
-            <Link
-              href={INTEGRATIONS_READINESS_PATH}
-              className={OPERATOR_LINK.optional}
-              data-testid="jira-readiness-link"
-            >
-              {JIRA_READINESS_LINK_LABEL}
-            </Link>
+            {buyerPolishedShell ? null : (
+              <Link
+                href={INTEGRATIONS_READINESS_PATH}
+                className={OPERATOR_LINK.optional}
+                data-testid="jira-readiness-link"
+              >
+                {JIRA_READINESS_LINK_LABEL}
+              </Link>
+            )}
           </div>
           <WhyDisabledCtaHint
             reason={props.connectGate.reason}

@@ -2,7 +2,7 @@
 
 # Insight density miss clause
 
-**Production gate (ADR 0070):** `DeterministicInsightDensityGate` applies the demotion predicate to **typed-engine** and agent findings. Generic typed-engine rows without architecture anchor or concrete evidence become `ChecklistCoverage`; they remain on the package snapshot.
+**Production gate (ADR 0070, DX-01):** `DeterministicInsightDensityGate` applies the demotion predicate to **typed-engine** and agent findings in **all categories** (Security, Topology, Compliance included). Generic rows without **resolvable** package evidence (`doc:`, ARM paths, `policy-rule:`, etc.) become `ChecklistCoverage`; bare `RelatedNodeIds` and category name do not prevent demotion. Rows remain on the package snapshot.
 
 ## Pillar clauses vs current mechanisms
 
@@ -17,7 +17,7 @@ A **filter cannot raise density** by itself; raising the headline score requires
 
 ## Corpus limit
 
-The distribution report lists engine types that produced findings on the golden corpus graphs. The harness registers **sixteen** engines (`GoldenCorpusHarness.CreateEngines`); only a subset appear in the distribution table on any given record pass. **23** built-in product engines are absent from the harness slice (39 − 16). `WouldDemoteIfUnprotectedCount` reflects **production** demotion after ADR 0070.
+The distribution report lists engine types that produced findings on the golden corpus graphs. The harness registers **41** engines (`GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount`); **10** built-in product engines are listed absent-with-reason in `GoldenCorpusHarnessEngineInventory` (51 catalog − 41 registered). Only a subset appear in the distribution table on any given record pass. `WouldDemoteIfUnprotectedCount` reflects **production** demotion after ADR 0070 / DX-01. Corpus coverage is **`case-01` … `case-63`** (`LatestGoldenCorpusCaseNumber`); effectful engines that need cloud inventory only fire when a case supplies a pinned fixture (see **`case-37`** for two-way contradiction; **`case-48`–`case-50`** for Azure inventory; **`case-51`–`case-54`** for AWS/GCP inventory; **`case-55`–`case-57`** for Advisor / AWS / GCP cost recommendations; **`case-58`–`case-60`** for DX-42 CloudFormation / Pulumi / CDK ingest feeding path and contradiction engines; **`case-61`–`case-63`** for topology-anti-pattern, security-baseline-expectation, and required-capability-coverage).
 
 ## Forbidden without owner decision
 

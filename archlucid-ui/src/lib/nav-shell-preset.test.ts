@@ -4,6 +4,8 @@ import type { NavLinkItem } from "@/lib/nav-config";
 import {
   applyNavShellPresetPackagingFilter,
   BUYER_POLISHED_SHELL_OMIT_NAV_HREFS,
+  isSystemAdministrationNavGroupVisible,
+  isVendorInternalNavGroupVisible,
   PUBLIC_DEMO_THIN_SHELL_OMIT_NAV_HREFS,
   resolveNavShellPresetId,
 } from "@/lib/nav-shell-preset";
@@ -85,5 +87,13 @@ describe("nav-shell-preset (TB-2233)", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "1");
 
     expect(resolveNavShellPresetId()).toBe("public-demo-thin");
+  });
+
+  it("hides Internal nav group for buyer-polished and public-demo-thin presets", () => {
+    expect(isVendorInternalNavGroupVisible("buyer-polished", true)).toBe(false);
+    expect(isVendorInternalNavGroupVisible("public-demo-thin", true)).toBe(false);
+    expect(isVendorInternalNavGroupVisible("full", true)).toBe(true);
+    expect(isSystemAdministrationNavGroupVisible("buyer-polished", true)).toBe(false);
+    expect(isSystemAdministrationNavGroupVisible("public-demo-thin", true)).toBe(false);
   });
 });

@@ -10,6 +10,7 @@ import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryRes
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ADVISORY_SCANS_HOW_IT_WORKS_BODY,
   ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
@@ -36,6 +37,7 @@ export type { AdvisoryScansContentProps };
  */
 export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): React.JSX.Element {
   const content = useAdvisoryScansContent(props);
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -111,8 +113,8 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
 
       <div className="mt-8 space-y-4" data-testid="advisory-scans-orientation-footer">
         {content.runId.trim().length > 0 ? <AdvisoryScansNextReviewFooterClient runId={content.runId.trim()} /> : null}
-        <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />
-        <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />
+        {buyerPolishedShell ? null : <AdvisoryResultsSchedulesVocabularyRail currentSurfaceId="advisory-results" />}
+        {buyerPolishedShell ? null : <PageCapabilityBoundaryStrip surfaceId="advisoryScans" />}
         <CollapsibleSection
           title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE}
           sectionTestId="advisory-scans-how-it-works"

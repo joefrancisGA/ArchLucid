@@ -103,6 +103,19 @@ describe("mapGraphToReactFlow", () => {
     });
   });
 
+  it("labels unknown node types as Unknown in operator presentation", () => {
+    const graph: GraphViewModel = {
+      nodes: [{ id: "u", label: "Mystery node", type: "UnknownKind" }],
+      edges: [],
+    };
+
+    const { nodes } = mapGraphToReactFlow(graph);
+
+    expect(nodes[0]?.data).toMatchObject({
+      label: "Mystery node\n(Unknown)",
+    });
+  });
+
   it("maps validates edges for buyerTrail", () => {
     const graph: GraphViewModel = {
       nodes: [

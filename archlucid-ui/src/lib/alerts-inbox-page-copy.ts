@@ -18,3 +18,10 @@ export const ALERTS_INBOX_LOAD_ERROR =
   "Could not load alerts for this workspace. Try again in a moment." as const;
 
 export const ALERTS_INBOX_LOAD_ERROR_RETRY_LABEL = "Try again" as const;
+
+/** Buyer-facing copy for `/governance/alerts` (AL). */
+export const ALERTS_INBOX_PAGE_LEAD =
+  "Work raised alerts from completed reviews — acknowledge, resolve, or escalate what needs attention.";
+
+export const ALERTS_INBOX_BUYER_START_HERE_HELPER =
+  "Review open alerts below — configuring when alerts fire happens on Alert rules.";
