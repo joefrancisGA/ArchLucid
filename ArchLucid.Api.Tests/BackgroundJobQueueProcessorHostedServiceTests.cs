@@ -949,6 +949,126 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
         await sut.StopAsync(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_queue_send()
+    {
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IBackgroundJobWorkUnitExecutor> executor = new();
+        string workJson = BackgroundJobWorkUnitJson.Serialize(
+            new AnalysisReportDocxWorkUnit(
+                new AnalysisReportDocxJobPayload { RunId = "run-cancel-retry-send", IncludeDiagram = false },
+                "report.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        string jobState = "Running";
+
+        BackgroundJobRow BuildRow()
+        {
+            return new BackgroundJobRow
+            {
+                JobId = "job-cancel-retry-send",
+                WorkUnitJson = workJson,
+                RetryCount = 0,
+                MaxRetries = 2,
+                State = jobState,
+            };
+        }
+
+        executor
+            .Setup(e => e.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+            .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                await release.Task.WaitAsync(ct);
+
+                throw new InvalidOperationException("export failed before retry notification");
+            });
+
+        ServiceCollection serviceCollection = new();
+        serviceCollection.AddSingleton<IBackgroundJobWorkUnitExecutor>(executor.Object);
+        serviceCollection.AddSingleton(Mock.Of<IBackgroundJobResultBlobAccessor>());
+        using ServiceProvider provider = serviceCollection.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        BackgroundJobsOptions backgroundJobsOptions = new()
+        {
+            ProcessorReceiveBatchSize = 1,
+            ProcessorIdlePollMilliseconds = 10,
+            MaxPendingJobs = 100,
+        };
+
+        BackgroundJobQueueProcessorHostedService sut = new(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory,
+            new OperationCancellationRegistry(),
+            Options.Create(backgroundJobsOptions));
+
+        using CancellationTokenSource cts = new();
+        int pulls = 0;
+        QueueMessage queueMessage = QueuesModelFactory.QueueMessage(
+            "msg-cancel-retry-send",
+            "rcpt-cancel-retry-send",
+            "job-cancel-retry-send",
+            1);
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                {
+                    return Azure.Response.FromValue(new[] { queueMessage }, Mock.Of<Azure.Response>());
+                }
+
+                cts.Cancel();
+
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-cancel-retry-send", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(true, false, false, BuildRow()));
+
+        repo.Setup(r => r.GetAsync("job-cancel-retry-send", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => BuildRow());
+
+        repo.Setup(r => r.MarkPendingRetryAsync("job-cancel-retry-send", 1, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                jobState = "Canceled";
+
+                return 1;
+            });
+
+        queueClient.Setup(q => q.DeleteMessageAsync("msg-cancel-retry-send", "rcpt-cancel-retry-send", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        await sut.StartAsync(CancellationToken.None);
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        release.TrySetResult(true);
+        await Task.Delay(3500, CancellationToken.None);
+
+        queueClient.Verify(
+            q => q.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        queueClient.Verify(
+            q => q.DeleteMessageAsync("msg-cancel-retry-send", "rcpt-cancel-retry-send", It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
     [Theory]
     [InlineData(null, 750, 10_000)]
     [InlineData(5_000, 750, 5_000)]

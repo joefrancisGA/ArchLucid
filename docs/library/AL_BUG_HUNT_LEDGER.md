@@ -1677,11 +1677,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — in-memory retry scheduling overwrote cancel between first failure read and Pending assignment
+- **last-bug:** 2026-09-08 — durable retry path sent queue notification after cancel landed post-backoff re-read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1700,6 +1700,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` terminal path skipped second cancel re-read before `MarkFailedTerminalAsync` — **hit 2026-09-07 (#1198 seed→hit):** retry path re-read `GetAsync` after backoff but exhausted-retry terminal branch called `MarkFailedTerminalAsync` from the catch-entry snapshot when cancel landed between the two reads; fixed with second `GetAsync` before terminal failure and in-memory terminal parity re-read; regression in `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_on_second_state_read`.
 - [x] (proven) `InMemoryBackgroundJobQueue` terminal failure re-read missed cancel when `MarkCanceledAsync` raced after first terminal read but before `Failed` assignment — **hit 2026-09-08 hunt #1303:** terminal branch re-read `_info` once then logged before writing `Failed`, leaving a window cancel could land in; fixed with second `_info` re-read before terminal assignment; regression in `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read`.
 - [x] (proven) `InMemoryBackgroundJobQueue` retry scheduling overwrote `Canceled` with `Pending` when cancel landed after first failure read but before retry assignment — **hit 2026-09-08 seed hunt #1352:** catch block re-read cancel once then logged before writing `Pending`; capacity-exhausted and writer-rejected failure branches also used stale snapshots; fixed with re-read before Pending and before each retry-side terminal failure; durable processor gained matching re-read before `MarkPendingRetryAsync` and capacity `MarkFailedTerminalAsync`; regressions `MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending` and `ProcessOneMessageAsync_does_not_mark_pending_retry_when_cancel_visible_before_retry_assignment`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` retry path sent Azure queue notification after cancel landed between post-backoff `GetAsync` and `SendMessageAsync` — **hit 2026-09-08 seed hunt #1354:** failure handler re-read cancel after retry delay but called `SendMessageAsync` without a final state read, so a canceled job could be re-notified; fixed with third `GetAsync` before queue send; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_queue_send`.
 
 2026-09-08 thorough hunt #1303 (hit): proved in-memory terminal cancel race after first re-read; aligned with durable processor second-read parity.
 
@@ -1710,6 +1711,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1198 (hit): reseeded after #579 closure; proved terminal failure path lacked second cancel re-read before `MarkFailedTerminalAsync` unlike retry backoff path; seeded in-memory terminal race candidate.
 
 2026-09-08 seed hunt #1352 (hit): seeded retry-scheduling cancel race from terminal/success parity pattern; proved in-memory Pending overwrite and aligned durable `MarkPendingRetryAsync` + capacity terminal paths; 90 unit job-queue tests passed.
+
+2026-09-08 seed hunt #1354 (hit): seeded post-backoff cancel gap before durable `SendMessageAsync`; fixed third cancel re-read; 92 unit job-queue tests passed.
 
 ---
 
