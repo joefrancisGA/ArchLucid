@@ -14,7 +14,6 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 public sealed class SqlTenantSettingsRepositoryValidationTests
 {
     private const int MigrationSettingKeyMaxLength = 128;
-    private const int MigrationSettingValueMaxLength = 512;
 
     [Fact]
     public void Longest_known_production_setting_key_fits_migration_nvarchar_128_limit()
@@ -35,16 +34,16 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     [Fact]
     public void EnsureSettingValueLength_rejects_values_longer_than_migration_nvarchar_512_limit()
     {
-        string tooLong = new('v', MigrationSettingValueMaxLength + 1);
+        string tooLong = new('v', TenantSettingsSchemaLimits.SettingValueMaxLength + 1);
 
         Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(tooLong);
 
         act.Should().Throw<ArgumentException>()
-            .WithMessage($"*at most {MigrationSettingValueMaxLength}*");
+            .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
     }
 
     [Fact]
-    public void Serialized_realized_value_attestation_at_note_max_length_exceeds_migration_setting_value_limit()
+    public void Serialized_realized_value_attestation_at_note_max_length_fits_migration_setting_value_limit()
     {
         string note = new('n', RealizedValueAttestationUpsertValidation.NoteMaxLength);
         string json = JsonSerializer.Serialize(new
@@ -54,6 +53,21 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
             AttestedReviewerTimeSavedNote = note,
         });
 
-        json.Length.Should().BeGreaterThan(MigrationSettingValueMaxLength);
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
+    public void Serialized_realized_value_attestation_at_legacy_note_length_exceeds_migration_setting_value_limit()
+    {
+        const int legacyNoteMaxLength = 2000;
+        string note = new('n', legacyNoteMaxLength);
+        string json = JsonSerializer.Serialize(new
+        {
+            AttestedIncidentsAvoided = 1,
+            AttestedRevenueOrRetentionImpact = note,
+            AttestedReviewerTimeSavedNote = note,
+        });
+
+        json.Length.Should().BeGreaterThan(TenantSettingsSchemaLimits.SettingValueMaxLength);
     }
 }
