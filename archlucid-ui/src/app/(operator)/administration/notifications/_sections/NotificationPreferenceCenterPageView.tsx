@@ -18,6 +18,7 @@ import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { useNotificationChannelDeliveryStatus } from "@/hooks/use-notification-channel-delivery-status";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -55,6 +56,7 @@ export function NotificationPreferenceCenterPageView() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const { productLine } = useProductLine();
+  const { localize } = useLocalizedProductCopy();
   const notificationPreferenceChannels = resolveNotificationPreferenceChannels(productLine);
   const searchParams = useSearchParams();
   const notificationPreferenceRelationsOpenParam = searchParams.get("notificationPreferenceRelationsOpen");
@@ -206,7 +208,7 @@ export function NotificationPreferenceCenterPageView() {
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`notification-preference-status-hint-${channel.id}`}
                     >
-                      {deliveryStatus.configureHint}
+                      {localize(deliveryStatus.configureHint)}
                     </p>
                     <Button asChild variant="outline" size="sm">
                       <Link href={channel.href}>{channel.ctaLabel}</Link>
@@ -240,12 +242,12 @@ export function NotificationPreferenceCenterPageView() {
             {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS.map((section) => (
               <section key={section.id} className="space-y-2" data-testid={`notification-preference-relations-${section.id}`}>
                 <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.heading}</h3>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{section.body}</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(section.body)}</p>
                 <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {section.links.map((link) => (
                     <li key={link.id}>
                       <Link href={link.href} className="font-medium text-al-link hover:underline">
-                        {link.label}
+                        {localize(link.label)}
                       </Link>
                       {" — "}
                       {link.whenToUse}

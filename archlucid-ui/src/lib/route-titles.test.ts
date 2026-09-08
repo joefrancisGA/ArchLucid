@@ -7,11 +7,28 @@ import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-over
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
 
+const productLineState = vi.hoisted(() => ({
+  current: "architecture" as "architecture" | "security",
+}));
+
+vi.mock("@/lib/product-line/resolve-product-line-id", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/product-line/resolve-product-line-id")>();
+
+  return {
+    ...actual,
+    resolveProductLineIdFromEnv: () => productLineState.current,
+  };
+});
+
 describe("getRouteTitle — static routes", () => {
+  afterEach(() => {
+    productLineState.current = "architecture";
+  });
+
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle(GOVERNANCE_AUDIT_PATH)).toBe(OPERATOR_NAV_LINK_LABELS.auditTrail);
@@ -30,12 +47,9 @@ describe("getRouteTitle — static routes", () => {
   });
 
   it("uses Teams instead of Microsoft Teams on the SecureNow process", () => {
-    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "security");
+    productLineState.current = "security";
 
     expect(getRouteTitle(INTEGRATIONS_TEAMS_PATH)).toBe("Teams");
-
-    vi.unstubAllEnvs();
-    process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "architecture";
   });
 });
 

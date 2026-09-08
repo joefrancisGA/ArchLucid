@@ -1,6 +1,8 @@
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { flattenNavLinks } from "@/lib/nav-config";
+import { resolveNavLinkPresentation } from "@/lib/operator/operator-nav-labels";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 
 export type FindPageSearchEntrySource = "nav" | "curated" | "action" | "help";
@@ -58,9 +60,13 @@ function dedupeFindPageEntriesByHref(entries: readonly FindPageSearchEntry[]): F
       continue;
     }
 
-    // Curated rows carry richer search tokens than bare nav labels.
+    // Curated rows carry richer search tokens than bare nav labels, and keep nav tokens so
+    // product-line labels and href segments remain searchable after dedupe.
     if (entry.source === "curated" && existing.source === "nav") {
-      byHref.set(entry.href, entry);
+      byHref.set(entry.href, {
+        ...entry,
+        searchValue: `${existing.searchValue} ${entry.searchValue}`,
+      });
     }
   }
 
@@ -68,13 +74,19 @@ function dedupeFindPageEntriesByHref(entries: readonly FindPageSearchEntry[]): F
 }
 
 function buildNavFindPageSearchEntries(): readonly FindPageSearchEntry[] {
-  return flattenNavLinks().map((link) => ({
-    id: `nav:${link.href}`,
-    label: link.label,
-    href: link.href,
-    searchValue: `${link.label} ${link.href}`,
-    source: "nav" as const,
-  }));
+  const productLine = resolveProductLineIdFromEnv();
+
+  return flattenNavLinks().map((link) => {
+    const presentation = resolveNavLinkPresentation(link, false, false, false, productLine);
+
+    return {
+      id: `nav:${link.href}`,
+      label: presentation.label,
+      href: link.href,
+      searchValue: `${presentation.label} ${link.label} ${link.href}`,
+      source: "nav" as const,
+    };
+  });
 }
 
 /** Static find-a-page entries shared by header search and command palette (TB-2364). */

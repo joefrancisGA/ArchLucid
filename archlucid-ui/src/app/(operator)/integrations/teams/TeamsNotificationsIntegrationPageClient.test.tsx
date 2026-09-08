@@ -47,6 +47,8 @@ import {
   TEAMS_INTEGRATION_SECURITY_NOTE,
   TEAMS_INTEGRATION_TEST_DISABLED_HELPER,
 } from "@/lib/teams-integration-page-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { TEAMS_INTEGRATION_SOURCES } from "@/lib/teams-integration-evidence-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { TEAMS_RECOMMENDED_EVENT_TYPES } from "@/lib/teams-integration-notification-catalog";
@@ -269,14 +271,15 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     await screen.findByTestId("teams-integration-orientation");
 
     const sources = screen.getByTestId("teams-integration-sources");
+    const visibleSources = filterWhereToGoNextFollowUpLinks(TEAMS_INTEGRATION_SOURCES);
 
-    for (const link of TEAMS_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of visibleSources) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }
 
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
-    expect(readinessLinks).toHaveLength(1);
-    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+    expect(visibleSources.some((link) => link.href === INTEGRATIONS_READINESS_PATH)).toBe(false);
   });
 
   it("mounts one channel-disambiguation vocabulary rail", async () => {
@@ -386,7 +389,9 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
 
     fireEvent.click(await screen.findByTestId("teams-remove-connection"));
 
-    expect(screen.getByRole("heading", { name: /Remove Teams connection/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /Remove Microsoft Teams connection/i }),
+    ).toBeInTheDocument();
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(mockDelete).not.toHaveBeenCalled();
 
