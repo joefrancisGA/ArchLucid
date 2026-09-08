@@ -1523,3 +1523,4 @@
 {"at":"2026-09-08T18:01:27.0095762Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
 {"at":"2026-09-08T18:06:41.0670578Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-08T18:10:24.8048492Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-09-08T18:15:26.7981452Z","zoneId":"tenant-settings-sql","outcome":"hit"}
