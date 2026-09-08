@@ -63,3 +63,4 @@ Governance **approval requests** already use first-wins CAS (`TryTransitionFromR
 - **Positive:** Career-defensible concurrent disposition; quotable ADR; RS-11 can mount inline conflict on disposition forms.
 - **Negative:** Clients must refresh after 409; bulk disposition stops on first conflict unless extended later.
 - **Follow-ups:** DR-09 finding-feedback audit; RS-14 merge-conflict list cue (orthogonal).
+- **Related (client writes):** inspect, keyboard apply/undo, restore, bulk, cluster strip, and ITSM inbound send `expectedCurrentDispositionRowVersionBase64` when a pointer exists — [`FINDING_POINTER_CAS_ACCEPTANCE_2026-09-08.md`](../FINDING_POINTER_CAS_ACCEPTANCE_2026-09-08.md).
