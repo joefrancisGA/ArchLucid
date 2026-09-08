@@ -1,5 +1,3 @@
-using ArchLucid.Contracts.Common;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -91,16 +89,17 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
         }
-        catch (ConflictException)
+        catch (Exception ex)
         {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Execute ownership lease renewal loop stopped for RunId={RunId}; cancelling in-flight execute.",
+                    _runId);
+            }
+
             _executeCancellationSource.Cancel();
-        }
-        catch (Exception ex) when (_logger.IsEnabled(LogLevel.Warning))
-        {
-            _logger.LogWarning(
-                ex,
-                "Execute ownership lease renewal loop stopped unexpectedly for RunId={RunId}.",
-                _runId);
         }
     }
 }

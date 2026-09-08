@@ -9938,11 +9938,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — execute continued after heartbeat renewal lost ownership to a peer
+- **last-bug:** 2026-09-08 — unexpected renewal storage failure left execute running without provable ownership
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -9953,7 +9953,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ArchitectureRunExecuteOrchestrator` / `RunExecuteOwnershipLeaseRenewalScope` — `await using` renewal scope disposed after `finally` release; in-flight `RenewAsync` could recreate SQL lease row after intentional release — **hit 2026-09-07 (#1211):** dispose renewal scope before release; await renewal task on scope dispose (`RunExecuteOwnershipLeaseReleaseOrderingTests`)
 - [x] (proven) `RunExecuteOwnershipLeaseService.RenewAsync` / `RunExecuteOwnershipLeaseRenewalScope` — renewal failure was warning-only so long execute continued after losing the SQL lease to a peer (dual-execute window per TB-943) — **hit 2026-09-08:** `RenewAsync` throws `ConflictException` when another holder owns the live lease; renewal scope cancels the orchestrator execute token; orchestrator routes agent batch through a linked execute `CancellationTokenSource`; regressions in `RenewAsync_throws_conflict_when_peer_holds_live_lease` and `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`.
 - [x] (invalid) `ArchitectureRunExecuteOrchestrator` — non-Guid `runId` skips ownership acquire/release (`TryParseRunGuid` guard) — **cheap-disproof 2026-09-08:** `ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync` also rejects non-Guid ids with `RunNotFoundException` before agent work; skipping ownership does not enable a successful execute on malformed route ids.
+- [x] (proven) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — unexpected `RenewAsync` failures (storage/transient) logged without cancelling the linked execute token when Warning logging was enabled; with Warning disabled the renewal task faulted on scope dispose while execute kept running — **hit 2026-09-08 (#1324):** cancel in-flight execute on any renewal failure; regression in `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — deletes forced-task results and demotes status before nested `ExecuteRunAsync` calls `AcquireAsync`; another replica can acquire ownership during the prep awaits and overlap agent batches on the same run.
 
+2026-09-08 seed hunt #1324 (hit): reseeded renewal-scope failure modes; proved unexpected renewal errors must cancel linked execute.
 2026-09-08 thorough hunt (hit): proved heartbeat renewal loss must cancel in-flight execute; cheap-disproved non-Guid ownership bypass candidate.
 
 2026-09-07 seed hunt #1211 (hit): reseeded execute ownership orchestrator/renewal paths; proved release-before-renewal-dispose ghost lease recreation.
