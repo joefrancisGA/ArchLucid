@@ -59,6 +59,7 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/integrations/teams");
     expect(hrefs).toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
+    expect(hrefs).toContain("/administration/extract-upload");
     expect(hrefs).not.toContain("/administration/billing");
     expect(hrefs).not.toContain("/integrations/azure-boards");
     expect(hrefs).not.toContain("/integrations/slack");

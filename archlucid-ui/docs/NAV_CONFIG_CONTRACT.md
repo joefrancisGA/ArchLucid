@@ -40,7 +40,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-**8** groups, **77** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+**8** groups, **78** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
 
 | Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
 |-------------------------|----------------|-------------------|---------|------:|--------|
@@ -50,7 +50,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 7 | inventory snapshots, diagrams, resource hub, Ask, remediation instances |
 | `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
-| `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
+| `operator-admin`        | Administration | `platform-admin`  | Admin   | 17 | system health, tenant cost, settings, inventory upload, support, users |
 | `operator-system-admin` | Internal       | `system-admin`    | Admin   | 18 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
 
 Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `operator-admin` and `operator-system-admin`, which inline their labels. `OPERATOR_NAV_GROUP_LABELS` still exports `reports`, `operations`, and `help` values that no live group consumes.
@@ -67,7 +67,7 @@ One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|se
 | `architecture` (default for unlisted hrefs) | Architecture shell only |
 | `security` | Security shell only |
 
-**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, billing, trust, health, support — not AI usage / model governance / baseline / recycle bin), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, extract-upload, trust, health, support — not AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
 
 The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations from **Internal → Product line** (`/internal/product-line`, localStorage overlay). Product shell selection lives on that Internal page, not the home body.
 
@@ -85,7 +85,7 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **77** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
+Operator sidebar groups imply a URL prefix in the address bar. **78** nav hrefs span **8** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|

@@ -83,6 +83,15 @@
       "exemption": "connection_status_admin_nav_hub"
     },
     {
+      "nav_href": "/administration/extract-upload",
+      "nav_required_authority": "ExecuteAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
       "nav_href": "/administration/identity-providers",
       "nav_required_authority": "AdminAuthority",
       "nav_source_file": "operator/operator-admin-nav-group-builder.ts",

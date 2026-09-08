@@ -88,6 +88,10 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/integrations/servicenow",
       "/integrations/teams",
     ]);
+
+    const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
+
+    expect(adminLinks.map((link) => link.href)).toContain("/administration/extract-upload");
   });
 
   it("merges Internal destinations under Administration instead of a separate Internal group", () => {
