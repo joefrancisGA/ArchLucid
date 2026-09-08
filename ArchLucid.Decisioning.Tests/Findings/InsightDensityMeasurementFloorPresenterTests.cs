@@ -12,7 +12,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(50);
+        presentation.CatalogEngineCount.Should().Be(51);
         presentation.HarnessEngineCount.Should().Be(41);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
@@ -37,7 +37,7 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
 
         presentation.MeasuredThisRunEngineCount.Should().Be(0);
         presentation.MeetsCareerExportFloor.Should().BeFalse();
-        presentation.Sentence.Should().Contain("0 of 50");
+        presentation.Sentence.Should().Contain("0 of 51");
     }
 
     [Fact]

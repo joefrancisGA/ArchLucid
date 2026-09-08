@@ -2,6 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/false-confidence-career-00-index.md`](../../.cursor/prompts/false-confidence-career-00-index.md) (**FC-01–FC-80**)
 > **Working-seat leftovers (wave 19):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**) Accepts **0078** and owns Working finalize/visibility defaults — do **not** paste FC to evict buyer polish.
+> **Successor (wave 20 — persist gates):** [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) (**LP-01–LP-20**) — do **not** paste FC to implement TB-1221 emission/commit validators; LP wires persist gates FC named.
 
 # False-confidence career-artifact Composer prompts (FC-01–FC-80)
 
