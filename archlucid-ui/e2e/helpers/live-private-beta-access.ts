@@ -685,13 +685,19 @@ export async function submitAdminInviteFromUsersUi(
   await page.getByTestId("settings-roles-invite-email").fill(email);
   await page.getByTestId("settings-roles-invite-role").click();
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
-
-  const inviteResponse = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
-    { timeout: 60_000 },
-  );
-
   await page.getByTestId("settings-roles-invite-submit").click();
-  await inviteResponse;
+
+  const pendingRow = page.locator("tr", { hasText: email });
+  const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
+
+  try {
+    await Promise.race([
+      pendingRow.waitFor({ state: "visible", timeout: 60_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 60_000 }),
+    ]);
+  } catch {
+    throw new Error(
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 60s after submit.`,
+    );
+  }
 }
