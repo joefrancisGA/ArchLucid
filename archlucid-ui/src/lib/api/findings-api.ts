@@ -13,6 +13,7 @@ import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,
 } from "./downloads-blob-trigger-browser";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   apiGet,
   apiPostJson,
@@ -39,7 +40,7 @@ export async function getFindingInspect(
   const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
 
   return mapFindingInspectApiPayload(
-    await apiGet<Record<string, unknown>>(
+    await apiGetSealedManifestAware<Record<string, unknown>>(
       `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
     ),
   );
@@ -49,7 +50,7 @@ export async function getFindingInspect(
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingExplainability>(
+  return apiGetSealedManifestAware<FindingExplainability>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
   );
 }
@@ -58,7 +59,7 @@ export async function getFindingExplainability(runId: string, findingId: string)
 export async function getFindingEvidenceChain(runId: string, findingId: string): Promise<FindingEvidenceChain> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingEvidenceChain>(
+  return apiGetSealedManifestAware<FindingEvidenceChain>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
   );
 }
@@ -67,7 +68,7 @@ export async function getFindingEvidenceChain(runId: string, findingId: string):
 export async function getFindingLlmAudit(runId: string, findingId: string): Promise<FindingLlmAudit> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingLlmAudit>(
+  return apiGetSealedManifestAware<FindingLlmAudit>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
   );
 }

@@ -1,15 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import {
   listFindingDispositions,
   listRiskExceptions,
-  recordFindingDisposition,
+  recordFindingDispositionWith401Resume,
   type FindingDispositionEvent,
   type FindingDispositionKind,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -84,6 +88,10 @@ export function useFindingInspectGovernanceStickinessDispositions({
 }: UseFindingInspectGovernanceStickinessDispositionsInput) {
   const buyerPolishedShell = useProductionEvalChrome();
   const isWorkingDesk = useProductionDeskChrome();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [disposition, setDisposition] = useState<FindingDispositionKind>("Accepted");
   const [rationale, setRationale] = useState("");
@@ -153,6 +161,41 @@ export function useFindingInspectGovernanceStickinessDispositions({
     };
   }, [buyerPolishedShell, findingId, reload, setErrorMessage]);
 
+  const handleDispositionSaved = useCallback(
+    async (saved: FindingDispositionEvent, successMessage: string): Promise<void> => {
+      const refreshed = await reload();
+      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
+
+      setDispositionLastSavedUtc(new Date().toISOString());
+      setDispositionBaseline(captureDispositionBaseline());
+      setStatusMessage(concurrentNotice ?? successMessage);
+    },
+    [reload],
+  );
+
+  useResumePendingLivelihoodMutation({
+    enabled: canMutate,
+    onReplayed: (_kind, result) => {
+      void (async () => {
+        try {
+          await handleDispositionSaved(
+            result as FindingDispositionEvent,
+            "Disposition recorded after you signed back in.",
+          );
+        } catch (error: unknown) {
+          const message = resolveMutationError(error);
+          setDispositionInlineSaveError(message);
+          setErrorMessage(message);
+        }
+      })();
+    },
+    onReplayError: (error: unknown) => {
+      const message = resolveMutationError(error);
+      setDispositionInlineSaveError(message);
+      setErrorMessage(message);
+    },
+  });
+
   async function submitDisposition(): Promise<void> {
     if (!canMutate || busyAction !== null) {
       return;
@@ -173,7 +216,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
           })
         : null;
 
-      const saved = await recordFindingDisposition(findingId, {
+      const dispositionBody = {
         disposition,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
@@ -190,15 +233,20 @@ export function useFindingInspectGovernanceStickinessDispositions({
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
         architectRestatement:
           architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+      };
+      const idempotencyKey = createGovernanceMutationIdempotencyKey();
+
+      const saved = await recordFindingDispositionWith401Resume(findingId, dispositionBody, {
+        idempotencyKey,
+        returnPath: livelihoodReturnPath,
       });
 
-      const refreshed = await reload();
-      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
-
-      setDispositionLastSavedUtc(new Date().toISOString());
-      setDispositionBaseline(captureDispositionBaseline());
-      setStatusMessage(concurrentNotice ?? "Disposition recorded.");
+      await handleDispositionSaved(saved, "Disposition recorded.");
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const message = resolveMutationError(error);
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
@@ -225,24 +273,29 @@ export function useFindingInspectGovernanceStickinessDispositions({
         overrideRecorded: applyChangePreviewOverride,
       });
 
-      const saved = await recordFindingDisposition(findingId, {
-        disposition: "Remediated",
+      const dispositionBody = {
+        disposition: "Remediated" as const,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
         impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
         architectRestatement:
           architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+      };
+      const idempotencyKey = createGovernanceMutationIdempotencyKey();
+
+      const saved = await recordFindingDispositionWith401Resume(findingId, dispositionBody, {
+        idempotencyKey,
+        returnPath: livelihoodReturnPath,
       });
 
-      const refreshed = await reload();
-      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
-
-      setDispositionLastSavedUtc(new Date().toISOString());
-      setDispositionBaseline(captureDispositionBaseline());
-      setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
+      await handleDispositionSaved(saved, "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const message = resolveMutationError(error);
       setDispositionInlineSaveError(message);
       setErrorMessage(message);

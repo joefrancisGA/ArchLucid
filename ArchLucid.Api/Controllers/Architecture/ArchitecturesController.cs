@@ -2,6 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
@@ -101,23 +103,31 @@ public sealed class ArchitecturesController(
     [HttpGet("{architectureId:guid}/seal-delta")]
     [ProducesResponseType(typeof(ArchitectureSealDeltaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSealDelta(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        ArchitectureSealDeltaResponse? delta = await _architectureSealDeltaService.GetSealDeltaAsync(
-            scope,
-            architectureId,
-            cancellationToken);
-
-        if (delta is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Architecture '{architectureId:D}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            ArchitectureSealDeltaResponse? delta = await _architectureSealDeltaService.GetSealDeltaAsync(
+                scope,
+                architectureId,
+                cancellationToken);
 
-        return Ok(delta);
+            if (delta is null)
+            {
+                return this.NotFoundProblem(
+                    $"Architecture '{architectureId:D}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(delta);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>Renames or updates metadata for one architecture identity.</summary>

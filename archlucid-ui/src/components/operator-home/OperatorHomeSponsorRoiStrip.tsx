@@ -9,6 +9,7 @@ import { useNavCommittedArchitectureReview } from "@/components/operator/Operato
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { sponsorRoiSummaryBlockedReason } from "@/lib/roi/sponsor-roi-summary-blocked-reason";
 import {
   OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
@@ -54,7 +55,10 @@ export function OperatorHomeSponsorRoiStrip(): React.JSX.Element | null {
         className={cn(OPERATOR_SURFACE_CARD_CLASS, "p-4")}
         data-testid="operator-home-roi-strip-error"
       >
-        <OperatorApiProblem failure={failure} />
+        <OperatorApiProblem
+          failure={failure}
+          fallbackMessage={sponsorRoiSummaryBlockedReason(failure) ?? failure.message}
+        />
       </section>
     );
   }

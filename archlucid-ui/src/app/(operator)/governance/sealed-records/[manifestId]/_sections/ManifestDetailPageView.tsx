@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { getBundleDownloadUrl } from "@/lib/api";
+import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import {
   BUYER_MANIFEST_AUTHORITY_SUMMARY,
   BUYER_MANIFEST_HEADLINE_SUFFIX,
@@ -229,9 +229,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         }
         actions={
           buyerPolishedLayout !== true ? (
-            <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Export review bundle</a>
-            </Button>
+            <ManifestDetailBundleExportButton
+              manifestId={manifestId}
+              runId={summary.runId}
+              label="Export review bundle"
+            />
           ) : undefined
         }
       />

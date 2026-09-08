@@ -1,3 +1,4 @@
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiGet } from "./http";
 import {
   type ArchitectureDecisionRegisterFilters,
@@ -103,5 +104,5 @@ export async function getGovernancePosture(projectId?: string): Promise<Architec
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet(`${governanceStickinessBase()}/posture${suffix}`);
+  return apiGetSealedManifestAware(`${governanceStickinessBase()}/posture${suffix}`);
 }

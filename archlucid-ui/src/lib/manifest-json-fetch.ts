@@ -1,4 +1,7 @@
 import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { signedReviewRecordBlockedReason } from "@/lib/manifest/signed-review-record-blocked-reason";
 
 export function manifestJsonDownloadFileName(runId: string): string {
   const safe = runId.trim().replace(/[^\w.-]+/g, "-");
@@ -14,7 +17,14 @@ export async function fetchManifestJsonText(runId: string): Promise<string> {
     throw new Error("Review id is missing — refresh the page and try again.");
   }
 
-  const manifestJson = await getAuthorityRunManifest(trimmedRunId);
+  try {
+    const manifestJson = await getAuthorityRunManifest(trimmedRunId);
 
-  return JSON.stringify(manifestJson, null, 2);
+    return JSON.stringify(manifestJson, null, 2);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = signedReviewRecordBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(error));
+  }
 }
