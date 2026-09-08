@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "./governance-findings-bulk-disposition-confirm-url";
+import { GOVERNANCE_FINDINGS_BULK_PARAM } from "./governance-findings-bulk-selection-url";
 import { governanceFindingsClearAllFiltersHref } from "./governance-findings-clear-all-filters-url";
 
 describe("governanceFindingsClearAllFiltersHref", () => {
@@ -21,5 +23,16 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).toBe("/governance/findings?runId=run-1");
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
+  });
+
+  it("clears stale bulk selection and confirm params while preserving review scope", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      `runId=run-1&filter=open&${GOVERNANCE_FINDINGS_BULK_PARAM}=f1,f2&${GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM}=accepted`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?runId=run-1");
+    expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_PARAM}=`);
+    expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM}=`);
   });
 });
