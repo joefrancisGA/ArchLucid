@@ -208,6 +208,7 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         <IntakeFieldLabel
           htmlFor="architecture-draft-open-questions"
           label={ARCHITECTURE_OPEN_QUESTIONS_LABEL}
+          required={false}
         />
         <Textarea
           id="architecture-draft-open-questions"
