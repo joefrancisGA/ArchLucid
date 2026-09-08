@@ -4,11 +4,10 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { EXTRACTOR_SCRIPT_CDN_URL } from "@/lib/extractor-script-url";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 
-export const EXTRACTOR_SCRIPT_CDN_URL =
-  process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
-  "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
+export { EXTRACTOR_SCRIPT_CDN_URL };
 
 const EXTRACTOR_SCRIPT_VERSION_PATTERN = /\$scriptVersion\s*=\s*"([^"]+)"/;
 
