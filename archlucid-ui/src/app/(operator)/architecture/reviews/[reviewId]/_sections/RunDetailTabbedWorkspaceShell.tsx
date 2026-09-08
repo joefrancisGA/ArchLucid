@@ -7,7 +7,7 @@ import {
   readHeldCheckLedgerFromFindingsSnapshot,
   readHeldCheckSecondPassFromFindingsSnapshot,
 } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
-import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
@@ -26,6 +26,7 @@ type RunDetailTabbedWorkspaceShellProps = {
 /** Tab chrome and deferred chunk wiring for the tabbed run-detail workspace. */
 export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShellProps): React.JSX.Element {
   const { model, presentation, resolved } = props;
+  const judgeCapReduction = readJudgeCapReductionFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot);
   const {
     blockingApprovalCount,
     commitBlockedReason,
@@ -87,6 +88,8 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
       judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      judgeConfiguredCap={judgeCapReduction?.configuredCap ?? null}
+      judgeEffectiveCap={judgeCapReduction?.effectiveCap ?? null}
       heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       withheldFindingCount={withheldFindings.length}

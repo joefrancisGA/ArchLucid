@@ -50,6 +50,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
 };
@@ -232,6 +234,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         judgeSkippedByCap={props.judgeSkippedByCap}
+        judgeConfiguredCap={props.judgeConfiguredCap}
+        judgeEffectiveCap={props.judgeEffectiveCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         heldCheckSecondPass={props.heldCheckSecondPass}
       />

@@ -22,6 +22,20 @@ public sealed class InsightDensityCurationSummary
         set;
     }
 
+    /// <summary>Configured Premium judge cap before remaining-budget shrink (DX-62).</summary>
+    public int? JudgeConfiguredCap
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Effective Premium judge cap after remaining-budget shrink (DX-62).</summary>
+    public int? JudgeEffectiveCap
+    {
+        get;
+        set;
+    }
+
     /// <summary>Ranked missing-input rollup persisted after engine invocation (DX-52).</summary>
     public IReadOnlyList<HeldCheckLedgerRollupEntry>? HeldCheckLedgerEntries
     {

@@ -31,6 +31,8 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
@@ -50,6 +52,8 @@ export function RunDetailReviewPackageStampViewport(
     actorNodeCount,
     analysisStagesComplete: props.analysisStagesComplete === true,
     judgeSkippedByCap: props.judgeSkippedByCap ?? null,
+    judgeConfiguredCap: props.judgeConfiguredCap ?? null,
+    judgeEffectiveCap: props.judgeEffectiveCap ?? null,
   };
 
   if (props.hasGoldenManifest) {
@@ -94,6 +98,8 @@ export function RunDetailReviewPackageStampViewport(
           actorNodeCount={measurementFloorOptions.actorNodeCount}
           analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
           judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+          judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
+          judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
           heldCheckLedgerEntries={props.heldCheckLedgerEntries}
           heldCheckSecondPass={props.heldCheckSecondPass}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
@@ -150,6 +156,8 @@ export function RunDetailReviewPackageStampViewport(
         actorNodeCount={measurementFloorOptions.actorNodeCount}
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
         judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+        judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
+        judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         heldCheckSecondPass={props.heldCheckSecondPass}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}

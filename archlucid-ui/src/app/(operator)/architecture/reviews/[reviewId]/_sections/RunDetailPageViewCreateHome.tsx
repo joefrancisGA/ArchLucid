@@ -24,7 +24,7 @@ import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsP
 import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDetailOverviewTransparencyTrail";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
-import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 
 export type RunDetailPageViewCreateHomeProps = {
   readonly model: RunDetailPageModel;
@@ -70,6 +70,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     reviewStatusSummary,
     submittedArchitectureText,
   } = presentation;
+  const judgeCapReduction = readJudgeCapReductionFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot);
 
   return (
     <>
@@ -108,6 +109,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         analysisStagesComplete={createHomeAnalysisStagesComplete}
         enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
         judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(m.resolvedDetail.findingsSnapshot)}
+        judgeConfiguredCap={judgeCapReduction?.configuredCap ?? null}
+        judgeEffectiveCap={judgeCapReduction?.effectiveCap ?? null}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (

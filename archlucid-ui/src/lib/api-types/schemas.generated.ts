@@ -5372,6 +5372,10 @@ export interface components {
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
+            judgeConfiguredCap?: null | number;
+            /** Format: int32 */
+            judgeEffectiveCap?: null | number;
+            /** Format: int32 */
             judgeSkippedByCap?: number;
             /** Format: int32 */
             retainedFindingCount?: number;

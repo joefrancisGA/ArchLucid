@@ -17,6 +17,8 @@ export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly actorNodeCount?: number;
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly className?: string;
@@ -38,6 +40,8 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
     actorNodeCount: props.actorNodeCount,
     analysisStagesComplete: props.analysisStagesComplete,
     judgeSkippedByCap: props.judgeSkippedByCap ?? null,
+    judgeConfiguredCap: props.judgeConfiguredCap ?? null,
+    judgeEffectiveCap: props.judgeEffectiveCap ?? null,
     heldCheckLedgerEntries: props.heldCheckLedgerEntries ?? [],
     heldCheckSecondPass: props.heldCheckSecondPass ?? null,
   });
