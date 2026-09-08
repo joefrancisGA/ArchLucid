@@ -4,6 +4,7 @@
      (AO-01–50). AO made architecture the locator; this set makes the desk the
      work surface (ADR 0079). Do not merge DraftRequests and Runs.
      Wave 19: working-seat-00-index.md (WS-01–WS-24) — buyer polish off Working.
+     Wave 20: livelihood-proof-00-index.md (LP-01–LP-20) — persist gates after WS.
      Do not implement from this index. -->
 
 # System-desk mitigations — Composer prompt set (SY-01–SY-100)
