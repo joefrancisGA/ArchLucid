@@ -35,7 +35,7 @@ public sealed class ArchitectureRecommendationAlternativesTests
                 "Stated recovery objective may not be achievable"));
 
         alternatives.Should().HaveCount(2);
-        alternatives[0].Path.Should().Contain("RTO");
+        alternatives[0].Path.Should().Contain("failover");
         alternatives[1].Path.Should().Contain("sponsor");
         alternatives.Should().OnlyContain(option => !string.IsNullOrWhiteSpace(option.ValidationCriteria));
     }

@@ -978,11 +978,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — PerformanceScalability alternatives restated primary capacity-expectation ProposedChange
+- **last-bug:** 2026-09-08 — Reliability recovery alternatives restated primary RTO backup/replication ProposedChange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -998,6 +998,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Cost and DataArchitecture branches emit alternatives that restate the primary `ProposedChange` path — **hit 2026-09-08 seed hunt #1334:** Fail cost-ceiling and data-flow findings from specialist rules got guardrail/document-flow alternatives that paraphrased the primary recommendation; fixed by replacing alt[0] with spend-cap and classification-first paths distinct from primary; regressions in `ArchitectureRecommendationAlternativesDistinctnessTests`
 - [x] (proven) `ArchitectureRecommendationAlternatives.Build` — PerformanceScalability branch emits alternatives that restate the primary capacity-expectation `ProposedChange` — **hit 2026-09-08 seed hunt #1336:** alt[0] paraphrased "Record a capacity expectation… peak load… scaling" with "Add a capacity expectation… peak load… scaling approach"; fixed by replacing alt[0] with autoscaling/load-test path distinct from primary; regression in `BuildRecommendations_performance_capacity_alternatives_are_distinct_from_proposed_change`
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Reliability recovery branch emits alternatives that restate the primary RTO backup/replication `ProposedChange` — **hit 2026-09-08 seed hunt #1343 (seed→hit):** alt[0] paraphrased "Align backup, replication… stated RTO… recovery test" with "Increase backup frequency or add replication to meet the stated RTO"; fixed by replacing alt[0] with warm-standby/chaos-drill path distinct from primary; regression in `BuildRecommendations_reliability_recovery_alternatives_are_distinct_from_proposed_change`
+
+2026-09-08 seed hunt #1343 (seed→hit): reseeded architecture-recommendation zone; proved Reliability recovery alternative paraphrase of primary proposed change; 20 scoped recommendation tests passed.
 
 2026-09-08 seed hunt #1336 (seed→hit): reseeded architecture-recommendation zone; proved PerformanceScalability alternative paraphrase of primary proposed change; 16 scoped recommendation tests passed.
 

@@ -35,9 +35,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (align backup/replication/failover with RTO and record recovery test).
                 Create(
-                    "Increase backup frequency or add replication to meet the stated RTO",
-                    "Measured restore or failover time meets the stated recovery objective."),
+                    "Implement warm standby failover and chaos recovery drills before accepting production traffic",
+                    "Chaos or failover drills prove recovery within the stated RTO before production cutover."),
                 Create(
                     "Revise the stated RTO with sponsor approval and document compensating controls",
                     "Sponsor-approved RTO and compensating controls are recorded in the architecture package."),
