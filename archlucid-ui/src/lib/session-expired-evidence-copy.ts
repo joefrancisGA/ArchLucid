@@ -2,7 +2,12 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SESSION_EXPIRED_CANONICAL_PATH = "/auth/session-expired" as const;
 
+export const SESSION_EXPIRED_CLAIM_DISCIPLINE_HEADING = "What session recovery is not";
+
 export const SESSION_EXPIRED_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const SESSION_EXPIRED_CLAIM_DISCIPLINE =
+  "Session recovery restarts sign-in after your session ended — authentication only, not a full audit export. After you sign in again, open Assurance status or a finalized review when you need live evidence.";
 
 export const SESSION_EXPIRED_SOURCES_INTRO =
   "Use these public follow-ups when you need product orientation before signing in again (authenticated workspace routes stay unavailable until you sign in).";
