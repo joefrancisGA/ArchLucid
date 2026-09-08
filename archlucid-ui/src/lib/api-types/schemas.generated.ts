@@ -5373,6 +5373,7 @@ export interface components {
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -7585,6 +7586,18 @@ export interface components {
         ProposedRelaxation: {
             invariantKey?: string;
             tradeOffDescription?: string;
+        };
+        /** @enum {string} */
+        ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionRegisterEntry: {
+            disposition?: components["schemas"]["ProseAssumptionDisposition"];
+            documentPath?: string;
+            evidenceRef?: string;
+            findingId?: null | string;
+            /** Format: int32 */
+            lineNumber?: number;
+            logicalPropertyName?: null | string;
+            statement?: string;
         };
         ProvenanceEdge: {
             /** Format: uuid */
