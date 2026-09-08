@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { canExportAuditCsv, principalRolesAllowAuditCsvExport } from "@/app/(operator)/governance/audit/audit-ui-helpers";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { downloadAuditExportCsv } from "@/lib/api";
 
@@ -55,7 +56,14 @@ export function useAuditPageExport(args: UseAuditPageExportArgs): UseAuditPageEx
         runId: filters.runId.trim() || undefined,
       });
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      const failure = toApiLoadFailure(e);
+      const blockedReason = auditExportBlockedReason(failure);
+
+      setFailure(
+        blockedReason !== null
+          ? { ...failure, message: blockedReason }
+          : failure,
+      );
     } finally {
       setExporting(false);
     }

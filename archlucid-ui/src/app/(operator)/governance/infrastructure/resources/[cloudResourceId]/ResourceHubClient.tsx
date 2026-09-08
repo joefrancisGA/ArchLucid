@@ -91,6 +91,11 @@ import {
   RESOURCE_HUB_TAB_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM,
+  infraResourceHubTechnicalDisclosureHrefFromSearch,
+  parseInfraResourceHubTechnicalKeyFromSearch,
+} from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
+import {
   formatCloudResourceExplorerWorkQueueLabel,
   parseResourceExplorerWorkQueueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -329,6 +334,32 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
+  const infraResourceHubTechnicalKeyParam = searchParams.get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
+  const [infraResourceHubTechnicalKey, setInfraResourceHubTechnicalKeyState] = useState(() =>
+    parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam),
+  );
+
+  const syncInfraResourceHubTechnicalKeyToUrl = useCallback(
+    (technicalKey: string | null) => {
+      router.replace(
+        infraResourceHubTechnicalDisclosureHrefFromSearch(searchParams.toString(), technicalKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setInfraResourceHubTechnicalKey = useCallback(
+    (technicalKey: string | null) => {
+      setInfraResourceHubTechnicalKeyState(technicalKey ?? "");
+      syncInfraResourceHubTechnicalKeyToUrl(technicalKey);
+    },
+    [syncInfraResourceHubTechnicalKeyToUrl],
+  );
+
+  useEffect(() => {
+    setInfraResourceHubTechnicalKeyState(parseInfraResourceHubTechnicalKeyFromSearch(infraResourceHubTechnicalKeyParam));
+  }, [infraResourceHubTechnicalKeyParam]);
 
   const [hub, setHub] = useState<CloudResourceEvidenceHubResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -726,6 +757,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_CLOUD_RESOURCE_ID_LABEL}
             sectionTestId="infra-resource-hub-cloud-resource-id-disclosure"
             summaryLine="Cloud resource UUID for this evidence hub"
+            open={infraResourceHubTechnicalKey === "cloudResourceId"}
+            onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "cloudResourceId" : null)}
           >
             <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {cloudResourceId}
@@ -735,6 +768,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_ARM_RESOURCE_PATH_LABEL}
             sectionTestId="infra-resource-hub-arm-resource-path-disclosure"
             summaryLine="Azure Resource Manager path from inventory capture"
+            open={infraResourceHubTechnicalKey === "armResourcePath"}
+            onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "armResourcePath" : null)}
           >
             <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {hub?.externalResourceId ?? cloudResourceId}
@@ -1289,6 +1324,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
                     sectionTestId="infra-resource-hub-terraform-address-disclosure"
                     summaryLine={hub.terraformAddress ?? "Not mapped"}
+                    open={infraResourceHubTechnicalKey === "terraformAddress"}
+                    onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
                   >
                     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       {hub.terraformAddress ?? "Not mapped"}

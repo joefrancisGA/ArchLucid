@@ -22,3 +22,8 @@ export {
   downloadScopedProxyFileGet,
   openScopedProxyFileGetInNewTab,
 } from "./downloads-blob-trigger-scoped-proxy";
+
+export {
+  downloadArtifactBundleZip,
+  downloadTraceabilityBundleZip,
+} from "./downloads-blob-trigger-artifact-bundle";
