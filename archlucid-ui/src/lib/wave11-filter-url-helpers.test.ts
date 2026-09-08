@@ -5608,6 +5608,109 @@ describe("wave70 filter url helpers", () => {
   });
 });
 
+describe("wave72 filter url helpers", () => {
+  it("engineering troubleshooting sources, accelerator cost governance technical, sponsor dashboard/scorecard, audit lineage route/spine, first pilot l0, glossary section, infra resource hub technical params", async () => {
+    const {
+      helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch,
+      parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-runbook-sources-disclosure-url");
+    const {
+      helpEngineeringTroubleshootingSourcesDisclosureHrefFromSearch,
+      parseHelpEngineeringTroubleshootingSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-sources-disclosure-url");
+    const {
+      helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch,
+      parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch,
+    } = await import("@/lib/accelerator/help-accelerator-cost-governance-technical-disclosure-url");
+    const {
+      parseSponsorDashboardHowItWorksOpenFromSearch,
+      sponsorDashboardHowItWorksDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-dashboard-how-it-works-disclosure-url");
+    const {
+      parseSponsorScorecardEmptyPreviewOpenFromSearch,
+      sponsorScorecardEmptyPreviewDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-scorecard-empty-preview-disclosure-url");
+    const {
+      auditEvidenceLineageRouteIdentifiersDisclosureHrefFromSearch,
+      parseAuditEvidenceLineageRouteIdentifiersOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-route-identifiers-disclosure-url");
+    const {
+      auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch,
+      parseAuditEvidenceLineageSpineTechnicalOpenFromSearch,
+    } = await import("@/lib/governance/audit-evidence-lineage-spine-technical-disclosure-url");
+    const {
+      firstPilotL0MustQuestionsDisclosureHrefFromSearch,
+      parseFirstPilotL0MustQuestionsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-l0-must-questions-disclosure-url");
+    const {
+      parseProductConceptsGlossarySectionOpenFromSearch,
+      productConceptsGlossarySectionDisclosureHrefFromSearch,
+    } = await import("@/lib/operator/product-concepts-glossary-section-disclosure-url");
+    const {
+      infraResourceHubTechnicalDisclosureHrefFromSearch,
+      parseInfraResourceHubTechnicalKeyFromSearch,
+    } = await import("@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url");
+
+    expect(parseHelpEngineeringTroubleshootingRunbookSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpEngineeringTroubleshootingRunbookSourcesDisclosureHrefFromSearch("", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?helpEngineeringTroubleshootingRunbookSourcesOpen=1");
+    expect(parseHelpEngineeringTroubleshootingSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      helpEngineeringTroubleshootingSourcesDisclosureHrefFromSearch("symptom=auth", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?symptom=auth&helpEngineeringTroubleshootingSourcesOpen=1");
+    expect(parseHelpAcceleratorCostGovernanceTechnicalOpenFromSearch("1")).toBe(true);
+    expect(
+      helpAcceleratorCostGovernanceTechnicalDisclosureHrefFromSearch("", true, "/help/accelerator-chooser"),
+    ).toBe("/help/accelerator-chooser?helpAcceleratorCostGovernanceTechnicalOpen=1");
+    expect(parseSponsorDashboardHowItWorksOpenFromSearch("true")).toBe(true);
+    expect(sponsorDashboardHowItWorksDisclosureHrefFromSearch("", true, "/architecture/sponsor-dashboard")).toBe(
+      "/architecture/sponsor-dashboard?sponsorDashboardHowItWorksOpen=1",
+    );
+    expect(parseSponsorScorecardEmptyPreviewOpenFromSearch("1")).toBe(true);
+    expect(sponsorScorecardEmptyPreviewDisclosureHrefFromSearch("", true, "/insights/architecture-scorecard")).toBe(
+      "/insights/architecture-scorecard?sponsorScorecardEmptyPreviewOpen=1",
+    );
+    expect(parseAuditEvidenceLineageRouteIdentifiersOpenFromSearch("true")).toBe(true);
+    expect(
+      auditEvidenceLineageRouteIdentifiersDisclosureHrefFromSearch(
+        "",
+        true,
+        "/governance/audit-evidence/a1/snapshots/s1/controls/c1",
+      ),
+    ).toBe("/governance/audit-evidence/a1/snapshots/s1/controls/c1?auditEvidenceLineageRouteIdentifiersOpen=1");
+    expect(parseAuditEvidenceLineageSpineTechnicalOpenFromSearch("1")).toBe(true);
+    expect(
+      auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch(
+        "expanded=1",
+        true,
+        "/governance/audit-evidence/a1/snapshots/s1/controls/c1",
+      ),
+    ).toBe(
+      "/governance/audit-evidence/a1/snapshots/s1/controls/c1?expanded=1&auditEvidenceLineageSpineTechnicalOpen=1",
+    );
+    expect(parseFirstPilotL0MustQuestionsOpenFromSearch("1")).toBe(true);
+    expect(firstPilotL0MustQuestionsDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotL0MustQuestionsOpen=1",
+    );
+    expect(parseProductConceptsGlossarySectionOpenFromSearch("true")).toBe(true);
+    expect(productConceptsGlossarySectionDisclosureHrefFromSearch("q=review", true, "/help")).toBe(
+      "/help?q=review&productConceptsGlossarySectionOpen=1",
+    );
+    expect(parseInfraResourceHubTechnicalKeyFromSearch("cloudResourceId")).toBe("cloudResourceId");
+    expect(parseInfraResourceHubTechnicalKeyFromSearch("invalid")).toBe("");
+    expect(
+      infraResourceHubTechnicalDisclosureHrefFromSearch(
+        "tab=overview",
+        "terraformAddress",
+        "/governance/infrastructure/resources/res-1",
+      ),
+    ).toBe(
+      "/governance/infrastructure/resources/res-1?tab=overview&infraResourceHubTechnicalKey=terraformAddress",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
