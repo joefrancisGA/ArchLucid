@@ -1850,11 +1850,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — client RequestId / EvidencePackageId delimiter injection broke TB-949 quarantine
+- **last-bug:** 2026-09-08 — context-length guard truncation dropped TB-949 end marker in agent user prompts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1885,9 +1885,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1242 (dry): cheap-disproved service-catalog `Category`/`Tags` and pattern `ApplicableCapabilities` sanitizer parity candidates (no `AgentUserPromptBuilder` reachability); reconfirmed circuit-breaker inner-throw scrub gap as valid-no-repro.
 
 - [x] (proven) `AgentEvidenceUntrustedInputSanitizer` omitted client-supplied `RequestId` / `EvidencePackageId` while `AgentUserPromptBuilder` rendered them inside TB-949 quarantine without `EscapeEmbeddedMarkers` — **hit 2026-09-08 seed hunt #1337:** embedded `CUSTOMER_CONTENT_END` in RequestId closed the architecture section early and left task objective inside customer DATA; fixed via `SanitizePromptIdentifier` (marker escape + scalar wrap); regressions in `SanitizeAsync_request_id_with_embedded_customer_content_end_marker_does_not_break_quarantine` and evidence-package-id sibling test
-- [ ] (candidate) `ContextLengthGuardAgentCompletionClient` token truncation uses `TokenAwareContextBudget.TruncateToTokenBudget` without `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — related delimiter class; locus outside zone paths (`ArchLucid.AgentRuntime/ContextLengthGuardAgentCompletionClient.cs`); no failing repro in zone yet
+- [x] (proven) `ContextLengthGuardAgentCompletionClient` token truncation used `TokenAwareContextBudget.TruncateToTokenBudget` without `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — **hit 2026-09-08 thorough hunt #1308:** oversized topology user prompts truncated inside the architecture quarantine without `CUSTOMER_CONTENT_END`, leaving trusted task framing inside customer DATA; fixed via `TruncateUserPromptPreservingCustomerContentBounds`; regression in `CompleteJsonAsync_truncation_preserves_customer_content_end_marker_in_topology_prompt`
 
-2026-09-08 seed hunt #1337 (hit): reseeded agent-runtime-safety; proved RequestId/EvidencePackageId TB-949 delimiter bypass; seeded context-length guard truncation candidate (adjacent path).
+2026-09-08 thorough hunt #1308 (hit): proved context-length guard TB-949 truncation parity gap seeded in #1337; 129 scoped agent-runtime-safety unit tests passed.
 
 ---
 
