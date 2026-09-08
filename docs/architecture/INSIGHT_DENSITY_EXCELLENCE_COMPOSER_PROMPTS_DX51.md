@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-51–DX-56)
 
-**Created:** 2026-09-08 · **Status:** **DX-51–DX-56 shipped on `master` (2026-09-08).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md) (**DX-58–DX-62**).
+**Created:** 2026-09-08 · **Status:** **DX-51–DX-56 shipped on `master` (2026-09-08).** Do **not** re-run. **DX-58–DX-62 shipped.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md) (**DX-63–DX-68**).
 
 DX-01–DX-50 closed the Cursor-implementable *engine + ingest + citation* holes. Latest golden case is **`case-63`**. Harness registers **41** engines; catalog has **50**; **9** absent-with-reason. This set does **not** add coverage engines. It raises density by joining information the DX set already produces (fusion, portfolio topology, held-check ledger), by making the frontier instrument usable without fake transcripts (DX-54), and by two later prompts that need LLM budget (DX-55) or verification volume (DX-56).
 
