@@ -186,6 +186,6 @@ public sealed class InsightDensityEngineDistributionReportTests
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
         markdown.Should().Contain("WouldDemoteAt65Count");
-        markdown.Should().Contain("production DemotionThreshold remains 50 until DX-59");
+        markdown.Should().Contain("production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59)");
     }
 }

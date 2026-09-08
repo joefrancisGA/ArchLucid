@@ -271,6 +271,76 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Default_demotion_threshold_is_sixty_five()
+    {
+        InsightDensityGateOptions options = new();
+
+        options.DemotionThreshold.Should().Be(65);
+    }
+
+    [Fact]
+    public void Score_demotes_architecture_anchored_score_sixty_without_evidence_at_default_threshold()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f10",
+            "No topology resources were found",
+            [],
+            FindingSeverity.Warning,
+            category: "Topology",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        result.InsightDensityScore.Should().Be(60);
+    }
+
+    [Fact]
+    public void Score_promotes_architecture_anchored_score_sixty_without_evidence_when_threshold_is_fifty()
+    {
+        DeterministicInsightDensityGate lenientGate = new(
+            Options.Create(new InsightDensityGateOptions { DemotionThreshold = 50 }));
+
+        InsightDensityGateCandidate candidate = new(
+            "engine-f11",
+            "No topology resources were found",
+            [],
+            FindingSeverity.Warning,
+            category: "Topology",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = lenientGate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        result.InsightDensityScore.Should().Be(60);
+    }
+
+    [Fact]
+    public void Score_promotes_product_shaped_arm_evidence_at_default_threshold_even_when_score_below_sixty_five()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
+        Finding finding = new()
+        {
+            FindingId = "engine-f12",
+            Title = "No topology resources were found",
+            Severity = FindingSeverity.Warning,
+            Category = "Topology",
+            EvidenceRefs = [storageArmId],
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+    }
+
+    [Fact]
     public void Score_respects_custom_demotion_threshold()
     {
         DeterministicInsightDensityGate strictGate = new(
