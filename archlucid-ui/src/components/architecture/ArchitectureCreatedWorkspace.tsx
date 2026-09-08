@@ -278,7 +278,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence" || activeTab === "findings"))
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence"))
       ? "context-bar"
       : "full";
 
