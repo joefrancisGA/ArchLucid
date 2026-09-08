@@ -37,6 +37,7 @@ import {
 import {
   BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
   BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
@@ -182,10 +183,12 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-baseline-settings-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-baseline-settings-intro">
+                {BASELINE_SETTINGS_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
-              {BASELINE_SETTINGS_HELP_OVERVIEW}
-            </p>
           </div>
         ) : null}
 
@@ -195,11 +198,9 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
               <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            {!buyerPolishedShell ? (
-              <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
-                {BASELINE_SETTINGS_HELP_OVERVIEW}
-              </p>
-            ) : null}
+            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
+              {BASELINE_SETTINGS_HELP_OVERVIEW}
+            </p>
 
             {!buyerPolishedShell ? <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} /> : null}
 
@@ -264,11 +265,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-baseline-settings-orientation-bottom">
-            <HelpBaselineSettingsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpBaselineSettingsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

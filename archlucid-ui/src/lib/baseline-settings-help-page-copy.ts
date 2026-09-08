@@ -8,3 +8,9 @@ export const BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL = "Skip to baseline settings
 
 export const BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-baseline-settings-header-claim-discipline" as const;
+
+export const BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-baseline-settings-orientation-bottom" as const;
+
+export const BASELINE_SETTINGS_HELP_PAGE_LEAD =
+  "Configure workspace ROI measurement anchors that feed architecture scorecard and sponsor-report value estimates." as const;

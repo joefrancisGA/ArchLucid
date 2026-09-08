@@ -45,6 +45,8 @@ import {
 import {
   BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
 } from "@/lib/baseline-settings-help-page-copy";
@@ -86,13 +88,18 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     const primaryContent = screen.getByTestId("help-baseline-settings-primary-content");
     const firstViewport = screen.getByTestId(BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-baseline-settings-action-panel");
-    const orientationBottom = screen.getByTestId("help-baseline-settings-orientation-bottom");
+    const overview = screen.getByTestId("help-baseline-settings-overview");
+    const orientationBottom = screen.getByTestId(BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-baseline-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("help-baseline-settings-intro")).toHaveTextContent(BASELINE_SETTINGS_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-intro"));
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
       BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER,
     );
@@ -102,8 +109,7 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     expect(
       within(actionPanel).queryByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-baseline-settings-overview")).toHaveTextContent(/measurement anchors/);
-    expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-overview"));
+    expect(overview).toHaveTextContent(/measurement anchors/);
     expect(
       screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
