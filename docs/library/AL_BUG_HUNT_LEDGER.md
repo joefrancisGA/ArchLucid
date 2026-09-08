@@ -940,12 +940,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: outbound-webhook-dry-run
 
 - **id:** outbound-webhook-dry-run
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
@@ -980,6 +980,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — fresh `id` / `findingId` / `runId` GUIDs on every probe (`OutboundWebhookDryRunService.cs` L144-151) block byte-identical replay for subscriber idempotency tests — **cheap-disproof 2026-09-08 seed hunt #1363:** OpenAPI `OutboundWebhookDryRunExamplesOperationFilter` documents synthetic sample; each dry-run POST is intentionally unique
 - [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — API response includes `ResponseBodyPreview` (`L56-57`) while audit omits preview (#1362) — subscriber may return secrets in body to the operator who initiated the probe — **cheap-disproof 2026-09-08 seed hunt #1363:** ExecuteAuthority-gated operator diagnostic; audit omission is the conservative store
 - [x] (valid-no-repro) `OutboundWebhookDryRunService.ReadResponseBodyPreviewAsync` — UTF-8 `StreamReader` with BOM detection (`L106-111`) can mis-render non-UTF-8 subscriber bodies in preview — **cheap-disproof 2026-09-08 seed hunt #1363:** preview is best-effort after headers; status/reason preserved (#1267 class)
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed `HttpClient` 30s timeout (`ServiceCollectionExtensions.IntegrationsOutboundHttpClients.cs` L38) covers entire `SendAsync` including capped preview read — slow subscriber body trickle returns `TransportSucceeded=false` after headers — **cheap-disproof 2026-09-08 seed hunt #1364:** preview read stops at `PreviewMaxChars`; timeout is operator-side transport ceiling (same class as #1361 timeout row)
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — audit JSON stores probe `error` string (`OutboundWebhookDryRunController.cs` L77) echoing exception messages that may repeat subscriber hostnames — **cheap-disproof 2026-09-08 seed hunt #1364:** operator-initiated ExecuteAuthority probe; forensics only; TargetUrl already operator-supplied
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — `HttpCompletionOption.ResponseHeadersRead` (`L63`) delivers POST body to subscriber before preview read completes — preview failure still leaves subscriber with synthetic POST — **cheap-disproof 2026-09-08 seed hunt #1364:** POST delivery is the dry-run feature; preview failures preserve HTTP status (#1267)
+
+2026-09-08 seed hunt #1364 (seed-only): fourth consecutive seed pass with zero hunt-ready rows; cheap-disproof closed timeout/preview ordering and audit error forensics; zone set to **cooling**; 22 scoped controller/service tests passed.
 
 2026-09-08 seed hunt #1363 (seed-only): reseeded after #1362; cheap-disproof closed DNS outcome split, unique synthetic ids, operator preview trust boundary, and BOM preview limitation; 22 scoped controller/service tests passed.
 
