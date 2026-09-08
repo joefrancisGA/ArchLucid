@@ -9396,11 +9396,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — PromoteCatalogEntry returned HTTP 200 when facade reported ValidationFailed
+- **last-bug:** 2026-09-08 — assign path bypassed inactive-pack and tenant-scope authz gates; enable returned 404 not 409
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9420,9 +9420,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for organization-required archive conflict — **cheap-disproof 2026-09-07 (#1217):** http facade maps `OrganizationRequiredLock` to 409; added `ArchiveAssignment_returns_conflict_when_assignment_is_organization_required`
 - [x] (proven) `PolicyPacksController.SetAssignmentOrganizationRequired` / `PolicyPackWorkspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync` — setting organization-required on a disabled assignment force-enabled without `IPlatformBundledPolicyPackAvailability.IsGloballyActiveAsync` gate symmetric with `TrySetAssignmentEnabledAsync` — **hit 2026-09-07 (#1225):** demoted/inactive platform pack could show enabled assignment in workspace selection while resolver skips it; fixed by rejecting org-required toggle when pack is not globally active and assignment is currently disabled (`TrySetAssignmentOrganizationRequired_returns_false_when_enabling_inactive_pack`)
 - [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — facade `ValidationFailed` outcome fell through to HTTP 200 — **hit 2026-09-08 hunt #1311 (seed→hit):** `PolicyPackHttpFacade.PromoteCatalogEntryAsync` maps catalog snapshot limit violations to `ValidationFailed`; controller handled only cross-tenant and not-found outcomes; fixed by returning HTTP 400 problem detail; regression `PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits`
-- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack may bypass `IsGloballyActiveAsync` gate symmetric with #1225 toggle path
-- [ ] (candidate) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin may assign Tenant/Workspace-scoped rows without tenant-admin JWT (org-required path gated in #1205 only)
 - [ ] (candidate) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack may return HTTP 404 instead of 409 symmetric with org-required disable (#1206)
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack bypassed `IsGloballyActiveAsync` gate symmetric with #1225 toggle path — **hit 2026-09-08 hunt #1312:** assign-create path force-enabled org-required rows on catalog-inactive platform packs; fixed by rejecting before `TryAssignAsync`; regression `TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack`
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
+
+2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
 
 2026-09-08 seed hunt #1311 (hit): reseeded PolicyPacksController partials after git churn; proved PromoteCatalogEntry ValidationFailed→200 mapping gap; seeded assign/inactive-pack and enable-status parity candidates.
 2026-09-07 thorough hunt #1217 (hit): proved tenant/workspace assignment mutations hidden as 404 from project scope; added org-required archive controller parity test.

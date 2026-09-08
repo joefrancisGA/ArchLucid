@@ -164,6 +164,11 @@ public sealed partial class PolicyPackHttpFacade
                 Outcome = PolicyPackHttpOutcome.Conflict,
                 Message = "Organization-required policy pack assignments cannot be disabled. Clear organization-required first.",
             },
+            PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Policy pack assignments cannot be enabled while the platform pack is inactive in the global catalog.",
+            },
             _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
         };
     }
