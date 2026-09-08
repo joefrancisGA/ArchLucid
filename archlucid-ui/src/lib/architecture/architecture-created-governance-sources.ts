@@ -22,3 +22,25 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO =
 
 export const ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE =
   "This create-home Governance tab orients assessment before finalize. It is not the committed approval decision surface.";
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID = "architecture-created-governance-primary-content" as const;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID =
+  "architecture-created-governance-first-viewport" as const;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_SKIP_TARGET_ID = ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL = "Skip to governance readiness" as const;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "architecture-created-governance-header-claim-discipline" as const;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD =
+  "Review governance readiness for this architecture draft before you finalize the review package.";
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER =
+  "Confirm findings and evidence are ready, then open Approval help or the findings queue when readiness turns into post-finalize workflow.";

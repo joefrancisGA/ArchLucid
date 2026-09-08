@@ -22,6 +22,10 @@ import {
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
 } from "@/lib/architecture/architecture-created-findings-sources";
+import {
+  ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/architecture/architecture-created-governance-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
@@ -65,6 +69,7 @@ export function ArchitectureCreatedWorkspaceHeader(
   const { model, activeTab, onNavigateTab, buyerPolishedShell = false } = props;
   const showEvidenceClaimDiscipline = buyerPolishedShell && activeTab === "evidence";
   const showFindingsClaimDiscipline = buyerPolishedShell && activeTab === "findings";
+  const showGovernanceClaimDiscipline = buyerPolishedShell && activeTab === "governance";
 
   return (
     <header
@@ -112,6 +117,14 @@ export function ArchitectureCreatedWorkspaceHeader(
             data-testid={ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           >
             {ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
+          </p>
+        ) : null}
+        {showGovernanceClaimDiscipline ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE}
           </p>
         ) : null}
       </div>

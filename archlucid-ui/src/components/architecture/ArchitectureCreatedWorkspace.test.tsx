@@ -252,7 +252,7 @@ describe("ArchitectureCreatedWorkspace", () => {
     demoEnvMock.buyerPolished = true;
     demoEnvMock.evalChrome = true;
     searchParamsState.value = new URLSearchParams(
-      "fromGeneration=1&intent=create-architecture&reviewTab=decisions-remediation",
+      "fromGeneration=1&intent=create-architecture&reviewTab=policies",
     );
 
     render(
@@ -290,6 +290,7 @@ describe("ArchitectureCreatedWorkspace", () => {
 
     expect(within(governancePanel).queryByTestId("package-governance-approval-queue-vocabulary")).not.toBeInTheDocument();
     expect(within(governancePanel).getByTestId("architecture-governance-orientation-bottom")).toBeInTheDocument();
+    expect(within(governancePanel).queryByTestId("architecture-governance-claim-discipline")).not.toBeInTheDocument();
     expect(within(governancePanel).getByTestId("governance-panel-slot")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-compact-context-bar")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
