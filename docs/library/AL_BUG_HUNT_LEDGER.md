@@ -1619,7 +1619,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` overwrote `Canceled` with `Succeeded` when cancel landed during executor run — **hit 2026-09-02:** durable processor called `MarkSucceededAsync` without re-reading row state after `ExecuteAsync`, unlike the in-memory queue cancel fix; fixed by skipping success/retry when `GetAsync` reports `Canceled` (`ProcessOneMessageAsync_does_not_mark_succeeded_when_job_canceled_during_execution`).
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` overwrote `Canceled` with `Pending` or `Failed` when cancel landed during a failing executor run — **hit 2026-09-03:** failure path called `MarkPendingRetryAsync` / `MarkFailedTerminalAsync` from the pre-execution row snapshot without re-reading cancel state; fixed by checking `GetAsync` before any failure transition (`ProcessOneMessageAsync_does_not_mark_pending_retry_when_job_canceled_during_failed_execution`, `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_canceled_during_failed_execution`).
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` terminal path skipped second cancel re-read before `MarkFailedTerminalAsync` — **hit 2026-09-07 (#1198 seed→hit):** retry path re-read `GetAsync` after backoff but exhausted-retry terminal branch called `MarkFailedTerminalAsync` from the catch-entry snapshot when cancel landed between the two reads; fixed with second `GetAsync` before terminal failure and in-memory terminal parity re-read; regression in `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_on_second_state_read`.
-- [ ] (candidate) `InMemoryBackgroundJobQueue` terminal failure re-read may still miss cancel when `MarkCanceledAsync` races after terminal branch entry but before assignment — in-memory parity now re-reads `_info` before `Failed`; hunt when a repro shows cancel after terminal re-read without retry backoff window.
+- [x] (proven) `InMemoryBackgroundJobQueue` terminal failure re-read missed cancel when `MarkCanceledAsync` raced after first terminal read but before `Failed` assignment — **hit 2026-09-08 hunt #1303:** terminal branch re-read `_info` once then logged before writing `Failed`, leaving a window cancel could land in; fixed with second `_info` re-read before terminal assignment; regression in `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read`.
+
+2026-09-08 thorough hunt #1303 (hit): proved in-memory terminal cancel race after first re-read; aligned with durable processor second-read parity.
 
 2026-09-02 seed hunt #423 (hit): promoted durable-processor cancel/success race from in-memory parity gap; proved with failing repro.
 
@@ -7117,10 +7119,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-08
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7140,8 +7142,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with `PartiallyCompleted` legacy status but no progress markers returned `NotStarted` instead of `Failed` — **hit 2026-09-07 seed hunt #1271:** TB-937 partial-run terminal treated as not-started on authority list; fixed by extending `TryResolveTerminalFailurePhase` (`ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started`)
 - [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` ignores JSON array payloads (`[...]`) even when elements carry `failureClass: PipelineDeadLetter` — **disproved 2026-09-07 (#1272):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter writers persist object-shaped summaries only; no array-root writer in repo (`IsDeadLettered_returns_false_for_json_array_root_even_when_element_has_pipeline_dead_letter`)
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — **disproved 2026-09-07 (#1272):** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks whitespace-only persisted values; list/export uses `ResolveFromRunHeader` only (`TryParseStatus_coerces_whitespace_only_legacy_status_to_created`, `ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only`)
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens; no writer emits array-valued failureClass via `AgentExecutionFailureSummaryJson.Serialize`.
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks; operator list may disagree with detail-only retry semantics if retry rows retain stale snapshots.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens — **disproved 2026-09-08 (#1304):** `AgentExecutionFailureSummaryJson.Serialize`, `AuthorityPipelineDeadLetterRunMarker.BuildFailureReasonJson`, and pipeline writers emit string `failureClass` only; conservative reader behavior (`IsDeadLettered_returns_false_for_array_valued_failure_class_token`, `Serialize_emits_string_failure_class_not_array`)
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks — **disproved 2026-09-08 (#1304):** `FailedRunRetryAdmission` retains stale snapshots by design; both legacy-status and progress-marker branches yield `InProgress`, matching `RunOperationProjector` Running; detail uses stage-based `AuthorityRunLifecyclePhaseResolver` outside zone paths (#1202); no list/export wrong outcome (`ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress`)
+
+2026-09-08 thorough hunt #1304 (dry): cheap-disproof closed both reseeded candidates from #1272; 25 scoped unit tests passed; no new hunt-ready rows.
 
 2026-09-07 thorough hunt #1272 (dry): cheap-disproof closed both open candidates from #1271; 29 scoped unit tests passed; reseeded array-valued failureClass and Retrying+snapshot lifecycle candidates.
 

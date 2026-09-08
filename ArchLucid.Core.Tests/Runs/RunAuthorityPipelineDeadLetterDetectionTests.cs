@@ -169,4 +169,15 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // AgentExecutionFailureSummaryJson.Serialize and pipeline writers persist object-shaped summaries only.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_array_valued_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":["PipelineDeadLetter"]}
+            """;
+
+        // AgentExecutionFailureSummaryJson.Serialize and AuthorityPipelineDeadLetterRunMarker emit string failureClass only.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
 }

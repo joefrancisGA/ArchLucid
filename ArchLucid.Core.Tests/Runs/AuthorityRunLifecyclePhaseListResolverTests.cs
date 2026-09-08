@@ -191,4 +191,20 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.NotStarted);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa04"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GoldenManifestId = null,
+        };
+
+        // FailedRunRetryAdmission retains ContextSnapshotId; list/export aligns with RunOperationProjector Running.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
 }
