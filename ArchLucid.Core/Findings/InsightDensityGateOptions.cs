@@ -96,4 +96,58 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = 90;
+
+    /// <summary>
+    ///     When true in Real execution mode with a Premium deployment, extracts architecture assumptions from in-batch
+    ///     prose documents and emits findings only when a deterministic contradiction against declaration/inventory/graph
+    ///     succeeds (DX-55). Default false; Simulator ignores this flag.
+    /// </summary>
+    public bool EnableProseAssumptionExtraction
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>Hard ceiling on prose-assumption candidates extracted per findings snapshot (DX-55).</summary>
+    public int MaxProseAssumptionCandidatesPerSnapshot
+    {
+        get;
+        set;
+    } = 8;
+
+    /// <summary>Hard ceiling on prose-assumption contradiction findings emitted per findings snapshot (DX-55).</summary>
+    public int MaxProseAssumptionFindingsPerSnapshot
+    {
+        get;
+        set;
+    } = 8;
+
+    /// <summary>
+    ///     When true in Real execution mode, tenant verification confirmed rates rank engine findings in the Premium
+    ///     judge-cap selector (requires <see cref="EnableLlmJudge" /> and
+    ///     <see cref="EnableLlmJudgeForEngineFindings" />). Internal ranking only — not a buyer claim. Default false;
+    ///     Simulator ignores this flag (DX-56).
+    /// </summary>
+    public bool PreferHighVerificationEngines
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>
+    ///     Minimum verifiable findings per engine before a verification confirmed-rate prior is applied (DX-56). Default
+    ///     20.
+    /// </summary>
+    public int VerificationPriorMinSample
+    {
+        get;
+        set;
+    } = 20;
+
+    /// <summary>Trailing window for <see cref="PreferHighVerificationEngines" /> rate lookup. Default 90 days (DX-56).</summary>
+    public int VerificationPriorWindowDays
+    {
+        get;
+        set;
+    } = 90;
 }
