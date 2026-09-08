@@ -7152,11 +7152,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — PascalCase/camelCase compound product names false-positive phrase constraints
+- **last-bug:** 2026-09-08 — dot/slash-delimited product names false-positive phrase and token constraints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7171,6 +7171,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`) — **hit 2026-09-07 seed hunt #1288:** `#1278` guarded standalone tokens only; `ContainsAffirmativePhrase` still matched `email-openai-gateway` and `field-encryption-module`; fixed by reusing `IsEmbeddedInCompoundIdentifier` on phrase hits; regressions in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token`, `HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token`
 - [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — PascalCase/camelCase embedded tokens without hyphen connectors (e.g. `FieldEncryptionModule`) may still false-positive phrase constraints — **hit 2026-09-08 hunt #1297:** `#1288` guarded hyphen/underscore compounds only; `FieldEncryptionModule` and `EmailOpenAiGateway` still matched `encryption`/`openai`; fixed by treating alphanumeric boundaries on both sides as compound-identifier embedding; regressions in `RequestConstraintCompoundIdentifierCamelCaseTests`
 
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — dot/slash-delimited product names (e.g. `field.encryption.module`, `email.openai.gateway`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1335:** `#1297` guarded hyphen/underscore and PascalCase compounds only; `.` and `/` delimiters were not treated as compound boundaries; fixed by extending delimiter detection to `.` and `/`; regressions in `RequestConstraintCompoundIdentifierDotNotationTests`
+
+2026-09-08 seed hunt #1335 (hit): reseeded core-requests-constraints; proved dot/slash compound-identifier false positives for encryption/openai/search/sql tokens; 831 scoped RequestConstraint tests passed.
 2026-09-08 thorough hunt #1297 (hit): proved PascalCase/camelCase compound-identifier phrase false positives; 827 scoped RequestConstraint tests passed.
 2026-09-07 seed hunt #1288 (hit): reseeded core-requests-constraints; proved phrase-level compound-identifier false positives for `openai` and `encryption`; seeded camelCase embedding candidate; 824 scoped RequestConstraint tests passed.
 
