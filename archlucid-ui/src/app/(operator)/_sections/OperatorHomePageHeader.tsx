@@ -12,6 +12,10 @@ import {
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_CLAIM_DISCIPLINE } from "@/lib/operator/operator-home-evidence-copy";
+import {
+  OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
@@ -20,6 +24,7 @@ import {
 } from "@/lib/operator/operator-last-refreshed-label";
 
 export type OperatorHomePageHeaderProps = {
+  readonly buyerPolishedShell?: boolean;
   readonly subtitle?: string;
   readonly workspaceLabel?: string | null;
 };
@@ -94,6 +99,10 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       subtitle={pageSubtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
+      claimDiscipline={props.buyerPolishedShell === true ? OPERATOR_HOME_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={
+        props.buyerPolishedShell === true ? OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />

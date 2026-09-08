@@ -161,12 +161,12 @@ function buyerPolishedSections(
     { id: "recent-reviews", testId: "operator-home-recent-reviews" },
   ];
 
-  if (phase === "operational") {
-    sections.push({ id: "buyer-chrome", testId: "operator-home-orientation-top" });
-  }
-
   sections.push({ id: "below-fold", testId: "operator-home-below-fold" });
   sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
+
+  if (phase === "operational") {
+    sections.push({ id: "buyer-chrome", testId: "operator-home-orientation-bottom" });
+  }
 
   return sections;
 }
