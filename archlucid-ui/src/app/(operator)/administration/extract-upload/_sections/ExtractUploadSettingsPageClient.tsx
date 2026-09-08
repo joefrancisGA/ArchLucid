@@ -49,8 +49,10 @@ import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evid
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
+  EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
 import {
   resolveExtractUploadPackageEmphasizedStepId,
@@ -179,7 +181,7 @@ export function ExtractUploadSettingsPageClient() {
       data-testid="extract-upload-settings-page"
     >
       <a
-        href={`#${EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}`}
+        href={`#${EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL}
@@ -188,7 +190,7 @@ export function ExtractUploadSettingsPageClient() {
       <div
         id={EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}
         data-testid="extract-upload-settings-primary-content"
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.majorSectionGap)}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
         <ExtractUploadSettingsPageHeader
           baselineLoading={baselineLoading}
@@ -196,20 +198,28 @@ export function ExtractUploadSettingsPageClient() {
           extractorScriptVersion={extractorScriptVersion}
         />
 
-        <ExtractUploadSettingsBuyerChrome />
-
-        {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
-
         {buyerPolishedShell ? null : (
           <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
         )}
 
-        <IntegrationConnectChecklist
-          title="Upload checklist"
-          steps={extractUploadSteps}
-          emphasizedStepId={extractUploadEmphasizedStepId}
-          testIdPrefix="extract-upload-package"
-        />
+        <div
+          id={EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}
+          data-testid={EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.majorSectionGap,
+          )}
+        >
+          <ExtractUploadSettingsBuyerChrome />
+
+          {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
+
+          <IntegrationConnectChecklist
+            title="Upload checklist"
+            steps={extractUploadSteps}
+            emphasizedStepId={extractUploadEmphasizedStepId}
+            testIdPrefix="extract-upload-package"
+          />
 
       {extractorUpdateBanner ? (
         <div
@@ -401,6 +411,7 @@ export function ExtractUploadSettingsPageClient() {
           </p>
         </aside>
       </div>
+        </div>
       </div>
     </div>
   );
