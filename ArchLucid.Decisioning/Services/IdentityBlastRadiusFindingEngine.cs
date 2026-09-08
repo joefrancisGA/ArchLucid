@@ -1,8 +1,11 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Services;
@@ -27,6 +30,12 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
 
         if (paths.Count == 0)
         {
+            if (graphSnapshot.GetNodesByType(GraphNodeTypes.Actor).Count == 0)
+            {
+                // Missing Actor nodes — not a happy empty blast-radius scan.
+                HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.ActorNodes);
+            }
+
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 

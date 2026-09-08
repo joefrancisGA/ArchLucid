@@ -99,6 +99,9 @@ public sealed class SecretsLifecycleFindingEngine(
 
         if (download is null || download.PackageBytes.Length == 0)
         {
+            // Missing inventory ZIP — not a happy empty secrets scan.
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.AzureInventoryZip);
+
             return;
         }
 
@@ -106,6 +109,8 @@ public sealed class SecretsLifecycleFindingEngine(
 
         if (string.IsNullOrWhiteSpace(resourcesJson))
         {
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.AzureInventoryZip);
+
             return;
         }
 
@@ -147,6 +152,15 @@ public sealed class SecretsLifecycleFindingEngine(
 
         if (download is null || download.PackageBytes.Length == 0)
         {
+            HeldCheckInputCode inventoryCode = cloudProvider switch
+            {
+                CloudProvider.Aws => HeldCheckInputCode.AwsInventoryZip,
+                CloudProvider.Gcp => HeldCheckInputCode.GcpInventoryZip,
+                _ => HeldCheckInputCode.AwsInventoryZip,
+            };
+
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, inventoryCode);
+
             return;
         }
 
@@ -154,6 +168,15 @@ public sealed class SecretsLifecycleFindingEngine(
 
         if (string.IsNullOrWhiteSpace(resourcesJson))
         {
+            HeldCheckInputCode inventoryCode = cloudProvider switch
+            {
+                CloudProvider.Aws => HeldCheckInputCode.AwsInventoryZip,
+                CloudProvider.Gcp => HeldCheckInputCode.GcpInventoryZip,
+                _ => HeldCheckInputCode.AwsInventoryZip,
+            };
+
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, inventoryCode);
+
             return;
         }
 

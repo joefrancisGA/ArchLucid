@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -102,6 +103,7 @@ public sealed partial class FindingAnalysisContextBuilder(
             EvidencePin = primaryEvidencePin,
             EvidencePins = evidencePins,
             HasCreateTimeEvidencePinCommitment = _runEvidencePackagePinService.HasCreateTimePinCommitment(header),
+            HeldCheckLedger = new HeldCheckLedger(),
         };
     }
 }

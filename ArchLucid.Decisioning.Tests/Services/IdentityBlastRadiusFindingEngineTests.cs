@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph;
@@ -67,6 +69,40 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_with_zero_actors_records_actor_nodes_and_emits_none()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "nsg-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-nsg",
+                },
+            ],
+        };
+
+        HeldCheckLedger ledger = new();
+        FindingAnalysisContext context = new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            HeldCheckLedger = ledger,
+        };
+
+        IdentityBlastRadiusFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, context, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+        ledger.BuildRollup().Should().ContainSingle(entry =>
+            entry.InputCode == HeldCheckInputCode.ActorNodes
+            && entry.EngineTypes.Contains("identity-blast-radius"));
     }
 
     private static GraphSnapshot BuildActorContributorKeyVaultFixture(
