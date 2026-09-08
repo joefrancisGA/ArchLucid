@@ -11,7 +11,7 @@ import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDe
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
-import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -32,6 +32,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -94,6 +95,7 @@ export function RunDetailReviewPackageStampViewport(
           analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
           judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
           heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+          heldCheckSecondPass={props.heldCheckSecondPass}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -149,6 +151,7 @@ export function RunDetailReviewPackageStampViewport(
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
         judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

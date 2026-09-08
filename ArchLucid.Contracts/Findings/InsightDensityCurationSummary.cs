@@ -28,4 +28,11 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Inventory-upload second-pass delta when findings were regenerated (DX-60).</summary>
+    public HeldCheckSecondPassSummary? HeldCheckSecondPass
+    {
+        get;
+        set;
+    }
 }
