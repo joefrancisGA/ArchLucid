@@ -42,6 +42,12 @@ public static class MarketplacePlanIdMapper
             if (string.Equals(nextToken, "non", StringComparison.OrdinalIgnoreCase))
                 continue;
 
+            if (string.Equals(previousToken, "not", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (string.Equals(nextToken, "not", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             return true;
         }
 

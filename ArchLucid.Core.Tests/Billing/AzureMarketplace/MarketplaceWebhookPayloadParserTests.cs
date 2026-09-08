@@ -207,6 +207,13 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Should().Be(nameof(TenantTier.Standard));
     }
 
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_not_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("not-enterprise-standard")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
     [Theory]
     [InlineData("contoso/enterprise/monthly")]
     [InlineData("contoso:enterprise:annual")]
