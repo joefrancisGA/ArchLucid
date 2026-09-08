@@ -9,6 +9,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useGovernancePostureQuery } from "@/hooks/use-governance-posture-query";
 import type { PillarPosture } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governancePostureBlockedReason } from "@/lib/governance/governance-posture-blocked-reason";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
@@ -116,7 +117,11 @@ export function ArchitecturePosturePillarOverview(
             busy={postureQuery.isFetching}
           />
         </div>
-        <OperatorApiProblem failure={failure} variant="warning" />
+        <OperatorApiProblem
+          failure={failure}
+          fallbackMessage={governancePostureBlockedReason(failure) ?? failure.message}
+          variant="warning"
+        />
       </section>
     );
   }

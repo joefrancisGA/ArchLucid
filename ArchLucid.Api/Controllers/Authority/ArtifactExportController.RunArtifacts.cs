@@ -152,6 +152,7 @@ public sealed partial class ArtifactExportController
     [HttpGet("signed-review-records/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetArtifactDescriptor(
@@ -161,10 +162,22 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+        if (summary is null)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
+
+        RunDetailDto? manifestDetail =
+            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
+
+        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
+            manifestDetail?.GoldenManifest,
+            summary.RunId.ToString("D"));
+
+        if (sealedHashProblem is not null)
+            return sealedHashProblem;
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);

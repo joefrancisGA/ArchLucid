@@ -1,6 +1,7 @@
 "use client";
 
 import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { parseManifestTransparencyTrail } from "@/lib/compare/parse-manifest-transparency-trail";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   isStaticDemoPayloadFallbackEnabled,

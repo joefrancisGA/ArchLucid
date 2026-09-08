@@ -1,10 +1,12 @@
-﻿import { cn } from "@/lib/utils";
+﻿"use client";
+
+import { cn } from "@/lib/utils";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
+import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -15,8 +17,9 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import type { ArtifactDescriptor } from "@/types/authority";
-import { getArtifactDownloadUrl } from "@/lib/api";
+import { downloadArtifactFile } from "@/lib/api/downloads-blob-trigger-artifact-single";
 import { artifactPreviewHref } from "@/lib/artifact-preview-href";
+import { showError } from "@/lib/toast";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getArtifactBusinessLabel,
@@ -174,13 +177,21 @@ export function ArtifactListTable(props: {
             <span className="mx-2 text-neutral-300 dark:text-neutral-600" aria-hidden="true">
               |
             </span>
-            {/* Same affordance as the Open link — a download rendered as plain text reads as disabled. */}
-            <ExportTrackedAnchor
+            {/* Same affordance as the Open link — programmatic download with sealed-hash 409 copy. */}
+            <button
+              type="button"
               className={OPERATOR_LINK.nav}
-              href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}
+              onClick={() => {
+                void downloadArtifactFile(manifestId, artifact.artifactId).catch((error: unknown) => {
+                  showError(
+                    "Artifact download",
+                    error instanceof Error ? error.message : "Download failed.",
+                  );
+                });
+              }}
             >
               {downloadActionLabel}
-            </ExportTrackedAnchor>
+            </button>
             {runId && !hidePilotFeedbackOnArtifacts ? (
               <div className="mt-2 max-w-xs">
                 <ProductLearningFeedbackControls

@@ -1,5 +1,8 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { sponsorRoiSummaryBlockedReason } from "@/lib/roi/sponsor-roi-summary-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
@@ -9,7 +12,14 @@ const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
 /** Browser fetch for sponsor ROI summary with correlation id on all failure paths (TB-271). */
 export async function fetchSponsorRoiSummaryClient(): Promise<SponsorRoiSummary> {
-  return proxyJsonGet<SponsorRoiSummary>(SPONSOR_ROI_SUMMARY_PATH);
+  try {
+    return await proxyJsonGet<SponsorRoiSummary>(SPONSOR_ROI_SUMMARY_PATH);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = sponsorRoiSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(error));
+  }
 }
 
 /** Imperative read through the shared TanStack Query cache (TB-562). */

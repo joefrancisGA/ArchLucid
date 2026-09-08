@@ -6,6 +6,8 @@ import type { ReactElement } from "react";
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useCompareProvenanceTrailsQuery } from "@/hooks/use-compare-provenance-trails-query";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import {
   listCompareAssumptionDiffItems,
   summarizeCompareProvenanceDelta,
@@ -31,7 +33,28 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
     enabled: isWorkingMode,
   });
 
-  if (!isWorkingMode || query.data === undefined) {
+  if (!isWorkingMode) {
+    return null;
+  }
+
+  if (query.isError) {
+    const failure = toApiLoadFailure(query.error);
+    const blockedReason = compareRunPairBlockedReason(failure);
+
+    return (
+      <section
+        className="rounded-md border border-rose-600/40 bg-rose-50/80 p-4 dark:border-rose-700/50 dark:bg-rose-950/30"
+        data-testid="compare-provenance-delta-band-error"
+        role="alert"
+      >
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}>
+          {blockedReason ?? failure.message}
+        </p>
+      </section>
+    );
+  }
+
+  if (query.data === undefined) {
     return null;
   }
 

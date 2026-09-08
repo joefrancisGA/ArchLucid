@@ -80,6 +80,7 @@ export type DemoRunPilotDeltaPack = {
   topFindingId?: string | null;
   topFindingEvidenceChain?: unknown | null;
   isDemoTenant: boolean;
+  roiSourceFreshnessDisposition?: string;
 };
 
 export type SponsorEvidencePackPayload = {

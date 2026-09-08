@@ -24,6 +24,9 @@ import {
   isUsableGoldenManifestExportJson,
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
+import { downloadManifestMarkdownExport } from "@/lib/api/manifest-markdown-export-api";
+import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-markdown-export-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
@@ -134,6 +137,29 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     setExportMenuKey((k: number) => k + 1);
   }
 
+  async function downloadServerMarkdownSummary(): Promise<void> {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId,
+      manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
+    });
+
+    if (blockedReason !== null) {
+      setExportError(blockedReason);
+      return;
+    }
+
+    setExportError(null);
+
+    try {
+      await downloadManifestMarkdownExport(manifestId);
+      recordFirstExportOpenedOnce();
+      setExportMenuKey((k: number) => k + 1);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      setExportError(manifestMarkdownExportBlockedReason(failure) ?? failure.message);
+    }
+  }
+
   const markdownOptionLabel =
     buyerPolishedShell === true ? "Download review summary" : EXPORT_FORMAT_MARKDOWN.label;
 
@@ -171,11 +197,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     <Select
       key={exportMenuKey}
       onValueChange={(value: string) => {
-        if (value !== "markdown-summary") {
+        if (value === "markdown-summary") {
+          downloadMarkdownSummary();
           return;
         }
 
-        downloadMarkdownSummary();
+        if (value === "server-markdown-export") {
+          void downloadServerMarkdownSummary();
+        }
       }}
     >
       <SelectTrigger
@@ -199,6 +228,11 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
               {markdownOptionLabel}
             </span>
             <ExportFormatWhenToUseHint format="markdown" />
+          </span>
+        </SelectItem>
+        <SelectItem value="server-markdown-export" className="items-start py-2">
+          <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+            Download server manifest export (Markdown)
           </span>
         </SelectItem>
       </SelectContent>
