@@ -54,6 +54,7 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.ArchitectureDocxExportGenerated,
         AuditEventTypes.FindingFeedbackRecorded,
         AuditEventTypes.FindingAskConversationPersisted,
+        AuditEventTypes.AuthorityCommittedChainPersisted,
     ];
 
     /// <summary>
@@ -82,6 +83,7 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.ArchitectureDocxExportGenerated),
         nameof(AuditEventTypes.FindingFeedbackRecorded),
         nameof(AuditEventTypes.FindingAskConversationPersisted),
+        nameof(AuditEventTypes.AuthorityCommittedChainPersisted),
     ];
 
     public static bool IsRequired(string? eventType)
