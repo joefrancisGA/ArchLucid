@@ -53,10 +53,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/stage-timeline")]
     [ProducesResponseType(typeof(IReadOnlyList<StageTimelineSummary>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunStageTimeline(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunStageTimelineQueryResult result =
             await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
 

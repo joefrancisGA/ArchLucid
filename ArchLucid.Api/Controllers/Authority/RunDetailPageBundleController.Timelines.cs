@@ -9,6 +9,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +21,23 @@ public sealed partial class RunDetailPageBundleController
     [HttpGet("timelines-bundle")]
     [ProducesResponseType(typeof(RunDetailTimelinesBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetTimelinesBundle(Guid runId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        RunDetailDto? detail =
+            await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        if (detail is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         Task<IReadOnlyList<RunPipelineTimelineItemDto>?> pipelineTask =
             _pipelineAuditTimeline.GetTimelineAsync(scope, runId, cancellationToken);

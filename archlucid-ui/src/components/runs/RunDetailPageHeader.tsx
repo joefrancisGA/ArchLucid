@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
-import { runSponsorReportExportHref } from "@/lib/api/run-summary-export-api";
+import { downloadRunSummaryExport } from "@/lib/api/run-summary-export-api";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
@@ -175,7 +175,7 @@ function RunPackageExportButtons({
 }
 
 function RunPackageExportButtonsLive({ runId }: { runId: string }) {
-  const [busyFormat, setBusyFormat] = useState<"docx" | "pdf" | "html" | null>(null);
+  const [busyFormat, setBusyFormat] = useState<"docx" | "pdf" | "html" | "summary" | null>(null);
 
   const onDownload = useCallback(
     (format: "docx" | "pdf" | "html") => {
@@ -194,6 +194,21 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
     },
     [runId],
   );
+
+  const onDownloadSponsorSummary = useCallback(() => {
+    setBusyFormat("summary");
+
+    void downloadRunSummaryExport(runId)
+      .catch((error: unknown) => {
+        showError(
+          "Download Sponsor Report",
+          error instanceof Error ? error.message : "Download failed.",
+        );
+      })
+      .finally(() => {
+        setBusyFormat(null);
+      });
+  }, [runId]);
 
   return (
     <div className="mt-1 flex flex-col gap-2">
@@ -234,11 +249,15 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
           <Download className="mr-2 h-4 w-4" />
           {busyFormat === "html" ? "Downloading…" : RUN_PACKAGE_EXPORT_LABELS.html}
         </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={runSponsorReportExportHref(runId)} prefetch={false} target="_blank">
-            <Download className="mr-2 h-4 w-4" />
-            Download Sponsor Report
-          </Link>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busyFormat !== null}
+          onClick={onDownloadSponsorSummary}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {busyFormat === "summary" ? "Downloading…" : "Download Sponsor Report"}
         </Button>
       </div>
     </div>
