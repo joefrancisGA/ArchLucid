@@ -71,6 +71,8 @@ public sealed partial class PreFinalizeChecklistService(
 
     private readonly ISpecialistReviewService? _specialistReviewService = specialistReviewService;
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<PreFinalizeChecklistResult> BuildAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
