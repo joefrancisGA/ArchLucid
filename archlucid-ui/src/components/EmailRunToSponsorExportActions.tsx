@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useCallback, useState } from "react";
 
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Button } from "@/components/ui/button";
@@ -18,6 +21,12 @@ import {
 import { cn } from "@/lib/utils";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  downloadPilotFirstValueReportMarkdown,
+  downloadSponsorProofPackZip,
+  downloadSponsorReviewPacketMarkdown,
+} from "@/lib/api/pilots-collateral-download-api";
+import { showError } from "@/lib/toast";
 
 export type EmailRunToSponsorExportActionsProps = {
   readonly runId: string;
@@ -56,16 +65,36 @@ export function EmailRunToSponsorExportActions({
   blockSponsorPdfForAiGate,
   blockSponsorPdfForProjectedDollar,
   blockSponsorPdfForRoi,
-  sponsorProofPackHref,
-  SponsorReviewPacketHref,
-  markdownHref,
+  sponsorProofPackHref: _sponsorProofPackHref,
+  SponsorReviewPacketHref: _SponsorReviewPacketHref,
+  markdownHref: _markdownHref,
   onDownloadPdf,
   onMarkSentToSponsor,
 }: EmailRunToSponsorExportActionsProps) {
+  const [collateralBusy, setCollateralBusy] = useState<string | null>(null);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
     manifestVersion: manifestId,
   });
+
+  const runCollateralDownload = useCallback(
+    (key: string, download: () => Promise<void>, title: string) => {
+      if (collateralExportBlockedReason !== null) {
+        return;
+      }
+
+      setCollateralBusy(key);
+
+      void download()
+        .catch((error: unknown) => {
+          showError(title, error instanceof Error ? error.message : "Download failed.");
+        })
+        .finally(() => {
+          setCollateralBusy(null);
+        });
+    },
+    [collateralExportBlockedReason],
+  );
 
   return (
     <>
@@ -84,18 +113,15 @@ export function EmailRunToSponsorExportActions({
           </p>
         ) : null}
         <Button
+          type="button"
           variant={proofPackZipVariant}
-          asChild={collateralExportBlockedReason === null}
-          disabled={collateralExportBlockedReason !== null}
+          disabled={collateralExportBlockedReason !== null || collateralBusy !== null}
           data-testid="email-run-to-sponsor-proof-pack-zip"
+          onClick={() => {
+            runCollateralDownload("proof-pack", () => downloadSponsorProofPackZip(runId), "Sponsor proof pack");
+          }}
         >
-          {collateralExportBlockedReason === null ? (
-            <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
-              Download sponsor proof pack (ZIP)
-            </ExportTrackedAnchor>
-          ) : (
-            <span>Download sponsor proof pack (ZIP)</span>
-          )}
+          {collateralBusy === "proof-pack" ? "Downloading…" : "Download sponsor proof pack (ZIP)"}
         </Button>
         <Button
           type="button"
@@ -203,14 +229,21 @@ export function EmailRunToSponsorExportActions({
               {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"} — blocked until sealed manifest verification passes
             </span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={SponsorReviewPacketHref}
-              download={`archlucid-sponsor-review-packet-${runId}.md`}
               data-testid="email-run-to-sponsor-sponsor-review-packet"
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "review-packet",
+                  () => downloadSponsorReviewPacketMarkdown(runId),
+                  "Sponsor review packet",
+                );
+              }}
             >
               {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"}
-            </a>
+            </button>
           )}
         </li>
         <li>
@@ -219,13 +252,20 @@ export function EmailRunToSponsorExportActions({
               {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"} — blocked until sealed manifest verification passes
             </span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={markdownHref}
-              download={`archlucid-first-value-report-${runId}.md`}
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "first-value",
+                  () => downloadPilotFirstValueReportMarkdown(runId),
+                  "First-value report",
+                );
+              }}
             >
               {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"}
-            </a>
+            </button>
           )}
         </li>
         <li>
