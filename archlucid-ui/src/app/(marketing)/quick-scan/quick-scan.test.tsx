@@ -5,6 +5,8 @@ import { QuickScanClient } from "@/app/(marketing)/quick-scan/QuickScanClient";
 import {
   QUICK_SCAN_LAST_REVIEWED_LABEL,
   QUICK_SCAN_PRIMARY_CONTENT_ID,
+  QUICK_SCAN_SKIP_LINK_LABEL,
+  QUICK_SCAN_SKIP_TARGET_ID,
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 
 vi.mock("@/lib/quick-scan/quick-scan-telemetry", () => ({
@@ -47,10 +49,11 @@ describe("QuickScanClient", () => {
     expect(screen.getByTestId("quick-scan-hero")).toBeInTheDocument();
     expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
     expect(screen.queryByTestId("quick-scan-hero-meta")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Skip to quick scan content/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: QUICK_SCAN_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${QUICK_SCAN_PRIMARY_CONTENT_ID}`,
+      `#${QUICK_SCAN_SKIP_TARGET_ID}`,
     );
+    expect(screen.getByTestId(QUICK_SCAN_PRIMARY_CONTENT_ID)).toBeInTheDocument();
     expect(screen.getByTestId("quick-scan-page-meta")).toHaveTextContent(QUICK_SCAN_LAST_REVIEWED_LABEL);
     expect(screen.getByTestId("quick-scan-scope-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("trust-center-revision-history")).toBeInTheDocument();

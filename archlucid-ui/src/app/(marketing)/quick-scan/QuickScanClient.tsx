@@ -2,12 +2,11 @@
 
 import type { ReactElement } from "react";
 
-import {
-  QUICK_SCAN_LAST_REVIEWED_LABEL,
-  QUICK_SCAN_PRIMARY_CONTENT_ID,
-} from "@/app/(marketing)/quick-scan/quick-scan-page-content";
+import { QUICK_SCAN_LAST_REVIEWED_LABEL } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 import { QuickScanHeroSection } from "@/app/(marketing)/quick-scan/QuickScanHeroSection";
+import { QuickScanPageChrome } from "@/app/(marketing)/quick-scan/QuickScanPageChrome";
 import { QuickScanResultsSection } from "@/app/(marketing)/quick-scan/QuickScanResultsSection";
+import { QuickScanWorkspaceSection } from "@/app/(marketing)/quick-scan/QuickScanWorkspaceSection";
 import { useQuickScanClient } from "@/app/(marketing)/quick-scan/use-quick-scan-client";
 import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickScanEvidenceOrientationStrip";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
@@ -23,27 +22,26 @@ export function QuickScanClient(): ReactElement {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-12" data-testid="quick-scan-page">
-      <a href={`#${QUICK_SCAN_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
-        Skip to quick scan content
-      </a>
+      <QuickScanPageChrome hero={<QuickScanHeroSection />}>
+        <QuickScanWorkspaceSection client={client} />
+        <QuickScanResultsSection client={client} />
 
-      <QuickScanHeroSection client={client} />
+        <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="quick-scan-page-meta">
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
+            Last reviewed{" "}
+            <time dateTime={QUICK_SCAN_LAST_REVIEWED_LABEL}>{QUICK_SCAN_LAST_REVIEWED_LABEL}</time>
+          </span>
+          <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
+            Demonstration pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
+          </span>
+        </div>
 
-      <QuickScanResultsSection client={client} />
+        <TrustCenterRevisionHistory entries={QUICK_SCAN_REVISION_HISTORY} />
 
-      <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="quick-scan-page-meta">
-        <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
-          Last reviewed{" "}
-          <time dateTime={QUICK_SCAN_LAST_REVIEWED_LABEL}>{QUICK_SCAN_LAST_REVIEWED_LABEL}</time>
-        </span>
-        <span className={TRUST_CENTER_PUBLIC_LAYOUT.metaSecondary}>
-          Demonstration pack version {TRUST_CENTER_PUBLIC_EVIDENCE_VERSION}
-        </span>
-      </div>
-
-      <TrustCenterRevisionHistory entries={QUICK_SCAN_REVISION_HISTORY} />
-
-      <QuickScanEvidenceOrientationStrip />
+        <div data-testid="quick-scan-orientation-bottom">
+          <QuickScanEvidenceOrientationStrip />
+        </div>
+      </QuickScanPageChrome>
     </div>
   );
 }

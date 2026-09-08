@@ -3,9 +3,20 @@ export const QUICK_SCAN_PAGE_TITLE = "Quick scan" as const;
 export const QUICK_SCAN_HERO_LEAD =
   "Describe a system and receive a concise architecture risk and improvement summary. No account required." as const;
 
+export const QUICK_SCAN_HERO_ORIENTATION =
+  "Demonstration only — results are not saved as workspace reviews or audit exports." as const;
+
 export const QUICK_SCAN_LAST_REVIEWED_LABEL = "2026-08-15" as const;
 
 export const QUICK_SCAN_PRIMARY_CONTENT_ID = "quick-scan-primary-content" as const;
+
+export const QUICK_SCAN_FIRST_VIEWPORT_TEST_ID = "quick-scan-first-viewport" as const;
+
+export const QUICK_SCAN_SKIP_TARGET_ID = QUICK_SCAN_FIRST_VIEWPORT_TEST_ID;
+
+export const QUICK_SCAN_SKIP_LINK_LABEL = "Skip to quick scan content" as const;
+
+export const QUICK_SCAN_HEADER_CLAIM_DISCIPLINE_TEST_ID = "quick-scan-header-claim-discipline" as const;
 
 export const QUICK_SCAN_FORM_ID = "quick-scan-form" as const;
 
