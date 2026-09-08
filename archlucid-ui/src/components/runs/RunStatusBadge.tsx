@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -27,9 +28,11 @@ export type RunStatusBadgeProps = {
 export function RunStatusBadge({ run, className, finalizeHonesty }: RunStatusBadgeProps): ReactElement {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const presentation = resolveRunPipelineStatusPresentation({
     run,
     workingDesk,
+    preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled ?? finalizeHonesty?.preCommitGateEnabled,
     ...finalizeHonesty,
   });
   const ariaPrefix = resolvePipelineStatusAriaPrefix();
