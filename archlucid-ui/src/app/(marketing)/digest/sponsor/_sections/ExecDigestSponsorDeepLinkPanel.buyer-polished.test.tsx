@@ -6,10 +6,12 @@ import {
   DIGEST_SPONSOR_SOURCES,
 } from "@/lib/marketing/digest-sponsor-evidence-copy";
 import {
+  DIGEST_SPONSOR_COLLATERAL_TITLE,
   DIGEST_SPONSOR_FIRST_VIEWPORT_ID,
   DIGEST_SPONSOR_LEAD,
   DIGEST_SPONSOR_OVERVIEW_TITLE,
   DIGEST_SPONSOR_PRIMARY_CONTENT_ID,
+  DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL,
   DIGEST_SPONSOR_SKIP_LINK_LABEL,
   DIGEST_SPONSOR_SKIP_TARGET_ID,
 } from "@/lib/marketing/digest-sponsor-page-copy";
@@ -76,5 +78,33 @@ describe("ExecDigestSponsorDeepLinkPanel buyer-polished shell", () => {
         source.href,
       );
     }
+  });
+
+  it("run collateral keeps first-viewport orientation above collateral body (DIU)", () => {
+    const runCollateralView: ExecDigestSponsorDeepLinkView = {
+      target: "run-collateral",
+      weekLabel: "Week of Aug 10, 2026",
+      topRuns: [],
+      runSummaryMarkdown: "Sponsor summary",
+      signInUrl: "/auth/signin",
+    };
+    const signInReturnPath = "/digest/sponsor/run/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?token=secret-token";
+
+    render(
+      <ExecDigestSponsorDeepLinkPanel view={runCollateralView} signInReturnPath={signInReturnPath} />,
+    );
+
+    const firstViewport = screen.getByTestId(DIGEST_SPONSOR_FIRST_VIEWPORT_ID);
+    const orientationTop = screen.getByTestId("digest-sponsor-orientation-top");
+    const collateral = screen.getByTestId("exec-digest-sponsor-run-collateral");
+
+    expect(screen.getByRole("heading", { level: 1, name: DIGEST_SPONSOR_COLLATERAL_TITLE })).toBeInTheDocument();
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(collateral);
+    expect(orientationTop.compareDocumentPosition(collateral) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL })).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor%2Frun%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3Ftoken%3Dsecret-token",
+    );
   });
 });

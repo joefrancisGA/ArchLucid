@@ -50,4 +50,25 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
       "/auth/signin?returnUrl=%2Fdigest%2Fsponsor",
     );
   });
+
+  it("run collateral sign-in preserves tokenized deep link return path (DIU)", () => {
+    const runCollateralView: ExecDigestSponsorDeepLinkView = {
+      ...view,
+      target: "run-collateral",
+      runSummaryMarkdown: "Collateral summary",
+    };
+
+    render(
+      <ExecDigestSponsorDeepLinkPanel
+        view={runCollateralView}
+        signInReturnPath="/digest/sponsor/run/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?token=secret-token"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL })).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor%2Frun%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3Ftoken%3Dsecret-token",
+    );
+    expect(screen.getByTestId("exec-digest-sponsor-run-collateral")).toBeInTheDocument();
+  });
 });

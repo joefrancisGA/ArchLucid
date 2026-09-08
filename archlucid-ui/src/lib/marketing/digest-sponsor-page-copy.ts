@@ -42,3 +42,11 @@ export const DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL = "Sign in to open the full 
 export const DIGEST_SPONSOR_HIGHLIGHTED_REVIEWS_HEADING = "Highlighted reviews" as const;
 
 export const DIGEST_SPONSOR_COMMITTED_PACKAGES_PREFIX = "Architecture packages committed this period:" as const;
+
+/** Post-auth return path for sponsor run collateral deep links (DIU). */
+export function buildDigestSponsorRunCollateralReturnPath(runIdHex: string, token: string): string {
+  const normalizedRunIdHex = runIdHex.trim().replace(/-/g, "");
+  const trimmedToken = token.trim();
+
+  return `/digest/sponsor/run/${encodeURIComponent(normalizedRunIdHex)}?token=${encodeURIComponent(trimmedToken)}`;
+}
