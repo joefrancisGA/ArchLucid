@@ -65,6 +65,7 @@ export async function recordBulkFindingDisposition(
     disposition: FindingDispositionKind;
     rationale?: string;
     revisitDueUtc?: string;
+    expectedCurrentDispositionRowVersionBase64ByFindingId?: Record<string, string>;
   },
   options?: { readonly idempotencyKey?: string },
 ): Promise<RecordBulkFindingDispositionResponse> {
