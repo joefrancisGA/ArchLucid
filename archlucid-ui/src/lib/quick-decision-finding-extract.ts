@@ -5,9 +5,16 @@ export { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-
 export {
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
+  resolveRunDetailFindingStreams,
   extractIacStubForFinding,
   findingHasNoSourceEvidence,
   sortQuickDecisionFindings,
   partitionQuickDecisionFindings,
   buildWorkspaceCardRenderedFindings,
 } from "@/lib/quick-decision-finding-merge-and-sort";
+
+export {
+  extractSealedQuickDecisionFindingsFromRunDetail,
+  extractAgentQuickDecisionFindingsFromRunDetail,
+  buyerSummaryOmitsAgentFindings,
+} from "@/lib/quick-decision-finding-stream-resolver";

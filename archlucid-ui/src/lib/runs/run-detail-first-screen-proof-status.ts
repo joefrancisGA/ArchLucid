@@ -78,7 +78,10 @@ type GovernedCoveragePayload = {
   readonly advisoryCount?: number;
 };
 
-function governedCoverageLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
+function governedCoverageLabel(
+  payload: PilotRunDeltasProofSummaryJson | null,
+  assertedTrailEmpty = false,
+): string {
   const coverage = (payload as { governedFindingCoverage?: GovernedCoveragePayload } | null)
     ?.governedFindingCoverage;
 
@@ -90,8 +93,9 @@ function governedCoverageLabel(payload: PilotRunDeltasProofSummaryJson | null): 
   const total = coverage.totalDecisionGradeCount ?? 0;
   const pct = coverage.governedPercentage;
   const pctLabel = typeof pct === "number" ? `${pct.toFixed(1)}%` : "n/a";
+  const noun = assertedTrailEmpty ? "governed" : "evidence-backed";
 
-  return `${governed} of ${total} evidence-backed (${pctLabel})`;
+  return `${governed} of ${total} ${noun} (${pctLabel})`;
 }
 
 function buildWhySafeToSendBullets(
@@ -148,6 +152,7 @@ function buildCardTitle(disposition: RunDetailFirstScreenProofDisposition): stri
 
 export function buildRunDetailFirstScreenProofSummary(
   payload: PilotRunDeltasProofSummaryJson | null,
+  options?: { readonly assertedTrailEmpty?: boolean },
 ): RunDetailFirstScreenProofSummary {
   const readiness = describeSponsorProofReadiness(payload);
   const strictSafe = isAgentOutputPilotStrictSponsorSafe(payload);
@@ -210,7 +215,7 @@ export function buildRunDetailFirstScreenProofSummary(
     pilotStrictLabel: pilotStrictLabel(payload),
     roiBasisLabel: roiLabel,
     proofPacketLabel: proofPacketLabel(readiness),
-    governedCoverageLabel: governedCoverageLabel(payload),
+    governedCoverageLabel: governedCoverageLabel(payload, options?.assertedTrailEmpty === true),
     nextAction,
     detail: detailParts.join(" "),
   };

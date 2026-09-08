@@ -32,7 +32,7 @@ type HelpAcceleratorCostGovernancePackCardProps = {
   readonly onRetry?: () => void;
 };
 
-/** Grouped cost-governance pack card for `/help/accelerator-chooser`. */
+/** Grouped cost-policy pack card for `/help/accelerator-chooser`. */
 export function HelpAcceleratorCostGovernancePackCard(
   props: HelpAcceleratorCostGovernancePackCardProps,
 ): React.JSX.Element {

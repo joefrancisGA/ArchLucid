@@ -14,14 +14,14 @@
 
 Insight-density **measurement** (ID-01–10) remains advisory for distribution reports. This ADR changes **production gate behavior** for classification and demotion — not miss detection (filters cannot raise miss; new engines/parsers still required).
 
-R5 stands: false-hard is worse than noisy coverage — category-protected categories and findings with concrete evidence citation **or** architecture-specific anchor stay Decision-grade.
+R5 stands: false-hard is worse than noisy coverage — findings with **resolvable concrete evidence** (`doc:`, ARM paths, `policy-rule:`, etc.) stay Decision-grade; architecture-specific anchors affect score penalties but do not alone prevent demotion when evidence is absent.
 
 **Related:** ADR 0050 (feasibility / R4–R5), `docs/quality/INSIGHT_DENSITY_MISS_CLAUSE.md` (superseded for gate), IS-05 implementation.
 
 ## Decision
 
 1. The computed insight-density score **controls** `FindingClassification` and the demotion predicate for **typed-engine** findings the same way it does for agent findings.
-2. **Demotion predicate (unchanged shape):** `score < DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence`, then `category-protected` may undo demotion via `InsightDensityAgentCategoryRules.IsDemotionEligibleCategory`.
+2. **Demotion predicate (DX-01, shipped 2026-09-07):** demote when `(score < DemotionThreshold || genericAdviceWithoutEvidence || falsifiableWithoutEvidence) && !hasConcreteEvidence`. Supersedes the pre–DX-01 triple-AND shape (`score < DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence` plus category veto). **`InsightDensityAgentCategoryRules.IsDemotionEligibleCategory`** always returns **true** and is **unused** by the gate — category name does not block demotion; resolvable package evidence does. **Default `DemotionThreshold` (DX-59, 2026-09-08):** **65** — between coverage-shaped golden medians (60) and path/contradiction medians (75–85) on case-01..case-63.
 3. **Typed engines that fail the predicate:** `Treatment = DemoteToChecklist`, `Classification = ChecklistCoverage`. Rows **remain on the package snapshot** — not deleted.
 4. **Penalty telemetry:** `typed-engine-protected` no longer means Promote. Use `typed-engine-scored` to distinguish engine origin in reports when needed.
 5. **LLM judge** demotion does not substitute for this deterministic gate on typed engines.
@@ -37,7 +37,7 @@ R5 stands: false-hard is worse than noisy coverage — category-protected catego
 
 ## Constraints
 
-- R5 false-hard rule: when concrete evidence or architecture anchor exists, do not demote.
+- R5 false-hard rule: when **resolvable concrete evidence** exists (`GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation`), do not demote.
 - Tenant isolation unchanged (ADR 0037).
 - Sealed-manifest immutability unchanged — demotion applies at gate time before seal; sealed records are not rewritten.
 - Do not implement G-REAL-06 or fake frontier transcripts.

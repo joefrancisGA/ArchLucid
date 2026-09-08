@@ -276,9 +276,15 @@ export function readDevQuickSwitchPanelHiddenFromDocument(): boolean {
   }
 
   try {
-    return window.localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY) === "1";
+    const stored = window.localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY);
+
+    if (stored === null) {
+      return true;
+    }
+
+    return stored !== "0";
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -288,11 +294,7 @@ export function persistDevQuickSwitchPanelHidden(hidden: boolean): void {
   }
 
   try {
-    if (hidden) {
-      window.localStorage.setItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY, "1");
-    } else {
-      window.localStorage.removeItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY);
-    }
+    window.localStorage.setItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY, hidden ? "1" : "0");
   } catch {
     // Ignore quota / private-mode failures — panel stays visible for this session.
   }

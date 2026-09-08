@@ -4,12 +4,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
+  return extendNextNavigationVitestMock(importOriginal, {
     usePathname: () => usePathnameMock(),
-  };
+  });
 });
 
 import { ApiKeysSettingsPageClient } from "./ApiKeysSettingsPageClient";

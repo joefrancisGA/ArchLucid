@@ -1,3 +1,5 @@
+import { asNonemptyReadonlyArray } from "@/lib/continue-last-list-guard";
+
 export const SETTINGS_PRINCIPAL_LAST_VIEWED_STORAGE_KEY =
   "archlucid_settings_principal_continue_last_v1";
 
@@ -62,23 +64,25 @@ function toTarget(row: SettingsPrincipalContinueLastInput): SettingsRolesContinu
 
 /** Resolves the directory principal to pin as Continue last viewed. */
 export function resolveContinueLastSettingsPrincipal(
-  rows: readonly SettingsPrincipalContinueLastInput[],
+  rows: unknown,
 ): SettingsRolesContinueLastTarget | null {
-  if (rows.length === 0) {
+  const normalized = asNonemptyReadonlyArray<SettingsPrincipalContinueLastInput>(rows);
+
+  if (normalized === null) {
     return null;
   }
 
   const storedKey = readStoredPrincipalKey();
 
   if (storedKey !== null) {
-    const storedMatch = rows.find((row) => principalStorageKey(row.kind, row.id) === storedKey);
+    const storedMatch = normalized.find((row) => principalStorageKey(row.kind, row.id) === storedKey);
 
     if (storedMatch !== undefined) {
       return toTarget(storedMatch);
     }
   }
 
-  const first = rows[0];
+  const first = normalized[0];
 
   return first === undefined ? null : toTarget(first);
 }

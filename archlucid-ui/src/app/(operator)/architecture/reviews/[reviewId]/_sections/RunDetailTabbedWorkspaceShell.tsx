@@ -4,6 +4,11 @@ import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDet
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import {
+  readHeldCheckLedgerFromFindingsSnapshot,
+  readHeldCheckSecondPassFromFindingsSnapshot,
+} from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
 } from "./RunDetailTabbedWorkspaceDeferredImports";
@@ -30,6 +35,8 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     reviewStatusSummary,
     architectureEditHref,
     findingCoverageSummary,
+    withheldFindings,
+    catalogAdvisoryEngineFailureCount,
   } = presentation;
 
   const activePanelLeadEl = (
@@ -79,6 +86,11 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       intakeSystemName={model.progressForPipelineUi.displayName ?? null}
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+      judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      withheldFindingCount={withheldFindings.length}
+      catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
     />
   );
 
@@ -91,6 +103,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         tabSectionNav={
           <RunDetailTabbedSectionNavDeferred
             runId={model.resolvedDetail.run.runId}
+            parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
             sections={model.runDetailNavSections}
           />
         }

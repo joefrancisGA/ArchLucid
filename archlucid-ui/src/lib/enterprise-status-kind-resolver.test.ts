@@ -24,7 +24,7 @@ describe("resolveEnterpriseStatusKind (TB-2285)", () => {
     });
   });
 
-  describe("governance approval", () => {
+  describe("approval", () => {
     it.each([
       ["Draft", "draft"],
       ["Submitted", "in-progress"],

@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -12,9 +12,15 @@ import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
+  APPROVAL_LINEAGE_SKIP_LINK_LABEL,
+} from "@/lib/approval-lineage-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
+import { GovernanceApprovalLineageBuyerChrome } from "./GovernanceApprovalLineageBuyerChrome";
 import { GovernanceApprovalLineageNextRequestFooterClient } from "./GovernanceApprovalLineageNextRequestFooterClient";
 import { GovernanceApprovalQueueNextReviewFooterClient } from "@/app/(operator)/governance/_sections/GovernanceApprovalQueueNextReviewFooterClient";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
@@ -105,31 +111,51 @@ export function GovernanceApprovalLineagePageView({
 
   return (
     <>
-      {scopedRunId.length > 0 ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="approval-lineage-run-scope-banner"
+      {buyerPolishedShell ? (
+        <a
+          href={`#${APPROVAL_LINEAGE_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
-          {"Approval lineage for review "}
-          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
-            Clear review scope
-          </Link>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
-            Open review
-          </Link>
-        </p>
+          {APPROVAL_LINEAGE_SKIP_LINK_LABEL}
+        </a>
       ) : null}
-      <GovernanceApprovalLineageDetailContent data={data} findingsQueueRunId={findingsQueueRunId} />
-      <GovernanceApprovalLineageNextRequestFooterClient
-        runId={data.run?.runId ?? data.approvalRequest.runId}
-        currentApprovalRequestId={model.approvalRequestId}
-      />
-      <GovernanceApprovalQueueNextReviewFooterClient
-        runId={data.run?.runId ?? data.approvalRequest.runId}
-      />
+
+      <main
+        id={buyerPolishedShell ? APPROVAL_LINEAGE_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell ? "scroll-mt-24 space-y-4" : "space-y-4")}
+        data-testid={buyerPolishedShell ? "approval-lineage-primary-content" : undefined}
+      >
+        {scopedRunId.length > 0 ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="approval-lineage-run-scope-banner"
+          >
+            {"Approval lineage for review "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+              Open review
+            </Link>
+          </p>
+        ) : null}
+        <GovernanceApprovalLineageDetailContent
+          data={data}
+          findingsQueueRunId={findingsQueueRunId}
+          buyerPolishedShell={buyerPolishedShell}
+        />
+        <GovernanceApprovalLineageNextRequestFooterClient
+          runId={data.run?.runId ?? data.approvalRequest.runId}
+          currentApprovalRequestId={model.approvalRequestId}
+        />
+        <GovernanceApprovalQueueNextReviewFooterClient
+          runId={data.run?.runId ?? data.approvalRequest.runId}
+        />
+        {buyerPolishedShell ? <GovernanceApprovalLineageBuyerChrome /> : null}
+      </main>
     </>
   );
 }

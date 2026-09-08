@@ -9,6 +9,8 @@ import path from "node:path";
 
 import { request } from "@playwright/test";
 
+import { escapeMarkdownTableCell } from "./helpers/escape-markdown-table-cell";
+
 import {
   aggregateFindingsByCategory,
   formatFindingsByCategory,
@@ -82,10 +84,6 @@ function truncateError(message: string, maxLength = 240): string {
   }
 
   return `${message.slice(0, maxLength)}...`;
-}
-
-function escapeMarkdownTableCell(value: string): string {
-  return value.replace(/[\r\n|]/g, (character) => (character === "|" ? "\\|" : " "));
 }
 
 function resolveReportDirectory(): string {

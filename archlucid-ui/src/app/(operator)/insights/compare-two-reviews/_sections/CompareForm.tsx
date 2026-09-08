@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 
+import { ComparePageHeaderActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageHeaderActions";
+import { CompareSourcesOrientationStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSourcesOrientationStrip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
@@ -27,15 +28,31 @@ import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/insights/com
 import { CompareRunPickersSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRunPickersSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
+import { COMPARE_CLAIM_DISCIPLINE } from "@/lib/compare-evidence-copy";
+import {
+  COMPARE_PAGE_SUBTITLE_BUYER,
+  COMPARE_START_HERE_HELPER,
+  COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
+  COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID,
+  COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID,
+  COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL,
+  COMPARE_TWO_REVIEWS_SKIP_TARGET_ID,
+} from "@/lib/compare-two-reviews-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
 
+export type CompareFormProps = {
+  readonly basePathname?: string;
+};
+
 /**
  * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
-export function CompareForm() {
+export function CompareForm(props: CompareFormProps = {}) {
   const evalChrome = useProductionEvalChrome();
   const {
     comparePagePath,
@@ -93,24 +110,19 @@ export function CompareForm() {
     loadBuyerSampleComparison,
     showRelatedReviewLinks,
     showContinueLastComparisonRow,
-  } = useCompareForm();
+  } = useCompareForm({ basePathname: props.basePathname });
 
-  return (
-    <OperatorPageContainer
-      variant="workflow"
-      className={OPERATOR_LAYOUT.sectionStack}
-      data-testid="compare-page-ready"
-    >
+  const pageBody = (
+    <>
       <OperatorPageHeader
         navHref={comparePagePath}
         title={buyerPolished ? buyerComparePageTitle : "Compare two reviews"}
         titleTestId="compare-page-heading"
-        subtitle={comparePageSubtitle}
-        actions={
-          <div className="flex flex-wrap items-center gap-2" data-testid="compare-page-header-actions">
-            <PageContextualHelpButton />
-          </div>
-        }
+        subtitle={buyerPolished ? COMPARE_PAGE_SUBTITLE_BUYER : comparePageSubtitle}
+        subtitleClassName="max-w-3xl"
+        claimDiscipline={buyerPolished ? COMPARE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId={buyerPolished ? COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
+        actions={<ComparePageHeaderActions buyerPolished={buyerPolished} />}
       />
       {!buyerPolished ? (
         <OperatorRelatedSurfacesDisclosure testId="compare-related-surfaces-disclosure">
@@ -142,24 +154,37 @@ export function CompareForm() {
           }}
         />
       ) : null}
-      <div className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)} data-testid="compare-workspace">
-        {buyerPolished ? (
-          <div className="flex flex-col gap-4">
-            <CompareComparisonDimensionsPreview />
-            <div className="flex flex-wrap items-center gap-2">
-              {showRelatedReviewLinks ? (
-                <CompareRelatedReviewLinks
-                  baselineRunId={leftTrim}
-                  updatedRunId={rightTrim}
-                  preferredRunId={lastComparedPair?.right ?? rightTrim}
-                />
-              ) : null}
-              {showEmptyComparisonOutput ? (
-                <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
-              ) : null}
-            </div>
+      {buyerPolished ? (
+        <div
+          id={COMPARE_TWO_REVIEWS_SKIP_TARGET_ID}
+          data-testid={COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <CompareComparisonDimensionsPreview />
+          <div className="flex flex-wrap items-center gap-2">
+            {showRelatedReviewLinks ? (
+              <CompareRelatedReviewLinks
+                baselineRunId={leftTrim}
+                updatedRunId={rightTrim}
+                preferredRunId={lastComparedPair?.right ?? rightTrim}
+              />
+            ) : null}
+            {showEmptyComparisonOutput ? (
+              <CompareSampleComparisonAction onLoadSampleComparison={loadBuyerSampleComparison} />
+            ) : null}
           </div>
-        ) : null}
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-two-reviews-start-here-helper"
+          >
+            {COMPARE_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+      <div className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)} data-testid="compare-workspace">
 
         <IntegrationConnectChecklist
           title="Compare checklist"
@@ -278,6 +303,38 @@ export function CompareForm() {
       {leftTrim.length > 0 || rightTrim.length > 0 ? (
         <CompareNextReviewFooterClient priorRunId={leftTrim} laterRunId={rightTrim} />
       ) : null}
+
+      {buyerPolished ? (
+        <div data-testid={COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID}>
+          <CompareSourcesOrientationStrip />
+        </div>
+      ) : null}
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.sectionStack}
+      data-testid="compare-page-ready"
+    >
+      {buyerPolished ? (
+        <a href={`#${COMPARE_TWO_REVIEWS_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+          {COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      {buyerPolished ? (
+        <div
+          id={COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID}
+          data-testid={COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
+        >
+          {pageBody}
+        </div>
+      ) : (
+        pageBody
+      )}
     </OperatorPageContainer>
   );
 }

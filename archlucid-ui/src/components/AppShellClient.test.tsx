@@ -2,8 +2,8 @@ import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
-import { OPERATOR_SHELL_BODY_ROW_CLASS, OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS } from "@/lib/design-tokens";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { OPERATOR_SHELL_BODY_ROW_CLASS, OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS } from "@/lib/design-tokens";
+import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
@@ -83,45 +83,17 @@ vi.mock("@/components/shell/AppShellKeyboardShortcutBoundary", () => ({
   AppShellKeyboardShortcutBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/components/shell/app-shell-deferred-chunks", async () => {
-  const { OperatorShellTopBar } = await import("@/components/shell/OperatorShellTopBar");
-  const { AppShellWorkspaceFooter } = await import("@/components/shell/AppShellWorkspaceFooter");
-  const { AppShellIdleOverlays } = await import("@/components/shell/AppShellIdleOverlays");
-  const { DevTestingShellShortcuts } = await import("@/components/dev-testing/DevTestingShellShortcuts");
-  const { AppShellTelemetryBundle } = await import("@/components/shell/AppShellTelemetryBundle");
-  const { SessionIdleTimeoutGuard } = await import("@/components/SessionIdleTimeoutGuard");
-  const { AuthPanel } = await import("@/components/AuthPanel");
-  const { SyncActiveRunFromPathname } = await import("@/components/SyncActiveRunFromPathname");
-  const { AppShellMainContentGate } = await import("@/components/shell/AppShellMainContentGate");
-  const { AppShellKeyboardShortcutBoundary } = await import("@/components/shell/AppShellKeyboardShortcutBoundary");
-  const { OperatorShellAccessRedirectsHost } = await import("@/components/shell/OperatorShellAccessRedirectsHost");
-  const { AppToaster } = await import("@/components/AppToaster");
-  const { RouteAnnouncer } = await import("@/components/RouteAnnouncer");
-  const { ColorModeToggle } = await import("@/components/ColorModeToggle");
-  const { AuthorityThemeToggle } = await import("@/components/AuthorityThemeToggle");
-  const { ShellThemePreferencesAppearanceVocabularyRail } = await import(
-    "@/components/ShellThemePreferencesAppearanceVocabularyRail"
-  );
+vi.mock("@/components/shell/operator-shell-top-bar-deferred-chunks", async (importOriginal) =>
+  (await import("@/testing/operator-shell-top-bar-deferred-chunks-vitest-mock")).buildOperatorShellTopBarDeferredChunksVitestMock(
+    importOriginal as () => Promise<typeof import("@/components/shell/operator-shell-top-bar-deferred-chunks")>,
+  ),
+);
 
-  return {
-    OperatorShellTopBarDeferred: OperatorShellTopBar,
-    AppShellWorkspaceFooterDeferred: AppShellWorkspaceFooter,
-    AppShellIdleOverlaysDeferred: AppShellIdleOverlays,
-    DevTestingShellShortcutsDeferred: DevTestingShellShortcuts,
-    AppShellTelemetryBundleDeferred: AppShellTelemetryBundle,
-    SessionIdleTimeoutGuardDeferred: SessionIdleTimeoutGuard,
-    AuthPanelDeferred: AuthPanel,
-    SyncActiveRunFromPathnameDeferred: SyncActiveRunFromPathname,
-    AppShellMainContentGateDeferred: AppShellMainContentGate,
-    AppShellKeyboardShortcutBoundaryDeferred: AppShellKeyboardShortcutBoundary,
-    OperatorShellAccessRedirectsHostDeferred: OperatorShellAccessRedirectsHost,
-    AppToasterDeferred: AppToaster,
-    RouteAnnouncerDeferred: RouteAnnouncer,
-    ColorModeToggleDeferred: ColorModeToggle,
-    AuthorityThemeToggleDeferred: AuthorityThemeToggle,
-    ShellThemePreferencesAppearanceVocabularyRailDeferred: ShellThemePreferencesAppearanceVocabularyRail,
-  };
-});
+vi.mock("@/components/shell/app-shell-deferred-chunks", () =>
+  import("@/testing/app-shell-deferred-chunks-vitest-mock").then((module) =>
+    module.buildAppShellDeferredChunksVitestMock(),
+  ),
+);
 
 describe("AppShellClient — LLM budget chrome", () => {
   useOperatorQueryTestLifecycle();
@@ -285,7 +257,7 @@ describe("AppShellClient — shell chrome labels", () => {
     expect(screen.queryByTestId("sponsor-operator-shell-switcher")).not.toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
-      PERSONA_SHELL_WORDMARK_ARIA_LABEL,
+      PRODUCT_LINE_WORDMARK_ARIA_LABEL.architecture,
     );
     expect(topbar.textContent?.toLowerCase() ?? "").not.toContain("operator");
   });
@@ -301,7 +273,15 @@ describe("AppShellClient — shell chrome labels", () => {
     const sidebarRow = sidebarNav.parentElement;
 
     expect(sidebarRow).not.toBeNull();
-    expect(sidebarRow?.className).toContain(OPERATOR_SHELL_BODY_ROW_CLASS);
+
+    for (const layoutClass of OPERATOR_SHELL_BODY_ROW_CLASS.split(/\s+/)) {
+      expect(sidebarRow?.className).toContain(layoutClass);
+    }
+
+    for (const maxWidthClass of OPERATOR_SHELL_MAX_WIDTH_CLASS.split(/\s+/)) {
+      expect(sidebarRow?.className).toContain(maxWidthClass);
+    }
+
     expect(sidebarRow?.className).not.toMatch(/mx-auto/);
     expect(sidebarNav).toHaveClass(OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS);
   });

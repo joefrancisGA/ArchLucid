@@ -14,4 +14,25 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Premium insight-density LLM judge findings skipped by per-snapshot cap (DX-15).</summary>
+    public int JudgeSkippedByCap
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Ranked missing-input rollup persisted after engine invocation (DX-52).</summary>
+    public IReadOnlyList<HeldCheckLedgerRollupEntry>? HeldCheckLedgerEntries
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Inventory-upload second-pass delta when findings were regenerated (DX-60).</summary>
+    public HeldCheckSecondPassSummary? HeldCheckSecondPass
+    {
+        get;
+        set;
+    }
 }

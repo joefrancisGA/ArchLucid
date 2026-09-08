@@ -3,7 +3,7 @@
  *
  * Why two “schedule” surfaces exist:
  * - Advisory schedules (`/governance/advisory-scans?tab=schedules`) automate
- *   recurring advisory scans for governance findings on architecture packages.
+ *   recurring advisory scans for policy findings on architecture packages.
  * - Recurrence schedules (`/governance/recurrence-schedules`) automate
  *   re-review of architecture packages on a repeating cadence.
  *

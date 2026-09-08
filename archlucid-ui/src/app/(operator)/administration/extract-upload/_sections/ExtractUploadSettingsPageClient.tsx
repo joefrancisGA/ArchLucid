@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
-import { useExtractUploadBaselineQuery, EXTRACTOR_SCRIPT_CDN_URL } from "@/hooks/use-extract-upload-baseline-query";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useExtractUploadBaselineQuery, extractorScriptCdnUrl } from "@/hooks/use-extract-upload-baseline-query";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import {
@@ -48,8 +49,10 @@ import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evid
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
+  EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
 import {
   resolveExtractUploadPackageEmphasizedStepId,
@@ -62,17 +65,27 @@ import {
   extractUploadValidateDisclosureHrefFromSearch,
   parseExtractUploadValidateDisclosureOpenFromSearch,
 } from "@/lib/administration/extract-upload-validate-disclosure-url";
+import {
+  extractUploadAdvancedCommandDisclosureHrefFromSearch,
+  parseExtractUploadAdvancedCommandOpenFromSearch,
+} from "@/lib/administration/extract-upload-advanced-command-disclosure-url";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
   const router = useRouter();
+  const { productLine } = useProductLine();
+  const extractorScriptDownloadUrl = extractorScriptCdnUrl(productLine);
   const pathname = usePathname() ?? "/administration/extract-upload";
   const searchParams = useSearchParams();
   const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
+  const extractUploadAdvancedCommandOpenParam = searchParams.get("extractUploadAdvancedCommandOpen");
   const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
     parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
+  );
+  const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
+    parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineQuery = useExtractUploadBaselineQuery();
@@ -138,13 +151,37 @@ export function ExtractUploadSettingsPageClient() {
     );
   }, [extractUploadValidateDisclosureOpenParam]);
 
+  const syncAdvancedCommandOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        extractUploadAdvancedCommandDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedCommandOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedCommandOpenState(open);
+      syncAdvancedCommandOpenToUrl(open);
+    },
+    [syncAdvancedCommandOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedCommandOpenState(
+      parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
+    );
+  }, [extractUploadAdvancedCommandOpenParam]);
+
   return (
     <div
       className={cn(OPERATOR_PAGE_CONTAINER.base, OPERATOR_PAGE_CONTAINER.variant.workflow, OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="extract-upload-settings-page"
     >
       <a
-        href={`#${EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}`}
+        href={`#${EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL}
@@ -153,7 +190,7 @@ export function ExtractUploadSettingsPageClient() {
       <div
         id={EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}
         data-testid="extract-upload-settings-primary-content"
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.majorSectionGap)}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
         <ExtractUploadSettingsPageHeader
           baselineLoading={baselineLoading}
@@ -161,20 +198,28 @@ export function ExtractUploadSettingsPageClient() {
           extractorScriptVersion={extractorScriptVersion}
         />
 
-        <ExtractUploadSettingsBuyerChrome />
-
-        {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
-
         {buyerPolishedShell ? null : (
           <ExtractUploadCloudConnectionsVocabularyRail currentSurfaceId="extract-upload" />
         )}
 
-        <IntegrationConnectChecklist
-          title="Upload checklist"
-          steps={extractUploadSteps}
-          emphasizedStepId={extractUploadEmphasizedStepId}
-          testIdPrefix="extract-upload-package"
-        />
+        <div
+          id={EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID}
+          data-testid={EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.majorSectionGap,
+          )}
+        >
+          <ExtractUploadSettingsBuyerChrome />
+
+          {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip /> : null}
+
+          <IntegrationConnectChecklist
+            title="Upload checklist"
+            steps={extractUploadSteps}
+            emphasizedStepId={extractUploadEmphasizedStepId}
+            testIdPrefix="extract-upload-package"
+          />
 
       {extractorUpdateBanner ? (
         <div
@@ -202,6 +247,10 @@ export function ExtractUploadSettingsPageClient() {
               <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
               <details
                 className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
+                open={advancedCommandOpen}
+                onToggle={(event) => {
+                  setAdvancedCommandOpen((event.currentTarget as HTMLDetailsElement).open);
+                }}
               >
                 <summary
                   className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
@@ -210,17 +259,18 @@ export function ExtractUploadSettingsPageClient() {
                 </summary>
                 <pre
                   className={cn(
-                    "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md bg-neutral-950 p-3 text-neutral-100",
+                    "mt-3 overflow-auto whitespace-pre-wrap break-words rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900",
                     OPERATOR_TYPOGRAPHY.micro,
                   )}
+                  data-testid="extract-upload-advanced-command"
                 >
                   <code className="whitespace-pre-wrap break-words">
-                    {buildAdvancedGetArchLucidAzurePackageCommandLine()}
+                    {buildAdvancedGetArchLucidAzurePackageCommandLine({ productLineId: productLine })}
                   </code>
                 </pre>
               </details>
               <a
-                href={EXTRACTOR_SCRIPT_CDN_URL}
+                href={extractorScriptDownloadUrl}
                 className={cn("inline-block", OPERATOR_LINK.nav)}
                 target="_blank"
                 rel="noreferrer"
@@ -330,6 +380,7 @@ export function ExtractUploadSettingsPageClient() {
             </p>
             <div className="mt-3 space-y-3">
               <AzureExtractorDemoScenarioPicker
+                layout="stack"
                 selectedScenarioId={demo.selectedDemoScenarioId}
                 onSelectScenario={demo.setSelectedDemoScenarioId}
                 testIdPrefix="extract-upload-demo"
@@ -360,6 +411,7 @@ export function ExtractUploadSettingsPageClient() {
           </p>
         </aside>
       </div>
+        </div>
       </div>
     </div>
   );

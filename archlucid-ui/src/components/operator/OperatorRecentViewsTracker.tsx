@@ -66,11 +66,12 @@ export function OperatorRecentViewsTracker(): null {
       writeCachedLastOpenArchitectureId(architectureId);
     }
 
-    if (reviewId === null && draftId === null) {
+    if (reviewId === null && draftId === null && architectureId === null) {
       return;
     }
 
     void persistDeskContinuityPatch({
+      lastOpenArchitectureId: architectureId,
       lastOpenReviewId: reviewId,
       lastOpenDraftId: draftId,
       lastVisitWatermarkUtc: new Date().toISOString(),

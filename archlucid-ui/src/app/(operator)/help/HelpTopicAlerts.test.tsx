@@ -59,7 +59,7 @@ describe("HelpAlertsGuideView", () => {
     expect(screen.getByTestId("help-alerts-guide-hero-mock")).toBeInTheDocument();
     expect(screen.getByTestId("help-alerts-overview")).toHaveTextContent(ALERTS_HELP_OVERVIEW);
 
-    const contentColumn = screen.getByTestId("help-alerts-guide").querySelector(".min-w-0.space-y-8");
+    const contentColumn = screen.getByTestId("help-alerts-guide").querySelector(".min-w-0.space-y-4");
     expect(contentColumn).not.toBeNull();
     expectClaimDisciplineBand(within(contentColumn as HTMLElement), "help-alerts", "help-alerts-claim-discipline");
     expect(within(contentColumn as HTMLElement).getByTestId("help-alerts-sources")).toBeInTheDocument();

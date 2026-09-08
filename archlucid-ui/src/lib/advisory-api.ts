@@ -5,7 +5,7 @@ import type {
   RecommendationRecord,
 } from "@/types/advisory";
 
-/** Lists persisted recommendation records for a run (governance workflow state). */
+/** Lists persisted recommendation records for a run (approval workflow state). */
 export async function listRecommendations(runId: string): Promise<AdvisoryRunRecommendationsList> {
   return apiGet<AdvisoryRunRecommendationsList>(
     `/v1/advisory/runs/${encodeURIComponent(runId)}/recommendations`,

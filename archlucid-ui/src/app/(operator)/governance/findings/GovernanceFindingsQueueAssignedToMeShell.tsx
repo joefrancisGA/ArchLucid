@@ -29,6 +29,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly mode: GovernanceFindingsQueueMode;
   readonly buyerPolishedShell: boolean;
   readonly navHref: string;
+  readonly clearReviewScopeHref: string;
   readonly pageTitle: string;
   readonly scopedRunId: string | null;
   readonly scopedRunFilterActive: boolean;
@@ -64,6 +65,13 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly onClearAllFilters: () => void;
   readonly onShowAllFilteredFindings: () => void;
   readonly hiddenFilterHonesty: FindingsHiddenFilterHonesty;
+  readonly architectureScopeHonesty: {
+    readonly hiddenCount: number;
+    readonly line: string | null;
+  };
+  readonly isWorkingMode: boolean;
+  readonly scopedArchitectureId: string | null;
+  readonly lastOpenArchitectureId: string | null;
   readonly onLoadFindingsSavedView: (view: import("@/lib/api/operator-saved-views").OperatorSavedView) => void;
   readonly loading: boolean;
   readonly rows: readonly GovernanceFindingQueueRow[];

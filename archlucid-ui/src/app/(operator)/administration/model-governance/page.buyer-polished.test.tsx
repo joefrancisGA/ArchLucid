@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/link", () => ({
@@ -35,7 +35,10 @@ import {
   AI_MODELS_SETTINGS_PAGE_SUBTITLE,
   MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE,
+  MODEL_GOVERNANCE_SETTINGS_SOURCES,
 } from "@/lib/model-governance-settings-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 import ModelGovernanceSettingsPage from "./page";
 import {
@@ -46,7 +49,7 @@ import {
 } from "./_sections/model-governance-settings-page-copy";
 
 describe("ModelGovernanceSettingsPage buyer-polished shell (AMO)", () => {
-  it("renders skip link, workspace before follow-ups, buyer subtitle, and hides contextual help", () => {
+  it("renders skip link, orientation-top above workspace in first viewport, buyer subtitle, and hides contextual help", () => {
     render(<ModelGovernanceSettingsPage />);
 
     expect(screen.getByRole("link", { name: MODEL_GOVERNANCE_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -60,16 +63,24 @@ describe("ModelGovernanceSettingsPage buyer-polished shell (AMO)", () => {
       MODEL_GOVERNANCE_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("model-governance-ai-usage-vocabulary-rail")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("model-governance-settings-orientation-bottom")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("model-governance-settings-primary-content");
     const firstViewport = screen.getByTestId(MODEL_GOVERNANCE_SETTINGS_FIRST_VIEWPORT_ID);
+    const orientationTop = screen.getByTestId("model-governance-settings-orientation-top");
     const settingsCard = screen.getByTestId("model-governance-settings-card-stub");
-    const orientationBottom = screen.getByTestId("model-governance-settings-orientation-bottom");
+    const sourcesSection = screen.getByTestId("model-governance-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(settingsCard);
-    expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(settingsCard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(MODEL_GOVERNANCE_SETTINGS_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });
