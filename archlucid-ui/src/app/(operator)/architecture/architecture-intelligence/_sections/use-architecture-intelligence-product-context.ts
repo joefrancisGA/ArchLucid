@@ -230,6 +230,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setInterviewAnswers({});
     setActiveRunId(inboundRunId);
     setError(null);
+    setPublishToProduct(false);
   }, [inboundRunId, productContextReloadNonce]);
 
   useEffect(() => {

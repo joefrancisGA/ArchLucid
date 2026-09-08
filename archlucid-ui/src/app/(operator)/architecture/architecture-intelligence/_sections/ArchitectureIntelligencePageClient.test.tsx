@@ -544,6 +544,74 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByText("Stale finding from previous review")).not.toBeInTheDocument();
   });
 
+  it("clears publish-to-product toggle when deep-linked review switches to another review", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: `Architecture for review ${currentRunId.slice(0, 1).toUpperCase()}.`,
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-toggle"));
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeChecked();
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).not.toBeChecked();
+  });
+
   it("clears reasoning results when operator scope switches workspaces", async () => {
     const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
 

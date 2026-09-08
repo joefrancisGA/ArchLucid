@@ -1292,11 +1292,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — clearing deep-linked runId left stale activeRunId, hydrated intake, and analyze affordances in freeform mode
+- **last-bug:** 2026-09-08 — deep-linked review switch left publish-to-product toggle checked for prior review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1311,7 +1311,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Successful product-context retry leaves stale inline error alert — `productContextReloadNonce` bump clears `error` before refetch; regression in `clears stale error alert after successful product context retry`
 - [x] (proven) Deep-linked `runId` switch leaves stale `prioritiesRaw` when next review has no `declaredPriorities` — **hit 2026-09-07 seed hunt #1292 (seed→hit):** hydration effect only updated priorities when the new payload was non-empty; fixed by always assigning `hydratedPrioritiesFromQuery`; regression in `clears declared priorities when deep-linked review switches to one without priorities`
 - [x] (proven) Clearing deep-linked `runId` from the URL leaves stale `activeRunId`, hydrated intake, and analyze affordances — **hit 2026-09-08 seed hunt #1333:** `useArchitectureIntelligenceProductContext` reset intake only on operator scope change, not when both `runId` and `contextRunId` search params are absent; fixed by resetting freeform intake when no URL run scope remains; regression in `clears hydrated intake and review scope when deep-linked runId is removed from the URL`
-- [ ] (candidate) Deep-linked review switch may leave publish-to-product toggle checked for the prior review — needs repro when `runId` changes without clearing URL scope (`use-architecture-intelligence-product-context.ts` inbound-run effect clears reasoning but not `publishToProduct`).
+- [x] (proven) Deep-linked review switch leaves publish-to-product toggle checked for the prior review — **hit 2026-09-08:** inbound-run effect cleared reasoning but not `publishToProduct`; fixed by resetting toggle on `inboundRunId` change; regression in `clears publish-to-product toggle when deep-linked review switches to another review`
+
+2026-09-08 thorough hunt (hit): proved publish-toggle carryover on deep-linked review switch; 11 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-08 seed hunt #1333 (hit): reseeded URL-scope hydration; proved stale intake after clearing deep-linked runId; seeded publish-toggle carryover candidate.
 
