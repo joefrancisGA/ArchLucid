@@ -8032,18 +8032,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ## Zone: api-governance-tenancy-controllers
 
 - **id:** api-governance-tenancy-controllers
-- **status:** exhausted
+- **status:** open
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 266
-- **bugs-found:** 504
+- **hunts:** 267
+- **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-05 — golden manifest contract version case-insensitive lookup
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pre-finalize checklist disposition lookback and evidence-linkage disposition parity
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -9365,8 +9365,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `GovernanceStickinessController.RecordBulkDisposition` — `FindingDispositionConflictException` mapped to HTTP 404 when bulk CAS lost (#1947 DR wave) — **cheap-disproof 2026-09-07 hunt #1257:** catch order places `FindingDispositionConflictException` before `InvalidOperationException`; regression `RecordBulkDisposition_returns_conflict_when_disposition_cas_lost` (child zone api-governance-stickiness hunt #1231).
 - [x] (valid-no-repro) `PolicyPacksController.SetAssignmentEnabled` / `Assign` / `SetAssignmentOrganizationRequired` — org-required authz and disable 409 parity gaps landed in child zone `api-policy-packs` hunts #1205–#1225 after mega-zone last hunt — **cheap-disproof 2026-09-07 hunt #1257:** cross-zone regression coverage in `PolicyPacksControllerSetAssignmentEnabledScopeTests` and assignment authz tests; no unreproduced controller gap in merged `bugsmash` tree.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — false `purgeAfterUtc` for soft-deletes missing `DeletedUtc` — **cheap-disproof 2026-09-07 hunt #1257:** fixed in child zone `api-tenancy-workspaces` hunt #1172; `TrySoftDeleteAsync` always sets `DeletedUtc` on new deletes per `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`.
-- [ ] (candidate) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` may miss older remediated dispositions while risk register CTE has no time cutoff — checklist may block finalize on stale snapshot counts when register shows closed (migrated from api-governance-stickiness hunt #1231)
-- [ ] (candidate) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignores stickiness dispositions unlike severity counts — remediated critical findings with no graph anchors still emit advisory noise (migrated from api-governance-stickiness hunt #1231)
+- [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` missed older remediated dispositions while risk register CTE has no time cutoff — **hit 2026-09-08 hunt #1291:** checklist blocked finalize on stale critical counts when register showed closed; fixed by loading disposition trail without OccurredAtUtc cutoff (parity with `ArchitectureRiskRegisterReader`); regression `BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback`
+- [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignored stickiness dispositions unlike severity counts — **hit 2026-09-08 hunt #1291:** remediated critical findings without graph anchors still emitted advisory linkage gaps; fixed by evaluating linkage only on disposition-active high-severity findings; regression `BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated`
+
+2026-09-08 thorough hunt #1291 (hit): proved both migrated pre-finalize checklist candidates; 14 scoped PreFinalizeChecklistService tests passed.
 
 2026-09-07 seed hunt #1257 (seed-only): reopened mega-zone after 397-commit churn; cheap-disproof closed post-churn fixes already landed in ABQ-08 child zones (bulk disposition 409, org-required assign authz, recycle-bin purge schedule, manifest compare lifecycle parity); scoped filter 136 passed / 17 failed (SQL integration — missing `ARCHLUCID_SQL_TEST` in cloud VM); seeded two pre-finalize checklist candidates migrated from api-governance-stickiness.
 
@@ -9449,8 +9451,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — global `ArchitectureRequestRepository.GetByIdAsync` without tenant predicate — **cheap-disproof 2026-09-07 (#1221):** scoped runs only carry request ids from their own execute path; orphan/missing request already blocks via `architecture-request-missing` (#1207); no reachable path loads a foreign-tenant request for an in-scope run without operator data corruption outside zone guards
 - [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — `FindingDispositionConflictException` caught as `InvalidOperationException` and mapped to HTTP 404 instead of 409 with `currentDisposition` — **hit 2026-09-07 hunt #1231 (seed→hit):** bulk CAS loss now returns conflict parity with single-finding path; regression in `RecordBulkDisposition_returns_conflict_when_disposition_cas_lost`
 - [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` / `CrossReviewLatestDispositionMap` — tenant-only trail query ignored workspace/project so sibling-project `Remediated` cleared in-scope critical counts — **hit 2026-09-07 hunt #1231 (seed→hit):** filter events to request scope before map build; regression in `BuildAsync_does_not_clear_critical_findings_from_foreign_project_disposition`
-- [ ] (candidate) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` can miss older remediated dispositions while risk register CTE has no time cutoff — checklist may block finalize on stale snapshot counts when register shows closed
-- [ ] (candidate) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignores stickiness dispositions (severity path is disposition-aware) — remediated critical findings with no graph anchors still emit advisory noise
+- [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` can miss older remediated dispositions while risk register CTE has no time cutoff — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback`
+- [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignored stickiness dispositions (severity path is disposition-aware) — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated`
 
 2026-09-07 seed hunt #1231 (hit): reseeded stickiness/posture/checklist zone; proved bulk disposition CAS HTTP 404 mapping and foreign-project disposition bleed into pre-finalize severity counts; seeded 730-day lookback and evidence-linkage disposition parity candidates.
 2026-09-07 thorough hunt #1221 (hit): proved bulk stickiness disposition partial persist; cheap-disproved global architecture-request lookup cross-tenant reachability.
