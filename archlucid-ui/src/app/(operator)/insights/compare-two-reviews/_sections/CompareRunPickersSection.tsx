@@ -26,6 +26,8 @@ export type CompareRunPickersSectionProps = {
   onSummarizeForSponsor: () => void;
   onLeftRunPicked: (summary: RunSummary | null) => void;
   onRightRunPicked: (summary: RunSummary | null) => void;
+  leftSummaryBlockedReason?: string | null;
+  rightSummaryBlockedReason?: string | null;
   /** Buyer shell: show review titles in inputs while retaining technical ids for requests. */
   useBuyerFacingRunLabels?: boolean;
   /** Buyer shell: replaces “Summarize for sponsor” with procurement-oriented language. */
@@ -56,6 +58,8 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     onSummarizeForSponsor,
     onLeftRunPicked,
     onRightRunPicked,
+    leftSummaryBlockedReason = null,
+    rightSummaryBlockedReason = null,
     useBuyerFacingRunLabels = false,
     summarizeButtonLabel = "Summarize for sponsor",
     compareButtonLabel = "Compare two reviews",
@@ -93,6 +97,15 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             <span className="font-medium text-al-text-primary">Showing:</span> {leftFootnote}
           </p>
         ) : null}
+        {leftSummaryBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-left-summary-blocked-reason"
+          >
+            {leftSummaryBlockedReason}
+          </p>
+        ) : null}
         <RunIdPicker
           preferAutoPick={false}
           label={rightPickerLabel}
@@ -108,6 +121,15 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         {rightFootnote !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-al-text-primary">Showing:</span> {rightFootnote}
+          </p>
+        ) : null}
+        {rightSummaryBlockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-right-summary-blocked-reason"
+          >
+            {rightSummaryBlockedReason}
           </p>
         ) : null}
         <details

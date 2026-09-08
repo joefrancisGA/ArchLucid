@@ -1,4 +1,3 @@
-import { fetchArchLucidJson } from "@/lib/api";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
@@ -8,7 +7,7 @@ import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
 /** Fetches the full provenance graph for a run (all decisions, findings, rules, artifacts). */
 export async function getProvenanceGraph(runId: string): Promise<GraphViewModel> {
-  return fetchArchLucidJson<GraphViewModel>(`/api/provenance/runs/${runId}/graph`);
+  return apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
 }
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
@@ -178,8 +177,8 @@ export async function getDecisionSubgraph(
   decisionId: string,
 ): Promise<GraphViewModel> {
   const key = encodeURIComponent(decisionId);
-  return fetchArchLucidJson<GraphViewModel>(
-    `/api/provenance/runs/${runId}/graph/decision/${key}`,
+  return apiGetSealedManifestAware<GraphViewModel>(
+    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
   );
 }
 
@@ -189,7 +188,7 @@ export async function getNodeNeighborhood(
   nodeId: string,
   depth = 1,
 ): Promise<GraphViewModel> {
-  return fetchArchLucidJson<GraphViewModel>(
-    `/api/provenance/runs/${runId}/graph/node/${nodeId}?depth=${depth}`,
+  return apiGetSealedManifestAware<GraphViewModel>(
+    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
   );
 }

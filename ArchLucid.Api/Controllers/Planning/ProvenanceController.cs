@@ -1,9 +1,13 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
 using Asp.Versioning;
@@ -30,11 +34,15 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/provenance")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ProvenanceController(
+public sealed partial class ProvenanceController(
     IProvenanceQueryService service,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
+    private readonly IManifestHashService manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     /// <summary>Returns the full provenance graph for a run.</summary>
     /// <param name="runId">Architecture run id.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -42,9 +50,16 @@ public sealed class ProvenanceController(
     [HttpGet("runs/{runId:guid}/graph")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         GraphViewModel? vm = await service.GetFullGraphAsync(scope, runId, ct);
         return vm is null
             ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
@@ -59,12 +74,19 @@ public sealed class ProvenanceController(
     [HttpGet("runs/{runId:guid}/graph/decision/{decisionKey}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDecisionGraph(
         Guid runId,
         string decisionKey,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         GraphViewModel? vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null
             ? this.NotFoundProblem($"Decision graph node '{decisionKey}' for run '{runId}' was not found.",
@@ -84,6 +106,7 @@ public sealed class ProvenanceController(
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetNodeNeighborhood(
         Guid runId,
         Guid nodeId,
@@ -92,6 +115,12 @@ public sealed class ProvenanceController(
     {
         depth = Math.Clamp(depth, 1, ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute);
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null
             ? this.NotFoundProblem($"Provenance node '{nodeId}' for run '{runId}' was not found.",

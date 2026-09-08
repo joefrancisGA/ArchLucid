@@ -214,24 +214,27 @@ describe("EmailRunToSponsorBanner", () => {
     });
   });
 
-  it("exposes canonical export links without duplicating download handlers", () => {
+  it("exposes programmatic secondary export actions without legacy proxy href anchors", () => {
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
-    const md = screen.getByRole("link", {
+    const md = screen.getByRole("button", {
       name: /sponsor value summary \(markdown\)|first-value report \(markdown\)/i,
     });
 
-    expect(md).toHaveAttribute("href", "/api/proxy/v1/pilots/runs/run-42/first-value-report");
+    expect(md).toHaveAttribute("type", "button");
+    expect(md).not.toHaveAttribute("href");
 
-    const docx = screen.getByRole("link", {
+    const docx = screen.getByRole("button", {
       name: /architecture decision package \(docx\)|architecture package \(docx\)/i,
     });
 
-    expect(docx.getAttribute("href")).toContain("/api/proxy/v1/docx/runs/run-42/architecture-package");
+    expect(docx).toHaveAttribute("type", "button");
+    expect(docx).not.toHaveAttribute("href");
 
-    const bundle = screen.getByRole("link", { name: /review bundle \(zip\)/i });
+    const bundle = screen.getByRole("button", { name: /review bundle \(zip\)/i });
 
-    expect(bundle.getAttribute("href")).toContain("/api/proxy/v1/artifacts/signed-review-records/manifest-fixture/bundle");
+    expect(bundle).toHaveAttribute("type", "button");
+    expect(bundle).not.toHaveAttribute("href");
   });
 
   it("renders the API problem callout when the download throws a generic error", async () => {

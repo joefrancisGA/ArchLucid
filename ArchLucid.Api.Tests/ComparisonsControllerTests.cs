@@ -5,7 +5,10 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
@@ -151,7 +154,10 @@ public sealed class ComparisonsControllerTests
                 comparisonReplayApiService ?? replay.Object,
                 historyValidator,
                 replayValidator,
-                batchValidator)
+                batchValidator,
+                new Mock<IAuthorityQueryService>().Object,
+                new Mock<IScopeContextProvider>().Object,
+                new Mock<IManifestHashService>().Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
