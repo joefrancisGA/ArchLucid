@@ -1,7 +1,6 @@
 "use client";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
-import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
@@ -73,8 +72,6 @@ export function ArchitectureDraftWorkspaceIntakeStack(
       {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
-
-      {isDetailDraft && buyerPolishedShell ? <ArchitectureDraftDetailBuyerChrome /> : null}
 
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
