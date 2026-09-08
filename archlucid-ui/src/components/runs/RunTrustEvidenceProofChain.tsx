@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { evidenceAbsenceFindingLabel, isEvidenceAbsenceFindingTitle } from "@/lib/evidence-absence-finding-copy";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   splitTrustEvidenceDetail,
   trustEvidenceFieldTitleForDisplay,
@@ -49,8 +50,9 @@ function ProofChainStep(props: {
   readonly label: string;
   readonly field: TrustEvidenceFieldSnapshot;
   readonly productLink?: { readonly href: string; readonly label: string } | null;
+  readonly productLinkBlockedReason?: string | null;
 }): ReactElement {
-  const { index, label, field, productLink = null } = props;
+  const { index, label, field, productLink = null, productLinkBlockedReason = null } = props;
   const unavailable = (field.status ?? "").trim().toLowerCase() !== "available";
   const tag = trustEvidenceStatusTag(field.status ?? "Unavailable");
 
@@ -73,6 +75,14 @@ function ProofChainStep(props: {
           <Link className={OPERATOR_LINK.nav} href={productLink.href}>
             {productLink.label}
           </Link>
+        </p>
+      ) : productLinkBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 mt-2 font-medium text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`proof-chain-step-${index}-link-blocked-reason`}
+        >
+          {productLinkBlockedReason}
         </p>
       ) : unavailable && (field.status ?? "").trim().toLowerCase() !== RECORDED_STATUS.toLowerCase() ? (
         <p className={cn("m-0 mt-2 font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
@@ -114,9 +124,10 @@ function proofChainFindingField(card: RunTrustEvidenceCard): TrustEvidenceFieldS
 export function RunTrustEvidenceProofChain(props: {
   readonly card: RunTrustEvidenceCard;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly buyerPolishedShell: boolean;
 }): ReactElement {
-  const { card, runId, buyerPolishedShell } = props;
+  const { card, runId, manifestVersion, buyerPolishedShell } = props;
   const links = card.links ?? [];
   const goldenManifest = trustEvidenceFieldOrUnavailable(card.goldenManifest, "Golden manifest");
   const artifactBundlePointer = trustEvidenceFieldOrUnavailable(card.artifactBundlePointer, "Artifact bundle");
@@ -127,12 +138,20 @@ export function RunTrustEvidenceProofChain(props: {
   const topFindingLink = linkByRel(links, "topFindingEvidenceChain");
   const traceabilityLink = linkByRel(links, "traceabilityZip");
   const tracesLink = linkByRel(links, "traces");
+  const topFindingId = card.topFinding?.findingId ?? null;
+  const traceabilityLinkBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion,
+  });
+  const traceabilityProductLink =
+    traceabilityLink !== null && traceabilityLinkBlockedReason === null
+      ? resolveTrustEvidenceProductLink(traceabilityLink, runId, topFindingId)
+      : null;
   const manifestDetail = splitTrustEvidenceDetail(
     trustEvidenceGoldenManifestFieldDetail(goldenManifest.detail),
   );
   const bundleDetail = splitTrustEvidenceDetail(artifactBundlePointer.detail);
   const auditField = (auditTrail.status ?? "").trim().toLowerCase() === "available" ? auditTrail : agentTraces;
-  const topFindingId = card.topFinding?.findingId ?? null;
 
   return (
     <div
@@ -180,9 +199,8 @@ export function RunTrustEvidenceProofChain(props: {
             title: trustEvidenceFieldTitleForDisplay(artifactBundlePointer.title),
             detail: bundleDetail.display,
           }}
-          productLink={
-            traceabilityLink !== null ? resolveTrustEvidenceProductLink(traceabilityLink, runId, topFindingId) : null
-          }
+          productLink={traceabilityProductLink}
+          productLinkBlockedReason={traceabilityLinkBlockedReason}
         />
         <ProofChainStep
           index={5}

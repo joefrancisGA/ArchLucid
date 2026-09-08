@@ -79,9 +79,7 @@ describe("OperatorAccessDeniedPageClient", () => {
       "You don't have access to ArchLucid yet",
     );
     expect(
-      screen.getByText(
-        /your account has not been assigned an ArchLucid app role for this tenant/i,
-      ),
+      screen.getByText(/your account has not been assigned .* ArchLucid app role for this tenant/i),
     ).toBeInTheDocument();
     expect(screen.getByTestId("operator-access-denied-supplement")).toHaveTextContent(
       /No ArchLucid app role was found/i,

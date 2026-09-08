@@ -142,6 +142,9 @@ export function localizeProductCopy(productLineId: ProductLineId, text: string):
 
       return part
         .replaceAll("ArchLucid", productName)
+        .replaceAll("archlucid-azure-package.zip", "securenow-azure-package.zip")
+        .replaceAll("Run-ArchLucidAzureExtractor.ps1", "Run-SecureNowAzureExtractor.ps1")
+        .replaceAll("Get-ArchLucidAzurePackage.ps1", "Get-SecureNowAzurePackage.ps1")
         .replaceAll("Microsoft Teams", "Teams");
     })
     .join("");

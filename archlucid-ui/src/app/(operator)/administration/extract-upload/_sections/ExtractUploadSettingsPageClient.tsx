@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
-import { useExtractUploadBaselineQuery, EXTRACTOR_SCRIPT_CDN_URL } from "@/hooks/use-extract-upload-baseline-query";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useExtractUploadBaselineQuery, extractorScriptCdnUrl } from "@/hooks/use-extract-upload-baseline-query";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import {
@@ -72,6 +73,8 @@ import {
  */
 export function ExtractUploadSettingsPageClient() {
   const router = useRouter();
+  const { productLine } = useProductLine();
+  const extractorScriptDownloadUrl = extractorScriptCdnUrl(productLine);
   const pathname = usePathname() ?? "/administration/extract-upload";
   const searchParams = useSearchParams();
   const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
@@ -252,12 +255,12 @@ export function ExtractUploadSettingsPageClient() {
                   data-testid="extract-upload-advanced-command"
                 >
                   <code className="whitespace-pre-wrap break-words">
-                    {buildAdvancedGetArchLucidAzurePackageCommandLine()}
+                    {buildAdvancedGetArchLucidAzurePackageCommandLine({ productLineId: productLine })}
                   </code>
                 </pre>
               </details>
               <a
-                href={EXTRACTOR_SCRIPT_CDN_URL}
+                href={extractorScriptDownloadUrl}
                 className={cn("inline-block", OPERATOR_LINK.nav)}
                 target="_blank"
                 rel="noreferrer"

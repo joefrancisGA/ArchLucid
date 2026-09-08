@@ -78,6 +78,7 @@ export function RunDetailManifestSummarySection(
       <RunDetailFeasibilityVerdictSection
         verdict={feasibilityVerdict}
         runId={manifestSummary.runId}
+        manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummary)}
       />
     ) : null;
 

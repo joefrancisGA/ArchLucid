@@ -1,13 +1,13 @@
 # Isolated private-beta Playwright lane for merge-heavy trunk windows.
-# Push once to cursor/al-beta-private-beta-smoke-lane-7730 (or workflow_dispatch) to get a
-# full smoke without master ref concurrency cancelling the run mid-Playwright.
+# Push once to cursor/al-beta-private-beta-frozen-7730 (frozen pin — do not merge master
+# into that branch until smoke finishes) or workflow_dispatch.
 # Job steps mirror private-beta-access-on-push.yml — keep in sync when that workflow changes.
 name: Private-beta access smoke branch
 
 on:
   push:
     branches:
-      - cursor/al-beta-private-beta-smoke-lane-7730
+      - cursor/al-beta-private-beta-frozen-7730
   workflow_dispatch:
 
 concurrency:

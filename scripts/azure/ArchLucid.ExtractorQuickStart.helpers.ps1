@@ -99,3 +99,19 @@ function Resolve-ArchLucidAzureExtractorOutputPath
 
     return $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($trimmedOutputPath)
 }
+
+function Resolve-SecureNowAzureExtractorOutputPath
+{
+    param(
+        [string] $OutputPath
+    )
+
+    [string]$trimmedOutputPath = "$OutputPath".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($trimmedOutputPath))
+    {
+        return Join-Path (Get-Location).Path "securenow-azure-package.zip"
+    }
+
+    return $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($trimmedOutputPath)
+}
