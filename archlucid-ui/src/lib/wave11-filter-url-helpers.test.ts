@@ -5244,6 +5244,100 @@ describe("wave66 filter url helpers", () => {
   });
 });
 
+describe("wave67 filter url helpers", () => {
+  it("finding inspect evaluation, run tool invocation forensics trace, operator inventory row overflow, provenance timeline technical kind, technology baseline evidence ref, governance resolution candidates, review pipeline dev telemetry, architecture create work item, recurrence schedule cron expression, page shortcuts params", async () => {
+    const {
+      findingInspectEvaluationDisclosureHrefFromSearch,
+      parseFindingInspectEvaluationOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-evaluation-disclosure-url");
+    const {
+      parseRunToolInvocationForensicsTraceIdFromSearch,
+      runToolInvocationForensicsTraceDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-tool-invocation-forensics-trace-disclosure-url");
+    const {
+      operatorInventoryRowOverflowDisclosureHrefFromSearch,
+      parseOperatorInventoryRowOverflowIdFromSearch,
+    } = await import("@/lib/operator/operator-inventory-row-overflow-disclosure-url");
+    const {
+      parseProvenanceTimelineTechnicalKindReferenceIdFromSearch,
+      provenanceTimelineTechnicalKindDisclosureHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-timeline-technical-kind-disclosure-url");
+    const {
+      parseTechnologyBaselineEvidenceRefEntryIdFromSearch,
+      technologyBaselineEvidenceRefDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/technology-baseline-evidence-ref-disclosure-url");
+    const {
+      governanceResolutionCandidatesDisclosureHrefFromSearch,
+      parseGovernanceResolutionCandidatesItemKeyFromSearch,
+    } = await import("@/lib/governance/governance-resolution-candidates-disclosure-url");
+    const {
+      parseReviewPipelineDevTelemetryOpenFromSearch,
+      reviewPipelineDevTelemetryDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/review-pipeline-dev-telemetry-disclosure-url");
+    const {
+      architectureCreateWorkItemDisclosureHrefFromSearch,
+      parseArchitectureCreateWorkItemOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-create-work-item-disclosure-url");
+    const {
+      parseRecurrenceScheduleCronExpressionScheduleIdFromSearch,
+      recurrenceScheduleCronExpressionDisclosureHrefFromSearch,
+    } = await import("@/lib/governance/recurrence-schedule-cron-expression-disclosure-url");
+    const {
+      pageShortcutsDisclosureHrefFromSearch,
+      parsePageShortcutsOpenFromSearch,
+    } = await import("@/lib/usability/page-shortcuts-disclosure-url");
+
+    expect(parseFindingInspectEvaluationOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectEvaluationDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectEvaluationOpen=1");
+    expect(parseRunToolInvocationForensicsTraceIdFromSearch("trace-abc")).toBe("trace-abc");
+    expect(
+      runToolInvocationForensicsTraceDisclosureHrefFromSearch("", "trace-abc", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?runToolInvocationForensicsTraceId=trace-abc");
+    expect(parseOperatorInventoryRowOverflowIdFromSearch("sub-1")).toBe("sub-1");
+    expect(
+      operatorInventoryRowOverflowDisclosureHrefFromSearch("tab=active", "sub-1", "/governance/digest-subscriptions"),
+    ).toBe("/governance/digest-subscriptions?tab=active&operatorInventoryRowOverflowId=sub-1");
+    expect(parseProvenanceTimelineTechnicalKindReferenceIdFromSearch("2024-01-01T00:00:00Z-ReviewCreated-ref-1")).toBe(
+      "2024-01-01T00:00:00Z-ReviewCreated-ref-1",
+    );
+    expect(
+      provenanceTimelineTechnicalKindDisclosureHrefFromSearch(
+        "",
+        "2024-01-01T00:00:00Z-ReviewCreated-ref-1",
+        "/architecture/reviews/run-1/provenance",
+      ),
+    ).toBe(
+      "/architecture/reviews/run-1/provenance?provenanceTimelineTechnicalKindReferenceId=2024-01-01T00%3A00%3A00Z-ReviewCreated-ref-1",
+    );
+    expect(parseTechnologyBaselineEvidenceRefEntryIdFromSearch("entry-1")).toBe("entry-1");
+    expect(
+      technologyBaselineEvidenceRefDisclosureHrefFromSearch("tab=baseline", "entry-1", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=baseline&technologyBaselineEvidenceRefEntryId=entry-1");
+    expect(parseGovernanceResolutionCandidatesItemKeyFromSearch("Rule:my-rule")).toBe("Rule:my-rule");
+    expect(
+      governanceResolutionCandidatesDisclosureHrefFromSearch("", "Rule:my-rule", "/governance/standards-and-rules"),
+    ).toBe("/governance/standards-and-rules?governanceResolutionCandidatesItemKey=Rule%3Amy-rule");
+    expect(parseReviewPipelineDevTelemetryOpenFromSearch("true")).toBe(true);
+    expect(reviewPipelineDevTelemetryDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?reviewPipelineDevTelemetryOpen=1",
+    );
+    expect(parseArchitectureCreateWorkItemOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreateWorkItemDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1/created"),
+    ).toBe("/architecture/reviews/run-1/created?tab=overview&architectureCreateWorkItemOpen=1");
+    expect(parseRecurrenceScheduleCronExpressionScheduleIdFromSearch("sched-1")).toBe("sched-1");
+    expect(
+      recurrenceScheduleCronExpressionDisclosureHrefFromSearch("", "sched-1", "/governance/recurrence-schedules"),
+    ).toBe("/governance/recurrence-schedules?recurrenceScheduleCronExpressionScheduleId=sched-1");
+    expect(parsePageShortcutsOpenFromSearch("true")).toBe(true);
+    expect(pageShortcutsDisclosureHrefFromSearch("runId=demo", true, "/insights/evidence-graph")).toBe(
+      "/insights/evidence-graph?runId=demo&pageShortcutsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

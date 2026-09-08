@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleFormFields } from "@/components/governance/RecurrenceScheduleFormFields";
@@ -20,6 +22,11 @@ import {
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
+import {
+  RECURRENCE_SCHEDULE_CRON_EXPRESSION_SCHEDULE_ID_PARAM,
+  parseRecurrenceScheduleCronExpressionScheduleIdFromSearch,
+  recurrenceScheduleCronExpressionDisclosureHrefFromSearch,
+} from "@/lib/governance/recurrence-schedule-cron-expression-disclosure-url";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildRecurrenceLocalTimeSummary,
@@ -82,6 +89,36 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
     onEnableRecurring,
     onSaveChanges,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const recurrenceScheduleCronExpressionScheduleIdParam = searchParams.get(
+    RECURRENCE_SCHEDULE_CRON_EXPRESSION_SCHEDULE_ID_PARAM,
+  );
+  const [openCronExpressionScheduleId, setOpenCronExpressionScheduleIdState] = useState(() =>
+    parseRecurrenceScheduleCronExpressionScheduleIdFromSearch(recurrenceScheduleCronExpressionScheduleIdParam),
+  );
+  const syncOpenCronExpressionScheduleIdToUrl = useCallback(
+    (scheduleId: string | null) => {
+      router.replace(
+        recurrenceScheduleCronExpressionDisclosureHrefFromSearch(searchParams.toString(), scheduleId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenCronExpressionScheduleId = useCallback(
+    (scheduleId: string | null) => {
+      setOpenCronExpressionScheduleIdState(scheduleId ?? "");
+      syncOpenCronExpressionScheduleIdToUrl(scheduleId);
+    },
+    [syncOpenCronExpressionScheduleIdToUrl],
+  );
+  useEffect(() => {
+    setOpenCronExpressionScheduleIdState(
+      parseRecurrenceScheduleCronExpressionScheduleIdFromSearch(recurrenceScheduleCronExpressionScheduleIdParam),
+    );
+  }, [recurrenceScheduleCronExpressionScheduleIdParam]);
 
   return (
     <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
@@ -130,7 +167,14 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
                     ianaTimeZoneId: displayTimeZoneId,
                   })}
                 />
-                <details className="mt-1">
+                <details
+                  className="mt-1"
+                  open={openCronExpressionScheduleId === schedule.scheduleId}
+                  onToggle={(event) => {
+                    const nextOpen = event.currentTarget.open;
+                    setOpenCronExpressionScheduleId(nextOpen ? schedule.scheduleId : null);
+                  }}
+                >
                   <summary className={cn("cursor-pointer text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Cron expression
                   </summary>
@@ -196,6 +240,7 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
                   </div>
                 ) : (
                   <OperatorInventoryRowMoreActions
+                    overflowRowId={schedule.scheduleId}
                     testId={`recurrence-more-${schedule.scheduleId}`}
                     primaryActions={
                       <>

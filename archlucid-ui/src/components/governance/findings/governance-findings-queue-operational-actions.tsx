@@ -63,6 +63,7 @@ export function GovernanceFindingsQueueOperationalActions(
   if (queueMode === "assigned-to-me") {
     return (
       <OperatorInventoryRowMoreActions
+        overflowRowId={row.findingId}
         testId={
           testIdPrefix !== undefined
             ? `${testIdPrefix}-more-actions`
