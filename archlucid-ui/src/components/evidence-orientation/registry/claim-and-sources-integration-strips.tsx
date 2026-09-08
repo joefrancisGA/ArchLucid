@@ -17,6 +17,11 @@ import {
   CLOUD_CONNECTIONS_SOURCES_INTRO,
 } from "@/lib/cloud-connections-evidence-copy";
 import {
+  CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE,
+  CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO,
+  cloudProviderConnectionSources,
+} from "@/lib/cloud-provider-connection-evidence-copy";
+import {
   EVIDENCE_CLAIM_STYLE,
   EVIDENCE_SOURCES_STYLE,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -271,6 +276,18 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
       sources={CLOUD_CONNECTIONS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
+    />
+  );
+}
+
+export function AwsCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections-aws"
+      sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+      sources={cloudProviderConnectionSources("aws")}
+      sourcesHeadingId="where-to-go-next"
     />
   );
 }
