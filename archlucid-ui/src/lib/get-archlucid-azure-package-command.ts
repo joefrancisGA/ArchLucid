@@ -1,6 +1,8 @@
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type GetArchLucidAzurePackageCommandOptions = {
+  /** Entra tenant GUID; when supplied, quick start signs in to that tenant deterministically. */
+  tenantId?: string | null;
   /** Azure subscription GUID; when empty, quick start uses the signed-in Azure context. */
   subscriptionId?: string | null;
   /**
@@ -51,26 +53,39 @@ export function buildGetArchLucidAzurePackageCommandLine(
   options?: GetArchLucidAzurePackageCommandOptions,
 ): string {
   const quickStart = options?.quickStart !== false;
+  const trimmedTenantId = options?.tenantId?.trim() ?? "";
   const trimmedSubscriptionId = options?.subscriptionId?.trim() ?? "";
   const scripts = resolveAzureExtractorScripts(options?.productLineId);
 
   if (quickStart) {
     const base = `pwsh -NoProfile -ExecutionPolicy Bypass -File ${scripts.quickStartScript}`;
+    const args: string[] = [];
+
+    if (trimmedTenantId.length > 0) {
+      args.push(`-TenantId '${trimmedTenantId}'`);
+    }
 
     if (trimmedSubscriptionId.length > 0) {
-      return `${base} -SubscriptionId '${trimmedSubscriptionId}'`;
+      args.push(`-SubscriptionId '${trimmedSubscriptionId}'`);
+    }
+
+    if (args.length > 0) {
+      return `${base} ${args.join(" ")}`;
     }
 
     return base;
   }
 
+  const tenantToken = trimmedTenantId.length > 0 ? trimmedTenantId : "";
   const subscriptionToken =
     trimmedSubscriptionId.length > 0 ? trimmedSubscriptionId : "<your-subscription-id>";
   const outputToken = options?.outputPath?.trim() || scripts.defaultOutputPath;
+  const tenantArg =
+    tenantToken.length > 0 ? ` -TenantId '${tenantToken}'` : "";
 
   return (
-    `pwsh -NoProfile -ExecutionPolicy Bypass -File ${scripts.fullScript} ` +
-    `-SubscriptionId '${subscriptionToken}' -OutputPath '${outputToken}' -IncludeCost`
+    `pwsh -NoProfile -ExecutionPolicy Bypass -File ${scripts.fullScript}` +
+    `${tenantArg} -SubscriptionId '${subscriptionToken}' -OutputPath '${outputToken}' -IncludeCost`
   );
 }
 
