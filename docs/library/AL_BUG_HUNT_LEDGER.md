@@ -7842,11 +7842,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 11
-- **bugs-found:** 11
+- **hunts:** 12
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — `OperationalErrorRetentionHostedService` ran on every Worker/Combined replica without leader election
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — `ScimTokenRotationReminderJob` ran on every Worker/Combined replica without leader election
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7880,7 +7880,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ApiRequestUsageEventBatchFlushHostedService` registered on Worker without metering middleware — Worker flush is a harmless no-op on an empty buffer; Api role registers flush where middleware enqueues (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`, 2026-09-04).
 - [x] (proven) `OperationalErrorRetentionHostedService` registered on Worker+Combined without leader election — **hit 2026-09-07 hunt #1256 (seed→hit):** every replica ran retention purge every six hours; fixed with `HostLeaderElectionCoordinator` + `hosted:operational-error-retention-purge`; regressions in `OperationalErrorRetentionHostedService_purges_rows_under_leader_coordinator` and `OperationalErrorRetentionHostedService_constructor_requires_leader_election_coordinator`
 - [x] (valid-no-repro) `sponsor-digest-weekly` / `weekly-sponsor-report` / `compliance-drift-escalation` / `trial-email-scan` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` parity tests added hunt #1256, 2026-09-07)
-- [ ] (candidate) `ScimTokenRotationReminderJob` runs on every Worker/Combined replica without leader election — daily scan inserts `dbo.AdminNotifications` rows; Api-role duplication fixed 2026-08-24 but job lives in Application layer and cannot take `HostLeaderElectionCoordinator` without Host.Core refactor
+- [x] (proven) `ScimTokenRotationReminderJob` runs on every Worker/Combined replica without leader election — **hit 2026-09-08 hunt #1302:** Application-layer job inserted duplicate `dbo.AdminNotifications` rows per replica; moved scan to `ScimTokenRotationReminderHostedService` with `HostLeaderElectionCoordinator` + `hosted:scim-token-rotation-reminder`; regressions in `ScimTokenRotationReminderHostedService_constructor_requires_leader_election_coordinator`, `AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderHostedService`, `ScimTokenRotationReminderIteration_queries_due_tokens`
+
+2026-09-08 thorough hunt #1302 (hit): promoted SCIM rotation multi-replica candidate; leader-elected hosted service replaces Application reminder job.
 
 2026-09-07 seed hunt #1256 (hit): reseeded after 65 commits; proved operational-error retention missing leader election; cheap-disproved four container-offload parity gaps; seeded SCIM rotation multi-replica candidate.
 

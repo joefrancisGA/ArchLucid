@@ -1458,4 +1458,5 @@
 {"at":"2026-09-08T00:08:15.8915476Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-08T00:11:45.102667Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
 {"at":"2026-09-08T00:16:02.0632003Z","zoneId":"core-azure-extractor","outcome":"hit"}
-{"at":"2026-09-08T00:25:07.5562010Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
+{"at":"2026-09-08T00:25:07.556201Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
+{"at":"2026-09-08T00:29:51.1103217Z","zoneId":"host-composition","outcome":"hit"}
