@@ -172,6 +172,16 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as co
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_ID_LABEL = "Diff id" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_IDENTIFIERS_TITLE = "Snapshot identifiers" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_IDENTIFIERS_SUMMARY = "Copy snapshot and diff ids" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_IDENTIFIERS_TITLE = "Technical identifiers" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LAYER_GUIDANCE_SUMMARY = "How drift compare works" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureRemediation;
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PRIMARY_CONTENT_ID = "infra-remediation-primary-content" as const;

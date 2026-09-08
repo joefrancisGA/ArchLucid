@@ -101,9 +101,8 @@ describe("DriftWorkbenchClient", () => {
     );
     render(<DriftWorkbenchClient />);
 
-    expect(await screen.findByTestId("infra-drift-resource-scope-banner")).toHaveTextContent(
-      "22222222-2222-2222-2222-222222222222",
-    );
+    expect(await screen.findByTestId("infra-drift-resource-scope-banner")).toHaveTextContent("Scoped to resource.");
+    expect(screen.getByTestId("infra-drift-resource-id-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-open-primary-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/22222222-2222-2222-2222-222222222222?tab=drift&snapshotId=11111111-1111-1111-1111-111111111111",
@@ -152,6 +151,8 @@ describe("DriftWorkbenchClient", () => {
 
     expect(await screen.findByTestId("infra-drift-change-drawer")).toBeInTheDocument();
     expect(screen.getByTestId("infra-drift-change-row-change-1")).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("infra-drift-change-drawer")).toHaveTextContent("gw");
+    expect(screen.getByTestId("infra-drift-change-identifiers")).toBeInTheDocument();
   });
 
   it("links Ask with diff and resource scope when a diff is selected", async () => {
@@ -189,5 +190,41 @@ describe("DriftWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-drift-change-deep-link-missing")).toHaveTextContent(
       "linked drift change is not in the selected diff",
     );
+  });
+
+  it("renders resource names instead of repeating ARM prefixes", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    const row = await screen.findByTestId("infra-drift-change-row-change-1");
+    expect(row).toHaveTextContent("gw");
+    expect(row).toHaveTextContent("publicIPAddresses · rg");
+    expect(row).not.toHaveTextContent("/subscriptions/");
+  });
+
+  it("keeps snapshot ids behind disclosure and uses human snapshot labels", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111&diffId=diff-1");
+    render(<DriftWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-drift-snapshot-picker")).toHaveTextContent("Prod");
+    });
+    expect(screen.getByTestId("infra-drift-snapshot-picker")).not.toHaveTextContent(
+      "11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-drift-snapshot-identifiers")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-scope-freshness")).toHaveTextContent("Prod");
+    expect(screen.getByTestId("infra-drift-scope-freshness")).not.toHaveTextContent(
+      "11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-drift-scope-freshness")).not.toHaveTextContent("diff-1");
+  });
+
+  it("collapses advanced-operations guidance behind a summary", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DriftWorkbenchClient />);
+
+    expect(await screen.findByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.getByText("How drift compare works")).toBeInTheDocument();
   });
 });
