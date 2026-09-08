@@ -4,6 +4,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Runs;
@@ -13,6 +14,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Provenance;
 using ArchLucid.Provenance.Analysis;
 
@@ -34,8 +36,12 @@ public sealed class AuthorityRunReadHandlers(
     IAuditService auditService,
     IActorContext actorContext,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
+    IManifestHashService manifestHashService,
     ILogger<AuthorityRunReadHandlers> logger)
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
         effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
@@ -114,6 +120,11 @@ public sealed class AuthorityRunReadHandlers(
                 "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
         }
+
+        SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+            detail.GoldenManifest,
+            runId.ToString("D"),
+            _manifestHashService);
 
         DecisionProvenanceGraph? graph = await provenanceGraphAccess.ResolveGraphAsync(scope, detail, ct);
 

@@ -184,7 +184,20 @@ public sealed class AuthorityReadsController(
     [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailProvenance(Guid runId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await GetReviewTrailProvenanceCoreAsync(runId, ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+    }
+
+    private async Task<IActionResult> GetReviewTrailProvenanceCoreAsync(Guid runId, CancellationToken ct)
     {
         (DecisionProvenanceGraph? graph, RunDetailDto? detail, string? unprocessableDetail) =
             await readHandlers.TryGetProvenanceGraphAsync(runId, ct);

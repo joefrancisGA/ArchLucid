@@ -3,16 +3,13 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import {
-  getArchitecturePackageDocxUrl,
-  getBundleDownloadUrl,
-  getRunExportDownloadUrl,
-  getRunPackageExportUrl,
-} from "@/lib/api";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LINK,
@@ -151,13 +148,20 @@ export function EmailRunToSponsorExportActions({
               Download Sponsor Export (DOCX)
             </Button>
           ) : (
-            <Button variant="secondary" asChild>
-              <ExportTrackedAnchor
-                href={getRunPackageExportUrl(runId, "docx")}
-                data-testid="email-run-to-sponsor-sponsor-docx"
-              >
-                Download Sponsor Export (DOCX)
-              </ExportTrackedAnchor>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={collateralBusy !== null}
+              data-testid="email-run-to-sponsor-sponsor-docx"
+              onClick={() => {
+                runCollateralDownload(
+                  "sponsor-docx",
+                  () => downloadRunPackageExport(runId, "docx"),
+                  "Sponsor export (DOCX)",
+                );
+              }}
+            >
+              Download Sponsor Export (DOCX)
             </Button>
           )
         ) : null}
@@ -272,12 +276,20 @@ export function EmailRunToSponsorExportActions({
           {collateralExportBlockedReason !== null ? (
             <span className="text-neutral-500 dark:text-neutral-400">Architecture decision package (DOCX) — blocked until sealed manifest verification passes</span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={getArchitecturePackageDocxUrl(runId)}
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "architecture-docx",
+                  () => downloadArchitecturePackageDocx(runId),
+                  "Architecture decision package",
+                );
+              }}
             >
               Architecture decision package (DOCX)
-            </a>
+            </button>
           )}
         </li>
         <li>
@@ -287,19 +299,35 @@ export function EmailRunToSponsorExportActions({
             </span>
           ) : (
             <>
-              <a
+              <button
+                type="button"
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={getBundleDownloadUrl(manifestId)}
+                disabled={collateralBusy !== null}
+                onClick={() => {
+                  runCollateralDownload(
+                    "review-bundle",
+                    () => downloadArtifactBundleZip(manifestId),
+                    "Review bundle",
+                  );
+                }}
               >
                 Review bundle (ZIP)
-              </a>
+              </button>
               {" · "}
-              <a
+              <button
+                type="button"
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={getRunExportDownloadUrl(runId)}
+                disabled={collateralBusy !== null}
+                onClick={() => {
+                  runCollateralDownload(
+                    "run-export",
+                    () => downloadRunExportZip(runId),
+                    "Review export",
+                  );
+                }}
               >
                 {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
-              </a>
+              </button>
               {" · "}
               {buyerPolishedShell ? null : (
                 <>

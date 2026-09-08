@@ -21,10 +21,12 @@ import {
 } from "@/lib/architecture/architecture-seal-delta-copy";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { architectureSealDeltaBlockedReason } from "@/lib/architecture/architecture-seal-delta-blocked-reason";
 import {
   architectureSealDeltaDisclosureHrefFromSearch,
   parseArchitectureSealDeltaOpenFromSearch,
 } from "@/lib/architecture/architecture-seal-delta-disclosure-url";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DiffItem } from "@/types/authority-manifest";
 import { cn } from "@/lib/utils";
@@ -104,9 +106,14 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
   }
 
   if (query.isError || delta === undefined) {
+    const loadFailure = query.error !== null && query.error !== undefined ? toApiLoadFailure(query.error) : null;
+    const blockedReason = architectureSealDeltaBlockedReason(loadFailure);
+
     return (
       <div className="space-y-2" data-testid="architecture-seal-delta-error">
-        <p className={OPERATOR_TYPOGRAPHY.body}>{ARCHITECTURE_SEAL_DELTA_ERROR_LABEL}</p>
+        <p className={OPERATOR_TYPOGRAPHY.body} role={blockedReason !== null ? "alert" : undefined}>
+          {blockedReason ?? ARCHITECTURE_SEAL_DELTA_ERROR_LABEL}
+        </p>
         <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
           {ARCHITECTURE_SEAL_DELTA_RETRY_LABEL}
         </Button>

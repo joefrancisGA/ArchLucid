@@ -9,7 +9,8 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator/operator-static-demo";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { type ApiResponseWithTrace, getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
+import { getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
+import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
 import { provenanceReviewContextFromSummary } from "@/lib/provenance-review-context";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import Link from "next/link";
@@ -27,14 +28,16 @@ export default async function RunProvenancePage({
   }
 
   let loadFailure: ApiLoadFailureState | null = null;
-  let provenanceResponse: ApiResponseWithTrace<ArchitectureRunProvenanceGraph> | null = null;
+  let provenanceGraph: ArchitectureRunProvenanceGraph | null = null;
+  let provenanceTraceId: string | null = null;
   let reviewContext: ProvenanceReviewContext | null = null;
   let dataOrigin: "live" | "sample" = "live";
 
   const reviewSummaryPromise = getRunSummary(runId).catch(() => null);
 
   try {
-    provenanceResponse = await getArchitectureRunProvenance(runId);
+    provenanceGraph = await getArchitectureRunProvenance(runId);
+    provenanceTraceId = null;
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
   }
@@ -45,36 +48,38 @@ export default async function RunProvenancePage({
     reviewContext = provenanceReviewContextFromSummary(reviewSummary);
   }
 
-  if (loadFailure !== null || provenanceResponse === null) {
+  if (loadFailure !== null || provenanceGraph === null) {
     const demoGraph = tryStaticDemoProvenanceGraph(runId);
 
     if (demoGraph !== null) {
-      provenanceResponse = { data: demoGraph, traceId: null };
+      provenanceGraph = demoGraph;
       loadFailure = null;
       dataOrigin = "sample";
     }
   }
 
-  if (provenanceResponse !== null) {
-    const nodes = provenanceResponse.data.nodes ?? [];
+  if (provenanceGraph !== null) {
+    const nodes = provenanceGraph.nodes ?? [];
 
     if (nodes.length === 0) {
       const demoGraph = tryStaticDemoProvenanceGraph(runId);
 
       if (demoGraph !== null && demoGraph.nodes.length > 0) {
-        provenanceResponse = { data: demoGraph, traceId: provenanceResponse.traceId };
+        provenanceGraph = demoGraph;
         loadFailure = null;
         dataOrigin = "sample";
       }
     }
   }
 
-  if (loadFailure || !provenanceResponse) {
+  if (loadFailure || !provenanceGraph) {
     if (loadFailure !== null && isApiNotFoundFailure(loadFailure)) {
       notFound();
     }
 
+    const blockedReason = runProvenanceBlockedReason(loadFailure);
     const fallback =
+      blockedReason ??
       loadFailure?.message ??
       "Provenance could not be loaded (review missing, broken review record reference, or transport error).";
 
@@ -104,8 +109,8 @@ export default async function RunProvenancePage({
   return (
     <ProvenancePageWorkspace
       runId={runId}
-      graph={provenanceResponse.data}
-      provenanceTraceId={provenanceResponse.traceId}
+      graph={provenanceGraph}
+      provenanceTraceId={provenanceTraceId}
       reviewContext={reviewContext}
       dataOrigin={dataOrigin}
     />

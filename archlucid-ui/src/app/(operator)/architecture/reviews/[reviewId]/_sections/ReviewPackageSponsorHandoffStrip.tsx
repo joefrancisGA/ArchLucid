@@ -8,7 +8,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 
 import { CopyExecutiveSponsorLinkButton } from "@/components/reviews/CopyExecutiveSponsorLinkButton";
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
@@ -19,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { getRunPackageExportUrl } from "@/lib/api";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { showError } from "@/lib/toast";
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -69,6 +69,7 @@ export function ReviewPackageSponsorHandoffStrip(
   const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
     parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(reviewPackageSponsorHandoffMoreExportsOpenParam),
   );
+  const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [extractionCaveatAcknowledged, setExtractionCaveatAcknowledged] = useState(false);
   const extractionGateSatisfied = isExtractionFidelityGateSatisfied({
     lowConfidenceCriticalFieldCount: lowExtractionConfidenceCount,
@@ -177,19 +178,31 @@ export function ReviewPackageSponsorHandoffStrip(
         ) : (
           <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
             <Button
+              type="button"
               variant="outline"
               size="sm"
-              disabled={!docxExportAllowed}
-              asChild={docxExportAllowed}
+              disabled={!docxExportAllowed || docxExportBusy}
               data-testid="review-package-sponsor-handoff-docx"
+              onClick={() => {
+                if (!docxExportAllowed) {
+                  return;
+                }
+
+                setDocxExportBusy(true);
+
+                void downloadRunPackageExport(props.runId, "docx")
+                  .catch((error: unknown) => {
+                    showError(
+                      "Architecture review report (DOCX)",
+                      error instanceof Error ? error.message : "Download failed.",
+                    );
+                  })
+                  .finally(() => {
+                    setDocxExportBusy(false);
+                  });
+              }}
             >
-              {docxExportAllowed ? (
-                <ExportTrackedAnchor href={getRunPackageExportUrl(props.runId, "docx")}>
-                  Download architecture review report (DOCX)
-                </ExportTrackedAnchor>
-              ) : (
-                <span>Download architecture review report (DOCX)</span>
-              )}
+              {docxExportBusy ? "Downloading…" : "Download architecture review report (DOCX)"}
             </Button>
             {!docxExportAllowed && collateralExportBlockedReason !== null ? (
               <p

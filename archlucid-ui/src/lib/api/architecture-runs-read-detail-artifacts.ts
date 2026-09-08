@@ -24,8 +24,8 @@ import type { RunToolInvocationForensicsPayload } from "./architecture-runs-read
 /** Linkage graph + trace timeline for a coordinator architecture run. */
 export async function getArchitectureRunProvenance(
   runId: string,
-): Promise<ApiResponseWithTrace<ArchitectureRunProvenanceGraph>> {
-  return apiGetJsonWithTrace<ArchitectureRunProvenanceGraph>(
+): Promise<ArchitectureRunProvenanceGraph> {
+  return apiGetSealedManifestAware<ArchitectureRunProvenanceGraph>(
     `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
   );
 }
@@ -44,7 +44,7 @@ export async function getRunDetail(
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
-  return apiGet<DecisionProvenanceGraph>(`/v1/authority/reviews/${runId}/provenance`);
+  return apiGetSealedManifestAware<DecisionProvenanceGraph>(`/v1/authority/reviews/${runId}/provenance`);
 }
 
 /** Paginated agent execution traces (LLM audit rows) for a coordinator architecture run. */
@@ -101,7 +101,7 @@ export async function getRunExplanationSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunExplanationSummary> {
-  return apiGet<RunExplanationSummary>(
+  return apiGetSealedManifestAware<RunExplanationSummary>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`,
     options,
   );

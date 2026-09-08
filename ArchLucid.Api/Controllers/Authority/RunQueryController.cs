@@ -2,11 +2,16 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -31,6 +36,9 @@ public sealed partial class RunQueryController(
     IRunGraphQueryService runGraphQueryService,
     IRunFindingsQueryService runFindingsQueryService,
     IRunProvenanceQueryService runProvenanceQueryService,
-    ITraceabilityBundleExportApplicationService traceabilityBundleExport) : ControllerBase
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport,
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService) : ControllerBase
 {
 }
