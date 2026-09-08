@@ -1682,11 +1682,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — durable retry path sent queue notification after cancel landed post-backoff re-read
+- **last-bug:** 2026-09-08 — durable success path overwrote Canceled when cancel landed between post-execute state read and MarkSucceededAsync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1706,6 +1706,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InMemoryBackgroundJobQueue` terminal failure re-read missed cancel when `MarkCanceledAsync` raced after first terminal read but before `Failed` assignment — **hit 2026-09-08 hunt #1303:** terminal branch re-read `_info` once then logged before writing `Failed`, leaving a window cancel could land in; fixed with second `_info` re-read before terminal assignment; regression in `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read`.
 - [x] (proven) `InMemoryBackgroundJobQueue` retry scheduling overwrote `Canceled` with `Pending` when cancel landed after first failure read but before retry assignment — **hit 2026-09-08 seed hunt #1352:** catch block re-read cancel once then logged before writing `Pending`; capacity-exhausted and writer-rejected failure branches also used stale snapshots; fixed with re-read before Pending and before each retry-side terminal failure; durable processor gained matching re-read before `MarkPendingRetryAsync` and capacity `MarkFailedTerminalAsync`; regressions `MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending` and `ProcessOneMessageAsync_does_not_mark_pending_retry_when_cancel_visible_before_retry_assignment`.
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` retry path sent Azure queue notification after cancel landed between post-backoff `GetAsync` and `SendMessageAsync` — **hit 2026-09-08 seed hunt #1354:** failure handler re-read cancel after retry delay but called `SendMessageAsync` without a final state read, so a canceled job could be re-notified; fixed with third `GetAsync` before queue send; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_queue_send`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` success path called `MarkSucceededAsync` when cancel landed after the post-execute `GetAsync` — **hit 2026-09-08 seed hunt #1357:** success branch had a single cancel re-read unlike failure/retry paths (#1198/#1352/#1354); fixed with second `GetAsync` before `MarkSucceededAsync`; aligned in-memory success assignment with second `_info` re-read; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment`.
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `CountNonTerminalAsync` then `InsertAsync` is not atomic; concurrent enqueues at capacity-1 can exceed `MaxPendingJobs`.
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — row inserted before queue notify; notify failure leaves orphan `Pending` row without Azure notification until manual/watchdog intervention.
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — jobs running longer than `ProcessorVisibilityMinutes + 1` can be reclaimed while the original worker still executes, enabling duplicate side effects.
+
+2026-09-08 seed hunt #1357 (hit): reseeded host-core-jobs; proved success-path cancel re-read gap (parity with failure/retry fixes); seeded enqueue TOCTOU, notify-failure orphan Pending, and long-running watchdog duplicate-execution candidates; 27 scoped background-job unit tests passed.
 
 2026-09-08 thorough hunt #1303 (hit): proved in-memory terminal cancel race after first re-read; aligned with durable processor second-read parity.
 
