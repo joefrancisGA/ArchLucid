@@ -945,11 +945,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 8
-- **bugs-found:** 7
+- **hunts:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-07 — webhook dry-run HttpClient followed redirects past SSRF guard
+- **last-bug:** 2026-09-08 — webhook dry-run connect-time guard blocks DNS rebind to private networks
 - **related-pd-tb:** none
 - **code-changed-since:** 7
 
@@ -968,10 +968,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` runs probe before audit — when `IAuditService.LogAsync` throws after a successful probe, exception escapes and operator gets 5xx despite subscriber already receiving the POST (retry risk) — **hit 2026-09-07 seed hunt #1269:** audit after probe is best-effort; regression `DryRunAsync_returns_probe_outcome_when_audit_logging_fails`.
 - [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` uses injected `HttpClient` with default redirect following — SSRF guard validates initial URL only; auto-followed redirect can POST to loopback/private targets — **hit 2026-09-07 thorough hunt #1270:** typed probe client sets `AllowAutoRedirect=false`; regression `ProbeWithBodyAsync_does_not_follow_redirect_to_loopback`.
 - [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` swallows body preview read failures with empty preview and `ResponseBodyTruncated=false` — **thorough hunt #1270:** intentional best-effort preview after headers (same class as #1267 no-content/502 body read); empty preview with preserved status is the contract.
-- [ ] (hunt-ready) `OutboundWebhookDryRunController.DryRunAsync` / `OutboundWebhookDryRunService.ProbeWithBodyAsync` — DNS rebind TOCTOU between `TryGetRejectionReasonAfterDnsResolveAsync` preflight and `_http.SendAsync` connect-time resolution; attacker hostname TTL-flip could POST synthetic webhook to private targets after passing guard
+- [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` / `OutboundWebhookDryRunService.ProbeWithBodyAsync` — DNS rebind TOCTOU between SSRF preflight and socket connect let TTL-flip hostnames POST synthetic webhooks to private targets — **hit 2026-09-08 thorough hunt #1361:** typed probe client now uses `OutboundHttpsConnectGuard` connect callback to re-resolve DNS and reject forbidden addresses at connect time; regressions `ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect`, `ProbeWithBodyAsync_succeeds_against_loopback_without_connect_guard`, and `OutboundHttpsConnectGuardTests`
 - [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` audit JSON omits `TargetUrl` query string — **cheap-disproof 2026-09-08 seed hunt #1360:** query strings commonly carry webhook auth tokens; audit records authority + path only by design; regression `DryRunAsync_audit_omits_query_string_from_target_metadata`
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed HttpClient 30s timeout during `SendAsync` returns `TransportSucceeded=false` / `StatusCode=0` even when subscriber may have consumed the POST
-- [ ] (candidate) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — inbound `CancellationToken` abort during pre-header `SendAsync` is indistinguishable from subscriber transport failure in outer catch (duplicate retry risk)
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed HttpClient 30s timeout during `SendAsync` returns `TransportSucceeded=false` / `StatusCode=0` even when subscriber may have consumed the POST — **cheap-disproof 2026-09-08 thorough hunt #1361:** operator probe contract treats timeout as transport failure; no response headers means no subscriber status to preserve
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — inbound `CancellationToken` abort during pre-header `SendAsync` is indistinguishable from subscriber transport failure in outer catch — **cheap-disproof 2026-09-08 thorough hunt #1361:** same catch-all as other transport faults; ambiguous diagnosis is acceptable for operator-initiated cancel vs retry risk on rare client disconnect
+
+2026-09-08 thorough hunt #1361 (hit): proved DNS rebind connect-time SSRF gap; cheap-disproof closed timeout and cancellation diagnosis candidates; 25 scoped webhook dry-run + 4 connect-guard tests passed.
 
 2026-09-08 seed hunt #1360 (seed-only): reseeded after #1270; cheap-disproof closed audit query omission as intentional; seeded DNS rebind TOCTOU hunt-ready row and timeout/cancellation diagnosis candidates; no hunt-ready row reproduces in scoped tests.
 
