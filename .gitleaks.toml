@@ -157,6 +157,12 @@ regexes = [
 ]
 
 [[allowlists]]
+description = "ITSM inbound disposition sync unit test: base64 PointerToken fixture (decodes to pointer-token), not an API key; generic-api-key false positive on PointerToken assignment"
+paths = [
+  '''(?:^|/)ArchLucid\.Application\.Tests/Integrations/Itsm/ItsmInboundDispositionSyncTests\.cs$''',
+]
+
+[[allowlists]]
 description = "Host.Core E2eHarness startup validation tests: configuration key names with synthetic SharedSecret literals only (not deployed credentials)"
 paths = [
   '''(?:^|/)ArchLucid\.Host\.Core\.Tests/Startup/Validation/HostCoreStartupValidationRulesBatch2Tests\.cs$''',
