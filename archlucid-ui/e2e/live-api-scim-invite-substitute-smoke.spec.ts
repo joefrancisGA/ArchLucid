@@ -11,7 +11,7 @@ import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/sc
 test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] }, () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run SCIM invite-substitute smoke.");
 
-  test("SCIM provisioning page loads vocabulary rail linking to Users invite", async ({ page }) => {
+  test("SCIM provisioning page loads vocabulary rail linking to Identity providers", async ({ page }) => {
     test.setTimeout(120_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
@@ -21,7 +21,10 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("link", { name: /Users invite/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("scim-identity-providers-vocabulary-peer-link")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByRole("link", { name: /Identity providers/i })).toBeVisible({ timeout: 30_000 });
   });
 
   test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page }) => {

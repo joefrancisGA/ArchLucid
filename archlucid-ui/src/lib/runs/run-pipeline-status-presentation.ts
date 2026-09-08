@@ -12,6 +12,7 @@ export type RunPipelineLabel = RunPipelineInternalLabel;
 export type RunPipelineStatusPresentationInput = {
   readonly run: RunSummary;
   readonly workingDesk?: boolean;
+  readonly preCommitGateEnabled?: boolean | null;
   readonly hostAgentExecutionMode?: string | null;
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
@@ -39,6 +40,7 @@ export function deriveRunListPipelineLabel(
     if (
       shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: qualityGateHonesty?.workingDesk,
+        preCommitGateEnabled: qualityGateHonesty?.preCommitGateEnabled,
         structuralExecutionMode: run.structuralExecutionMode,
         isSample: run.isSample,
         hostAgentExecutionMode: qualityGateHonesty?.hostAgentExecutionMode,

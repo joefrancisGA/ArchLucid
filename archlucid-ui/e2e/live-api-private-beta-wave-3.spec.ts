@@ -12,6 +12,7 @@ import {
   requireLivePrivateBetaJwtEnv,
   stubEmptyArchitectureDraftListRoute,
   clearJwtBrowserSession,
+  writeJwtBrowserSession,
 } from "./helpers/live-private-beta-access";
 import { isLiveEmailOtpLaneConfigured, liveEmailOtpLaneSkipReason } from "./helpers/live-email-otp-harness";
 import { liveApiBase, liveJsonHeaders, resolveLiveJwtMode } from "./helpers/live-api-client";
@@ -116,7 +117,7 @@ test.describe(
     });
 
     test("invitee walks /auth/bootstrap invitation accept in the browser (TB-927 UI)", async ({
-      page,
+      browser,
       request,
     }) => {
       test.setTimeout(180_000);
@@ -125,21 +126,37 @@ test.describe(
 
       const inviteeEmail = `e2e-bootstrap-ui-${Date.now()}@example.com`;
       const invite = await createAdminUserInvite(request, inviteeEmail, { appRole: "Operator" });
+
+      if (invite.invitationToken.length === 0) {
+        throw new Error("First invite must return invitationToken for bootstrap UI smoke.");
+      }
+
       const preAuth = await provisionE2ePlatformUserPreAuth(request, inviteeEmail);
+      const inviteeContext = await browser.newContext();
+      const page = await inviteeContext.newPage();
 
-      await primeJwtBrowserSession(page, preAuth.preAuthAccessToken);
-      await page.goto(`/auth/invite?token=${encodeURIComponent(invite.invitationToken)}`, {
-        waitUntil: "domcontentloaded",
-      });
+      try {
+        await stubEmptyArchitectureDraftListRoute(page);
+        await primeJwtBrowserSession(page, preAuth.preAuthAccessToken);
+        await page.goto(`/auth/invite?token=${encodeURIComponent(invite.invitationToken)}`, {
+          waitUntil: "domcontentloaded",
+        });
 
-      await page.goto("/auth/bootstrap", { waitUntil: "domcontentloaded" });
-      await expect(page.getByTestId("bootstrap-invitation-step")).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByTestId("invitation-accept-page")).toBeVisible({ timeout: 60_000 });
 
-      await page.getByTestId(`bootstrap-accept-invitation-${invite.id}`).click();
+        // Seed invitee principal in BFF session so bootstrap/status uses platform-user JWT, not CI admin proxy bearer.
+        await writeJwtBrowserSession(page, preAuth.preAuthAccessToken);
+        await page.goto("/auth/bootstrap", { waitUntil: "domcontentloaded" });
+        await expect(page.getByTestId("bootstrap-invitation-step")).toBeVisible({ timeout: 60_000 });
 
-      await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
-        timeout: 120_000,
-      });
+        await page.getByTestId(`bootstrap-accept-invitation-${invite.id}`).click();
+
+        await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/, {
+          timeout: 120_000,
+        });
+      } finally {
+        await inviteeContext.close();
+      }
     });
 
     test("email-OTP invite path requires dedicated CI lane (skipped in jwt-bearer push)", async () => {

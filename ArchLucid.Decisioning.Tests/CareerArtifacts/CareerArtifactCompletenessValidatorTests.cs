@@ -311,4 +311,22 @@ public sealed class CareerArtifactCompletenessValidatorTests
         result.CanRender.Should().BeTrue();
         result.Warnings.Should().Contain(CareerArtifactCompletenessValidator.AssertedTrailEmptyCareerClaimMessage);
     }
+
+    [Fact]
+    public void Evaluate_blocks_working_export_when_pre_commit_gate_disabled()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            PreCommitGateEnabled: false,
+            StructuralExecutionMode: StructuralExecutionMode.Real);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.PreCommitGateCode);
+    }
 }

@@ -235,7 +235,7 @@ export function evaluateCareerArtifactHonesty(
 
   const preCommitBlockedReason = formatPreCommitGateDisabledCareerBlockedReason(input.preCommitGateEnabled);
 
-  if (preCommitBlockedReason !== null && input.workingDesk === true && input.artifactKind === "finalize") {
+  if (preCommitBlockedReason !== null && input.workingDesk === true) {
     blockedReasons.push(preCommitBlockedReason);
   }
 

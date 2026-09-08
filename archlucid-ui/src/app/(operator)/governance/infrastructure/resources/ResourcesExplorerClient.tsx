@@ -47,6 +47,11 @@ import {
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
   parseResourceHubQueryValueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  INFRA_RESOURCE_ROW_ARM_ID_DISCLOSURE_KEY_PARAM,
+  infraResourceRowArmIdDisclosureHrefFromSearch,
+  parseInfraResourceRowArmIdDisclosureKeyFromSearch,
+} from "@/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url";
 import { formatInfraEvidenceRecentScopeLabel } from "@/lib/infra-evidence/infra-evidence-recent-scope-label";
 import { recordInfraEvidenceRecentScope } from "@/lib/infra-evidence/infra-evidence-recent-scope";
 import {
@@ -127,6 +132,32 @@ export function ResourcesExplorerClient() {
   const urlSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM),
   );
+  const infraResourceRowArmIdKeyParam = searchParams.get(INFRA_RESOURCE_ROW_ARM_ID_DISCLOSURE_KEY_PARAM);
+  const [infraResourceRowArmIdKey, setInfraResourceRowArmIdKeyState] = useState(() =>
+    parseInfraResourceRowArmIdDisclosureKeyFromSearch(infraResourceRowArmIdKeyParam),
+  );
+
+  const syncInfraResourceRowArmIdKeyToUrl = useCallback(
+    (cloudResourceId: string | null) => {
+      router.replace(
+        infraResourceRowArmIdDisclosureHrefFromSearch(searchParams.toString(), cloudResourceId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setInfraResourceRowArmIdKey = useCallback(
+    (cloudResourceId: string | null) => {
+      setInfraResourceRowArmIdKeyState(cloudResourceId ?? "");
+      syncInfraResourceRowArmIdKeyToUrl(cloudResourceId);
+    },
+    [syncInfraResourceRowArmIdKeyToUrl],
+  );
+
+  useEffect(() => {
+    setInfraResourceRowArmIdKeyState(parseInfraResourceRowArmIdDisclosureKeyFromSearch(infraResourceRowArmIdKeyParam));
+  }, [infraResourceRowArmIdKeyParam]);
 
   const [namePrefix, setNamePrefix] = useState(urlNamePrefix);
   const [resourceType, setResourceType] = useState(urlResourceType);
@@ -500,6 +531,8 @@ export function ResourcesExplorerClient() {
                     title="Resource id"
                     sectionTestId={`infra-resource-row-arm-id-disclosure-${row.cloudResourceId}`}
                     summaryLine="External ARM resource path"
+                    open={infraResourceRowArmIdKey === row.cloudResourceId}
+                    onToggle={(open) => setInfraResourceRowArmIdKey(open ? row.cloudResourceId : null)}
                   >
                     <p className={cn("m-0 truncate font-mono text-xs text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.externalResourceId}
