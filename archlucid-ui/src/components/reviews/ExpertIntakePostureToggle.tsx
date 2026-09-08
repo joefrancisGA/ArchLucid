@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { useWorkspaceModeOrDefault } from "@/components/WorkspaceModeProvider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -9,24 +10,29 @@ import {
   EXPERT_INTAKE_POSTURE_LABEL,
   EXPERT_INTAKE_POSTURE_LEAD,
   readExpertIntakePostureEnabled,
+  subscribeExpertIntakePostureChanges,
   writeExpertIntakePostureEnabled,
 } from "@/lib/expert-intake-posture";
 import { cn } from "@/lib/utils";
 
 export function ExpertIntakePostureToggle(): React.JSX.Element | null {
+  const workspaceMode = useWorkspaceModeOrDefault();
   const [enabled, setEnabled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setEnabled(readExpertIntakePostureEnabled());
+    setEnabled(readExpertIntakePostureEnabled(workspaceMode));
     setMounted(true);
-  }, []);
+  }, [workspaceMode]);
 
-  const onCheckedChange = useCallback((checked: boolean | "indeterminate") => {
-    const next = checked === true;
-    writeExpertIntakePostureEnabled(next);
-    setEnabled(next);
-  }, []);
+  const onCheckedChange = useCallback(
+    (checked: boolean | "indeterminate") => {
+      const next = checked === true;
+      writeExpertIntakePostureEnabled(next, workspaceMode);
+      setEnabled(next);
+    },
+    [workspaceMode],
+  );
 
   if (!mounted) {
     return null;
@@ -58,26 +64,16 @@ export function ExpertIntakePostureToggle(): React.JSX.Element | null {
 }
 
 export function useExpertIntakePostureEnabled(): boolean {
-  const [enabled, setEnabled] = useState(false);
+  const workspaceMode = useWorkspaceModeOrDefault();
+  const [enabled, setEnabled] = useState(() => readExpertIntakePostureEnabled(workspaceMode));
 
   useEffect(() => {
-    const sync = () => setEnabled(readExpertIntakePostureEnabled());
+    const sync = () => setEnabled(readExpertIntakePostureEnabled(workspaceMode));
+
     sync();
 
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === "archlucid.expert-intake-posture.v1.enabled") {
-        sync();
-      }
-    };
-
-    window.addEventListener("archlucid.expert-intake-posture.changed", sync);
-    window.addEventListener("storage", onStorage);
-
-    return () => {
-      window.removeEventListener("archlucid.expert-intake-posture.changed", sync);
-      window.removeEventListener("storage", onStorage);
-    };
-  }, []);
+    return subscribeExpertIntakePostureChanges(sync);
+  }, [workspaceMode]);
 
   return enabled;
 }
