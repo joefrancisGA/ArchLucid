@@ -21,7 +21,7 @@ import { fetchTenantIdentityProviderConfiguration } from "@/lib/admin-identity-p
 import type { TenantIdentityProviderConfigurationRecord } from "@/lib/admin-identity-provider-api";
 import { resolveAuthDomainsCurrentWorkspaceLabel } from "@/lib/auth-domains-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-identity-providers-overview";
 import { resolveRoleMappingPrimaryCta } from "@/lib/role-mapping-page-cta";
@@ -56,9 +56,11 @@ import { IdentityProvidersRoleMappingBuyerChrome } from "./IdentityProvidersRole
 import { IdentityProvidersRoleMappingLoadingSkeleton } from "./IdentityProvidersRoleMappingLoadingSkeleton";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import {
+  ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   ROLE_MAPPING_SETTINGS_LOAD_ERROR_RETRY_LABEL,
   ROLE_MAPPING_SETTINGS_PRIMARY_CONTENT_ID,
   ROLE_MAPPING_SETTINGS_SKIP_LINK_LABEL,
+  ROLE_MAPPING_SETTINGS_SKIP_TARGET_ID,
 } from "./role-mapping-settings-page-copy";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
@@ -175,20 +177,8 @@ export function IdentityProvidersRoleMappingPageView(
     await loadTenantConfig();
   }, [loadTenantConfig, props.model]);
 
-  return (
-    <IdentityProvidersSettingsShell
-      pageTitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE}
-      pageSubtitle={identityProvidersRoleMappingPageSubtitle(buyerPolishedShell)}
-      overview={props.model.overview}
-      statusBadgeReady={props.model.dataLoaded}
-      refreshing={props.model.refreshing}
-      lastRefreshedAt={props.model.lastRefreshedAt}
-      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
-      headerBreadcrumb={buyerPolishedShell ? <IdentityProvidersRoleMappingBreadcrumb /> : undefined}
-      primaryContentId={buyerPolishedShell ? ROLE_MAPPING_SETTINGS_PRIMARY_CONTENT_ID : undefined}
-      skipLinkLabel={buyerPolishedShell ? ROLE_MAPPING_SETTINGS_SKIP_LINK_LABEL : undefined}
-      onRefresh={() => void handleRefresh()}
-    >
+  const roleMappingWorkspaceBody = (
+    <>
       {buyerPolishedShell ? <IdentityProvidersRoleMappingBuyerChrome /> : (
         <RoleMappingSettingsEvidenceOrientationStrip />
       )}
@@ -379,6 +369,38 @@ export function IdentityProvidersRoleMappingPageView(
           </Card>
         </aside>
       </div>
+    </>
+  );
+
+  return (
+    <IdentityProvidersSettingsShell
+      pageTitle={IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE}
+      pageSubtitle={identityProvidersRoleMappingPageSubtitle(buyerPolishedShell)}
+      overview={props.model.overview}
+      statusBadgeReady={props.model.dataLoaded}
+      refreshing={props.model.refreshing}
+      lastRefreshedAt={props.model.lastRefreshedAt}
+      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
+      headerBreadcrumb={buyerPolishedShell ? <IdentityProvidersRoleMappingBreadcrumb /> : undefined}
+      primaryContentId={buyerPolishedShell ? ROLE_MAPPING_SETTINGS_PRIMARY_CONTENT_ID : undefined}
+      skipTargetId={buyerPolishedShell ? ROLE_MAPPING_SETTINGS_SKIP_TARGET_ID : undefined}
+      skipLinkLabel={buyerPolishedShell ? ROLE_MAPPING_SETTINGS_SKIP_LINK_LABEL : undefined}
+      onRefresh={() => void handleRefresh()}
+    >
+      {buyerPolishedShell ? (
+        <div
+          id={ROLE_MAPPING_SETTINGS_SKIP_TARGET_ID}
+          data-testid={ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {roleMappingWorkspaceBody}
+        </div>
+      ) : (
+        roleMappingWorkspaceBody
+      )}
     </IdentityProvidersSettingsShell>
   );
 }
