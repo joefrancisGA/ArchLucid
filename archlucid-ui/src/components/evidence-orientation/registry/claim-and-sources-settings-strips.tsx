@@ -372,13 +372,18 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
   );
 }
 
-export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
+  readonly sources?: readonly EvidenceSourceLink[];
+} = {}): React.JSX.Element {
+  const sources = props.sources ?? IDENTITY_PROVIDERS_SAML_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-saml-settings"
+      sourcesTestId="identity-providers-saml-settings-sources"
       sourcesTitle={IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
-      sources={IDENTITY_PROVIDERS_SAML_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
     />
   );
