@@ -19,6 +19,7 @@ describe("GovernanceApprovalQueueBuyerChrome", () => {
 
     expect(screen.getByTestId("governance-approval-queue-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("approval-queue-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("renders nothing outside buyer-polished shell", () => {
