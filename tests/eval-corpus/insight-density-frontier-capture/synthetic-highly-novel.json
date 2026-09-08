@@ -48,6 +48,7 @@
     }
   ],
   "frontierBaseline": {
+    "source": "human-authored",
     "findings": [
       {
         "category": "Security",
