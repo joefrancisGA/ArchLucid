@@ -232,11 +232,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 8
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — cached hit at post-delete generation served after row deleted but before delete wrapper finished
+- **hunts:** 9
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — SqlTenantSettingsRepository accepted SettingValue longer than NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -263,6 +263,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) Static `CacheGenerations` entries are never removed when a tenant is deleted — orphaned generation counters and hybrid-cache slots may linger for deleted tenants until process restart; correctness unaffected for new reads at bumped generations — **cheap-disproof 2026-09-07 hunt #1262:** process-lifetime metadata retention by design; delete + re-upsert on the same tenant/key still reads the latest value via generation bumps; regression `TenantSettings_TryGetAsync_reflects_reupsert_after_delete_without_cache_generation_reset`; tenant deletion does not hook `CachingTenantSettingsRepository` and does not affect read correctness for live tenants.
 
 2026-09-07 thorough hunt #1262 (dry): cheap-disproof closed both open candidates; three scoped unit tests passed.
+
+- [x] (proven) `SqlTenantSettingsRepository.UpsertCoreAsync` accepted `SettingValue` payloads longer than migration `173` `NVARCHAR(512)` — **hit 2026-09-08:** realized-value attestation JSON at `NoteMaxLength` 2000 exceeds column limit; added `TenantSettingsWriteGuard.EnsureSettingValueLength` before MERGE; regressions in `EnsureSettingValueLength_rejects_values_longer_than_migration_nvarchar_512_limit` and `Serialized_realized_value_attestation_at_note_max_length_exceeds_migration_setting_value_limit`.
+- [ ] (candidate) `RealizedValueAttestationUpsertValidation.NoteMaxLength` (2000) exceeds what `dbo.TenantSettings.SettingValue` can store (512) — repository now rejects oversize writes; application validation should align note limits with serialized JSON budget.
+- [ ] (candidate) `CachingTenantSettingsRepository` concurrent `DeleteAsync` on same key clears `WriteInFlightKeys` before first delete wrapper completes — same non-refcounted slot pattern as prior upsert rows; regressions suggest latest inner value wins.
+
+2026-09-08 seed hunt #1308: proved SettingValue length guard gap; reseeded attestation validation alignment and concurrent delete write-in-flight candidates.
 
 2026-09-07 seed hunt #1254 (seed-only): reseeded after #1240 fixes; cheap-disproof on concurrent write-in-flight slot clearing and dead `RemoveTenantSettingAsync` key shape; added delete/upsert and dual-upsert parity regressions; no hunt-ready row reproduces.
 
