@@ -14,10 +14,13 @@ internal static class FindingInspectReadModelMapper
 
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus st))
-            return st;
+        if (string.IsNullOrWhiteSpace(raw))
+            return FindingHumanReviewStatus.NotRequired;
 
-        return FindingHumanReviewStatus.NotRequired;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingHumanReviewStatus status))
+            return FindingHumanReviewStatus.NotRequired;
+
+        return Enum.IsDefined(status) ? status : FindingHumanReviewStatus.NotRequired;
     }
 
     public static FindingConfidenceLevel? TryParseEvaluationConfidenceLevel(string? raw)

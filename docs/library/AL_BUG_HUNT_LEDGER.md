@@ -694,11 +694,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — inspect `ParseDisposition` accepted undefined numeric disposition strings
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — inspect `ParseHumanReview` accepted undefined numeric review-status strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -723,8 +723,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
 
 - [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` accepts undefined numeric `FindingReviewEvents.Disposition` strings (e.g. `"999"`) — **hit 2026-09-07 seed hunt #1243:** `Enum.TryParse` without `Enum.IsDefined` parity to disposition validation (#750); inspect surfaced invalid `LatestDisposition` instead of null; fixed in mapper; regressions in `ParseDisposition_returns_null_for_undefined_or_unrecognized_values`.
-- [ ] (candidate) `MainInspect*` selects `r.GoldenManifestId` into `MainRow` but `MapInspectResponse` never projects it on `FindingInspectResponse` — SQL fetch cost with no inspect explainability field despite `FindingEvidenceChainResponse` exposing golden manifest id elsewhere.
+- [x] (proven) `FindingInspectReadModelMapper.ParseHumanReview` accepts undefined numeric `FindingRecords.HumanReviewStatus` strings — **hit 2026-09-08 hunt #1293:** same `Enum.TryParse` gap as #1243 `ParseDisposition`; inspect surfaced `(FindingHumanReviewStatus)99` instead of `NotRequired`; fixed with `Enum.IsDefined` guard; regressions in `ParseHumanReview_maps_or_defaults` for `"99"`/`"999"`.
+- [x] (invalid) `MainInspect*` selects `r.GoldenManifestId` into `MainRow` but `MapInspectResponse` never projects it on `FindingInspectResponse` — **cheap-disproof 2026-09-08 hunt #1293:** `FindingInspectResponse` has no golden-manifest field by contract; evidence chain exposes it separately; unused column fetch is optimization/backlog, not incorrect inspect data.
 
+2026-09-08 thorough hunt #1293 (hit): proved undefined numeric human-review status on inspect read; cheap-disproved golden-manifest projection gap as non-defect.
 2026-09-07 seed hunt #1243 (hit): reseeded after #1238; proved undefined numeric disposition on inspect read; seeded golden-manifest projection gap candidate.
 
 2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.

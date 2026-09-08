@@ -25,6 +25,8 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
     [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("99", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("999", FindingHumanReviewStatus.NotRequired)]
     public void ParseHumanReview_maps_or_defaults(string? raw, FindingHumanReviewStatus expected)
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview(raw);
