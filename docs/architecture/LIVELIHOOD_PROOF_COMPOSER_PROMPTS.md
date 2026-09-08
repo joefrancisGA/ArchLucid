@@ -2,6 +2,7 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/livelihood-proof-00-index.md`](../../.cursor/prompts/livelihood-proof-00-index.md) (**LP-01–LP-20**)
 > **Predecessor (wave 19 — Working seat):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**, shipped). **Do not re-run WS.** This set does **not** evict buyer polish.
+> **Successor (wave 21 — finding-pointer CAS):** [`FINDING_POINTER_CAS_COMPOSER_PROMPTS.md`](FINDING_POINTER_CAS_COMPOSER_PROMPTS.md) (**FP-01–FP-24**). **Do not paste LP** to wire inspect/bulk `expectedCurrentDispositionRowVersionBase64`; that leftover is FP.
 
 # Livelihood-proof Composer prompts (LP-01–LP-20)
 
