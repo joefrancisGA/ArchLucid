@@ -89,7 +89,7 @@ Treat Swashbuckle-only tweaks separately; integrators must follow **`/openapi/v1
 
 - **Upload:** `POST /v1/azure-extractor/upload` — `multipart/form-data` field **`file`** (ZIP, max **â‰ˆ52 MiB** zipped payload envelope per host `RequestSizeLimit`). Optional query **`runId`** associates with an existing run in workspace scope.
 - **Auth:** base route gated **ReadAuthority**; **`ExecuteAuthority`** required for `upload`.
-- **Schema:** **`manifest.json`** inside the ZIP must declare supported **`schemaVersion`** (currently **only `1`**). Unsupported versions return **422** (never silently parsed).
+- **Schema:** **`manifest.json`** inside the ZIP must declare supported **`schemaVersion`** (**`1` or `2`**). Unsupported versions return **422** (never silently parsed).
 - **Success:** **202 Accepted** `{ "packageId": "<guid>" }`. **Failures:** **422** Problem+JSON (missing/invalid ZIP, manifest parse failure, unknown schema).
 
 Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
