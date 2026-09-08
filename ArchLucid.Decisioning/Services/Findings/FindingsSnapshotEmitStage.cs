@@ -21,6 +21,7 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
         FindingsSnapshot snapshot = context.Snapshot;
 
         ApplyHeldCheckLedger(context, snapshot);
+        ApplyProseAssumptionRegister(context, snapshot);
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
@@ -58,6 +59,15 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
 
         snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
         snapshot.InsightDensityCuration.HeldCheckLedgerEntries = rollup.ToList();
+    }
+
+    private static void ApplyProseAssumptionRegister(FindingsStageContext context, FindingsSnapshot snapshot)
+    {
+        if (context.ProseAssumptionRegisterEntries.Count == 0)
+            return;
+
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.ProseAssumptionRegisterEntries = context.ProseAssumptionRegisterEntries.ToList();
     }
 
     [LoggerMessage(

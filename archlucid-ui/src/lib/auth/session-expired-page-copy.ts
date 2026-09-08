@@ -16,6 +16,10 @@ export const SESSION_EXPIRED_PAGE_TITLE = "Session expired" as const;
 
 export const SESSION_EXPIRED_PRIMARY_CONTENT_ID = "session-expired-primary-content" as const;
 
+export const SESSION_EXPIRED_FIRST_VIEWPORT_ID = "session-expired-first-viewport" as const;
+
+export const SESSION_EXPIRED_SKIP_TARGET_ID = SESSION_EXPIRED_FIRST_VIEWPORT_ID;
+
 export const SESSION_EXPIRED_SKIP_LINK_LABEL = "Skip to session recovery content" as const;
 
 export const SESSION_EXPIRED_PASSWORDLESS_EXPLANATION =

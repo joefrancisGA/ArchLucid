@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Findings;
 
@@ -20,6 +21,8 @@ public sealed class FindingsStageContext
     public List<FindingEngineFailure> EngineFailures { get; } = [];
 
     public List<Exception> EngineExceptions { get; } = [];
+
+    public List<ProseAssumptionRegisterEntry> ProseAssumptionRegisterEntries { get; } = [];
 
     public int SuccessfulEngineInvocations { get; set; }
 
