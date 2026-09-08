@@ -9,6 +9,8 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { Button } from "@/components/ui/button";
 import { downloadAuditExportCsv } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { buildRunScopedAuditExportParams } from "@/lib/runs/run-scoped-audit-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -59,7 +61,14 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
         setRoleHintVisible(true);
       }
 
-      const message = error instanceof Error ? error.message : "Audit export failed.";
+      const failure = toApiLoadFailure(error);
+      const blockedReason = auditExportBlockedReason(failure);
+
+      if (blockedReason !== null) {
+        setBlockedReason(blockedReason);
+      }
+
+      const message = blockedReason ?? (error instanceof Error ? error.message : "Audit export failed.");
 
       showError("Audit export", message);
     } finally {

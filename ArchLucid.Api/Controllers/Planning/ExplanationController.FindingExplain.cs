@@ -1,5 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Queries;
@@ -50,12 +53,32 @@ public sealed partial class ExplanationController
     [HttpGet("runs/{runId:guid}/findings/{findingId}/llm-audit")]
     [ProducesResponseType(typeof(FindingLlmAuditResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFindingLlmAudit(
         Guid runId,
         string findingId,
         CancellationToken ct = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        if (detail?.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
 

@@ -66,9 +66,19 @@ export function PilotValueReportExportControls(props: Props) {
   const exportsDisabledReason = exportDisabledReason(m.canMutate, hasFinalizedReviews, m.busy);
   const canExport = m.canMutate && hasFinalizedReviews && !m.busy;
   const exportDisabledHintId = "value-report-export-disabled-reason";
+  const roiFreshness = m.data?.roiSourceFreshnessDisposition?.trim().toUpperCase() ?? "";
 
   return (
     <>
+      {roiFreshness === "HOLD" || roiFreshness === "WARN" ? (
+        <p
+          role="alert"
+          className={cn("m-0 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="pilot-value-report-roi-freshness-disposition"
+        >
+          ROI freshness {roiFreshness}: verify cost evidence and extractor timestamps before external send.
+        </p>
+      ) : null}
       <div ref={periodControlsRef} className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Reporting period</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
