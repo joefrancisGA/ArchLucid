@@ -211,6 +211,24 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("HotPathCache:RedisConnectionString")]
+    [InlineData("IntegrationEvents:ServiceBusConnectionString")]
+    [InlineData("Observability:AzureMonitor:ApplicationInsightsConnectionString")]
+    public void Resolve_redacts_compound_connection_string_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Endpoint=sb://example/;SharedAccessKey=secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
     [Fact]
     public void Resolve_preserves_access_token_lifetime_minutes_path()
     {
