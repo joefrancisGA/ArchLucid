@@ -8,7 +8,7 @@
 | --- | --- |
 | Workflow | `.github/workflows/private-beta-access-on-push.yml` |
 | Display name | `Operator UI: private-beta access-path (JwtBearer)` |
-| Specs (push workflow, `--workers=1`) | `live-api-private-beta-access.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-scim-invite-substitute-smoke.spec.ts` |
+| Specs (push workflow, `--workers=1`) | `live-api-scim-invite-substitute-smoke.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-private-beta-access.spec.ts` (lighter specs first for faster CI signal) |
 | Timeout | 120 minutes (job); 45 minutes per Playwright test in CI |
 
 ## Happy path (CI step order)
@@ -143,7 +143,7 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 ```
 
 ```bash
-cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-private-beta-wave-3.spec.ts live-api-invite-flow.spec.ts live-api-scim-invite-substitute-smoke.spec.ts --workers=1
+cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
 ## Golden-cohort apply (owner, after first green)

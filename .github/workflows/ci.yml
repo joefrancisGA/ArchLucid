@@ -5270,7 +5270,7 @@ jobs:
           bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
             bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
-          npx playwright test --workers=1 live-api-private-beta-access.spec.ts live-api-private-beta-wave-3.spec.ts
+          npx playwright test --workers=1 live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)
         if: always()
