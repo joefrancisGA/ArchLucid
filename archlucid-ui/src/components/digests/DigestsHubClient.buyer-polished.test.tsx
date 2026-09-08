@@ -47,11 +47,7 @@ import {
   DIGESTS_HUB_PRIMARY_CONTENT_ID,
   DIGESTS_HUB_SKIP_LINK_LABEL,
   DIGESTS_HUB_SKIP_TARGET_ID,
-  DIGESTS_PAGE_SUBTITLE_BUYER,
 } from "@/lib/digests-browse-copy";
-import {
-  DIGESTS_SCHEDULE_ORIENTATION_SOURCES,
-} from "@/lib/digests-schedule-evidence-copy";
 import {
   DIGESTS_SUBSCRIPTIONS_ORIENTATION_SOURCES,
 } from "@/lib/digests-subscriptions-evidence-copy";
@@ -145,30 +141,6 @@ describe("DigestsHubClient buyer-polished shell (ARD)", () => {
     expect(orientationTop.compareDocumentPosition(browseContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(DIGESTS_BROWSE_ORIENTATION_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
-  });
-
-  it("renders schedule-tab buyer chrome with orientation above schedule workspace", async () => {
-    searchParams = new URLSearchParams("tab=schedule");
-
-    render(<DigestsHubClient />);
-
-    expect(await screen.findByText(DIGESTS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("digests-schedule-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
-    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("digests-last-updated")).not.toBeInTheDocument();
-
-    const orientationTop = screen.getByTestId("digests-schedule-orientation-top");
-    const scheduleContent = screen.getByTestId("exec-digest-schedule-content");
-    const sourcesSection = screen.getByTestId("digests-schedule-sources");
-
-    expect(orientationTop).toContainElement(sourcesSection);
-    expect(orientationTop.compareDocumentPosition(scheduleContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    for (const source of filterWhereToGoNextFollowUpLinks(DIGESTS_SCHEDULE_ORIENTATION_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

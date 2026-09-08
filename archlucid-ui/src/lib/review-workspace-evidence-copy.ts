@@ -57,6 +57,8 @@ export function pathIsReviewWorkspaceDetail(pathname: string): boolean {
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or finalized review record detail when you need the full package.";
 
+export const REVIEW_WORKSPACE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
   "Use these follow-ups when package work needs evidence search, findings triage, or activity records.";
 
