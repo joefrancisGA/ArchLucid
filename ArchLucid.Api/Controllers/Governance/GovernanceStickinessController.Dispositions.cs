@@ -89,6 +89,7 @@ public sealed partial class GovernanceStickinessController
             EvidenceRequestText = body.EvidenceRequestText,
             ImpactPreviewCompleted = body.ImpactPreviewCompleted,
             PreviewOverrideReason = body.PreviewOverrideReason,
+            ArchitectRestatement = body.ArchitectRestatement,
             ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 

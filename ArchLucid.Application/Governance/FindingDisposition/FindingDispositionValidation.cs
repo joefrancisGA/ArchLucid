@@ -108,6 +108,14 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
+            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                nameof(request));
+        }
     }
 
     /// <summary>Working desk Remediated requires server-attested impact preview completion or an explicit override (LP-14).</summary>

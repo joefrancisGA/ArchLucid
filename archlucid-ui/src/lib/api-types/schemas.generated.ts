@@ -4324,6 +4324,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            architectRestatement?: null | string;
             currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
@@ -8003,6 +8004,7 @@ export interface components {
             updatedFindingIds: string[];
         };
         RecordFindingDispositionRequest: {
+            architectRestatement?: null | string;
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
             impactPreviewCompleted?: null | boolean;
