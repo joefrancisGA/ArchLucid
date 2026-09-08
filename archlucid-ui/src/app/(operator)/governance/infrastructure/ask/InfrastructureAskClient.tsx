@@ -26,6 +26,11 @@ import {
   submitInfraEvidenceAsk,
 } from "@/lib/infra-evidence/infra-evidence-ask-api";
 import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
+import {
+  INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM,
+  infraAskSimulatorDisclosureHrefFromSearch,
+  parseInfraAskSimulatorDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-ask-simulator-disclosure-url";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
@@ -149,6 +154,31 @@ export function InfrastructureAskClient() {
 
   const [question, setQuestion] = useState("");
   const [useSimulator, setUseSimulator] = useState(true);
+  const infraAskSimulatorDisclosureOpenParam = searchParams.get(INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM);
+  const [simulatorDisclosureOpen, setSimulatorDisclosureOpenState] = useState(() =>
+    parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam),
+  );
+  const syncSimulatorDisclosureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        infraAskSimulatorDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setSimulatorDisclosureOpen = useCallback(
+    (open: boolean) => {
+      setSimulatorDisclosureOpenState(open);
+      syncSimulatorDisclosureOpenToUrl(open);
+    },
+    [syncSimulatorDisclosureOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSimulatorDisclosureOpenState(parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam));
+  }, [infraAskSimulatorDisclosureOpenParam]);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [history, setHistory] = useState<InfrastructureAskTurn[]>([]);
@@ -774,6 +804,8 @@ export function InfrastructureAskClient() {
             title={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE}
             sectionTestId="infra-ask-simulator-disclosure"
             summaryLine="Deterministic demo answers grounded on cited structured rows"
+            open={simulatorDisclosureOpen}
+            onToggle={setSimulatorDisclosureOpen}
           >
             <label className="inline-flex items-center gap-2 text-sm">
               <input

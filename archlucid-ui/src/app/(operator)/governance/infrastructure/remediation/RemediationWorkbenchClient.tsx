@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { LayerHeader } from "@/components/LayerHeader";
@@ -20,6 +20,21 @@ import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlSc
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  INFRA_REMEDIATION_FINDING_ID_DISCLOSURE_OPEN_PARAM,
+  infraRemediationFindingIdDisclosureHrefFromSearch,
+  parseInfraRemediationFindingIdDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-remediation-finding-id-disclosure-url";
+import {
+  INFRA_REMEDIATION_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
+  infraRemediationResourceIdDisclosureHrefFromSearch,
+  parseInfraRemediationResourceIdDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-remediation-resource-id-disclosure-url";
+import {
+  INFRA_REMEDIATION_VERIFY_HINT_DISCLOSURE_OPEN_PARAM,
+  infraRemediationVerifyHintDisclosureHrefFromSearch,
+  parseInfraRemediationVerifyHintDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-remediation-verify-hint-disclosure-url";
 import {
   hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
@@ -151,7 +166,87 @@ function buildDiagramHubHref(context: {
 export function RemediationWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const remediationResourceIdOpenParam = searchParams.get(INFRA_REMEDIATION_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
+  const remediationFindingIdOpenParam = searchParams.get(INFRA_REMEDIATION_FINDING_ID_DISCLOSURE_OPEN_PARAM);
+  const remediationVerifyHintOpenParam = searchParams.get(INFRA_REMEDIATION_VERIFY_HINT_DISCLOSURE_OPEN_PARAM);
+  const [remediationResourceIdOpen, setRemediationResourceIdOpenState] = useState(() =>
+    parseInfraRemediationResourceIdDisclosureOpenFromSearch(remediationResourceIdOpenParam),
+  );
+  const [remediationFindingIdOpen, setRemediationFindingIdOpenState] = useState(() =>
+    parseInfraRemediationFindingIdDisclosureOpenFromSearch(remediationFindingIdOpenParam),
+  );
+  const [remediationVerifyHintOpen, setRemediationVerifyHintOpenState] = useState(() =>
+    parseInfraRemediationVerifyHintDisclosureOpenFromSearch(remediationVerifyHintOpenParam),
+  );
+
+  const syncRemediationResourceIdOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        infraRemediationResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRemediationResourceIdOpen = useCallback(
+    (open: boolean) => {
+      setRemediationResourceIdOpenState(open);
+      syncRemediationResourceIdOpenToUrl(open);
+    },
+    [syncRemediationResourceIdOpenToUrl],
+  );
+
+  const syncRemediationFindingIdOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        infraRemediationFindingIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRemediationFindingIdOpen = useCallback(
+    (open: boolean) => {
+      setRemediationFindingIdOpenState(open);
+      syncRemediationFindingIdOpenToUrl(open);
+    },
+    [syncRemediationFindingIdOpenToUrl],
+  );
+
+  const syncRemediationVerifyHintOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        infraRemediationVerifyHintDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRemediationVerifyHintOpen = useCallback(
+    (open: boolean) => {
+      setRemediationVerifyHintOpenState(open);
+      syncRemediationVerifyHintOpenToUrl(open);
+    },
+    [syncRemediationVerifyHintOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRemediationResourceIdOpenState(parseInfraRemediationResourceIdDisclosureOpenFromSearch(remediationResourceIdOpenParam));
+  }, [remediationResourceIdOpenParam]);
+
+  useEffect(() => {
+    setRemediationFindingIdOpenState(parseInfraRemediationFindingIdDisclosureOpenFromSearch(remediationFindingIdOpenParam));
+  }, [remediationFindingIdOpenParam]);
+
+  useEffect(() => {
+    setRemediationVerifyHintOpenState(parseInfraRemediationVerifyHintDisclosureOpenFromSearch(remediationVerifyHintOpenParam));
+  }, [remediationVerifyHintOpenParam]);
+
   const urlFindingId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_FINDING_ID_PARAM));
   const urlInstanceId = searchParams.get("instanceId")?.trim() ?? "";
   const urlCorrespondenceId = parseInfraEvidenceWorkbenchQueryValue(
@@ -581,6 +676,8 @@ export function RemediationWorkbenchClient() {
               title="Resource id"
               sectionTestId="infra-remediation-resource-id-disclosure"
               summaryLine="Cloud resource UUID from the scoped link"
+              open={remediationResourceIdOpen}
+              onToggle={setRemediationResourceIdOpen}
             >
               <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {urlCloudResourceId}
@@ -646,6 +743,8 @@ export function RemediationWorkbenchClient() {
               title="Finding id"
               sectionTestId="infra-remediation-finding-id-disclosure"
               summaryLine="Operational finding UUID from the scoped link"
+              open={remediationFindingIdOpen}
+              onToggle={setRemediationFindingIdOpen}
             >
               <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {urlFindingId}
@@ -916,6 +1015,8 @@ export function RemediationWorkbenchClient() {
                     title="Verify snapshot hint"
                     sectionTestId="infra-remediation-verify-hint-disclosure"
                     summaryLine="Execution snapshot excluded from verify picker"
+                    open={remediationVerifyHintOpen}
+                    onToggle={setRemediationVerifyHintOpen}
                   >
                     <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-verify-hint">
                       Verify requires a snapshot captured after execute ({executionSnapshotId.slice(0, 8)}…). Execution
