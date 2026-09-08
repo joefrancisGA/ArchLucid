@@ -1,5 +1,9 @@
 export const DIGEST_SPONSOR_PRIMARY_CONTENT_ID = "digest-sponsor-primary-content" as const;
 
+export const DIGEST_SPONSOR_FIRST_VIEWPORT_ID = "digest-sponsor-first-viewport" as const;
+
+export const DIGEST_SPONSOR_SKIP_TARGET_ID = DIGEST_SPONSOR_FIRST_VIEWPORT_ID;
+
 export const DIGEST_SPONSOR_SKIP_LINK_LABEL = "Skip to digest content" as const;
 
 export const DIGEST_SPONSOR_PAGE_EYEBROW = "Weekly sponsor digest" as const;
