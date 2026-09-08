@@ -36,8 +36,8 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
             The golden corpus harness registers **41** engines; **0** appear in this table (≥1 finding across case-01..case-63). **52** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
-            `WouldDemoteAt65Count` is advisory measurement for a possible threshold change; production DemotionThreshold remains 50 until DX-59.
+            `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
+            `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
             Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
@@ -64,8 +64,8 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
             The golden corpus harness registers **41** engines; **1** appear in this table (≥1 finding across case-01..case-63). **51** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
-            `WouldDemoteAt65Count` is advisory measurement for a possible threshold change; production DemotionThreshold remains 50 until DX-59.
+            `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
+            `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
             Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
@@ -108,14 +108,13 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     }
 
     [Fact]
-    public void Build_includes_would_demote_at_65_claim_boundary()
+    public void Build_includes_production_threshold_65_claim_boundary()
     {
         string markdown = InsightDensityEngineDistributionMarkdown.Build([
-            CreateRow("compliance", 1, 60, 60, 60, 0, 0, 1, 1, 0, 1),
+            CreateRow("compliance", 1, 60, 60, 60, 1, 0, 1, 1, 0, 1),
         ]);
 
-        markdown.Should().Contain("`WouldDemoteAt65Count` is advisory measurement for a possible threshold change");
-        markdown.Should().Contain("production DemotionThreshold remains 50 until DX-59");
+        markdown.Should().Contain("production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59)");
         markdown.Should().Contain("| Would demote at 65 |");
     }
 
