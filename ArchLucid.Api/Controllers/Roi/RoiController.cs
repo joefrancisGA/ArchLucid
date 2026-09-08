@@ -118,6 +118,7 @@ public sealed class RoiController(
     [Produces("text/markdown", "application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportBoardPackAsync(
         [FromQuery] string? format,
         [FromQuery] bool generateNarrative = false,

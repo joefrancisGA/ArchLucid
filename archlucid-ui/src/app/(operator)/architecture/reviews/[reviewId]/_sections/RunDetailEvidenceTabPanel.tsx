@@ -112,6 +112,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         <RunDetailTrustEvidenceCardSectionDeferred
           card={props.trustEvidenceCard}
           runId={props.runId}
+          manifestVersion={props.manifestId}
           evidenceAskRunId={props.buyerPolishedArtifactTable ? props.runId : null}
           blockingFindingId={props.blockingFindingId}
           blockingFindingTitle={props.blockingFindingTitle}

@@ -3896,6 +3896,22 @@ export interface components {
             /** Format: date-time */
             toUtcExclusive?: string;
         };
+        EngineVerificationConfirmedRateRow: {
+            /** Format: int32 */
+            confirmedNumerator?: number;
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            engineType?: string;
+            /** Format: int32 */
+            verifiableDenominator?: number;
+        };
+        EngineVerificationConfirmedRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineVerificationConfirmedRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
         EntityTagHeaderValue: {
             isWeak?: boolean;
             tag?: components["schemas"]["StringSegment"];
