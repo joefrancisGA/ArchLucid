@@ -135,6 +135,20 @@ export async function primePrivateBetaBrowserPage(
   await primeJwtBrowserSession(page, accessToken);
 }
 
+/** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
+export async function primePrivateBetaBrowserSessionIfJwtMode(
+  page: Page,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (!resolveLiveJwtMode()) {
+    return;
+  }
+
+  const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+  await primePrivateBetaBrowserPage(page, accessToken, options);
+}
+
 /** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
