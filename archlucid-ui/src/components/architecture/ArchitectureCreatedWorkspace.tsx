@@ -11,6 +11,7 @@ import { ArchitectureCreatedCompactFirstViewport } from "@/components/architectu
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedEvidenceBuyerChrome } from "@/components/architecture/ArchitectureCreatedEvidenceBuyerChrome";
 import { ArchitectureCreatedFindingsBuyerChrome } from "@/components/architecture/ArchitectureCreatedFindingsBuyerChrome";
+import { ArchitectureCreatedGovernanceBuyerChrome } from "@/components/architecture/ArchitectureCreatedGovernanceBuyerChrome";
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -423,11 +424,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
       <div hidden={activeTab !== "governance"} data-testid="architecture-workspace-panel-governance">
           <div className="space-y-4">
-            <PackageGovernanceApprovalQueueVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="package-governance"
-            />
+            {buyerPolishedShell ? null : (
+              <PackageGovernanceApprovalQueueVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="package-governance"
+              />
+            )}
             {props.panels.governance}
+            {buyerPolishedShell ? <ArchitectureCreatedGovernanceBuyerChrome /> : null}
           </div>
       </div>
 

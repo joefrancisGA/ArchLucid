@@ -19,6 +19,11 @@ import {
   ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-created-findings-sources";
 import {
+  ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_GOVERNANCE_SOURCES,
+  ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO,
+} from "@/lib/architecture/architecture-created-governance-sources";
+import {
   EVIDENCE_CLAIM_STYLE,
   EVIDENCE_SOURCES_STYLE,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
@@ -131,6 +136,19 @@ export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX
       sources={ARCHITECTURE_CREATED_EVIDENCE_SOURCES}
       claimHeading="Before finalize — evidence capture only"
       claim={ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="architecture-governance"
+      align="text-left"
+      sourcesIntro={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO}
+      sources={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES}
+      claimHeading="Before finalize — governance orientation only"
+      claim={ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE}
     />
   );
 }
