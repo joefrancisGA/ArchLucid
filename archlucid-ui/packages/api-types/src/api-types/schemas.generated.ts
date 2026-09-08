@@ -3699,6 +3699,7 @@ export interface components {
             conversationThreadId?: null | string;
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: string;
+            openQuestions?: null | string;
             /** Format: uuid */
             parentDraftId?: null | string;
             priorRunId?: null | string;
@@ -6484,6 +6485,7 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
+            openQuestions?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
             workflowIntent?: null | string;

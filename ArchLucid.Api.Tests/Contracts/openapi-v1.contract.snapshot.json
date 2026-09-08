@@ -12708,6 +12708,12 @@
           "freeTextIntent": {
             "type": "string"
           },
+          "openQuestions": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "parentDraftId": {
             "format": "uuid",
             "type": [
@@ -22339,6 +22345,12 @@
             ]
           },
           "freeTextIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "openQuestions": {
             "type": [
               "null",
               "string"
