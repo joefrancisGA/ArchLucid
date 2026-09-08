@@ -166,6 +166,7 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
         string sponsorExportActions = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
+        sponsorBannerTest.Should().Contain("programmatic secondary export actions");
         sponsorBannerTest.Should().Contain("programmatic sponsor DOCX download action");
         sponsorBannerTest.Should().Contain("getByRole(\"button\"");
         sponsorExportActions.Should().Contain("downloadPilotFirstValueReportMarkdown");

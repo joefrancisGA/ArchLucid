@@ -545,7 +545,7 @@ describe("EmailRunToSponsorBanner", () => {
     expect(mockTelemetry).not.toHaveBeenCalled();
   });
 
-  it("shows a direct sponsor DOCX download via the run package export route", async () => {
+  it("shows a programmatic sponsor DOCX download action via the run package export route", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} sponsorDocxAvailable />);
 
     await waitFor(() => {
@@ -553,10 +553,8 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     const sponsorDocx = screen.getByTestId("email-run-to-sponsor-sponsor-docx");
-    expect(sponsorDocx).toHaveAttribute(
-      "href",
-      "/api/proxy/v1/runs/run-42/export/docx",
-    );
+    expect(sponsorDocx).toHaveAttribute("type", "button");
+    expect(sponsorDocx).not.toHaveAttribute("href");
     expect(sponsorDocx).toHaveTextContent("Download Sponsor Export (DOCX)");
   });
 
