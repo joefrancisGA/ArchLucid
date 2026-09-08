@@ -178,6 +178,11 @@ jobs:
           bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
             bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
+          bash "${GITHUB_WORKSPACE}/scripts/ci/refresh_private_beta_ci_jwt.sh"
+          TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-token.txt")"
+          echo "::add-mask::${TOKEN}"
+          export LIVE_JWT_TOKEN="${TOKEN}"
+          export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright test --workers=1 \
             live-api-scim-invite-substitute-smoke.spec.ts \
             live-api-invite-flow.spec.ts \
