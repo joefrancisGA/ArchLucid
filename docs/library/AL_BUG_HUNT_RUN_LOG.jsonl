@@ -1541,4 +1541,5 @@
 {"at":"2026-09-08T21:24:31.9126378Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
 {"at":"2026-09-08T21:30:50.4561055Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
 {"at":"2026-09-08T21:36:36.7390205Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
-{"at":"2026-09-08T21:46:48.1778830Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-08T21:46:48.177883Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-08T21:56:43.4739542Z","zoneId":"host-composition","outcome":"hit"}
