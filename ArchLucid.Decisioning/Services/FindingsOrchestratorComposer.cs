@@ -49,6 +49,7 @@ internal static class FindingsOrchestratorComposer
         IFindingsMergeAndGateStage mergeAndGateStage = new FindingsMergeAndGateStage(
             humanReviewOptions,
             insightDensityGate,
+            new FindingProvenanceValidator(),
             timeProvider);
 
         IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
