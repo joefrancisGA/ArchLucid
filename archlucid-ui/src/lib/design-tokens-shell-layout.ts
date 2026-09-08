@@ -81,8 +81,8 @@ export const OPERATOR_PAGE_CONTAINER = {
     dashboard: "w-full max-w-[1440px]",
     /** Onboarding, settings forms, help prose (~768px) — still left-aligned to the rail. */
     reading: "w-full max-w-3xl",
-    /** Administration settings and identity surfaces (~992px) — SCIM, SSO, account security rail. */
-    settings: "w-full max-w-[62rem]",
+    /** Administration settings and identity surfaces (~1088px) — SCIM, SSO, account security rail. */
+    settings: "w-full max-w-[68rem]",
   },
 } as const;
 

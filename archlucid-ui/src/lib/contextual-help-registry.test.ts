@@ -268,6 +268,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/administration/extract-upload")?.whatToDoNext).toContain(
       "Start a review",
     );
+    expect(contextualHelpForPathname("/governance/infrastructure/extract-upload")?.whatIsThisPage).toContain(
+      "Extract and Upload",
+    );
   });
 
   it("resolves AI and model policy Category-1 help (AMO)", () => {

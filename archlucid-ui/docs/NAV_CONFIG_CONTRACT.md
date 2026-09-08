@@ -47,7 +47,7 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 | `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
 | `operate-analysis`      | Insights       | `review-workflow` | Operate | 11 | analysis slice — compare, graph, Q&A, sponsor value, workspace health KPIs, … |
 | `operate-governance`    | Approval       | `review-workflow` | Operate | 14 | decide/track loop — queue, findings, decisions, audit, alerts, approval setup |
-| `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 7 | inventory snapshots, diagrams, resource hub, Ask, remediation instances |
+| `operate-infrastructure` | Infrastructure | `review-workflow` | Operate | 8 | inventory snapshots, extract & upload, diagrams, resource hub, Ask, remediation instances |
 | `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
 | `operator-admin`        | Administration | `platform-admin`  | Admin   | 17 | system health, tenant cost, settings, inventory upload, support, users |
@@ -67,7 +67,7 @@ One Next.js app and one API host. `NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture|se
 | `architecture` (default for unlisted hrefs) | Architecture shell only |
 | `security` | Security shell only |
 
-**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, extract-upload, trust, health, support — not AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
+**Security spine today:** the `operate-infrastructure` group (`/governance/infrastructure/*`, including **Extract & upload** at `/governance/infrastructure/extract-upload`), OpSec factory pages still under Approval (`/governance/remediation-factory`, `remediation-patterns`, `audit-evidence`), Integrations (inventory + outbound bridges), shared Administration (users, identity, trust, health, support — not extract-upload, AI usage / model governance / baseline / recycle bin / billing), and Internal diagnostics (health, configuration, tenants — not trial funnel / pricing / replay / learning).
 
 The Security shell **skips** the committed-architecture-review nav gate and role-density collapse so Infrastructure is not hidden behind a first sealed review. Shuffle destinations from **Internal → Product line** (`/internal/product-line`, localStorage overlay). Product shell selection lives on that Internal page, not the home body.
 

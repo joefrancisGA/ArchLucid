@@ -5068,6 +5068,92 @@ describe("wave64 filter url helpers", () => {
   });
 });
 
+describe("wave65 filter url helpers", () => {
+  it("help troubleshooting issue, glossary more detail term, manifest detail decisions, manifest detail warnings, manifest summary bundle download, governance finding detail severity, run inspector related actions, run inspector open artifact, sponsor rehearsal preview, operator first session coaching params", async () => {
+    const {
+      helpTroubleshootingIssueDisclosureHrefFromSearch,
+      parseHelpTroubleshootingIssueFromSearch,
+    } = await import("@/lib/help/help-troubleshooting-issue-disclosure-url");
+    const {
+      helpGlossaryMoreDetailDisclosureHrefFromSearch,
+      parseHelpGlossaryMoreDetailTermFromSearch,
+    } = await import("@/lib/help/help-glossary-more-detail-disclosure-url");
+    const {
+      manifestDetailDecisionsDisclosureHrefFromSearch,
+      parseManifestDetailDecisionsOpenFromSearch,
+    } = await import("@/lib/governance/manifest-detail-decisions-disclosure-url");
+    const {
+      manifestDetailWarningsDisclosureHrefFromSearch,
+      parseManifestDetailWarningsOpenFromSearch,
+    } = await import("@/lib/governance/manifest-detail-warnings-disclosure-url");
+    const {
+      manifestSummaryBundleDownloadDisclosureHrefFromSearch,
+      parseManifestSummaryBundleDownloadOpenFromSearch,
+    } = await import("@/lib/governance/manifest-summary-bundle-download-disclosure-url");
+    const {
+      governanceFindingDetailSeverityDisclosureHrefFromSearch,
+      parseGovernanceFindingDetailSeverityOpenFromSearch,
+    } = await import("@/lib/governance/governance-finding-detail-severity-disclosure-url");
+    const {
+      parseRunInspectorRelatedActionsOpenFromSearch,
+      runInspectorRelatedActionsDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-inspector-related-actions-disclosure-url");
+    const {
+      parseRunInspectorOpenArtifactOpenFromSearch,
+      runInspectorOpenArtifactDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-inspector-open-artifact-disclosure-url");
+    const {
+      parseSponsorRehearsalPreviewOpenFromSearch,
+      sponsorRehearsalPreviewDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/sponsor-rehearsal-preview-disclosure-url");
+    const {
+      operatorFirstSessionCoachingDisclosureHrefFromSearch,
+      parseOperatorFirstSessionCoachingOpenFromSearch,
+    } = await import("@/lib/operator/operator-first-session-coaching-disclosure-url");
+
+    expect(parseHelpTroubleshootingIssueFromSearch("cannot-sign-in")).toBe("cannot-sign-in");
+    expect(helpTroubleshootingIssueDisclosureHrefFromSearch("", "cannot-sign-in", "/help/troubleshooting")).toBe(
+      "/help/troubleshooting?helpTroubleshootingIssue=cannot-sign-in",
+    );
+    expect(parseHelpGlossaryMoreDetailTermFromSearch("signed-manifest")).toBe("signed-manifest");
+    expect(helpGlossaryMoreDetailDisclosureHrefFromSearch("q=record", "signed-manifest", "/help/glossary")).toBe(
+      "/help/glossary?q=record&helpGlossaryMoreDetailTerm=signed-manifest",
+    );
+    expect(parseManifestDetailDecisionsOpenFromSearch("1")).toBe(true);
+    expect(manifestDetailDecisionsDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1")).toBe(
+      "/governance/sealed-records/manifest-1?manifestDetailDecisionsOpen=1",
+    );
+    expect(parseManifestDetailWarningsOpenFromSearch("true")).toBe(true);
+    expect(
+      manifestDetailWarningsDisclosureHrefFromSearch("tab=summary", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?tab=summary&manifestDetailWarningsOpen=1");
+    expect(parseManifestSummaryBundleDownloadOpenFromSearch("1")).toBe(true);
+    expect(
+      manifestSummaryBundleDownloadDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestSummaryBundleDownloadOpen=1");
+    expect(parseGovernanceFindingDetailSeverityOpenFromSearch("true")).toBe(true);
+    expect(
+      governanceFindingDetailSeverityDisclosureHrefFromSearch("status=open", true, "/governance/findings"),
+    ).toBe("/governance/findings?status=open&governanceFindingDetailSeverityOpen=1");
+    expect(parseRunInspectorRelatedActionsOpenFromSearch("1")).toBe(true);
+    expect(runInspectorRelatedActionsDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?tab=overview&runInspectorRelatedActionsOpen=1",
+    );
+    expect(parseRunInspectorOpenArtifactOpenFromSearch("true")).toBe(true);
+    expect(runInspectorOpenArtifactDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runInspectorOpenArtifactOpen=1",
+    );
+    expect(parseSponsorRehearsalPreviewOpenFromSearch("1")).toBe(true);
+    expect(sponsorRehearsalPreviewDisclosureHrefFromSearch("runId=demo", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runId=demo&sponsorRehearsalPreviewOpen=1",
+    );
+    expect(parseOperatorFirstSessionCoachingOpenFromSearch("true")).toBe(true);
+    expect(operatorFirstSessionCoachingDisclosureHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?operatorFirstSessionCoachingOpen=1",
+    );
+  });
+});
+
 describe("wave66 filter url helpers", () => {
   it("layer header collapsible guidance, page capability boundary, enterprise inline error diagnostics, architecture structured source, session expired sign out details, help search start here, runs row baseline menu, reviews hub row overflow, finding optional artifact technical details, bulk evidence upload error diagnostics params", async () => {
     const {

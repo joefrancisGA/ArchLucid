@@ -275,6 +275,14 @@ export const REVIEW_DETAIL_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+export const WORKSPACE_SETTINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+s",
+    label: "Save cost settings",
+    description: "Save tenant cost settings on the workspace settings page when the form is editable",
+  },
+];
+
 /** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
 export { DRIFT_WORKBENCH_PAGE_SHORTCUTS };
 

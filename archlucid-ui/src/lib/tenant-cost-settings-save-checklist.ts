@@ -1,20 +1,24 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 
 export function resolveTenantCostSettingsSaveSteps(input: {
-  readonly ratesTouched: boolean;
-  readonly eaDiscountAcknowledged: boolean;
+  readonly isTenantConfigured: boolean;
+  readonly ratesValid: boolean;
+  readonly eaDiscountValid: boolean;
   readonly saveComplete: boolean;
 }): readonly IntegrationConnectChecklistStep[] {
+  const ratesComplete = input.isTenantConfigured || input.ratesValid;
+  const eaComplete = input.isTenantConfigured || input.eaDiscountValid;
+
   return [
     {
       id: "fields",
       label: "Enter architect rate and incident cost",
-      complete: input.ratesTouched,
+      complete: ratesComplete,
     },
     {
       id: "ea-discount",
       label: "Confirm EA discount percentage",
-      complete: input.eaDiscountAcknowledged,
+      complete: eaComplete,
     },
     {
       id: "save",
@@ -25,8 +29,9 @@ export function resolveTenantCostSettingsSaveSteps(input: {
 }
 
 export function resolveTenantCostSettingsSaveEmphasizedStepId(input: {
-  readonly ratesTouched: boolean;
-  readonly eaDiscountAcknowledged: boolean;
+  readonly isTenantConfigured: boolean;
+  readonly ratesValid: boolean;
+  readonly eaDiscountValid: boolean;
   readonly fieldsValid: boolean;
   readonly saveComplete: boolean;
 }): string {

@@ -1,9 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { tenantSettingsQualityAdvancedHrefFromSearch } from "@/lib/administration/tenant-settings-quality-advanced-url";
+import { SETTINGS_WORKSPACE_SETTINGS_PATH } from "@/lib/settings-admin-route-paths";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 
 export type TenantSettingsSectionNavItem = {
@@ -19,12 +23,35 @@ const TENANT_SETTINGS_SECTION_NAV_ITEMS: readonly TenantSettingsSectionNavItem[]
   { id: "tenant-settings-section-advanced", label: "Advanced" },
 ];
 
+const TENANT_SETTINGS_ADVANCED_SECTION_ID = "tenant-settings-section-advanced";
+
 type TenantSettingsSectionNavProps = {
   readonly className?: string;
 };
 
+function writeTenantSettingsSectionHash(sectionId: string): void {
+  if (typeof window === "undefined" || sectionId.trim().length === 0) {
+    return;
+  }
+
+  const nextHash = `#${sectionId}`;
+
+  if (window.location.hash === nextHash) {
+    return;
+  }
+
+  window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}${nextHash}`);
+}
+
 export function TenantSettingsSectionNav(props: TenantSettingsSectionNavProps): React.JSX.Element {
+  const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_PATH;
+  const searchParams = useSearchParams();
   const [activeId, setActiveId] = useState<string>(TENANT_SETTINGS_SECTION_NAV_ITEMS[0]?.id ?? "");
+
+  const syncActiveSectionToHash = useCallback((sectionId: string) => {
+    setActiveId(sectionId);
+    writeTenantSettingsSectionHash(sectionId);
+  }, []);
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") {
@@ -46,7 +73,11 @@ export function TenantSettingsSectionNav(props: TenantSettingsSectionNavProps): 
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
 
         if (visible.length > 0) {
-          setActiveId(visible[0]!.target.id);
+          const sectionId = visible[0]!.target.id;
+
+          if (sectionId.length > 0) {
+            syncActiveSectionToHash(sectionId);
+          }
         }
       },
       { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.25, 0.5, 1] },
@@ -59,6 +90,23 @@ export function TenantSettingsSectionNav(props: TenantSettingsSectionNavProps): 
     return () => {
       observer.disconnect();
     };
+  }, [syncActiveSectionToHash]);
+
+  useEffect(() => {
+    const hashSectionId = window.location.hash.replace(/^#/, "").trim();
+
+    if (hashSectionId.length === 0) {
+      return;
+    }
+
+    const matched = TENANT_SETTINGS_SECTION_NAV_ITEMS.find((item) => item.id === hashSectionId);
+
+    if (matched === undefined) {
+      return;
+    }
+
+    setActiveId(matched.id);
+    scheduleScrollToReviewDetailSection(matched.id);
   }, []);
 
   return (
@@ -71,26 +119,48 @@ export function TenantSettingsSectionNav(props: TenantSettingsSectionNavProps): 
       <ul className="m-0 list-none space-y-0.5 p-0">
         {TENANT_SETTINGS_SECTION_NAV_ITEMS.map((item) => {
           const isActive = item.id === activeId;
+          const isAdvanced = item.id === TENANT_SETTINGS_ADVANCED_SECTION_ID;
+          const href = isAdvanced
+            ? tenantSettingsQualityAdvancedHrefFromSearch(searchParams.toString(), true, pathname)
+            : `#${item.id}`;
 
           return (
             <li key={item.id}>
-              <a
-                href={`#${item.id}`}
-                className={cn(
-                  "block rounded-md px-2 py-1 text-al-link underline-offset-2 hover:underline",
-                  isActive ? "font-medium text-al-text-primary no-underline" : undefined,
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-                aria-current={isActive ? "page" : undefined}
-                data-testid={`tenant-settings-section-nav-${item.id}`}
-                onClick={(event) => {
-                  event.preventDefault();
-                  scheduleScrollToReviewDetailSection(item.id);
-                  setActiveId(item.id);
-                }}
-              >
-                {item.label}
-              </a>
+              {isAdvanced ? (
+                <Link
+                  href={href}
+                  className={cn(
+                    "block rounded-md px-2 py-1 text-al-link underline-offset-2 hover:underline",
+                    isActive ? "font-medium text-al-text-primary no-underline" : undefined,
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                  data-testid={`tenant-settings-section-nav-${item.id}`}
+                  onClick={() => {
+                    syncActiveSectionToHash(item.id);
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  href={href}
+                  className={cn(
+                    "block rounded-md px-2 py-1 text-al-link underline-offset-2 hover:underline",
+                    isActive ? "font-medium text-al-text-primary no-underline" : undefined,
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                  data-testid={`tenant-settings-section-nav-${item.id}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    scheduleScrollToReviewDetailSection(item.id);
+                    syncActiveSectionToHash(item.id);
+                  }}
+                >
+                  {item.label}
+                </a>
+              )}
             </li>
           );
         })}

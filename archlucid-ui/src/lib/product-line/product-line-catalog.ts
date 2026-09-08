@@ -38,6 +38,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/governance/infrastructure/resources": "both",
   "/governance/infrastructure/ask": "both",
   "/governance/infrastructure/remediation": "both",
+  "/governance/infrastructure/extract-upload": "security",
 
   // Operational-security factory (still parked under Approval nav today).
   "/governance/remediation-factory": "both",
@@ -64,7 +65,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/billing": "architecture",
   "/administration/security-trust": "both",
   "/administration/connection-status": "both",
-  "/administration/extract-upload": "both",
+  "/administration/extract-upload": "architecture",
   "/administration/system-health": "both",
   "/administration/support": "both",
 

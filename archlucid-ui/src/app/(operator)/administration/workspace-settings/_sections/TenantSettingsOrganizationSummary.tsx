@@ -28,11 +28,10 @@ export function TenantSettingsOrganizationSummary(
           data-testid="tenant-settings-tenant-display-name"
         >
           {organizationName}
+          <span className={cn("mt-1 block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {TENANT_SETTINGS_ORGANIZATION_IDP_NOTE}
+          </span>
         </dd>
-      </div>
-      <div>
-        <dt className="sr-only">Identity provider note</dt>
-        <dd className="m-0">{TENANT_SETTINGS_ORGANIZATION_IDP_NOTE}</dd>
       </div>
     </dl>
   );

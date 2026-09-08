@@ -9,6 +9,7 @@ import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehy
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
+import { ArchitectureIdentityDeskOpenQuestions } from "@/components/architecture/ArchitectureIdentityDeskOpenQuestions";
 import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
@@ -102,6 +103,13 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
       />
 
       <ArchitectureIdentityDeskCurrentDraft
+        architectureId={identity.architectureId}
+        currentDraftId={identity.currentDraftId}
+        latestReviewId={identity.latestReviewId}
+        drafts={identity.drafts}
+      />
+
+      <ArchitectureIdentityDeskOpenQuestions
         architectureId={identity.architectureId}
         currentDraftId={identity.currentDraftId}
         latestReviewId={identity.latestReviewId}

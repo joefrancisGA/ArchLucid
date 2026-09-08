@@ -3699,6 +3699,7 @@ export interface components {
             conversationThreadId?: null | string;
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: string;
+            openQuestions?: null | string;
             /** Format: uuid */
             parentDraftId?: null | string;
             priorRunId?: null | string;
@@ -4543,6 +4544,22 @@ export interface components {
             /** Format: uuid */
             reportId: string;
             results: components["schemas"]["FindingVerificationResultResponse"][];
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
+        FindingVerificationReportSummaryResponse: {
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            /** Format: int32 */
+            resultCount: number;
             /** Format: uuid */
             runId: string;
             sourceManifestHash: string;
@@ -6484,6 +6501,7 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
+            openQuestions?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
             workflowIntent?: null | string;
