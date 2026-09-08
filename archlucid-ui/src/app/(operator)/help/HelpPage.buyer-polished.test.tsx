@@ -6,6 +6,10 @@ import {
   HELP_HUB_FOLLOW_UPS_TITLE,
 } from "@/lib/help/help-hub-evidence-copy";
 import {
+  HELP_HUB_BUYER_START_HERE_HELPER,
+  HELP_HUB_FIRST_VIEWPORT_TEST_ID,
+  HELP_HUB_ORIENTATION_BOTTOM_TEST_ID,
+  HELP_HUB_PAGE_SUBTITLE_BUYER,
   HELP_HUB_PRIMARY_CONTENT_ID,
   HELP_HUB_SKIP_LINK_LABEL,
 } from "@/lib/help/help-hub-page-copy";
@@ -48,7 +52,7 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
 import { HelpPageView } from "@/app/(operator)/help/HelpPageView";
 
 describe("HelpPageView buyer-polished shell (HEL)", () => {
-  it("uses skip link, folded claim discipline in header, orientation strip, and hides operator vocabulary rails", () => {
+  it("uses skip link, buyer subtitle, first-viewport intro, bottom orientation, and hides operator vocabulary rails", () => {
     render(<HelpPageView />);
 
     expect(screen.getByRole("link", { name: HELP_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -58,8 +62,12 @@ describe("HelpPageView buyer-polished shell (HEL)", () => {
     expect(screen.getByTestId("help-hub-claim-discipline").textContent).toContain(
       HELP_HUB_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("help-hub-orientation-top")).toBeInTheDocument();
-    // claim discipline folded into page header
+    expect(screen.getByText(HELP_HUB_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId(HELP_HUB_FIRST_VIEWPORT_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByTestId("help-hub-intro")).toHaveTextContent(/Start with the guides below/);
+    expect(screen.getByTestId("help-hub-buyer-start-here-helper")).toHaveTextContent(
+      HELP_HUB_BUYER_START_HERE_HELPER,
+    );
     expect(screen.getByRole("heading", { level: 2, name: HELP_HUB_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-hub-primary-content")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Using ArchLucid" })).toBeInTheDocument();
@@ -67,5 +75,13 @@ describe("HelpPageView buyer-polished shell (HEL)", () => {
     expect(screen.queryByTestId("help-tour-trigger")).toBeNull();
     expect(screen.queryByTestId("glossary-procedural-help-vocabulary")).toBeNull();
     expect(screen.queryByTestId("report-problem-dialog-help-hub-vocabulary")).toBeNull();
+    expect(screen.queryByTestId("help-hub-orientation-top")).toBeNull();
+
+    const primary = screen.getByTestId("help-hub-primary-content");
+    const orientation = screen.getByTestId(HELP_HUB_ORIENTATION_BOTTOM_TEST_ID);
+    const guideHeading = screen.getByRole("heading", { name: "Using ArchLucid" });
+
+    expect(primary).toContainElement(orientation);
+    expect(guideHeading.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
