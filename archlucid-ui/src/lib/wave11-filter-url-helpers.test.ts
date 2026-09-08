@@ -5888,6 +5888,100 @@ describe("wave73 filter url helpers", () => {
   });
 });
 
+describe("wave74 filter url helpers", () => {
+  it("engineering troubleshooting markdown section, caiq sig deferred, dlq advanced, bundled policy pack file, report problem surface tech, demo explain technical, onboarding optional setup, operator home advanced guidance, first week route guidance home params", async () => {
+    const {
+      helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch,
+      parseHelpEngineeringTroubleshootingMarkdownSectionKeyFromSearch,
+    } = await import("@/lib/help/help-engineering-troubleshooting-markdown-section-disclosure-url");
+    const {
+      helpCaiqSigResponseSigDeferredDisclosureHrefFromSearch,
+      parseHelpCaiqSigResponseSigDeferredOpenFromSearch,
+    } = await import("@/lib/help/help-caiq-sig-response-sig-deferred-disclosure-url");
+    const {
+      integrationEventsDlqAdvancedDisclosureHrefFromSearch,
+      parseIntegrationEventsDlqAdvancedKeyFromSearch,
+    } = await import("@/lib/internal/integration-events-dlq-advanced-disclosure-url");
+    const {
+      platformBundledPolicyPackFileDisclosureHrefFromSearch,
+      parsePlatformBundledPolicyPackFileKeyFromSearch,
+    } = await import("@/lib/internal/platform-bundled-policy-pack-file-disclosure-url");
+    const {
+      reportProblemSurfaceTechDisclosureHrefFromSearch,
+      parseReportProblemSurfaceTechKeyFromSearch,
+    } = await import("@/lib/support/report-problem-surface-tech-disclosure-url");
+    const {
+      demoExplainExplanationTechnicalDisclosureHrefFromSearch,
+      parseDemoExplainExplanationTechnicalOpenFromSearch,
+    } = await import("@/lib/demo-explain-explanation-technical-disclosure-url");
+    const {
+      demoExplainGraphTechnicalDisclosureHrefFromSearch,
+      parseDemoExplainGraphTechnicalOpenFromSearch,
+    } = await import("@/lib/demo-explain-graph-technical-disclosure-url");
+    const {
+      onboardingOptionalSetupDisclosureHrefFromSearch,
+      parseOnboardingOptionalSetupOpenFromSearch,
+    } = await import("@/lib/first-review/onboarding-optional-setup-disclosure-url");
+    const {
+      operatorHomeAdvancedGuidanceDisclosureHrefFromSearch,
+      parseOperatorHomeAdvancedGuidanceOpenFromSearch,
+    } = await import("@/lib/operator/operator-home-advanced-guidance-disclosure-url");
+    const {
+      firstWeekRouteGuidanceHomeDisclosureHrefFromSearch,
+      parseFirstWeekRouteGuidanceHomeOpenFromSearch,
+    } = await import("@/lib/operator/first-week-route-guidance-home-disclosure-url");
+
+    expect(parseHelpEngineeringTroubleshootingMarkdownSectionKeyFromSearch("auth-token-expired")).toBe(
+      "auth-token-expired",
+    );
+    expect(
+      helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch(
+        "symptom=auth",
+        "auth-token-expired",
+        "/help/engineering-troubleshooting",
+      ),
+    ).toBe(
+      "/help/engineering-troubleshooting?symptom=auth&helpEngineeringTroubleshootingMarkdownSectionKey=auth-token-expired",
+    );
+    expect(parseHelpCaiqSigResponseSigDeferredOpenFromSearch("1")).toBe(true);
+    expect(
+      helpCaiqSigResponseSigDeferredDisclosureHrefFromSearch("", true, "/help/caiq-sig-response"),
+    ).toBe("/help/caiq-sig-response?helpCaiqSigResponseSigDeferredOpen=1");
+    expect(parseIntegrationEventsDlqAdvancedKeyFromSearch("outbox-42")).toBe("outbox-42");
+    expect(
+      integrationEventsDlqAdvancedDisclosureHrefFromSearch("eventType=ticketing", "outbox-42", "/internal/failed-integration-messages"),
+    ).toBe("/internal/failed-integration-messages?eventType=ticketing&integrationEventsDlqAdvancedKey=outbox-42");
+    expect(parsePlatformBundledPolicyPackFileKeyFromSearch("bundles/foo.json")).toBe("bundles/foo.json");
+    expect(
+      platformBundledPolicyPackFileDisclosureHrefFromSearch("q=waf", "bundles/foo.json", "/internal/platform-bundled-policy-packs"),
+    ).toBe("/internal/platform-bundled-policy-packs?q=waf&platformBundledPolicyPackFileKey=bundles%2Ffoo.json");
+    expect(parseReportProblemSurfaceTechKeyFromSearch("reviews-hub-fatal")).toBe("reviews-hub-fatal");
+    expect(
+      reportProblemSurfaceTechDisclosureHrefFromSearch("", "reviews-hub-fatal", "/help/report-a-problem"),
+    ).toBe("/help/report-a-problem?reportProblemSurfaceTechKey=reviews-hub-fatal");
+    expect(parseDemoExplainExplanationTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      demoExplainExplanationTechnicalDisclosureHrefFromSearch("reviewId=r1", true, "/demo/explain"),
+    ).toBe("/demo/explain?reviewId=r1&demoExplainExplanationTechnicalOpen=1");
+    expect(parseDemoExplainGraphTechnicalOpenFromSearch("1")).toBe(true);
+    expect(demoExplainGraphTechnicalDisclosureHrefFromSearch("", true, "/demo/explain")).toBe(
+      "/demo/explain?demoExplainGraphTechnicalOpen=1",
+    );
+    expect(parseOnboardingOptionalSetupOpenFromSearch("1")).toBe(true);
+    expect(
+      onboardingOptionalSetupDisclosureHrefFromSearch("", true, "/architecture/first-review-guide"),
+    ).toBe("/architecture/first-review-guide?onboardingOptionalSetupOpen=1");
+    expect(parseOperatorHomeAdvancedGuidanceOpenFromSearch("true")).toBe(true);
+    expect(operatorHomeAdvancedGuidanceDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?operatorHomeAdvancedGuidanceOpen=1",
+    );
+    expect(parseFirstWeekRouteGuidanceHomeOpenFromSearch("1")).toBe(true);
+    expect(firstWeekRouteGuidanceHomeDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?firstWeekRouteGuidanceHomeOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
