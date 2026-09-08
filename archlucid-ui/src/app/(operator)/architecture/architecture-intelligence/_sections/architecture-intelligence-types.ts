@@ -18,6 +18,13 @@ export type ArchitectureRecommendation = {
   recommendationId: string;
   problem: string;
   proposedChange: string;
+  evidence?: string;
+  provenance?: {
+    origin?: string;
+    supportStatus?: string;
+    confidence?: number;
+    notes?: string | null;
+  };
 };
 
 export type MustNotFailViolation = {
