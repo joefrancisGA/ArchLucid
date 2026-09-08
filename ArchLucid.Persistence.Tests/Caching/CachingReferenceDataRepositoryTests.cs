@@ -463,6 +463,28 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_last_committed_value_when_upsert_fails_after_generation_bump()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        ThrowingUpsertTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "committed", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+
+        inner.ThrowOnNextUpsert = true;
+
+        Func<Task> act = () => repo.UpsertAsync(tenantId, "feature.x", "rejected", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -662,6 +684,39 @@ internal sealed class DelayedUpsertTenantSettingsRepository : ITenantSettingsRep
         }
 
         await releaseGate.Task.WaitAsync(cancellationToken);
+    }
+
+    public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+}
+
+internal sealed class ThrowingUpsertTenantSettingsRepository : ITenantSettingsRepository
+{
+    private readonly InMemoryTenantSettingsRepository _inner = new();
+
+    public bool ThrowOnNextUpsert
+    {
+        get;
+        set;
+    }
+
+    public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.TryGetAsync(tenantId, settingKey, cancellationToken);
+
+    public Task UpsertAsync(
+        Guid tenantId,
+        string settingKey,
+        string settingValue,
+        CancellationToken cancellationToken)
+    {
+        if (ThrowOnNextUpsert)
+        {
+            ThrowOnNextUpsert = false;
+
+            throw new InvalidOperationException("Simulated upsert failure.");
+        }
+
+        return _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
     }
 
     public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>

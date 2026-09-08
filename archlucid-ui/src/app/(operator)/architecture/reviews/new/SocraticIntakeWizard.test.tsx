@@ -873,7 +873,7 @@ describe("SocraticIntakeWizard", () => {
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
-    const orientation = screen.getByTestId("reviews-new-orientation-bottom");
+    const orientation = screen.getByTestId("reviews-new-orientation-top");
 
     expect(mainColumn).toContainElement(orientation);
     expect(mainColumn).toContainElement(clarificationsStep);

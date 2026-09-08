@@ -76,17 +76,23 @@ export function RunsPageView(props: Props) {
       </a>
 
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
-      <ReviewsHubPageHeader projectId={m.projectId} projectTitle={m.projectTitle} />
       <div
         id={REVIEWS_HUB_PRIMARY_CONTENT_ID}
         data-testid={REVIEWS_HUB_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
       >
+        <ReviewsHubPageHeader projectId={m.projectId} projectTitle={m.projectTitle} />
+
         <div
           id={REVIEWS_HUB_FIRST_VIEWPORT_ID}
           data-testid={REVIEWS_HUB_FIRST_VIEWPORT_ID}
-          className={cn("scroll-mt-24", REVIEWS_HUB_BODY_STACK_CLASS)}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            REVIEWS_HUB_BODY_STACK_CLASS,
+          )}
         >
+        <ReviewsHubBuyerChrome />
+
         {hubLoadOk ? (
           <>
             <ReviewsHubReviewInventoryDeferred
@@ -169,8 +175,6 @@ export function RunsPageView(props: Props) {
             firstCommittedRunId={m.firstCommittedRunId}
           />
         ) : null}
-
-        <ReviewsHubBuyerChrome />
       </div>
     </OperatorPageContainer>
   );

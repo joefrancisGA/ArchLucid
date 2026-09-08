@@ -143,7 +143,8 @@ public sealed class ArchitectureIntelligenceBatch38Tests
             [finding],
             ["Compliance"]);
 
-        recommendations.Single().Alternatives.Should().Contain("Document data flows for sensitive data paths before production");
+        recommendations.Single().Alternatives.Should().Contain(
+            "Record data classification and retention boundaries before expanding production data processing");
     }
 
     private static ArchitectureKnowledgeModel CreateModel(params ArchitectureModelElement[] elements)

@@ -1208,6 +1208,99 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         r.Semantic.LlmFaithfulnessScore.Should().Be(0.68);
     }
 
+    [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_real_rejects_when_finding_citation_coverage_below_floor()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0,
+            SemanticWarnBelow = 0,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinCitationCoverageRatio = 0.5,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-citation-coverage-reject",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = RealParsedResultWithUncitedFindingsJson(),
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                taskStructuralExecutionMode: StructuralExecutionMode.Real,
+                hostAgentExecutionMode: "Real");
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.Semantic.FindingCitationCoverageRatio.Should().Be(0.0);
+        r.EvaluationReason.Should().Contain("finding_citation_coverage_below_floor");
+    }
+
+    [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_simulator_skips_finding_citation_coverage_ratio()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0,
+            SemanticWarnBelow = 0,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinCitationCoverageRatio = 0.5,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-citation-coverage-simulator",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = RealParsedResultWithUncitedFindingsJson(),
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                taskStructuralExecutionMode: StructuralExecutionMode.Simulator,
+                hostAgentExecutionMode: "Real");
+
+        r.Should().NotBeNull();
+        r!.Semantic.FindingCitationCoverageRatio.Should().BeNull();
+        r.EvaluationReason.Should().NotContain("finding_citation_coverage_below_floor");
+    }
+
+    private static string RealParsedResultWithUncitedFindingsJson() =>
+
+        """
+        {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":["ev-1"],"confidence":0.85,"findings":[{"findingId":"f-uncited","severity":"High","description":"Long enough description text for semantic scoring.","enforcementTier":"PolicyViolation","evidenceRefs":[]}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"ev-1"}]}
+        """;
+
     private static string MinimalValidTopologyAgentResultJson() =>
 
         """

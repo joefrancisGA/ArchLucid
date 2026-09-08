@@ -80,11 +80,16 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
   ),
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isNextPublicDemoMode: () => false,
-  isOperatorExperienceFullShellEnv: () => true,
-  isBuyerPolishedOperatorShellEnv: () => false,
-}));
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isNextPublicDemoMode: () => false,
+    isOperatorExperienceFullShellEnv: () => true,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
 
 import { FindingDetailPageView } from "./FindingDetailPageView";
 

@@ -161,6 +161,22 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("Email:SmtpPassword")]
+    public void Resolve_redacts_compound_password_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "smtp-or-db-password",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("AzureDevOps:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:OAuthRefreshToken")]
@@ -170,6 +186,40 @@ public sealed class ConfigurationEffectiveValueResolverTests
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] = "pat-or-refresh-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("AzureDevOps:ArchLucidApiKey")]
+    public void Resolve_redacts_compound_api_key_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "archlucid-api-key-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("HotPathCache:RedisConnectionString")]
+    [InlineData("IntegrationEvents:ServiceBusConnectionString")]
+    [InlineData("Observability:AzureMonitor:ApplicationInsightsConnectionString")]
+    public void Resolve_redacts_compound_connection_string_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "Endpoint=sb://example/;SharedAccessKey=secret",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();

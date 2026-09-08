@@ -4,6 +4,21 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed partial class DifficultyBasedExtractionRouter
 {
+    private static readonly string[] HumanReviewRegulatoryMarkers =
+    [
+        "regulation",
+        "compliance",
+        "pii",
+        "personal data",
+        "phi",
+        "gdpr",
+        "hipaa",
+        "ccpa",
+        "soc 2",
+        "pci",
+        "pci-dss",
+    ];
+
     public ExtractionDifficulty Classify(string sourceText)
     {
         if (string.IsNullOrWhiteSpace(sourceText))
@@ -57,13 +72,7 @@ public sealed partial class DifficultyBasedExtractionRouter
 
     private static bool RequiresHumanReview(string sourceText)
     {
-        return ContainsAny(
-            sourceText,
-            "regulation",
-            "compliance",
-            "pii",
-            "gdpr",
-            "hipaa");
+        return ContainsAny(sourceText, HumanReviewRegulatoryMarkers);
     }
 
     private static bool LooksAmbiguous(string sourceText)

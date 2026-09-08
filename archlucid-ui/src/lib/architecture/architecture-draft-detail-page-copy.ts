@@ -2,6 +2,16 @@
 export const ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE =
   "Drafting workspace — editing or saving does not start a review.";
 
+export const ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID = "architecture-draft-detail-primary-content" as const;
+
+export const ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID = "architecture-draft-detail-first-viewport" as const;
+
+export const ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID = ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID = ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL = "Skip to architecture draft workspace" as const;
+
 /** Bold scan label for required refine guidance — pair with {@link ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}. */
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL = "Required before review" as const;
 

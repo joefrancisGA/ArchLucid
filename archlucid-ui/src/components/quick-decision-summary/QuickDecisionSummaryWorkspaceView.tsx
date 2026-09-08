@@ -15,6 +15,7 @@ import {
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE } from "@/lib/finding-stream-product-of-record-copy";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PRIORITY_FINDINGS_DISPLAY_LIMIT } from "@/lib/usability/usability-consolidation";
@@ -146,14 +147,13 @@ export function QuickDecisionSummaryWorkspaceView({
           ) : null}
         </div>
       ) : null}
-      {props.usingExplanationFallback === true ? (
+      {props.buyerSummaryOmitsAgentFindings === true ? (
         <p
-          className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="quick-decision-explanation-fallback-notice"
+          className={cn("m-0", DESIGN_TOKENS.callout.info, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="quick-decision-buyer-summary-agent-findings-omission"
           role="status"
         >
-          Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not on
-          this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
+          {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
         </p>
       ) : null}
       {!derived.hasSourceFindings ? (

@@ -4,6 +4,7 @@ import { type Dispatch, type SetStateAction } from "react";
 import dynamic from "next/dynamic";
 
 import { ArchitectureDraftHandoffPanel } from "@/components/architecture/ArchitectureDraftHandoffPanel";
+import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftWorkspaceHeaderChrome } from "@/components/architecture/ArchitectureDraftWorkspaceHeaderChrome";
 import { WorkingNestedArchitectureIdentityChromeMount } from "@/components/architecture/WorkingNestedArchitectureIdentityChromeMount";
@@ -33,6 +34,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL,
+  ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID,
+} from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ReviewStartStageId } from "@/lib/review-start-progress-stages";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -242,18 +250,10 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
     );
   }
 
-  return (
-    <div className="space-y-4" data-testid="architecture-draft-workspace">
-      {props.legacyDraftWithoutIdentity === true ? (
-        <p
-          className={cn(OPERATOR_TYPOGRAPHY.body, "rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900")}
-          data-testid="architecture-draft-legacy-honesty"
-        >
-          {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
-        </p>
-      ) : null}
-      <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
-      <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+  const showDetailBuyerLayout = isDetailDraft && buyerPolishedShell;
+
+  const architectureDraftWorkspaceMainBody = (
+    <>
       <ArchitectureDraftWorkspaceIntakeStack {...props} />
 
       <Card>
@@ -302,6 +302,59 @@ export function ArchitectureDraftWorkspaceBody(props: ArchitectureDraftWorkspace
       ) : null}
 
       <ArchitectureDraftWorkspaceStartReviewFooter {...props} />
+    </>
+  );
+
+  const architectureDraftWorkspacePrefix = (
+    <>
+      {props.legacyDraftWithoutIdentity === true ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900")}
+          data-testid="architecture-draft-legacy-honesty"
+        >
+          {ARCHITECTURE_IDENTITY_DESK_LEGACY_DRAFT_HONESTY}
+        </p>
+      ) : null}
+      <WorkingNestedDraftIdentityAnchors parentArchitectureId={props.parentArchitectureId} />
+    </>
+  );
+
+  if (showDetailBuyerLayout) {
+    return (
+      <div className="space-y-4" data-testid="architecture-draft-workspace">
+        {architectureDraftWorkspacePrefix}
+        <a
+          href={`#${ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL}
+        </a>
+
+        <div
+          id={ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID}
+          data-testid="architecture-draft-detail-primary-content"
+          className="scroll-mt-24 space-y-4"
+        >
+          <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+
+          <div
+            id={ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID}
+            data-testid={ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID}
+            className="scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          >
+            <ArchitectureDraftDetailBuyerChrome />
+            {architectureDraftWorkspaceMainBody}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4" data-testid="architecture-draft-workspace">
+      {architectureDraftWorkspacePrefix}
+      <ArchitectureDraftWorkspaceHeaderChrome {...props} />
+      {architectureDraftWorkspaceMainBody}
     </div>
   );
 }

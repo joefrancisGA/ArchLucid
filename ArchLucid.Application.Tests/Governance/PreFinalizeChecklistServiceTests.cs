@@ -1,19 +1,28 @@
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
@@ -654,6 +663,140 @@ public sealed class PreFinalizeChecklistServiceTests
 
         result.Items.Should().Contain(item =>
             item.ItemId == "evidence-linkage-gaps"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-remediated-gate-parity";
+        Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+            EnforcementTier = FindingEnforcementTier.PolicyViolation,
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = DateTimeOffset.UtcNow.UtcDateTime,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTimeOffset.UtcNow.UtcDateTime,
+                Findings = [criticalFinding],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = policyPackId,
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = true,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = DateTimeOffset.Parse("2026-09-08T12:00:00Z"),
+                },
+            ]);
+
+        PreCommitGovernanceGate gate = new(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            snapshots,
+            assignments,
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            trail.Object);
+
+        PreFinalizeChecklistService sut = new(
+            scopeProvider.Object,
+            runs,
+            Mock.Of<IArchitectureRequestRepository>(),
+            snapshots,
+            new InMemoryTechnologyLedgerRepository(),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            gate,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            new PreFinalizeExecuteBaselineDriftEvaluator(
+                Mock.Of<IEffectiveGovernanceResolver>(),
+                new EffectiveGovernanceSnapshotBuilder(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackVersionRepository>()),
+            trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeTrue();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
             && item.Status == PreFinalizeChecklistItemStatus.Clear
             && item.Count == 0);
     }

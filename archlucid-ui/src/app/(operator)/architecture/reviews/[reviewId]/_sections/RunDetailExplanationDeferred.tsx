@@ -6,6 +6,7 @@ import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
+  resolveRunDetailFindingStreams,
 } from "@/lib/quick-decision-summary-derive";
 import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/runs/run-decision-explainability-from-detail";
 import type { RunDetail } from "@/types/authority";
@@ -94,6 +95,7 @@ export async function RunDetailExplanationDeferred(
   }
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
+  const findingStreams = resolveRunDetailFindingStreams(resolvedDetail, explanationSummary);
   const quickDecisionFromExplanationFallback = isQuickDecisionDerivedFromExplanationTraces(
     resolvedDetail,
     explanationSummary,
@@ -115,6 +117,7 @@ export async function RunDetailExplanationDeferred(
       buyerPolishedArtifactTable={buyerPolishedArtifactTable}
       quickDecisionFindings={quickDecisionFindings}
       quickDecisionFromExplanationFallback={quickDecisionFromExplanationFallback}
+      buyerSummaryOmitsAgentFindings={findingStreams.buyerSummaryOmitsAgentFindings}
       findingWireSnapshots={findingWireSnapshots}
       findingCountDisplay={findingCountDisplay}
       warningCountDisplay={warningCountDisplay}
@@ -135,6 +138,7 @@ export async function RunDetailExplanationDeferred(
       graphSnapshot={resolvedDetail.graphSnapshot}
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
       withheldFindings={withheldFindings}
+      structuralExecutionMode={resolvedDetail.run.structuralExecutionMode}
     />
   );
 }

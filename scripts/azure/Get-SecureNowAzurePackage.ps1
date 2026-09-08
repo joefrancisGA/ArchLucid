@@ -17,6 +17,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
+    [string] $TenantId = "",
+
+    [Parameter(Mandatory = $false)]
     [string] $SubscriptionId = "",
 
     [Parameter(Mandatory = $false)]
@@ -132,6 +135,7 @@ function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 
 }
 
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorQuickStart.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.RetailPrices.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
@@ -257,7 +261,7 @@ function Get-ArchLucidExtractorInventoryResources
                 -Telemetry $Telemetry `
                 -Step Inventory `
                 -Stopwatch $fallbackWatch `
-                -Message ("Inventory collection failed after Get-AzResource fallback. Ensure Reader at subscription scope and retry Connect-AzAccount. {0}" -f $fallbackFailure) `
+                -Message ("Inventory collection failed after Get-AzResource fallback. Ensure Reader at subscription scope and sign in with Connect-AzAccount -Tenant '<tenant-id>' -UseDeviceAuthentication. {0}" -f $fallbackFailure) `
                 -Context @{ subscriptionId = $SubscriptionId; resourceGroup = $ResourceGroupScope }
 
             throw
@@ -342,8 +346,9 @@ if ($DryRun)
     {
         if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
         {
-            $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
-            Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+            Set-ArchLucidAzureExtractorSubscriptionContext `
+                -SubscriptionId $SubscriptionId `
+                -TenantId $TenantId
         }
 
         if (Get-Module -ListAvailable -Name Az.ResourceGraph)
@@ -410,8 +415,9 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
 
     try
     {
-        $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
-        Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+        Set-ArchLucidAzureExtractorSubscriptionContext `
+            -SubscriptionId $SubscriptionId `
+            -TenantId $TenantId
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `
@@ -428,7 +434,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
             -Telemetry $telemetry `
             -Step SubscriptionContext `
             -Stopwatch $contextWatch `
-            -Message ("Unable to access subscription '{0}'. Run Connect-AzAccount and ensure Reader (or equivalent) RBAC at subscription scope. {1}" -f $SubscriptionId, $authFailure) `
+            -Message ("Unable to access subscription '{0}'. Sign in with Connect-AzAccount -Tenant '<tenant-id>' -UseDeviceAuthentication and ensure Reader (or equivalent) RBAC at subscription scope. {1}" -f $SubscriptionId, $authFailure) `
             -Context @{ subscriptionId = $SubscriptionId }
 
         exit 1

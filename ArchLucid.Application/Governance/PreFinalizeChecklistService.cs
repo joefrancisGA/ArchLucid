@@ -28,7 +28,8 @@ public sealed partial class PreFinalizeChecklistService(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
-    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
+    ISpecialistReviewService? specialistReviewService = null,
+    TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -69,6 +70,8 @@ public sealed partial class PreFinalizeChecklistService(
     private readonly IBlockedReviewCheckProjector? _blockedReviewCheckProjector = blockedReviewCheckProjector;
 
     private readonly ISpecialistReviewService? _specialistReviewService = specialistReviewService;
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     public async Task<PreFinalizeChecklistResult> BuildAsync(string runId, CancellationToken cancellationToken = default)
     {

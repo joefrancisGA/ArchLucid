@@ -56,4 +56,16 @@ public sealed class AuthEmailDomainNormalizerTests
         Assert.Equal("contoso.com", normalized);
         Assert.Equal("contoso.com", display);
     }
+
+    [Theory]
+    [InlineData("127.0.0.1")]
+    [InlineData("8.8.8.8")]
+    public void TryNormalize_accepts_ipv4_literal_domain_shape(string input)
+    {
+        bool ok = AuthEmailDomainNormalizer.TryNormalize(input, out string normalized, out string display);
+
+        Assert.True(ok);
+        Assert.Equal(input, normalized);
+        Assert.Equal(input, display);
+    }
 }

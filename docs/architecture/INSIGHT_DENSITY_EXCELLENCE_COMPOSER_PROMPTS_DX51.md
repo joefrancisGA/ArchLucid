@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-51–DX-56)
 
-**Created:** 2026-09-08 · **Status:** Ready to run. **DX-01–DX-50 shipped on `master` (2026-09-07).** Do **not** re-run them.
+**Created:** 2026-09-08 · **Status:** **DX-51–DX-56 shipped on `master` (2026-09-08).** Do **not** re-run. Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md) (**DX-58–DX-62**).
 
 DX-01–DX-50 closed the Cursor-implementable *engine + ingest + citation* holes. Latest golden case is **`case-63`**. Harness registers **41** engines; catalog has **50**; **9** absent-with-reason. This set does **not** add coverage engines. It raises density by joining information the DX set already produces (fusion, portfolio topology, held-check ledger), by making the frontier instrument usable without fake transcripts (DX-54), and by two later prompts that need LLM budget (DX-55) or verification volume (DX-56).
 
@@ -456,7 +456,7 @@ Done when: engines below min-sample are neutral; engines at/above min-sample ran
 
 Live frontier **pilot-pending** captures need owner **G-REAL-06** runs. DX-54 builds the instrument; it must not invent named-model transcripts. Graph-RAG buyer claims need ADR 0057 owner override + **TB-883** ablation.
 
-Workstream 2 remainder: **Real-mode judge default-on**, **`PreferHighNoveltyEngines` default-on**, and **`EnableInsightGenerator` default-on** stay owner-gated and are **not** in this file. GTM cohorts **M-90 / M-44 / M-91 / M-92**, SOC 2 CPA (**G-REAL-05**), and third-party pen test (**G-ASSURANCE-02**) stay off the engineering batch list.
+Workstream 2 remainder: **`EnableProseAssumptionExtraction` default-on** stays owner-gated (DX-57 flipped ranking priors and the insight generator, not prose extraction). GTM cohorts **M-90 / M-44 / M-91 / M-92**, SOC 2 CPA (**G-REAL-05**), and third-party pen test (**G-ASSURANCE-02**) stay off the engineering batch list.
 
 **TB-2035** (verification report export) is a separate backlog row — do not re-implement export in DX-56.
 
@@ -473,6 +473,7 @@ Coverage-shaped engines (observability completeness, capacity planning, IAM dept
 - DX-36–DX-41: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md)
 - DX-42–DX-46: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md)
 - DX-47–DX-50: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md)
+- Next **DX-58–DX-62:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - Miss clause: [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)

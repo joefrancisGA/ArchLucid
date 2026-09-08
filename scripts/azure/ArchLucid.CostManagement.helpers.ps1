@@ -98,20 +98,13 @@ function Invoke-ArchLucidAzureCliAzRestCaptured([Parameter(Mandatory)][string[]]
     try {
 
         $proc = Start-Process `
-
-                -FilePath $azExe `
-
-                -ArgumentList @($vector.ToArray()) `
-
-                -NoNewWindow `
-
-                -Wait `
-
-                -PassThru `
-
-                -RedirectStandardOutput $stdoutPath `
-
-                -RedirectStandardError $stderrPath
+            -FilePath $azExe `
+            -ArgumentList @($vector.ToArray()) `
+            -NoNewWindow `
+            -Wait `
+            -PassThru `
+            -RedirectStandardOutput $stdoutPath `
+            -RedirectStandardError $stderrPath
 
 
 
@@ -226,6 +219,8 @@ function Invoke-ArchLucidActualCostPagedQuery(
         [void]$tailArgs.Add('--resource')
         [void]$tailArgs.Add('https://management.azure.com/')
 
+        [string]$bodyFilePath = ''
+
         if ($stillPost) {
 
             [void]$tailArgs.Add('--headers')
@@ -233,8 +228,15 @@ function Invoke-ArchLucidActualCostPagedQuery(
 
             if (-not ([string]::IsNullOrWhiteSpace($reuseBody))) {
 
+                $bodyFilePath = Join-Path ([IO.Path]::GetTempPath()) ("alcm-body-{0:N}.json" -f ([Guid]::NewGuid()))
+
+                [System.IO.File]::WriteAllText(
+                    $bodyFilePath,
+                    $reuseBody,
+                    [System.Text.UTF8Encoding]::new($false))
+
                 [void]$tailArgs.Add('--body')
-                [void]$tailArgs.Add($reuseBody)
+                [void]$tailArgs.Add("@$bodyFilePath")
 
             }
 
@@ -252,6 +254,16 @@ function Invoke-ArchLucidActualCostPagedQuery(
             Write-Warning "ArchLucid ActualCost az rest invocation failed: $($_.Exception.Message)"
 
             return @{ Ok = $false; StderrCombined = $_.Exception.Message; Pages = @() }
+
+        }
+
+        finally {
+
+            if (-not ([string]::IsNullOrWhiteSpace($bodyFilePath))) {
+
+                Remove-Item -LiteralPath $bodyFilePath -Force -ErrorAction SilentlyContinue
+
+            }
 
         }
 
@@ -786,9 +798,7 @@ function Get-ArchLucidActualCostSummary(
 
 
         Invoke-ArchLucidActualCostPagedQuery -PostUrl "$apiVersionTagged" `
-
             -CompressedBody $serializedRequest `
-
             -DiagTokenForWarnings $correlator
 
 
@@ -834,8 +844,7 @@ function Get-ArchLucidActualCostSummary(
 
 
         return Merge-ArchLucidPagedCostManagementRowsIntoSummary `
-
-                -Pages @($batch.Pages) -BillingPeriodLabel $Timeframe
+            -Pages @($batch.Pages) -BillingPeriodLabel $Timeframe
 
 
 

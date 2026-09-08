@@ -8,7 +8,7 @@
 | --- | --- |
 | Workflow | `.github/workflows/private-beta-access-on-push.yml` |
 | Display name | `Operator UI: private-beta access-path (JwtBearer)` |
-| Specs (push workflow, `--workers=1`) | `live-api-private-beta-access.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-scim-invite-substitute-smoke.spec.ts` |
+| Specs (push workflow, `--workers=1`) | `live-api-scim-invite-substitute-smoke.spec.ts`, `live-api-invite-flow.spec.ts`, `live-api-private-beta-wave-3.spec.ts`, `live-api-private-beta-access.spec.ts` (lighter specs first for faster CI signal) |
 | Timeout | 120 minutes (job); 45 minutes per Playwright test in CI |
 
 ## Happy path (CI step order)
@@ -58,6 +58,7 @@ Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh 
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
+| Wave-3 / invite / create-run **401** after ~50m+ Playwright | CI JWT minted before shell warm; default 1h `exp` elapsed mid-suite | **Shipped** — `refresh_private_beta_ci_jwt.sh` re-mints (7200s exp) immediately before Playwright after warm |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
 | Actions queue backlog | Many trunk merges enqueue parallel private-beta runs on different SHAs | Workflow uses **ref-level concurrency** (`private-beta-access-on-push-${{ github.ref }}`, `cancel-in-progress: true`) — only the latest `master` push runs; superseded SHAs cancel mid-flight. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
@@ -106,6 +107,14 @@ On failure, download from the workflow run (newest non-cancelled run on the targ
 
 For a machine-readable checklist, run `python3 scripts/ci/report_private_beta_playwright_failure_triage.py --markdown-out /tmp/private-beta-triage.md` from the repo root.
 
+**Download artifacts from a finished smoke run:**
+
+```bash
+bash scripts/ci/fetch_private_beta_smoke_artifacts.sh <run-id> ./triage-out --lane smoke-branch
+```
+
+Use `--lane trunk` for `private-beta-access-on-push` or `--lane full-matrix` for `ci.yml` `ui-e2e-live-beta-access`.
+
 **OpenAPI drift on push corset:** when `.NET: OpenAPI v1 contract snapshot (fail-fast)` fails after architecture or infrastructure API merges, regenerate from repo root:
 
 ```bash
@@ -143,7 +152,7 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 ```
 
 ```bash
-cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts live-api-private-beta-wave-3.spec.ts live-api-invite-flow.spec.ts live-api-scim-invite-substitute-smoke.spec.ts --workers=1
+cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
 ## Golden-cohort apply (owner, after first green)
