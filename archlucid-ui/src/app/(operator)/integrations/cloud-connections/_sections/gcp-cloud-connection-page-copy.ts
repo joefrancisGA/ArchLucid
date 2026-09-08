@@ -17,6 +17,9 @@ export const GCP_CLOUD_CONNECTION_START_HERE_CARD_TITLE = "Start here" as const;
 export const GCP_CLOUD_CONNECTION_START_HERE_LEAD =
   "Complete the security preflight checklist, copy the Workload Identity Federation starter into GCP, then enter your project details in Connection details and validate." as const;
 
+export const GCP_CLOUD_CONNECTION_PAGE_LEAD =
+  "Connect read-only GCP inventory through Workload Identity Federation — no downloadable service-account JSON keys." as const;
+
 export function gcpCloudConnectionPageOverview(
   buyerPolishedShell: boolean,
   operatorOverview: string,

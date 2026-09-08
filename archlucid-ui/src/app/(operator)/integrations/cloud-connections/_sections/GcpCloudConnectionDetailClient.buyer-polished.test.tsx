@@ -49,6 +49,7 @@ import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient
 import {
   GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
   GCP_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  GCP_CLOUD_CONNECTION_PAGE_LEAD,
   GCP_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER,
   GCP_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   GCP_CLOUD_CONNECTION_SKIP_LINK_LABEL,
@@ -63,7 +64,7 @@ import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/whe
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("GcpCloudConnectionDetailClient buyer-polished shell (IGC)", () => {
-  it("renders skip link, start-here panel before follow-ups, header claim discipline, and hides contextual help", async () => {
+  it("renders skip link, intro lead, start-here panel before follow-ups, header claim discipline, and hides contextual help", async () => {
     render(<GcpCloudConnectionDetailClient />);
 
     await waitFor(() => {
@@ -90,6 +91,7 @@ describe("GcpCloudConnectionDetailClient buyer-polished shell (IGC)", () => {
     const sourcesSection = screen.getByTestId("cloud-connections-gcp-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("gcp-cloud-connection-intro")).toHaveTextContent(GCP_CLOUD_CONNECTION_PAGE_LEAD);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
