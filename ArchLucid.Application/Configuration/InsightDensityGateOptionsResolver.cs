@@ -112,6 +112,12 @@ public sealed class InsightDensityGateOptionsResolver(
             MaxGeneratedInsightFindingsPerSnapshot = source.MaxGeneratedInsightFindingsPerSnapshot,
             PreferHighNoveltyEngines = source.PreferHighNoveltyEngines,
             NoveltyRateWindowDays = source.NoveltyRateWindowDays,
+            EnableProseAssumptionExtraction = source.EnableProseAssumptionExtraction,
+            MaxProseAssumptionCandidatesPerSnapshot = source.MaxProseAssumptionCandidatesPerSnapshot,
+            MaxProseAssumptionFindingsPerSnapshot = source.MaxProseAssumptionFindingsPerSnapshot,
+            PreferHighVerificationEngines = source.PreferHighVerificationEngines,
+            VerificationPriorMinSample = source.VerificationPriorMinSample,
+            VerificationPriorWindowDays = source.VerificationPriorWindowDays,
         };
     }
 }
