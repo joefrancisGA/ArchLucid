@@ -9,12 +9,8 @@ import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  GOVERNANCE_AUDIT_LOAD_ERROR,
-  GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL,
-  GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
-  GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
-} from "@/lib/governance-audit-page-copy";
+import { GOVERNANCE_AUDIT_LOAD_ERROR, GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL, GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID, GOVERNANCE_AUDIT_SKIP_LINK_LABEL } from "@/lib/governance-audit-page-copy";
+import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
@@ -251,7 +247,7 @@ export function AuditPageView(props: AuditPageViewProps) {
           ) : (
             <OperatorApiProblem
               problem={props.failure.problem}
-              fallbackMessage={props.failure.message}
+              fallbackMessage={auditExportBlockedReason(props.failure) ?? props.failure.message}
               correlationId={props.failure.correlationId}
             />
           )}

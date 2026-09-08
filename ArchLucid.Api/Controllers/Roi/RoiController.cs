@@ -95,6 +95,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
         try
@@ -186,6 +187,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
         try
@@ -209,6 +211,7 @@ public sealed class RoiController(
     [Produces("application/json")]
     [ProducesResponseType(typeof(SponsorRoiExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
         try

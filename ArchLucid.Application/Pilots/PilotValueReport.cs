@@ -126,6 +126,16 @@ public sealed class PilotValueReport
         get;
         init;
     }
+
+    /// <summary>
+    ///     Sponsor-handoff ROI freshness disposition for the latest committed run in the window
+    ///     (<see cref="RoiMetricSourceFreshnessRules" />).
+    /// </summary>
+    public string RoiSourceFreshnessDisposition
+    {
+        get;
+        init;
+    } = "PASS";
 }
 
 public sealed class PilotValueReportSeverityBreakdown

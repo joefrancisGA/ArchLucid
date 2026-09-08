@@ -1,9 +1,11 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
-  throwApiRequestError,
 } from "./http";
 import {
   fetchBrowserDownload,
@@ -45,7 +47,8 @@ async function fetchScopedProxyFileGet(
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   if (options.expectedContentTypePrefixes && options.expectedContentTypePrefixes.length > 0) {

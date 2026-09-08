@@ -7,6 +7,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import {
@@ -173,7 +174,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
           <div role="alert" className="pt-0">
             <OperatorApiProblem
               problem={actionFailure.problem}
-              fallbackMessage={actionFailure.message}
+              fallbackMessage={askBlockedReason(actionFailure) ?? actionFailure.message}
               correlationId={actionFailure.correlationId}
             />
           </div>

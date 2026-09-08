@@ -19,6 +19,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 import {
@@ -216,6 +217,16 @@ export function FindingExplainPanel({
         <OperatorLoadingNotice>
           <strong>Loading LLM audit…</strong>
         </OperatorLoadingNotice>
+      ) : null}
+
+      {failure !== null && findingExplainBlockedReason(failure) !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-explain-sealed-manifest-blocked-reason"
+        >
+          {findingExplainBlockedReason(failure)}
+        </p>
       ) : null}
 
       {failure !== null ? (
