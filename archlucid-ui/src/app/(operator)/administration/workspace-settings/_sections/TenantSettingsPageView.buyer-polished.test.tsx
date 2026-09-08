@@ -116,6 +116,8 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
       TENANT_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByRole("button", { name: "Page help" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-active-scope-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-caller-authority")).not.toBeInTheDocument();
     expect(screen.queryByTestId("workspace-scope-vocabulary-rail-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tenant-workspace-projects-card-stub")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Download support bundle" })).not.toBeInTheDocument();

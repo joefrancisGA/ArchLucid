@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Findings;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Decisioning.Services.Findings;
@@ -22,6 +23,7 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
 
         ApplyHeldCheckLedger(context, snapshot);
         ApplyProseAssumptionRegister(context, snapshot);
+        ApplyProseAssumptionHeldCheckAsks(context, snapshot);
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
@@ -68,6 +70,36 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
 
         snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
         snapshot.InsightDensityCuration.ProseAssumptionRegisterEntries = context.ProseAssumptionRegisterEntries.ToList();
+    }
+
+    private static void ApplyProseAssumptionHeldCheckAsks(FindingsStageContext context, FindingsSnapshot snapshot)
+    {
+        IReadOnlyList<HeldCheckLedgerRollupEntry> ledgerEntries =
+            snapshot.InsightDensityCuration?.HeldCheckLedgerEntries
+            ?? context.AnalysisContext?.HeldCheckLedger?.BuildRollup()
+            ?? [];
+
+        IReadOnlyList<ProseAssumptionRegisterEntry> registerEntries =
+            snapshot.InsightDensityCuration?.ProseAssumptionRegisterEntries
+            ?? context.ProseAssumptionRegisterEntries;
+
+        if (registerEntries.Count == 0)
+        {
+            return;
+        }
+
+        IReadOnlyList<ProseAssumptionHeldCheckAsk> asks = ProseAssumptionHeldCheckAskBuilder.Build(
+            registerEntries,
+            ledgerEntries,
+            new InsightDensityGateOptions());
+
+        if (asks.Count == 0)
+        {
+            return;
+        }
+
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.ProseAssumptionHeldCheckAsks = asks.ToList();
     }
 
     [LoggerMessage(

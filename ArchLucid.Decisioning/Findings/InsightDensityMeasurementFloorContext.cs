@@ -52,6 +52,13 @@ public sealed class InsightDensityMeasurementFloorContext
         init;
     }
 
+    /// <summary>Upload asks from NotVerifiable prose assumptions (DX-66).</summary>
+    public IReadOnlyList<ProseAssumptionHeldCheckAsk> ProseAssumptionHeldCheckAsks
+    {
+        get;
+        init;
+    } = [];
+
     public static IReadOnlyList<string> DeriveSkippedActorEngineTypes(
         int actorNodeCount,
         bool analysisStagesComplete)

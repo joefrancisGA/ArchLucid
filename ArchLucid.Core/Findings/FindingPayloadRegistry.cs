@@ -32,6 +32,7 @@ public static class FindingPayloadRegistry
         [nameof(SecretsLifecycleFindingPayload)] = typeof(SecretsLifecycleFindingPayload),
         [nameof(ChecklistClusterSynthesisFindingPayload)] = typeof(ChecklistClusterSynthesisFindingPayload),
         [nameof(DecisionGradeFusionFindingPayload)] = typeof(DecisionGradeFusionFindingPayload),
+        [nameof(TopologySecurityDriftFindingPayload)] = typeof(TopologySecurityDriftFindingPayload),
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

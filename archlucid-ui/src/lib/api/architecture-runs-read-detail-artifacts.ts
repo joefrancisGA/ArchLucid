@@ -39,7 +39,10 @@ export async function getRunDetail(
     throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
   }
 
-  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}`, options);
+  return apiGetSealedManifestAware<RunDetail>(
+    `/v1/authority/reviews/${runId}`,
+    options,
+  ).then((data) => ({ data, traceId: null }));
 }
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */

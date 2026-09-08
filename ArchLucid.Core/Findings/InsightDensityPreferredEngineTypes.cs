@@ -24,6 +24,7 @@ public static class InsightDensityPreferredEngineTypes
         "data-flow-trust-boundary",
         "decision-grade-fusion",
         "portfolio-shared-topology",
+        "topology-security-drift",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static bool IsPreferred(string? engineType)

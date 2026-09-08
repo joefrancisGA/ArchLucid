@@ -7,6 +7,9 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+export const ADVISORY_SCHEDULES_CLAIM_DISCIPLINE =
+  "Scheduled advisory scans trigger recurring recommendation generation from finalized reviews — not a finalized review record, a resolve outcome, or automatic remediation.";
+
 export const ADVISORY_SCHEDULES_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
 export const ADVISORY_SCHEDULES_SOURCES_INTRO = hubSecondaryFollowUpsIntro(

@@ -1,8 +1,10 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -31,5 +33,6 @@ public sealed partial class GraphController(
     IAuthorityQueryService authorityQueryService,
     IRunRepository runRepository,
     IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService,
     IOptions<KnowledgeGraphLimitsOptions> knowledgeGraphLimits)
     : ControllerBase;

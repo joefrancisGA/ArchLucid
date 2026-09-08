@@ -1,12 +1,14 @@
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Runs;
-using ArchLucid.Api.Support;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -36,6 +38,7 @@ public sealed partial class RunDetailPageBundleController(
     IAuthorityCompareService compareService,
     ICompareRunsApplicationFacade compareRunsFacade,
     IScopeContextProvider scopeProvider,
+    IManifestHashService manifestHashService,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     ILogger<RunDetailPageBundleController> logger) : ControllerBase
@@ -71,6 +74,9 @@ public sealed partial class RunDetailPageBundleController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));

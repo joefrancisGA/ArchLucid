@@ -4,6 +4,9 @@ import {
   getArchitectureDecisionRegister,
   type ArchitectureDecisionRegisterFilters,
 } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceRegistersBlockedReason } from "@/lib/governance/governance-registers-blocked-reason";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type {
@@ -37,9 +40,16 @@ export function useArchitectureDecisionRegisterQuery(
   return createOperatorQueryHook<ArchitectureDecisionRegisterResult>({
     queryKey: operatorQueryKeys.architectureDecisionRegister(trimmedProjectId, filtersKey),
     queryFn: async () => {
-      const response = await getArchitectureDecisionRegister(trimmedProjectId, filters);
+      try {
+        const response = await getArchitectureDecisionRegister(trimmedProjectId, filters);
 
-      return { decisions: response.decisions ?? [] };
+        return { decisions: response.decisions ?? [] };
+      } catch (error: unknown) {
+        const failure = toApiLoadFailure(error);
+        const blockedReason = governanceRegistersBlockedReason(failure);
+
+        throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(error));
+      }
     },
     enabled: (options?.enabled ?? true) && trimmedProjectId.length > 0,
   });

@@ -16,6 +16,7 @@ import {
   traceRowsForRun,
 } from "@/components/governance/findings/governance-findings-row-mappers";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceRegistersBlockedReason } from "@/lib/governance/governance-registers-blocked-reason";
 import {
   architectureRiskRegisterEntryMatchesAssigneeIdentities,
 } from "@/lib/governance/governance-assigned-to-me-identities";
@@ -33,6 +34,7 @@ export type GovernanceFindingsFetchFailure = {
   readonly httpStatus: number | null;
   readonly errorCode: string | null;
   readonly attemptedAtUtc: string;
+  readonly blockedReason: string | null;
 };
 
 export type GovernanceFindingsFetchResult = {
@@ -50,6 +52,7 @@ function captureGovernanceFindingsFetchFailure(error: unknown, attemptedAtUtc: s
     httpStatus: apiFailure.httpStatus,
     errorCode: apiFailure.problem?.errorCode?.trim() ?? null,
     attemptedAtUtc,
+    blockedReason: governanceRegistersBlockedReason(apiFailure),
   };
 }
 

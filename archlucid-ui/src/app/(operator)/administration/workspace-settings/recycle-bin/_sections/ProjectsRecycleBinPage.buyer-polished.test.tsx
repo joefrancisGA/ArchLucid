@@ -22,6 +22,11 @@ import { recycleBinPageDescription } from "@/lib/projects-recycle-bin-payload";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -104,11 +109,14 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("projects-recycle-vocabulary-rail-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("projects-recycle-bin-restore-residue-honesty")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("projects-recycle-bin-audit-note")).not.toBeInTheDocument();
     expect(screen.queryByTestId("projects-recycle-bin-restore")).not.toBeInTheDocument();
     expect(screen.getByTestId("projects-recycle-bin-refresh-button")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     await screen.findByTestId("projects-recycle-bin-row-proj-1");
+
+    expect(screen.queryByTestId("projects-recycle-bin-audit-trail-proj-1")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID);

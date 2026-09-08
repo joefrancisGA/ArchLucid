@@ -20,6 +20,7 @@ public sealed partial class RunDetailPageBundleController
     [HttpGet("critical-page-bundle")]
     [ProducesResponseType(typeof(RunDetailCriticalPageBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetCriticalPageBundle(Guid runId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -31,6 +32,11 @@ public sealed partial class RunDetailPageBundleController
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
+
+        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
 

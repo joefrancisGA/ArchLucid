@@ -64,7 +64,9 @@ internal static class InsightDensityJudgeCandidateSelector
         IReadOnlyList<Finding> candidates,
         int maxJudgedFindingsPerSnapshot,
         IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null,
-        IReadOnlyDictionary<string, double>? verificationPriorRatesByEngineType = null)
+        IReadOnlyDictionary<string, double>? verificationPriorRatesByEngineType = null,
+        IReadOnlyDictionary<string, double>? humanAcceptResidualByEngineType = null,
+        bool preferHighHumanAcceptResidual = false)
     {
         IOrderedEnumerable<Finding> orderedQuery = candidates
             .OrderByDescending(static finding => InsightDensityPreferredEngineTypes.IsPreferred(finding.EngineType));
@@ -81,6 +83,12 @@ internal static class InsightDensityJudgeCandidateSelector
         {
             orderedQuery = orderedQuery.ThenByDescending(finding =>
                 InsightDensityNoveltyRateLookup.ResolveNoveltyRate(finding.EngineType, noveltyRatesByEngineType));
+        }
+
+        if (preferHighHumanAcceptResidual && humanAcceptResidualByEngineType is not null)
+        {
+            orderedQuery = orderedQuery.ThenByDescending(finding =>
+                humanAcceptResidualByEngineType.GetValueOrDefault(finding.EngineType));
         }
 
         List<Finding> ordered = orderedQuery

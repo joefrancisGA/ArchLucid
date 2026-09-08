@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
 import { REVIEW_PACKAGE_OPEN_FAILURE_HEADING } from "@/lib/review-generation-handoff";
+import { runDetailPageBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import { cn } from "@/lib/utils";
 
 const runDetailErrorShellClassName = cn(OPERATOR_LAYOUT.sectionStack, "px-1 py-2 sm:px-0");
@@ -63,6 +64,10 @@ export function RunDetailPageFetchErrorView(props: {
     );
   }
 
+  const blockedReason = runDetailPageBundleBlockedReason(props.loadFailure);
+  const fallbackMessage =
+    blockedReason ?? props.fallbackMessage;
+
   return (
     <OperatorPageContainer
       variant="dashboard"
@@ -72,7 +77,7 @@ export function RunDetailPageFetchErrorView(props: {
       <OperatorPageHeader title="Review detail" headingLevel="h1" />
       <OperatorApiProblem
         problem={props.loadFailure?.problem ?? null}
-        fallbackMessage={props.fallbackMessage}
+        fallbackMessage={fallbackMessage}
         correlationId={props.loadFailure?.correlationId ?? null}
       />
       <p>
