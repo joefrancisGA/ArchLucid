@@ -40,7 +40,8 @@ public sealed class CareerArtifactCompletenessValidatorTests
             ArtifactKind: CareerArtifactKind.Finalize,
             TransparencyTrail: new TransparencyTrail(),
             EnginesSucceeded: _meetsFloorEngineCount,
-            WorkingDesk: true);
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Real);
 
         CareerArtifactCompletenessResult result = _sut.Evaluate(input);
 
@@ -71,7 +72,8 @@ public sealed class CareerArtifactCompletenessValidatorTests
             TransparencyTrail: null,
             EnginesSucceeded: _meetsFloorEngineCount,
             WorkingDesk: true,
-            LegacySealedReExport: true);
+            LegacySealedReExport: true,
+            StructuralExecutionMode: StructuralExecutionMode.Real);
 
         CareerArtifactCompletenessResult result = _sut.Evaluate(input);
 
@@ -260,13 +262,49 @@ public sealed class CareerArtifactCompletenessValidatorTests
     }
 
     [Fact]
+    public void Evaluate_blocks_working_simulator_export_without_rehearsal_banner_on_artifact()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            SimulatorRehearsalBannerOnArtifact: false);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.CanRender.Should().BeFalse();
+        result.BlockReasons.Should().Contain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+    }
+
+    [Fact]
+    public void Evaluate_allows_working_simulator_export_when_rehearsal_banner_is_on_artifact()
+    {
+        CareerArtifactCompletenessInput input = new(
+            ArtifactKind: CareerArtifactKind.Export,
+            TransparencyTrail: new TransparencyTrail(),
+            EnginesSucceeded: _meetsFloorEngineCount,
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Simulator,
+            SimulatorRehearsalBannerOnArtifact: true);
+
+        CareerArtifactCompletenessResult result = _sut.Evaluate(input);
+
+        result.BlockReasons.Should().NotContain(reason =>
+            reason.Code == CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+    }
+
+    [Fact]
     public void Evaluate_finalize_warns_when_asserted_trail_empty()
     {
         CareerArtifactCompletenessInput input = new(
             ArtifactKind: CareerArtifactKind.Finalize,
             TransparencyTrail: new TransparencyTrail(),
             EnginesSucceeded: _meetsFloorEngineCount,
-            WorkingDesk: true);
+            WorkingDesk: true,
+            StructuralExecutionMode: StructuralExecutionMode.Real);
 
         CareerArtifactCompletenessResult result = _sut.Evaluate(input);
 

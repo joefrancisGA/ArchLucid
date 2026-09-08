@@ -359,6 +359,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             enginesSucceeded,
             workingDesk,
             preCommitGateEnabled: true,
+            structuralExecutionMode: runRecord.StructuralExecutionMode,
             degradedFindingCoverage,
             degradedFindingCoverageFailedEngineLabels);
         CareerArtifactCompletenessResult finalizeArtifactResult =

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
+import { SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON } from "@/lib/governance/simulator-career-honesty";
 import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 
 describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
@@ -36,13 +37,27 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
     ).toBe(false);
   });
 
-  it("does not suppress when trail is unavailable on list summaries", () => {
+  it("suppresses Ready when quality gate is WarnOnly on real mode", () => {
     expect(
       shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: true,
         structuralExecutionMode: StructuralExecutionModeWire.Real,
         hostAgentExecutionMode: "real",
         hostQualityGateMode: "WarnOnly",
+      }),
+    ).toBe(true);
+  });
+
+  it("suppresses Ready for Working simulator finalize without rehearsal banner (LP-06)", () => {
+    expect(
+      shouldSuppressReadyToFinalizeForCareerHonesty({
+        workingDesk: true,
+        structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+        transparencyTrail: {
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        },
       }),
     ).toBe(true);
   });

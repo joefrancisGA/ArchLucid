@@ -15,7 +15,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.CareerArtifacts;
-using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -146,11 +146,62 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         exception.Result.Reason.Should().Contain("Finding coverage is degraded");
     }
 
+    [SkippableFact]
+    public async Task CommitRunAsync_blocks_finalize_when_simulator_mode_on_working_desk()
+    {
+        Guid findingsSnapshotId = Guid.Parse("cccccccccccccccccccccccccccccccc");
+        FindingsSnapshot measurementPassingSnapshot = CreateMeasurementFloorPassingSnapshot(findingsSnapshotId);
+
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: measurementPassingSnapshot,
+            findingsSnapshotId: findingsSnapshotId,
+            structuralExecutionMode: StructuralExecutionMode.Simulator);
+
+        Func<Task> act = async () => await sut.CommitRunAsync(RunId, CancellationToken.None);
+
+        PreCommitGovernanceBlockedException exception = (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
+            .Which;
+
+        exception.Result.Blocked.Should().BeTrue();
+        exception.Result.Reason.Should().Be(SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage);
+    }
+
+    private static FindingsSnapshot CreateMeasurementFloorPassingSnapshot(Guid snapshotId)
+    {
+        List<Finding> findings = [];
+
+        for (int index = 0; index < InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines; index++)
+        {
+            findings.Add(new Finding
+            {
+                FindingType = "RequirementFinding",
+                Category = $"Category{index}",
+                EngineType = $"engine{index}",
+                Title = "title",
+                Rationale = "rationale",
+                Severity = FindingSeverity.Info,
+            });
+        }
+
+        return new FindingsSnapshot
+        {
+            FindingsSnapshotId = snapshotId,
+            RunId = RunGuid,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+            Findings = findings,
+        };
+    }
+
     private static AuthorityDrivenArchitectureRunCommitOrchestrator CreateSut(
         out Mock<IArchitectureRequestRepository> requestRepository,
         TransparencyTrail? transparencyTrail,
         FindingsSnapshot? findingsSnapshot = null,
-        Guid? findingsSnapshotId = null)
+        Guid? findingsSnapshotId = null,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real)
     {
         requestRepository = new Mock<IArchitectureRequestRepository>();
         requestRepository
@@ -162,7 +213,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             });
 
         Mock<IRunRepository> runRepository = new();
-        RunRecord runRecord = CreateReadyRunRecord(findingsSnapshotId);
+        RunRecord runRecord = CreateReadyRunRecord(findingsSnapshotId, structuralExecutionMode);
         runRepository
             .Setup(repository => repository.GetByIdAsync(TestScope, RunGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(runRecord);
@@ -236,7 +287,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 
-    private static RunRecord CreateReadyRunRecord(Guid? findingsSnapshotId = null) =>
+    private static RunRecord CreateReadyRunRecord(
+        Guid? findingsSnapshotId = null,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real) =>
         new()
         {
             RunId = RunGuid,
@@ -247,6 +300,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             ArchitectureRequestId = RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
             FindingsSnapshotId = findingsSnapshotId,
+            StructuralExecutionMode = structuralExecutionMode,
         };
 
     private static IReadOnlyList<AgentResult> CreateCommitReadyAgentResults() =>

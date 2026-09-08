@@ -4,6 +4,8 @@ import {
   evaluateCareerArtifactHonesty,
   type CareerArtifactHonestyInput,
 } from "@/lib/career-artifact/career-artifact-honesty";
+import { SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON } from "@/lib/governance/simulator-career-honesty";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 
 const baseExportInput: CareerArtifactHonestyInput = {
   artifactKind: "export",
@@ -86,6 +88,7 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
   it("warns on legacy sealed re-export with incomplete trail instead of blocking export", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
+      enginesSucceeded: 41,
       legacySealedReExport: true,
       transparencyTrail: null,
     });
@@ -154,5 +157,36 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
 
     expect(verdict.canRender).toBe(false);
     expect(verdict.headerLines.join(" ")).toMatch(/Skipped required questions: drRpo/i);
+  });
+
+  it("blocks Working simulator export without rehearsal banner on artifact (LP-06)", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons).toContain(SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON);
+  });
+
+  it("allows Working simulator export when rehearsal banner is on the artifact (LP-06)", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      structuralExecutionMode: StructuralExecutionModeWire.Simulator,
+      simulatorRehearsalBannerOnArtifact: true,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    });
+
+    expect(verdict.blockedReasons).not.toContain(SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON);
+    expect(verdict.headerLines.join(" ")).toMatch(/rule-based analysis/i);
   });
 });
