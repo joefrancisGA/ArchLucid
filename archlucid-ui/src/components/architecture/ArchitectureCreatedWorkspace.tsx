@@ -72,6 +72,15 @@ import {
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE,
 } from "@/lib/architecture/architecture-created-evidence-sources";
+import {
+  ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
+  ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
+  ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
+  ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
+  ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID,
+  ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE,
+} from "@/lib/architecture/architecture-created-findings-sources";
 
 export type ArchitectureCreatedWorkspacePanels = {
   readonly findings: ReactNode;
@@ -260,7 +269,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence"))
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence" || activeTab === "findings"))
       ? "context-bar"
       : "full";
 
@@ -272,6 +281,14 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
           className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
           {ARCHITECTURE_CREATED_EVIDENCE_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+      {buyerPolishedShell && activeTab === "findings" ? (
+        <a
+          href={`#${ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL}
         </a>
       ) : null}
 
@@ -414,22 +431,63 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
       </div>
 
       <div hidden={activeTab !== "findings"} data-testid="architecture-workspace-panel-findings">
-          <div className="space-y-4">
+          <div
+            id={buyerPolishedShell ? ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID : undefined}
+            data-testid={buyerPolishedShell ? ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID : undefined}
+            className={cn("space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
+          >
+            {buyerPolishedShell ? (
+              <div
+                id={ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID}
+                data-testid={ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
+              >
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-findings-intro"
+                >
+                  {ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD}
+                </p>
+                <section
+                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                  data-testid="architecture-created-findings-start-here-panel"
+                  aria-labelledby="architecture-created-findings-start-here-heading"
+                >
+                  <h2
+                    id="architecture-created-findings-start-here-heading"
+                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                  >
+                    {ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE}
+                  </h2>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="architecture-created-findings-buyer-start-here-helper"
+                  >
+                    {ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER}
+                  </p>
+                </section>
+              </div>
+            ) : null}
             {buyerPolishedShell ? null : (
               <ClarificationsFindingsVocabularyRail
                 runId={props.baseline.runId}
                 currentSurfaceId="findings"
               />
             )}
-            <ArchitectureCreatedFindingsNextAction
-              runId={props.baseline.runId}
-              findings={props.findings}
-              analysisStagesComplete={props.analysisStagesComplete === true}
-              onNavigateActivity={() => {
-                navigateTab("activity");
-              }}
-              pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
-            />
+            {!buyerPolishedShell ? (
+              <ArchitectureCreatedFindingsNextAction
+                runId={props.baseline.runId}
+                findings={props.findings}
+                analysisStagesComplete={props.analysisStagesComplete === true}
+                onNavigateActivity={() => {
+                  navigateTab("activity");
+                }}
+                pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+              />
+            ) : null}
             {props.panels.findings}
             {buyerPolishedShell ? <ArchitectureCreatedFindingsBuyerChrome /> : null}
           </div>

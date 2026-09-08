@@ -241,6 +241,7 @@ describe("ArchitectureCreatedWorkspace", () => {
     const findingsPanel = screen.getByTestId("architecture-workspace-panel-findings");
 
     expect(within(findingsPanel).queryByTestId("clarifications-findings-vocabulary")).not.toBeInTheDocument();
+    expect(within(findingsPanel).queryByTestId("architecture-findings-next-action")).not.toBeInTheDocument();
     expect(within(findingsPanel).getByTestId("architecture-findings-orientation-bottom")).toBeInTheDocument();
     expect(within(findingsPanel).getByTestId("findings-panel-slot")).toBeInTheDocument();
 
