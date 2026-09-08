@@ -1,6 +1,6 @@
 "use client";
 
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { FindingEvidenceTraceClaimOrientationStrip } from "./FindingEvidenceTraceClaimOrientationStrip";
 
@@ -9,17 +9,17 @@ export type FindingEvidenceTraceBuyerChromeProps = {
   readonly findingId: string;
 };
 
-/** Buyer default: mount claim discipline + Sources on finding evidence-trace (ERU). */
+/** Buyer default: mount Sources orientation above evidence trace body inside first viewport (ERU). */
 export function FindingEvidenceTraceBuyerChrome(
   props: FindingEvidenceTraceBuyerChromeProps,
 ): React.JSX.Element | null {
-  const evalChromeShell = useProductionEvalChrome();
-
-  if (!evalChromeShell) {
+  if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 
   return (
-    <FindingEvidenceTraceClaimOrientationStrip runId={props.runId} findingId={props.findingId} />
+    <div data-testid="evidence-trace-orientation-top">
+      <FindingEvidenceTraceClaimOrientationStrip runId={props.runId} findingId={props.findingId} />
+    </div>
   );
 }
