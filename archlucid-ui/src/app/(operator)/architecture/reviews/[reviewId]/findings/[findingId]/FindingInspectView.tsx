@@ -22,6 +22,7 @@ import {
   findingInspectPageEyebrow,
 } from "@/lib/findings/finding-display-from-inspect";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/findings/finding-human-review-display";
+import { resolveFindingHumanReviewDispositionDivergence } from "@/lib/findings/finding-human-review-disposition-divergence";
 import {
   EVIDENCE_TRACE_PAGE_SUBTITLE,
   getFindingDetailHref,
@@ -191,6 +192,11 @@ export function FindingInspectView({
       ? buildSeverityConstraintNoteForInspectPayload(payload, statedConstraintContext)
       : null;
   const findingJobView = payload !== null ? classifyInspectPayloadJobView(payload) : null;
+  const humanReviewDispositionDivergence = resolveFindingHumanReviewDispositionDivergence({
+    humanReviewStatus: payload.humanReviewStatus,
+    latestDisposition: payload.latestDisposition ?? null,
+    latestDispositionRowVersionBase64: payload.latestDispositionRowVersionBase64 ?? null,
+  });
   const scopedRunId = runId.trim();
   const findingInspectSteps = resolveFindingInspectSteps({
     reviewPicked: scopedRunId.length > 0,
@@ -363,6 +369,7 @@ export function FindingInspectView({
         <FindingInspectItsmWorkflowPanel
           findingId={decodedFindingId}
           humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
+          humanReviewDispositionDivergence={humanReviewDispositionDivergence}
         />
       </section>
 
