@@ -22,6 +22,8 @@ import {
   formatArchitectureManifestJsonForDiff,
   resolveArchitectureManifestJsonForDiff,
 } from "@/lib/resolve-architecture-manifest-json-for-diff";
+import { compareManifestDiffBlockedReason } from "@/lib/compare/compare-manifest-diff-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { RunSummary } from "@/types/authority";
 import {
   compareManifestDiffHrefFromSearch,
@@ -103,7 +105,11 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
           return;
         }
 
-        const message = err instanceof Error ? err.message : "Review record diff could not be loaded.";
+        const failure = toApiLoadFailure(err);
+        const blockedReason = compareManifestDiffBlockedReason(failure);
+        const message =
+          blockedReason ??
+          (err instanceof Error ? err.message : "Review record diff could not be loaded.");
         setErrorMessage(message);
         setBeforeText(null);
         setAfterText(null);

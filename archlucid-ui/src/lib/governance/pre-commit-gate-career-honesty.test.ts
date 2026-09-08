@@ -4,6 +4,7 @@ import {
   formatPreCommitGateDisabledCareerBlockedReason,
   PRE_COMMIT_GATE_DISABLED_CAREER_COPY,
   PRE_COMMIT_GATE_DISABLED_TITLE,
+  shouldSuppressReadyToFinalizeForPreCommitGateHonesty,
 } from "@/lib/governance/pre-commit-gate-career-honesty";
 
 describe("pre-commit-gate-career-honesty (DR-04)", () => {
@@ -21,5 +22,20 @@ describe("pre-commit-gate-career-honesty (DR-04)", () => {
     expect(formatPreCommitGateDisabledCareerBlockedReason(true)).toBeNull();
     expect(formatPreCommitGateDisabledCareerBlockedReason(null)).toBeNull();
     expect(formatPreCommitGateDisabledCareerBlockedReason(undefined)).toBeNull();
+  });
+
+  it("suppresses Ready to finalize on Working when the gate is disabled (LP-18)", () => {
+    expect(
+      shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+        workingDesk: true,
+        preCommitGateEnabled: false,
+      }),
+    ).toBe(true);
+    expect(
+      shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+        workingDesk: true,
+        preCommitGateEnabled: true,
+      }),
+    ).toBe(false);
   });
 });

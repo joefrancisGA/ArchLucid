@@ -157,6 +157,7 @@ jobs:
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           LIVE_E2E_PRIVATE_BETA_ACCESS: "1"
+          ARCHLUCID_BFF_SESSION_SIGNING_SECRET: "ci-live-e2e-bff-session-secret-min32chars!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e

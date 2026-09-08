@@ -327,11 +327,16 @@ export async function createAdminUserInvite(
     invitationToken?: string;
   };
 
-  if (!created.id || !created.email || !created.invitationToken) {
-    throw new Error("Invite response missing id, email, or invitationToken.");
+  if (!created.id || !created.email) {
+    throw new Error("Invite response missing id or email.");
   }
 
-  return { id: created.id, email: created.email, invitationToken: created.invitationToken };
+  return {
+    id: created.id,
+    email: created.email,
+    // Idempotent re-invite returns the same row without re-emitting the raw token (API contract).
+    invitationToken: created.invitationToken?.trim() ?? "",
+  };
 }
 
 /** Anonymous validate before sign-in; uses live API base (not browser proxy). */

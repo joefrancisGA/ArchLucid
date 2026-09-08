@@ -107,6 +107,21 @@ describe("evaluateCareerArtifactHonesty (FC-02 / ADR 0078)", () => {
     expect(verdict.blockedReasons.join(" ")).toMatch(/no asserted intake recorded/i);
   });
 
+  it("blocks Working export when pre-finalize gate is disabled (LP-18)", () => {
+    const verdict = evaluateCareerArtifactHonesty({
+      ...baseExportInput,
+      preCommitGateEnabled: false,
+      transparencyTrail: {
+        asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+        inferred: [],
+        skipped: [],
+      },
+    });
+
+    expect(verdict.canRender).toBe(false);
+    expect(verdict.blockedReasons.join(" ")).toMatch(/not a fully governed review record/i);
+  });
+
   it("blocks Working export when decision-grade provenance is missing", () => {
     const verdict = evaluateCareerArtifactHonesty({
       ...baseExportInput,
