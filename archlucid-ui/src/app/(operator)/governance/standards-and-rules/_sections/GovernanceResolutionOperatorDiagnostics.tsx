@@ -19,6 +19,10 @@ import {
   governanceResolutionPackOrderingDisclosureHrefFromSearch,
   parseGovernanceResolutionPackOrderingOpenFromSearch,
 } from "@/lib/governance/governance-resolution-pack-ordering-disclosure-url";
+import {
+  governanceResolutionCandidatesDisclosureHrefFromSearch,
+  parseGovernanceResolutionCandidatesItemKeyFromSearch,
+} from "@/lib/governance/governance-resolution-candidates-disclosure-url";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveStandardsRulesPolicyPackProvenanceLabel } from "@/lib/standards-rules-rows";
@@ -67,6 +71,32 @@ export function GovernanceResolutionOperatorDiagnostics(
       parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
     );
   }, [governanceResolutionPackOrderingOpenParam]);
+
+  const governanceResolutionCandidatesItemKeyParam = searchParams.get("governanceResolutionCandidatesItemKey");
+  const [openCandidatesItemKey, setOpenCandidatesItemKeyState] = useState(() =>
+    parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
+  );
+  const syncOpenCandidatesItemKeyToUrl = useCallback(
+    (itemKey: string | null) => {
+      router.replace(
+        governanceResolutionCandidatesDisclosureHrefFromSearch(searchParams.toString(), itemKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenCandidatesItemKey = useCallback(
+    (itemKey: string | null) => {
+      setOpenCandidatesItemKeyState(itemKey ?? "");
+      syncOpenCandidatesItemKeyToUrl(itemKey);
+    },
+    [syncOpenCandidatesItemKeyToUrl],
+  );
+  useEffect(() => {
+    setOpenCandidatesItemKeyState(
+      parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
+    );
+  }, [governanceResolutionCandidatesItemKeyParam]);
 
   return (
     <>
@@ -146,7 +176,10 @@ export function GovernanceResolutionOperatorDiagnostics(
           Resolution decisions ({m.data?.decisions.length ?? 0})
         </h4>
         <div className="grid gap-2.5">
-          {(m.data?.decisions ?? []).map((d, i) => (
+          {(m.data?.decisions ?? []).map((d, i) => {
+            const candidatesItemKey = `${d.itemType}:${d.itemKey}`;
+
+            return (
             <article
               key={`${d.itemType}-${d.itemKey}-${i}`}
               className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-neutral-50 dark:bg-neutral-950"
@@ -177,12 +210,20 @@ export function GovernanceResolutionOperatorDiagnostics(
                 </div>
               </div>
               <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
-              <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
+              <details
+                className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}
+                open={openCandidatesItemKey === candidatesItemKey}
+                onToggle={(event) => {
+                  const nextOpen = event.currentTarget.open;
+                  setOpenCandidatesItemKey(nextOpen ? candidatesItemKey : null);
+                }}
+              >
                 <summary>All candidates</summary>
                 <pre className="overflow-auto max-h-[220px]">{JSON.stringify(d.candidates, null, 2)}</pre>
               </details>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
 
