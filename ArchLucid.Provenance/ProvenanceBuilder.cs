@@ -109,7 +109,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(decisionKey, out Guid to))
                 continue;
 
-            foreach (string fk in d.SupportingFindingIds.Select(fId => $"finding:{fId}"))
+            foreach (string fk in d.SupportingFindingIds
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .Select(fId => $"finding:{fId}"))
             {
                 if (!nodeMap.TryGetValue(fk, out Guid from))
                     continue;
