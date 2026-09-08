@@ -1,9 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
 import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
+import {
+  parseTransparencyTrailOpenFromSearch,
+  transparencyTrailHrefFromSearch,
+} from "@/lib/reviews/transparency-trail-open-url";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type TransparencyTrailPanelProps = {
@@ -30,7 +38,33 @@ function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skip
 
 /** ADR 0050 asserted / inferred / skipped transparency record for review surfaces. */
 export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const transparencyTrailOpenParam = searchParams.get("transparencyTrailOpen");
+  const [internalDetailsOpen, setInternalDetailsOpenState] = useState(() =>
+    parseTransparencyTrailOpenFromSearch(transparencyTrailOpenParam),
+  );
+  const syncInternalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(transparencyTrailHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setInternalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setInternalDetailsOpenState(open);
+      syncInternalDetailsOpenToUrl(open);
+    },
+    [syncInternalDetailsOpenToUrl],
+  );
   const trail = props.trail;
+
+  useEffect(() => {
+    setInternalDetailsOpenState(parseTransparencyTrailOpenFromSearch(transparencyTrailOpenParam));
+  }, [transparencyTrailOpenParam]);
 
   if (props.missingTrailDefect === true && (trail === null || trail === undefined)) {
     return (
@@ -121,21 +155,27 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
   if (!defaultExpanded) {
     const detailsOpen = props.detailsOpen;
     const onDetailsOpenChange = props.onDetailsOpenChange;
-    const isControlled = detailsOpen !== undefined;
+    const isExternallyControlled = detailsOpen !== undefined;
+    const usesInternalUrlSync = !isExternallyControlled;
+    const resolvedOpen = isExternallyControlled ? detailsOpen : internalDetailsOpen;
 
     return (
       <details
         className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", props.className)}
         data-testid="transparency-trail-panel"
-        open={isControlled ? detailsOpen : undefined}
+        open={resolvedOpen}
         onToggle={(event) => {
           const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
 
-          if (isControlled) {
+          if (isExternallyControlled) {
             event.preventDefault();
             onDetailsOpenChange?.(!detailsOpen);
 
             return;
+          }
+
+          if (usesInternalUrlSync) {
+            setInternalDetailsOpen(nextOpen);
           }
 
           onDetailsOpenChange?.(nextOpen);
