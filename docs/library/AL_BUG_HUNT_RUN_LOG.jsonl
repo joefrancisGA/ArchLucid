@@ -1506,3 +1506,4 @@
 {"at":"2026-09-08T15:41:59.3318362Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-08T15:58:16.2122061Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-08T16:03:47.3870868Z","zoneId":"extraction-router","outcome":"hit"}
+{"at":"2026-09-08T16:13:16.2591598Z","zoneId":"application-governance-policy","outcome":"hit"}
