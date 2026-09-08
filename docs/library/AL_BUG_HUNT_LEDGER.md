@@ -1283,11 +1283,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — deep-linked review switch left prior declared priorities in intake form
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — clearing deep-linked runId left stale activeRunId, hydrated intake, and analyze affordances in freeform mode
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1301,8 +1301,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Deep-linked product source-context query key omitted operator scope — **hit 2026-09-02:** React Query reused prior workspace intake after scope switch; fixed scoped query key plus intake reset on scope change (`reloads hydrated intake when operator scope switches on a deep-linked review`)
 - [x] (invalid) Successful product-context retry leaves stale inline error alert — `productContextReloadNonce` bump clears `error` before refetch; regression in `clears stale error alert after successful product context retry`
 - [x] (proven) Deep-linked `runId` switch leaves stale `prioritiesRaw` when next review has no `declaredPriorities` — **hit 2026-09-07 seed hunt #1292 (seed→hit):** hydration effect only updated priorities when the new payload was non-empty; fixed by always assigning `hydratedPrioritiesFromQuery`; regression in `clears declared priorities when deep-linked review switches to one without priorities`
+- [x] (proven) Clearing deep-linked `runId` from the URL leaves stale `activeRunId`, hydrated intake, and analyze affordances — **hit 2026-09-08 seed hunt #1333:** `useArchitectureIntelligenceProductContext` reset intake only on operator scope change, not when both `runId` and `contextRunId` search params are absent; fixed by resetting freeform intake when no URL run scope remains; regression in `clears hydrated intake and review scope when deep-linked runId is removed from the URL`
+- [ ] (candidate) Deep-linked review switch may leave publish-to-product toggle checked for the prior review — needs repro when `runId` changes without clearing URL scope (`use-architecture-intelligence-product-context.ts` inbound-run effect clears reasoning but not `publishToProduct`).
 
-2026-09-02 seed hunt #420 (hit): scoped architecture-intelligence source-context query to operator scope; cleared deep-linked intake on workspace switch; cheap-disproved stale retry error row.
+2026-09-08 seed hunt #1333 (hit): reseeded URL-scope hydration; proved stale intake after clearing deep-linked runId; seeded publish-toggle carryover candidate.
 
 2026-09-07 seed hunt #1292 (seed→hit): reseeded deep-link intake hydration; proved stale declared priorities on run switch; 12 scoped `ArchitectureIntelligencePageClient` tests passed.
 
