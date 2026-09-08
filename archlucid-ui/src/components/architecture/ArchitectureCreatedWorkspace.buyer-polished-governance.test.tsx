@@ -6,7 +6,10 @@ import {
   ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_GOVERNANCE_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID,
+  ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL,
@@ -99,6 +102,17 @@ describe("ArchitectureCreatedWorkspace buyer-polished Governance tab (REG)", () 
     expect(screen.getByTestId("architecture-created-governance-intro")).toHaveTextContent(
       ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
     );
+    expect(screen.getByTestId("architecture-created-governance-overview")).toHaveTextContent(
+      ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
+    );
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("architecture-created-governance-intro"),
+    );
+    expect(
+      screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("architecture-created-governance-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("architecture-created-governance-buyer-start-here-helper")).toHaveTextContent(
       ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
     );
@@ -119,7 +133,7 @@ describe("ArchitectureCreatedWorkspace buyer-polished Governance tab (REG)", () 
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID);
-    const orientationBottom = within(governancePanel).getByTestId("architecture-governance-orientation-bottom");
+    const orientationBottom = within(governancePanel).getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("architecture-governance-sources");
 
     expect(governancePanel).toContainElement(primaryContent);

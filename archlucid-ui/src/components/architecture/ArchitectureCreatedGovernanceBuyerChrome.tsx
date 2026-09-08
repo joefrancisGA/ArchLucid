@@ -1,8 +1,7 @@
 "use client";
 
-import { ArchitectureCreatedGovernanceClaimOrientationStrip } from "@/components/architecture/ArchitectureCreatedGovernanceClaimOrientationStrip";
+import { ArchitectureCreatedGovernanceSourcesOrientationStrip } from "@/components/architecture/ArchitectureCreatedGovernanceSourcesOrientationStrip";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Buyer default: mount Sources orientation after primary Governance workspace (REG). */
 export function ArchitectureCreatedGovernanceBuyerChrome(): React.JSX.Element | null {
@@ -12,9 +11,5 @@ export function ArchitectureCreatedGovernanceBuyerChrome(): React.JSX.Element | 
     return null;
   }
 
-  return (
-    <div data-testid="architecture-governance-orientation-bottom" className={HELP_PAGE_LAYOUT.readingBody}>
-      <ArchitectureCreatedGovernanceClaimOrientationStrip />
-    </div>
-  );
+  return <ArchitectureCreatedGovernanceSourcesOrientationStrip />;
 }

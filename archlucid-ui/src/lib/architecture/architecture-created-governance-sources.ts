@@ -1,4 +1,5 @@
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export type ArchitectureCreatedGovernanceSourceLink = {
@@ -20,6 +21,10 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_SOURCES: readonly ArchitectureCreat
 export const ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO =
   "Use these follow-ups when create-home Governance readiness turns into findings triage, evidence search, or post-finalize approval workflow.";
 
+export const ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "create-home Governance readiness turns into findings triage, evidence search, or post-finalize approval workflow",
+);
+
 export const ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE =
   "This create-home Governance tab orients assessment before finalize. It is not the committed approval decision surface.";
 
@@ -37,8 +42,14 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL = "Skip to governan
 export const ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "architecture-created-governance-header-claim-discipline" as const;
 
+export const ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID =
+  "architecture-governance-orientation-bottom" as const;
+
 export const ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD =
   "Review governance readiness for this architecture draft before you finalize the review package.";
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW =
+  "Governance panels below summarize readiness checks, policy alignment cues, and approval follow-ups for this draft scope.";
 
 export const ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE = "Start here" as const;
 
