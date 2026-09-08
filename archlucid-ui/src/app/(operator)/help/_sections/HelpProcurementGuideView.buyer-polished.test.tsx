@@ -35,6 +35,7 @@ import {
   PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID,
   PROCUREMENT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  PROCUREMENT_HELP_PAGE_LEAD,
   PROCUREMENT_HELP_PAGE_SUBTITLE_BUYER,
   PROCUREMENT_HELP_PRIMARY_CONTENT_ID,
   PROCUREMENT_HELP_SKIP_LINK_LABEL,
@@ -48,7 +49,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
   const loaded = tryLoadProductDocumentation("procurement");
 
-  it("renders skip link, header claim discipline, first-viewport diligence CTAs, and bottom Sources", () => {
+  it("renders skip link, intro lead, header claim discipline, first-viewport diligence CTAs, and bottom Sources", () => {
     if (loaded === null) {
       throw new Error("Expected procurement documentation to load.");
     }
@@ -69,6 +70,7 @@ describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
     expect(screen.queryByTestId("help-procurement-header-actions")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-export-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-procurement-related")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: PROCUREMENT_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-procurement-page-title")).toHaveTextContent(PROCUREMENT_HELP_PAGE_TITLE);
 
@@ -79,6 +81,7 @@ describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
     const orientationBottom = screen.getByTestId(PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
+    expect(screen.getByTestId("help-procurement-intro")).toHaveTextContent(PROCUREMENT_HELP_PAGE_LEAD);
     expect(buyerFirstViewport).toContainElement(diligenceCtas);
     expect(within(diligenceCtas).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
     expect(screen.getByTestId("help-procurement-start-here-helper")).toHaveTextContent(
