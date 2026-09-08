@@ -263,6 +263,38 @@ public sealed class OutboundWebhookDryRunControllerTests
             "audit must record when the subscriber response preview was truncated.");
     }
 
+    [Fact]
+    public async Task DryRunAsync_audit_omits_query_string_from_target_metadata()
+    {
+        Uri target = new("https://example.com/webhook?token=secret-token");
+        Mock<IOutboundWebhookDryRunService> probe = new();
+        probe
+            .Setup(p => p.ProbeAsync(target, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OutboundWebhookDryRunResult { TransportSucceeded = true, StatusCode = 200 });
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        OutboundWebhookDryRunController controller = new(probe.Object, audit.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        await controller.DryRunAsync(
+            new OutboundWebhookDryRunRequest { TargetUrl = target },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
+        document.RootElement.GetProperty("path").GetString().Should().Be("/webhook");
+        document.RootElement.TryGetProperty("query", out _).Should().BeFalse(
+            "query strings often carry webhook secrets and are intentionally omitted from audit metadata.");
+    }
+
     [Theory]
     [InlineData("https://hooks.example.com/webhook")]
     [InlineData("https://example.com:8443/path?q=1")]
