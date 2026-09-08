@@ -58,6 +58,9 @@ public static class DraftDocumentMutator
             document.StructuredBrief ??= new ArchitectureDraftStructuredBrief();
             ApplyStructuredBriefPatch(document.StructuredBrief, patch.StructuredBrief);
         }
+
+        if (patch.OpenQuestions is not null)
+            document.OpenQuestions = patch.OpenQuestions.Trim();
     }
 
     public static void SyncTransparencyFromDocument(DraftRequestDocument document)

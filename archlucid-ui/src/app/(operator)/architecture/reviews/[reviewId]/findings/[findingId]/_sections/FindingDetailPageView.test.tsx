@@ -83,7 +83,7 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
 vi.mock("@/lib/demo-ui-env", () => ({
   isNextPublicDemoMode: () => false,
   isOperatorExperienceFullShellEnv: () => true,
-  isBuyerPolishedOperatorShellEnv: () => true,
+  isBuyerPolishedOperatorShellEnv: () => false,
 }));
 
 import { FindingDetailPageView } from "./FindingDetailPageView";

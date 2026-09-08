@@ -1,8 +1,6 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
-  architectureIdentityPath,
-  architectureNestedFindingsPath,
-  architectureNestedReviewPath,
+  ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_LIST_PATH,
 } from "@/lib/architecture/architecture-routes";
@@ -10,7 +8,6 @@ import { buildGoldenSponsorPackageWalkthroughHref, GOLDEN_SPONSOR_PACKAGE_WALKTH
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
-import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
 import { localizeHelpCopy } from "@/lib/help/help-product-copy";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -184,8 +181,6 @@ export type GettingStartedWorkflowStep = {
   readonly ctaLabel: string;
 };
 
-export const GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
-
 export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflowStep[] = [
   {
     stepNumber: 1,
@@ -237,9 +232,6 @@ export function resolveGettingStartedHelpWorkflowSteps(
     return GETTING_STARTED_HELP_WORKFLOW_STEPS;
   }
 
-  const exampleArchitectureId = GETTING_STARTED_HELP_WORKING_EXAMPLE_ARCHITECTURE_ID;
-  const exampleReviewId = CUSTOMER_INTAKE_SAMPLE_RUN_ID;
-
   return [
     {
       stepNumber: 1,
@@ -254,7 +246,7 @@ export function resolveGettingStartedHelpWorkflowSteps(
       title: "Analyze the architecture",
       description: "Start the review from the architecture desk and monitor progress until findings are ready to inspect.",
       expectedOutputs: "Findings with severity, impact, and evidence labels.",
-      href: architectureIdentityPath(exampleArchitectureId),
+      href: ARCHITECTURES_LIST_PATH,
       ctaLabel: "Open architecture desk",
     },
     {
@@ -262,7 +254,7 @@ export function resolveGettingStartedHelpWorkflowSteps(
       title: "Review findings",
       description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
       expectedOutputs: "Prioritized findings ready for decisions.",
-      href: architectureNestedFindingsPath(exampleArchitectureId),
+      href: ARCHITECTURES_LIST_PATH,
       ctaLabel: "Open findings",
     },
     {
@@ -278,8 +270,8 @@ export function resolveGettingStartedHelpWorkflowSteps(
       title: "Finalize and share outputs",
       description: "Lock the review from the nested review desk and export sponsor-ready artifacts for stakeholders.",
       expectedOutputs: "Sealed review record, evidence trail, and exports.",
-      href: architectureNestedReviewPath(exampleArchitectureId, exampleReviewId),
-      ctaLabel: "Open review desk",
+      href: REVIEWS_LIST_PATH,
+      ctaLabel: WORKING_REVIEWS_INBOX_NAV_LABEL,
     },
   ];
 }
@@ -430,6 +422,18 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
   },
 ];
 
+export function resolveGettingStartedHelpTechnicalTerms(
+  workingMode: boolean,
+): readonly GettingStartedPlainLanguageTerm[] {
+  if (!workingMode) {
+    return GETTING_STARTED_HELP_TECHNICAL_TERMS;
+  }
+
+  return GETTING_STARTED_HELP_TECHNICAL_TERMS.filter(
+    (term) => term.term !== "Authority orchestration",
+  );
+}
+
 export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   subgraph ingest [Request]
     AR[Architecture request]
@@ -452,6 +456,32 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   gov -->|allow| SR
   gov -->|block / warn policy| gov
   SR --> PKG`;
+
+export const GETTING_STARTED_HELP_DIAGRAM_SOURCE_WORKING = `flowchart LR
+  subgraph ingest [Request]
+    AR[Architecture request]
+    R[Review session]
+  end
+  subgraph analysis [Review analysis]
+    CI[Context ingestion]
+    FD[Findings]
+    DV[Decisions]
+    ART[Export-ready outputs]
+  end
+  subgraph outputs [Committed outputs]
+    SR[Sealed review record]
+    PKG[Downloads / exports]
+  end
+  AR --> CI --> FD --> DV --> ART
+  R -.created at start.- CI
+  FD --> gov{Approval gate}
+  gov -->|allow| SR
+  gov -->|block / warn policy| gov
+  SR --> PKG`;
+
+export function resolveGettingStartedHelpDiagramSource(workingMode: boolean): string {
+  return workingMode ? GETTING_STARTED_HELP_DIAGRAM_SOURCE_WORKING : GETTING_STARTED_HELP_DIAGRAM_SOURCE;
+}
 
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "quick-start", title: GETTING_STARTED_HELP_QUICK_START_TITLE },
