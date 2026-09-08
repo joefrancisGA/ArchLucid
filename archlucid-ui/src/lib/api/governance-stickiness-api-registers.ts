@@ -92,7 +92,9 @@ export async function getArchitectureDecisionRegister(
 }
 
 export async function getGovernanceReviewsAwaitingAction(): Promise<GovernanceReviewsAwaitingActionResponse> {
-  return apiGet<GovernanceReviewsAwaitingActionResponse>(`${governanceStickinessBase()}/reviews-awaiting-action`);
+  return apiGetSealedManifestAware<GovernanceReviewsAwaitingActionResponse>(
+    `${governanceStickinessBase()}/reviews-awaiting-action`,
+  );
 }
 
 export async function getGovernanceDecisionsNeededSummary(
@@ -101,7 +103,9 @@ export async function getGovernanceDecisionsNeededSummary(
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet<GovernanceDecisionsNeededSummary>(`${governanceStickinessBase()}/decisions-needed-summary${suffix}`);
+  return apiGetSealedManifestAware<GovernanceDecisionsNeededSummary>(
+    `${governanceStickinessBase()}/decisions-needed-summary${suffix}`,
+  );
 }
 
 export async function getGovernancePosture(projectId?: string): Promise<ArchitecturePostureSummary> {

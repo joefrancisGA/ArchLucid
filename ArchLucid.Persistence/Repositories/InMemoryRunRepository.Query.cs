@@ -225,6 +225,27 @@ public sealed partial class InMemoryRunRepository
     }
 
     /// <inheritdoc />
+    public Task<Guid?> TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        string key = RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
+
+        RunRecord? match = _store.Values
+            .Where(r =>
+                RunRepositoryCore.MatchesScope(r, scope) &&
+                RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key))
+            .OrderByDescending(r => r.CreatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(match?.RunId);
+    }
+
+    /// <inheritdoc />
     public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,
