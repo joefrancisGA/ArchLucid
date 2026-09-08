@@ -1,11 +1,10 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Core.Integration;
 
 using FluentAssertions;
-
-using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -25,9 +24,7 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandlerTests
             .Callback<AuthorityRunCommittedChatOpsNotice, CancellationToken>((notice, _) => captured = notice)
             .Returns(Task.CompletedTask);
 
-        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(
-            hook.Object,
-            NullLogger<AuthorityRunCompletedChatOpsIntegrationEventHandler>.Instance);
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook.Object);
 
         sut.EventType.Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);
 
@@ -59,5 +56,30 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandlerTests
         hook.Verify(
             h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed()
+    {
+        Mock<IAuthorityRunCommittedChatOpsHook> hook = new();
+        hook.Setup(h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("ChatOps webhook delivery failed for all enabled targets."));
+
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook.Object);
+
+        byte[] payload = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                runId = Guid.NewGuid(),
+                manifestId = Guid.NewGuid(),
+                tenantId = Guid.NewGuid(),
+                workspaceId = Guid.NewGuid(),
+                projectId = Guid.NewGuid(),
+            }));
+
+        Func<Task> act = async () => await sut.HandleAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 }

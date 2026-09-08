@@ -10153,18 +10153,27 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message.
-- [ ] (hunt-ready) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target depending on handler acknowledgement semantics.
+- [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message — **hit 2026-09-08 hunt #1368:** hook only caller is `AuthorityRunCompletedChatOpsIntegrationEventHandler`; swallowing defeated `IntegrationEventServiceBusMessageDispatch` abandon semantics; fixed to throw when every enabled target fails; handler no longer catches; regressions in `NotifyAsync_throws_when_every_enabled_target_delivery_fails`, `NotifyAsync_throws_when_only_enabled_target_delivery_fails`, `HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed`
+- [x] (valid-no-repro) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target — **cheap-disproved hunt #1368:** partial success intentionally completes the integration event (`NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds`); per-target dedup/outbox not in scope for informational ChatOps fan-out
+
+2026-09-08 thorough hunt #1368 (hit): proved all-target ChatOps delivery swallow blocked Service Bus retry; partial sibling success remains best-effort by design.
+
+### Hypotheses
+
+- [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message — **hit 2026-09-08 hunt #1368:** hook only caller is `AuthorityRunCompletedChatOpsIntegrationEventHandler`; swallowing defeated `IntegrationEventServiceBusMessageDispatch` abandon semantics; fixed to throw when every enabled target fails; handler no longer catches; regressions in `NotifyAsync_throws_when_every_enabled_target_delivery_fails`, `NotifyAsync_throws_when_only_enabled_target_delivery_fails`, `HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed`
+- [x] (valid-no-repro) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target — **cheap-disproved hunt #1368:** partial success intentionally completes the integration event (`NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds`); per-target dedup/outbox not in scope for informational ChatOps fan-out
+
+2026-09-08 thorough hunt #1368 (hit): proved all-target ChatOps delivery swallow blocked Service Bus retry; partial sibling success remains best-effort by design.
 
 ## Zone: architecture-intelligence-orchestrator
 
