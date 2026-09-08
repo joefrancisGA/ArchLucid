@@ -211,6 +211,70 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
             cancellationToken);
     }
 
+    public async Task<IReadOnlyList<FindingVerificationReportRecord>> ListByRunIdAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string reportSql = """
+                                 SELECT
+                                     ReportId,
+                                     TenantId,
+                                     WorkspaceId,
+                                     ScopeProjectId,
+                                     RunId,
+                                     SourceManifestHash,
+                                     SourceFindingsSnapshotId,
+                                     VerificationFindingsSnapshotId,
+                                     ReportHash,
+                                     TriggeredByUserId,
+                                     CreatedUtc
+                                 FROM dbo.FindingVerificationReports
+                                 WHERE TenantId = @TenantId
+                                   AND WorkspaceId = @WorkspaceId
+                                   AND ScopeProjectId = @ScopeProjectId
+                                   AND RunId = @RunId
+                                 ORDER BY CreatedUtc DESC;
+                                 """;
+
+        IEnumerable<FindingVerificationReportSqlRow> headers = await connection.QueryAsync<FindingVerificationReportSqlRow>(
+            new CommandDefinition(
+                reportSql,
+                new
+                {
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    RunId = runId,
+                },
+                cancellationToken: cancellationToken));
+
+        List<FindingVerificationReportRecord> reports = [];
+
+        foreach (FindingVerificationReportSqlRow header in headers)
+        {
+            FindingVerificationReportRecord? record = await GetByIdInternalAsync(
+                connection,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                header.ReportId,
+                cancellationToken);
+
+            if (record is not null)
+            {
+                reports.Add(record);
+            }
+        }
+
+        return reports;
+    }
+
     private static async Task<FindingVerificationReportRecord?> GetByIdInternalAsync(
         SqlConnection connection,
         Guid tenantId,

@@ -15919,6 +15919,57 @@
         ],
         "type": "object"
       },
+      "FindingVerificationReportSummaryResponse": {
+        "properties": {
+          "confirmedRate": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reportHash": {
+            "type": "string"
+          },
+          "reportId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resultCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceManifestHash": {
+            "type": "string"
+          },
+          "verificationFindingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "createdUtc",
+          "reportHash",
+          "reportId",
+          "resultCount",
+          "runId",
+          "sourceManifestHash"
+        ],
+        "type": "object"
+      },
       "FindingVerificationResultResponse": {
         "properties": {
           "findingId": {

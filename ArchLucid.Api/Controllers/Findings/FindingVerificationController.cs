@@ -30,8 +30,10 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingVerificationController(
+public sealed partial class FindingVerificationController(
     IFindingVerificationService findingVerificationService,
+    IFindingVerificationReportQueryService findingVerificationReportQueryService,
+    IFindingVerificationReportExportApplicationService findingVerificationReportExportApplicationService,
     IScopeContextProvider scopeProvider,
     IBackgroundJobQueue jobs,
     IOptionsMonitor<FindingVerificationOptions> verificationOptions,
@@ -39,6 +41,14 @@ public sealed class FindingVerificationController(
 {
     private readonly IFindingVerificationService _findingVerificationService =
         findingVerificationService ?? throw new ArgumentNullException(nameof(findingVerificationService));
+
+    private readonly IFindingVerificationReportQueryService _findingVerificationReportQueryService =
+        findingVerificationReportQueryService
+        ?? throw new ArgumentNullException(nameof(findingVerificationReportQueryService));
+
+    private readonly IFindingVerificationReportExportApplicationService _findingVerificationReportExportApplicationService =
+        findingVerificationReportExportApplicationService
+        ?? throw new ArgumentNullException(nameof(findingVerificationReportExportApplicationService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
