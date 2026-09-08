@@ -2,6 +2,10 @@
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL,
+  OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING,
+} from "@/lib/architecture/architecture-open-questions-export-honesty";
+import {
   buildTransparencyTrailExportSection,
   TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER,
 } from "@/lib/feasibility/export-transparency-trail-section";
@@ -109,6 +113,22 @@ export function PackagePrintTransparencyTrailSection(
             {section.skipped.map((entry) => (
               <li key={entry.questionKey}>
                 {entry.questionKey} ({entry.tier})
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {section.workingDocumentOpenQuestions.length > 0 ? (
+        <div className="space-y-2" data-testid="package-print-trail-working-open-questions">
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING}</h3>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL} — not asserted intake unless confirmed through the trail.
+          </p>
+          <ul className="m-0 list-disc space-y-1 pl-5">
+            {section.workingDocumentOpenQuestions.map((entry) => (
+              <li key={`${entry.key}:${entry.value}`}>
+                {entry.key}: {entry.value}
               </li>
             ))}
           </ul>
