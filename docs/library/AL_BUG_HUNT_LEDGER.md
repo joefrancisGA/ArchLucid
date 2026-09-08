@@ -1840,11 +1840,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 9
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — Insight-density evidence summary truncation dropped CUSTOMER_CONTENT_END
+- **hunts:** 10
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — client RequestId / EvidencePackageId delimiter injection broke TB-949 quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1873,6 +1873,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1237 (hit): proved insight-density evidence truncation dropped TB-949 end marker; seeded and cheap-disproved service-catalog scalar parity and circuit-breaker exception-scrub candidates.
 
 2026-09-07 thorough hunt #1242 (dry): cheap-disproved service-catalog `Category`/`Tags` and pattern `ApplicableCapabilities` sanitizer parity candidates (no `AgentUserPromptBuilder` reachability); reconfirmed circuit-breaker inner-throw scrub gap as valid-no-repro.
+
+- [x] (proven) `AgentEvidenceUntrustedInputSanitizer` omitted client-supplied `RequestId` / `EvidencePackageId` while `AgentUserPromptBuilder` rendered them inside TB-949 quarantine without `EscapeEmbeddedMarkers` — **hit 2026-09-08 seed hunt #1337:** embedded `CUSTOMER_CONTENT_END` in RequestId closed the architecture section early and left task objective inside customer DATA; fixed via `SanitizePromptIdentifier` (marker escape + scalar wrap); regressions in `SanitizeAsync_request_id_with_embedded_customer_content_end_marker_does_not_break_quarantine` and evidence-package-id sibling test
+- [ ] (candidate) `ContextLengthGuardAgentCompletionClient` token truncation uses `TokenAwareContextBudget.TruncateToTokenBudget` without `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — related delimiter class; locus outside zone paths (`ArchLucid.AgentRuntime/ContextLengthGuardAgentCompletionClient.cs`); no failing repro in zone yet
+
+2026-09-08 seed hunt #1337 (hit): reseeded agent-runtime-safety; proved RequestId/EvidencePackageId TB-949 delimiter bypass; seeded context-length guard truncation candidate (adjacent path).
 
 ---
 
