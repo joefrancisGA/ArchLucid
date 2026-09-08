@@ -11,6 +11,9 @@ namespace ArchLucid.Decisioning.Tests.Findings;
 [Trait("Suite", "Decisioning")]
 public sealed class InsightDensityEngineDistributionCalculatorTests
 {
+    private const string StorageArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
     private static readonly InsightDensityGateOptions GateOptions = new();
 
     private static readonly IInsightDensityGate Gate =
@@ -140,7 +143,76 @@ public sealed class InsightDensityEngineDistributionCalculatorTests
     }
 
     [Fact]
-    public void Calculate_would_demote_count_uses_strict_threshold_comparison()
+    public void Calculate_architecture_anchored_finding_without_evidence_counts_penalties_and_advisory_65_demotion()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                CreateFinding("f1", "topology-coverage", "No topology resources were found"),
+            ],
+        };
+
+        InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
+            snapshot,
+            Gate,
+            GateOptions);
+
+        InsightDensityEngineDistributionRow row = distribution.Rows.Single();
+        row.NoConcreteEvidenceCount.Should().Be(1);
+        row.WouldDemoteAt65Count.Should().Be(1);
+        row.WouldDemoteIfUnprotectedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void Calculate_product_shaped_arm_evidence_has_zero_no_evidence_and_advisory_65_demotion()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                CreateFinding(
+                    "f1",
+                    "identity-blast-radius",
+                    "Machine actor reaches sensitive datastore",
+                    evidenceRefs: [StorageArmId]),
+            ],
+        };
+
+        InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
+            snapshot,
+            Gate,
+            GateOptions);
+
+        InsightDensityEngineDistributionRow row = distribution.Rows.Single();
+        row.NoConcreteEvidenceCount.Should().Be(0);
+        row.WouldDemoteAt65Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void Calculate_generic_advice_without_evidence_counts_generic_and_both_would_demote_columns()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                CreateFinding("f1", "compliance", "Enable MFA for all accounts."),
+            ],
+        };
+
+        InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
+            snapshot,
+            Gate,
+            GateOptions);
+
+        InsightDensityEngineDistributionRow row = distribution.Rows.Single();
+        row.GenericAdviceCount.Should().Be(1);
+        row.WouldDemoteIfUnprotectedCount.Should().Be(1);
+        row.WouldDemoteAt65Count.Should().Be(1);
+    }
+
+    [Fact]
+    public void Calculate_would_demote_count_uses_production_predicate_not_score_only()
     {
         InsightDensityGateOptions options = new() { DemotionThreshold = 50 };
 
@@ -159,18 +231,14 @@ public sealed class InsightDensityEngineDistributionCalculatorTests
             options);
 
         InsightDensityEngineDistributionRow row = distribution.Rows.Single();
-        row.WouldDemoteIfUnprotectedCount.Should().Be(
-            snapshot.Findings.Count(finding =>
-            {
-                InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
-                int score = Gate.Score(candidate, snapshot.Findings.Select(InsightDensityGateCandidate.FromFinding).ToList())
-                    .InsightDensityScore;
-
-                return score < options.DemotionThreshold;
-            }));
+        row.WouldDemoteIfUnprotectedCount.Should().Be(1);
     }
 
-    private static Finding CreateFinding(string findingId, string engineType, string message)
+    private static Finding CreateFinding(
+        string findingId,
+        string engineType,
+        string message,
+        IReadOnlyList<string>? evidenceRefs = null)
     {
         return new Finding
         {
@@ -181,6 +249,7 @@ public sealed class InsightDensityEngineDistributionCalculatorTests
             Rationale = message,
             FindingType = "test",
             Severity = FindingSeverity.Warning,
+            EvidenceRefs = evidenceRefs?.ToList() ?? [],
         };
     }
 }

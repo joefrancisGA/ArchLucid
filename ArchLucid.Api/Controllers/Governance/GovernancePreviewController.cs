@@ -46,6 +46,7 @@ public sealed class GovernancePreviewController(
     [ProducesResponseType(typeof(GovernancePreviewResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Preview(
         [FromBody] CreateGovernancePreviewRequest? body,
         CancellationToken cancellationToken)
@@ -132,6 +133,7 @@ public sealed class GovernancePreviewController(
     [ProducesResponseType(typeof(GovernanceEnvironmentComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareEnvironments(
         [FromBody] CreateGovernanceEnvironmentComparisonRequest? body,
         CancellationToken cancellationToken)

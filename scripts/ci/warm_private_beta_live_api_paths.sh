@@ -113,12 +113,12 @@ warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
   # Prime inline create-run on cold SQL before Playwright (best-effort; long per-attempt budget).
-  CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+  CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up for Azure API service architecture with SQL database.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
   warm_path_post_optional \
     "create architecture run" \
     "${API_URL}/v1/architecture/request" \
     "${CREATE_BODY}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-540}" \
+    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-600}" \
     "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
   echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else

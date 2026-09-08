@@ -35,9 +35,10 @@ export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtract
         platform,
         scopeId,
         subscriptionId: scopeId,
+        productLineId: productLine,
       }),
     );
-  }, [platform]);
+  }, [platform, productLine]);
 
   const platformLabel = cloudInventoryPlatformLabel(platform);
 

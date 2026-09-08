@@ -149,15 +149,11 @@ export function SettingsPageView() {
   const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
   const showAdvancedToggle = hasAdvancedCatalog && searchQuery.trim().length === 0;
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const skipTargetId =
-    !isAuthorityLoading && visibleSections.length > 0
-      ? SETTINGS_MASTER_SKIP_TARGET_ID
-      : SETTINGS_MASTER_FIRST_VIEWPORT_ID;
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
       <a
-        href={`#${skipTargetId}`}
+        href={`#${SETTINGS_MASTER_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {SETTINGS_MASTER_SKIP_LINK_LABEL}
@@ -168,20 +164,20 @@ export function SettingsPageView() {
         data-testid="settings-master-primary-content"
         className={OPERATOR_LAYOUT.sectionStack}
       >
+        <SettingsMasterOverviewHeader
+          scope={scope}
+          environmentLabel={environmentLabel}
+          buyerPolishedShell={buyerPolishedShell}
+        />
+
         <div
-          id={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
+          id={SETTINGS_MASTER_SKIP_TARGET_ID}
           data-testid={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
           className={cn(
             "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
-          <SettingsMasterOverviewHeader
-            scope={scope}
-            environmentLabel={environmentLabel}
-            buyerPolishedShell={buyerPolishedShell}
-          />
-
           <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
           <SettingsMasterSearchField
             value={searchQuery}

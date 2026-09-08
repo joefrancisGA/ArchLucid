@@ -23,7 +23,16 @@ import {
   PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING,
 } from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
+import {
+  PREFERENCES_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID,
+  PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
+  PREFERENCES_SETTINGS_SKIP_TARGET_ID,
+  preferencesSettingsPageSubtitle,
+} from "@/lib/preferences-page-copy";
 import {
   resolvePreferencesSaveEmphasizedStepId,
   resolvePreferencesSaveSteps,
@@ -40,6 +49,7 @@ import { cn } from "@/lib/utils";
 import { WORKSPACE_MODE_PREFERENCE_HEADING } from "@/lib/workspace-mode/workspace-mode-copy";
 
 export function PreferencesSettingsPageView() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
   const { scope, mounted, accountSyncState, setAndPersist } = useCloudPlatformScope();
   const {
@@ -104,141 +114,170 @@ export function PreferencesSettingsPageView() {
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
-      <OperatorPageHeader
-        navHref={ACCOUNT_PREFERENCES_PATH}
-        title="Preferences"
-        titleTestId="preferences-settings-page-title"
-        actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
-      />
-      <PreferencesSaveChecklist
-        title="Save preferences checklist"
-        steps={preferencesSaveSteps}
-        emphasizedStepId={preferencesSaveEmphasizedStepId}
-        testIdPrefix="preferences-save"
-      />
-      <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
-        <CardHeader>
-          <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {WORKSPACE_MODE_PREFERENCE_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {workspaceModeMounted ? (
-            <WorkspaceModePreferencePanel
-              mode={workspaceMode}
-              onModeChange={setWorkspaceModeAndPersist}
-              accountSyncState={workspaceModeAccountSyncState}
-              labelledById="preferences-workspace-mode-heading"
-            />
-          ) : (
-            <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
-          )}
-        </CardContent>
-      </Card>
-      <Card id="appearance" data-testid="preferences-appearance-card">
-        <CardHeader>
-          <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p id="preferences-theme-label" className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              Theme
-            </p>
-            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Choose how ArchLucid appears.
-            </p>
-          </div>
-          <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />
-        </CardContent>
-      </Card>
-      <Card id="time-zone" data-testid="preferences-time-zone-card">
-        <CardHeader>
-          <CardTitle id="preferences-time-zone-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_TIME_ZONE_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {timeZoneMounted ? (
-            <TimeZonePreferencePanel
-              ianaTimeZoneId={ianaTimeZoneId}
-              onIanaTimeZoneIdChange={setTimeZoneAndPersist}
-              accountSyncState={timeZoneAccountSyncState}
-              labelledById="preferences-time-zone-heading"
-            />
-          ) : (
-            <div aria-hidden="true" className="h-20 w-full" data-testid="time-zone-preference-loading" />
-          )}
-        </CardContent>
-      </Card>
-      <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
-        <CardHeader>
-          <CardTitle id="preferences-cloud-platforms-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_CLOUD_PLATFORMS_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {mounted ? (
-            <CloudPlatformScopePanel
-              scope={scope}
-              onScopeChange={setAndPersist}
-              accountSyncState={accountSyncState}
-              labelledById="preferences-cloud-platforms-heading"
-            />
-          ) : (
-            <div aria-hidden="true" className="h-24 w-full" data-testid="cloud-platform-scope-loading" />
-          )}
-        </CardContent>
-      </Card>
-      <Card
-        id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
-        data-testid="preferences-sample-reviews-on-overview-card"
+      <a
+        href={`#${PREFERENCES_SETTINGS_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
-        <CardHeader>
-          <CardTitle
-            id="preferences-sample-reviews-on-overview-heading"
-            as="h2"
-            className={OPERATOR_TYPOGRAPHY.cardTitle}
+        {PREFERENCES_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid={PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref={ACCOUNT_PREFERENCES_PATH}
+          title="Preferences"
+          subtitle={preferencesSettingsPageSubtitle(buyerPolishedShell)}
+          titleTestId="preferences-settings-page-title"
+          actions={
+            buyerPolishedShell ? null : <PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />
+          }
+        />
+
+        <div
+          id={PREFERENCES_SETTINGS_SKIP_TARGET_ID}
+          data-testid={PREFERENCES_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <PreferencesSaveChecklist
+            title="Save preferences checklist"
+            steps={preferencesSaveSteps}
+            emphasizedStepId={preferencesSaveEmphasizedStepId}
+            testIdPrefix="preferences-save"
+          />
+          <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
+            <CardHeader>
+              <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {WORKSPACE_MODE_PREFERENCE_HEADING}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {workspaceModeMounted ? (
+                <WorkspaceModePreferencePanel
+                  mode={workspaceMode}
+                  onModeChange={setWorkspaceModeAndPersist}
+                  accountSyncState={workspaceModeAccountSyncState}
+                  labelledById="preferences-workspace-mode-heading"
+                />
+              ) : (
+                <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
+              )}
+            </CardContent>
+          </Card>
+          <Card id="appearance" data-testid="preferences-appearance-card">
+            <CardHeader>
+              <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p id="preferences-theme-label" className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Theme
+                </p>
+                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  Choose how ArchLucid appears.
+                </p>
+              </div>
+              <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />
+            </CardContent>
+          </Card>
+          <Card id="time-zone" data-testid="preferences-time-zone-card">
+            <CardHeader>
+              <CardTitle id="preferences-time-zone-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {PREFERENCES_TIME_ZONE_HEADING}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {timeZoneMounted ? (
+                <TimeZonePreferencePanel
+                  ianaTimeZoneId={ianaTimeZoneId}
+                  onIanaTimeZoneIdChange={setTimeZoneAndPersist}
+                  accountSyncState={timeZoneAccountSyncState}
+                  labelledById="preferences-time-zone-heading"
+                />
+              ) : (
+                <div aria-hidden="true" className="h-20 w-full" data-testid="time-zone-preference-loading" />
+              )}
+            </CardContent>
+          </Card>
+          <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
+            <CardHeader>
+              <CardTitle id="preferences-cloud-platforms-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {PREFERENCES_CLOUD_PLATFORMS_HEADING}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {mounted ? (
+                <CloudPlatformScopePanel
+                  scope={scope}
+                  onScopeChange={setAndPersist}
+                  accountSyncState={accountSyncState}
+                  labelledById="preferences-cloud-platforms-heading"
+                />
+              ) : (
+                <div aria-hidden="true" className="h-24 w-full" data-testid="cloud-platform-scope-loading" />
+              )}
+            </CardContent>
+          </Card>
+          <Card
+            id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
+            data-testid="preferences-sample-reviews-on-overview-card"
           >
-            {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sampleReviewsOnOverviewMounted ? (
-            <SampleReviewsOnOverviewPreferencePanel
-              enabled={sampleReviewsOnOverviewEnabled}
-              onEnabledChange={setSampleReviewsOnOverviewAndPersist}
-              accountSyncState={sampleReviewsOnOverviewAccountSyncState}
-              labelledById="preferences-sample-reviews-on-overview-heading"
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="h-16 w-full"
-              data-testid="sample-reviews-on-overview-preference-loading"
-            />
-          )}
-        </CardContent>
-      </Card>
-      <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
-        <CardHeader>
-          <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {whereToGoNextMounted ? (
-            <WhereToGoNextPreferencePanel
-              enabled={whereToGoNextEnabled}
-              onEnabledChange={setWhereToGoNextAndPersist}
-              accountSyncState={whereToGoNextAccountSyncState}
-              labelledById="preferences-follow-up-strips-heading"
-            />
-          ) : (
-            <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
-          )}
-        </CardContent>
-      </Card>
-      <PreferencesSettingsEvidenceOrientationStrip />
+            <CardHeader>
+              <CardTitle
+                id="preferences-sample-reviews-on-overview-heading"
+                as="h2"
+                className={OPERATOR_TYPOGRAPHY.cardTitle}
+              >
+                {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {sampleReviewsOnOverviewMounted ? (
+                <SampleReviewsOnOverviewPreferencePanel
+                  enabled={sampleReviewsOnOverviewEnabled}
+                  onEnabledChange={setSampleReviewsOnOverviewAndPersist}
+                  accountSyncState={sampleReviewsOnOverviewAccountSyncState}
+                  labelledById="preferences-sample-reviews-on-overview-heading"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="h-16 w-full"
+                  data-testid="sample-reviews-on-overview-preference-loading"
+                />
+              )}
+            </CardContent>
+          </Card>
+          <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
+            <CardHeader>
+              <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {whereToGoNextMounted ? (
+                <WhereToGoNextPreferencePanel
+                  enabled={whereToGoNextEnabled}
+                  onEnabledChange={setWhereToGoNextAndPersist}
+                  accountSyncState={whereToGoNextAccountSyncState}
+                  labelledById="preferences-follow-up-strips-heading"
+                />
+              ) : (
+                <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div data-testid="preferences-settings-orientation-bottom">
+          <PreferencesSettingsEvidenceOrientationStrip />
+        </div>
+      </div>
     </OperatorPageContainer>
   );
 }

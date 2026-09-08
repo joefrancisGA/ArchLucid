@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -38,8 +38,16 @@ import {
   IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE,
 } from "@/lib/identity-providers-settings-copy";
 import {
+  IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE,
+  IDENTITY_PROVIDERS_OIDC_ORIENTATION_SOURCES,
+} from "@/lib/identity-providers-oidc-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import {
+  OIDC_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   OIDC_SETTINGS_PRIMARY_CONTENT_ID,
   OIDC_SETTINGS_SKIP_LINK_LABEL,
+  OIDC_SETTINGS_SKIP_TARGET_ID,
 } from "./oidc-settings-page-copy";
 
 function buildModel(
@@ -100,30 +108,38 @@ function buildModel(
 }
 
 describe("IdentityProvidersOidcPageView buyer-polished shell (AOI)", () => {
-  it("renders skip link, breadcrumb, orientation strip, and buyer subtitle", () => {
+  it("renders skip link, first-viewport band, orientation above status card, and buyer subtitle", () => {
     render(<IdentityProvidersOidcPageView model={buildModel()} />);
 
     expect(screen.getByRole("link", { name: OIDC_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${OIDC_SETTINGS_PRIMARY_CONTENT_ID}`,
+      `#${OIDC_SETTINGS_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("identity-providers-settings-primary-content")).toHaveAttribute(
       "id",
       OIDC_SETTINGS_PRIMARY_CONTENT_ID,
     );
     expect(screen.queryByTestId("identity-providers-oidc-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("identity-providers-oidc-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("identity-providers-oidc-settings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByText(BUYER_IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(IDENTITY_PROVIDERS_OIDC_PAGE_SUBTITLE)).not.toBeInTheDocument();
-    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("identity-providers-settings-primary-content");
-    const orderedLandmarks = ["identity-providers-oidc-orientation-top", "identity-providers-oidc-status-card"]
-      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const firstViewport = screen.getByTestId(OIDC_SETTINGS_FIRST_VIEWPORT_TEST_ID);
+    const orientationTop = screen.getByTestId("identity-providers-oidc-orientation-top");
+    const statusCard = screen.getByTestId("identity-providers-oidc-status-card");
+    const sourcesSection = screen.getByTestId("identity-providers-oidc-settings-sources");
 
-    expect(orderedLandmarks).toEqual(["identity-providers-oidc-orientation-top", "identity-providers-oidc-status-card"]);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(statusCard);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(statusCard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(IDENTITY_PROVIDERS_OIDC_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

@@ -42,6 +42,8 @@ import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settin
 import { AiUsageSettingsHeaderActions } from "./AiUsageSettingsHeaderActions";
 import {
   AI_USAGE_SETTINGS_FIRST_VIEWPORT_ID,
+  AI_USAGE_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AI_USAGE_SETTINGS_PRIMARY_CONTENT_ID,
   AI_USAGE_SETTINGS_SKIP_LINK_LABEL,
   AI_USAGE_SETTINGS_SKIP_TARGET_ID,
@@ -165,7 +167,7 @@ export function CostReportingSettingsPageView(props: Props) {
           title={OPERATOR_NAV_LINK_LABELS.aiUsage}
           description={aiUsageSettingsPageDescription(buyerPolishedShell)}
           claimDiscipline={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE}
-          claimDisciplineTestId="ai-usage-settings-claim-discipline"
+          claimDisciplineTestId={AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           metadata={
             estimatesAsOfLabel !== null ? (
               <span data-testid="ai-usage-estimates-as-of">{estimatesAsOfLabel}</span>
@@ -176,7 +178,7 @@ export function CostReportingSettingsPageView(props: Props) {
 
         <div
           id={AI_USAGE_SETTINGS_FIRST_VIEWPORT_ID}
-          data-testid={AI_USAGE_SETTINGS_FIRST_VIEWPORT_ID}
+          data-testid={AI_USAGE_SETTINGS_FIRST_VIEWPORT_TEST_ID}
           className={cn(
             "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
             OPERATOR_LAYOUT.sectionStack,
