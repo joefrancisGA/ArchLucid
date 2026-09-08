@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getFirstValueReportMarkdown } from "@/lib/api";
+import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite, whyDisabledPolicy } from "@/lib/why-disabled-cta";
 import { showError, showSuccess } from "@/lib/toast";
@@ -44,14 +45,9 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       }
 
       const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
       const slug = systemName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-      anchor.href = url;
-      anchor.download = `sponsor-${slug || runId}.md`;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      await triggerBrowserBlobDownload(blob, `sponsor-${slug || runId}.md`);
       showSuccess("Sponsor report ready — download started.");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Could not generate report.";

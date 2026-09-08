@@ -12,7 +12,13 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
-import { downloadTraceabilityBundleWithWorkingGate } from "@/lib/exports/traceability-bundle-download";
+import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
+import {
+  isRunExportLineageAttested,
+  verifyRunExportLineage,
+} from "@/lib/exports/run-export-lineage-verify";
+import { showError } from "@/lib/toast";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -42,25 +48,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
   const workingDesk = useProductionDeskChrome();
   const [traceabilityBusy, setTraceabilityBusy] = useState(false);
   const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
-
-  const onDownloadTraceabilityBundle = useCallback(async () => {
-    setTraceabilityBusy(true);
-    setTraceabilityRecovery(null);
-
-    try {
-      const result = await downloadTraceabilityBundleWithWorkingGate({
-        runId,
-        workingDesk,
-        skipVerify: props.isSample === true,
-      });
-
-      if (!result.ok) {
-        setTraceabilityRecovery(result.recovery);
-      }
-    } finally {
-      setTraceabilityBusy(false);
-    }
-  }, [props.isSample, runId, workingDesk]);
   const packageCommitted =
     manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
   const sealedManifestVersion = manifestVersion ?? (packageCommitted ? manifestId?.trim() ?? null : null);
@@ -68,6 +55,36 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
     runId,
     manifestVersion: sealedManifestVersion,
   });
+
+  const onDownloadTraceabilityBundle = useCallback(async () => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setTraceabilityBusy(true);
+    setTraceabilityRecovery(null);
+
+    try {
+      if (workingDesk && props.isSample !== true) {
+        const verifyResult = await verifyRunExportLineage(runId);
+
+        if (!isRunExportLineageAttested(verifyResult)) {
+          setTraceabilityRecovery(exportVerifyBlockedRecovery(verifyResult));
+
+          return;
+        }
+      }
+
+      await downloadTraceabilityBundleZip(runId);
+    } catch (error: unknown) {
+      showError(
+        "Evidence bundle",
+        error instanceof Error ? error.message : "Could not download traceability bundle.",
+      );
+    } finally {
+      setTraceabilityBusy(false);
+    }
+  }, [collateralExportBlockedReason, props.isSample, runId, workingDesk]);
 
   return (
     <section id="run-actions" className="scroll-mt-24">

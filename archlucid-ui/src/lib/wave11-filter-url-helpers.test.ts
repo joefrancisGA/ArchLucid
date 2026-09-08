@@ -5608,6 +5608,92 @@ describe("wave70 filter url helpers", () => {
   });
 });
 
+describe("wave71 filter url helpers", () => {
+  it("compare structured section, help accelerator chooser pack technical, reviews new more ways, sponsor dashboard supporting metrics, run detail provenance identifiers, finding inspect technical rule, help data handling tenant isolation sources, run detail sponsor briefing, evidence gap forecast, review chain of custody section params", async () => {
+    const {
+      compareStructuredSectionDisclosureHrefFromSearch,
+      parseCompareStructuredSectionKeyFromSearch,
+    } = await import("@/lib/compare/compare-structured-section-disclosure-url");
+    const {
+      helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch,
+      parseHelpAcceleratorChooserPackTechnicalKeyFromSearch,
+    } = await import("@/lib/help/help-accelerator-chooser-pack-technical-disclosure-url");
+    const {
+      parseReviewsNewMoreWaysToStartOpenFromSearch,
+      reviewsNewMoreWaysToStartDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url");
+    const {
+      parseSponsorDashboardSupportingMetricsOpenFromSearch,
+      sponsorDashboardSupportingMetricsDisclosureHrefFromSearch,
+    } = await import("@/lib/sponsor/sponsor-dashboard-supporting-metrics-disclosure-url");
+    const {
+      parseRunDetailProvenanceIdentifiersOpenFromSearch,
+      runDetailProvenanceIdentifiersDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-provenance-identifiers-disclosure-url");
+    const {
+      findingInspectTechnicalRuleDisclosureHrefFromSearch,
+      parseFindingInspectTechnicalRuleOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-technical-rule-disclosure-url");
+    const {
+      helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch,
+      parseHelpDataHandlingTenantIsolationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-data-handling-tenant-isolation-sources-disclosure-url");
+    const {
+      parseRunDetailSponsorBriefingOpenFromSearch,
+      runDetailSponsorBriefingDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-sponsor-briefing-disclosure-url");
+    const {
+      evidenceGapForecastDisclosureHrefFromSearch,
+      parseEvidenceGapForecastOpenFromSearch,
+    } = await import("@/lib/evidence/evidence-gap-forecast-disclosure-url");
+    const {
+      parseReviewChainOfCustodySectionKeyFromSearch,
+      reviewChainOfCustodySectionDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/review-chain-of-custody-section-disclosure-url");
+
+    expect(parseCompareStructuredSectionKeyFromSearch("decision-changes")).toBe("decision-changes");
+    expect(
+      compareStructuredSectionDisclosureHrefFromSearch("", "decision-changes", "/insights/compare-two-reviews"),
+    ).toBe("/insights/compare-two-reviews?compareStructuredSectionKey=decision-changes");
+    expect(parseHelpAcceleratorChooserPackTechnicalKeyFromSearch("greenfield")).toBe("greenfield");
+    expect(
+      helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch("", "greenfield", "/help/accelerator-chooser"),
+    ).toBe("/help/accelerator-chooser?helpAcceleratorChooserPackTechnicalKey=greenfield");
+    expect(parseReviewsNewMoreWaysToStartOpenFromSearch("1")).toBe(true);
+    expect(reviewsNewMoreWaysToStartDisclosureHrefFromSearch("path=quick", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=quick&reviewsNewMoreWaysToStartOpen=1",
+    );
+    expect(parseSponsorDashboardSupportingMetricsOpenFromSearch("true")).toBe(true);
+    expect(
+      sponsorDashboardSupportingMetricsDisclosureHrefFromSearch("", true, "/architecture/sponsor-dashboard"),
+    ).toBe("/architecture/sponsor-dashboard?sponsorDashboardSupportingMetricsOpen=1");
+    expect(parseRunDetailProvenanceIdentifiersOpenFromSearch("1")).toBe(true);
+    expect(
+      runDetailProvenanceIdentifiersDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=overview&runDetailProvenanceIdentifiersOpen=1");
+    expect(parseFindingInspectTechnicalRuleOpenFromSearch("true")).toBe(true);
+    expect(
+      findingInspectTechnicalRuleDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectTechnicalRuleOpen=1");
+    expect(parseHelpDataHandlingTenantIsolationSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpDataHandlingTenantIsolationSourcesDisclosureHrefFromSearch("", true, "/help/data-handling"),
+    ).toBe("/help/data-handling?helpDataHandlingTenantIsolationSourcesOpen=1");
+    expect(parseRunDetailSponsorBriefingOpenFromSearch("true")).toBe(true);
+    expect(
+      runDetailSponsorBriefingDisclosureHrefFromSearch("tab=package", true, "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?tab=package&runDetailSponsorBriefingOpen=1");
+    expect(parseEvidenceGapForecastOpenFromSearch("1")).toBe(true);
+    expect(evidenceGapForecastDisclosureHrefFromSearch("step=upload", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=upload&evidenceGapForecastOpen=1",
+    );
+    expect(parseReviewChainOfCustodySectionKeyFromSearch("who-and-when")).toBe("who-and-when");
+    expect(
+      reviewChainOfCustodySectionDisclosureHrefFromSearch("", "who-and-when", "/architecture/reviews/run-1"),
+    ).toBe("/architecture/reviews/run-1?reviewChainOfCustodySectionKey=who-and-when");
+  });
+});
+
 describe("wave72 filter url helpers", () => {
   it("engineering troubleshooting sources, accelerator cost governance technical, sponsor dashboard/scorecard, audit lineage route/spine, first pilot l0, glossary section, infra resource hub technical params", async () => {
     const {

@@ -9,7 +9,14 @@ import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GOVERNANCE_AUDIT_LOAD_ERROR, GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL, GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID, GOVERNANCE_AUDIT_SKIP_LINK_LABEL } from "@/lib/governance-audit-page-copy";
+import {
+  GOVERNANCE_AUDIT_BUYER_START_HERE_HELPER,
+  GOVERNANCE_AUDIT_LOAD_ERROR,
+  GOVERNANCE_AUDIT_LOAD_ERROR_RETRY_LABEL,
+  GOVERNANCE_AUDIT_PAGE_LEAD,
+  GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
+  GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
+} from "@/lib/governance-audit-page-copy";
 import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -178,8 +185,6 @@ export function AuditPageView(props: AuditPageViewProps) {
         }
       />
 
-      {buyerPolishedShell ? <AuditPageBuyerChrome /> : null}
-
       {!buyerPolishedShell ? (
         <OperatorRelatedSurfacesDisclosure testId="audit-related-surfaces-disclosure">
           <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
@@ -193,6 +198,26 @@ export function AuditPageView(props: AuditPageViewProps) {
         className={cn(buyerPolishedShell ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
         data-testid={buyerPolishedShell ? "governance-audit-primary-content" : undefined}
       >
+      {buyerPolishedShell ? (
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="governance-audit-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-audit-intro"
+          >
+            {GOVERNANCE_AUDIT_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-audit-buyer-start-here-helper"
+          >
+            {GOVERNANCE_AUDIT_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       {buyerPolishedShell && props.buyerAuditTrailMetrics !== null ? (
         <AuditBuyerHeaderMetrics buyerAuditTrailMetrics={props.buyerAuditTrailMetrics} />
       ) : null}
@@ -394,6 +419,7 @@ export function AuditPageView(props: AuditPageViewProps) {
       ) : null}
 
       {props.runId.trim().length > 0 ? <AuditNextReviewFooterClient runId={props.runId.trim()} /> : null}
+      {buyerPolishedShell ? <AuditPageBuyerChrome /> : null}
       </div>
     </OperatorPageContainer>
   );

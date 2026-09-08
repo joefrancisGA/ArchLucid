@@ -25,6 +25,11 @@ import {
   compareDecisionTechnicalDisclosureHrefFromSearch,
   parseCompareDecisionTechnicalKeyFromSearch,
 } from "@/lib/compare/compare-decision-technical-disclosure-url";
+import {
+  COMPARE_STRUCTURED_SECTION_KEY_PARAM,
+  compareStructuredSectionDisclosureHrefFromSearch,
+  parseCompareStructuredSectionKeyFromSearch,
+} from "@/lib/compare/compare-structured-section-disclosure-url";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-format";
@@ -34,6 +39,15 @@ import type { RunSummary } from "@/types/authority";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
+
+const COMPARE_STRUCTURED_SECTION_KEYS = {
+  summaryHighlights: "summary-highlights",
+  decisionChanges: "decision-changes",
+  requirementChanges: "requirement-changes",
+  findingPostureDelta: "finding-posture-delta",
+  architectureStructureFootprint: "architecture-structure-footprint",
+  projectedCostImpact: "projected-cost-impact",
+} as const;
 
 function DecisionDeltasTable(props: {
   rows: DecisionDelta[];
@@ -92,11 +106,17 @@ function DecisionDeltasTable(props: {
 function ComparisonFoldSection(props: {
   title: string;
   countBadge: number;
-  defaultOpen: boolean;
+  sectionKey: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   children: ReactNode;
 }) {
   return (
-    <details className={cn(sectionBoxCls, "group")} open={props.defaultOpen}>
+    <details
+      className={cn(sectionBoxCls, "group")}
+      open={props.open}
+      onToggle={(event) => props.onOpenChange(event.currentTarget.open)}
+    >
       <summary className={cn("flex cursor-pointer list-none items-center gap-2 font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
         <DisclosureTriangleIndicator />
         <span className={cn("inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
@@ -125,8 +145,12 @@ export function StructuredComparisonView(props: {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const compareDecisionTechnicalKeyParam = searchParams.get(COMPARE_DECISION_TECHNICAL_KEY_PARAM);
+  const compareStructuredSectionKeyParam = searchParams.get(COMPARE_STRUCTURED_SECTION_KEY_PARAM);
   const [openTechnicalKey, setOpenTechnicalKeyState] = useState(() =>
     parseCompareDecisionTechnicalKeyFromSearch(compareDecisionTechnicalKeyParam),
+  );
+  const [openStructuredSectionKey, setOpenStructuredSectionKeyState] = useState(() =>
+    parseCompareStructuredSectionKeyFromSearch(compareStructuredSectionKeyParam),
   );
   const syncOpenTechnicalKeyToUrl = useCallback(
     (decisionKey: string | null) => {
@@ -144,13 +168,44 @@ export function StructuredComparisonView(props: {
     },
     [syncOpenTechnicalKeyToUrl],
   );
+  const syncOpenStructuredSectionKeyToUrl = useCallback(
+    (sectionKey: string | null) => {
+      router.replace(
+        compareStructuredSectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenStructuredSectionKey = useCallback(
+    (sectionKey: string | null) => {
+      setOpenStructuredSectionKeyState(sectionKey ?? "");
+      syncOpenStructuredSectionKeyToUrl(sectionKey);
+    },
+    [syncOpenStructuredSectionKeyToUrl],
+  );
   const golden = sortGoldenManifestComparison(props.golden);
   const foldDefaultOpen = props.buyerCompareUi !== true;
   const summaryHighlights = props.summaryHighlightsForFold ?? golden.summaryHighlights;
 
+  const isStructuredSectionOpen = useCallback(
+    (sectionKey: string, defaultOpen: boolean) => {
+      if (openStructuredSectionKey.length > 0) {
+        return openStructuredSectionKey === sectionKey;
+      }
+
+      return defaultOpen;
+    },
+    [openStructuredSectionKey],
+  );
+
   useEffect(() => {
     setOpenTechnicalKeyState(parseCompareDecisionTechnicalKeyFromSearch(compareDecisionTechnicalKeyParam));
   }, [compareDecisionTechnicalKeyParam]);
+
+  useEffect(() => {
+    setOpenStructuredSectionKeyState(parseCompareStructuredSectionKeyFromSearch(compareStructuredSectionKeyParam));
+  }, [compareStructuredSectionKeyParam]);
 
   const noMaterialDeltaSections =
     golden.decisionChanges.length === 0 &&
@@ -175,7 +230,15 @@ export function StructuredComparisonView(props: {
       </p>
 
       {summaryHighlights.length > 0 ? (
-        <ComparisonFoldSection title="Summary highlights" countBadge={summaryHighlights.length} defaultOpen>
+        <ComparisonFoldSection
+          title="Summary highlights"
+          countBadge={summaryHighlights.length}
+          sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.summaryHighlights}
+          open={isStructuredSectionOpen(COMPARE_STRUCTURED_SECTION_KEYS.summaryHighlights, true)}
+          onOpenChange={(open) =>
+            setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.summaryHighlights : null)
+          }
+        >
           <ul className="m-0 pl-5 leading-normal">
             {summaryHighlights.map((h, i) => (
               <li key={`highlight-${i}`}>{h}</li>
@@ -199,7 +262,15 @@ export function StructuredComparisonView(props: {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           {golden.decisionChanges.length > 0 ? (
-            <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={foldDefaultOpen}>
+            <ComparisonFoldSection
+              title="Decision changes"
+              countBadge={golden.decisionChanges.length}
+              sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.decisionChanges}
+              open={isStructuredSectionOpen(COMPARE_STRUCTURED_SECTION_KEYS.decisionChanges, foldDefaultOpen)}
+              onOpenChange={(open) =>
+                setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.decisionChanges : null)
+              }
+            >
               {(() => {
                 const { material, metadata } = partitionDecisionDeltas(golden.decisionChanges);
 
@@ -242,7 +313,11 @@ export function StructuredComparisonView(props: {
             <ComparisonFoldSection
               title="Requirement changes"
               countBadge={golden.requirementChanges.length}
-              defaultOpen={foldDefaultOpen}
+              sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.requirementChanges}
+              open={isStructuredSectionOpen(COMPARE_STRUCTURED_SECTION_KEYS.requirementChanges, foldDefaultOpen)}
+              onOpenChange={(open) =>
+                setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.requirementChanges : null)
+              }
             >
               <EnterpriseTable ariaLabel="Requirement changes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                 <EnterpriseTableHead>
@@ -267,7 +342,11 @@ export function StructuredComparisonView(props: {
             <ComparisonFoldSection
               title="Finding / posture delta"
               countBadge={golden.securityChanges.length}
-              defaultOpen={foldDefaultOpen}
+              sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.findingPostureDelta}
+              open={isStructuredSectionOpen(COMPARE_STRUCTURED_SECTION_KEYS.findingPostureDelta, foldDefaultOpen)}
+              onOpenChange={(open) =>
+                setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.findingPostureDelta : null)
+              }
             >
               <EnterpriseTable ariaLabel="Finding and posture deltas" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                 <EnterpriseTableHead>
@@ -294,7 +373,14 @@ export function StructuredComparisonView(props: {
             <ComparisonFoldSection
               title="Architecture structure / footprint"
               countBadge={golden.topologyChanges.length}
-              defaultOpen={foldDefaultOpen}
+              sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.architectureStructureFootprint}
+              open={isStructuredSectionOpen(
+                COMPARE_STRUCTURED_SECTION_KEYS.architectureStructureFootprint,
+                foldDefaultOpen,
+              )}
+              onOpenChange={(open) =>
+                setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.architectureStructureFootprint : null)
+              }
             >
               <EnterpriseTable ariaLabel="Architecture structure changes" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                 <EnterpriseTableHead>
@@ -319,7 +405,11 @@ export function StructuredComparisonView(props: {
             <ComparisonFoldSection
               title="Projected cost impact"
               countBadge={golden.costChanges.length}
-              defaultOpen={foldDefaultOpen}
+              sectionKey={COMPARE_STRUCTURED_SECTION_KEYS.projectedCostImpact}
+              open={isStructuredSectionOpen(COMPARE_STRUCTURED_SECTION_KEYS.projectedCostImpact, foldDefaultOpen)}
+              onOpenChange={(open) =>
+                setOpenStructuredSectionKey(open ? COMPARE_STRUCTURED_SECTION_KEYS.projectedCostImpact : null)
+              }
             >
               <EnterpriseTable ariaLabel="Projected cost impact" className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                 <EnterpriseTableHead>

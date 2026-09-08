@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserHeaderActions";
 import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
@@ -41,6 +44,11 @@ import {
   resolvePackCtaState,
 } from "@/lib/accelerator-chooser-pack-prerequisite";
 import { ACCELERATOR_JOB_CHOOSER_REQUIRED_INPUTS_LABEL } from "@/lib/accelerator-chooser-start-copy";
+import {
+  HELP_ACCELERATOR_CHOOSER_PACK_TECHNICAL_KEY_PARAM,
+  helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch,
+  parseHelpAcceleratorChooserPackTechnicalKeyFromSearch,
+} from "@/lib/help/help-accelerator-chooser-pack-technical-disclosure-url";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -84,10 +92,12 @@ type AcceleratorChooserPackCardProps = {
   readonly packEntry: AcceleratorChooserEntry;
   readonly prerequisiteStatus: AcceleratorChooserPrerequisiteStatus;
   readonly onRetry?: () => void;
+  readonly openPackTechnicalKey: string;
+  readonly onPackTechnicalKeyOpenChange: (packKey: string | null) => void;
 };
 
 function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): React.ReactElement {
-  const { packEntry, prerequisiteStatus, onRetry } = props;
+  const { packEntry, prerequisiteStatus, onRetry, openPackTechnicalKey, onPackTechnicalKeyOpenChange } = props;
   const ctaState = resolvePackCtaState(prerequisiteStatus, packEntry.id);
   const hasTechnicalInputs = packEntry.technicalInputs !== undefined;
 
@@ -119,6 +129,8 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
         title="Technical outputs and file detail"
         summaryAriaLabel={`Technical outputs and file detail for ${packEntry.buyerJob}`}
         sectionTestId={`help-accelerator-chooser-pack-${packEntry.id}-technical`}
+        open={openPackTechnicalKey === packEntry.id}
+        onToggle={(open) => onPackTechnicalKeyOpenChange(open ? packEntry.id : null)}
       >
         {hasTechnicalInputs ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -162,6 +174,36 @@ export function HelpAcceleratorChooserGuideView(
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const presentation = useAcceleratorChooserPrerequisitePresentation();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpAcceleratorChooserPackTechnicalKeyParam = searchParams.get(
+    HELP_ACCELERATOR_CHOOSER_PACK_TECHNICAL_KEY_PARAM,
+  );
+  const [openPackTechnicalKey, setOpenPackTechnicalKeyState] = useState(() =>
+    parseHelpAcceleratorChooserPackTechnicalKeyFromSearch(helpAcceleratorChooserPackTechnicalKeyParam),
+  );
+  const syncOpenPackTechnicalKeyToUrl = useCallback(
+    (packKey: string | null) => {
+      router.replace(
+        helpAcceleratorChooserPackTechnicalDisclosureHrefFromSearch(searchParams.toString(), packKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenPackTechnicalKey = useCallback(
+    (packKey: string | null) => {
+      setOpenPackTechnicalKeyState(packKey ?? "");
+      syncOpenPackTechnicalKeyToUrl(packKey);
+    },
+    [syncOpenPackTechnicalKeyToUrl],
+  );
+  useEffect(() => {
+    setOpenPackTechnicalKeyState(
+      parseHelpAcceleratorChooserPackTechnicalKeyFromSearch(helpAcceleratorChooserPackTechnicalKeyParam),
+    );
+  }, [helpAcceleratorChooserPackTechnicalKeyParam]);
   const gridItems = buildAcceleratorChooserGridItemsForPrerequisite(presentation.status);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-accelerator-chooser",
@@ -251,6 +293,8 @@ export function HelpAcceleratorChooserGuideView(
                     packEntry={gridItem.entry}
                     prerequisiteStatus={presentation.status}
                     onRetry={presentation.retry}
+                    openPackTechnicalKey={openPackTechnicalKey}
+                    onPackTechnicalKeyOpenChange={setOpenPackTechnicalKey}
                   />
                 );
               })}

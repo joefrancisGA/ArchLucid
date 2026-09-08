@@ -12,6 +12,13 @@ import {
   REVIEWS_NEW_MORE_WAYS_TO_START_TITLE,
   REVIEWS_NEW_PATH_HINTS,
 } from "@/lib/reviews-new-path-copy";
+import {
+  REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM,
+  parseReviewsNewMoreWaysToStartOpenFromSearch,
+  reviewsNewMoreWaysToStartDisclosureHrefFromSearch,
+} from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import type { ReviewsNewActivePath } from "./reviews-new-path-switcher-state";
 
@@ -42,12 +49,41 @@ function secondaryPathTestId(path: ReviewsNewActivePath): string {
 /** Secondary review-start paths for first-run tenants (TB-2130). */
 export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps): React.JSX.Element {
   const { onSelectPath } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reviewsNewMoreWaysToStartOpenParam = searchParams.get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM);
+  const [open, setOpenState] = useState(() =>
+    parseReviewsNewMoreWaysToStartOpenFromSearch(reviewsNewMoreWaysToStartOpenParam),
+  );
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        reviewsNewMoreWaysToStartDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseReviewsNewMoreWaysToStartOpenFromSearch(reviewsNewMoreWaysToStartOpenParam));
+  }, [reviewsNewMoreWaysToStartOpenParam]);
 
   return (
     <CollapsibleSection
       title={REVIEWS_NEW_MORE_WAYS_TO_START_TITLE}
       summaryLine={REVIEWS_NEW_MORE_WAYS_TO_START_SUMMARY}
       sectionTestId="reviews-new-more-intake-options"
+      open={open}
+      onToggle={setOpen}
     >
       <ul className="m-0 list-none space-y-3 p-0">
         <NewReviewSampleEscapeLink />

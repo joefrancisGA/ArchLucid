@@ -4,10 +4,13 @@ import {
   type ApiGetOptions,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
   apiGet,
 } from "./http";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(
@@ -58,15 +61,17 @@ export async function fetchArtifactContentUtf8(
   await ensureOidcBearerReady();
   const path = `/v1/artifacts/signed-review-records/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = await resolveBinaryGetRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const requestHeaders = withCorrelationHeaders(headers);
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
   const response = await fetch(url, {
     cache: "no-store",
-    headers: h,
+    headers: correlatedHeaders,
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const contentType = response.headers.get("content-type") ?? "application/octet-stream";
