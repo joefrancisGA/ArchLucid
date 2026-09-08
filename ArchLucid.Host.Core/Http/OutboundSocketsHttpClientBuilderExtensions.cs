@@ -17,13 +17,14 @@ public static class OutboundSocketsHttpClientBuilderExtensions
     /// </summary>
     public static IHttpClientBuilder ConfigureArchLucidOutboundSocketsHandler(
         this IHttpClientBuilder builder,
-        OutboundHttpSocketsHandlerProfile profile = OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+        OutboundHttpSocketsHandlerProfile profile = OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+        bool allowAutoRedirect = true)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigurePrimaryHttpMessageHandler(() =>
         {
-            SocketsHttpHandler handler = new();
+            SocketsHttpHandler handler = new() { AllowAutoRedirect = allowAutoRedirect };
             OutboundSocketsHttpHandlerSettings.Apply(handler, profile);
 
             return handler;

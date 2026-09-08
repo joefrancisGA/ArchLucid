@@ -2,7 +2,14 @@ export const ACCESS_DENIED_PAGE_TITLE = "Access denied" as const;
 
 export const ACCESS_DENIED_PRIMARY_CONTENT_ID = "access-denied-primary-content" as const;
 
+export const ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID = "access-denied-first-viewport" as const;
+
+export const ACCESS_DENIED_SKIP_TARGET_ID = ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID;
+
 export const ACCESS_DENIED_SKIP_LINK_LABEL = "Skip to access denied content" as const;
+
+export const ACCESS_DENIED_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "access-denied-header-claim-discipline" as const;
 
 export const ACCESS_DENIED_BREADCRUMB_HUB_LABEL = "Welcome" as const;
 

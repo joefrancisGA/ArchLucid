@@ -116,6 +116,28 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("extract-upload-header-extractor-version")).toHaveTextContent("Extractor script: v2.4.1");
   });
 
+  it("renders advanced inventory command on a light code surface for readable contrast", () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return new Response("{}", { status: 404 });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    const advancedCommand = screen.getByTestId("extract-upload-advanced-command");
+
+    expect(advancedCommand.className).toContain("bg-white");
+    expect(advancedCommand.className).not.toContain("bg-neutral-950");
+    expect(advancedCommand).toHaveTextContent("Get-ArchLucidAzurePackage.ps1");
+  });
+
   it("uses unbroken Step 1 and Step 2 numbering with demo in the aside", () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
@@ -225,7 +247,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     const bytes = zipSync({
       "manifest.json": strToU8(
         JSON.stringify({
-          schemaVersion: 2,
+          schemaVersion: 99,
           scriptVersion: "1.0.0",
           collectionTimestamp: "2026-01-01T00:00:00Z",
           subscriptionId: "11111111-1111-1111-1111-111111111111",
@@ -246,5 +268,54 @@ describe("ExtractUploadSettingsPageClient", () => {
 
     expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("/v1/azure-extractor/upload"), expect.anything());
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("accepts current packager schemaVersion 2 and calls the upload API", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return new Response("{}", { status: 404 });
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(JSON.stringify({ packageId: "pkg-schema-v2" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+    const file = new File([bytes], "archlucid-azure-package.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("/v1/azure-extractor/upload"),
+        expect.anything(),
+      );
+    });
+
+    expect(screen.queryByTestId("extract-upload-error-code")).not.toBeInTheDocument();
   });
 });

@@ -1,14 +1,22 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import {
+  RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM,
+  parseRunToolInvocationForensicsTraceIdFromSearch,
+  runToolInvocationForensicsTraceDisclosureHrefFromSearch,
+} from "@/lib/runs/run-tool-invocation-forensics-trace-disclosure-url";
 import type { AgentTraceRawSnapshot } from "@/types/agent-forensics";
 
 const RAW_PREVIEW_MAX_CHARS = 4000;
 
 type RunToolInvocationForensicsRawCellProps = {
+  readonly traceId: string | null | undefined;
   readonly snapshot: AgentTraceRawSnapshot | undefined;
 };
 
@@ -55,8 +63,36 @@ function RawField(props: { readonly label: string; readonly value: string | null
  * TB-110: inline redacted prompt/response preview for execute-tier operators (API policy remains authoritative).
  */
 export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForensicsRawCellProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runToolInvocationForensicsTraceIdParam = searchParams.get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM);
+  const [openTraceId, setOpenTraceIdState] = useState(() =>
+    parseRunToolInvocationForensicsTraceIdFromSearch(runToolInvocationForensicsTraceIdParam),
+  );
+  const syncOpenTraceIdToUrl = useCallback(
+    (traceId: string | null) => {
+      router.replace(
+        runToolInvocationForensicsTraceDisclosureHrefFromSearch(searchParams.toString(), traceId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenTraceId = useCallback(
+    (traceId: string | null) => {
+      setOpenTraceIdState(traceId ?? "");
+      syncOpenTraceIdToUrl(traceId);
+    },
+    [syncOpenTraceIdToUrl],
+  );
+  useEffect(() => {
+    setOpenTraceIdState(parseRunToolInvocationForensicsTraceIdFromSearch(runToolInvocationForensicsTraceIdParam));
+  }, [runToolInvocationForensicsTraceIdParam]);
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const canViewRaw = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
+  const traceId = (props.traceId ?? "").trim();
+  const rawOpen = traceId.length > 0 && openTraceId === traceId;
 
   if (!canViewRaw) {
     return (
@@ -84,7 +120,14 @@ export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForens
   }
 
   return (
-    <details className={OPERATOR_TYPOGRAPHY.helper}>
+    <details
+      className={OPERATOR_TYPOGRAPHY.helper}
+      open={rawOpen}
+      onToggle={(event) => {
+        const nextOpen = event.currentTarget.open;
+        setOpenTraceId(nextOpen && traceId.length > 0 ? traceId : null);
+      }}
+    >
       <summary className="cursor-pointer text-al-accent hover:underline">View raw</summary>
       <div className="mt-2 max-w-lg space-y-2 rounded border border-neutral-200/80 bg-al-surface-raised p-2 dark:border-neutral-700/80">
         <RawField label="User prompt (redacted)" value={props.snapshot.userPrompt} />

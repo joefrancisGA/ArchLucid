@@ -23,11 +23,11 @@ export const enterpriseNavHintReaderRank = "";
 export const enterpriseNavHintOperatorRank = "";
 
 
-export const layerHeaderEnterpriseReaderRankLine = "Governance controls — inspect view.";
+export const layerHeaderEnterpriseReaderRankLine = "Approval controls — inspect view.";
 
 
 export const layerHeaderEnterpriseOperatorRankLine =
-  "Governance controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
+  "Approval controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
 
 
 export const enterpriseExecutePageHintReaderRank = "Writes need elevated permissions in this workspace.";
@@ -42,7 +42,7 @@ export const governanceResolutionRankOperatorLine =
 
 
 const governanceResolutionPageLead =
-  "See which governance packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated governance decisions.";
+  "See which policy packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated approval decisions.";
 
 
 export const governanceResolutionPageLeadOperator = governanceResolutionPageLead;
@@ -73,7 +73,7 @@ export const governanceResolutionRefreshPolicySectionHeading = "Refresh policy r
 
 
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh the effective policy after changing policy packs or governance workflow settings.";
+  "Refresh the effective policy after changing policy packs or approval workflow settings.";
 
 
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
@@ -118,7 +118,7 @@ export const governanceDashboardLineageLinkTitle = "Read-only approval and revie
 
 
 export const governanceDashboardOpenWorkflowReviewTitleOperator =
-  "Open governance workflow for this review to continue governance release steps.";
+  "Open approval workflow for this review to continue approval release steps.";
 
 
 export const governanceDashboardOpenWorkflowReviewTitleReader =
@@ -126,17 +126,17 @@ export const governanceDashboardOpenWorkflowReviewTitleReader =
 
 
 export const governanceWorkflowPageLeadOperator =
-  "Submit finalized architecture outputs for governance review. Load a review to see approval status and the full approval trail.";
+  "Submit finalized architecture outputs for approval review. Load a review to see approval status and the full approval trail.";
 
 
 export const governanceWorkflowPageLeadReader =
   "Inspect how an architecture review moved through approval. Load a review below to view its approval history.";
 
 
-export const governanceWorkflowSubmitCardTitleOperator = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleOperator = "Submit for approval";
 
 
-export const governanceWorkflowSubmitCardTitleReader = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleReader = "Submit for approval";
 
 
 export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval requests for this review";
@@ -145,10 +145,10 @@ export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval req
 export const governanceWorkflowApprovalRequestsCardTitleReader = "Approval requests for this review";
 
 
-export const governanceWorkflowPromotionsActivationsHeadingOperator = "Governance activity";
+export const governanceWorkflowPromotionsActivationsHeadingOperator = "Approval activity";
 
 
-export const governanceWorkflowPromotionsActivationsHeadingReader = "Governance activity";
+export const governanceWorkflowPromotionsActivationsHeadingReader = "Approval activity";
 
 
 export const governanceWorkflowActivationsSubheadingOperator = "Deployment releases";
@@ -158,7 +158,7 @@ export const governanceWorkflowActivationsSubheadingReader = "Deployment release
 
 
 export const governanceWorkflowRefreshRunDataTitle =
-  "Reload approval requests and governance activity for the loaded review.";
+  "Reload approval requests and approval activity for the loaded review.";
 
 
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
@@ -196,7 +196,7 @@ export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different review.";
 
 
-export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for governance approval";
+export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for approval";
 
 
 export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (needs approver rights)";
@@ -240,9 +240,9 @@ export const governanceWorkflowPromotionsEmptyOperatorHint =
 
 
 export const governanceWorkflowActivationsEmptyReaderHint =
-  "None yet. Appear after an architect activates a governance release; inspect-only at your rank.";
+  "None yet. Appear after an architect activates a approval release; inspect-only at your rank.";
 
 
 export const governanceWorkflowActivationsEmptyOperatorHint =
-  "Use Activate on a governance release card after releases exist.";
+  "Use Activate on a approval release card after releases exist.";
 

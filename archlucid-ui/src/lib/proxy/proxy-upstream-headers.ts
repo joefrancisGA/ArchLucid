@@ -11,7 +11,7 @@ import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { resolveBffSessionBearerFromRequest } from "@/lib/proxy/bff-session-cookie";
 import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
 import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
-import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
+import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
 export const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
@@ -29,17 +29,17 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
   const browserBearer = authHeader?.trim() ?? "";
-  const cookieBearer = browserBearer.length === 0 ? resolveBffSessionBearerFromRequest(request) : "";
+  const cookieBearer = resolveBffSessionBearerFromRequest(request);
   const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
   const skipPrivilegedUpstreamAuth =
     proxyPath !== undefined &&
     proxyPath.length > 0 &&
-    isAnonymousMarketingProxyPath(proxyPath);
+    isPublicAnonymousProxyPath(proxyPath);
   const bearerToUse =
-    browserBearer.length > 0
-      ? browserBearer
-      : cookieBearer.length > 0
-        ? cookieBearer
+    cookieBearer.length > 0
+      ? cookieBearer
+      : browserBearer.length > 0
+        ? browserBearer
         : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
           ? `Bearer ${serverBearerToken}`
           : "";

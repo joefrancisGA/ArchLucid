@@ -83,7 +83,8 @@ export type SponsorBottomLineContent =
     };
 
 export type DeriveRunDetailWorkspaceStatusInput = {
-  readonly run: RunDetail["run"];
+  /** List summaries and authority detail runs share the same derive path; wire extensions may use `null`. */
+  readonly run: RunDetail["run"] | RunSummary;
   readonly manifestId: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
   readonly showProgressTracker: boolean;

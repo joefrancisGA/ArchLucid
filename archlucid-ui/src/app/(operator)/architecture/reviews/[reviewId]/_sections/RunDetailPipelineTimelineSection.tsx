@@ -12,7 +12,7 @@ import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectio
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import {
@@ -65,7 +65,7 @@ function buildAuditTrailSummaryLine(items: PipelineTimelineItem[] | null): strin
   }
 
   const lastEvent = items[items.length - 1]!;
-  const lastLabel = formatIsoUtcForDisplay(lastEvent.occurredUtc);
+  const lastLabel = formatInstantForLocale(lastEvent.occurredUtc);
   const countLabel = items.length === 1 ? "1 event" : `${items.length} events`;
 
   return `${countLabel} · last ${lastLabel}`;

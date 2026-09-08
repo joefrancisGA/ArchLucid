@@ -204,7 +204,8 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
 
   const showProgressTracker =
-    !manifestId || !pipelineCompleteOnSummary(progressForPipelineUi);
+    resolvedDetail.run.completedUtc == null
+    && (!manifestId || !pipelineCompleteOnSummary(progressForPipelineUi));
 
   const buyerPolishedSections = buyerPolishedArtifactTable;
 

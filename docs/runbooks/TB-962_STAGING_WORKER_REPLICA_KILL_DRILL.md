@@ -60,6 +60,14 @@ Append a row via:
 
 File follow-ups against **TB-943** / **TB-961** / **TB-039** for any failed assertion.
 
+## Retry honesty after lease expiry (DR-06 / TB-943)
+
+When reconciliation marks a run `Failed` or `FailedPartial` because the execute ownership lease expired:
+
+- **Persisted** `(RunId, TaskId)` agent results are skipped on retry (**TB-039** / **TB-201**).
+- **Unpersisted** in-flight LLM completions at kill time are **not** provider-idempotent — retry may **rebill** that spend.
+- Do not claim zero duplicate spend or exactly-once LLM in buyer or PA copy; surface "worker lost — reopen or retry execute" instead.
+
 ## Related
 
 - [`ACA_WORKER_LLM_FAILURE_SEMANTICS.md`](../operations/ACA_WORKER_LLM_FAILURE_SEMANTICS.md) (**TB-960**)

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -118,6 +119,8 @@ public sealed class RunExecuteOwnershipReconciliationService(
             : ArchitectureRunStatus.FailedPartial;
 
         header.LegacyRunStatus = derived.ToString();
+        header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(
+            RunExecuteOwnershipReconciliationFailureSummary.Create());
         await _runRepository.UpdateAsync(header, cancellationToken).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Warning))

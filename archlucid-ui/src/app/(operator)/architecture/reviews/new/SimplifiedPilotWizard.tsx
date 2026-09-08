@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
@@ -27,6 +28,10 @@ import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import type { WizardStepDefinition, WizardStepFieldGroup } from "@/lib/wizard-step-sequence";
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
+import {
+  parseSimplifiedPilotAdvancedConfigOpenFromSearch,
+  simplifiedPilotAdvancedConfigDisclosureHrefFromSearch,
+} from "@/lib/architecture/simplified-pilot-advanced-config-disclosure-url";
 
 const PILOT_STEPS: readonly WizardStepDefinition[] = [
   { label: "Start your review", description: "Name the system and describe what you need reviewed" },
@@ -54,7 +59,14 @@ export type SimplifiedPilotWizardProps = {
  */
 export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution, onPendingZipFileChange } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/architecture/reviews/new";
+  const searchParams = useSearchParams();
+  const simplifiedPilotAdvancedConfigOpenParam = searchParams.get("simplifiedPilotAdvancedConfigOpen");
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [advancedConfigOpen, setAdvancedConfigOpenState] = useState(() =>
+    parseSimplifiedPilotAdvancedConfigOpenFromSearch(simplifiedPilotAdvancedConfigOpenParam),
+  );
   const {
     baselineReviewCycleHours,
     setBaselineReviewCycleHours,
@@ -92,6 +104,28 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     beforeAdvance,
   });
 
+  const syncAdvancedConfigOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        simplifiedPilotAdvancedConfigDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedConfigOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedConfigOpenState(open);
+      syncAdvancedConfigOpenToUrl(open);
+    },
+    [syncAdvancedConfigOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedConfigOpenState(parseSimplifiedPilotAdvancedConfigOpenFromSearch(simplifiedPilotAdvancedConfigOpenParam));
+  }, [simplifiedPilotAdvancedConfigOpenParam]);
+
   useEffect(() => {
     const greenfieldPreset = wizardPresets.find((preset) => preset.id === "greenfield-web-app");
 
@@ -122,7 +156,11 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           />
           <WizardStepIdentity />
           <WizardStepDescription />
-          <AdvancedOptionsAccordion triggerLabel="Advanced configuration">
+          <AdvancedOptionsAccordion
+            triggerLabel="Advanced configuration"
+            open={advancedConfigOpen}
+            onOpenChange={setAdvancedConfigOpen}
+          >
             <WizardStepConstraints />
             <WizardStepAdvanced />
           </AdvancedOptionsAccordion>

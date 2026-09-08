@@ -39,6 +39,22 @@ public sealed class ProductDocumentationPdfBuilderTests
   }
 
   [Fact]
+  public void Build_IncludesProductDocumentationHonestyDisclaimer()
+  {
+    ProductDocumentationPdfBuilder sut = new();
+
+    byte[] pdf = sut.Build("# Overview\n\nArchLucid helps teams review architecture evidence.", SampleMetadata);
+
+    using MemoryStream stream = new(pdf);
+    using PdfDocument document = PdfDocument.Open(stream);
+
+    string text = string.Join(' ', document.GetPages().SelectMany(page => page.GetWords()).Select(word => word.Text));
+    text.Should().Contain("mirrors in-app help content");
+    text.Should().Contain("pen-test");
+    text.Should().Contain("CPA");
+  }
+
+  [Fact]
   public void Build_WithLogoBytes_StillReturnsMultiPagePdf()
   {
     ProductDocumentationPdfBuilder sut = new();

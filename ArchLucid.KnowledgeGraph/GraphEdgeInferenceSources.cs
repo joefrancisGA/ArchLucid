@@ -19,4 +19,5 @@ public static class GraphEdgeInferenceSources
     public const string TopologyConnectsTo = "topology-connects-to";
     public const string TopologyExposes = "topology-exposes";
     public const string AgentProposalRelationship = "agent-proposal-relationship";
+    public const string DeclarationIdentityActorLink = "declaration-identity-actor-link";
 }

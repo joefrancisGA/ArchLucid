@@ -45,6 +45,10 @@ import {
   type SponsorReadinessStatus,
 } from "@/lib/architecture/architecture-sponsor-readiness";
 import {
+  architectureSponsorReadinessDisclosureHrefFromSearch,
+  parseArchitectureSponsorReadinessOpenFromSearch,
+} from "@/lib/architecture/architecture-sponsor-readiness-disclosure-url";
+import {
   architectureSponsorShareConfirmHrefFromSearch,
   parseArchitectureSponsorShareConfirmOpenFromSearch,
 } from "@/lib/architecture/architecture-sponsor-share-confirm-url";
@@ -95,10 +99,14 @@ export function ArchitectureSponsorSharingPanel(
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
+  const architectureSponsorReadinessOpenParam = searchParams.get("architectureSponsorReadinessOpen");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpenState] = useState(
     () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
+  );
+  const [readinessPanelOpen, setReadinessPanelOpenState] = useState(() =>
+    parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
   );
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -132,6 +140,34 @@ export function ArchitectureSponsorSharingPanel(
   useEffect(() => {
     setDialogOpenState(parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam));
   }, [sponsorShareConfirmParam]);
+
+  const syncReadinessPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        architectureSponsorReadinessDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setReadinessPanelOpen = useCallback(
+    (open: boolean) => {
+      setReadinessPanelOpenState(open);
+      syncReadinessPanelOpenToUrl(open);
+    },
+    [syncReadinessPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    setReadinessPanelOpenState(
+      parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
+    );
+  }, [architectureSponsorReadinessOpenParam]);
 
   const assessment = useMemo(
     () =>
@@ -212,6 +248,10 @@ export function ArchitectureSponsorSharingPanel(
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-workspace-disclosure
       data-testid="architecture-sponsor-sharing-panel"
+      open={readinessPanelOpen}
+      onToggle={(event) => {
+        setReadinessPanelOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {ARCHITECTURE_SPONSOR_READINESS_TITLE}

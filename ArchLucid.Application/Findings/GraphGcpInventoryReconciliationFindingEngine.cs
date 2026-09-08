@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -74,6 +75,10 @@ public sealed class GraphGcpInventoryReconciliationFindingEngine(
 
         IReadOnlyList<string> graphOnlyNodeIds = CollectGraphOnlyTopologyNodeIds(graphSnapshot, reconciliation);
 
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.GraphOnlyResourceIds);
+        FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.InventoryOnlyResourceIds);
+
         return
         [
             new Finding
@@ -87,6 +92,7 @@ public sealed class GraphGcpInventoryReconciliationFindingEngine(
                 Rationale =
                     "At least one topology resource identifier does not match the latest scoped GCP inventory snapshot.",
                 RelatedNodeIds = graphOnlyNodeIds.ToList(),
+                EvidenceRefs = evidenceRefs,
                 PayloadType = nameof(InventoryReconciliationFindingPayload),
                 Payload = new InventoryReconciliationFindingPayload
                 {

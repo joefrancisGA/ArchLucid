@@ -4,15 +4,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { MarketingFaqPageChrome } from "@/components/marketing/MarketingFaqPageChrome";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   MARKETING_FAQ_MOST_ASKED_HEADING,
   MARKETING_FAQ_MOST_ASKED_INTRO,
-  MARKETING_FAQ_PRIMARY_CONTENT_ID,
   MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL,
   MARKETING_FAQ_VIEW_PRICING_LABEL,
 } from "@/lib/marketing/marketing-faq-page-copy";
-import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import {
   MARKETING_FAQ_ITEMS,
   marketingFaqItemsByCategory,
@@ -20,7 +19,6 @@ import {
   selectMarketingFaqMostAskedItems,
 } from "@/lib/marketing-faq";
 
-import { FaqEvidenceOrientationStrip } from "./FaqEvidenceOrientationStrip";
 import { MarketingFaqDiligenceCtaSection } from "./MarketingFaqDiligenceCtaSection";
 import { MarketingFaqItemPanel } from "./MarketingFaqItemPanel";
 import { MarketingFaqCtaRow, MarketingFaqPageHero } from "./MarketingFaqPageHero";
@@ -75,82 +73,71 @@ export function MarketingFaqPageClient(): React.JSX.Element {
   }, [grouped]);
 
   return (
-    <>
-      <a href={`#${MARKETING_FAQ_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
-        Skip to FAQ content
-      </a>
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
-        <div className="min-w-0">
-          <MarketingFaqPageHero />
-
-          <div id={MARKETING_FAQ_PRIMARY_CONTENT_ID} className="scroll-mt-24">
-            <div data-testid="faq-orientation-top">
-              <FaqEvidenceOrientationStrip />
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start">
+      <div className="min-w-0">
+        <MarketingFaqPageChrome hero={<MarketingFaqPageHero />}>
+          <section
+            aria-labelledby="marketing-faq-most-asked-heading"
+            className="scroll-mt-24"
+            data-testid="marketing-faq-most-asked"
+          >
+            <h2 id="marketing-faq-most-asked-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+              {MARKETING_FAQ_MOST_ASKED_HEADING}
+            </h2>
+            <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_MOST_ASKED_INTRO}</p>
+            <div className="mt-4 space-y-3">
+              {mostAskedItems.map((item) => (
+                <MarketingFaqItemPanel key={item.id} item={item} forceOpen={item.id === hashTargetId} defaultOpen />
+              ))}
             </div>
+          </section>
 
-            <section
-          aria-labelledby="marketing-faq-most-asked-heading"
-          className="mt-8 scroll-mt-24"
-          data-testid="marketing-faq-most-asked"
-        >
-          <h2 id="marketing-faq-most-asked-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
-            {MARKETING_FAQ_MOST_ASKED_HEADING}
-          </h2>
-          <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{MARKETING_FAQ_MOST_ASKED_INTRO}</p>
-          <div className="mt-4 space-y-3">
-            {mostAskedItems.map((item) => (
-              <MarketingFaqItemPanel key={item.id} item={item} forceOpen={item.id === hashTargetId} defaultOpen />
+          <div className="space-y-10">
+            {grouped.map((group) => (
+              <section
+                key={group.category.id}
+                id={group.category.id}
+                aria-labelledby={`marketing-faq-category-${group.category.id}`}
+                className="scroll-mt-24"
+              >
+                {group.category.id === "security-trust" ? (
+                  <div className="mb-6">
+                    <MarketingFaqDiligenceCtaSection />
+                  </div>
+                ) : null}
+                <h2 id={`marketing-faq-category-${group.category.id}`} className={MARKETING_TYPOGRAPHY.sectionTitle}>
+                  {group.category.title}
+                </h2>
+                <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{group.category.intro}</p>
+                <div className="mt-4 space-y-3">
+                  {group.items.map((item, index) => (
+                    <MarketingFaqItemPanel
+                      key={item.id}
+                      item={item}
+                      forceOpen={item.id === hashTargetId}
+                      defaultOpen={index === 0}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
-        </section>
 
-        <div className="mt-8 space-y-10">
-          {grouped.map((group) => (
-            <section
-              key={group.category.id}
-              id={group.category.id}
-              aria-labelledby={`marketing-faq-category-${group.category.id}`}
-              className="scroll-mt-24"
-            >
-              {group.category.id === "security-trust" ? (
-                <div className="mb-6">
-                  <MarketingFaqDiligenceCtaSection />
-                </div>
-              ) : null}
-              <h2 id={`marketing-faq-category-${group.category.id}`} className={MARKETING_TYPOGRAPHY.sectionTitle}>
-                {group.category.title}
-              </h2>
-              <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{group.category.intro}</p>
-              <div className="mt-4 space-y-3">
-                {group.items.map((item, index) => (
-                  <MarketingFaqItemPanel
-                    key={item.id}
-                    item={item}
-                    forceOpen={item.id === hashTargetId}
-                    defaultOpen={index === 0}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
-          </div>
-          </div>
-
-          <footer className="mt-10 space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
-          <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />
-          <div className={cn("flex flex-wrap gap-x-4 gap-y-2", MARKETING_TYPOGRAPHY.body)}>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
-              {MARKETING_FAQ_VIEW_PRICING_LABEL}
-            </Link>
-            <Link className={MARKETING_SURFACES.inlineLink} href="/assurance-status">
-              {MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL}
-            </Link>
-          </div>
+          <footer className="space-y-4 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+            <MarketingFaqCtaRow testId="marketing-faq-cta-bottom" />
+            <div className={cn("flex flex-wrap gap-x-4 gap-y-2", MARKETING_TYPOGRAPHY.body)}>
+              <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
+                {MARKETING_FAQ_VIEW_PRICING_LABEL}
+              </Link>
+              <Link className={MARKETING_SURFACES.inlineLink} href="/assurance-status">
+                {MARKETING_FAQ_SECURITY_TRUST_LINK_LABEL}
+              </Link>
+            </div>
           </footer>
-        </div>
-
-        <MarketingFaqPageToc categories={visibleCategories} />
+        </MarketingFaqPageChrome>
       </div>
-    </>
+
+      <MarketingFaqPageToc categories={visibleCategories} />
+    </div>
   );
 }

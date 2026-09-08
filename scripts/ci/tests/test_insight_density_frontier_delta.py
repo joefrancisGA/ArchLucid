@@ -77,6 +77,7 @@ class InsightDensityFrontierDeltaTests(unittest.TestCase):
 
     def test_main_enforce_and_check(self) -> None:
         corpus = _REPO / "tests" / "eval-corpus" / "insight-density-frontier-delta"
+        capture_corpus = _REPO / "tests" / "eval-corpus" / "insight-density-frontier-capture"
         json_out = _REPO / "docs" / "quality" / "insight-density-frontier-delta.json"
         markdown_out = _REPO / "docs" / "quality" / "insight-density-frontier-delta.md"
 
@@ -85,11 +86,14 @@ class InsightDensityFrontierDeltaTests(unittest.TestCase):
                 [
                     "--corpus",
                     str(corpus),
+                    "--capture-corpus",
+                    str(capture_corpus),
                     "--json-out",
                     str(json_out),
                     "--markdown-out",
                     str(markdown_out),
                     "--enforce",
+                    "--enforce-capture",
                     "--check",
                 ]
             ),
@@ -98,6 +102,30 @@ class InsightDensityFrontierDeltaTests(unittest.TestCase):
 
         committed = json.loads(json_out.read_text(encoding="utf-8"))
         self.assertEqual(committed["rollup"], "PASS")
+
+    def test_capture_summary_accepts_idle_pilot_pending_fixture(self) -> None:
+        capture_corpus = _REPO / "tests" / "eval-corpus" / "insight-density-frontier-capture"
+        summary = MOD.build_capture_summary(capture_corpus)
+
+        self.assertEqual(summary["rollup"], "PASS")
+        idle_rows = [row for row in summary["fixtures"] if row.get("idlePilotPending")]
+        self.assertTrue(idle_rows)
+
+    def test_validate_capture_fixture_requires_source(self) -> None:
+        errors = MOD.validate_capture_fixture(
+            {
+                "schema": MOD._CAPTURE_SCHEMA,
+                "architecturePackageSha256": "f" * 64,
+                "findingsSnapshotId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "capturedUtc": "2026-09-08T00:00:00Z",
+                "label": "pilot-pending",
+                "decisionGradeFindingTitles": [],
+                "archlucidFindings": [],
+                "frontierBaseline": {"findings": []},
+            }
+        )
+
+        self.assertTrue(any("frontierBaseline.source" in error for error in errors))
 
 
 if __name__ == "__main__":

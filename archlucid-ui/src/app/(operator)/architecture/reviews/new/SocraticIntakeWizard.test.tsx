@@ -11,6 +11,7 @@ const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
+const routerReplace = vi.fn();
 const tryLoadPriorPackageGuidedIntakePrefill = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
 
@@ -18,8 +19,12 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: routerPush }),
-  useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
+  useRouter: () => ({ push: routerPush, replace: routerReplace }),
+  useSearchParams: () => ({
+    get: (key: string) => searchParamsGet(key),
+    toString: () => "",
+  }),
+  usePathname: () => "/architecture/reviews/new",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -51,6 +56,15 @@ vi.mock("@/hooks/use-agent-execution-mode", () => ({
     isSimulator: false,
   }),
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
 
 vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
   useInferredUniversalIntakeAnswers: () => ({
@@ -85,6 +99,16 @@ const fetchWorkspaceSystemNameAvailability = vi.fn();
 
 vi.mock("@/lib/api/workspace-system-name-availability-api", () => ({
   fetchWorkspaceSystemNameAvailability: (...args: unknown[]) => fetchWorkspaceSystemNameAvailability(...args),
+}));
+
+vi.mock("@/lib/api/wizard-intake-draft-api", () => ({
+  fetchWizardIntakeDraft: vi.fn().mockResolvedValue(null),
+  upsertWizardIntakeDraft: vi.fn().mockResolvedValue({
+    wizardId: "reviews-new-guided-questions",
+    stepIndex: 0,
+    stateJson: "{}",
+    updatedUtc: "2026-08-05T12:00:00Z",
+  }),
 }));
 
 vi.mock("@/lib/try-load-prior-package-guided-intake-prefill", () => ({
@@ -292,6 +316,7 @@ describe("SocraticIntakeWizard", () => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
     routerPush.mockReset();
+    routerReplace.mockReset();
     suggestAnswersFromEvidence.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockReset();
     tryLoadPriorPackageGuidedIntakePrefill.mockResolvedValue(null);
@@ -627,7 +652,7 @@ describe("SocraticIntakeWizard", () => {
     fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
     await waitFor(() => {
-      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1", expect.any(String));
     });
   });
 
@@ -857,12 +882,12 @@ describe("SocraticIntakeWizard", () => {
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
-    const orientation = screen.getByTestId("reviews-new-orientation-bottom");
+    const orientation = screen.getByTestId("reviews-new-orientation-top");
 
     expect(mainColumn).toContainElement(orientation);
     expect(mainColumn).toContainElement(clarificationsStep);
     expect(
-      orientation.compareDocumentPosition(clarificationsStep) & Node.DOCUMENT_POSITION_PRECEDING,
+      orientation.compareDocumentPosition(clarificationsStep) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
   });
@@ -1324,7 +1349,7 @@ describe("SocraticIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {
-      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1", expect.any(String));
     });
     await waitFor(() => {
       expect(routerPush).toHaveBeenCalled();
@@ -1385,7 +1410,7 @@ describe("SocraticIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {
-      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1");
+      expect(submitDraftRequest).toHaveBeenCalledWith("draft-1", expect.any(String));
     });
 
     // A patch here would be rejected: the draft is immutable in status Admitted.

@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   buildTeamsSlackNotificationVocabulary,
   resolveTeamsSlackNotificationPeerLink,
@@ -24,12 +25,13 @@ export type TeamsSlackNotificationVocabularyRailProps = {
 export function TeamsSlackNotificationVocabularyRail(
   props: TeamsSlackNotificationVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildTeamsSlackNotificationVocabulary();
+  const { productLine } = useProductLine();
+  const model = props.model ?? buildTeamsSlackNotificationVocabulary(productLine);
   const isHub = props.currentSurfaceId === "notifications-hub";
   const peer =
     props.currentSurfaceId === "notifications-hub"
       ? null
-      : resolveTeamsSlackNotificationPeerLink(props.currentSurfaceId);
+      : resolveTeamsSlackNotificationPeerLink(props.currentSurfaceId, productLine);
   const currentLink =
     props.currentSurfaceId === "teams"
       ? model.teamsLink
