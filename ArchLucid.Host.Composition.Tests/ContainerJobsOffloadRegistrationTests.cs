@@ -255,6 +255,28 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
     [Fact]
     public void
+        AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        hasHosted.Should().BeFalse(
+            "split Api+Worker deployments must not start Cosmos audit change feed processors on Api replicas");
+    }
+
+    [Fact]
+    public void
         AddArchLucidApplicationServices_Worker_offloads_data_archival_does_not_register_DataArchivalHostHealthCheck()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
