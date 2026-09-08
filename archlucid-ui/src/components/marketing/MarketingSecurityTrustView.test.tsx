@@ -16,7 +16,7 @@ describe("MarketingSecurityTrustView", () => {
 
     expect(screen.getByRole("link", { name: /Skip to assurance status content/i })).toHaveAttribute(
       "href",
-      "#assurance-status-primary-content",
+      "#assurance-status-first-viewport",
     );
     expect(screen.getByTestId("assurance-status-hero-meta")).toHaveTextContent("Last reviewed");
     expect(screen.getByTestId("assurance-status-hero-meta")).toHaveTextContent("Evidence pack version");

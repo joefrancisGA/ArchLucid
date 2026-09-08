@@ -223,7 +223,7 @@
   },
   {
     "title": "PILOT_ROI_MODEL",
-    "summary": "Measurement framework for pilot value: cycle time, artifacts, and governance evidence.",
+    "summary": "Measurement framework for pilot value: cycle time, artifacts, and approval evidence.",
     "category": "Go-to-Market",
     "url": "/help"
   },
@@ -271,7 +271,7 @@
   },
   {
     "title": "Sponsor sponsor brief",
-    "summary": "Buyer-facing headline narrative for architecture and governance leaders.",
+    "summary": "Buyer-facing headline narrative for architecture and approval leaders.",
     "category": "Go-to-Market",
     "url": "/help"
   },
@@ -306,7 +306,7 @@
     "url": "/help/first-architecture-review"
   },
   {
-    "title": "AI and model governance",
+    "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     "category": "Operations",
     "url": "/help/model-governance"
@@ -331,13 +331,13 @@
   },
   {
     "title": "Alerts",
-    "summary": "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
+    "summary": "Learn how ArchLucid identifies policy risks, routes them to the right owners, and tracks resolution.",
     "category": "Operations",
     "url": "/help/alerts"
   },
   {
     "title": "Architecture digests",
-    "summary": "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.",
+    "summary": "Schedule summaries of review activity, approval signals, findings, and advisory scans for architects.",
     "category": "Operations",
     "url": "/help/digests"
   },
@@ -469,25 +469,25 @@
   },
   {
     "title": "Getting started",
-    "summary": "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
+    "summary": "Learn how ArchLucid turns architecture evidence into review findings, decisions, and approval-ready outputs.",
     "category": "Operations",
     "url": "/help/getting-started"
   },
   {
     "title": "Glossary",
-    "summary": "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
+    "summary": "Definitions for the terms used throughout ArchLucid reviews, evidence, approval, and administration.",
     "category": "Operations",
     "url": "/help/glossary"
   },
   {
-    "title": "Governance approval",
+    "title": "Approval",
     "summary": "Learn how architecture work moves from submission to approval, revision, or rejection.",
     "category": "Operations",
     "url": "/help/governance-approval"
   },
   {
     "title": "Hosted SaaS enterprise onboarding checklist",
-    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, approval, policy packs, audit export, and optional Azure cloud evidence.",
     "category": "Operations",
     "url": "/help/enterprise-onboarding"
   },
@@ -523,7 +523,7 @@
   },
   {
     "title": "Microsoft Teams notifications",
-    "summary": "Configure Microsoft Teams channel destinations for governance alert delivery.",
+    "summary": "Configure Microsoft Teams channel destinations for approval alert delivery.",
     "category": "Operations",
     "url": "/help/teams-integration"
   },
@@ -577,7 +577,7 @@
   },
   {
     "title": "ROI summary",
-    "summary": "Portfolio KPI framing for review-cycle reduction, effort saved, and governance-ready artifacts.",
+    "summary": "Portfolio KPI framing for review-cycle reduction, effort saved, and approval-ready artifacts.",
     "category": "Operations",
     "url": "/help/roi-summary"
   },
@@ -613,13 +613,13 @@
   },
   {
     "title": "Slack notifications",
-    "summary": "Configure Slack incoming webhook destinations for governance alert delivery.",
+    "summary": "Configure Slack incoming webhook destinations for approval alert delivery.",
     "category": "Operations",
     "url": "/help/slack-integration"
   },
   {
     "title": "Specialty review templates",
-    "summary": "Start with focused guidance for a specific architecture, governance, or industry scenario.",
+    "summary": "Start with focused guidance for a specific architecture, approval, or industry scenario.",
     "category": "Operations",
     "url": "/help/specialty-walkthroughs"
   },
@@ -679,7 +679,7 @@
   },
   {
     "title": "Webhooks",
-    "summary": "Configure HTTPS webhook subscriptions for governance alert delivery.",
+    "summary": "Configure HTTPS webhook subscriptions for approval alert delivery.",
     "category": "Operations",
     "url": "/help/webhooks-integration"
   },
@@ -697,7 +697,7 @@
   },
   {
     "title": "Your repeat architecture review",
-    "summary": "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
+    "summary": "After the first finalized architecture review: compare, replay, policy dry-runs, and second-review proof checklist.",
     "category": "Operations",
     "url": "/help/repeat-review-loop"
   },

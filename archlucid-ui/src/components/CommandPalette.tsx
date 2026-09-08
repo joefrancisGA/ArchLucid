@@ -31,6 +31,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeContextualOnlyOperatorNavHrefsIntoVisibleSet } from "@/lib/nav-contextual-only-operator-paths";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { productLineSkipsReviewLifecycleNavShaping } from "@/lib/product-line/filter-nav-groups-for-product-line";
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 import {
   filterNavGroupsByRoleDensity,
   resolveRoleNavDensityPersona,
@@ -62,6 +65,7 @@ import { CommandPaletteReviewActions } from "@/components/CommandPaletteReviewAc
 import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
+import { filterWorkingPaletteNavHrefs } from "@/lib/filter-working-palette-nav-hrefs";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   commandPaletteOverlayHrefFromSearch,
@@ -135,6 +139,10 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
   const showVendorInternalNav = isArchLucidVendorStaffPrincipal(currentPrincipal);
+  const { productLine, assignmentOverrides } = useProductLine();
+  const skipReviewLifecycleNavShaping = productLineSkipsReviewLifecycleNavShaping(productLine);
+  const committedForNav = skipReviewLifecycleNavShaping || effectiveHasCommittedArchitectureReview;
+  const showFullNavForProduct = skipReviewLifecycleNavShaping || roleNavDensityShowFullNav;
 
   const visibleHrefs = useMemo(() => {
     const shellRows = applyPatternLibraryNavGate(
@@ -143,9 +151,13 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           NAV_GROUPS,
           callerAuthorityRank,
           "all",
-          effectiveHasCommittedArchitectureReview,
+          committedForNav,
           false,
-          { showVendorInternalNav },
+          {
+            showVendorInternalNav,
+            productLine,
+            productLineAssignmentOverrides: assignmentOverrides,
+          },
         ),
         auditRunId,
       ),
@@ -154,13 +166,13 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const densityFilteredRows = filterNavGroupsByRoleDensity(
       shellRows,
       roleNavDensityPersona,
-      roleNavDensityShowFullNav,
+      showFullNavForProduct,
     );
     const workingFilteredRows = workingMode
       ? filterNavGroupsForWorkingProfessionalMode(densityFilteredRows)
       : densityFilteredRows;
 
-    return applyPatternLibraryHrefSetGate(
+    const hrefSet = applyPatternLibraryHrefSetGate(
       mergeContextualOnlyOperatorNavHrefsIntoVisibleSet(
         scopeOperatorShellHrefSet(
           visibleOperatorShellHrefSetFromNavRows(workingFilteredRows),
@@ -170,13 +182,18 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ),
       patternLibraryNavVisible,
     );
+
+    return workingMode ? filterWorkingPaletteNavHrefs(hrefSet) : hrefSet;
   }, [
+    assignmentOverrides,
     auditRunId,
     callerAuthorityRank,
-    effectiveHasCommittedArchitectureReview,
+    committedForNav,
     patternLibraryNavVisible,
+    productLine,
     roleNavDensityPersona,
     roleNavDensityShowFullNav,
+    showFullNavForProduct,
     showVendorInternalNav,
     workingMode,
   ]);
@@ -299,8 +316,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const polishedPaletteLabel = useMemo(() => buyerPolishedCommandPaletteLabel(pathname ?? ""), [pathname]);
 
   const polishedPalettePlaceholder = useMemo(() => {
-    return resolveShellHeaderSearchPlaceholder(pathname ?? "");
-  }, [pathname]);
+    return resolveShellHeaderSearchPlaceholder(pathname ?? "", productLine);
+  }, [pathname, productLine]);
 
   return (
     <>
@@ -344,7 +361,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         onSearchValueChange={setPaletteQuery}
       >
         <CommandInput
-          placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"}
+          placeholder={
+            buyerPolishedShell || productLine === "security"
+              ? polishedPalettePlaceholder
+              : "Search pages or paste a review ID…"
+          }
         />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
@@ -384,19 +405,30 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           </CommandEmpty>
           <CommandPaletteAdminNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
+            hasCommittedArchitectureReview={committedForNav}
             auditRunId={auditRunId}
             patternLibraryNavVisible={patternLibraryNavVisible}
             roleNavDensityPersona={roleNavDensityPersona}
-            roleNavDensityShowFullNav={roleNavDensityShowFullNav}
+            roleNavDensityShowFullNav={showFullNavForProduct}
             showVendorInternalNav={showVendorInternalNav}
+            productLine={productLine}
+            productLineAssignmentOverrides={assignmentOverrides}
+            workingMode={workingMode}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (
             <>
               <CommandSeparator />
               <CommandGroup heading="Keyboard shortcuts (navigation)">
-                {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (
+                {SHORTCUTS.filter((entry) => {
+                  if (entry.route === undefined || entry.route === "") {
+                    return false;
+                  }
+
+                  return isPathAllowedForProductLine(entry.route, productLine, {
+                    assignmentOverrides,
+                  });
+                }).map((entry) => (
                   <CommandItem
                     key={entry.key}
                     value={`${entry.label} ${entry.key}`}

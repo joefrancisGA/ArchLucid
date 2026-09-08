@@ -28,7 +28,7 @@ describe("RunDetailActivityTabSectionNav", () => {
   });
 
   it("renders on-this-page anchors for activity tab sections", () => {
-    render(<RunDetailActivityTabSectionNav />);
+    render(<RunDetailActivityTabSectionNav placement="inline-top" />);
 
     fireEvent.click(screen.getByRole("button", { name: /On this page/i }));
 
@@ -40,9 +40,21 @@ describe("RunDetailActivityTabSectionNav", () => {
       "href",
       "#pipeline-stages",
     );
+    expect(screen.getByRole("link", { name: "Records and diagnostics" })).toHaveAttribute(
+      "href",
+      "#records-and-diagnostics",
+    );
     expect(screen.getByRole("link", { name: "Diagnostics" })).toHaveAttribute(
       "href",
       "#agent-forensics",
     );
+  });
+
+  it("renders desktop sidebar navigation with at least three section links", () => {
+    render(<RunDetailActivityTabSectionNav placement="sidebar" />);
+
+    const desktopNav = screen.getByTestId("provenance-section-nav-desktop");
+    expect(desktopNav).toBeInTheDocument();
+    expect(desktopNav.querySelectorAll("a[href^='#']").length).toBeGreaterThanOrEqual(3);
   });
 });

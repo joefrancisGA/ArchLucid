@@ -1,0 +1,27 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000062",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000062",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000062-0000-4000-8000-000000000062",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000062",
+    "runId": "20000000-0000-4000-8000-000000000062",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "cmp-golden-62",
+        "nodeType": "TopologyResource",
+        "label": "billing-api",
+        "category": "compute",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

@@ -18,5 +18,5 @@ export const GOVERNANCE_SETUP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
   { label: "Alert rules", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
 ] as const;

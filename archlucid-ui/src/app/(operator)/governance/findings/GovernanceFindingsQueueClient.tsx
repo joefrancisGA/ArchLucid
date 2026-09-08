@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -20,6 +20,8 @@ import {
 import { useGovernanceFindingsFilter } from "@/components/governance/findings/use-governance-findings-filter";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { FindingsSavedViewFilters } from "@/lib/operator/operator-saved-view-types";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { useRunDetailWorkspaceContextBundleQuery } from "@/hooks/use-run-detail-workspace-context-bundle-query";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -32,7 +34,12 @@ import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { parseGovernanceFindingsSearchQuery, governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
+import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
+import { governanceFindingsClearAllFiltersHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
+import { governanceFindingsClearReviewScopeHref } from "@/lib/governance/governance-findings-clear-review-scope-url";
+import { governanceFindingsPickReviewForTriageHref } from "@/lib/governance/governance-findings-pick-review-url";
+import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
+import { buildGovernanceFindingsArchitectureRunIdSet } from "@/lib/governance/governance-findings-architecture-scope";
 import { useGovernanceFindingsHideGenericState } from "@/hooks/use-governance-findings-hide-generic-state";
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -83,17 +90,42 @@ export default function GovernanceFindingsQueueClient({
     assignedToMeCountMismatch,
   } = queueMode;
   const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
+  const { isWorkingMode } = useWorkspaceMode();
   const {
     registerFilter,
     setRegisterFilter,
     scopedRunId,
+    scopedArchitectureId,
+    architectureScopeFilterActive,
+    lastOpenArchitectureId,
     savedPresets,
     saveCurrentFilterAsPreset,
     removePreset,
     groupByResource,
     toggleGroupByResource,
     applyGroupByResource,
-  } = useGovernanceFindingsFilter({ mode });
+  } = useGovernanceFindingsFilter({ mode, isWorkingMode });
+  const draftRegistryEntries = useArchitectureDraftRegistryEntries();
+  const architectureIdentityQuery = useArchitectureIdentityQuery(
+    scopedArchitectureId ?? "",
+    architectureScopeFilterActive && (scopedArchitectureId?.trim().length ?? 0) > 0,
+  );
+  const architectureRunIdSet = useMemo(() => {
+    if (!architectureScopeFilterActive || scopedArchitectureId === null) {
+      return null;
+    }
+
+    return buildGovernanceFindingsArchitectureRunIdSet({
+      architectureId: scopedArchitectureId,
+      architectureReviews: architectureIdentityQuery.data?.reviews ?? [],
+      draftRegistryEntries,
+    });
+  }, [
+    architectureIdentityQuery.data?.reviews,
+    architectureScopeFilterActive,
+    draftRegistryEntries,
+    scopedArchitectureId,
+  ]);
 
   const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
     enabled: scopedRunId !== null && scopedRunId.length > 0,
@@ -103,8 +135,11 @@ export default function GovernanceFindingsQueueClient({
     scopedRunContextQuery.data?.priorCommittedRunId,
   );
 
-  const { isWorkingMode } = useWorkspaceMode();
   const findingsSearchQuery = parseGovernanceFindingsSearchQuery(searchParams.get("q"));
+  const clearReviewScopeHref = useMemo(
+    () => governanceFindingsClearReviewScopeHref(searchParams.toString(), pathname),
+    [pathname, searchParams],
+  );
   const synopsis = useGovernanceFindingsQueueSynopsis({
     mode,
     isAssignedToMe,
@@ -113,6 +148,8 @@ export default function GovernanceFindingsQueueClient({
     loading,
     loadFailed,
     scopedRunId,
+    architectureRunIdSet,
+    architectureScopeFilterActive,
     registerFilter,
     nlFacets,
     jobView,
@@ -126,7 +163,7 @@ export default function GovernanceFindingsQueueClient({
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
     clearFacetFilters();
-    router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+    router.replace(governanceFindingsClearAllFiltersHref(searchParams.toString(), navHref), { scroll: false });
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const showAllFilteredFindings = useCallback((): void => {
@@ -136,15 +173,10 @@ export default function GovernanceFindingsQueueClient({
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {
-      const trimmed = reviewId.trim();
-
-      if (trimmed.length === 0) {
-        return;
-      }
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("runId", trimmed);
-      router.replace(`${navHref}?${params.toString()}`, { scroll: false });
+      router.replace(
+        governanceFindingsPickReviewForTriageHref(searchParams.toString(), navHref, reviewId),
+        { scroll: false },
+      );
     },
     [navHref, router, searchParams],
   );
@@ -167,10 +199,16 @@ export default function GovernanceFindingsQueueClient({
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
-        onPickReviewForTriage(applied.scopedRunId);
+        router.replace(
+          governanceFindingsRunScopedSavedViewHref(applied, navHref, applied.scopedRunId),
+          { scroll: false },
+        );
+        return;
       }
+
+      router.replace(governanceFindingsWorkspaceSavedViewHref(applied, navHref), { scroll: false });
     },
-    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
+    [applyGroupByResource, navHref, router, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return (
@@ -221,6 +259,7 @@ export default function GovernanceFindingsQueueClient({
         mode={mode}
         buyerPolishedShell={buyerPolishedShell}
         navHref={navHref}
+        clearReviewScopeHref={clearReviewScopeHref}
         pageTitle={pageTitle}
         scopedRunId={scopedRunId}
         scopedRunFilterActive={synopsis.scopedRunFilterActive}
@@ -256,6 +295,10 @@ export default function GovernanceFindingsQueueClient({
         onClearAllFilters={clearAllFilters}
         onShowAllFilteredFindings={showAllFilteredFindings}
         hiddenFilterHonesty={synopsis.hiddenFilterHonesty}
+        architectureScopeHonesty={synopsis.architectureScopeHonesty}
+        isWorkingMode={isWorkingMode}
+        scopedArchitectureId={scopedArchitectureId}
+        lastOpenArchitectureId={lastOpenArchitectureId}
         onLoadFindingsSavedView={onLoadFindingsSavedView}
         loading={loading}
         rows={rows}

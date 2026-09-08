@@ -1,6 +1,7 @@
 "use client";
 
 import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { parseManifestFeasibilityVerdictKind, parseManifestTransparencyTrail } from "@/lib/compare/parse-manifest-transparency-trail";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   isStaticDemoPayloadFallbackEnabled,
@@ -8,12 +9,13 @@ import {
 } from "@/lib/operator/operator-static-demo";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import type { FeasibilityVerdictKind, TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type CompareProvenanceTrailSide = {
   readonly runId: string;
   readonly trail: TransparencyTrail | null;
   readonly missingTrailDefect: boolean;
+  readonly feasibilityVerdictKind: FeasibilityVerdictKind | null;
 };
 
 export type CompareProvenanceTrailsQueryResult = {
@@ -48,6 +50,7 @@ async function loadCompareProvenanceTrailSide(runId: string): Promise<ComparePro
     runId: trimmed,
     trail,
     missingTrailDefect: wire !== null && trail === null,
+    feasibilityVerdictKind: parseManifestFeasibilityVerdictKind(wire),
   };
 }
 

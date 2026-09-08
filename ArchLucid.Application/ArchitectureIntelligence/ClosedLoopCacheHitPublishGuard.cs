@@ -102,8 +102,6 @@ public static class ClosedLoopCacheHitPublishGuard
         result.PublishedFindingsSnapshotId = null;
         result.PublishedRecommendationCount = 0;
         result.PublishSkipReason = null;
-        result.PublishBlocked = false;
-        result.PublishBlockReasons = [];
         result.CacheHit = false;
         result.CacheReuseReason = null;
         result.RunId = ClosedLoopRunIdNormalizer.NormalizeOptional(result.RunId);

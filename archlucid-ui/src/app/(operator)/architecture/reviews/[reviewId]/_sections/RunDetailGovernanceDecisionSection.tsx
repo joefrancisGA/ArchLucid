@@ -160,33 +160,37 @@ export function RunDetailGovernanceDecisionSection(
             </Link>
           </div>
 
-          <div className="mt-4" data-testid="run-detail-governance-help-cites">
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO}
-            </p>
-            <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
-              {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES.map((link) => (
-                <li key={`${link.href}-${link.label}`}>
-                  <Link className={OPERATOR_LINK.inline} href={link.href}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          {props.buyerPolishedArtifactTable ? null : (
+            <>
+              <div className="mt-4" data-testid="run-detail-governance-help-cites">
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                  {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO}
+                </p>
+                <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES.map((link) => (
+                    <li key={`${link.href}-${link.label}`}>
+                      <Link className={OPERATOR_LINK.inline} href={link.href}>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-        <aside
-          className={cn(operatorSemanticSurface("info"), "p-3")}
-          data-testid="run-detail-governance-claim-discipline"
-        >
-          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING}
-          </h3>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-            {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE}
-          </p>
-        </aside>
+              <aside
+                className={cn(operatorSemanticSurface("info"), "p-3")}
+                data-testid="run-detail-governance-claim-discipline"
+              >
+                <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING}
+                </h3>
+                <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                  {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE}
+                </p>
+              </aside>
+            </>
+          )}
+        </div>
       </section>
     );
   }

@@ -13,20 +13,21 @@ import {
   type ReviewDetailTabId,
   readPresenterModeFromSearchParams,
   readReviewDetailTabFromWindowLocation,
-  resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
+  resolveReviewDetailTabFromLocation,
   resolveReviewWorkbenchFocusColumn,
   writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
-  resolveReviewWorkspaceTabForVisit,
+  resolveReviewWorkspaceTabFromSearchParams,
   resolveReviewWorkspaceVisibleTabs,
 } from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProfessionalWorkbenchEnabled } from "@/lib/workspace-mode/use-professional-workbench-enabled";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
@@ -81,6 +82,7 @@ export function useReviewDetailWorkspaceTabs(
   props: ReviewDetailWorkspaceProps,
 ): UseReviewDetailWorkspaceTabsResult {
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const urlFindingId = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
   const initialFindingId = urlFindingId.length > 0 ? urlFindingId : null;
   const initialWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
@@ -94,6 +96,7 @@ export function useReviewDetailWorkspaceTabs(
       return resolveReviewWorkspaceVisibleTabs({
         ...props.tabLifecycle,
         lifecycle,
+        workingDesk: isWorkingMode,
       });
     }
 
@@ -102,13 +105,14 @@ export function useReviewDetailWorkspaceTabs(
         ? { manifestId: null, showProgressTracker: true, runCompleted: false }
         : { manifestId: "fallback-manifest", showProgressTracker: false, runCompleted: false };
 
-    return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle });
-  }, [lifecycle, props.tabLifecycle]);
-  const rawTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
+    return resolveReviewWorkspaceVisibleTabs({ ...fallbackInput, lifecycle, workingDesk: isWorkingMode });
+  }, [isWorkingMode, lifecycle, props.tabLifecycle]);
+  const rawReviewTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
+  const rawArchTabParam = searchParams.get("archTab");
   const searchParamTab =
     props.tabLifecycle !== undefined
-      ? resolveReviewWorkspaceTabForVisit(rawTabParam, resolved, lifecycle)
-      : resolveReviewDetailTab(rawTabParam);
+      ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
+      : resolveReviewDetailTabFromLocation(rawReviewTabParam, rawArchTabParam);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const tabActivityAt = props.tabActivityAt ?? {};
   const { isTabNewSinceLastVisit, markTabSeen } = useReviewDetailLastVisited(props.runId, tabActivityAt);

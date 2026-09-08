@@ -117,6 +117,7 @@ SqlConnectionStringBuilder builder = new(connectionString);
 | `cs/user-controlled-bypass` | `RunProvenanceQueryService.GetRunTracesAsync` — `if (pageNumber < 1)` | Pagination input validation, not an authorization decision; tenant scoping and run authorization are separate. | 2026-08-26 |
 | `cs/user-controlled-bypass` | `ClosedLoopArchitectureReasoningOrchestrator.LiveReview` — `&& effectiveRequest.PublishToProduct` | `PublishToProduct` is a publish **request** flag; the authorization decision is `publishDecision.PublishBlocked`, evaluated first. | 2026-08-26 |
 | `js/clear-text-storage-of-sensitive-data` | `resolve-continue-last-api-key-credential.ts` | `localStorage` stores credential **slot** enum (`Admin` / `ReadOnly`), not API key secrets. | 2026-08-26 |
+| `js/incomplete-sanitization` | `e2e/helpers/escape-markdown-table-cell.ts` | Escapes backslashes before pipes/newlines for Markdown table cells in batch reports (`run-architecture-lifecycle-batch.ts`). | 2026-09-07 |
 
 ---
 

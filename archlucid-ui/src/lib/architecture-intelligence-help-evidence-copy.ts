@@ -32,7 +32,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO = ARCHITECTURE_INTELLI
 export const ARCHITECTURE_INTELLIGENCE_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
   ...ARCHITECTURE_INTELLIGENCE_SOURCES,
   {
-    label: "Model governance help",
+    label: "Model policy help",
     href: MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
     when: "Review workspace execution profiles and approved model aliases before changing model policy",
   },

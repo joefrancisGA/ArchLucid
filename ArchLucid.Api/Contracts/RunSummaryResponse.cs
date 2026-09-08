@@ -176,4 +176,11 @@ public class RunSummaryResponse
         get;
         set;
     }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.LegacyRunStatus" />
+    public string? LegacyRunStatus
+    {
+        get;
+        set;
+    }
 }

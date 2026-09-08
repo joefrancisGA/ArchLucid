@@ -14,7 +14,7 @@ describe("auth-callback-evidence-copy", () => {
     expect(AUTH_CALLBACK_CANONICAL_PATH).toBe("/auth/callback");
     expect(AUTH_CALLBACK_CLAIM_DISCIPLINE_HEADING.length).toBeGreaterThan(0);
     expect(AUTH_CALLBACK_FOLLOW_UPS_TITLE.length).toBeGreaterThan(0);
-    expect(AUTH_CALLBACK_CLAIM_DISCIPLINE).toContain("authentication handoff");
+    expect(AUTH_CALLBACK_CLAIM_DISCIPLINE).toContain("authentication only");
     expect(AUTH_CALLBACK_SOURCES_INTRO.length).toBeGreaterThan(0);
     expect(AUTH_CALLBACK_SOURCES.length).toBeGreaterThan(0);
 

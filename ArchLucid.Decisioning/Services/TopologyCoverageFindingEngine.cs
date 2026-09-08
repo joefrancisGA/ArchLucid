@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -61,6 +62,11 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         }
 
         if (result.MissingCategories.Count > 0)
+        {
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
+                graphSnapshot,
+                result.TopologyNodeIds);
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -83,6 +89,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     "Add missing topology categories to the architecture input."
                 ],
                 RelatedNodeIds = [.. result.TopologyNodeIds],
+                EvidenceRefs = evidenceRefs,
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.TopologyNodeIds],
@@ -105,6 +112,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     ]
                 }
             });
+        }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

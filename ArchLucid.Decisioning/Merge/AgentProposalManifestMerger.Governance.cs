@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Decisioning.Decisions;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -65,11 +66,7 @@ public sealed partial class AgentProposalManifestMerger
             if (!AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
                 continue;
 
-            if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(finding.Message))
-
-                if (!manifest.Governance.ComplianceTags.Contains(finding.Message, StringComparer.OrdinalIgnoreCase))
-                    manifest.Governance.ComplianceTags.Add(finding.Message);
+            GovernanceComplianceTagLiftPolicy.Apply(manifest, finding, result, output);
 
             DecisionMergeTraceRecorder.AddTrace(
                 output,

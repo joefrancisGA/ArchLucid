@@ -1,0 +1,156 @@
+[
+  {
+    "findingId": "3c390f72-56e1-1d69-2759-43f63dd3352c",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "nsg-db",
+      "sql-hr",
+      "subnet-db"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "3fc13112-e58b-c00d-fbc7-6d9b21cf5adf",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "nsg-db",
+      "sql-hr",
+      "subnet-db"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "7320f5bc-48a3-2e4b-8a1d-e7ef944d5bee",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "nsg-db",
+      "sql-hr",
+      "subnet-db"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "17720de2-3b77-f966-e953-76a677bd2409",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Security baseline control: db-nsg",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "nsg-db"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "e62fb1f3-d57c-1d6c-168a-6c0244e03213",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "db-subnet",
+      "sql-hr-prod"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "37f793a7-4538-9a6a-9708-f6b42ab7eff8",
+    "findingType": "SecurityGap",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Security baseline \u0027db-nsg\u0027 protects no topology resources",
+    "rationale": "No PROTECTS edge links this security baseline to any graph node.",
+    "relatedNodeIds": [
+      "nsg-db"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "security-gap-security-baseline-without-protects"
+    ],
+    "decisionsTaken": [
+      "Detected security traceability gap: Security baseline \u0027db-nsg\u0027 is isolated from topology resources."
+    ]
+  },
+  {
+    "findingId": "b678046b-18e4-8a22-216d-040e84ad7fd2",
+    "findingType": "SegmentationSemanticsFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Segmentation control \u0027db-nsg\u0027 allows inbound port 3389 from the internet",
+    "rationale": "Declared rule material on \u0027db-nsg\u0027 exposes administrative port 3389 to the internet within 2 hop(s) of a sensitive target.",
+    "relatedNodeIds": [
+      "nsg-db",
+      "sql-hr"
+    ],
+    "payloadType": "SegmentationSemanticsFindingPayload",
+    "rulesApplied": [
+      "segmentation-semantics",
+      "tf.security_rule"
+    ],
+    "decisionsTaken": [
+      "Internet-exposed admin inbound port on segmentation control with sensitive target path."
+    ]
+  },
+  {
+    "findingId": "9503f538-eb72-e6a7-0806-e214fc11a51d",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "sql-hr",
+      "subnet-db"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

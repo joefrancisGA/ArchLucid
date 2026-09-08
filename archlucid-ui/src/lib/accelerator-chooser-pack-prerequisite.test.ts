@@ -57,7 +57,7 @@ describe("resolvePackCtaPresentation", () => {
     });
   });
 
-  it("flags cost governance packs for baseline recommendation copy", () => {
+  it("flags cost policy packs for baseline recommendation copy", () => {
     expect(acceleratorPackShowsCostBaselineRecommendation("azure-cost-governance")).toBe(true);
     expect(acceleratorPackShowsCostBaselineRecommendation("ai-llm-workload")).toBe(false);
     expect(ACCELERATOR_COST_BASELINE_RECOMMENDATION.toLowerCase()).toContain("recommended");

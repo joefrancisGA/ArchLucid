@@ -7,6 +7,9 @@ export const JIRA_INTEGRATION_CANONICAL_PATH = "/integrations/jira" as const;
 
 export const JIRA_INTEGRATION_HELP_TOPIC_LABEL = "How Jira integration works";
 
+export const JIRA_INTEGRATION_CLAIM_DISCIPLINE =
+  "Jira integration settings configure outbound ticket routing from findings — not delivery retry forensics, a signed audit record, or platform incident response. Use Integration readiness or Audit when operations needs readiness context or export follow-up.";
+
 export const JIRA_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const JIRA_INTEGRATION_SOURCES_INTRO =

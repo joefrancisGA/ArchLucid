@@ -123,7 +123,7 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.actions?.some((action) => action.href === RULES_HREF)).toBe(false);
   });
 
-  it("maps no_rules to governance setup primary and configure rules secondary", () => {
+  it("maps no_rules to approval setup primary and configure rules secondary", () => {
     const props = buildAlertsInboxEmptyStateProps("no_rules", true);
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
     expect(props.description).toBe(ALERTS_EMPTY_NO_RULES_BODY);

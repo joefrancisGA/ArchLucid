@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,9 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
             throw new InvalidOperationException("Findings snapshot was not built before emit stage.");
 
         FindingsSnapshot snapshot = context.Snapshot;
+
+        ApplyHeldCheckLedger(context, snapshot);
+        ApplyProseAssumptionRegister(context, snapshot);
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
@@ -41,6 +45,29 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
             snapshot.SchemaVersion);
 
         return Task.FromResult(snapshot);
+    }
+
+    private static void ApplyHeldCheckLedger(FindingsStageContext context, FindingsSnapshot snapshot)
+    {
+        IReadOnlyList<HeldCheckLedgerRollupEntry>? rollup =
+            context.AnalysisContext?.HeldCheckLedger?.BuildRollup();
+
+        if (rollup is null || rollup.Count == 0)
+        {
+            return;
+        }
+
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.HeldCheckLedgerEntries = rollup.ToList();
+    }
+
+    private static void ApplyProseAssumptionRegister(FindingsStageContext context, FindingsSnapshot snapshot)
+    {
+        if (context.ProseAssumptionRegisterEntries.Count == 0)
+            return;
+
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.ProseAssumptionRegisterEntries = context.ProseAssumptionRegisterEntries.ToList();
     }
 
     [LoggerMessage(

@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -17,6 +21,10 @@ import {
 } from "@/lib/servicenow-integration-page-copy";
 import type { TenantItsmOutboundSettingsResponse } from "@/lib/api/itsm-outbound-api";
 import type { resolveServiceNowPageComposition } from "@/lib/servicenow-integration-present";
+import {
+  parseServiceNowIncidentSettingsCollapsedOpenFromSearch,
+  serviceNowIncidentSettingsCollapsedDisclosureHrefFromSearch,
+} from "@/lib/integrations/servicenow-incident-settings-collapsed-disclosure-url";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -52,11 +60,47 @@ export function ServiceNowIncidentSettingsPanel({
   onSaveSettings,
   onRefresh,
 }: ServiceNowIncidentSettingsPanelProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const serviceNowIncidentSettingsCollapsedOpenParam = searchParams.get("serviceNowIncidentSettingsCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseServiceNowIncidentSettingsCollapsedOpenFromSearch(serviceNowIncidentSettingsCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        serviceNowIncidentSettingsCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(
+      parseServiceNowIncidentSettingsCollapsedOpenFromSearch(serviceNowIncidentSettingsCollapsedOpenParam),
+    );
+  }, [serviceNowIncidentSettingsCollapsedOpenParam]);
+
   if (pageComposition.incidentSettingsCollapsed) {
     return (
       <details
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="servicenow-incident-settings-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

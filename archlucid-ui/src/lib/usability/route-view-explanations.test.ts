@@ -91,7 +91,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
   it("keeps other governance and evidence-graph null when headers own orientation", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
-    // Risk exceptions own layer guidance plus the governance approval banner — a shell banner would repeat it.
+    // Risk exceptions own layer guidance plus the approval banner — a shell banner would repeat it.
     expect(routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH)).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();

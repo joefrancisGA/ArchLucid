@@ -81,7 +81,7 @@ export const BUYER_SCOPE_LIST_UNAVAILABLE =
   "Workspace directory is unavailable in this environment. The sample workspace remains active for this session.";
 
 export const BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE =
-  "Governance approval workflow is not configured in this demo workspace.";
+  "Approval workflow is not configured in this demo workspace.";
 
 export const BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE =
   "ITSM integration is not connected in this demo workspace.";

@@ -23,7 +23,7 @@ describe("buildCorePilotCommitContextFromRunItems", () => {
           isSample: true,
           hasGoldenManifest: true,
           description:
-            "Enterprise Copilot RAG platform — born-governed created architecture package (synthetic guided-intake sample).",
+            "Enterprise Copilot RAG platform — approval-ready created architecture package (synthetic guided-intake sample).",
         }),
       ],
       false,
