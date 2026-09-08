@@ -17560,6 +17560,39 @@
         },
         "type": "object"
       },
+      "HeldCheckInputCode": {
+        "enum": [
+          "AzureInventoryZip",
+          "AwsInventoryZip",
+          "GcpInventoryZip",
+          "ActorNodes",
+          "RbacBindings",
+          "SecretRotationMetadata",
+          "ReplicaOrFailoverProperties",
+          "NetworkPolicyRules",
+          "PriorRunSnapshot",
+          "AssignedPolicyPack"
+        ],
+        "type": "string"
+      },
+      "HeldCheckLedgerRollupEntry": {
+        "properties": {
+          "engineCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "engineTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          }
+        },
+        "type": "object"
+      },
       "HolisticCriticRequest": {
         "properties": {
           "focus": {
@@ -18424,6 +18457,15 @@
           "demotedToChecklistCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "heldCheckLedgerEntries": {
+            "items": {
+              "$ref": "#/components/schemas/HeldCheckLedgerRollupEntry"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
           },
           "judgeSkippedByCap": {
             "format": "int32",
