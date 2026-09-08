@@ -1,5 +1,5 @@
 # Private-beta frozen branch pin — do not merge master into cursor/al-beta-private-beta-frozen-7730 until smoke completes.
 # Refresh this file when resetting the frozen branch to a new origin/master snapshot.
 branch=cursor/al-beta-private-beta-frozen-7730
-pinned_at_utc=2026-09-08T21:45:00Z
-pinned_sha=ad9190ada6
+pinned_at_utc=2026-09-08T22:01:00Z
+pinned_sha=adcfc4ca8a
