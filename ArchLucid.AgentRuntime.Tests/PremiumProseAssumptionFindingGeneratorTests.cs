@@ -1,6 +1,5 @@
 using ArchLucid.Application.Findings.ProseAssumption;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
@@ -27,10 +26,10 @@ public sealed class PremiumProseAssumptionFindingGeneratorTests
             enableProseAssumptionExtraction: true,
             executionMode: DevAgentExecutionModeHeaderNames.Simulator);
 
-        IReadOnlyList<Finding> findings = await generator.GenerateAsync(
+        IReadOnlyList<Finding> findings = (await generator.GenerateAsync(
             new GraphSnapshot(),
             analysisContext: null,
-            CancellationToken.None);
+            CancellationToken.None)).Findings;
 
         findings.Should().BeEmpty();
     }
@@ -42,10 +41,10 @@ public sealed class PremiumProseAssumptionFindingGeneratorTests
             enableProseAssumptionExtraction: false,
             executionMode: DevAgentExecutionModeHeaderNames.Real);
 
-        IReadOnlyList<Finding> findings = await generator.GenerateAsync(
+        IReadOnlyList<Finding> findings = (await generator.GenerateAsync(
             new GraphSnapshot(),
             analysisContext: null,
-            CancellationToken.None);
+            CancellationToken.None)).Findings;
 
         findings.Should().BeEmpty();
     }
@@ -76,13 +75,14 @@ public sealed class PremiumProseAssumptionFindingGeneratorTests
     {
         Mock<IProseAssumptionContradictionService> contradictionService = new();
         contradictionService
-            .Setup(service => service.EmitContradictionsAsync(
+            .Setup(service => service.EmitOutcomeAsync(
                 It.IsAny<IReadOnlyList<ProseAssumptionCandidate>>(),
                 It.IsAny<GraphSnapshot>(),
                 It.IsAny<Contracts.Architecture.FindingAnalysisContext?>(),
                 It.IsAny<int>(),
+                It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(ProseAssumptionContradictionOutcome.Empty);
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>

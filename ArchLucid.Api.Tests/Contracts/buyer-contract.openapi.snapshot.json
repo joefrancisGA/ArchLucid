@@ -18553,6 +18553,15 @@
             "format": "int32",
             "type": "integer"
           },
+          "proseAssumptionRegisterEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "retainedFindingCount": {
             "format": "int32",
             "type": "integer"
@@ -25865,6 +25874,47 @@
             "type": "string"
           },
           "tradeOffDescription": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProseAssumptionDisposition": {
+        "enum": [
+          "Contradicted",
+          "Consistent",
+          "NotVerifiable"
+        ],
+        "type": "string"
+      },
+      "ProseAssumptionRegisterEntry": {
+        "properties": {
+          "disposition": {
+            "$ref": "#/components/schemas/ProseAssumptionDisposition"
+          },
+          "documentPath": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lineNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "logicalPropertyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "statement": {
             "type": "string"
           }
         },

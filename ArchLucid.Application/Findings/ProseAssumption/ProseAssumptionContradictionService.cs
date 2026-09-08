@@ -14,14 +14,15 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Findings.ProseAssumption;
 
-/// <summary>Loads inventory and emits prose-assumption contradiction findings (DX-55).</summary>
+/// <summary>Loads inventory and emits prose-assumption contradiction findings (DX-55, DX-61 register).</summary>
 public interface IProseAssumptionContradictionService
 {
-    Task<IReadOnlyList<Finding>> EmitContradictionsAsync(
+    Task<ProseAssumptionContradictionOutcome> EmitOutcomeAsync(
         IReadOnlyList<ProseAssumptionCandidate> candidates,
         GraphSnapshot graphSnapshot,
         FindingAnalysisContext? analysisContext,
         int maxFindings,
+        int maxRegisterEntries,
         CancellationToken cancellationToken);
 }
 
@@ -46,20 +47,22 @@ public sealed class ProseAssumptionContradictionService(
     private readonly RoiCostEvidenceFreshnessOptions _freshnessOptions =
         freshnessOptions?.Value ?? throw new ArgumentNullException(nameof(freshnessOptions));
 
-    public async Task<IReadOnlyList<Finding>> EmitContradictionsAsync(
+    public async Task<ProseAssumptionContradictionOutcome> EmitOutcomeAsync(
         IReadOnlyList<ProseAssumptionCandidate> candidates,
         GraphSnapshot graphSnapshot,
         FindingAnalysisContext? analysisContext,
         int maxFindings,
+        int maxRegisterEntries,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(candidates);
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
-        if (maxFindings <= 0 || candidates.Count == 0)
-            return [];
+        if (candidates.Count == 0 || (maxFindings <= 0 && maxRegisterEntries <= 0))
+            return ProseAssumptionContradictionOutcome.Empty;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        List<ProseAssumptionInventorySlice> inventorySlices = [];
         List<ProseAssumptionContradictionMatch> matches = [];
 
         if (!EffectfulFindingEngineCollectionFreshness.ShouldSuppressInventoryFindingsForAzure(
@@ -72,6 +75,12 @@ public sealed class ProseAssumptionContradictionService(
 
             if (!string.IsNullOrWhiteSpace(azureResourcesJson))
             {
+                inventorySlices.Add(new ProseAssumptionInventorySlice
+                {
+                    CloudProvider = InventoryTopologyCloudProvider.Azure,
+                    ResourcesJson = azureResourcesJson,
+                });
+
                 matches.AddRange(
                     ProseAssumptionContradictionPass.Analyze(
                         InventoryTopologyCloudProvider.Azure,
@@ -82,7 +91,8 @@ public sealed class ProseAssumptionContradictionService(
             }
         }
 
-        await AppendCloudMatchesAsync(
+        await AppendCloudInventoryAsync(
+            inventorySlices,
             matches,
             graphSnapshot,
             candidates,
@@ -93,7 +103,8 @@ public sealed class ProseAssumptionContradictionService(
             maxFindings,
             cancellationToken).ConfigureAwait(false);
 
-        await AppendCloudMatchesAsync(
+        await AppendCloudInventoryAsync(
+            inventorySlices,
             matches,
             graphSnapshot,
             candidates,
@@ -103,9 +114,6 @@ public sealed class ProseAssumptionContradictionService(
             InventoryTopologyCloudProvider.Gcp,
             maxFindings,
             cancellationToken).ConfigureAwait(false);
-
-        if (matches.Count == 0)
-            return [];
 
         List<Finding> findings = [];
 
@@ -120,10 +128,19 @@ public sealed class ProseAssumptionContradictionService(
             findings.Add(ProseAssumptionContradictionFindingEmitter.ToFinding(match));
         }
 
-        return findings;
+        IReadOnlyList<ProseAssumptionRegisterEntry> registerEntries = ProseAssumptionRegisterBuilder.Build(
+            candidates,
+            graphSnapshot,
+            inventorySlices,
+            matches,
+            findings,
+            maxRegisterEntries);
+
+        return new ProseAssumptionContradictionOutcome(findings, registerEntries);
     }
 
-    private async Task AppendCloudMatchesAsync(
+    private async Task AppendCloudInventoryAsync(
+        List<ProseAssumptionInventorySlice> inventorySlices,
         List<ProseAssumptionContradictionMatch> matches,
         GraphSnapshot graphSnapshot,
         IReadOnlyList<ProseAssumptionCandidate> candidates,
@@ -158,6 +175,12 @@ public sealed class ProseAssumptionContradictionService(
 
         if (string.IsNullOrWhiteSpace(resourcesJson))
             return;
+
+        inventorySlices.Add(new ProseAssumptionInventorySlice
+        {
+            CloudProvider = inventoryCloudProvider,
+            ResourcesJson = resourcesJson,
+        });
 
         int remaining = maxFindings - matches.Count;
 

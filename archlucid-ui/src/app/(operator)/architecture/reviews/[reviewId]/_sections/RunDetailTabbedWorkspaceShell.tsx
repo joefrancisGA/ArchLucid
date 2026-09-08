@@ -7,6 +7,7 @@ import {
   readHeldCheckLedgerFromFindingsSnapshot,
   readHeldCheckSecondPassFromFindingsSnapshot,
 } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 import {
   RunDetailExplanationSkeleton,
@@ -89,6 +90,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      proseAssumptionRegisterEntries={readProseAssumptionRegisterFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
       withheldFindingCount={withheldFindings.length}
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
     />
