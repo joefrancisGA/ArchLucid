@@ -506,6 +506,66 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     }
 
     [Fact]
+    public void SelectEngineJudgedCandidates_orders_by_human_accept_residual_when_flag_enabled()
+    {
+        Finding underScoredNovel = CreatePromotedEngineFinding(
+            "under-scored-novel",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding overScoredCoverage = CreatePromotedEngineFinding(
+            "over-scored-coverage",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> residuals = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["review-pack-gap"] = 0.8,
+            ["topology-coverage"] = 0.1,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [overScoredCoverage, underScoredNovel],
+            maxJudgedFindingsPerSnapshot: 1,
+            humanAcceptResidualByEngineType: residuals,
+            preferHighHumanAcceptResidual: true);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("under-scored-novel");
+    }
+
+    [Fact]
+    public void SelectEngineJudgedCandidates_ignores_human_accept_residual_when_flag_disabled()
+    {
+        Finding first = CreatePromotedEngineFinding(
+            "first",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding second = CreatePromotedEngineFinding(
+            "second",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> residuals = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["topology-coverage"] = 0.1,
+            ["review-pack-gap"] = 0.9,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [first, second],
+            maxJudgedFindingsPerSnapshot: 1,
+            humanAcceptResidualByEngineType: residuals,
+            preferHighHumanAcceptResidual: false);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("first");
+    }
+
+    [Fact]
     public void ResolveVerificationPriorRate_uses_neutral_prior_for_missing_engine()
     {
         Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)

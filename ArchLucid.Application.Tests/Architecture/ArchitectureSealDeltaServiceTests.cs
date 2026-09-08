@@ -56,6 +56,7 @@ public sealed class ArchitectureSealDeltaServiceTests
             TenantId = Scope.TenantId,
             WorkspaceId = Scope.WorkspaceId,
             ProjectId = Scope.ProjectId,
+            ManifestHash = "sealed-manifest-hash-test",
             Assumptions = [sharedAssumption],
             FeasibilityVerdict = new FeasibilityVerdict
             {
@@ -116,12 +117,18 @@ public sealed class ArchitectureSealDeltaServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(sealedReviewRunId);
 
+        Mock<IManifestHashService> manifestHashService = new();
+        manifestHashService
+            .Setup(h => h.ComputeHash(sealedManifest))
+            .Returns(sealedManifest.ManifestHash);
+
         ArchitectureSealDeltaService sut = new(
             identityRepository.Object,
             manifestRepository.Object,
             draftRepository.Object,
             projector,
-            runRepository.Object);
+            runRepository.Object,
+            manifestHashService.Object);
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 
@@ -154,7 +161,8 @@ public sealed class ArchitectureSealDeltaServiceTests
             Mock.Of<IGoldenManifestRepository>(),
             Mock.Of<IDraftRequestRepository>(),
             new DraftRequestProjector(),
-            Mock.Of<IRunRepository>());
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IManifestHashService>());
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 
