@@ -7037,11 +7037,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — compound OAuth/PAT token paths leaked through config summary redaction
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — compound password config paths leaked through config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7056,7 +7056,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) Compound Stripe webhook signing secrets bypass embedded-`Secret` fragment matching — **hit 2026-09-07 (#1223):** catalog paths `Billing:Stripe:*SigningSecret` and `CheckoutSecretKey` leaked raw values because `IsEmbeddedSensitiveFragment` skipped mid-segment `Secret`; fixed with `IsCompoundSecretCredentialSegment` suffix rules; regression in `Resolve_redacts_compound_stripe_secret_config_paths`
 - [x] (valid-no-repro) `Auth:EmailOtp:HashPepper` and `Auth:EmailOtp:BotChallenge:SecretKey` catalog-adjacent paths — already redacted via `Pepper` suffix and standalone `SecretKey` segment matching
 - [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound OAuth/PAT token paths bypass embedded-`Token` fragment matching — **hit 2026-09-07 (#1227):** catalog paths such as `AzureDevOps:PersonalAccessToken` and `OAuthRefreshToken` leaked raw values because mid-segment `Token` is treated as embedded; fixed with `IsCompoundTokenCredentialSegment` suffix rules for `AccessToken`, `RefreshToken`, `IdToken`, and `BearerToken`; regression in `Resolve_redacts_compound_token_credential_config_paths` and `Resolve_preserves_access_token_lifetime_minutes_path`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound password paths bypass embedded-`Password` fragment matching — **hit 2026-09-08 (#1292):** documented path `Email:SmtpPassword` leaked raw SMTP credentials because mid-segment `Password` is treated as embedded; fixed with `IsCompoundPasswordCredentialSegment` suffix rule; regression `Resolve_redacts_compound_password_credential_config_paths`
+- [ ] (candidate) Compound `ApiKey` credential segments (e.g. `LegacyApiKey`, `ConnectorApiKey`) may bypass embedded-`ApiKey` fragment matching like prior compound Secret/Token/Password classes — locus `ConfigurationSensitiveConfigPathMatcher`; reachability via catalog `ArchLucid:FallbackLlm:Endpoints[n]:ApiKey` uses standalone segment; scan catalog for mid-segment ApiKey suffix paths
 
+2026-09-08 seed hunt #1292 (hit): reseeded after master merge; proved `Email:SmtpPassword` leaked through config summary redaction; seeded compound ApiKey candidate.
 2026-09-07 seed hunt #1227 (hit): reseeded config summary redaction paths; proved compound OAuth/PAT token segments leaked through embedded-Token skip.
 2026-09-07 seed hunt #1223 (hit): proved compound Stripe signing secrets leaked through config summary redaction; cheap-disproof on Email OTP HashPepper/BotChallenge paths.
 

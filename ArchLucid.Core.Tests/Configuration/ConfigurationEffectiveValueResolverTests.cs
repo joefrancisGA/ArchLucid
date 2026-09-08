@@ -161,6 +161,22 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Theory]
+    [InlineData("Email:SmtpPassword")]
+    public void Resolve_redacts_compound_password_credential_config_paths(string configPath)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "smtp-or-db-password",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
     [InlineData("AzureDevOps:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:PersonalAccessToken")]
     [InlineData("Integrations:Itsm:Outbound:OAuthRefreshToken")]
