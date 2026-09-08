@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - cursor/al-beta-private-beta-smoke-lane-7730
+      - cursor/al-beta-private-beta-e2e-fixes-7730
   workflow_dispatch:
 
 concurrency:
