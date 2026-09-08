@@ -33,7 +33,8 @@ import {
 } from "@/lib/metric-count-presentation";
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
-import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
+import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
@@ -105,6 +106,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
   readonly buyerSummaryOmitsAgentFindings?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
 };
@@ -409,7 +411,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       }}
     >
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
-      <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
+      <SimulatorRunRehearsalCaption
+        structuralExecutionMode={props.structuralExecutionMode}
+        testId="run-detail-findings-simulator-rehearsal-caption"
+      />
       <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface && props.buyerPolishedShell !== true ? (

@@ -138,6 +138,7 @@ export async function RunDetailExplanationDeferred(
       graphSnapshot={resolvedDetail.graphSnapshot}
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
       withheldFindings={withheldFindings}
+      structuralExecutionMode={resolvedDetail.structuralExecutionMode}
     />
   );
 }

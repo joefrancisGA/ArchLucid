@@ -21,6 +21,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
     public const string AssertedEmptyCode = "asserted_trail_empty";
     public const string DecisionGradeProvenanceCode = "decision_grade_provenance";
     public const string DegradedFindingCoverageCode = "degraded_finding_coverage";
+    public const string SimulatorRehearsalCode = SimulatorCareerHonestyPresenter.SimulatorRehearsalCode;
 
     public const string FinalizeTrailMissingMessage =
         "Finalize requires a transparency trail with asserted, inferred, and skipped sections. Complete intake provenance or reload the package before sealing.";
@@ -56,6 +57,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         EvaluatePreCommitGate(input, blockReasons);
         EvaluateQualityGate(input, blockReasons);
         EvaluateDemoSampleExternalBlock(input, blockReasons);
+        EvaluateSimulatorRehearsal(input, blockReasons, warnings);
         EvaluateDecisionGradeProvenance(input, blockReasons);
         EvaluateSampleWorkspaceExport(input, blockReasons, warnings);
 
@@ -232,6 +234,31 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         }
 
         blockReasons.Add(new CareerArtifactBlockReason(DemoSampleCode, DemoSampleExternalBlockMessage));
+    }
+
+    private static void EvaluateSimulatorRehearsal(
+        CareerArtifactCompletenessInput input,
+        List<CareerArtifactBlockReason> blockReasons,
+        List<string> warnings)
+    {
+        string? blockedReason = SimulatorCareerHonestyPresenter.FormatCareerBlockedReason(
+            input.WorkingDesk,
+            input.IsSampleRun,
+            input.StructuralExecutionMode,
+            input.SimulatorRehearsalBannerOnArtifact);
+
+        if (blockedReason is not null)
+        {
+            blockReasons.Add(new CareerArtifactBlockReason(SimulatorRehearsalCode, blockedReason));
+
+            return;
+        }
+
+        if (!input.WorkingDesk
+            && SimulatorCareerHonestyPresenter.IsRehearsalStructuralExecutionMode(input.StructuralExecutionMode))
+        {
+            warnings.Add(SimulatorCareerHonestyPresenter.GuidedRehearsalWarning);
+        }
     }
 
     private static void EvaluateDecisionGradeProvenance(
