@@ -1020,11 +1020,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — PCI/PHI/personal-data shorthand skipped human review
+- **last-bug:** 2026-09-08 — ISO/FedRAMP/NIST framework markers skipped human review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1042,7 +1042,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-08 thorough hunt #1335 (hit): proved extended regulatory marker human-review bypass for CCPA/SOC 2/PCI-DSS; 20 scoped extraction-router tests passed.
 
 - [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — shorthand `PCI:`, standalone `PHI`, and `personal data` prose never trigger human review while `pci-dss`/`pii`/`hipaa` did — **hit 2026-09-08 seed hunt #1310:** inspect-classify gap after #1335; short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
-- [ ] (candidate) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers`; locus in `DifficultyBasedExtractionRouter.Classify.cs`; no failing repro yet
+- [x] (proven) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers` — **hit 2026-09-08 thorough hunt #1350:** short ISO/FedRAMP/NIST prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set with `iso 27001`, `fedramp`, and `nist`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_fedramp_prose_directly_established`
+
+2026-09-08 thorough hunt #1350 (hit): proved ISO/FedRAMP/NIST framework marker human-review bypass; 28 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-08 seed hunt #1310 (hit): reseeded extraction-router; proved PCI/PHI/personal-data shorthand human-review bypass; seeded ISO/FedRAMP/NIST framework marker candidate; 24 scoped extraction-router tests passed.
 2026-09-07 seed hunt #1296 (hit): reseeded extraction-router; proved short sensitive colon human-review bypass; seeded extended regulatory keyword candidate.
