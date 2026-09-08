@@ -17,7 +17,7 @@ type DigestSponsorPageChromeProps = {
   readonly children: ReactNode;
 };
 
-/** Shared marketing chrome for `/digest/sponsor` — skip link, hero, first-viewport orientation, body (DIS). */
+/** Shared marketing chrome for `/digest/sponsor` and run collateral (DIS, DIU). */
 export function DigestSponsorPageChrome(props: DigestSponsorPageChromeProps): React.JSX.Element {
   const { hero, children } = props;
 

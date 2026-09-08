@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 type ExecDigestSponsorDeepLinkViewProps = {
   readonly view: ExecDigestSponsorDeepLinkView;
+  readonly signInReturnPath?: string;
 };
 
 function highlightedReviewLabel(caption: string | null | undefined): string {
@@ -34,7 +35,7 @@ function highlightedReviewLabel(caption: string | null | undefined): string {
 }
 
 export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkViewProps): JSX.Element {
-  const { view } = props;
+  const { view, signInReturnPath = DIGEST_SPONSOR_CANONICAL_PATH } = props;
   const isRunCollateral = view.target === "run-collateral";
   const pageTitle = isRunCollateral ? DIGEST_SPONSOR_COLLATERAL_TITLE : DIGEST_SPONSOR_OVERVIEW_TITLE;
 
@@ -122,7 +123,7 @@ export function ExecDigestSponsorDeepLinkPanel(props: ExecDigestSponsorDeepLinkV
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link
             className={MARKETING_SURFACES.inlineLink}
-            href={buildAuthSignInHref({ returnPath: DIGEST_SPONSOR_CANONICAL_PATH })}
+            href={buildAuthSignInHref({ returnPath: signInReturnPath })}
           >
             {DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL}
           </Link>
