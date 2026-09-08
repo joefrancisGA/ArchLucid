@@ -28,6 +28,7 @@ public static class GoldenCorpusHarnessEngineInventory
             ["decision-grade-fusion"] = "Post-gate synthesis; needs Decision-grade members — see DecisionGradeFusionApplicatorTests.",
             ["insight-generator"] = "Insight generator is a real-mode Premium LLM pass — harness uses NoOpInsightFindingGenerator.",
             ["policy-declaration-inventory-contradiction"] = "Three-way pack contradiction needs filtered assigned pack — see PolicyDeclarationInventoryContradictionGoldenCorpusTests (DX-36).",
+            ["portfolio-shared-topology"] = "Effectful cross-system graph join; not in single-snapshot corpus.",
         };
 
     public static IReadOnlyDictionary<string, string> AbsentEngineReasons => AbsentReasons;

@@ -7,7 +7,7 @@ import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/
 export const INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT = 41;
 
 /** Product `BuiltInFindingEngineTypeCatalog` size — not the harness slice alone. */
-export const INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT = 51;
+export const INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT = 52;
 
 export const INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF =
   "/help/configuration-reference#insight-density-gate-tb-382";

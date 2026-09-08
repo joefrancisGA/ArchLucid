@@ -1,4 +1,6 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.PortfolioRecurrence;
+using ArchLucid.Application.Findings.PortfolioSharedTopology;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
@@ -100,6 +102,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.SecretsLifecycleFindingEngine>();
         services.AddPortfolioRecurrenceFindingEngine();
         services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioRecurrenceFindingEngine>();
+        services.AddPortfolioSharedTopologyFindingEngine();
+        services.AddScoped<Di.IEffectfulFindingEngine, ArchLucid.Application.Findings.PortfolioSharedTopologyFindingEngine>();
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
@@ -110,8 +114,12 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Application.Findings.OpenCommitmentFindingOptions.SectionPath));
         services.Configure<ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions>(
             configuration.GetSection(ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptions.SectionPath));
+        services.Configure<ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions>(
+            configuration.GetSection(ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptions.SectionPath));
         services.AddScoped<ArchLucid.Application.Findings.IPortfolioRecurrenceFindingOptionsResolver,
             ArchLucid.Application.Findings.PortfolioRecurrenceFindingOptionsResolver>();
+        services.AddScoped<ArchLucid.Application.Findings.IPortfolioSharedTopologyFindingOptionsResolver,
+            ArchLucid.Application.Findings.PortfolioSharedTopologyFindingOptionsResolver>();
         services.AddScoped<Di.IPortfolioRecurrenceCurrentReviewIdentitySource,
             ArchLucid.Application.Findings.PortfolioRecurrenceCurrentReviewIdentitySource>();
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
