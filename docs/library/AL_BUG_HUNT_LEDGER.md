@@ -7292,11 +7292,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — scalar string list fields dropped on structured normalize
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — object-shaped reasoning text dropped on structured normalize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7311,7 +7311,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryReadStringList` — scalar string `evidenceRefs` / `alternativesConsidered` / `caveats` dropped when LLM emits a string instead of `string[]` — **hit 2026-09-07 seed hunt #1275:** `ValueKind != Array` returned null (or `?? []` for evidenceRefs), losing required alternatives and provenance refs on otherwise valid structured payloads; fixed by mapping a non-empty string token to a one-element list; regressions `TryNormalizeStructuredJson_maps_scalar_alternatives_considered_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_evidence_ref_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_caveats_as_single_entry`.
 - [x] (proven) `StructuredExplanationParser.TryReadStringList` — object-shaped entries in `evidenceRefs` arrays silently skipped (LLM `{ "id": "dec-1" }` objects dropped while sibling citation counter maps object tokens) — **hit 2026-09-07 hunt #1289:** array loop accepted only `JsonValueKind.String` while aggregate citation disposition already maps object tokens; fixed with shared `TryReadStringListEntry` extracting object `id`; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_entries`.
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — non-string `reasoning` token rejects normalize so `DeterministicExplanationService.BuildRunExplanationFromLlmPayload` takes JSON-object fallback and drops structured list fields — **hit 2026-09-07 hunt #1289:** string-array reasoning failed `ValueKind.String` guard; fixed by coercing non-empty string arrays via `TryReadReasoningText`; regression `TryNormalizeStructuredJson_coerces_string_array_reasoning`.
-- [ ] (candidate) `StructuredExplanationParser.TryReadReasoningText` — object-shaped `reasoning` (`{"text":"..."}`) still rejects normalize and triggers JSON-object fallback in `BuildRunExplanationFromLlmPayload`.
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped `reasoning` (`{"text":"..."}`) still rejects normalize and triggers JSON-object fallback in `BuildRunExplanationFromLlmPayload` — **hit 2026-09-08 hunt #1317:** object token failed `ValueKind.String`/`Array` guards; fixed by extracting case-insensitive `text` property mirroring `TryReadStringListEntry` object `id` extraction; regression `TryNormalizeStructuredJson_coerces_object_shaped_reasoning_text`.
+
+2026-09-08 thorough hunt #1317 (hit): proved object-shaped reasoning text coercion gap; scoped RunExplanation unit tests passed.
 
 2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
 
