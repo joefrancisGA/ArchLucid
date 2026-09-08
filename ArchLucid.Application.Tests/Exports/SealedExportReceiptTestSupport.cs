@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
@@ -59,7 +60,7 @@ internal static class SealedExportReceiptTestSupport
         return authority.Object;
     }
 
-    internal static void ConfigureVerifiedSealedExport(
+    internal static ManifestDocument ConfigureVerifiedSealedExport(
         Mock<IAuthorityQueryService> authority,
         Guid runId,
         IManifestHashService manifestHashService)
@@ -67,12 +68,7 @@ internal static class SealedExportReceiptTestSupport
         ArgumentNullException.ThrowIfNull(authority);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        FeasibilityVerdict verdict = new()
-        {
-            Kind = FeasibilityVerdictKind.Feasible,
-            Summary = "Architecture satisfies policy controls.",
-            TransparencyTrail = new TransparencyTrail(),
-        };
+        FeasibilityVerdict verdict = CreateExportFeasibilityVerdict();
 
         ManifestDocument manifest = new()
         {
@@ -98,8 +94,24 @@ internal static class SealedExportReceiptTestSupport
         manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord { RunId = runId },
+            GoldenManifest = manifest,
+        };
+
         authority
             .Setup(static s => s.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid requestedRunId, CancellationToken _) =>
+                requestedRunId == runId
+                    ? runDetail
+                    : null);
+
+        authority
+            .Setup(static s => s.GetRunDetailForExportAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
@@ -109,8 +121,53 @@ internal static class SealedExportReceiptTestSupport
                     {
                         Run = new RunRecord { RunId = runId },
                         GoldenManifest = manifest,
+                        FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
                     }
                     : null);
+
+        return manifest;
+    }
+
+    internal static void ConfigureSampleRunExportDetail(
+        Mock<IAuthorityQueryService> authority,
+        Guid runId,
+        ManifestDocument goldenManifest)
+    {
+        ArgumentNullException.ThrowIfNull(authority);
+        ArgumentNullException.ThrowIfNull(goldenManifest);
+
+        authority
+            .Setup(static s => s.GetRunDetailForExportAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid requestedRunId, CancellationToken _) =>
+                requestedRunId == runId
+                    ? new RunDetailDto
+                    {
+                        Run = new RunRecord { RunId = runId, IsSample = true },
+                        GoldenManifest = goldenManifest,
+                        FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
+                    }
+                    : null);
+    }
+
+    private static FeasibilityVerdict CreateExportFeasibilityVerdict()
+    {
+        return new FeasibilityVerdict
+        {
+            Kind = FeasibilityVerdictKind.Feasible,
+            Summary = "Architecture satisfies policy controls.",
+            TransparencyTrail = new TransparencyTrail
+            {
+                Asserted =
+                [
+                    new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" },
+                ],
+                Inferred = [],
+                Skipped = [],
+            },
+        };
     }
 
     internal static bool TryParseRunGuid(string runId, out Guid runGuid)

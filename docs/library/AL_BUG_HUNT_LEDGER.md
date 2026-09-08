@@ -1539,11 +1539,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 14
-- **bugs-found:** 21
+- **hunts:** 15
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — board export tests broke after career honesty loader integration
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — board/one-pager exports bypassed ADR 0078 career completeness gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1583,6 +1583,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureReviewExportServiceTests` / `CareerExportCoverageHonestyMaterialLoader` — scoped export tests failed after wave-36 career honesty loader integration because SUT used `Mock.Of<IConfiguration>()` (cannot bind `GetSection().GetValue`) and `Mock.Of<IAgentExecutionTraceRepository>()` (null traces) — **hit 2026-09-07 (#1228):** shared `SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration` and `CreateEmptyAgentExecutionTraceRepository`; `ArchitectureReviewExportServiceTests` wired both.
 
 2026-09-07 thorough hunt #1228: cheap-disproved three stale seed candidates; proved export unit-test harness gap after career honesty loader integration.
+
+- [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` / `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — loaded career honesty for embedding but omitted `CareerArtifactExportCompletenessGate.EnsureCanExport` used by `DocxExportController`; sample-workspace runs returned distributable PDF/HTML/one-pager bytes — **hit 2026-09-08:** added `EnsureCanExportFromHonestyMaterial` before analysis/LLM work; regressions in `GenerateReportAsync_throws_career_blocked_for_sample_workspace_run`, `GenerateMarkdownAsync_throws_career_blocked_for_sample_workspace_run`.
+- [ ] (candidate) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — sealed receipt guard only; omits `RunExportSealedManifestHashGuard` present on board export sibling path.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — lifecycle + sealed manifest hash guards but no `CareerArtifactExportCompletenessGate` before regenerating analysis DOCX.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — lineage + sealed hash only; compare/replay siblings also enforce `AuthorityLifecycleCompareExportGuard`.
+- [ ] (candidate) `SponsorReviewPacketBuilder` — sealed receipt guard only; omits `RunExportSealedManifestHashGuard` present on `FirstValueReportBuilder` sibling.
+
+2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
 
 2026-09-03 seed hunt #543: proved board export authority lifecycle Complete guard gap; cheap-disproved blob URL policy; seeded simulator-notice parity candidate.
 
