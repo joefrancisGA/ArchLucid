@@ -173,6 +173,23 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setActiveRunId(urlContextRunId);
   }, [urlContextRunId]);
 
+  useEffect(() => {
+    if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
+      return;
+    }
+
+    setActiveRunId(null);
+    setRunState(null);
+    setInterviewAnswers({});
+    setError(null);
+    setArchitectureDescription("");
+    setPrioritiesRaw("");
+    setHydratedSourceTexts([]);
+    setPublishToProduct(false);
+    setProductContextStatus("idle");
+    setLoadingAction(null);
+  }, [inboundRunId, urlContextRunId]);
+
   const onInterviewAnswerChange = useCallback((questionId: string, value: string) => {
     setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }));
   }, []);

@@ -425,6 +425,77 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
   });
 
+  it("clears hydrated intake and review scope when deep-linked runId is removed from the URL", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+              declaredPriorities: ["security"],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
+
+    searchParamsGet.mockImplementation(() => null);
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-run-scope-banner")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
+    expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-review")).toHaveAttribute(
+      "data-emphasized",
+      "true",
+    );
+  });
+
   it("clears reasoning results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
