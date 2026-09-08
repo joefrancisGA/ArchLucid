@@ -6150,6 +6150,96 @@ describe("wave76 filter url helpers", () => {
   });
 });
 
+describe("wave77 filter url helpers", () => {
+  it("policy pack generic/healthcare technical, policy packs inspect JSON, explainability trace section, structured brief explain key, finding typed payload, guided intake view all clarifications, governance raw output, operator route diagnostics params", async () => {
+    const {
+      policyPackGenericTechnicalDisclosureHrefFromSearch,
+      parsePolicyPackGenericTechnicalOpenFromSearch,
+    } = await import("@/lib/policy/policy-pack-generic-technical-disclosure-url");
+    const {
+      healthcareClaimsPackTechnicalDisclosureHrefFromSearch,
+      parseHealthcareClaimsPackTechnicalOpenFromSearch,
+    } = await import("@/lib/policy/healthcare-claims-pack-technical-disclosure-url");
+    const {
+      policyPacksEffectivePacksDisclosureHrefFromSearch,
+      parsePolicyPacksEffectivePacksOpenFromSearch,
+    } = await import("@/lib/governance/policy-packs-effective-packs-disclosure-url");
+    const {
+      policyPacksResolvedContentDisclosureHrefFromSearch,
+      parsePolicyPacksResolvedContentOpenFromSearch,
+    } = await import("@/lib/governance/policy-packs-resolved-content-disclosure-url");
+    const {
+      explainabilityTraceSectionDisclosureHrefFromSearch,
+      parseExplainabilityTraceSectionKeyFromSearch,
+    } = await import("@/lib/explainability/explainability-trace-section-disclosure-url");
+    const {
+      structuredBriefSuggestionExplainDisclosureHrefFromSearch,
+      parseStructuredBriefSuggestionExplainKeyFromSearch,
+    } = await import("@/lib/architecture/structured-brief-suggestion-explain-disclosure-url");
+    const {
+      findingInspectTypedPayloadDisclosureHrefFromSearch,
+      parseFindingInspectTypedPayloadOpenFromSearch,
+    } = await import("@/lib/findings/finding-inspect-typed-payload-disclosure-url");
+    const {
+      guidedIntakeViewAllClarificationsDisclosureHrefFromSearch,
+      parseGuidedIntakeViewAllClarificationsOpenFromSearch,
+    } = await import("@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url");
+    const {
+      governanceResolutionRawOutputDisclosureHrefFromSearch,
+      parseGovernanceResolutionRawOutputOpenFromSearch,
+    } = await import("@/lib/governance/governance-resolution-raw-output-disclosure-url");
+    const {
+      operatorRouteDiagnosticsDisclosureHrefFromSearch,
+      parseOperatorRouteDiagnosticsOpenFromSearch,
+    } = await import("@/lib/operator/operator-route-diagnostics-disclosure-url");
+
+    expect(parsePolicyPackGenericTechnicalOpenFromSearch("1")).toBe(true);
+    expect(policyPackGenericTechnicalDisclosureHrefFromSearch("", true, "/governance/policy-packs/custom-pack")).toBe(
+      "/governance/policy-packs/custom-pack?policyPackGenericTechnicalOpen=1",
+    );
+    expect(parseHealthcareClaimsPackTechnicalOpenFromSearch("true")).toBe(true);
+    expect(
+      healthcareClaimsPackTechnicalDisclosureHrefFromSearch("tab=catalog", true, "/governance/policy-packs/healthcare-claims"),
+    ).toBe("/governance/policy-packs/healthcare-claims?tab=catalog&healthcareClaimsPackTechnicalOpen=1");
+    expect(parsePolicyPacksEffectivePacksOpenFromSearch("1")).toBe(true);
+    expect(policyPacksEffectivePacksDisclosureHrefFromSearch("", true, "/governance/policy-packs")).toBe(
+      "/governance/policy-packs?policyPacksEffectivePacksOpen=1",
+    );
+    expect(parsePolicyPacksResolvedContentOpenFromSearch("true")).toBe(true);
+    expect(policyPacksResolvedContentDisclosureHrefFromSearch("packId=p1", true, "/governance/policy-packs")).toBe(
+      "/governance/policy-packs?packId=p1&policyPacksResolvedContentOpen=1",
+    );
+    expect(parseExplainabilityTraceSectionKeyFromSearch("evidence")).toBe("evidence");
+    expect(
+      explainabilityTraceSectionDisclosureHrefFromSearch("", "rules", "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?explainabilityTraceSectionKey=rules");
+    expect(parseStructuredBriefSuggestionExplainKeyFromSearch("actors:Reviewer")).toBe("actors:Reviewer");
+    expect(
+      structuredBriefSuggestionExplainDisclosureHrefFromSearch(
+        "path=guided",
+        "constraints:Zero trust",
+        "/architecture/reviews/new",
+      ),
+    ).toBe("/architecture/reviews/new?path=guided&structuredBriefSuggestionExplainKey=constraints%3AZero+trust");
+    expect(parseFindingInspectTypedPayloadOpenFromSearch("1")).toBe(true);
+    expect(
+      findingInspectTypedPayloadDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingInspectTypedPayloadOpen=1");
+    expect(parseGuidedIntakeViewAllClarificationsOpenFromSearch("true")).toBe(true);
+    expect(guidedIntakeViewAllClarificationsDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?guidedIntakeViewAllClarificationsOpen=1",
+    );
+    expect(parseGovernanceResolutionRawOutputOpenFromSearch("1")).toBe(true);
+    expect(
+      governanceResolutionRawOutputDisclosureHrefFromSearch("scope=workspace", true, "/governance/standards-and-rules/resolution"),
+    ).toBe("/governance/standards-and-rules/resolution?scope=workspace&governanceResolutionRawOutputOpen=1");
+    expect(parseOperatorRouteDiagnosticsOpenFromSearch("true")).toBe(true);
+    expect(operatorRouteDiagnosticsDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?operatorRouteDiagnosticsOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

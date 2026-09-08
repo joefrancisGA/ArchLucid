@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -108,34 +108,39 @@ export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPan
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const operatorRouteDiagnosticsOpenParam = searchParams.get("operatorRouteDiagnosticsOpen");
-  const [open, setOpenState] = useState(() =>
-    parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam) || defaultOpen,
-  );
+  const [open, setOpenState] = useState(() => {
+    if (operatorRouteDiagnosticsOpenParam !== null) {
+      return parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam);
+    }
+
+    return defaultOpen;
+  });
+  const [copied, setCopied] = useState(false);
+  const diagnosticsText = useMemo(() => formatDiagnosticsText(payload), [payload]);
+
   const syncOpenToUrl = useCallback(
-    (nextOpen: boolean) => {
+    (detailsOpen: boolean) => {
       router.replace(
-        operatorRouteDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), nextOpen, pathname),
+        operatorRouteDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
         { scroll: false },
       );
     },
     [pathname, router, searchParams],
   );
+
   const setOpen = useCallback(
-    (nextOpen: boolean) => {
-      setOpenState(nextOpen);
-      syncOpenToUrl(nextOpen);
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
     },
     [syncOpenToUrl],
   );
 
   useEffect(() => {
-    setOpenState(
-      parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam) || defaultOpen,
-    );
-  }, [defaultOpen, operatorRouteDiagnosticsOpenParam]);
-
-  const [copied, setCopied] = useState(false);
-  const diagnosticsText = useMemo(() => formatDiagnosticsText(payload), [payload]);
+    if (operatorRouteDiagnosticsOpenParam !== null) {
+      setOpenState(parseOperatorRouteDiagnosticsOpenFromSearch(operatorRouteDiagnosticsOpenParam));
+    }
+  }, [operatorRouteDiagnosticsOpenParam]);
 
   const copyDiagnostics = async () => {
     try {
