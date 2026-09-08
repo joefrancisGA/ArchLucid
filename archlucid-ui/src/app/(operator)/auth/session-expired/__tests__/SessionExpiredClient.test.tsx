@@ -106,6 +106,7 @@ describe("SessionExpiredClient", () => {
     render(<SessionExpiredClient />);
 
     expect(window.location.assign).not.toHaveBeenCalled();
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
   });
 
   it("renders the Sign in button using the primary variant", () => {
