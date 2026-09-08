@@ -184,6 +184,18 @@ export function OperationalErrorsPageClient() {
     );
   }, [state, categoryFilter, statusFilter, tenantFilter, correlationFilter]);
 
+  useEffect(() => {
+    if (state.status !== "ready" || selectedRow === null) {
+      return;
+    }
+
+    const stillVisible = filteredRows.some((row) => row.id === selectedRow.id);
+
+    if (!stillVisible) {
+      setSelectedRow(null);
+    }
+  }, [filteredRows, selectedRow, setSelectedRow, state.status]);
+
   const onCategoryChange = useCallback(
     (category: string) => {
       setCategoryFilter(category);

@@ -9727,11 +9727,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 11
-- **bugs-found:** 12
+- **hunts:** 12
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — compare deep-link auto-compare skipped when client-navigating to a new URL run pair; admin tenants shut-off confirm cleared before `router.replace` completed
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — operational-errors detail panel survived filter changes; ask page stale `thread` URL blocked continue-last auto-resume
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9751,8 +9751,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ProductLearningPageView` / `PlanningExportReadinessNote` export anchors used raw `/api/proxy` hrefs without `mergeRegistrationScopeForProxy` while dashboard loads used scoped `apiGet` — **hit 2026-09-04 (#714):** markdown/JSON export and open-in-tab actions hit proxy dev-default tenant after scope switch; fixed with scoped fetch downloads via `downloadScopedProxyFileGet` (`product-learning-report-download.test.ts`, `learning-planning-report-download.test.ts`).
 - [x] (proven) `useCompareFormUrlSync` auto-compare effect used a one-shot ref — **hit 2026-09-05 (#811):** client navigation from one complete `priorRunId`/`laterRunId` pair to another skipped `runCompareForPair`; fixed by keying last auto-compared pair (`use-compare-form-url-sync.test.ts`).
 - [x] (proven) `useAdminTenantsState` URL-sync effect cleared `pendingTenantAction` whenever URL params were empty — **hit 2026-09-05 (#811):** shut-off/turn-on confirm dialog vanished before `router.replace` wrote `tenantAction`/`tenantId`; fixed by clearing only on set→cleared URL transitions (`AdminTenantsPageClient.test.tsx`).
-- [ ] (candidate) Operational-errors detail panel may survive a filter change that hides the selected row — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
-- [ ] (candidate) Ask page stale `thread` search param may block resume after navigation — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
+- [x] (proven) Operational-errors detail panel survived filter changes that hid the selected row — **hit 2026-09-08 (#1331):** `OperationalErrorsPageClient` kept `selectedRow` while `filteredRows` excluded it after category/status/tenant/correlation filter changes; clear selection and `errorId` URL when the row drops out of the filtered set; regression in `OperationalErrorsPageClient.test.tsx`.
+- [x] (proven) Ask page stale `thread` search param blocked continue-last auto-resume — **hit 2026-09-08 (#1331):** `useAskPageUrlSync` returned early on unknown `thread` without clearing the param, and `useAskPage` auto-resume treated any non-empty URL thread as authoritative; clear stale thread after thread-list hydration and only block auto-resume when the URL thread exists in the loaded list; regression in `use-ask-page-url-sync.test.ts`.
+
+2026-09-08 thorough hunt #1331 (hit): proved operational-errors filter/detail desync and ask stale-thread resume block in operator routes.
 
 2026-09-05 seed hunt #811 (hit): proved compare URL auto-compare one-shot gap and admin tenants pending-action URL-sync race; seeded operational-errors filter/detail and ask thread-resume candidates.
 
