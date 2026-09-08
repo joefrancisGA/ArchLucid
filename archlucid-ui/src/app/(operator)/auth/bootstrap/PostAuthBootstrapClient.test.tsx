@@ -1,17 +1,21 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchPostAuthBootstrapStatus = vi.fn();
+const acceptPostAuthInvitation = vi.fn();
+const selectPostAuthWorkspace = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("returnUrl=%2Farchitecture%2Freviews"),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/auth/bootstrap",
 }));
 
 vi.mock("@/lib/auth/post-auth-bootstrap-api", () => ({
   fetchPostAuthBootstrapStatus: (...args: unknown[]) => fetchPostAuthBootstrapStatus(...args),
   createPostAuthWorkspace: vi.fn(),
-  acceptPostAuthInvitation: vi.fn(),
-  selectPostAuthWorkspace: vi.fn(),
+  acceptPostAuthInvitation: (...args: unknown[]) => acceptPostAuthInvitation(...args),
+  selectPostAuthWorkspace: (...args: unknown[]) => selectPostAuthWorkspace(...args),
   initiatePostAuthAccessRequest: vi.fn(),
 }));
 
@@ -102,6 +106,7 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-sign-in-again")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
     expect(screen.getByTestId("bootstrap-public-exit")).not.toHaveAttribute("href", "/welcome");
   });
@@ -123,6 +128,72 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
+  });
+});
+
+describe("PostAuthBootstrapClient (TB-1469 mid-flow recovery)", () => {
+  beforeEach(() => {
+    fetchPostAuthBootstrapStatus.mockReset();
+    acceptPostAuthInvitation.mockReset();
+    selectPostAuthWorkspace.mockReset();
+  });
+
+  it("exposes Report Problem and secondary exits when invitation accept fails", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "AcceptInvitation",
+      pendingInvitations: [
+        {
+          invitationId: "inv-1",
+          label: "Northwind",
+          maskedInvitedEmail: "a***@example.com",
+          requiresEmailMismatchConfirmation: false,
+        },
+      ],
+      workspaces: [],
+      canCreateWorkspace: false,
+    });
+    acceptPostAuthInvitation.mockResolvedValue(null);
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-accept-invitation-inv-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("bootstrap-accept-invitation-inv-1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-sign-in-again")).toBeInTheDocument();
+  });
+
+  it("exposes Report Problem and secondary exits when workspace select fails", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "SelectWorkspace",
+      pendingInvitations: [],
+      workspaces: [{ tenantId: "t1", workspaceId: "w1", workspaceName: "Northwind" }],
+      canCreateWorkspace: false,
+    });
+    selectPostAuthWorkspace.mockResolvedValue(null);
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-select-workspace-w1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("bootstrap-select-workspace-w1"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
   });
 });

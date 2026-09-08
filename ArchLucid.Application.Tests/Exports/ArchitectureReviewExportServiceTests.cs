@@ -7,9 +7,11 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -61,14 +63,16 @@ public sealed class ArchitectureReviewExportServiceTests
         string? runIdForSealedExport = null,
         IScopeContextProvider? scopeContextProvider = null,
         ITenantRepository? tenantRepository = null,
-        IRunExplanationSummaryService? runExplanationSummaryService = null)
+        IRunExplanationSummaryService? runExplanationSummaryService = null,
+        IAuthorityQueryService? authorityQueryService = null)
     {
         IRunExplanationSummaryService explanation = runExplanationSummaryService ?? Mock.Of<IRunExplanationSummaryService>();
         ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
 
-        IAuthorityQueryService authorityQuery = Mock.Of<IAuthorityQueryService>();
+        IAuthorityQueryService authorityQuery = authorityQueryService ?? Mock.Of<IAuthorityQueryService>();
 
-        if (!string.IsNullOrWhiteSpace(runIdForSealedExport)
+        if (authorityQueryService is null
+            && !string.IsNullOrWhiteSpace(runIdForSealedExport)
             && SealedExportReceiptTestSupport.TryParseRunGuid(runIdForSealedExport, out Guid runGuid))
         {
             authorityQuery = SealedExportReceiptTestSupport.CreateAuthorityQueryService(runGuid, manifestHashService);
@@ -80,11 +84,13 @@ public sealed class ArchitectureReviewExportServiceTests
                 authorityQuery,
                 manifestHashService,
                 Mock.Of<IGraphSnapshotRepository>(),
+                SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
                 analysis,
                 scopeContextProvider,
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
                 explanation,
                 tenantReviewBoardCoverLogoStore: null,
+                SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
                 new ArchitectureReviewDocxBuilder(),
                 new ArchitectureReviewPdfBuilder());
         Mock<IScopeContextProvider> scopeMock = new();
@@ -96,11 +102,13 @@ public sealed class ArchitectureReviewExportServiceTests
             authorityQuery,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             explanation,
             tenantReviewBoardCoverLogoStore: null,
+            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());
     }
@@ -267,6 +275,51 @@ public sealed class ArchitectureReviewExportServiceTests
         html.Should().Contain(ActiveTrialExportNoticeFormatter.BaseSuffix);
 
         await result.Content.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_throws_career_blocked_for_sample_workspace_run()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        GoldenManifest manifest = detail.Manifest!;
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = manifest,
+            Summary = "Summary text."
+        };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(authority, runGuid, goldenManifest);
+
+        ArchitectureReviewExportService sut = CreateSut(
+            runDetailQuery.Object,
+            analysis.Object,
+            runId,
+            authorityQueryService: authority.Object);
+
+        Func<Task> act = async () =>
+            await sut.GenerateReportAsync(runId, ExportFormat.Pdf, null, null, null, CancellationToken.None);
+
+        CareerArtifactExportBlockedException exception =
+            (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which;
+
+        exception.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        analysis.Verify(
+            x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

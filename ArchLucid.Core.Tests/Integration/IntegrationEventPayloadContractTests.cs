@@ -313,6 +313,33 @@ public sealed class IntegrationEventPayloadContractTests
     }
 
     [Fact]
+    public void FindingVerificationCompleted_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId = Guid.NewGuid(),
+            reportId = Guid.NewGuid(),
+            reportHash = "sha256-report-hash",
+            manifestHash = "sha256-manifest-hash",
+            sourceFindingsSnapshotId = Guid.NewGuid(),
+            verificationFindingsSnapshotId = (Guid?)null,
+            resultCount = 2,
+            statusCounts = new Dictionary<string, int>
+            {
+                ["NotVerifiable"] = 1,
+                ["Materialized"] = 1,
+            },
+            createdUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        AssertPayloadMatchesCommittedSchema("finding-verification-completed.v1.schema.json", payload);
+    }
+
+    [Fact]
     public void ComplianceDriftEscalated_payload_has_expected_contract()
     {
         object payload = new
@@ -437,6 +464,8 @@ public sealed class IntegrationEventPayloadContractTests
                 IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
             ["findings-high-severity-captured.v1.schema.json"] =
                 IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+            ["finding-verification-completed.v1.schema.json"] =
+                IntegrationEventTypes.FindingVerificationCompletedV1,
             ["manifest-finalized.v1.schema.json"] = IntegrationEventTypes.ManifestFinalizedV1,
             ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             ["governance-approval-approved.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalApprovedV1,

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_INTELLIGENCE_REFINE_NEXT_STEPS_HEADING,
   ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_FULL_LAB_LABEL,
@@ -20,6 +20,7 @@ export type ArchitectureIntelligenceRefineNextStepsProps = {
   readonly result: ClosedLoopReasoningResult;
   readonly canPublish?: boolean;
   readonly linkedReviewId?: string | null;
+  readonly parentArchitectureId?: string | null;
   readonly testIdPrefix?: string;
 };
 
@@ -36,6 +37,7 @@ export function ArchitectureIntelligenceRefineNextSteps(
   const prefix = props.testIdPrefix ?? "architecture-intelligence-refine";
   const canPublish = props.canPublish === true;
   const linkedReviewId = props.linkedReviewId?.trim() ?? "";
+  const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const runId = props.result.runId?.trim() ?? linkedReviewId;
   const fullLabHref =
     runId.length > 0 ? buildArchitectureIntelligenceRunHref({ runId, from: "reviews" }) : null;
@@ -62,7 +64,10 @@ export function ArchitectureIntelligenceRefineNextSteps(
       <div className="flex flex-wrap gap-2">
         {canPublish && linkedReviewId.length > 0 ? (
           <Button type="button" variant="primary" size="sm" className={CTA_WIDTH.content} asChild>
-            <Link href={reviewDetailPath(linkedReviewId)} data-testid={`${prefix}-open-linked-review`}>
+            <Link
+              href={resolveArchitectureReviewHref(linkedReviewId, parentArchitectureId)}
+              data-testid={`${prefix}-open-linked-review`}
+            >
               {ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_LINKED_REVIEW_LABEL}
             </Link>
           </Button>

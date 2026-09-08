@@ -1,4 +1,5 @@
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
+import { applyBffCsrfHeader } from "@/lib/proxy/bff-session-csrf-client";
 
 /**
  * Merges effective tenant/workspace/project scope headers for same-origin `/api/proxy/*` fetches: operator choice
@@ -11,5 +12,15 @@ export function mergeRegistrationScopeForProxy(input?: RequestInit): RequestInit
     headers.set(key, value);
   }
 
-  return { ...input, headers };
+  const method = input?.method?.toUpperCase() ?? "GET";
+
+  if (method !== "GET" && method !== "HEAD") {
+    applyBffCsrfHeader(headers);
+  }
+
+  return {
+    ...input,
+    headers,
+    credentials: input?.credentials ?? "same-origin",
+  };
 }

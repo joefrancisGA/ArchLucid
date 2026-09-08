@@ -1,5 +1,5 @@
 /**
- * Governance approval workflow, findings, risk register, and exceptions copy.
+ * Approval workflow, findings, risk register, and exceptions copy.
  *
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
@@ -16,7 +16,7 @@ export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved for implementation planning, subject to enterprise change control — not a production deployment authorization.";
 
-export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance approval workflow";
+export const BUYER_GOVERNANCE_PAGE_TITLE = "Approval workflow";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Resolve outcome record";
 
@@ -25,7 +25,7 @@ export const BUYER_GOVERNANCE_STATUS_BANNER_BODY =
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_APPROVAL = "View approval record";
 
-export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View governance approval";
+export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View approval";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
 
@@ -42,7 +42,7 @@ export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No findings in this workspace ye
 export const BUYER_RISK_REGISTER_EMPTY_BODY =
   "Findings from architecture reviews appear here as they are recorded. Start or open a review to capture assessment results.";
 
-export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance approval";
+export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View approval";
 
 export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
@@ -98,7 +98,7 @@ export const BUYER_GOVERNANCE_QUICK_APPROVE_LABEL = "Approve (no critical/high f
 
 export const BUYER_GOVERNANCE_FINDINGS_EMPTY = "Start from a review.";
 
-export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open governance approval";
+export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open approval";
 
 export const BUYER_POLICY_PACK_LEAD =
   "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths.";

@@ -43,6 +43,8 @@ import {
   NOTIFICATIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/notifications-help-page-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
@@ -93,6 +95,7 @@ function NotificationsStartHereActionPanel(): React.ReactElement {
 export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLine = resolveProductLineIdFromEnv();
   const contentGridClass = resolveHelpPageContentGridClass(NOTIFICATIONS_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -168,7 +171,7 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
                   <div key={item.label}>
                     <dt className="font-medium text-al-text-primary">
                       <Link className={OPERATOR_LINK.nav} href={item.href}>
-                        {item.label}
+                        {localizeProductCopy(productLine, item.label)}
                       </Link>
                     </dt>
                     <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
@@ -206,7 +209,9 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
                 {NOTIFICATIONS_HELP_WORKED_EXAMPLES.map((example) => (
                   <div key={example.scenario}>
                     <dt className="font-medium text-al-text-primary">{example.scenario}</dt>
-                    <dd className="m-0 mt-1 text-al-text-secondary">{example.detail}</dd>
+                    <dd className="m-0 mt-1 text-al-text-secondary">
+                      {localizeProductCopy(productLine, example.detail)}
+                    </dd>
                   </div>
                 ))}
               </dl>

@@ -11,7 +11,7 @@ function initialStepStatuses(): GovernanceSetupStepStatus[] {
 }
 
 /**
- * Resolves workspace-backed completion signals for the governance setup guide.
+ * Resolves workspace-backed completion signals for the approval setup guide.
  * Steps without a reliable signal stay not-started (never fabricated complete).
  * No status of any kind is inferred from another step's completion — not even in-progress.
  */

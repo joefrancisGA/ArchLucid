@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useSyncExternalStore, type ReactElement, type ReactNode } from "react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
@@ -19,21 +20,67 @@ import {
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
 
-/** Mutable so a test can put the page in review scope (`?runId=`) without re-mocking the module. */
-const searchParamsState = vi.hoisted(() => ({ current: new URLSearchParams() }));
+/** Mutable query string so tests can put the page in review scope (`?runId=`) without re-mocking the module. */
+const searchParamsState = vi.hoisted(() => ({ query: "" }));
+const routerReplaceMock = vi.hoisted(() => vi.fn());
+const searchParamsListeners = vi.hoisted(() => new Set<() => void>());
+const cachedSearchParams = vi.hoisted(() => ({
+  query: "",
+  params: new URLSearchParams(),
+}));
+
+function readSearchParamsForMock(): URLSearchParams {
+  if (cachedSearchParams.query !== searchParamsState.query) {
+    cachedSearchParams.query = searchParamsState.query;
+    cachedSearchParams.params = new URLSearchParams(searchParamsState.query);
+  }
+
+  return cachedSearchParams.params;
+}
+
+function notifySearchParamsListeners(): void {
+  for (const listener of searchParamsListeners) {
+    listener();
+  }
+}
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
-  usePathname: () => "/governance/findings",
-  useSearchParams: () => searchParamsState.current,
-  redirect: vi.fn(),
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: (href: string) => {
+        routerReplaceMock(href);
+        const url = new URL(href, "http://localhost");
+        searchParamsState.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
+        notifySearchParamsListeners();
+      },
+      back: vi.fn(),
+    }),
+    usePathname: () => "/governance/findings",
+    useSearchParams: () => readSearchParamsForMock(),
+    redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
   };
 });
+
+function GovernanceFindingsSearchParamsHost({ children }: { readonly children: ReactNode }): ReactElement {
+  useSyncExternalStore(
+    (listener) => {
+      searchParamsListeners.add(listener);
+
+      return () => {
+        searchParamsListeners.delete(listener);
+      };
+    },
+    () => searchParamsState.query,
+    () => "",
+  );
+
+  return <>{children}</>;
+}
 
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
@@ -43,7 +90,9 @@ vi.mock("@/lib/api", () => ({
 function renderGovernanceFindingsQueue(mode: "tenant" | "assigned-to-me" = "tenant") {
   return render(
     <OperatorQueryProvider>
-      <GovernanceFindingsQueueClient mode={mode} />
+      <GovernanceFindingsSearchParamsHost>
+        <GovernanceFindingsQueueClient mode={mode} />
+      </GovernanceFindingsSearchParamsHost>
     </OperatorQueryProvider>,
   );
 }
@@ -195,7 +244,10 @@ const loadedRiskRow = {
 describe("GovernanceFindingsQueueClient", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
-    searchParamsState.current = new URLSearchParams();
+    searchParamsState.query = "";
+    cachedSearchParams.query = "";
+    cachedSearchParams.params = new URLSearchParams();
+    routerReplaceMock.mockClear();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
@@ -247,7 +299,7 @@ describe("GovernanceFindingsQueueClient", () => {
       "href",
       "/architecture/reviews",
     );
-    expect(screen.getByRole("link", { name: "Open governance approval" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Open approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "View policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",
@@ -354,7 +406,7 @@ describe("GovernanceFindingsQueueClient", () => {
    * count only the scoped review — a workspace-wide count read as a review count.
    */
   it("counts only the scoped review in the header metrics", async () => {
-    searchParamsState.current = new URLSearchParams({ runId: "run-1" });
+    searchParamsState.query = "runId=run-1";
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({
       entries: [
         { ...loadedRiskRow, findingId: "finding-1", statusLabel: "Open", latestDisposition: null },
@@ -376,7 +428,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
   /** The rows are findings everywhere else in the product; "risks" here read as a different object. */
   it("calls the scoped rows findings in the run-scope banner", async () => {
-    searchParamsState.current = new URLSearchParams({ runId: "run-1" });
+    searchParamsState.query = "runId=run-1";
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
     renderGovernanceFindingsQueue();
@@ -393,7 +445,10 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     // Without this reset the cached success from the previous describe block satisfies the render,
     // so a rejecting mock never reaches the component.
     resetOperatorQueryClientForTests();
-    searchParamsState.current = new URLSearchParams();
+    searchParamsState.query = "";
+    cachedSearchParams.query = "";
+    cachedSearchParams.params = new URLSearchParams();
+    routerReplaceMock.mockClear();
     vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
       tenantId: "tenant-1",
       workspaceId: "ws-1",
@@ -408,6 +463,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "needs-my-decision",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
   });
 
@@ -527,6 +583,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       registerFilter: "all",
       jobView: "ready-for-sponsor-packet",
       nlFacets: { severity: null, status: null, titleKeywords: [] },
+      searchQuery: "",
     });
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
@@ -535,7 +592,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(await screen.findByTestId("governance-findings-job-view-filter-chip")).toBeInTheDocument();
   });
 
-  it("suppresses the governance approval banner when the assigned-to-me load fails in buyer shell", async () => {
+  it("suppresses the approval banner when the assigned-to-me load fails in buyer shell", async () => {
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
 

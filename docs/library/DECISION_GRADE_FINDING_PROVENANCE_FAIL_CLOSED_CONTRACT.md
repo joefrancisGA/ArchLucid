@@ -8,7 +8,7 @@
 **Buyer / PA one-pager:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#decision-grade-finding-provenance-m-208) (GTM **M-207** / **M-208**).  
 **Path-stable alias:** [`DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md`](../go-to-market/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_PA_ONE_PAGER.md).  
 **Committed package unit of truth:** [`COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md`](COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_CONTRACT.md) (**TB-1003**).  
-**Prose quarantine / validate-before-overlay:** **TB-1196** (open).  
+**Prose quarantine / validate-before-overlay:** **TB-1196** — `Message` → `ComplianceTags` lift **closed** (DR-15); validate-before-overlay for topology proposals remains open.  
 **Honesty CI:** **TB-1222** Done.  
 **Semantic faithfulness lane:** **TB-1228** / GTM **M-209**/**M-210** — separate from structural provenance.
 
@@ -32,7 +32,7 @@
 | `FindingClaimCoverageEvaluator` | Computes ratio; logs | **Not** a commit gate today |
 | `AgentOutputSemanticScore.FindingCitationCoverageRatio` | Field exists; **inert in production** | Wire into PilotStrict Enforce/Block when **TB-1221** gates ship |
 | Critic / Low confidence | Labels heuristic findings | **Not** proof of citation |
-| `Message` → `ComplianceTags` lift | Uncited prose can lift | Quarantine unless provenance passes (**TB-1196**) |
+| `Message` → `ComplianceTags` lift | **Closed (DR-15)** — pack `PolicyRuleId` only; prose quarantined to withheld band | N/A |
 
 This contract **publishes** the matrix and gate names. Validator wiring and commit enforcement are follow-on ships — do not claim they are live until implemented.
 
@@ -78,7 +78,7 @@ This contract **publishes** the matrix and gate names. Validator wiring and comm
 |------|-------|------|
 | `FindingCitationCoverageRatio` / unsupported IDs | `AgentOutputQualityGate` + PilotStrict | Real commit-eligible runs when Enforce/Block on |
 | Provenance validator (replay) | Decisioning | Pre-commit findings snapshot seal |
-| Prose quarantine | **TB-1196** | `Message` → `ComplianceTags` only when provenance passes |
+| Prose quarantine | **TB-1196** / **DR-15** | `ComplianceTags` from pack `PolicyRuleId` only; prose candidates withheld |
 
 Commit does **not** today require per-finding provenance — buyers must not be told otherwise until gates ship.
 

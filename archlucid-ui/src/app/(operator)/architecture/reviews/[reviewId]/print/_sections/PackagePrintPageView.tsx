@@ -7,6 +7,7 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -30,7 +31,6 @@ import {
   PACKAGE_PRINT_STATUS_HEADING,
   PACKAGE_PRINT_SYNOPSIS_HEADING,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
-  buildPackagePrintBackHref,
   buildPackagePrintPath,
   type PackagePrintPresentation,
 } from "@/lib/package-print-view";
@@ -39,16 +39,22 @@ import { cn } from "@/lib/utils";
 import { PackagePrintBreadcrumb } from "./PackagePrintBreadcrumb";
 import { PackagePrintBuyerChrome } from "./PackagePrintBuyerChrome";
 import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFooterClient";
+import { PackagePrintTransparencyTrailSection } from "./PackagePrintTransparencyTrailSection";
+import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
 
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
+  readonly parentArchitectureId?: string | null;
 };
 
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
   const { presentation, listScopedRunId = null } = props;
-  const backHref = buildPackagePrintBackHref(presentation.runId);
+  const { reviewJobHref: backHref } = useWorkingBackLocator({
+    reviewId: presentation.runId,
+    reviewTab: "review-package",
+  });
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
@@ -132,7 +138,11 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           headingLevel="h1"
           breadcrumb={
             buyerPolishedShell ? (
-              <PackagePrintBreadcrumb runId={presentation.runId} reviewTitle={presentation.title} />
+              <PackagePrintBreadcrumb
+                runId={presentation.runId}
+                reviewTitle={presentation.title}
+                backHref={backHref}
+              />
             ) : (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {PACKAGE_PRINT_PAGE_TITLE}
@@ -222,6 +232,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           </section>
         ) : null}
 
+        {presentation.transparencyTrail !== undefined ? (
+          <PackagePrintTransparencyTrailSection trail={presentation.transparencyTrail ?? null} />
+        ) : null}
+
+        {presentation.showQuietEnginesHint === true ? (
+          <div data-testid="package-print-quiet-engines-hint">
+            <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          </div>
+        ) : null}
+
         {!buyerPolishedShell ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -230,6 +250,13 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             {presentation.coverageHonestyLine?.trim().length
               ? presentation.coverageHonestyLine
               : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          </p>
+        ) : presentation.coverageHonestyLine?.trim().length ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="package-print-coverage-honesty"
+          >
+            {presentation.coverageHonestyLine}
           </p>
         ) : null}
       </DocumentLayout>

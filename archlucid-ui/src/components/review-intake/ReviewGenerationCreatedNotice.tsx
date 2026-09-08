@@ -18,7 +18,7 @@ export const REVIEW_CREATED_ANALYSIS_IN_PROGRESS_MESSAGE = "Architecture package
 export type ReviewGenerationCreatedNoticeProps = {
   /** When true, analysis pipeline is still running — show in-progress confirmation. */
   readonly analysisInProgress?: boolean;
-  /** Hide the transient receipt when governance approval is blocked. */
+  /** Hide the transient receipt when approval is blocked. */
   readonly approvalBlocked?: boolean;
   /** Hide once the architecture package is finalized. */
   readonly packageFinalized?: boolean;

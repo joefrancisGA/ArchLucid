@@ -28,6 +28,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/dpa-template",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpDpaTemplateGuideView } from "@/app/(operator)/help/_sections/HelpDpaTemplateGuideView";

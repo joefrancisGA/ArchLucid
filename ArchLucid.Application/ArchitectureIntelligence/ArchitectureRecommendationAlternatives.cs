@@ -15,6 +15,7 @@ internal static class ArchitectureRecommendationAlternatives
         }
 
         if (finding.Dimension == QualityDimension.Security
+            && finding.Title.Contains("public", StringComparison.OrdinalIgnoreCase)
             && finding.Title.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
         {
             return

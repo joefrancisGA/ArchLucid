@@ -6,6 +6,7 @@ const emptyMetrics = {
   reviewPackagesTotal: 0,
   reviewPackagesCommitted: 0,
   reviewPackagesActive: 0,
+  reviewPackagesAwaitingApproval: 0,
   openFindings: 0,
   governanceWarnings: 0,
   evidenceSources: 0,
@@ -160,6 +161,29 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     expect(sectionIds).toContain("attention-taxonomy");
     expect(sectionIds.indexOf("attention-taxonomy")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
     expect(sectionIds).not.toContain("recommended-next");
+  });
+
+  it("omits attention taxonomy when every non-zero kind is surfaced in the metrics strip", () => {
+    const sections = composeOperatorHomeSections({
+      phaseSignals: {
+        hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
+        draftCount: 0,
+        hasCommittedManifest: true,
+        openFindingsCount: 0,
+        governanceWarningsCount: 0,
+      },
+      buyerPolishedShell: false,
+      metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
+      attentionCountsByKind: {
+        "awaiting-approval": 2,
+        "unfinished-work": 0,
+        "assigned-to-me": 0,
+        "alerts": 0,
+      },
+    });
+
+    expect(sections.map((section) => section.id)).not.toContain("attention-taxonomy");
   });
 
   it("suppresses the promoted attention kind on the taxonomy strip", () => {

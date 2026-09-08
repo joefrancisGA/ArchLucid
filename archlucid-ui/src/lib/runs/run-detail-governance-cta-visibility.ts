@@ -14,7 +14,7 @@ export type RunDetailGovernanceCtaVisibilityInput = {
   readonly manifestStatus: string | null | undefined;
 };
 
-/** True when a finalized review exists but governance approval has not been recorded yet. */
+/** True when a finalized review exists but approval has not been recorded yet. */
 export function shouldShowRunDetailGovernanceCta(input: RunDetailGovernanceCtaVisibilityInput): boolean {
   if (input.buyerPolishedArtifactTable) {
     return false;

@@ -174,8 +174,8 @@ export function QuickDecisionSummaryWorkspaceView({
         !interaction.showLowConfidence &&
         !derived.confidenceManagedExternally ? (
         <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
-          Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong> to
-          review unverified items.
+          Low-confidence findings are hidden. Enable <strong>Show low-confidence findings</strong> to review
+          unverified items — on Working, low confidence stays visible so you can reject it.
         </p>
       ) : primaryFinding === null ? (
         <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings match the current filters.</p>

@@ -75,7 +75,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     explanation: {
       title: "Alerts",
       summary:
-        "Triage governance and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
+        "Triage approval and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
       nextAction: "Open an alert to acknowledge or resolve it, or configure alert rules when the inbox is empty.",
     },
   },
@@ -84,7 +84,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     explanation: {
       title: "Alerts",
       summary:
-        "Triage governance and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
+        "Triage approval and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
       nextAction: "Open an alert to acknowledge or resolve it, or configure alert rules when the inbox is empty.",
     },
   },
@@ -220,7 +220,7 @@ export function routeViewExplanationForPathname(
     }
   }
 
-  // Most governance surfaces own orientation via page headers; only the alerts inbox is opted in.
+  // Most approval surfaces own orientation via page headers; only the alerts inbox is opted in.
   if (path.startsWith("/governance")) {
     if (!isGovernanceExplainOptIn(path)) {
       return null;

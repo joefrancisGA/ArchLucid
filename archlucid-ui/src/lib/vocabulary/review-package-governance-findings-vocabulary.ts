@@ -1,5 +1,5 @@
 /**
- * TB-2386 — Review-package findings tab ≠ Governance findings queue vocabulary rail.
+ * TB-2386 — Review-package findings tab ≠ Policy findings queue vocabulary rail.
  *
  * Why two surfaces exist:
  * - Review Findings tab (`/architecture/reviews/{runId}?reviewTab=findings`) scopes to

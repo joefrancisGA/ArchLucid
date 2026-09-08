@@ -4,6 +4,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const demoEnvMock = vi.hoisted(() => ({
   buyerPolished: true,
   fullShell: false,
+  evalChrome: true,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => demoEnvMock.evalChrome,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

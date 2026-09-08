@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -131,10 +132,55 @@ public sealed class FindingsOrchestratorTests
         snapshot.Findings.Should().ContainSingle();
         snapshot.EngineFailures.Should().ContainSingle()
             .Which.EngineType.Should().Be("bad");
+        snapshot.WithheldFindings.Should().BeEmpty("security engine failures block commit and are not advisory withheld rows");
     }
 
     [Fact]
-    public async Task GenerateFindingsSnapshotAsync_retains_generic_typed_engine_findings()
+    public async Task GenerateFindingsSnapshotAsync_advisory_catalog_failure_surfaces_on_withheld_band()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding ok = new()
+        {
+            FindingType = "T",
+            Category = "Security",
+            EngineType = "security-baseline",
+            Title = "ok-title",
+            Rationale = "r",
+            Severity = FindingSeverity.Info,
+        };
+
+        Mock<IFindingEngine> badCost = new(MockBehavior.Strict);
+        badCost.Setup(x => x.EngineType).Returns("cost-constraint");
+        badCost.Setup(x => x.Category).Returns("Cost");
+        badCost.Setup(x => x.AnalyzeAsync(graph, It.IsAny<FindingAnalysisContext?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        Mock<IFindingEngine> goodSecurity = CreateEngine("security-baseline", "Security", [ok]);
+
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = FindingsOrchestratorComposer.Compose(
+            [badCost.Object, goodSecurity.Object],
+            validator.Object,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+
+        snapshot.Findings.Should().ContainSingle();
+        FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(snapshot.EngineFailures).Should().BeFalse();
+        snapshot.WithheldFindings.Should().ContainSingle();
+        snapshot.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.EngineFailureAdvisory);
+        snapshot.WithheldFindings[0].OriginEngineType.Should().Be("cost-constraint");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_demotes_low_density_typed_engine_findings_to_checklist()
     {
         GraphSnapshot graph = EmptyGraph();
         Finding generic = new()
@@ -160,10 +206,12 @@ public sealed class FindingsOrchestratorTests
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
-        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
-        finding.Treatment.Should().Be(FindingTreatment.Promote);
-        finding.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
-        snapshot.ChecklistCoverage.Should().BeEmpty();
+        snapshot.Findings.Should().BeEmpty();
+        Finding finding = snapshot.ChecklistCoverage.Should().ContainSingle().Subject;
+        finding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        finding.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        finding.EngineType.Should().Be("requirement");
+        finding.InsightDensityScore.Should().BeLessThan(50);
     }
 
     [Fact]
@@ -386,8 +434,8 @@ public sealed class FindingsOrchestratorTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Single(f => f.FindingId == "sec-1").QualityDimension.Should().Be("Security");
-        snapshot.Findings.Single(f => f.FindingId == "top-1").QualityDimension.Should().BeNull();
+        snapshot.ChecklistCoverage.Single(f => f.FindingId == "sec-1").QualityDimension.Should().Be("Security");
+        snapshot.ChecklistCoverage.Single(f => f.FindingId == "top-1").QualityDimension.Should().BeNull();
     }
 
     [Fact]
@@ -557,6 +605,10 @@ public sealed class FindingsOrchestratorTests
         firstConflict.ErrorMessage.Should().Contain("finding-zulu");
         secondConflict.ErrorMessage.Should().Be(firstConflict.ErrorMessage);
         secondConflict.EngineType.Should().Be(firstConflict.EngineType);
+
+        first.WithheldFindings.Should().ContainSingle();
+        first.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.MergeConflictDropped);
+        first.WithheldFindings[0].ConflictFindingId.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
@@ -576,7 +628,7 @@ public sealed class FindingsOrchestratorTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Select(static f => f.FindingId).Should().BeEquivalentTo(["finding-left", "finding-right"]);
+        snapshot.ChecklistCoverage.Select(static f => f.FindingId).Should().BeEquivalentTo(["finding-left", "finding-right"]);
         snapshot.EngineFailures.Should().BeEmpty();
     }
 

@@ -1,6 +1,7 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
 import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings/findings-snapshot-insight-density";
+import { resolveFindingsWithheldRows } from "@/lib/findings/findings-withheld-band";
 import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
@@ -99,6 +100,7 @@ export async function RunDetailExplanationDeferred(
   );
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
   const insightDensityView = resolveFindingsSnapshotInsightDensityView(resolvedDetail);
+  const withheldFindings = resolveFindingsWithheldRows(resolvedDetail);
 
   const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
     savingsSummaryAnnualizedUsd: undefined,
@@ -132,6 +134,7 @@ export async function RunDetailExplanationDeferred(
       triageVisibleCount={triageVisibleCount}
       graphSnapshot={resolvedDetail.graphSnapshot}
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
+      withheldFindings={withheldFindings}
     />
   );
 }
