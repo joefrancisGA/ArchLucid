@@ -114,6 +114,22 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void Resolve_blocks_working_career_export_when_pilot_strict_quality_gate_is_rejected()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines,
+            workingDesk: true,
+            structuralExecutionMode: StructuralExecutionMode.Real,
+            hostAgentExecutionMode: "Real",
+            hostQualityGateMode: AgentOutputQualityGateMode.PilotStrict,
+            aggregateQualityGateOutcome: AgentOutputQualityGateOutcome.Rejected);
+
+        CareerExportCoverageHonestyComposer.ResolveBlockedReason(input)
+            .Should()
+            .Be(AgentOutputQualityGateCareerHonestyPresenter.RejectedDispositionCareerExportBlockedReason);
+    }
+
+    [Fact]
     public void Resolve_allows_guided_exports_without_working_floor_enforcement()
     {
         CareerExportCoverageHonestyInput input = CreateInput(enginesSucceeded: 4, workingDesk: false);
