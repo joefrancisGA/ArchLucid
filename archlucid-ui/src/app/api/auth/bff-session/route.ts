@@ -6,6 +6,7 @@ import {
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
 } from "@/lib/proxy/bff-session-cookie";
+import { isSameOriginBffRequest } from "@/lib/proxy/bff-session-request";
 
 type BffSessionPostBody = {
   readonly access_token?: string;
@@ -33,6 +34,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { title: "BFF session unavailable", detail: "Signing secret is not configured on this host." },
       { status: 503 },
     );
+  }
+
+  if (!isSameOriginBffRequest(request)) {
+    return NextResponse.json({ title: "Cross-site BFF session request blocked" }, { status: 403 });
   }
 
   let body: BffSessionPostBody;
@@ -72,7 +77,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 /** Clears the HttpOnly BFF session cookie on sign-out. */
-export async function DELETE(): Promise<NextResponse> {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  if (!isSameOriginBffRequest(request)) {
+    return NextResponse.json({ title: "Cross-site BFF session request blocked" }, { status: 403 });
+  }
+
   const response = NextResponse.json({ ok: true });
 
   for (const cookieHeader of buildBffSessionClearCookieHeaders()) {

@@ -45,6 +45,31 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.previewTabCounts.attention).toBe(snapshot.metrics.reviewPackagesActive > 0 ? 2 : 0);
   });
 
+  it("excludes archived runs from home preview tab counts", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-active",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-archived-sealed",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+    });
+
+    expect(snapshot.metrics.reviewPackagesCommitted).toBe(0);
+    expect(snapshot.previewTabCounts.approved).toBe(0);
+    expect(snapshot.previewTabCounts.attention).toBe(1);
+  });
+
   it("falls back to workspace awaiting-approval count when preview rows lack queue membership", () => {
     const items: RunSummary[] = [
       {
