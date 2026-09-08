@@ -211,7 +211,7 @@ export function ReviewsNewPathSwitcher() {
                   {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
                 </button>
               ) : null}
-              {!buyerPolishedShell || activePath === "quick-review" ? (
+              {!buyerPolishedShell ? (
                 <p
                   className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="reviews-new-path-hint"
