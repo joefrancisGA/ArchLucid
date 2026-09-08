@@ -100,13 +100,30 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunDetail(Guid runId, CancellationToken ct = default)
     {
         RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        return detail is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(detail);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
+        return Ok(detail);
     }
 
     /// <summary>Golden (sealed) review record JSON when the run is finalized.</summary>

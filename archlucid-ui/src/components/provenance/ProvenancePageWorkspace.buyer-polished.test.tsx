@@ -22,6 +22,11 @@ import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/whe
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -46,10 +51,6 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
-
-vi.mock("@/components/provenance/ProvenanceWayfinding", () => ({
-  ProvenanceWayfinding: () => <div data-testid="provenance-wayfinding" />,
 }));
 
 vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
@@ -148,6 +149,9 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
       PROVENANCE_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-wayfinding")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-run-scope-banner")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review identifier")).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-provenance-evidence-graph-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("provenance-inspect-checklist")).not.toBeInTheDocument();
     expect(screen.queryByTestId("provenance-next-review-footer-stub")).not.toBeInTheDocument();

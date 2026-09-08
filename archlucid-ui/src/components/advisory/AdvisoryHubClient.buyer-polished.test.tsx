@@ -76,6 +76,7 @@ describe("AdvisoryHubClient buyer-polished shell (AD)", () => {
       screen.getByTestId(ADVISORY_HUB_SKIP_TARGET_ID),
     );
     expect(screen.getByTestId("advisory-schedules-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-scans-orientation-top")).not.toBeInTheDocument();
   });
 
   it("renders scans-tab buyer chrome with first-viewport band and orientation above scans workspace (ADT)", () => {

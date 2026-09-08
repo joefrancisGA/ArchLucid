@@ -14,7 +14,6 @@ import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportBut
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
 import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
@@ -25,7 +24,7 @@ import {
 } from "@/components/operator/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { getArchitectureRequestDownloadUrl } from "@/lib/api";
+import { downloadArchitectureRequestJson } from "@/lib/api/downloads-blob-trigger-architecture-request";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
@@ -144,6 +143,7 @@ export function RunDetailArtifactsExportsSection(
   const [bundleBusy, setBundleBusy] = useState(false);
   const [reviewExportBusy, setReviewExportBusy] = useState(false);
   const [docxExportBusy, setDocxExportBusy] = useState(false);
+  const [requestJsonBusy, setRequestJsonBusy] = useState(false);
 
   const onDownloadEvidenceBundle = useCallback(() => {
     if (collateralExportBlockedReason !== null) {
@@ -285,13 +285,27 @@ export function RunDetailArtifactsExportsSection(
               </div>
             )}
             {requestId ? (
-              <ExportTrackedAnchor
-                className={buttonVariants({ variant: "secondary" })}
-                href={getArchitectureRequestDownloadUrl(requestId)}
-                download={`ArchitectureRequest-${requestId}.json`}
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={requestJsonBusy}
+                onClick={() => {
+                  setRequestJsonBusy(true);
+
+                  void downloadArchitectureRequestJson(requestId)
+                    .catch((error: unknown) => {
+                      showError(
+                        "Architecture request JSON",
+                        error instanceof Error ? error.message : "Download failed.",
+                      );
+                    })
+                    .finally(() => {
+                      setRequestJsonBusy(false);
+                    });
+                }}
               >
-                Download Request JSON
-              </ExportTrackedAnchor>
+                {requestJsonBusy ? "Downloading…" : "Download Request JSON"}
+              </Button>
             ) : null}
           </div>
           {buyerPolishedArtifactTable ? (
