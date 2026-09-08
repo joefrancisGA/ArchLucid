@@ -6,11 +6,18 @@ import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceB
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import {
+  EXPLAINABILITY_TRACE_SECTION_KEYS,
+  explainabilityTraceSectionDisclosureHrefFromSearch,
+  parseExplainabilityTraceSectionKeyFromSearch,
+} from "@/lib/explainability/explainability-trace-section-disclosure-url";
+import {
   findingConfidenceExplanation,
   findingEvidenceCountPlainLine,
 } from "@/lib/findings/finding-explainability-summary";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 /** Empty evidence section — distinguishes heuristic vs evidence-backed findings for compliance reviewers (TB-514). */
 export const EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY =
@@ -23,11 +30,25 @@ export type ExplainabilityTraceTreeProps = {
 function TraceSection(props: {
   readonly title: string;
   readonly testId: string;
+  readonly sectionKey: string;
+  readonly openSectionKey: string;
   readonly defaultOpen?: boolean;
+  readonly onOpenChange: (sectionKey: string | null) => void;
   readonly children: React.ReactNode;
 }) {
+  const isOpen =
+    props.openSectionKey.length > 0
+      ? props.openSectionKey === props.sectionKey
+      : props.defaultOpen === true;
+
   return (
-    <Collapsible defaultOpen={props.defaultOpen ?? false} className="rounded-md border border-neutral-200 dark:border-neutral-700">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={(open) => {
+        props.onOpenChange(open ? props.sectionKey : null);
+      }}
+      className="rounded-md border border-neutral-200 dark:border-neutral-700"
+    >
       <CollapsibleTrigger
         className={cn("flex w-full items-center justify-between gap-2 px-3 py-2 text-left font-semibold text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.cardTitle)}
         data-testid={props.testId}
@@ -49,6 +70,36 @@ function TraceSection(props: {
  * with the rule identifier (an implementation detail) collapsed between them.
  */
 export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const explainabilityTraceSectionKeyParam = searchParams.get("explainabilityTraceSectionKey");
+  const [openSectionKey, setOpenSectionKeyState] = useState(() =>
+    parseExplainabilityTraceSectionKeyFromSearch(explainabilityTraceSectionKeyParam),
+  );
+
+  const syncOpenSectionKeyToUrl = useCallback(
+    (sectionKey: string | null) => {
+      router.replace(
+        explainabilityTraceSectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpenSectionKey = useCallback(
+    (sectionKey: string | null) => {
+      setOpenSectionKeyState(sectionKey ?? "");
+      syncOpenSectionKeyToUrl(sectionKey);
+    },
+    [syncOpenSectionKeyToUrl],
+  );
+
+  useEffect(() => {
+    setOpenSectionKeyState(parseExplainabilityTraceSectionKeyFromSearch(explainabilityTraceSectionKeyParam));
+  }, [explainabilityTraceSectionKeyParam]);
+
   const { data } = props;
   const decisionText =
     data.decisionsTaken.length > 0
@@ -81,7 +132,14 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{decisionText}</p>
       </section>
 
-      <TraceSection title="Evidence used" testId="explainability-trace-evidence" defaultOpen>
+      <TraceSection
+        title="Evidence used"
+        testId="explainability-trace-evidence"
+        sectionKey={EXPLAINABILITY_TRACE_SECTION_KEYS.evidence}
+        openSectionKey={openSectionKey}
+        defaultOpen
+        onOpenChange={setOpenSectionKey}
+      >
         {evidenceRefs.length === 0 ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY}</p>
         ) : (
@@ -100,7 +158,14 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         )}
       </TraceSection>
 
-      <TraceSection title="Confidence" testId="explainability-trace-confidence" defaultOpen>
+      <TraceSection
+        title="Confidence"
+        testId="explainability-trace-confidence"
+        sectionKey={EXPLAINABILITY_TRACE_SECTION_KEYS.confidence}
+        openSectionKey={openSectionKey}
+        defaultOpen
+        onOpenChange={setOpenSectionKey}
+      >
         {confidence.label !== null ? (
           <FindingConfidenceBadge level={confidenceLabel} />
         ) : null}
@@ -109,7 +174,13 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         </p>
       </TraceSection>
 
-      <TraceSection title="Rule applied" testId="explainability-trace-rules">
+      <TraceSection
+        title="Rule applied"
+        testId="explainability-trace-rules"
+        sectionKey={EXPLAINABILITY_TRACE_SECTION_KEYS.rules}
+        openSectionKey={openSectionKey}
+        onOpenChange={setOpenSectionKey}
+      >
         {rules.length === 0 ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">No rules recorded.</p>
         ) : (
