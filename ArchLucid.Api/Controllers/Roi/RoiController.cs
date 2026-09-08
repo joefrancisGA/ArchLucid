@@ -175,7 +175,7 @@ public sealed class RoiController(
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<CrossTenantPortfolioSummaryResponse>> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
         string? directoryKey = RoleSyncService.TryDirectoryObjectKey(User);
         if (string.IsNullOrWhiteSpace(directoryKey))
@@ -187,8 +187,18 @@ public sealed class RoiController(
                 type: "https://archlucid.net/errors/portfolio-key-not-configured");
         }
 
-        CrossTenantPortfolioSummaryResponse body = await _sponsorRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken).ConfigureAwait(false);
-        return Ok(body);
+        try
+        {
+            CrossTenantPortfolioSummaryResponse body =
+                await _sponsorRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken)
+                    .ConfigureAwait(false);
+
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>Six-month sponsor ROI trend (savings and critical findings).</summary>

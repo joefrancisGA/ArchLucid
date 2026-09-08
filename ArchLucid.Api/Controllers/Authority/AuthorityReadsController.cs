@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Routing;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Traceability;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
@@ -35,8 +36,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityReadsController(
     AuthorityRunReadHandlers readHandlers,
-    ITraceabilityBundleExportApplicationService traceabilityBundleExport) : ControllerBase
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     /// <summary>Lists runs across the current tenant/workspace/project scope (newest first, keyset).</summary>
     [HttpGet("")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
@@ -109,6 +113,7 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}/manifest")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunManifest(Guid runId, CancellationToken ct = default)
     {
         RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
@@ -120,6 +125,18 @@ public sealed class AuthorityReadsController(
             return this.NotFoundProblem(
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         await readHandlers.LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,
