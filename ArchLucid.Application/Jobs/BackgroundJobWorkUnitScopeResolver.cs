@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -22,6 +23,12 @@ public sealed class BackgroundJobWorkUnitScopeResolver(IRunRepository runReposit
             ConsultingDocxWorkUnit w => ResolveFromRunIdAsync(w.Payload.RunId, cancellationToken),
             TenantDeletionWorkUnit w => Task.FromResult(new ScopeContext { TenantId = w.Payload.TenantId }),
             ItsmOutboundCreateWorkUnit w => Task.FromResult(ItsmOutboundCreateJobProcessor.ToScopeContext(w.Payload)),
+            FindingVerificationWorkUnit w => Task.FromResult(new ScopeContext
+            {
+                TenantId = w.Payload.TenantId,
+                WorkspaceId = w.Payload.WorkspaceId,
+                ProjectId = w.Payload.ProjectId,
+            }),
             _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
         };
     }

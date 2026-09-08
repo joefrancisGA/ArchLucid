@@ -92,6 +92,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
+        services.AddScoped<IFindingVerificationScorer, FindingVerificationDeterministicScorer>();
         services.AddScoped<IFindingVerificationService, FindingVerificationService>();
     }
 }

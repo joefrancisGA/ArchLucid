@@ -25,7 +25,7 @@ public sealed class GcpCloudBillingCatalogStructuredLookup(GcpCloudBillingCatalo
         }
 
         decimal? monthlyUsd = _catalogClient
-            .TryGetComputeEngineMonthlyUsdAsync(machineType, 1, CancellationToken.None)
+            .TryGetComputeEngineMonthlyUsdAsync(machineType, 1, region, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
 

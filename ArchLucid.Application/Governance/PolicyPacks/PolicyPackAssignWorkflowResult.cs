@@ -8,6 +8,7 @@ public enum PolicyPackAssignOutcome
     Assigned,
     PackNotFound,
     VersionNotFound,
+    Forbidden,
 }
 
 /// <summary>Result of <see cref="IPolicyPackWorkflowFacade.TryAssignAsync"/>.</summary>

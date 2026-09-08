@@ -224,10 +224,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setHydratedSourceTexts([...sources]);
     setArchitectureDescription(hydratedDescriptionFromQuery);
     setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
-
-    if ((sourceContextQuery.data.declaredPriorities?.length ?? 0) > 0) {
-      setPrioritiesRaw(hydratedPrioritiesFromQuery);
-    }
+    setPrioritiesRaw(hydratedPrioritiesFromQuery);
 
     setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
     setLoadingAction(null);

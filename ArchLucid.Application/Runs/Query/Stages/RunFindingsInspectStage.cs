@@ -25,15 +25,6 @@ public sealed class RunFindingsInspectStage(
         bool includeTypedPayload,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            return new FindingInspectQueryResult
-            {
-                Outcome = RunFindingsQueryOutcome.BadRequest,
-                ProblemDetail = "Run id is required."
-            };
-        }
-
         if (string.IsNullOrWhiteSpace(findingId))
         {
             return new FindingInspectQueryResult

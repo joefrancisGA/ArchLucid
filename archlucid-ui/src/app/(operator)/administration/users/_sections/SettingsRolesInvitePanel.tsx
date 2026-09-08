@@ -85,6 +85,16 @@ export function SettingsRolesInvitePanel({
     setSending(false);
 
     if (!result.ok) {
+      if (result.reason === "directory_user_exists") {
+        showError(
+          "Cannot invite this email",
+          result.detail
+            ?? "A directory user already exists for that address. Manage access through your identity provider or SCIM provisioning instead.",
+        );
+
+        return;
+      }
+
       showError(
         "Could not send invite",
         "The invitation service rejected the request or is unavailable. Check the email and try again.",

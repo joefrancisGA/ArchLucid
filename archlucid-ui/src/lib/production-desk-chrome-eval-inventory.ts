@@ -11,6 +11,7 @@ import type { ErrorRecoveryContractGuardedSurface } from "@/lib/error-recovery-c
  * resolver and delete the row, or follow `WORKING_SEAT_EVAL_LEAK_INVENTORY.md` § Admin exception
  * (documented row + entry in `PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS`).
  * Architecture / review / desk paths must **never** join this list — use `useProductionEvalChrome`.
+ * New production operator files must not call buyer-polish for eval chrome without going through the resolver.
  */
 export const PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS = [
   // --- account (admin-adjacent; shrink on touch — WS-08) ---

@@ -61,7 +61,29 @@ public sealed class CommercialPackagingTierResolverTests
     }
 
     [SkippableFact]
+    public void ResolveCommercialTierLabel_returns_team_for_add_on_seats_within_team_max()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard);
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 8, 1, "Active");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 1, 8);
+
+        label.Should().Be(CommercialPackagingTierLabels.Team);
+    }
+
+    [SkippableFact]
     public void ResolveCommercialTierLabel_returns_professional_when_subscription_exceeds_team_caps()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard);
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 11, 1, "Active");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 1, 11);
+
+        label.Should().Be(CommercialPackagingTierLabels.Professional);
+    }
+
+    [SkippableFact]
+    public void ResolveCommercialTierLabel_returns_professional_when_subscription_has_second_workspace()
     {
         TenantRecord tenant = PaidTenant(TenantTier.Standard);
         BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 8, 2, "Active");
@@ -90,6 +112,17 @@ public sealed class CommercialPackagingTierResolverTests
         string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 1, 3);
 
         label.Should().Be(CommercialPackagingTierLabels.Professional);
+    }
+
+    [SkippableFact]
+    public void ResolveCommercialTierLabel_uses_purchased_caps_for_pending_subscription_not_usage_inference()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Standard);
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 3, 1, "Pending");
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, subscription, 8, 20);
+
+        label.Should().Be(CommercialPackagingTierLabels.Team);
     }
 
     private static TenantRecord PaidTenant(TenantTier tier, string? trialStatus = null)

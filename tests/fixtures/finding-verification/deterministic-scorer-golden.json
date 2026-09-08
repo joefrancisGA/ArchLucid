@@ -1,0 +1,33 @@
+{
+  "scenarios": [
+    {
+      "name": "not-verifiable-no-snapshot",
+      "expectedStatus": "NotVerifiable",
+      "expectedRulePrefix": "RV-001"
+    },
+    {
+      "name": "not-verifiable-no-concrete-evidence",
+      "expectedStatus": "NotVerifiable",
+      "expectedRulePrefix": "RV-002",
+      "findingEvidenceRefs": ["graph-node:abc"]
+    },
+    {
+      "name": "materialized-correlated",
+      "expectedStatus": "Materialized",
+      "expectedRulePrefix": "RV-003",
+      "correlateMatch": true
+    },
+    {
+      "name": "mitigated-remediated-disposition",
+      "expectedStatus": "Mitigated",
+      "expectedRulePrefix": "RV-004",
+      "disposition": "Remediated"
+    },
+    {
+      "name": "not-observed-unmatched-covered",
+      "expectedStatus": "NotObserved",
+      "expectedRulePrefix": "RV-005",
+      "verificationEvidenceRefs": ["arm:/subscriptions/demo/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/demo"]
+    }
+  ]
+}

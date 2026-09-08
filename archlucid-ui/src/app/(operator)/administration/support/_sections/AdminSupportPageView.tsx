@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -260,16 +261,24 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
             ) : null}
 
             {model.error !== null ? (
-              <p
-                role="alert"
-                className={cn(
-                  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
-                  OPERATOR_TYPOGRAPHY.body,
-                )}
-                data-testid="admin-support-download-error"
-              >
-                {model.error}
-              </p>
+              <>
+                <p
+                  role="alert"
+                  className={cn(
+                    "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  data-testid="admin-support-download-error"
+                >
+                  {model.error}
+                </p>
+                <FatalPageReportProblemSupportRow
+                  surfaceId="admin-support-bundle-download-failure"
+                  routePath="/administration/support"
+                  errorTitle="Support bundle download failed"
+                  errorCode="admin-support-bundle-download-error"
+                />
+              </>
             ) : null}
           </div>
         </SupportSection>

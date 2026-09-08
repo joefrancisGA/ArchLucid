@@ -26,6 +26,6 @@ describe("infra-evidence-hub-tab-query", () => {
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_FINDING_ID_PARAM)).toBeNull();
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_INSTANCE_ID_PARAM)).toBeNull();
     expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_CORRESPONDENCE_ID_PARAM)).toBeNull();
-    expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBeNull();
+    expect(new URLSearchParams(driftSearch).get(RESOURCE_HUB_RUN_ID_PARAM)).toBe("run-1");
   });
 });

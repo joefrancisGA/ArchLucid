@@ -62,6 +62,7 @@ import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-hel
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
 import { MARKETING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/marketing-rows";
+import { localizePageContextualHelpEntry } from "@/lib/contextual-help/localize-page-contextual-help-entry";
 import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { HELP_TOPIC_MIRROR_TASK_STEPS } from "@/lib/contextual-help/types";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
@@ -201,7 +202,7 @@ export function contextualHelpForPathname(
   const parameterized = PARAMETERIZED_ROUTE_MATCHERS.find((matcher) => matcher.matches(path));
 
   if (parameterized !== undefined) {
-    return parameterized.entry;
+    return localizePageContextualHelpEntry(parameterized.entry, productLineId);
   }
 
   const row = PAGE_CONTEXTUAL_HELP_BY_SPECIFICITY.find(
@@ -216,24 +217,33 @@ export function contextualHelpForPathname(
 
   if (architectureOverride !== null) {
     if (workingMode) {
-      return resolveWorkingContextualHelpEntry(row.prefix, architectureOverride);
+      return localizePageContextualHelpEntry(
+        resolveWorkingContextualHelpEntry(row.prefix, architectureOverride),
+        productLineId,
+      );
     }
 
-    return architectureOverride;
+    return localizePageContextualHelpEntry(architectureOverride, productLineId);
   }
 
   if (workingMode) {
-    return resolveWorkingContextualHelpEntry(row.prefix, row.entry);
+    return localizePageContextualHelpEntry(
+      resolveWorkingContextualHelpEntry(row.prefix, row.entry),
+      productLineId,
+    );
   }
 
   if (path === CLOUD_CONNECTIONS_CANONICAL_PATH || path.startsWith(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/`)) {
     if (path === CLOUD_CONNECTIONS_CANONICAL_PATH) {
-      return {
-        ...row.entry,
-        whatIsThisPage: cloudConnectionsHubContextualLeadForProductLine(productLineId),
-      };
+      return localizePageContextualHelpEntry(
+        {
+          ...row.entry,
+          whatIsThisPage: cloudConnectionsHubContextualLeadForProductLine(productLineId),
+        },
+        productLineId,
+      );
     }
   }
 
-  return row.entry;
+  return localizePageContextualHelpEntry(row.entry, productLineId);
 }

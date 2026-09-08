@@ -114,10 +114,16 @@ public sealed partial class PilotRunDeltaComputer
         (int? artifactCount, bool artifactResolved) = await artifactsTask;
         decimal? estimatedUsdSavings = await savingsTask;
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
-        IReadOnlyList<ArchitectureFinding> sponsorNarrativeFindings =
-            topAgentFinding is null && persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings
-                ? PilotSponsorMaterialFindingsMapper.MapFromSnapshotFindings(narrativeFindings)
-                : [];
+        IReadOnlyList<ArchitectureFinding> sponsorNarrativeFindings = [];
+
+        if (persistedFindingsSnapshot?.Findings is { Count: > 0 } narrativeFindings)
+        {
+            if (findingsFromSnapshot || topAgentFinding is null)
+            {
+                sponsorNarrativeFindings =
+                    PilotSponsorMaterialFindingsMapper.MapFromSnapshotFindings(narrativeFindings);
+            }
+        }
 
         return new PilotRunDeltas
         {

@@ -3,6 +3,7 @@ using ArchLucid.Application.Scim.RoleMapping;
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -23,6 +24,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRoleSyncService, RoleSyncService>();
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
-            services.AddHostedService<ScimTokenRotationReminderJob>();
+            services.AddHostedService<ScimTokenRotationReminderHostedService>();
     }
 }

@@ -17,6 +17,16 @@ const baseProps = {
 };
 
 describe("RunDetailGovernanceDecisionSection", () => {
+  it("hides inline help cites and claim discipline in buyer-polished pre-commit shell", () => {
+    render(
+      <RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} buyerPolishedArtifactTable />,
+    );
+
+    expect(screen.queryByTestId("run-detail-governance-help-cites")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-governance-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-governance-primary-cta")).toBeInTheDocument();
+  });
+
   it("shows pre-commit readiness, finalize CTA, help cites, and claim discipline (TB-1857 / TB-2092)", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
