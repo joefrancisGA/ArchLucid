@@ -1,0 +1,5 @@
+{
+  "unguardedKeys": [],
+  "_measuredDate": "2026-09-07",
+  "_comment": "ABQ-34: known unguarded proven-row keys (zoneId|testName|shaPrefix) in the verifier sample window. Empty means no known unguarded in the last sample. CI uses --fail-on-new-unguarded with continue-on-error until the sample is clean."
+}
