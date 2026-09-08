@@ -47,6 +47,8 @@ export type UseRunProgressTrackerOptions = {
   readonly initialSummary: RunSummary | null;
   readonly preFinalizeReadyToFinalize?: boolean;
   readonly buyerAssessmentCopy?: boolean;
+  /** Working desk: customer review-progress copy without pipeline transport jargon (WS-16). */
+  readonly workingDeskProgressCopy?: boolean;
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly deferFailureRecoveryToDoThisNext?: boolean;
 };
@@ -56,6 +58,7 @@ export function useRunProgressTracker({
   initialSummary,
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
+  workingDeskProgressCopy = false,
   diagnosticContext = null,
   deferFailureRecoveryToDoThisNext = false,
 }: UseRunProgressTrackerOptions) {
@@ -258,8 +261,8 @@ export function useRunProgressTracker({
   }, [activeSummary, buyerPolished, inFlightOperation?.stepLabel, rerunning, stageTimeline]);
 
   const pipelineJobLabel = useMemo(
-    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
-    [activeSummary, buyerAssessmentCopy],
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy, workingDeskProgressCopy),
+    [activeSummary, buyerAssessmentCopy, workingDeskProgressCopy],
   );
 
   const terminalFailureDiagnosis = useMemo(
@@ -294,6 +297,22 @@ export function useRunProgressTracker({
       return "Assessment did not finish — use Do this next above to recover.";
     }
 
+    if (workingDeskProgressCopy) {
+      if (clientPhase === "complete") {
+        return `${completedPipelineStages} of 4 review stages complete.`;
+      }
+
+      if (clientPhase === "timeout") {
+        return resolveReviewPipelineTimeoutMessage({
+          buyerPolished,
+          runId,
+          p90Seconds: durationEstimate?.p90Seconds,
+        });
+      }
+
+      return `${completedPipelineStages} of 4 review stages complete.`;
+    }
+
     if (buyerAssessmentCopy) {
       if (clientPhase === "complete") {
         return `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`;
@@ -322,6 +341,7 @@ export function useRunProgressTracker({
 
     return `${completedPipelineStages} of 4 ${pipelineJobLabel.stageSummaryNoun} stages complete (${transport}).`;
   }, [
+    workingDeskProgressCopy,
     buyerAssessmentCopy,
     pipelineJobLabel.stageSummaryNoun,
     clientPhase,
@@ -354,6 +374,7 @@ export function useRunProgressTracker({
     diagnosticContext,
     buyerPolished,
     buyerAssessmentCopy,
+    workingDeskProgressCopy,
     pipelineDebugEnabled,
     pollEnabled,
     preFinalizeTerminal,

@@ -4549,6 +4549,22 @@ export interface components {
             /** Format: uuid */
             verificationFindingsSnapshotId?: null | string;
         };
+        FindingVerificationReportSummaryResponse: {
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            /** Format: int32 */
+            resultCount: number;
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
         FindingVerificationResultResponse: {
             findingId: string;
             status: components["schemas"]["FindingVerificationStatus"];

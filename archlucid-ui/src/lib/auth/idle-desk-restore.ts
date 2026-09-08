@@ -1,3 +1,7 @@
+import {
+  type LivelihoodIdleFormSnapshot,
+  collectRegisteredLivelihoodIdleFormSnapshots,
+} from "@/lib/auth/livelihood-idle-form-snapshot";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   readOperatorScopeFromStorage,
@@ -13,7 +17,86 @@ export type IdleDeskRestorePayload = {
   readonly returnPath: string;
   readonly scope: OperatorScopeRecord;
   readonly savedAtUtc: string;
+  readonly formSnapshots?: Readonly<Record<string, LivelihoodIdleFormSnapshot>>;
 };
+
+function normalizeComparableReturnPath(returnPath: string): string | null {
+  const trimmed = returnPath.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  try {
+    const url = new URL(trimmed, "http://localhost");
+
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return trimmed.startsWith("/") ? trimmed : null;
+  }
+}
+
+function writeIdleDeskRestorePayload(payload: IdleDeskRestorePayload): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(IDLE_DESK_RESTORE_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    /* quota / private mode */
+  }
+}
+
+function parseIdleDeskFormSnapshots(
+  raw: unknown,
+): Readonly<Record<string, LivelihoodIdleFormSnapshot>> | undefined {
+  if (raw === null || raw === undefined || typeof raw !== "object") {
+    return undefined;
+  }
+
+  const entries = Object.entries(raw as Record<string, Partial<LivelihoodIdleFormSnapshot>>);
+  const parsed: Record<string, LivelihoodIdleFormSnapshot> = {};
+
+  for (const [key, snapshot] of entries) {
+    if (snapshot === null || snapshot === undefined || typeof snapshot !== "object") {
+      continue;
+    }
+
+    const surfaceId = String(snapshot.surfaceId ?? "").trim();
+    const returnPath = String(snapshot.returnPath ?? "").trim();
+    const entityKey = String(snapshot.entityKey ?? "").trim();
+    const fields = snapshot.fields;
+
+    if (surfaceId.length === 0 || returnPath.length === 0 || entityKey.length === 0) {
+      continue;
+    }
+
+    if (fields === null || fields === undefined || typeof fields !== "object") {
+      continue;
+    }
+
+    const normalizedFields: Record<string, string> = {};
+
+    for (const [fieldKey, fieldValue] of Object.entries(fields)) {
+      normalizedFields[fieldKey] = String(fieldValue ?? "");
+    }
+
+    parsed[key] = {
+      surfaceId,
+      returnPath,
+      entityKey,
+      fields: normalizedFields,
+      savedAtUtc: String(snapshot.savedAtUtc ?? new Date().toISOString()),
+    };
+  }
+
+  if (Object.keys(parsed).length === 0) {
+    return undefined;
+  }
+
+  return parsed;
+}
 
 function normalizeReturnPath(returnPath: string): string | null {
   const trimmed = returnPath.trim();
@@ -66,6 +149,7 @@ export function readIdleDeskRestorePayload(): IdleDeskRestorePayload | null {
         projectLabel: String(scope.projectLabel ?? "").trim(),
       },
       savedAtUtc: String(parsed.savedAtUtc ?? new Date().toISOString()),
+      formSnapshots: parseIdleDeskFormSnapshots(parsed.formSnapshots),
     };
   } catch {
     return null;
@@ -102,17 +186,58 @@ export function persistIdleDeskRestoreBeforeSessionClear(returnPath: string): vo
     return;
   }
 
+  const formSnapshots = collectRegisteredLivelihoodIdleFormSnapshots();
   const payload: IdleDeskRestorePayload = {
     returnPath: safeReturnPath,
     scope,
     savedAtUtc: new Date().toISOString(),
+    ...(Object.keys(formSnapshots).length > 0 ? { formSnapshots } : {}),
   };
 
-  try {
-    window.localStorage.setItem(IDLE_DESK_RESTORE_STORAGE_KEY, JSON.stringify(payload));
-  } catch {
-    /* quota / private mode */
+  writeIdleDeskRestorePayload(payload);
+}
+
+/** Rehydrates one guarded livelihood form after idle sign-in when the return path matches. */
+export function consumeIdleDeskRestoreFormSnapshot(
+  snapshotKey: string,
+  currentReturnPath: string,
+): LivelihoodIdleFormSnapshot | null {
+  const payload = readIdleDeskRestorePayload();
+
+  if (payload === null || payload.formSnapshots === undefined) {
+    return null;
   }
+
+  const snapshot = payload.formSnapshots[snapshotKey];
+
+  if (snapshot === undefined) {
+    return null;
+  }
+
+  const expectedPath = normalizeComparableReturnPath(payload.returnPath);
+  const actualPath = normalizeComparableReturnPath(currentReturnPath);
+
+  if (expectedPath === null || actualPath === null || expectedPath !== actualPath) {
+    return null;
+  }
+
+  const remainingSnapshots = { ...payload.formSnapshots };
+  delete remainingSnapshots[snapshotKey];
+
+  if (Object.keys(remainingSnapshots).length === 0) {
+    clearIdleDeskRestorePayload();
+
+    return snapshot;
+  }
+
+  writeIdleDeskRestorePayload({
+    returnPath: payload.returnPath,
+    scope: payload.scope,
+    savedAtUtc: payload.savedAtUtc,
+    formSnapshots: remainingSnapshots,
+  });
+
+  return snapshot;
 }
 
 /** Restores workspace/project scope after re-auth; returns true when a payload was applied. */
@@ -124,7 +249,17 @@ export function restoreIdleDeskScopeAfterSignIn(): boolean {
   }
 
   writeOperatorScopeToStorage(payload.scope);
-  clearIdleDeskRestorePayload();
+
+  if (payload.formSnapshots !== undefined && Object.keys(payload.formSnapshots).length > 0) {
+    writeIdleDeskRestorePayload({
+      returnPath: payload.returnPath,
+      scope: payload.scope,
+      savedAtUtc: payload.savedAtUtc,
+      formSnapshots: payload.formSnapshots,
+    });
+  } else {
+    clearIdleDeskRestorePayload();
+  }
 
   return true;
 }

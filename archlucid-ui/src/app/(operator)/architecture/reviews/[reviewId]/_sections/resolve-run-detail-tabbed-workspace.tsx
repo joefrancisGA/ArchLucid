@@ -155,6 +155,7 @@ export function resolveRunDetailTabbedWorkspace(
   const inPipelineBannerEl = m.showProgressTracker ? (
     <RunDetailInFlightDeskChrome
       runId={m.resolvedDetail.run.runId}
+      architectureId={m.resolvedDetail.run.architectureId ?? null}
       pipelineBanner={
         <ReviewInPipelineBanner
           runId={m.resolvedDetail.run.runId}

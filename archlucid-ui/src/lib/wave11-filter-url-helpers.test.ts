@@ -4982,6 +4982,178 @@ describe("wave63 filter url helpers", () => {
   });
 });
 
+describe("wave64 filter url helpers", () => {
+  it("help architecture scorecard worked example, evidence intake accepted formats, evidence intake finding coverage, review guide related guides, changes since last review, compare legacy technical details, finding correlation vocabulary, sponsor plain english finding, manifest buyer bundle download, artifact integrity fingerprints params", async () => {
+    const {
+      helpArchitectureScorecardWorkedExampleDisclosureHrefFromSearch,
+      parseHelpArchitectureScorecardWorkedExampleOpenFromSearch,
+    } = await import("@/lib/help/help-architecture-scorecard-worked-example-disclosure-url");
+    const {
+      helpEvidenceIntakeAcceptedFormatsDisclosureHrefFromSearch,
+      parseHelpEvidenceIntakeAcceptedFormatsOpenFromSearch,
+    } = await import("@/lib/help/help-evidence-intake-accepted-formats-disclosure-url");
+    const {
+      helpEvidenceIntakeFindingCoverageDisclosureHrefFromSearch,
+      parseHelpEvidenceIntakeFindingCoverageOpenFromSearch,
+    } = await import("@/lib/help/help-evidence-intake-finding-coverage-disclosure-url");
+    const {
+      helpReviewGuideRelatedGuidesDisclosureHrefFromSearch,
+      parseHelpReviewGuideRelatedGuidesOpenFromSearch,
+    } = await import("@/lib/help/help-review-guide-related-guides-disclosure-url");
+    const {
+      changesSinceLastReviewDisclosureHrefFromSearch,
+      parseChangesSinceLastReviewOpenFromSearch,
+    } = await import("@/lib/runs/changes-since-last-review-disclosure-url");
+    const {
+      compareLegacyTechnicalDetailsDisclosureHrefFromSearch,
+      parseCompareLegacyTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/compare/compare-legacy-technical-details-disclosure-url");
+    const {
+      findingCorrelationVocabularyDisclosureHrefFromSearch,
+      parseFindingCorrelationVocabularyOpenFromSearch,
+    } = await import("@/lib/findings/finding-correlation-vocabulary-disclosure-url");
+    const {
+      findingSponsorPlainEnglishDisclosureHrefFromSearch,
+      parseFindingSponsorPlainEnglishOpenFromSearch,
+    } = await import("@/lib/findings/sponsor-plain-english-finding-disclosure-url");
+    const {
+      manifestBuyerBundleDownloadDisclosureHrefFromSearch,
+      parseManifestBuyerBundleDownloadOpenFromSearch,
+    } = await import("@/lib/governance/manifest-buyer-bundle-download-disclosure-url");
+    const {
+      artifactIntegrityFingerprintsDisclosureHrefFromSearch,
+      parseArtifactIntegrityFingerprintsOpenFromSearch,
+    } = await import("@/lib/governance/artifact-integrity-fingerprints-disclosure-url");
+
+    expect(parseHelpArchitectureScorecardWorkedExampleOpenFromSearch("1")).toBe(true);
+    expect(helpArchitectureScorecardWorkedExampleDisclosureHrefFromSearch("", true, "/help/architecture-scorecard")).toBe(
+      "/help/architecture-scorecard?helpArchitectureScorecardWorkedExampleOpen=1",
+    );
+    expect(parseHelpEvidenceIntakeAcceptedFormatsOpenFromSearch("true")).toBe(true);
+    expect(helpEvidenceIntakeAcceptedFormatsDisclosureHrefFromSearch("", true, "/help/evidence-intake")).toBe(
+      "/help/evidence-intake?helpEvidenceIntakeAcceptedFormatsOpen=1",
+    );
+    expect(parseHelpEvidenceIntakeFindingCoverageOpenFromSearch("1")).toBe(true);
+    expect(helpEvidenceIntakeFindingCoverageDisclosureHrefFromSearch("tab=formats", true, "/help/evidence-intake")).toBe(
+      "/help/evidence-intake?tab=formats&helpEvidenceIntakeFindingCoverageOpen=1",
+    );
+    expect(parseHelpReviewGuideRelatedGuidesOpenFromSearch("true")).toBe(true);
+    expect(helpReviewGuideRelatedGuidesDisclosureHrefFromSearch("", true, "/help/review-guide")).toBe(
+      "/help/review-guide?helpReviewGuideRelatedGuidesOpen=1",
+    );
+    expect(parseChangesSinceLastReviewOpenFromSearch("1")).toBe(true);
+    expect(changesSinceLastReviewDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?tab=overview&changesSinceLastReviewOpen=1",
+    );
+    expect(parseCompareLegacyTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(compareLegacyTechnicalDetailsDisclosureHrefFromSearch("left=run-a", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?left=run-a&compareLegacyTechnicalDetailsOpen=1",
+    );
+    expect(parseFindingCorrelationVocabularyOpenFromSearch("1")).toBe(true);
+    expect(
+      findingCorrelationVocabularyDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?findingCorrelationVocabularyOpen=1");
+    expect(parseFindingSponsorPlainEnglishOpenFromSearch("true")).toBe(true);
+    expect(
+      findingSponsorPlainEnglishDisclosureHrefFromSearch("tab=findings", true, "/architecture/reviews/run-1/findings/f-1"),
+    ).toBe("/architecture/reviews/run-1/findings/f-1?tab=findings&findingSponsorPlainEnglishOpen=1");
+    expect(parseManifestBuyerBundleDownloadOpenFromSearch("1")).toBe(true);
+    expect(
+      manifestBuyerBundleDownloadDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestBuyerBundleDownloadOpen=1");
+    expect(parseArtifactIntegrityFingerprintsOpenFromSearch("true")).toBe(true);
+    expect(
+      artifactIntegrityFingerprintsDisclosureHrefFromSearch("tab=deliverables", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?tab=deliverables&artifactIntegrityFingerprintsOpen=1");
+  });
+});
+
+describe("wave65 filter url helpers", () => {
+  it("help troubleshooting issue, glossary more detail term, manifest detail decisions, manifest detail warnings, manifest summary bundle download, governance finding detail severity, run inspector related actions, run inspector open artifact, sponsor rehearsal preview, operator first session coaching params", async () => {
+    const {
+      helpTroubleshootingIssueDisclosureHrefFromSearch,
+      parseHelpTroubleshootingIssueFromSearch,
+    } = await import("@/lib/help/help-troubleshooting-issue-disclosure-url");
+    const {
+      helpGlossaryMoreDetailDisclosureHrefFromSearch,
+      parseHelpGlossaryMoreDetailTermFromSearch,
+    } = await import("@/lib/help/help-glossary-more-detail-disclosure-url");
+    const {
+      manifestDetailDecisionsDisclosureHrefFromSearch,
+      parseManifestDetailDecisionsOpenFromSearch,
+    } = await import("@/lib/governance/manifest-detail-decisions-disclosure-url");
+    const {
+      manifestDetailWarningsDisclosureHrefFromSearch,
+      parseManifestDetailWarningsOpenFromSearch,
+    } = await import("@/lib/governance/manifest-detail-warnings-disclosure-url");
+    const {
+      manifestSummaryBundleDownloadDisclosureHrefFromSearch,
+      parseManifestSummaryBundleDownloadOpenFromSearch,
+    } = await import("@/lib/governance/manifest-summary-bundle-download-disclosure-url");
+    const {
+      governanceFindingDetailSeverityDisclosureHrefFromSearch,
+      parseGovernanceFindingDetailSeverityOpenFromSearch,
+    } = await import("@/lib/governance/governance-finding-detail-severity-disclosure-url");
+    const {
+      parseRunInspectorRelatedActionsOpenFromSearch,
+      runInspectorRelatedActionsDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-inspector-related-actions-disclosure-url");
+    const {
+      parseRunInspectorOpenArtifactOpenFromSearch,
+      runInspectorOpenArtifactDisclosureHrefFromSearch,
+    } = await import("@/lib/runs/run-inspector-open-artifact-disclosure-url");
+    const {
+      parseSponsorRehearsalPreviewOpenFromSearch,
+      sponsorRehearsalPreviewDisclosureHrefFromSearch,
+    } = await import("@/lib/reviews/sponsor-rehearsal-preview-disclosure-url");
+    const {
+      operatorFirstSessionCoachingDisclosureHrefFromSearch,
+      parseOperatorFirstSessionCoachingOpenFromSearch,
+    } = await import("@/lib/operator/operator-first-session-coaching-disclosure-url");
+
+    expect(parseHelpTroubleshootingIssueFromSearch("cannot-sign-in")).toBe("cannot-sign-in");
+    expect(helpTroubleshootingIssueDisclosureHrefFromSearch("", "cannot-sign-in", "/help/troubleshooting")).toBe(
+      "/help/troubleshooting?helpTroubleshootingIssue=cannot-sign-in",
+    );
+    expect(parseHelpGlossaryMoreDetailTermFromSearch("signed-manifest")).toBe("signed-manifest");
+    expect(helpGlossaryMoreDetailDisclosureHrefFromSearch("q=record", "signed-manifest", "/help/glossary")).toBe(
+      "/help/glossary?q=record&helpGlossaryMoreDetailTerm=signed-manifest",
+    );
+    expect(parseManifestDetailDecisionsOpenFromSearch("1")).toBe(true);
+    expect(manifestDetailDecisionsDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1")).toBe(
+      "/governance/sealed-records/manifest-1?manifestDetailDecisionsOpen=1",
+    );
+    expect(parseManifestDetailWarningsOpenFromSearch("true")).toBe(true);
+    expect(
+      manifestDetailWarningsDisclosureHrefFromSearch("tab=summary", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?tab=summary&manifestDetailWarningsOpen=1");
+    expect(parseManifestSummaryBundleDownloadOpenFromSearch("1")).toBe(true);
+    expect(
+      manifestSummaryBundleDownloadDisclosureHrefFromSearch("", true, "/governance/sealed-records/manifest-1"),
+    ).toBe("/governance/sealed-records/manifest-1?manifestSummaryBundleDownloadOpen=1");
+    expect(parseGovernanceFindingDetailSeverityOpenFromSearch("true")).toBe(true);
+    expect(
+      governanceFindingDetailSeverityDisclosureHrefFromSearch("status=open", true, "/governance/findings"),
+    ).toBe("/governance/findings?status=open&governanceFindingDetailSeverityOpen=1");
+    expect(parseRunInspectorRelatedActionsOpenFromSearch("1")).toBe(true);
+    expect(runInspectorRelatedActionsDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?tab=overview&runInspectorRelatedActionsOpen=1",
+    );
+    expect(parseRunInspectorOpenArtifactOpenFromSearch("true")).toBe(true);
+    expect(runInspectorOpenArtifactDisclosureHrefFromSearch("", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runInspectorOpenArtifactOpen=1",
+    );
+    expect(parseSponsorRehearsalPreviewOpenFromSearch("1")).toBe(true);
+    expect(sponsorRehearsalPreviewDisclosureHrefFromSearch("runId=demo", true, "/architecture/reviews/run-1")).toBe(
+      "/architecture/reviews/run-1?runId=demo&sponsorRehearsalPreviewOpen=1",
+    );
+    expect(parseOperatorFirstSessionCoachingOpenFromSearch("true")).toBe(true);
+    expect(operatorFirstSessionCoachingDisclosureHrefFromSearch("", true, "/architecture/reviews")).toBe(
+      "/architecture/reviews?operatorFirstSessionCoachingOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

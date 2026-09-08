@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -14,6 +17,18 @@ import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
   BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
 } from "@/lib/buyer/buyer-polish-copy";
+import {
+  manifestDetailDecisionsDisclosureHrefFromSearch,
+  parseManifestDetailDecisionsOpenFromSearch,
+} from "@/lib/governance/manifest-detail-decisions-disclosure-url";
+import {
+  manifestDetailWarningsDisclosureHrefFromSearch,
+  parseManifestDetailWarningsOpenFromSearch,
+} from "@/lib/governance/manifest-detail-warnings-disclosure-url";
+import {
+  manifestSummaryBundleDownloadDisclosureHrefFromSearch,
+  parseManifestSummaryBundleDownloadOpenFromSearch,
+} from "@/lib/governance/manifest-summary-bundle-download-disclosure-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import {
@@ -35,10 +50,39 @@ export function ManifestDetailSummaryDecisionsBlock({
   buyerPolishedLayout,
   detailOpenDefault,
 }: ManifestDetailSummaryDecisionsBlocksProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const manifestDetailDecisionsOpenParam = searchParams.get("manifestDetailDecisionsOpen");
+  const [decisionsOpen, setDecisionsOpenState] = useState(
+    () => parseManifestDetailDecisionsOpenFromSearch(manifestDetailDecisionsOpenParam) || detailOpenDefault,
+  );
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const decisionLinesAll = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES] : [];
   const decisionLinesPreview = decisionLinesAll.slice(0, 3);
   const decisionRestCount = Math.max(0, decisionLinesAll.length - decisionLinesPreview.length);
+
+  const syncDecisionsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        manifestDetailDecisionsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDecisionsOpen = useCallback(
+    (open: boolean) => {
+      setDecisionsOpenState(open);
+      syncDecisionsOpenToUrl(open);
+    },
+    [syncDecisionsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDecisionsOpenState(parseManifestDetailDecisionsOpenFromSearch(manifestDetailDecisionsOpenParam));
+  }, [manifestDetailDecisionsOpenParam]);
 
   const decisionsSummaryLabel =
     buyerPolishedLayout
@@ -48,7 +92,10 @@ export function ManifestDetailSummaryDecisionsBlock({
   return (
     <details
       className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-      open={detailOpenDefault}
+      open={decisionsOpen}
+      onToggle={(event) => {
+        setDecisionsOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("cursor-pointer select-none px-3 py-2 text-neutral-900 dark:text-neutral-100", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {decisionsSummaryLabel}
@@ -87,8 +134,37 @@ export function ManifestDetailSummaryWarningsBlock({
   buyerPolishedLayout,
   detailOpenDefault,
 }: ManifestDetailSummaryDecisionsBlocksProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const manifestDetailWarningsOpenParam = searchParams.get("manifestDetailWarningsOpen");
+  const [warningsOpen, setWarningsOpenState] = useState(
+    () => parseManifestDetailWarningsOpenFromSearch(manifestDetailWarningsOpenParam) || detailOpenDefault,
+  );
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const warningLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES] : [];
+
+  const syncWarningsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        manifestDetailWarningsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setWarningsOpen = useCallback(
+    (open: boolean) => {
+      setWarningsOpenState(open);
+      syncWarningsOpenToUrl(open);
+    },
+    [syncWarningsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setWarningsOpenState(parseManifestDetailWarningsOpenFromSearch(manifestDetailWarningsOpenParam));
+  }, [manifestDetailWarningsOpenParam]);
 
   const warningsSummaryLabel =
     buyerPolishedLayout
@@ -98,7 +174,10 @@ export function ManifestDetailSummaryWarningsBlock({
   return (
     <details
       className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-      open={detailOpenDefault}
+      open={warningsOpen}
+      onToggle={(event) => {
+        setWarningsOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("cursor-pointer select-none px-3 py-2 text-neutral-900 dark:text-neutral-100", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {warningsSummaryLabel}
@@ -133,6 +212,13 @@ export type ManifestDetailSummaryBundleDownloadProps = {
 export function ManifestDetailSummaryBundleDownload({
   summary,
 }: ManifestDetailSummaryBundleDownloadProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const manifestSummaryBundleDownloadOpenParam = searchParams.get("manifestSummaryBundleDownloadOpen");
+  const [bundleOpen, setBundleOpenState] = useState(() =>
+    parseManifestSummaryBundleDownloadOpenFromSearch(manifestSummaryBundleDownloadOpenParam),
+  );
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: summary.runId.trim(),
     manifestVersion: summary.manifestId.trim(),
@@ -142,11 +228,37 @@ export function ManifestDetailSummaryBundleDownload({
   const blockedHintId = "manifest-summary-bundle-download-blocked-hint";
   const downloadsDisabled = deliverableDisabledReason !== null;
 
+  const syncBundleOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        manifestSummaryBundleDownloadDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setBundleOpen = useCallback(
+    (open: boolean) => {
+      setBundleOpenState(open);
+      syncBundleOpenToUrl(open);
+    },
+    [syncBundleOpenToUrl],
+  );
+
+  useEffect(() => {
+    setBundleOpenState(parseManifestSummaryBundleDownloadOpenFromSearch(manifestSummaryBundleDownloadOpenParam));
+  }, [manifestSummaryBundleDownloadOpenParam]);
+
   return (
     <details
       id="manifest-bundle-zip"
       className="scroll-mt-24 rounded-lg border border-neutral-200/90 bg-neutral-50/40 dark:border-neutral-800 dark:bg-neutral-950/30"
       data-testid="manifest-buyer-bundle-download"
+      open={bundleOpen}
+      onToggle={(event) => {
+        setBundleOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn(
         "cursor-pointer select-none px-3 py-2 outline-none marker:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:text-neutral-100",

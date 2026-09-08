@@ -73,13 +73,14 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(screen.queryByText(/Google Cloud/i)).not.toBeInTheDocument();
   });
 
-  it("lists all six infrastructure workbench destinations in the hub intro", () => {
+  it("uses the SecureNow grouped-sections intro without the infrastructure workbench lead sentence", () => {
     render(<InfrastructureOverviewClient secureNowHome />);
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
-    expect(primaryContent).toHaveTextContent(/diagram reconciliation/i);
     expect(primaryContent).toHaveTextContent(/All six destinations are available from this hub/i);
+    expect(primaryContent).toHaveTextContent(/Security, compliance, and infrastructure destinations are grouped below/i);
+    expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(6);
   });
 });
