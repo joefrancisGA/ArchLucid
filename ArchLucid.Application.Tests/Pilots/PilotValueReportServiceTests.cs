@@ -436,12 +436,18 @@ public sealed class PilotValueReportServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
+        Mock<IPilotValueReportRoiFreshnessResolver> freshness = new();
+        freshness
+            .Setup(r => r.ResolveForRunDetailAsync(It.IsAny<ArchitectureRunDetail?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("PASS");
+
         return new PilotValueReportService(
             runs,
             audit,
             tenants.Object,
             scope.Object,
             approvals,
+            freshness.Object,
             NullLogger<PilotValueReportService>.Instance);
     }
 }

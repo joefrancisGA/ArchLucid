@@ -1,5 +1,8 @@
 import type { AskResponse } from "@/types/conversation";
-import { ensureOidcBearerReady, withCorrelationHeaders } from "./http";
+import { formatAskStreamHttpError } from "@/lib/ask/ask-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { ensureOidcBearerReady, withCorrelationHeaders, applyCorrelationHeaders } from "./http";
 import { resolveAskStreamRequest } from "./ask-sse-connect";
 import { consumeSseStream } from "./ask-sse-demux";
 
@@ -33,12 +36,13 @@ export async function askArchLucidStream(
   if (payload.targetRunId?.trim()) body.targetRunId = payload.targetRunId.trim();
 
   const { url, headers } = resolveAskStreamRequest("/v1/ask/stream");
-  const h = withCorrelationHeaders(headers);
-  h.set("Content-Type", "application/json");
+  const baseHeaders = withCorrelationHeaders(headers);
+  baseHeaders.set("Content-Type", "application/json");
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(baseHeaders);
 
   const response = await fetch(url, {
     method: "POST",
-    headers: h,
+    headers: correlatedHeaders,
     cache: "no-store",
     body: JSON.stringify(body),
     signal,
@@ -46,7 +50,8 @@ export async function askArchLucidStream(
 
   if (!response.ok || response.body === null) {
     const text = await response.text();
-    handlers.onError(text.length > 0 ? text : `Ask stream failed (${response.status}).`);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    handlers.onError(formatAskStreamHttpError(failure));
 
     return null;
   }
