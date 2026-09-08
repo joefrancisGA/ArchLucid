@@ -62,6 +62,28 @@ public sealed class HeldCheckMeasurementFloorPresenterTests
     }
 
     [Fact]
+    public void Present_includes_second_pass_clause_when_completed_with_decision_grade_findings()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            HeldCheckSecondPass = new HeldCheckSecondPassSummary
+            {
+                InputCode = HeldCheckInputCode.AzureInventoryZip,
+                Status = HeldCheckSecondPassStatus.Completed,
+                UnblockedEngineCount = 2,
+                NewDecisionGradeCount = 1,
+            },
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 12, context);
+
+        presentation.HeldCheckSecondPassClause.Should().Contain("Azure inventory ZIP");
+        presentation.HeldCheckSecondPassClause.Should().Contain("2 previously held engines");
+        presentation.Sentence.Should().Contain("Re-ran after Azure inventory ZIP");
+    }
+
+    [Fact]
     public void Present_null_run_keeps_dx15_copy_without_held_check_clause()
     {
         InsightDensityMeasurementFloorPresentation presentation =

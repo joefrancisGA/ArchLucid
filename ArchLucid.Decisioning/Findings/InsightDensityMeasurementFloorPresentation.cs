@@ -65,4 +65,11 @@ public sealed class InsightDensityMeasurementFloorPresentation
         get;
         init;
     }
+
+    /// <summary>Advisory clause after an inventory-upload second pass produced findings (DX-60).</summary>
+    public string? HeldCheckSecondPassClause
+    {
+        get;
+        init;
+    }
 }

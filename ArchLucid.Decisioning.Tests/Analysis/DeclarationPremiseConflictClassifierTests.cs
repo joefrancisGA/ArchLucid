@@ -66,6 +66,23 @@ public sealed class DeclarationPremiseConflictClassifierTests
     }
 
     [Fact]
+    public void Classify_does_not_fire_admin_ingress_conflict_for_unblock_ssh_phrase()
+    {
+        GraphNode topology = CreateTopology("nsg", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ingress"] = "0.0.0.0/0:22",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-admin", "Unblock ssh from bastion only after change ticket");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Classify_marks_broad_applicability_when_not_narrow()
     {
         GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

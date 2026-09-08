@@ -1,5 +1,5 @@
 import { ACTOR_DEPENDENT_FINDING_ENGINE_TYPES } from "@/lib/findings/actor-dependent-finding-engine-types";
-import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import {
   formatHeldCheckInputCodeLabel,
   formatHeldCheckUnblockClause,
@@ -10,7 +10,7 @@ import {
   INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
 } from "@/lib/quality/insight-density-measurement-denominator";
 
-export type { HeldCheckLedgerRollupEntry };
+export type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary };
 
 /**
  * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
@@ -27,6 +27,7 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
 };
 
 export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasurementFloorCounts & {
@@ -37,6 +38,7 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
   readonly judgeSkippedByCap: number | null;
   readonly heldCheckLedgerEntries: readonly HeldCheckLedgerRollupEntry[];
   readonly topHeldCheckUnblockClause: string | null;
+  readonly heldCheckSecondPassClause: string | null;
 };
 
 /** Minimum measured engines before Working career exports proceed without explicit incomplete confirmation (PC-01). */
@@ -90,11 +92,29 @@ function resolveTopHeldCheckUnblockClause(entries: readonly HeldCheckLedgerRollu
   return formatHeldCheckUnblockClause(entries[0].engineCount, entries[0].inputCode);
 }
 
+function formatHeldCheckSecondPassClause(summary: HeldCheckSecondPassSummary | null | undefined): string | null {
+  if (summary === null || summary === undefined) {
+    return null;
+  }
+
+  if (summary.status !== "completed" || summary.newDecisionGradeCount < 1) {
+    return null;
+  }
+
+  const label = formatHeldCheckInputCodeLabel(summary.inputCode);
+  const count = summary.unblockedEngineCount;
+
+  return count === 1
+    ? `Re-ran after ${label}: 1 previously held engine produced findings.`
+    : `Re-ran after ${label}: ${count} previously held engines produced findings.`;
+}
+
 function appendMeasurementFloorHonestySuffixes(
   baseLine: string,
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
   topHeldCheckUnblockClause: string | null,
+  heldCheckSecondPassClause: string | null,
 ): string {
   const suffixes: string[] = [];
 
@@ -116,6 +136,10 @@ function appendMeasurementFloorHonestySuffixes(
     suffixes.push(topHeldCheckUnblockClause);
   }
 
+  if (heldCheckSecondPassClause !== null) {
+    suffixes.push(heldCheckSecondPassClause);
+  }
+
   if (suffixes.length === 0) {
     return baseLine;
   }
@@ -128,6 +152,7 @@ function buildMeasurementFloorLine(
   skippedActorEngineTypes: readonly string[],
   judgeSkippedByCap: number | null,
   topHeldCheckUnblockClause: string | null,
+  heldCheckSecondPassClause: string | null,
 ): string {
   const measured = counts.measuredThisRunEngineCount;
   let baseLine: string;
@@ -145,6 +170,7 @@ function buildMeasurementFloorLine(
     skippedActorEngineTypes,
     judgeSkippedByCap,
     topHeldCheckUnblockClause,
+    heldCheckSecondPassClause,
   );
 }
 
@@ -171,6 +197,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const judgeSkippedByCap = normalizeJudgeSkippedByCap(options.judgeSkippedByCap);
   const heldCheckLedgerEntries = options.heldCheckLedgerEntries ?? [];
   const topHeldCheckUnblockClause = resolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
+  const heldCheckSecondPassClause = formatHeldCheckSecondPassClause(options.heldCheckSecondPass);
 
   return {
     ...counts,
@@ -179,6 +206,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
       skippedActorEngineTypes,
       judgeSkippedByCap,
       topHeldCheckUnblockClause,
+      heldCheckSecondPassClause,
     ),
     helpHref: INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
     meetsCareerExportFloor,
@@ -186,6 +214,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
     judgeSkippedByCap,
     heldCheckLedgerEntries,
     topHeldCheckUnblockClause,
+    heldCheckSecondPassClause,
   };
 }
 

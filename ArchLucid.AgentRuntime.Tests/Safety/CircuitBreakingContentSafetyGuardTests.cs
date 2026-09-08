@@ -61,6 +61,28 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold()
+    {
+        CircuitBreakerOptions breakerOptions = new() { FailureThreshold = 3, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-inner-throw", breakerOptions);
+        Mock<IContentSafetyGuard> inner = new();
+        inner.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated inner throw"));
+
+        Mock<IPromptRedactor> redactor = new();
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = false },
+            redactor.Object);
+
+        ContentSafetyResult result = await sut.CheckInputAsync("deny-me", CancellationToken.None);
+
+        result.IsAllowed.Should().BeTrue();
+        redactor.Verify(r => r.RedactAlways(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Consecutive_sdk_failures_open_circuit_then_fail_closed_when_configured()
     {
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };

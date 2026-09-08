@@ -47,6 +47,11 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
+        if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
+            throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
+
+        string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+
         List<string> normalizedMailboxes = [];
 
         foreach (string mailbox in toMailboxes)
@@ -74,7 +79,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
 
-        string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subject = $"{productName} weekly Sponsor report — {weekLabel}";

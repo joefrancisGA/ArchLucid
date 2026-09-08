@@ -257,6 +257,42 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("preserves runId on overview remediation factory link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=overview&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-open-remediation-work")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on findings remediation factory link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=findings&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-finding-factory-finding-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
+  it("preserves runId on remediation instance factory link", async () => {
+    searchParams = new URLSearchParams(
+      "tab=remediation&snapshotId=22222222-2222-2222-2222-222222222222&runId=run-1",
+    );
+    render(<ResourceHubClient cloudResourceId="11111111-1111-1111-1111-111111111111" />);
+
+    expect(await screen.findByTestId("infra-resource-hub-remediation-factory-instance-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("runId=run-1"),
+    );
+  });
+
   it("preserves runId when switching hub tabs from the tab bar", async () => {
     searchParams = new URLSearchParams(
       "tab=diagram&runId=run-1&snapshotId=22222222-2222-2222-2222-222222222222",
@@ -591,7 +627,7 @@ describe("ResourceHubClient", () => {
       "href",
       "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=audit&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
-    expect(screen.getByText("azurerm_public_ip.gateway")).toBeInTheDocument();
+    expect(screen.getAllByText("azurerm_public_ip.gateway").length).toBeGreaterThan(0);
   });
 
   it("keeps hub tab cross-link glue anchors for the fully-populated mock hub", async () => {

@@ -16,6 +16,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
   NOTIFICATIONS_HELP_GUIDE_HEADINGS,
@@ -33,6 +34,7 @@ import {
 import {
   NOTIFICATIONS_HELP_CANONICAL_PATH,
   NOTIFICATIONS_HELP_CLAIM_DISCIPLINE,
+  NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
   NOTIFICATIONS_HELP_TOPIC_LABEL,
 } from "@/lib/notifications-help-evidence-copy";
 import {
@@ -96,7 +98,12 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const productLine = resolveProductLineIdFromEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(NOTIFICATIONS_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-notifications",
+    NOTIFICATIONS_HELP_GUIDE_HEADINGS,
+    NOTIFICATIONS_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -218,7 +225,7 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
             </section>
           </div>
 
-          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={NOTIFICATIONS_HELP_GUIDE_HEADINGS} />}
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={guideHeadings} />}
         </div>
 
         {buyerPolishedShell ? (

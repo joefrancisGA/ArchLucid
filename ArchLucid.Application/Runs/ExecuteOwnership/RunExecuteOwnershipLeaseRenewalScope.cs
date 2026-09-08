@@ -95,12 +95,17 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         {
             _executeCancellationSource.Cancel();
         }
-        catch (Exception ex) when (_logger.IsEnabled(LogLevel.Warning))
+        catch (Exception ex)
         {
-            _logger.LogWarning(
-                ex,
-                "Execute ownership lease renewal loop stopped unexpectedly for RunId={RunId}.",
-                _runId);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Execute ownership lease renewal loop stopped for RunId={RunId}; cancelling in-flight execute.",
+                    _runId);
+            }
+
+            _executeCancellationSource.Cancel();
         }
     }
 }

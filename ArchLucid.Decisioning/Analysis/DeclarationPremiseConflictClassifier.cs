@@ -125,7 +125,9 @@ public static partial class DeclarationPremiseConflictClassifier
             {
                 int index = normalizedIntentText.IndexOf(phrase, searchStart, StringComparison.Ordinal);
                 if (index < 0) break;
-                if (!IsPhraseNegated(normalizedIntentText, index)) return true;
+                if (!IsPhraseNegated(normalizedIntentText, index)
+                    && !IsPhrasePrefixNegated(normalizedIntentText, index, phrase))
+                    return true;
                 searchStart = index + phrase.Length;
             }
         }
@@ -152,6 +154,18 @@ public static partial class DeclarationPremiseConflictClassifier
             return true;
         }
         return false;
+    }
+
+    private static bool IsPhrasePrefixNegated(string normalizedIntentText, int phraseStartIndex, string phrase)
+    {
+        if (!phrase.StartsWith("block ", StringComparison.Ordinal))
+            return false;
+
+        if (phraseStartIndex < 2)
+            return false;
+
+        return normalizedIntentText.AsSpan(phraseStartIndex - 2, 2)
+            .Equals("un".AsSpan(), StringComparison.Ordinal);
     }
 
     private static bool RequiresNegationWordBoundary(string negationSuffix) =>

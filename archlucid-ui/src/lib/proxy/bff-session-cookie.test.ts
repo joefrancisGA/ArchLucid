@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -8,11 +9,24 @@ import {
   buildBffSessionSetCookieHeader,
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
+  parseBffSessionCookieValue,
   resolveBffSessionBearerFromCookieValue,
   resolveBffSessionBearerFromRequest,
 } from "@/lib/proxy/bff-session-cookie";
 
 const TEST_SECRET = "test-bff-session-signing-secret";
+
+function createLegacyV1SessionCookieValue(accessToken: string, expiresAtMs: number): string {
+  const payload = {
+    v: 1,
+    at: accessToken,
+    exp: expiresAtMs,
+  };
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const signature = createHmac("sha256", TEST_SECRET).update(encodedPayload).digest("base64url");
+
+  return `${encodedPayload}.${signature}`;
+}
 
 function mockNextRequest(cookieValue: string | null): NextRequest {
   return {
@@ -78,5 +92,17 @@ describe("bff-session-cookie (LK-05 P1 / LK-07)", () => {
     expect(buildBffSessionClearCookieHeader()).toContain(`${BFF_SESSION_COOKIE_NAME}=`);
     expect(buildBffSessionClearCookieHeader()).toContain("Max-Age=0");
     expect(buildBffCsrfClearCookieHeader()).toContain("archlucid-bff-csrf=");
+  });
+
+  it("keeps stable migrated CSRF when parsing legacy v1 session cookies", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-08T12:00:00.000Z"));
+
+    const legacyCookie = createLegacyV1SessionCookieValue("access-token-legacy", Date.now() + 3_600_000);
+    const first = parseBffSessionCookieValue(legacyCookie);
+    const second = parseBffSessionCookieValue(legacyCookie);
+
+    expect(first?.csrf).toBeTruthy();
+    expect(second?.csrf).toBe(first?.csrf);
   });
 });

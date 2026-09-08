@@ -152,6 +152,8 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setLoading,
   });
 
+  const threadsHydrated = prefetchedThreads !== undefined || threadsQueryError;
+
   const urlSync = useAskPageUrlSync({
     runId,
     selectedThreadId,
@@ -169,6 +171,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     setLastAskReferencedDecisions,
     setLastAskReferencedArtifacts,
     threads,
+    threadsHydrated,
     loadMessages,
     basePathname: options.basePathname,
   });
@@ -189,7 +192,11 @@ export function useAskPage(options: UseAskPageOptions = {}) {
     }
 
     if (urlSync.urlThreadId.length > 0) {
-      return;
+      const urlThreadKnown = threads.some((thread) => thread.threadId === urlSync.urlThreadId);
+
+      if (urlThreadKnown) {
+        return;
+      }
     }
 
     const resumeThreadId = resolveContinueLastAskThread(threads)?.threadId?.trim() ?? "";

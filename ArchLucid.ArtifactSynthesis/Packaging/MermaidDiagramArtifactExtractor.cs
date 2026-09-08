@@ -26,11 +26,24 @@ public static class MermaidDiagramArtifactExtractor
             string s = a.Content;
 
             if (maxChars is { } mc && s.Length > mc)
-                return s[..mc] + "\n\n… (truncated)";
+                return TruncateAtLineBoundary(s, mc) + "\n\n… (truncated)";
 
             return s;
         }
 
         return null;
+    }
+
+    private static string TruncateAtLineBoundary(string source, int maxChars)
+    {
+        if (source.Length <= maxChars)
+            return source;
+
+        int lastNewline = source.LastIndexOf('\n', maxChars - 1);
+
+        if (lastNewline >= 0)
+            return source[..lastNewline];
+
+        return source[..maxChars];
     }
 }

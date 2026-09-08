@@ -41,6 +41,9 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             || IsKeyMaterialCredentialSegment(normalized)
             || IsCompoundSecretCredentialSegment(normalized)
             || IsCompoundTokenCredentialSegment(normalized)
+            || IsCompoundPasswordCredentialSegment(normalized)
+            || IsCompoundApiKeyCredentialSegment(normalized)
+            || IsCompoundConnectionStringCredentialSegment(normalized)
             || IsExplicitCredentialConfigSegment(normalized))
             return true;
 
@@ -906,6 +909,18 @@ internal static class ConfigurationSensitiveConfigPathMatcher
         || segment.EndsWith("RefreshToken", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("IdToken", StringComparison.OrdinalIgnoreCase)
         || segment.EndsWith("BearerToken", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsCompoundPasswordCredentialSegment(ReadOnlySpan<char> segment) =>
+        segment.Length > "Password".Length
+        && segment.EndsWith("Password", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsCompoundApiKeyCredentialSegment(ReadOnlySpan<char> segment) =>
+        segment.Length > "ApiKey".Length
+        && segment.EndsWith("ApiKey", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsCompoundConnectionStringCredentialSegment(ReadOnlySpan<char> segment) =>
+        segment.Length > "ConnectionString".Length
+        && segment.EndsWith("ConnectionString", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsEmbeddedSensitiveFragment(ReadOnlySpan<char> segment, int fragmentIndex)
     {

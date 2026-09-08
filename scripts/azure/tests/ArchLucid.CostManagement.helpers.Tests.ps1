@@ -99,4 +99,26 @@ Describe 'ArchLucid.CostManagement.helpers' {
 
     }
 
+    It 'passes CompressedBody when invoking the ActualCost paged query helper' {
+
+        Mock Test-ArchLucidAzureCliRunnable { return $true }
+
+        Mock Invoke-ArchLucidActualCostPagedQuery {
+            return @{
+                Ok = $true
+                StderrCombined = ''
+                Pages = @()
+            }
+        }
+
+        $null = Get-ArchLucidActualCostSummary -SubscriptionId '00000000-0000-0000-0000-000000000001'
+
+        Should -Invoke Invoke-ArchLucidActualCostPagedQuery -Times 1 -ParameterFilter {
+            (-not [string]::IsNullOrWhiteSpace($CompressedBody)) -and
+            ($CompressedBody -match '"type"\s*:\s*"ActualCost"') -and
+            (-not [string]::IsNullOrWhiteSpace($PostUrl)) -and
+            (-not [string]::IsNullOrWhiteSpace($DiagTokenForWarnings))
+        }
+    }
+
 }
