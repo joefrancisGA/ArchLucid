@@ -6849,6 +6849,7 @@ export interface components {
             governanceRejections?: number;
             /** Format: int32 */
             policyPackAssignments?: number;
+            roiSourceFreshnessDisposition?: string;
             /** Format: int32 */
             runDetailCap?: number;
             runDetailsTruncated?: boolean;
@@ -8011,10 +8012,10 @@ export interface components {
             architectRestatement?: null | string;
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
-            impactPreviewCompleted?: null | boolean;
-            previewOverrideReason?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             rationale?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;

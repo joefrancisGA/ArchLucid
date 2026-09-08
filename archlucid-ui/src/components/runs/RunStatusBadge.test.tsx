@@ -65,6 +65,22 @@ describe("deriveRunListPipelineLabel", () => {
       ),
     ).toBe("In pipeline");
   });
+
+  it("suppresses Ready to finalize when pre-finalize gate is disabled on Working (LP-18)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        },
+        {
+          workingDesk: true,
+          preCommitGateEnabled: false,
+        },
+      ),
+    ).toBe("In pipeline");
+  });
 });
 
 describe("RunStatusBadge", () => {
