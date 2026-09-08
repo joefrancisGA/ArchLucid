@@ -30,24 +30,24 @@ export async function fetchWorkspaceAiAvailability(
 
 export function workspaceAiAvailabilityStatusLabel(result: WorkspaceAiAvailabilityResult): string {
   if (!result.validated) {
-    return "AI availability not verified";
+    return "Needs attention";
   }
 
   if (result.isAvailable) {
     return result.aiSource === "simulator"
       ? "Simulator mode — live platform AI not required"
-      : "AI checked — OK";
+      : "Ready";
   }
 
   if (result.aiSource === "managed-platform" && (result.summary ?? "").includes("Azure OpenAI")) {
-    return "Real mode — live AI not configured";
+    return "Blocked";
   }
 
   if (result.aiSource === "customer-connection") {
-    return "Workspace AI connection unavailable";
+    return "Blocked";
   }
 
-  return "Workspace AI availability";
+  return "Blocked";
 }
 
 export function workspaceAiAvailableDetail(result: WorkspaceAiAvailabilityResult): string {

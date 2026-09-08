@@ -11,6 +11,7 @@ import {
 } from "@/hooks/useWorkspaceAiAvailabilityCheck";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { formatRelativeTime } from "@/lib/relative-time";
 import type { WorkspaceAiConfigurationSignal } from "@/lib/review-failure-recovery-role-copy";
 import {
   parseWorkspaceAiProbeDiagnosticsOpenFromSearch,
@@ -42,12 +43,89 @@ const PROBE_CHECK_BUYER_LABELS: Record<string, string> = {
   azure_openai_configuration: "Azure OpenAI configuration",
   customer_connection_configuration: "Customer AI connection configuration",
   simulator_mode: "Simulator mode",
+  llm_budget_status: "LLM budget status",
+  llm_circuit_breaker: "LLM circuit breaker",
+  circuit_breaker_status: "Circuit breaker status",
 };
+
+function humanizeProbeCheckName(name: string): string {
+  const normalized = name.trim();
+
+  if (normalized.length === 0) {
+    return "Availability check";
+  }
+
+  return normalized
+    .split(/[_-]+/)
+    .filter((segment) => segment.length > 0)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+    .join(" ");
+}
 
 function buyerLabelForProbeCheckName(name: string): string {
   const key = name.trim();
 
-  return PROBE_CHECK_BUYER_LABELS[key] ?? "Availability check";
+  return PROBE_CHECK_BUYER_LABELS[key] ?? humanizeProbeCheckName(key);
+}
+
+function probeCheckStatusKind(status: string): "ready" | "needs-attention" | "blocked" | "in-progress" {
+  const normalized = status.trim().toLowerCase();
+
+  if (normalized === "ok") {
+    return "ready";
+  }
+
+  if (normalized === "degraded" || normalized === "skipped") {
+    return "needs-attention";
+  }
+
+  if (normalized === "failed") {
+    return "blocked";
+  }
+
+  return "needs-attention";
+}
+
+function probeCheckStatusLabel(status: string): string {
+  const kind = probeCheckStatusKind(status);
+
+  if (kind === "ready") {
+    return "Ready";
+  }
+
+  if (kind === "blocked") {
+    return "Blocked";
+  }
+
+  return "Needs attention";
+}
+
+function probeCheckSortPriority(status: string): number {
+  const normalized = status.trim().toLowerCase();
+
+  if (normalized === "failed") {
+    return 0;
+  }
+
+  if (normalized === "degraded") {
+    return 1;
+  }
+
+  if (normalized === "skipped") {
+    return 2;
+  }
+
+  if (normalized === "ok") {
+    return 3;
+  }
+
+  return 4;
+}
+
+function sortProbeChecks(
+  checks: readonly WorkspaceAiAvailabilityResult["checks"][number][],
+): readonly WorkspaceAiAvailabilityResult["checks"][number][] {
+  return [...checks].sort((left, right) => probeCheckSortPriority(left.status) - probeCheckSortPriority(right.status));
 }
 
 function resolveProbeDeploymentName(debug: Readonly<Record<string, string>>): string | null {
@@ -87,20 +165,23 @@ function filterProbeDebugMetadata(
   });
 }
 
-function formatProbeFreshnessLabel(asOfUtc: string): string | null {
+function formatProbeFreshnessLabel(asOfUtc: string): { relative: string; absolute: string } | null {
   const normalized = asOfUtc.trim();
 
   if (normalized.length === 0) {
     return null;
   }
 
-  const formatted = formatInstantForLocale(normalized);
+  const absolute = formatInstantForLocale(normalized);
 
-  if (formatted === " — ") {
+  if (absolute === " — ") {
     return null;
   }
 
-  return formatted;
+  return {
+    relative: formatRelativeTime(normalized),
+    absolute,
+  };
 }
 
 function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, compact: boolean): string {
@@ -113,7 +194,7 @@ function buildProbeDetailsTriggerLabel(result: WorkspaceAiAvailabilityResult, co
   const checkLabel = `${checkCount} availability check${checkCount === 1 ? "" : "s"}`;
 
   if (validatedAt !== null) {
-    return `AI availability details — ${checkLabel}, validated ${validatedAt}`;
+    return `AI availability details — ${checkLabel}, validated ${validatedAt.relative}`;
   }
 
   return `AI availability details — ${checkLabel}`;
@@ -233,6 +314,7 @@ function WorkspaceAiProbeDiagnostics(props: {
   const deploymentName = resolveProbeDeploymentName(result.debug);
   const modelId = resolveProbeModelId(result.debug);
   const debugEntries = filterProbeDebugMetadata(result.debug, deploymentName);
+  const sortedChecks = sortProbeChecks(result.checks);
 
   return (
     <div className="space-y-2" data-testid="review-package-workspace-ai-debug">
@@ -245,27 +327,27 @@ function WorkspaceAiProbeDiagnostics(props: {
 
       <div>
         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Availability checks</p>
-        <ul className={cn("m-0 mt-1 list-disc space-y-0.5 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {result.checks.map((row) => (
-            <li key={`${row.name}:${row.status}`}>
+        <ul className={cn("m-0 mt-1 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+          {sortedChecks.map((row) => (
+            <li key={`${row.name}:${row.status}`} className="flex flex-wrap items-center gap-2">
               <span className="font-medium text-al-text-primary">{buyerLabelForProbeCheckName(row.name)}</span>
-              {" — "}
-              <span>{row.status}</span>
-              {row.detail.trim().length > 0 ? `: ${row.detail}` : null}
+              <StatusTag kind={probeCheckStatusKind(row.status)} label={probeCheckStatusLabel(row.status)} />
+              {row.detail.trim().length > 0 ? (
+                <span className="text-al-text-secondary">{row.detail}</span>
+              ) : null}
             </li>
           ))}
         </ul>
       </div>
 
-      {!compact && debugEntries.length > 0 ? (
-        <div>
-          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Debug metadata</p>
-          <div className={cn("m-0 mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+      {debugEntries.length > 0 ? (
+        <AdvancedOptionsAccordion triggerLabel="Debug metadata" defaultOpen={false}>
+          <div className={cn("m-0 grid gap-x-4 gap-y-1 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
             {debugEntries.map(([key, value]) => (
               <InlineMetadataLine key={key} label={key} value={value} className="break-all" />
             ))}
           </div>
-        </div>
+        </AdvancedOptionsAccordion>
       ) : null}
 
       {!compact ? (
@@ -375,8 +457,9 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
               <span
                 className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-workspace-ai-checked-at"
+                title={probeValidatedAt.absolute}
               >
-                Checked {probeValidatedAt}
+                {probeValidatedAt.relative}
               </span>
             ) : null}
           </div>
@@ -394,7 +477,18 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
       ) : (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-1.5">
-            <StatusTag kind={statusTagKind(state, reviewTerminalFailure, probeAvailable)} label={label} />
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <StatusTag kind={statusTagKind(state, reviewTerminalFailure, probeAvailable)} label={label} />
+              {probeValidatedAt !== null ? (
+                <span
+                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="review-package-workspace-ai-checked-at"
+                  title={probeValidatedAt.absolute}
+                >
+                  {probeValidatedAt.relative}
+                </span>
+              ) : null}
+            </div>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-workspace-ai-detail">
               {detail}
             </p>
@@ -436,21 +530,49 @@ export function WorkspaceAiAvailabilityPanel(props: WorkspaceAiAvailabilityPanel
         </div>
       )}
 
-      {probeLoaded ? (
-        probeAvailable ? (
+      {probeLoaded && !probeAvailable ? (
+        <div className="mt-2 space-y-2">
+          <WorkspaceAiProbeModelSummary
+            deploymentName={resolveProbeDeploymentName(state.result.debug)}
+            modelId={resolveProbeModelId(state.result.debug)}
+            aiSource={state.result.aiSource}
+            compact
+          />
+          <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {sortProbeChecks(state.result.checks)
+              .filter((row) => probeCheckSortPriority(row.status) <= 1)
+              .map((row) => (
+                <li key={`${row.name}:${row.status}`} className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-al-text-primary">{buyerLabelForProbeCheckName(row.name)}</span>
+                  <StatusTag kind={probeCheckStatusKind(row.status)} label={probeCheckStatusLabel(row.status)} />
+                  {row.detail.trim().length > 0 ? (
+                    <span className="text-al-text-secondary">{row.detail}</span>
+                  ) : null}
+                </li>
+              ))}
+          </ul>
           <AdvancedOptionsAccordion
             triggerLabel={probeTriggerLabel}
             open={probeDiagnosticsOpen}
             onOpenChange={setProbeDiagnosticsOpen}
-            className="mt-2"
           >
-            <WorkspaceAiProbeDiagnostics result={state.result} compact={!neutralProbeOnTerminalFailure} />
+            <WorkspaceAiProbeDiagnostics result={state.result} compact />
           </AdvancedOptionsAccordion>
-        ) : (
-          <div className="mt-2">
-            <WorkspaceAiProbeDiagnostics result={state.result} compact={neutralProbeOnTerminalFailure} />
-          </div>
-        )
+        </div>
+      ) : null}
+
+      {probeLoaded && probeAvailable ? (
+        <AdvancedOptionsAccordion
+          triggerLabel={probeTriggerLabel}
+          open={probeDiagnosticsOpen}
+          onOpenChange={setProbeDiagnosticsOpen}
+          className="mt-2"
+        >
+          <WorkspaceAiProbeDiagnostics
+            result={state.result}
+            compact={!neutralProbeOnTerminalFailure}
+          />
+        </AdvancedOptionsAccordion>
       ) : null}
 
       {state.status === "error" ? (

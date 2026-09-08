@@ -287,10 +287,6 @@ export function TenantWorkspaceProjectsCard({ tenantDisplayName, scope }: Props)
         />
 
         <p className="m-0">
-          Your active workspace and project are selected from the workspace switcher.
-        </p>
-
-        <p className="m-0">
           Soft-delete moves a project to the projects recycle bin for {workspaceContext.retentionDays} days. Committed
           architecture packages and audit history are not erased.
         </p>
