@@ -1,16 +1,16 @@
 #Requires -Version 7.0
-# Run: Invoke-Pester -Strict 'scripts/azure/tests/Get-SecureNowAzurePackage.Tests.ps1'
+# Run: Invoke-Pester -EnableExit -Path 'scripts/azure/tests/Get-SecureNowAzurePackage.Tests.ps1'
 Set-StrictMode -Version Latest
-
-function Get-AzSubscription { }
-function Set-AzContext { }
-function Get-AzResource { }
-function Get-AzPolicyDefinition { }
-function Get-AzPolicyAssignment { }
 
 Describe 'Get-SecureNowAzurePackage.ps1' {
 
     BeforeAll {
+        function Get-AzSubscription { }
+        function Set-AzContext { }
+        function Get-AzResource { }
+        function Get-AzPolicyDefinition { }
+        function Get-AzPolicyAssignment { }
+
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-SecureNowAzurePackage.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
@@ -54,14 +54,16 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
             return [PSCustomObject]@{
                 Id = "/subscriptions/$SubscriptionId"
                 SubscriptionId = $SubscriptionId
+                TenantId = '99999999-8888-7777-6666-555555555555'
             }
         }
 
         Mock Set-AzContext {
-            param([string] $SubscriptionId)
+            param([string] $SubscriptionId, [string] $Tenant)
 
             return [PSCustomObject]@{
-                Subscription = [PSCustomObject]@{ Id = "/subscriptions/$SubscriptionId" }
+                Subscription = [PSCustomObject]@{ Id = $SubscriptionId }
+                Tenant = [PSCustomObject]@{ Id = $Tenant }
             }
         }
 

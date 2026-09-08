@@ -52,7 +52,7 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
         return baselineArtifactsResponse({ hasBaselineArtifacts: false, extractorScriptVersion: "1.0.0" });
       }
 
-      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+      if (url.includes("Get-SecureNowAzurePackage.ps1") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
         return scriptVersionResponse("1.0.0");
       }
 
@@ -72,5 +72,8 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
     expect(pageText).toContain("SecureNow checkout");
     expect(pageText).not.toMatch(/\bArchLucid\b/);
     expect(pageText).toContain("cloud inventory packager script");
+    expect(pageText).toContain("Run-SecureNowAzureExtractor.ps1");
+    expect(pageText).toContain("Get-SecureNowAzurePackage.ps1");
+    expect(pageText).toContain("securenow-azure-package.zip");
   });
 });

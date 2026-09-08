@@ -18,6 +18,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
   readonly pipelineTerminalFailure?: boolean;
   readonly enginesSucceeded?: number | null;
@@ -98,6 +99,7 @@ export function RunDetailReviewPackageStampViewport(
         <RunDetailReviewPackageDecisionReceiptStrip
           runId={props.runId}
           feasibilityVerdict={feasibilityVerdict}
+          manifestVersion={props.manifestVersion}
         />
         {isWorkingMode ? (
           <RunDetailOverviewTransparencyTrail
