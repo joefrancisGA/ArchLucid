@@ -12,6 +12,7 @@ import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQua
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -35,6 +36,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -102,6 +104,7 @@ export function RunDetailReviewPackageStampViewport(
           judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
           heldCheckLedgerEntries={props.heldCheckLedgerEntries}
           heldCheckSecondPass={props.heldCheckSecondPass}
+          proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -160,6 +163,7 @@ export function RunDetailReviewPackageStampViewport(
         judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         heldCheckSecondPass={props.heldCheckSecondPass}
+        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

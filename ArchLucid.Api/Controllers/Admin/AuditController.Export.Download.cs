@@ -40,6 +40,7 @@ public sealed partial class AuditController
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportAudit(
         [FromQuery] DateTime fromUtc,

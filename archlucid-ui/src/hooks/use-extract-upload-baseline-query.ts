@@ -1,11 +1,11 @@
 "use client";
 
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { extractorScriptCdnUrl } from "@/lib/extractor-script-url";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 
 export { extractorScriptCdnUrl };
@@ -77,8 +77,7 @@ async function fetchExtractUploadBaselineSnapshot(scriptUrl: string): Promise<Ex
   };
 }
 
-export function useExtractUploadBaselineQuery() {
-  const { productLine } = useProductLine();
+export function useExtractUploadBaselineQuery(productLine: ProductLineId) {
   const scriptUrl = extractorScriptCdnUrl(productLine);
 
   return createOperatorQueryHook<ExtractUploadBaselineSnapshot>({

@@ -118,11 +118,7 @@ public sealed class FindingDispositionConcurrentRaceTests
 
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)
     {
-        IFindingDispositionConcurrencyRepository concurrencyRepository =
-            new InMemoryFindingDispositionConcurrencyRepository(trailRepository);
-        FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
-
-        return new FindingDispositionService(concurrencyRepository, trailRepository, appendService);
+        return FindingDispositionServiceTestFactory.Create(trailRepository);
     }
 
     private static RecordFindingDispositionRequest CreateRequest(

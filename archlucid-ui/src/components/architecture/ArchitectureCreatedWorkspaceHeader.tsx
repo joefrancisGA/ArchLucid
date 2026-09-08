@@ -1,9 +1,18 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture/architecture-created-home-copy";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import {
+  ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM,
+  architectureCreatedOverflowDisclosureHrefFromSearch,
+  parseArchitectureCreatedOverflowOpenFromSearch,
+} from "@/lib/architecture/architecture-created-overflow-disclosure-url";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -16,6 +25,34 @@ export type ArchitectureCreatedWorkspaceHeaderProps = {
 export function ArchitectureCreatedWorkspaceHeader(
   props: ArchitectureCreatedWorkspaceHeaderProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureCreatedOverflowParam = searchParams.get(ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM);
+  const [architectureCreatedOverflowOpen, setArchitectureCreatedOverflowOpenState] = useState(() =>
+    parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
+  );
+  const syncArchitectureCreatedOverflowOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureCreatedOverflowDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArchitectureCreatedOverflowOpen = useCallback(
+    (open: boolean) => {
+      setArchitectureCreatedOverflowOpenState(open);
+      syncArchitectureCreatedOverflowOpenToUrl(open);
+    },
+    [syncArchitectureCreatedOverflowOpenToUrl],
+  );
+  useEffect(() => {
+    setArchitectureCreatedOverflowOpenState(
+      parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
+    );
+  }, [architectureCreatedOverflowParam]);
   const { model, activeTab, onNavigateTab } = props;
 
   return (
@@ -48,7 +85,11 @@ export function ArchitectureCreatedWorkspaceHeader(
         </div>
       </div>
 
-      <details className="relative">
+      <details
+        className="relative"
+        open={architectureCreatedOverflowOpen}
+        onToggle={(event) => setArchitectureCreatedOverflowOpen(event.currentTarget.open)}
+      >
         <summary
           className={cn(
             "cursor-pointer list-none rounded-md border border-neutral-200 px-3 py-1.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-200",

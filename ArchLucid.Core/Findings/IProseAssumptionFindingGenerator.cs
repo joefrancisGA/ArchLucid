@@ -9,7 +9,7 @@ namespace ArchLucid.Core.Findings;
 /// </summary>
 public interface IProseAssumptionFindingGenerator
 {
-    Task<IReadOnlyList<Finding>> GenerateAsync(
+    Task<ProseAssumptionGenerationResult> GenerateAsync(
         GraphSnapshot graphSnapshot,
         FindingAnalysisContext? analysisContext,
         CancellationToken cancellationToken = default);

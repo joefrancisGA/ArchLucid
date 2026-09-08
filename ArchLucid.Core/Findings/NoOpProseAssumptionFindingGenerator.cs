@@ -9,7 +9,7 @@ public sealed class NoOpProseAssumptionFindingGenerator : IProseAssumptionFindin
 {
     public static NoOpProseAssumptionFindingGenerator Instance { get; } = new();
 
-    public Task<IReadOnlyList<Finding>> GenerateAsync(
+    public Task<ProseAssumptionGenerationResult> GenerateAsync(
         GraphSnapshot graphSnapshot,
         FindingAnalysisContext? analysisContext,
         CancellationToken cancellationToken = default)
@@ -18,6 +18,6 @@ public sealed class NoOpProseAssumptionFindingGenerator : IProseAssumptionFindin
         _ = analysisContext;
         cancellationToken.ThrowIfCancellationRequested();
 
-        return Task.FromResult<IReadOnlyList<Finding>>([]);
+        return Task.FromResult(ProseAssumptionGenerationResult.Empty);
     }
 }

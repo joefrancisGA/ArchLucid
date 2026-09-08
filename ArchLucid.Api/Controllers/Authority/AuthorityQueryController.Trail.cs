@@ -68,6 +68,7 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestSummary(
         Guid manifestId,
         CancellationToken ct = default)

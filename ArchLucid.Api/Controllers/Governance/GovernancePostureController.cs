@@ -42,6 +42,7 @@ public sealed class GovernancePostureController(
     [ProducesResponseType(typeof(ArchitecturePostureSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetPosture(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken)

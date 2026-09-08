@@ -49,4 +49,11 @@ public sealed class InsightDensityCurationSummary
         get;
         set;
     }
+
+    /// <summary>Grounded prose assumptions that did not all become contradiction findings (DX-61).</summary>
+    public IReadOnlyList<ProseAssumptionRegisterEntry>? ProseAssumptionRegisterEntries
+    {
+        get;
+        set;
+    }
 }

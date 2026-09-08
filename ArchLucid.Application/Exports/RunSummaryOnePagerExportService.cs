@@ -62,12 +62,12 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
-
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
