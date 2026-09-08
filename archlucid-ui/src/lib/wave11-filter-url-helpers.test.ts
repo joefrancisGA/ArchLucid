@@ -5982,6 +5982,88 @@ describe("wave74 filter url helpers", () => {
   });
 });
 
+describe("wave75 filter url helpers", () => {
+  it("operator home workspace status, first pilot readiness cockpit/details/assistant diagnostics, core pilot checklist/diagnostics/next steps, first week review detail guidance, policy pack technical details params", async () => {
+    const {
+      operatorHomeWorkspaceStatusDisclosureHrefFromSearch,
+      parseOperatorHomeWorkspaceStatusOpenFromSearch,
+    } = await import("@/lib/operator/operator-home-workspace-status-disclosure-url");
+    const {
+      firstPilotReadinessCockpitDisclosureHrefFromSearch,
+      parseFirstPilotReadinessCockpitOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-readiness-cockpit-disclosure-url");
+    const {
+      firstPilotReadinessDetailsDisclosureHrefFromSearch,
+      parseFirstPilotReadinessDetailsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-readiness-details-disclosure-url");
+    const {
+      firstPilotAssistantDiagnosticsDisclosureHrefFromSearch,
+      parseFirstPilotAssistantDiagnosticsOpenFromSearch,
+    } = await import("@/lib/first-pilot/first-pilot-assistant-diagnostics-disclosure-url");
+    const {
+      corePilotChecklistDisclosureHrefFromSearch,
+      parseCorePilotChecklistOpenFromSearch,
+    } = await import("@/lib/operator/core-pilot-checklist-disclosure-url");
+    const {
+      corePilotDiagnosticsChecklistDisclosureHrefFromSearch,
+      parseCorePilotDiagnosticsChecklistOpenFromSearch,
+    } = await import("@/lib/operator/core-pilot-diagnostics-checklist-disclosure-url");
+    const {
+      firstWeekRouteGuidanceReviewDetailDisclosureHrefFromSearch,
+      parseFirstWeekRouteGuidanceReviewDetailOpenFromSearch,
+    } = await import("@/lib/operator/first-week-route-guidance-review-detail-disclosure-url");
+    const {
+      corePilotNextStepsDisclosureHrefFromSearch,
+      parseCorePilotNextStepsOpenFromSearch,
+    } = await import("@/lib/operator/core-pilot-next-steps-disclosure-url");
+    const {
+      corePilotNextStepsCompleteDisclosureHrefFromSearch,
+      parseCorePilotNextStepsCompleteOpenFromSearch,
+    } = await import("@/lib/operator/core-pilot-next-steps-complete-disclosure-url");
+    const {
+      policyPackTechnicalDetailsDisclosureHrefFromSearch,
+      parsePolicyPackTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/policy/policy-pack-technical-details-disclosure-url");
+
+    expect(parseOperatorHomeWorkspaceStatusOpenFromSearch("1")).toBe(true);
+    expect(operatorHomeWorkspaceStatusDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?operatorHomeWorkspaceStatusOpen=1",
+    );
+    expect(parseFirstPilotReadinessCockpitOpenFromSearch("true")).toBe(true);
+    expect(firstPilotReadinessCockpitDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?firstPilotReadinessCockpitOpen=1",
+    );
+    expect(parseFirstPilotReadinessDetailsOpenFromSearch("1")).toBe(true);
+    expect(firstPilotReadinessDetailsDisclosureHrefFromSearch("path=first-pilot", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=first-pilot&firstPilotReadinessDetailsOpen=1",
+    );
+    expect(parseFirstPilotAssistantDiagnosticsOpenFromSearch("true")).toBe(true);
+    expect(
+      firstPilotAssistantDiagnosticsDisclosureHrefFromSearch("", true, "/architecture/reviews/new"),
+    ).toBe("/architecture/reviews/new?firstPilotAssistantDiagnosticsOpen=1");
+    expect(parseCorePilotChecklistOpenFromSearch("1")).toBe(true);
+    expect(corePilotChecklistDisclosureHrefFromSearch("", true, "/")).toBe("/?corePilotChecklistOpen=1");
+    expect(parseCorePilotDiagnosticsChecklistOpenFromSearch("true")).toBe(true);
+    expect(corePilotDiagnosticsChecklistDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?corePilotDiagnosticsChecklistOpen=1",
+    );
+    expect(parseFirstWeekRouteGuidanceReviewDetailOpenFromSearch("1")).toBe(true);
+    expect(
+      firstWeekRouteGuidanceReviewDetailDisclosureHrefFromSearch("tab=overview", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?tab=overview&firstWeekRouteGuidanceReviewDetailOpen=1");
+    expect(parseCorePilotNextStepsOpenFromSearch("true")).toBe(true);
+    expect(corePilotNextStepsDisclosureHrefFromSearch("", true, "/")).toBe("/?corePilotNextStepsOpen=1");
+    expect(parseCorePilotNextStepsCompleteOpenFromSearch("1")).toBe(true);
+    expect(corePilotNextStepsCompleteDisclosureHrefFromSearch("", true, "/")).toBe(
+      "/?corePilotNextStepsCompleteOpen=1",
+    );
+    expect(parsePolicyPackTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(
+      policyPackTechnicalDetailsDisclosureHrefFromSearch("", true, "/governance/policy-packs/responsible-ai"),
+    ).toBe("/governance/policy-packs/responsible-ai?policyPackTechnicalDetailsOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(
