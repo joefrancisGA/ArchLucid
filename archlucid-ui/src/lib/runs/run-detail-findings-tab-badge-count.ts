@@ -18,3 +18,11 @@ export function resolveRunDetailFindingsTabBadgeCount(
 
   return null;
 }
+
+/** True when explanation or detail snapshot exposes triage-visible findings for inspect/checklist gating. */
+export function resolveRunDetailFindingsReviewed(
+  findingCountDisplay: number | null,
+  quickDecisionFindings: readonly QuickDecisionFinding[],
+): boolean {
+  return (resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings) ?? 0) > 0;
+}

@@ -144,4 +144,32 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
       expect(uploadWizardPendingDocumentEvidence).toHaveBeenCalledWith("run-mixed", [documentFile]);
     });
   });
+
+  it("auto-uploads pending documents when inventory file is not a tier-1 package", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue(null);
+    vi.mocked(uploadWizardPendingDocumentEvidence).mockResolvedValue({ ok: true });
+
+    const invalidInventoryFile = new File(["not-inventory"], "notes.txt", { type: "text/plain" });
+    const documentFile = new File(["notes"], "notes.pdf", { type: "application/pdf" });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-documents-only",
+        autoUploadOnCreate: true,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(invalidInventoryFile);
+      result.current.setPendingDocumentFiles([documentFile]);
+    });
+
+    await waitFor(() => {
+      expect(uploadWizardPendingDocumentEvidence).toHaveBeenCalledWith("run-documents-only", [documentFile]);
+    });
+
+    expect(uploadWizardPendingInventoryEvidence).not.toHaveBeenCalled();
+    expect(result.current.evidenceUploadState).toBe("success");
+  });
 });

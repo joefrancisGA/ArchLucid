@@ -100,6 +100,19 @@ public sealed class RunSummaryOnePagerExportService(
                 cancellationToken);
         }
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
+            scope,
+            workingDesk: true,
+            _configuration,
+            cancellationToken);
+
+        CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
+
         IReadOnlyList<ArchitectureFinding> topFindings =
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);
 
@@ -111,17 +124,6 @@ public sealed class RunSummaryOnePagerExportService(
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
-            detail,
-            _authorityQueryService,
-            _graphSnapshotRepository,
-            _agentExecutionTraceRepository,
-            scope,
-            workingDesk: true,
-            _configuration,
-            cancellationToken);
 
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(

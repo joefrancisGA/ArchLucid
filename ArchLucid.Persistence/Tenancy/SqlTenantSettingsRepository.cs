@@ -82,6 +82,8 @@ public sealed class SqlTenantSettingsRepository(
 
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
+        TenantSettingsWriteGuard.EnsureSettingValueLength(settingValue);
+
         const string sql = """
                              MERGE dbo.TenantSettings AS target
                              USING (SELECT @TenantId AS TenantId, @SettingKey AS SettingKey) AS source

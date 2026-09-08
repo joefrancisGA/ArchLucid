@@ -83,25 +83,33 @@ public sealed class RunExecuteOwnershipLeaseService(
             durationSeconds,
             cancellationToken).ConfigureAwait(false);
 
-        if (!renewed && _logger.IsEnabled(LogLevel.Warning))
+        if (renewed)
+            return;
+
+        if (_logger.IsEnabled(LogLevel.Warning))
         {
             _logger.LogWarning(
                 "Execute ownership lease renewal failed for RunId={RunId}; another holder may own the lease.",
                 runId);
         }
+
+        throw new ConflictException(
+            $"Execute ownership lease renewal failed for run '{runId:D}'; another host instance may own this run.");
     }
 
     /// <inheritdoc />
-    public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationToken cancellationToken)
+    public IAsyncDisposable BeginRenewalScope(Guid runId, CancellationTokenSource executeCancellationSource)
     {
         if (!IsEnabled)
             return NoOpRunExecuteOwnershipLeaseRenewalScope.Instance;
+
+        ArgumentNullException.ThrowIfNull(executeCancellationSource);
 
         RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
             this,
             _optionsMonitor,
             runId,
-            cancellationToken,
+            executeCancellationSource,
             _logger);
 
         if (scope is not null)

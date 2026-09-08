@@ -26,7 +26,7 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
 
         await service.AcquireAsync(runId, CancellationToken.None);
 
-        IAsyncDisposable renewalScope = service.BeginRenewalScope(runId, CancellationToken.None);
+        IAsyncDisposable renewalScope = service.BeginRenewalScope(runId, new CancellationTokenSource());
 
         try
         {
@@ -51,7 +51,7 @@ public sealed class RunExecuteOwnershipLeaseReleaseOrderingTests
 
         await service.AcquireAsync(runId, CancellationToken.None);
 
-        IAsyncDisposable renewalScope = service.BeginRenewalScope(runId, CancellationToken.None);
+        IAsyncDisposable renewalScope = service.BeginRenewalScope(runId, new CancellationTokenSource());
 
         try
         {

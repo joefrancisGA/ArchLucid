@@ -20,6 +20,7 @@ import {
   ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE,
   ADVISORY_SCANS_HELP_DISPOSITION_HEADING_ID,
   ADVISORY_SCANS_HELP_DISPOSITION_SECTION_TITLE,
+  ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
   ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
   ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE,
   ADVISORY_SCANS_HELP_HOW_SECTION_HEADING_ID,
@@ -67,6 +68,7 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -158,8 +160,13 @@ function AdvisoryScansStartHereActionPanel(): React.ReactElement {
 export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const showSectionNav = ADVISORY_SCANS_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
-  const contentGridClass = resolveHelpPageContentGridClass(ADVISORY_SCANS_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-advisory-scans",
+    ADVISORY_SCANS_HELP_GUIDE_HEADINGS,
+    ADVISORY_SCANS_HELP_CLAIM_HEADING_ID,
+  );
+  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -207,7 +214,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
         {buyerPolishedShell ? null : <AdvisoryScansHelpClaimDisciplineStrip />}
 
         {!buyerPolishedShell && showSectionNav ? (
-          <HelpTopicTableOfContents headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS} placement="header-inline" />
+          <HelpTopicTableOfContents headings={guideHeadings} placement="header-inline" />
         ) : null}
 
         {buyerPolishedShell ? (
@@ -370,7 +377,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
 
         {showSectionNav ? (
           <HelpTopicTableOfContents
-            headings={ADVISORY_SCANS_HELP_GUIDE_HEADINGS}
+            headings={guideHeadings}
             enableScrollSpy
             placement="sidebar"
           />

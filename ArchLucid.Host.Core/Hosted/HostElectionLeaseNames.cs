@@ -105,4 +105,6 @@ public static class HostElectionLeaseNames
     public const string WaiverExpiryNotification = "hosted:waiver-expiry-notification";
 
     public const string OperationalErrorRetentionPurge = "hosted:operational-error-retention-purge";
+
+    public const string ScimTokenRotationReminder = "hosted:scim-token-rotation-reminder";
 }

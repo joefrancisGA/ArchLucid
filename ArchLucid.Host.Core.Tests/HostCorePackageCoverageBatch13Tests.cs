@@ -1,9 +1,11 @@
 using System.Text;
 
+using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.OperationalErrors;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
@@ -434,6 +436,33 @@ public sealed class HostCorePackageCoverageBatch13Tests
         repository.Verify(
             r => r.DeleteOlderThanAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task ScimTokenRotationReminderIteration_queries_due_tokens()
+    {
+        Mock<IScimTenantTokenRepository> tokens = new();
+        tokens
+            .Setup(t => t.ListActiveCreatedOnOrBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAdminNotificationsRepository> notices = new();
+
+        ServiceCollection services = new();
+        services.AddSingleton(tokens.Object);
+        services.AddSingleton(notices.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        await ScimTokenRotationReminderIteration.RunOnceAsync(
+            scopeFactory,
+            new ScimOptions { TokenRotationReminderDays = 180 },
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        tokens.Verify(
+            t => t.ListActiveCreatedOnOrBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private sealed class TestLogger : ILogger

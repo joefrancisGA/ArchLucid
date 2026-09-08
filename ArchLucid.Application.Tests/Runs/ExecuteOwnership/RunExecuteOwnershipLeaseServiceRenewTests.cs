@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs.ExecuteOwnership;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
@@ -34,11 +35,28 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
     }
 
     [Fact]
+    public async Task RenewAsync_throws_conflict_when_peer_holds_live_lease()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        Func<Task> act = () => sut.RenewAsync(runId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*another host instance may own this run*");
+    }
+
+    [Fact]
     public async Task BeginRenewalScope_when_disabled_completes_without_error()
     {
         DisabledRunExecuteOwnershipLeaseService sut = new();
 
-        await using IAsyncDisposable scope = sut.BeginRenewalScope(Guid.NewGuid(), CancellationToken.None);
+        await using IAsyncDisposable scope = sut.BeginRenewalScope(Guid.NewGuid(), new CancellationTokenSource());
 
         await scope.DisposeAsync();
     }

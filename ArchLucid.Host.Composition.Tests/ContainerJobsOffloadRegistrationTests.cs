@@ -1,6 +1,5 @@
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs.Async;
-using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Metering;
@@ -277,7 +276,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
-    public void AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderJob()
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
         data["Hosting:Role"] = "Api";
@@ -289,9 +288,23 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         bool hasHosted = services.Any(static d =>
             d.ServiceType == typeof(IHostedService)
-            && d.ImplementationType == typeof(ScimTokenRotationReminderJob));
+            && d.ImplementationType == typeof(ScimTokenRotationReminderHostedService));
 
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ScimTokenRotationReminderHostedService_constructor_requires_leader_election_coordinator()
+    {
+        typeof(ScimTokenRotationReminderHostedService)
+            .GetConstructors()
+            .Should()
+            .ContainSingle()
+            .Which
+            .GetParameters()
+            .Select(static p => p.ParameterType)
+            .Should()
+            .Contain(typeof(HostLeaderElectionCoordinator));
     }
 
     [Fact]

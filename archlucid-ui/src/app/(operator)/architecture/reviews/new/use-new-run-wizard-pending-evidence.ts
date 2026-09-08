@@ -36,6 +36,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
 
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
   const [pendingInventoryPlatform, setPendingInventoryPlatform] = useState<CloudInventoryPlatform | null>(null);
+  const [inventoryPlatformDetectionPending, setInventoryPlatformDetectionPending] = useState(false);
   const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
   const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
@@ -47,12 +48,17 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
 
       if (file === null) {
         setPendingInventoryPlatform(null);
+        setInventoryPlatformDetectionPending(false);
 
         return;
       }
 
+      setInventoryPlatformDetectionPending(true);
+
       void (async () => {
         const platform = await detectTier1InventoryPlatformFromFile(file);
+
+        setInventoryPlatformDetectionPending(false);
 
         if (platform === null) {
           setPendingInventoryPlatform(null);
@@ -70,6 +76,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   const clearPendingEvidence = useCallback(() => {
     setPendingEvidenceFile(null);
     setPendingInventoryPlatform(null);
+    setInventoryPlatformDetectionPending(false);
     setPendingDocumentFiles([]);
   }, []);
 
@@ -161,7 +168,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       return;
     }
 
-    if (pendingEvidenceFile !== null && pendingInventoryPlatform === null) {
+    if (pendingEvidenceFile !== null && inventoryPlatformDetectionPending) {
       return;
     }
 
@@ -173,6 +180,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   }, [
     autoUploadOnCreate,
     evidenceUploadState,
+    inventoryPlatformDetectionPending,
     pendingDocumentFiles,
     pendingEvidenceFile,
     pendingInventoryPlatform,
