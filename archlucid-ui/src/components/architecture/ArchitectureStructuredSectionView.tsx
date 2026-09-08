@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { ArchitectureStructuredNarrative } from "@/components/architecture/ArchitectureStructuredNarrative";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -11,6 +13,11 @@ import {
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
 } from "@/lib/architecture/architecture-structured-content-copy";
+import {
+  ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
+  architectureStructuredSectionDisclosureHrefFromSearch,
+  parseArchitectureStructuredSectionKeyFromSearch,
+} from "@/lib/architecture/architecture-structured-section-disclosure-url";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -39,16 +46,46 @@ function ProvenanceStatusTag(props: {
 export function ArchitectureStructuredSectionView(
   props: ArchitectureStructuredSectionViewProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureStructuredSectionKeyParam = searchParams.get(ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM);
+  const [openSectionKey, setOpenSectionKeyState] = useState(() =>
+    parseArchitectureStructuredSectionKeyFromSearch(architectureStructuredSectionKeyParam),
+  );
+  const syncOpenSectionKeyToUrl = useCallback(
+    (sectionKey: string | null) => {
+      router.replace(
+        architectureStructuredSectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenSectionKey = useCallback(
+    (sectionKey: string | null) => {
+      setOpenSectionKeyState(sectionKey ?? "");
+      syncOpenSectionKeyToUrl(sectionKey);
+    },
+    [syncOpenSectionKeyToUrl],
+  );
   const { section } = props;
   const hasNarrative = (section.narrativeMarkdown?.trim().length ?? 0) > 0;
   const hasEntities = section.entities.length > 0;
   const isEmpty = !hasNarrative && !hasEntities;
+  const sectionOpen =
+    openSectionKey === section.key || (architectureStructuredSectionKeyParam === null && props.defaultOpen === true);
+
+  useEffect(() => {
+    setOpenSectionKeyState(parseArchitectureStructuredSectionKeyFromSearch(architectureStructuredSectionKeyParam));
+  }, [architectureStructuredSectionKeyParam]);
 
   return (
     <details
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-testid={`architecture-structured-section-${section.key}`}
-      open={props.defaultOpen === true}
+      open={sectionOpen}
+      onToggle={(event) => setOpenSectionKey(event.currentTarget.open ? section.key : null)}
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2">
         <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -13,6 +13,7 @@ import {
   summarizeCompareProvenanceDelta,
 } from "@/lib/compare/compare-provenance-delta-summary";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { feasibilityVerdictKindLabel } from "@/lib/feasibility-verdict-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
 import type { DiffItem, RunSummary } from "@/types/authority";
@@ -26,16 +27,10 @@ export type CompareProvenanceDeltaBandProps = {
   readonly manifestDiffs?: readonly DiffItem[];
 };
 
-/** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). */
+/** Working Compare hoists asserted / inferred / skipped MUST divergence (WA-09). Guided keeps a compact summary. */
 export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProps): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
-  const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId, {
-    enabled: isWorkingMode,
-  });
-
-  if (!isWorkingMode) {
-    return null;
-  }
+  const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId);
 
   if (query.isError) {
     const failure = toApiLoadFailure(query.error);
@@ -65,12 +60,14 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
       label: compareRunHeadingLabel(props.baselineRunId, props.baselinePickedSummary),
       trail: query.data.baseline.trail,
       missingTrailDefect: query.data.baseline.missingTrailDefect,
+      feasibilityVerdictKind: query.data.baseline.feasibilityVerdictKind,
     },
     {
       runId: query.data.target.runId,
       label: compareRunHeadingLabel(props.targetRunId, props.targetPickedSummary),
       trail: query.data.target.trail,
       missingTrailDefect: query.data.target.missingTrailDefect,
+      feasibilityVerdictKind: query.data.target.feasibilityVerdictKind,
     },
     assumptionDiffs,
   );
@@ -81,6 +78,28 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
 
   const baselineSkippedMust = listSkippedMustQuestionKeys(summary.baseline.trail).length;
   const targetSkippedMust = listSkippedMustQuestionKeys(summary.target.trail).length;
+
+  if (!isWorkingMode) {
+    return (
+      <section
+        id="compare-provenance"
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="compare-provenance-delta-band"
+      >
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Assumption and provenance delta
+        </h2>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Baseline asserted {summary.baseline.trail?.asserted.length ?? 0}, skipped MUST {baselineSkippedMust} ·
+          Updated asserted {summary.target.trail?.asserted.length ?? 0}, skipped MUST {targetSkippedMust}.
+          {summary.assumptionDiffCount > 0
+            ? ` Manifest assumptions changed in ${summary.assumptionDiffCount} row${summary.assumptionDiffCount === 1 ? "" : "s"}.`
+            : ""}{" "}
+          Open Technical details for the full trail.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -113,6 +132,20 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
           </dd>
         </div>
       </dl>
+
+      {summary.feasibilityVerdictChanged ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-feasibility-verdict-delta">
+          Feasibility verdict changed — baseline{" "}
+          {summary.baseline.feasibilityVerdictKind !== null
+            ? feasibilityVerdictKindLabel(summary.baseline.feasibilityVerdictKind)
+            : "unknown"}{" "}
+          · updated{" "}
+          {summary.target.feasibilityVerdictKind !== null
+            ? feasibilityVerdictKindLabel(summary.target.feasibilityVerdictKind)
+            : "unknown"}
+          .
+        </p>
+      ) : null}
 
       {summary.assumptionDiffCount > 0 ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-assumptions-diff-count">

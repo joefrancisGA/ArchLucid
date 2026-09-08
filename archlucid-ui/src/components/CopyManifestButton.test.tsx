@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { CopyManifestButton } from "@/components/CopyManifestButton";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: vi.fn(() => false),
+}));
+
 vi.mock("@/lib/manifest-json-fetch", () => ({
   fetchManifestJsonText: vi.fn(),
 }));
@@ -23,7 +27,12 @@ describe("CopyManifestButton", () => {
       expect(fetchManifestJsonText).toHaveBeenCalledWith("run-abc-123");
     });
 
-    expect(writeText).toHaveBeenCalledWith('{"manifestId":"m-1"}');
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('"manifestId": "m-1"'),
+    );
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('"_careerExportHonesty"'),
+    );
     expect(screen.getByTestId("copy-manifest-json-button")).toHaveTextContent("Copied!");
 
     vi.unstubAllGlobals();
@@ -44,7 +53,7 @@ describe("CopyManifestButton", () => {
 
     fireEvent.click(screen.getByTestId("copy-manifest-json-button"));
 
-    expect(await screen.findByTestId("copy-manifest-json-error")).toHaveTextContent(
+    expect(await screen.findByTestId("copy-manifest-json-blocked-reason")).toHaveTextContent(
       "committed sealed manifest version",
     );
   });

@@ -20,6 +20,10 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams("tab=advanced-rules&runId=run-composite-test"),

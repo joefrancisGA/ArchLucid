@@ -132,6 +132,7 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
   readonly businessOutcome: string;
   readonly systemName: string;
   readonly structuredBrief: ReturnType<typeof structuredBriefFromDocument>;
+  readonly openQuestions: string;
 } {
   if (draft === null) {
     return {
@@ -139,6 +140,7 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
       businessOutcome: "",
       systemName: "",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
   }
 
@@ -152,6 +154,7 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
     businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome ?? ""),
     systemName: draft.document.systemName ?? "",
     structuredBrief: structuredBriefFromDocument(draft.document),
+    openQuestions: draft.document.openQuestions?.trim() ?? "",
   };
 }
 

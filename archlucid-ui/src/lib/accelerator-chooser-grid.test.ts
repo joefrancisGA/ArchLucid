@@ -7,7 +7,7 @@ import {
 } from "@/lib/accelerator-chooser-grid";
 
 describe("accelerator-chooser cost governance grouping", () => {
-  it("builds a single grouped grid row for cost governance packs", () => {
+  it("builds a single grouped grid row for cost policy packs", () => {
     expect(buildAcceleratorChooserGridItems()).toHaveLength(5);
   });
 

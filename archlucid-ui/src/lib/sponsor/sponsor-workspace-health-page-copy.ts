@@ -24,7 +24,7 @@ export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_OPERATOR =
 
 export const SPONSOR_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER = "About workspace health";
 
-export const SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open governance approval";
+export const SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open approval";
 
 export const SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY = "Session scope";
 
@@ -45,7 +45,7 @@ export const SPONSOR_WORKSPACE_HEALTH_SOURCES: readonly SponsorWorkspaceHealthSo
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "ROI summary", href: "/insights/roi-summary" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 

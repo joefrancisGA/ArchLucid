@@ -1,0 +1,99 @@
+/** @vitest-environment jsdom */
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+  };
+});
+
+vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
+  HelpTopicHashScroll: () => null,
+}));
+
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/accelerator-chooser",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/lib/help/help-topic-pdf-download", () => ({
+  downloadHelpTopicPdf: vi.fn(),
+}));
+
+const useAcceleratorChooserPrerequisitePresentation = vi.fn();
+
+vi.mock("@/hooks/use-accelerator-chooser-prerequisite-presentation", () => ({
+  useAcceleratorChooserPrerequisitePresentation: () => useAcceleratorChooserPrerequisitePresentation(),
+}));
+
+import { HelpAcceleratorChooserGuideView } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserGuideView";
+import {
+  ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE,
+  ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE,
+  ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS,
+} from "@/lib/accelerator-chooser-help-evidence-copy";
+import {
+  ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
+  ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
+} from "@/lib/accelerator-chooser-help-page-copy";
+import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+
+describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
+  beforeEach(() => {
+    useAcceleratorChooserPrerequisitePresentation.mockReturnValue({
+      status: "met",
+      signedRecordHref: "/architecture/signed-records/manifest-1",
+      retry: vi.fn(),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("renders skip link, header claim discipline, and bottom Sources after pack body", () => {
+    const loaded = tryLoadProductDocumentation("accelerator-chooser");
+
+    if (loaded === null) {
+      throw new Error("Expected accelerator-chooser documentation to load.");
+    }
+
+    render(<HelpAcceleratorChooserGuideView entry={loaded.entry} />);
+
+    expect(screen.getByRole("link", { name: ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID}`,
+    );
+    expect(screen.getByTestId("help-accelerator-chooser-claim-discipline")).toHaveTextContent(
+      ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE,
+    );
+    expect(screen.queryByTestId("help-accelerator-chooser-claim-discipline-strip")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-accelerator-chooser-related-next-steps")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+
+    const primary = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID);
+    const packs = screen.getByTestId("help-accelerator-chooser-packs");
+    const orientation = screen.getByTestId("help-accelerator-chooser-orientation-bottom");
+
+    expect(primary).toContainElement(packs);
+    expect(primary).toContainElement(orientation);
+    expect(packs.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    expect(screen.getByRole("heading", { level: 2, name: ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    for (const source of ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS) {
+      expectFollowUpLink(screen, source);
+    }
+  });
+});

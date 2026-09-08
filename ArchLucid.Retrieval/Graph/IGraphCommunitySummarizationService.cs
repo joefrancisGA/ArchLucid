@@ -6,6 +6,10 @@ namespace ArchLucid.Retrieval.Graph;
 /// <summary>Builds community-summary retrieval documents from a graph snapshot when enabled (TB-877).</summary>
 public interface IGraphCommunitySummarizationService
 {
+    Task<IReadOnlyList<GraphCommunitySummary>> BuildBoundedSummariesAsync(
+        GraphSnapshot snapshot,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<RetrievalDocument>> BuildCommunityDocumentsAsync(
         GraphSnapshot snapshot,
         Guid tenantId,

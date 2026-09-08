@@ -8,7 +8,8 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle2, UploadCloud } from "lucide-react";
 
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
@@ -19,6 +20,11 @@ import {
   RUN_DETAIL_EVIDENCE_CAPTURE_SECTION_TITLE,
 } from "@/lib/bulk-evidence-upload-copy";
 import type { BulkEvidenceUploadSummary } from "@/lib/bulk-evidence-upload-outcome";
+import {
+  BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
+  bulkEvidenceUploadErrorDiagnosticsDisclosureHrefFromSearch,
+  parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch,
+} from "@/lib/runs/bulk-evidence-upload-error-diagnostics-disclosure-url";
 
 import { Button } from "./ui/button";
 import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
@@ -46,6 +52,34 @@ function recoveryPresentationForError(error: BulkEvidenceUploadError) {
  * @see `BulkEvidenceUpload.test.tsx`
  */
 export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }: BulkEvidenceUploadProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const bulkEvidenceUploadErrorDiagnosticsParam = searchParams.get(BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM);
+  const [bulkEvidenceUploadErrorDiagnosticsOpen, setBulkEvidenceUploadErrorDiagnosticsOpenState] = useState(() =>
+    parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch(bulkEvidenceUploadErrorDiagnosticsParam),
+  );
+  const syncBulkEvidenceUploadErrorDiagnosticsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        bulkEvidenceUploadErrorDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setBulkEvidenceUploadErrorDiagnosticsOpen = useCallback(
+    (open: boolean) => {
+      setBulkEvidenceUploadErrorDiagnosticsOpenState(open);
+      syncBulkEvidenceUploadErrorDiagnosticsOpenToUrl(open);
+    },
+    [syncBulkEvidenceUploadErrorDiagnosticsOpenToUrl],
+  );
+  useEffect(() => {
+    setBulkEvidenceUploadErrorDiagnosticsOpenState(
+      parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch(bulkEvidenceUploadErrorDiagnosticsParam),
+    );
+  }, [bulkEvidenceUploadErrorDiagnosticsParam]);
   const {
     files,
     error,
@@ -164,7 +198,12 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
                 recoveryPresentation={recoveryPresentationForError(error)}
               />
               {error.rawDetail !== undefined && error.rawDetail !== null && error.rawDetail.trim().length > 0 ? (
-                <details className="mt-2" data-testid="bulk-evidence-upload-error-diagnostics">
+                <details
+                  className="mt-2"
+                  data-testid="bulk-evidence-upload-error-diagnostics"
+                  open={bulkEvidenceUploadErrorDiagnosticsOpen}
+                  onToggle={(event) => setBulkEvidenceUploadErrorDiagnosticsOpen(event.currentTarget.open)}
+                >
                   <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Technical details</summary>
                   <p
                     className={cn(

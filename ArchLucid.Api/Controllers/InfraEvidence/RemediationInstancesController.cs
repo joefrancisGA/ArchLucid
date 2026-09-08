@@ -101,6 +101,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/preflight")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation preflight delegates to RemediationInstanceService.")]
@@ -128,6 +129,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/approve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation approval delegates to RemediationInstanceService.")]
@@ -148,6 +150,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/assign-wave")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation wave assignment delegates to RemediationInstanceService.")]
@@ -175,6 +178,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation execute emits advisory artifacts only; no terraform apply.")]
@@ -207,6 +211,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/verify")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation verification delegates to RemediationInstanceService.")]
@@ -234,6 +239,7 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/close")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation close delegates to RemediationInstanceService.")]

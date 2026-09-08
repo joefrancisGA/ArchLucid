@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EvidenceExtractionAwaitingSkeleton } from "@/components/evidence/EvidenceExtractionAwaitingSkeleton";
@@ -22,6 +23,11 @@ import {
   UNIVERSAL_INTAKE_SUGGEST_FROM_EVIDENCE_LABEL,
 } from "@/lib/universal-intake-answer-inference";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
+import {
+  FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM,
+  firstPilotL0MustQuestionsDisclosureHrefFromSearch,
+  parseFirstPilotL0MustQuestionsOpenFromSearch,
+} from "@/lib/first-pilot/first-pilot-l0-must-questions-disclosure-url";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type QuickStartL0MustQuestionsPanelProps = {
@@ -59,7 +65,48 @@ function isQuickStartClarificationHandled(
 
 /** Quick start L0 MUST interviewer — reuses Guided questions field chrome (TB-2283). */
 export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const l0MustQuestionsOpenParam = searchParams.get(FIRST_PILOT_L0_MUST_QUESTIONS_OPEN_PARAM);
+  const [panelOpen, setPanelOpenState] = useState<boolean>(
+    () => parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam) || true,
+  );
   const total = UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.length;
+
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(firstPilotL0MustQuestionsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseFirstPilotL0MustQuestionsOpenFromSearch(l0MustQuestionsOpenParam)) {
+      setPanelOpenState(true);
+
+      return;
+    }
+
+    if (l0MustQuestionsOpenParam !== null) {
+      setPanelOpenState(false);
+
+      return;
+    }
+
+    setPanelOpenState(true);
+  }, [l0MustQuestionsOpenParam]);
+
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -211,7 +258,8 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
     <CollapsibleSection
       title="Required clarifications"
       summaryLine={`${handledClarificationCount} of ${total} answered or marked unknown`}
-      defaultOpen
+      open={panelOpen}
+      onToggle={setPanelOpen}
       sectionTestId="first-pilot-l0-must-panel"
     >
       <div className="space-y-4">

@@ -5,13 +5,15 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import {
+  INVITE_REVIEWER_ARCHITECTURE_ID_QUERY_PARAM,
   INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM,
   buildInviteReviewerPrefillMessage,
 } from "@/lib/invite-reviewer-flow";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveInviteReviewerReviewHref } from "@/lib/resolve-invite-reviewer-review-href";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { buildShareableOperatorUrl } from "@/lib/shareable-operator-link";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -21,7 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
   INVITE_REVIEWER_BACK_LABEL,
-  INVITE_REVIEWER_BACK_TO_REVIEW_HREF,
   INVITE_REVIEWER_FOOTER_LEAD,
   INVITE_REVIEWER_FORBIDDEN_DESCRIPTION,
   INVITE_REVIEWER_PAGE_TITLE,
@@ -29,14 +30,22 @@ import {
 } from "@/lib/invite-reviewer-flow";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 import { InviteReviewerBuyerChrome } from "./InviteReviewerBuyerChrome";
 import { InviteReviewerBreadcrumb } from "./InviteReviewerBreadcrumb";
-import { inviteReviewerPageSubtitle } from "./invite-reviewer-page-copy";
+import {
+  INVITE_REVIEWER_FIRST_VIEWPORT_TEST_ID,
+  INVITE_REVIEWER_PRIMARY_CONTENT_ID,
+  INVITE_REVIEWER_SKIP_LINK_LABEL,
+  INVITE_REVIEWER_SKIP_TARGET_ID,
+  inviteReviewerPageSubtitle,
+} from "./invite-reviewer-page-copy";
 import { INVITE_REVIEWER_CLAIM_DISCIPLINE } from "@/lib/invite-reviewer-evidence-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import { AuthBetaReadinessInviteCallout } from "./AuthBetaReadinessInviteCallout";
 import { InviteReviewerReaderCapabilitiesSummary } from "./InviteReviewerReaderCapabilitiesSummary";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
 
@@ -47,10 +56,23 @@ type Props = {
 export function InviteReviewerPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { isWorkingMode } = useWorkspaceMode();
   const searchParams = useSearchParams();
   const reviewIdFromQuery = searchParams.get(INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
+  const architectureIdFromQuery =
+    searchParams.get(INVITE_REVIEWER_ARCHITECTURE_ID_QUERY_PARAM)?.trim() ?? "";
   const reviewSummaryQuery = useRunSummaryQuery(reviewIdFromQuery, {
     enabled: reviewIdFromQuery.length > 0,
+  });
+  const resolvedArchitectureId =
+    architectureIdFromQuery.length > 0
+      ? architectureIdFromQuery
+      : (reviewSummaryQuery.data?.requestId?.trim() ?? "");
+  const inviteBackHref = resolveInviteReviewerReviewHref({
+    workingMode: isWorkingMode,
+    runId: reviewIdFromQuery,
+    architectureId: resolvedArchitectureId,
+    requestId: reviewSummaryQuery.data?.requestId,
   });
   const invitePrefillMessage = useMemo(() => {
     if (reviewIdFromQuery.length === 0) {
@@ -64,13 +86,20 @@ export function InviteReviewerPageView(props: Props) {
     }
 
     const reviewLabel = buyerFacingReviewTitleFromSummary(reviewSummary);
-    const reviewHref = buildShareableOperatorUrl(reviewDetailPath(reviewIdFromQuery));
+    const reviewHref = buildShareableOperatorUrl(
+      resolveInviteReviewerReviewHref({
+        workingMode: isWorkingMode,
+        runId: reviewIdFromQuery,
+        architectureId: resolvedArchitectureId,
+        requestId: reviewSummary.requestId,
+      }),
+    );
 
     return buildInviteReviewerPrefillMessage({
       reviewLabel,
       reviewHref,
     });
-  }, [reviewIdFromQuery, reviewSummaryQuery.data]);
+  }, [isWorkingMode, resolvedArchitectureId, reviewIdFromQuery, reviewSummaryQuery.data]);
 
   if (m.surface === "demo") {
     return (
@@ -92,7 +121,7 @@ export function InviteReviewerPageView(props: Props) {
   if (m.surface === "forbidden") {
     return (
       <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
-        <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
+        <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} inviteBackHref={inviteBackHref} />
         <Card>
           <CardContent className="pt-6">
             <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="invite-reviewer-forbidden">
@@ -100,7 +129,7 @@ export function InviteReviewerPageView(props: Props) {
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button type="button" variant="secondary" size="sm" asChild>
-                <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+                <Link href={inviteBackHref}>{INVITE_REVIEWER_BACK_LABEL}</Link>
               </Button>
               <Button type="button" variant="outline" size="sm" asChild>
                 <Link href={SETTINGS_ROLES_USERS_TAB_PATH}>Open Users and roles</Link>
@@ -112,15 +141,21 @@ export function InviteReviewerPageView(props: Props) {
     );
   }
 
-  return (
-    <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
-      <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
+  const inviteReviewerWorkspaceBody = (
+    <>
+      <InviteReviewerBuyerChrome />
+      <AuthBetaReadinessInviteCallout />
       <Card>
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
         </CardHeader>
         <CardContent>
-          <SettingsRolesInvitePanel initialMessage={invitePrefillMessage} reviewId={reviewIdFromQuery} />
+          <SettingsRolesInvitePanel
+            initialMessage={invitePrefillMessage}
+            reviewId={reviewIdFromQuery}
+            architectureId={resolvedArchitectureId}
+            workingMode={isWorkingMode}
+          />
         </CardContent>
       </Card>
 
@@ -131,14 +166,55 @@ export function InviteReviewerPageView(props: Props) {
         </Link>
         .
       </p>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${INVITE_REVIEWER_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {INVITE_REVIEWER_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <div
+          id={INVITE_REVIEWER_PRIMARY_CONTENT_ID}
+          data-testid="invite-reviewer-primary-content"
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        >
+          <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} inviteBackHref={inviteBackHref} />
+
+          <div
+            id={INVITE_REVIEWER_SKIP_TARGET_ID}
+            data-testid={INVITE_REVIEWER_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            {inviteReviewerWorkspaceBody}
+          </div>
+        </div>
+      ) : (
+        <>
+          <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} inviteBackHref={inviteBackHref} />
+          {inviteReviewerWorkspaceBody}
+        </>
+      )}
     </OperatorPageContainer>
   );
 }
 
-function InviteReviewerPageHeader(props: { readonly buyerPolishedShell: boolean }): React.JSX.Element {
+function InviteReviewerPageHeader(props: {
+  readonly buyerPolishedShell: boolean;
+  readonly inviteBackHref: string;
+}): React.JSX.Element {
   return (
-    <>
-      <OperatorPageHeader
+    <OperatorPageHeader
         title={INVITE_REVIEWER_PAGE_TITLE}
         headingLevel="h1"
         subtitle={inviteReviewerPageSubtitle(props.buyerPolishedShell)}
@@ -148,15 +224,13 @@ function InviteReviewerPageHeader(props: { readonly buyerPolishedShell: boolean 
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button type="button" variant="outline" size="sm" className="h-8 px-2" asChild>
-              <Link href={INVITE_REVIEWER_BACK_TO_REVIEW_HREF}>{INVITE_REVIEWER_BACK_LABEL}</Link>
+              <Link href={props.inviteBackHref}>{INVITE_REVIEWER_BACK_LABEL}</Link>
             </Button>
             {props.buyerPolishedShell ? null : <PageContextualHelpButton />}
           </div>
         }
       >
-        <InviteReviewerReaderCapabilitiesSummary />
-      </OperatorPageHeader>
-      <InviteReviewerBuyerChrome />
-    </>
+      <InviteReviewerReaderCapabilitiesSummary />
+    </OperatorPageHeader>
   );
 }

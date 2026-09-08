@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import type { RiskExceptionRecord } from "@/lib/api/governance-stickiness-api";
 
@@ -37,7 +37,7 @@ export function useFindingInspectGovernanceStickiness(
     approvedDecisionTitles = [],
   } = props;
   const canMutate = useOperateCapability();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const [activeWaiver, setActiveWaiver] = useState<RiskExceptionRecord | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -146,6 +146,8 @@ export function useFindingInspectGovernanceStickiness(
     setApplyChangePreviewOverride: dispositions.setApplyChangePreviewOverride,
     tradeOffAcknowledgment: dispositions.tradeOffAcknowledgment,
     setTradeOffAcknowledgment: dispositions.setTradeOffAcknowledgment,
+    architectRestatement: dispositions.architectRestatement,
+    setArchitectRestatement: dispositions.setArchitectRestatement,
     showIncrementalRereviewLink: dispositions.showIncrementalRereviewLink,
     submitRemediationAssignment: remediation.submitRemediationAssignment,
     submitDisposition: dispositions.submitDisposition,

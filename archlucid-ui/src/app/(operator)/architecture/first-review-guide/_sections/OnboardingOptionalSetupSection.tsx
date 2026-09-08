@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -22,6 +23,14 @@ import {
   ONBOARDING_OPTIONAL_SETUP_HEADING_ID,
   isOnboardingOptionalSetupDeepLinkHash,
 } from "@/lib/first-review-guide-route";
+import {
+  onboardingOptionalSetupDisclosureHrefFromSearch,
+  parseOnboardingOptionalSetupOpenFromSearch,
+} from "@/lib/first-review/onboarding-optional-setup-disclosure-url";
+import {
+  readOperatorHomeDisclosureExpanded,
+  writeOperatorHomeDisclosureExpanded,
+} from "@/lib/operator/operator-home-disclosure-storage";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 
 import {
@@ -60,6 +69,33 @@ export function OnboardingOptionalSetupSection() {
   const collapsedSummary = formatOptionalWorkspaceSetupCollapsedSummary(readyCount, totalCount);
   const [dismissed, setDismissed] = useState(readOptionalSetupDismissed);
   const [deepLinkActive, setDeepLinkActive] = useState(readOptionalSetupDeepLinkActive);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const onboardingOptionalSetupOpenParam = searchParams.get("onboardingOptionalSetupOpen");
+  const [optionalSetupExpanded, setOptionalSetupExpandedState] = useState(() => {
+    if (parseOnboardingOptionalSetupOpenFromSearch(onboardingOptionalSetupOpenParam)) {
+      return true;
+    }
+
+    return readOperatorHomeDisclosureExpanded(ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY, false);
+  });
+
+  const setOptionalSetupExpanded = useCallback(
+    (open: boolean) => {
+      setOptionalSetupExpandedState(open);
+      writeOperatorHomeDisclosureExpanded(ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY, open);
+      router.replace(
+        onboardingOptionalSetupDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setOptionalSetupExpandedState(parseOnboardingOptionalSetupOpenFromSearch(onboardingOptionalSetupOpenParam));
+  }, [onboardingOptionalSetupOpenParam]);
 
   useEffect(() => {
     const syncDeepLink = () => {
@@ -151,6 +187,8 @@ export function OnboardingOptionalSetupSection() {
       sectionTestId="onboarding-optional-setup"
       storageKey={ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY}
       defaultExpanded={false}
+      expanded={optionalSetupExpanded}
+      onExpandedChange={setOptionalSetupExpanded}
       autoExpandOnHashMatch
       deepLinkHashMatches={isOnboardingOptionalSetupDeepLinkHash}
       collapsedSummary={collapsedSummary}

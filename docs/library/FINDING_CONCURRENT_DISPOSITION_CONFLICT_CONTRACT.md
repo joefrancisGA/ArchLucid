@@ -11,7 +11,9 @@
 
 ## Decision in one line
 
-V1 keeps **append-only finding dispositions** (both racing writes persist; **current** = latest `OccurredAtUtc`) and **last-writer `HumanReviewStatus`** on the correlated snapshot row. **Governance approval requests** remain a separate **first-wins CAS** (`TryTransitionFromReviewableAsync`; loser **409**). Do not conflate finding approve/reject with approval-queue mutex semantics.
+**Working (ADR 0076):** append-only `FindingReviewEvents` **plus** a CAS-protected **current pointer** (`dbo.FindingCurrentDispositions` / `RowVersionStamp`). The second racing writer receives **409** with the winner's disposition; history may still contain both events only when the loser retried after reload. **Governance approval requests** remain separate first-wins CAS (`TryTransitionFromReviewableAsync`).
+
+**V1 (TB-986, superseded for current pointer):** both racing writes succeeded; **current** = latest `OccurredAtUtc`. See ADR 0076 for the Working target.
 
 ---
 
@@ -19,8 +21,8 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 
 | Option | Decision | Follow-on |
 | --- | --- | --- |
-| **A — Append-only + UX honesty** | **Shipped** | **TB-987** (stale-current UX, divergence disclosure); **TB-988** (race regression tests) |
-| **B — Contradictory-disposition mutex (409)** | **Deferred** | Requires explicit product/API change; do not implement silently under **TB-987** |
+| **A — Append-only + UX honesty** | **Shipped (V1)** | **TB-987** (stale-current UX); **TB-988** (race regression tests) |
+| **B — Contradictory-disposition mutex (409)** | **Working via ADR 0076 (2026-09-06)** | Current pointer CAS; 409 payload; RS-11 conflict UI |
 
 ---
 
@@ -28,8 +30,8 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 
 | Object | Storage / API | Concurrent rule | Durable outcome when two operators race |
 | --- | --- | --- | --- |
-| **Finding disposition trail** | `INSERT dbo.FindingReviewEvents` via `FindingDispositionService` → `FindingReviewTrailAppendService` | **Append-only** — no CAS, no 409 | **Both events persist**; inspect / stickiness **current** = `TOP 1 … ORDER BY OccurredAtUtc DESC` (`DapperFindingInspectReadRepository`, `ArchitectureRiskRegisterReader`) |
-| **`HumanReviewStatus` (ITSM inbound)** | `UPDATE dbo.FindingRecords` on correlated snapshot row | **Last writer wins** — plain `UPDATE`, no 409 | Final column value = last successful inbound sync; may **diverge** from disposition trail unless **TB-396** disposition map also appends |
+| **Finding disposition trail** | `INSERT dbo.FindingReviewEvents` via `FindingDispositionService` → `FindingReviewTrailAppendService` | **Append-only** with **current-pointer CAS** when `dbo.FindingCurrentDispositions` exists (ADR 0076) | Loser gets **409** / `FindingDispositionConflictException`; history remains append-only; inspect **current** = pointer event |
+| **`HumanReviewStatus` (ITSM inbound)** | `UPDATE dbo.FindingRecords` on correlated snapshot row | **Working (LP-17):** when mapped disposition CAS fails, **skip** snapshot update and emit `dispositionConflict` audit; otherwise last writer on snapshot row | Final column value = last successful inbound sync **only when disposition sync did not conflict**; may still **diverge** from disposition trail when disposition map is absent — Working inspect surfaces divergence banner + export suffix |
 | **Governance approval request** | `UPDATE dbo.GovernanceApprovalRequests` via `TryTransitionFromReviewableAsync` | **First transition wins** — `Serializable` + `@@ROWCOUNT` | Loser gets **409** / `GovernanceApprovalReviewConflictException`; **out of finding scope** but must be contrasted in PA answers |
 
 ---
@@ -40,7 +42,7 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 2. **Both HTTP calls succeed** (no conflict status).
 3. **Both rows** appear in `dbo.FindingReviewEvents` and disposition history APIs.
 4. **Current disposition** in inspect / risk register = whichever event has the **later** `OccurredAtUtc` (clock-order; **no event-id tie-break** — see [`EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md)).
-5. If an ITSM webhook races a human disposition, **`HumanReviewStatus`** follows last-writer on the snapshot row; mapped disposition (**TB-396** Done) may append a trail event — still not a mutex.
+5. If an ITSM webhook races a human disposition, **mapped disposition** (**TB-396**) uses the same ADR 0076 CAS as the UI. On conflict, **`HumanReviewStatus` is not updated** and audit records `dispositionConflict`; inspect shows the human current disposition. Unmapped inbound status may still last-writer on the snapshot row — Working inspect + export suffix flag divergence when terminal queue state disagrees with the current disposition pointer.
 
 ---
 
@@ -48,7 +50,10 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 
 | Surface | Path / symbol | TB-986 expectation |
 | --- | --- | --- |
-| Disposition append | `ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs` | Always `INSERT`; never updates prior events |
+| Disposition append | `ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs` | Append + CAS when current pointer exists; 409 on conflict |
+| ITSM inbound disposition CAS | `ItsmInboundDispositionSync` + `ItsmInboundWebhookProcessPipeline` | Mapped status uses inspect row version; conflict skips `HumanReviewStatus` update |
+| Working inspect divergence | `finding-human-review-disposition-divergence.ts` + `FindingInspectItsmWorkflowPanel` | Banner when CAS pointer exists and terminal ITSM queue state disagrees with current disposition |
+| Export honesty | `FindingHumanReviewDispositionDivergence` + `ArchitectureRunFindingsCsvFormatter` | Appends `(diverged from disposition trail)` to HumanReviewStatus column when diverged |
 | Trail repository | `SqlFindingReviewTrailRepository` | `ListByFindingAsync` ordered `OccurredAtUtc DESC` |
 | Inspect current | `DapperFindingInspectReadRepository` | `LatestDisposition` from latest disposition row |
 | Approval CAS | `GovernanceApprovalRequestRepository.TryTransitionFromReviewableAsync` | Unchanged; loser 409 |
@@ -64,7 +69,7 @@ V1 keeps **append-only finding dispositions** (both racing writes persist; **cur
 | Too strong | Safe |
 | --- | --- |
 | “Finding approve/reject is mutually exclusive first-wins like the governance queue” | Dispositions are append-only history; current = latest by time |
-| “Concurrent disposition returns 409 Conflict” | **409** is approval-request CAS today; finding disposition returns **200** with a new event |
+| “Concurrent disposition returns 409 Conflict” | **409** on disposition when current pointer exists (UI + mapped ITSM inbound); approval-request CAS unchanged |
 | “ITSM status update is the durable approval trail” | ITSM updates queue state; disposition trail is separate unless mapped (**TB-396**) |
 | “Current disposition is immutable” | Later disposition events supersede for **current** view; history remains |
 | “Operators always see concurrent-update feedback” | **TB-987** **Done** — inspect stickiness surfaces concurrent-update notice after save |

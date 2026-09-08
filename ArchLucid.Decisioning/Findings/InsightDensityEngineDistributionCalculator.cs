@@ -9,9 +9,10 @@ namespace ArchLucid.Decisioning.Findings;
 /// <remarks>
 ///     <para>
 ///         <strong>claimBoundary:</strong> Per ADR 0070, typed-engine findings follow the same demotion
-///         predicate as agent findings. Distribution rows report computed scores and
-///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> aligned with
-///         production gate behavior.
+///         predicate as agent findings. Distribution rows report computed scores,
+///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteIfUnprotectedCount" /> at the live
+///         <see cref="InsightDensityGateOptions.DemotionThreshold" />, and advisory
+///         <see cref="InsightDensityEngineDistributionRow.WouldDemoteAt65Count" /> for threshold tuning.
 ///     </para>
 ///     <para>
 ///         The golden corpus harness exercises six engines; thirty-three built-in engines are absent
@@ -38,66 +39,28 @@ public static class InsightDensityEngineDistributionCalculator
             .Select(InsightDensityGateCandidate.FromFinding)
             .ToList();
 
-        Dictionary<string, List<int>> scoresByEngine = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, InsightDensityEngineDistributionAccumulator> accumulators =
+            new(StringComparer.OrdinalIgnoreCase);
 
         foreach (Finding finding in snapshot.Findings)
         {
             InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
             InsightDensityGateResult result = gate.Score(candidate, candidates);
 
-            if (!scoresByEngine.TryGetValue(finding.EngineType, out List<int>? bucket))
+            if (!accumulators.TryGetValue(finding.EngineType, out InsightDensityEngineDistributionAccumulator? accumulator))
             {
-                bucket = [];
-                scoresByEngine[finding.EngineType] = bucket;
+                accumulator = new InsightDensityEngineDistributionAccumulator();
+                accumulators[finding.EngineType] = accumulator;
             }
 
-            bucket.Add(result.InsightDensityScore);
+            accumulator.AddFinding(result, candidate, options.DemotionThreshold);
         }
 
-        List<InsightDensityEngineDistributionRow> rows = scoresByEngine
+        List<InsightDensityEngineDistributionRow> rows = accumulators
             .OrderBy(static pair => pair.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(pair => BuildRow(pair.Key, pair.Value, options.DemotionThreshold))
+            .Select(static pair => pair.Value.ToRow(pair.Key))
             .ToList();
 
         return new InsightDensityEngineDistribution { Rows = rows };
-    }
-
-    private static InsightDensityEngineDistributionRow BuildRow(
-        string engineType,
-        List<int> scores,
-        int demotionThreshold)
-    {
-        List<int> sortedScores = scores.OrderBy(static score => score).ToList();
-        int findingCount = sortedScores.Count;
-        int minScore = sortedScores[0];
-        int maxScore = sortedScores[findingCount - 1];
-        int medianScore = ComputeMedian(sortedScores);
-        int wouldDemoteCount = sortedScores.Count(score => score < demotionThreshold);
-
-        return new InsightDensityEngineDistributionRow
-        {
-            EngineType = engineType,
-            FindingCount = findingCount,
-            MinScore = minScore,
-            MedianScore = medianScore,
-            MaxScore = maxScore,
-            WouldDemoteIfUnprotectedCount = wouldDemoteCount,
-        };
-    }
-
-    private static int ComputeMedian(List<int> sortedScores)
-    {
-        int count = sortedScores.Count;
-        int middleIndex = count / 2;
-
-        if (count % 2 == 1)
-        {
-            return sortedScores[middleIndex];
-        }
-
-        int lower = sortedScores[middleIndex - 1];
-        int upper = sortedScores[middleIndex];
-
-        return (lower + upper) / 2;
     }
 }

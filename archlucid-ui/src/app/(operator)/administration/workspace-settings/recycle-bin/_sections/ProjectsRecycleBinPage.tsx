@@ -44,13 +44,13 @@ import {
 } from "@/lib/projects-recycle-bin-page-copy";
 import {
   coerceRecycleBinPayload,
-  recycleBinPageDescription,
   type WorkspaceBinRow,
 } from "@/lib/projects-recycle-bin-payload";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY } from "@/lib/vocabulary/projects-recycle-drafts-package-vocabulary";
 import { whyDisabledNeedsRole } from "@/lib/why-disabled-cta";
 
+import { ProjectsRecycleBinBuyerChrome } from "./ProjectsRecycleBinBuyerChrome";
 import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
 import { ProjectsRecycleBinEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
@@ -69,6 +69,22 @@ import {
   parseProjectsRecycleBinRestoreProjectIdFromSearch,
   projectsRecycleBinRestoreHrefFromSearch,
 } from "@/lib/administration/projects-recycle-bin-restore-url";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE,
+} from "@/lib/projects-recycle-bin-evidence-copy";
+import {
+  PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
+  PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD,
+  PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL,
+  PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE,
+  recycleBinPageSubtitle,
+} from "@/lib/projects-recycle-bin-settings-page-copy";
 import { SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH } from "@/lib/settings-admin-route-paths";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
@@ -94,12 +110,13 @@ function restoreFeedbackStatusLabel(kind: ProjectsRecycleBinFeedback["kind"]): s
 type WorkspaceRecycleBinTableProps = Readonly<{
   workspace: WorkspaceBinRow;
   canRestoreExecute: boolean;
+  buyerPolishedShell: boolean;
   restoreBusyRow: string | null;
   onRequestRestore: (workspaceId: string, workspaceName: string, projectId: string, projectName: string) => void;
 }>;
 
 function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
-  const { workspace, canRestoreExecute, restoreBusyRow, onRequestRestore } = props;
+  const { workspace, canRestoreExecute, buyerPolishedShell, restoreBusyRow, onRequestRestore } = props;
 
   return (
     <section
@@ -113,7 +130,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
       >
         {workspace.name}
       </h2>
-      {!canRestoreExecute ? (
+      {!buyerPolishedShell && !canRestoreExecute ? (
         <WhyDisabledCtaHint
           id={`projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`}
           reason={RESTORE_DISABLED_REASON}
@@ -127,7 +144,9 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
             <EnterpriseTableHeaderCell>Deleted on</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Permanently removed on</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Deleted by</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">Restore</EnterpriseTableHeaderCell>
+            {buyerPolishedShell ? null : (
+              <EnterpriseTableHeaderCell className="w-[7.5rem] text-right">Restore</EnterpriseTableHeaderCell>
+            )}
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
@@ -161,27 +180,29 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                     </Link>
                   </div>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="text-right">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    aria-label={`Restore project ${project.name}`}
-                    aria-describedby={
-                      !canRestoreExecute
-                        ? `projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`
-                        : undefined
-                    }
-                    data-testid="projects-recycle-bin-restore"
-                    disabled={!canRestoreExecute || restoreBusyRow === rowKey}
-                    onClick={() => {
-                      writeRecycleBinProjectLastViewedId(project.projectId);
-                      onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
-                    }}
-                  >
-                    Restore
-                  </Button>
-                </EnterpriseTableCell>
+                {buyerPolishedShell ? null : (
+                  <EnterpriseTableCell className="text-right">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      aria-label={`Restore project ${project.name}`}
+                      aria-describedby={
+                        !canRestoreExecute
+                          ? `projects-recycle-bin-restore-disabled-hint-${workspace.workspaceId}`
+                          : undefined
+                      }
+                      data-testid="projects-recycle-bin-restore"
+                      disabled={!canRestoreExecute || restoreBusyRow === rowKey}
+                      onClick={() => {
+                        writeRecycleBinProjectLastViewedId(project.projectId);
+                        onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
+                      }}
+                    >
+                      Restore
+                    </Button>
+                  </EnterpriseTableCell>
+                )}
               </EnterpriseTableRow>
             );
           })}
@@ -193,6 +214,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
 
 /** Admin **Recycle Bin** — soft-deleted architecture projects scoped to this tenant (`GET /v1/tenant/workspaces/recycle-bin`). */
 export function ProjectsRecycleBinPage() {
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH;
   const searchParams = useSearchParams();
@@ -366,7 +388,7 @@ export function ProjectsRecycleBinPage() {
     });
   }
 
-  const pageDescription = recycleBinPageDescription(retentionDays);
+  const pageDescription = recycleBinPageSubtitle(buyerPolishedShell, retentionDays);
 
   return (
     <OperatorPageContainer
@@ -374,28 +396,85 @@ export function ProjectsRecycleBinPage() {
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="projects-recycle-bin-page"
     >
-      <ProjectsRecycleBinPageHeader
-        loading={loading}
-        subtitle={pageDescription}
-        onRefresh={() => {
-          setRestoreFeedback(null);
-          void reload();
-        }}
-      />
-      <ProjectsRecycleBinEvidenceOrientationStrip />
-      <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
-      <p
-        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="projects-recycle-bin-restore-residue-honesty"
+      <a
+        href={`#${PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
-        {PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY}
-      </p>
-      {!isAuthorityLoading && !canRestoreExecute ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
-          signed-in principal.
-        </p>
-      ) : null}
+        {PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL}
+      </a>
+
+      <div
+        id={PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID}
+        data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <ProjectsRecycleBinPageHeader
+          loading={loading}
+          subtitle={pageDescription}
+          buyerPolishedShell={buyerPolishedShell}
+          claimDiscipline={PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE}
+          claimDisciplineTestId={PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          onRefresh={() => {
+            setRestoreFeedback(null);
+            void reload();
+          }}
+        />
+
+        <div
+          id={PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID}
+          data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="projects-recycle-bin-buyer-first-viewport-intro">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="projects-recycle-bin-intro"
+              >
+                {PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD}
+              </p>
+              <section
+                className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="projects-recycle-bin-start-here-panel"
+                aria-labelledby="projects-recycle-bin-start-here-heading"
+              >
+                <h2
+                  id="projects-recycle-bin-start-here-heading"
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                >
+                  {PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE}
+                </h2>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="projects-recycle-bin-buyer-start-here-helper"
+                >
+                  {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER}
+                </p>
+              </section>
+            </div>
+          ) : null}
+
+          {!buyerPolishedShell ? <ProjectsRecycleBinEvidenceOrientationStrip /> : null}
+          {!buyerPolishedShell ? (
+            <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
+          ) : null}
+          {!buyerPolishedShell ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="projects-recycle-bin-restore-residue-honesty"
+            >
+              {PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY}
+            </p>
+          ) : null}
+          {!buyerPolishedShell && !isAuthorityLoading && !canRestoreExecute ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
+              signed-in principal.
+            </p>
+          ) : null}
 
       {error !== null ? (
         <div
@@ -429,53 +508,63 @@ export function ProjectsRecycleBinPage() {
         <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
       ) : null}
 
-      {continueLastProject !== null ? (
-        <ProjectsRecycleBinContinueLastViewedRow target={continueLastProject} onOpen={openDeletedProject} />
-      ) : null}
+          {continueLastProject !== null && !buyerPolishedShell ? (
+            <ProjectsRecycleBinContinueLastViewedRow target={continueLastProject} onOpen={openDeletedProject} />
+          ) : null}
 
-      {rows.map((workspace) => {
-        return (
-          <WorkspaceRecycleBinTable
-            key={workspace.workspaceId}
-            workspace={workspace}
-            canRestoreExecute={canRestoreExecute}
-            restoreBusyRow={restoreBusyRow}
-            onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
-              setPendingRestore({
-                workspaceId,
-                workspaceName,
-                projectId,
-                projectName,
-              });
-            }}
-          />
-        );
-      })}
+          {rows.map((workspace) => {
+            return (
+              <WorkspaceRecycleBinTable
+                key={workspace.workspaceId}
+                workspace={workspace}
+                canRestoreExecute={canRestoreExecute}
+                buyerPolishedShell={buyerPolishedShell}
+                restoreBusyRow={restoreBusyRow}
+                onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+                  setPendingRestore({
+                    workspaceId,
+                    workspaceName,
+                    projectId,
+                    projectName,
+                  });
+                }}
+              />
+            );
+          })}
 
-      <ProjectsRecycleBinRestoreConfirmDialog
-        busy={restoreBusyRow !== null}
-        pending={pendingRestore}
-        onCancel={() => {
-          if (restoreBusyRow === null) {
-            setPendingRestore(null);
-          }
-        }}
-        onConfirm={() => {
-          if (pendingRestore === null) {
-            return;
-          }
+          {!buyerPolishedShell ? (
+            <ProjectsRecycleBinRestoreConfirmDialog
+              busy={restoreBusyRow !== null}
+              pending={pendingRestore}
+              onCancel={() => {
+                if (restoreBusyRow === null) {
+                  setPendingRestore(null);
+                }
+              }}
+              onConfirm={() => {
+                if (pendingRestore === null) {
+                  return;
+                }
 
-          void restoreProject(pendingRestore.workspaceId, pendingRestore.projectId);
-        }}
-      />
+                void restoreProject(pendingRestore.workspaceId, pendingRestore.projectId);
+              }}
+            />
+          ) : null}
 
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="projects-recycle-bin-audit-note">
-        {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
-        <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
-          audit trail
-        </Link>
-        .
-      </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="projects-recycle-bin-audit-note"
+          >
+            {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
+            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+              audit trail
+            </Link>
+            .
+          </p>
+        </div>
+
+        {buyerPolishedShell ? <ProjectsRecycleBinBuyerChrome /> : null}
+      </div>
     </OperatorPageContainer>
   );
 }

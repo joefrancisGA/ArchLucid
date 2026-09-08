@@ -343,7 +343,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </>
                 ) : (
                   <>
-                    Submitting for governance approval requires additional permissions on your account. You can still review
+                    Submitting for approval requires additional permissions on your account. You can still review
                     approvals below — contact your administrator to enable governance submissions for your workspace.
                   </>
                 )}

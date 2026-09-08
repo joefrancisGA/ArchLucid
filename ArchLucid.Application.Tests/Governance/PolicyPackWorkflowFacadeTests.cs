@@ -1,7 +1,9 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
@@ -94,6 +96,145 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         result.Outcome.Should().Be(PolicyPackAssignOutcome.PackNotFound);
         result.Assignment.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        Mock<ICallerRoleAccessor> callerRoles = new();
+        callerRoles.Setup(r => r.IsTenantAdministrator()).Returns(false);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            appService: appService.Object,
+            callerRoleAccessor: callerRoles.Object);
+
+        PolicyPackAssignWorkflowResult result = await sut.TryAssignAsync(
+            packId,
+            "1.0.0",
+            "Project",
+            false,
+            isOrganizationRequired: true,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(PolicyPackAssignOutcome.Forbidden);
+        result.Assignment.Should().BeNull();
+        packs.VerifyNoOtherCalls();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateInScopePack(packId));
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new(MockBehavior.Strict);
+        platformAvailability
+            .Setup(p => p.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(false));
+
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            appService: appService.Object,
+            platformAvailability: platformAvailability.Object);
+
+        PolicyPackAssignWorkflowResult result = await sut.TryAssignAsync(
+            packId,
+            "1.0.0",
+            GovernanceScopeLevel.Project,
+            false,
+            isOrganizationRequired: true,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(PolicyPackAssignOutcome.PackNotFound);
+        result.Assignment.Should().BeNull();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        Mock<IPolicyPacksAppService> appService = new(MockBehavior.Strict);
+
+        Mock<ICallerRoleAccessor> callerRoles = new();
+        callerRoles.Setup(r => r.IsTenantAdministrator()).Returns(false);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            appService: appService.Object,
+            callerRoleAccessor: callerRoles.Object);
+
+        PolicyPackAssignWorkflowResult result = await sut.TryAssignAsync(
+            packId,
+            "1.0.0",
+            GovernanceScopeLevel.Tenant,
+            false,
+            isOrganizationRequired: false,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(PolicyPackAssignOutcome.Forbidden);
+        result.Assignment.Should().BeNull();
+        packs.VerifyNoOtherCalls();
+        appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new(MockBehavior.Strict);
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0.0",
+                    IsEnabled = false,
+                    IsOrganizationRequired = false,
+                });
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateInScopePack(packId));
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new(MockBehavior.Strict);
+        platformAvailability
+            .Setup(p => p.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(false));
+
+        PolicyPackWorkflowFacade sut = CreateAssignmentToggleSut(
+            packs.Object,
+            assignments.Object,
+            platformAvailability.Object,
+            Mock.Of<IAuditService>(MockBehavior.Strict));
+
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await sut.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, true, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive);
     }
 
     [Fact]
@@ -219,6 +360,74 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         result.Should().BeFalse();
         appService.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentEnabledWithOutcomeAsync_returns_organization_required_lock_when_disabling_org_required_assignment()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new(MockBehavior.Strict);
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                    IsEnabled = true,
+                    IsOrganizationRequired = true,
+                });
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: Mock.Of<IPolicyPacksAppService>(MockBehavior.Strict));
+
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await sut.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, false, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock);
+    }
+
+    [Fact]
+    public async Task TryArchiveAssignmentWithOutcomeAsync_returns_archived_for_tenant_scoped_assignment_from_project_caller()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    ScopeLevel = GovernanceScopeLevel.Tenant,
+                    PolicyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    PolicyPackVersion = "1.0.0",
+                });
+
+        Mock<IPolicyPacksAppService> appService = new();
+        appService
+            .Setup(s => s.TryArchiveAssignmentAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            Mock.Of<IPolicyPackRepository>(),
+            assignments: assignments.Object,
+            appService: appService.Object);
+
+        PolicyPackArchiveAssignmentOutcome outcome =
+            await sut.TryArchiveAssignmentWithOutcomeAsync(assignmentId, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackArchiveAssignmentOutcome.Archived);
     }
 
     [Fact]
@@ -453,6 +662,50 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope()
+    {
+        Guid foreignSourcePackId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        InMemoryPolicyPackCatalogRepository catalog = new();
+        PolicyPackCatalogEntryDetail promoted = await catalog.UpsertPromotedFromSnapshotAsync(
+            foreignSourcePackId,
+            "Foreign",
+            "desc",
+            PolicyPackType.ProjectCustom,
+            "1.0.0",
+            """{"complianceRuleKeys":["k"],"complianceRuleIds":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"metadata":{}}""",
+            CancellationToken.None);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(foreignSourcePackId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPack
+            {
+                PolicyPackId = foreignSourcePackId,
+                TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                WorkspaceId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                ProjectId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                Name = "foreign-pack",
+                CurrentVersion = "1.0.0",
+                IsDeleted = false,
+            });
+
+        PolicyPackCatalogAdminService catalogAdmin = new(
+            packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>(),
+            catalog);
+
+        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, Mock.Of<IAuditService>(), packs.Object);
+
+        bool demoted = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
+
+        demoted.Should().BeFalse();
+        (await catalog.GetPromotedDetailByIdAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None))
+            .Should()
+            .NotBeNull();
+    }
+
+    [Fact]
     public async Task TryDemoteCatalogEntryAsync_skips_duplicate_audit_when_already_demoted_retry()
     {
         InMemoryPolicyPackCatalogRepository catalog = new();
@@ -475,7 +728,7 @@ public sealed class PolicyPackWorkflowFacadeTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, audit.Object);
+        PolicyPackWorkflowFacade sut = CreateCatalogDemoteSut(catalog, catalogAdmin, audit.Object, packs: null);
 
         bool first = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
         bool second = await sut.TryDemoteCatalogEntryAsync(promoted.PolicyPackCatalogEntryId, CancellationToken.None);
@@ -706,19 +959,29 @@ public sealed class PolicyPackWorkflowFacadeTests
             IsDeleted = false,
         };
 
+    private static ICallerRoleAccessor CreateTenantAdminCallerRoleAccessor()
+    {
+        Mock<ICallerRoleAccessor> callerRoles = new();
+        callerRoles.Setup(r => r.IsTenantAdministrator()).Returns(true);
+
+        return callerRoles.Object;
+    }
+
     private static PolicyPackWorkflowFacade CreateSut(
         IPolicyPackRepository packRepository,
         IPolicyPackVersionRepository? versions = null,
         IPolicyPacksAppService? appService = null,
         IPolicyPackGovernanceDryRunService? dryRun = null,
         IPlatformBundledPolicyPackAvailability? platformAvailability = null,
-        IPolicyPackAssignmentRepository? assignments = null)
+        IPolicyPackAssignmentRepository? assignments = null,
+        ICallerRoleAccessor? callerRoleAccessor = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            callerRoleAccessor ?? CreateTenantAdminCallerRoleAccessor(),
             packRepository,
             assignments ?? Mock.Of<IPolicyPackAssignmentRepository>(),
             versions ?? Mock.Of<IPolicyPackVersionRepository>(),
@@ -743,14 +1006,18 @@ public sealed class PolicyPackWorkflowFacadeTests
     private static PolicyPackWorkflowFacade CreateCatalogDemoteSut(
         IPolicyPackCatalogRepository catalogRepository,
         IPolicyPackCatalogAdminService catalogAdminService,
-        IAuditService auditService)
+        IAuditService auditService,
+        IPolicyPackRepository? packs = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(CallerScope);
 
+        IPolicyPackRepository packRepository = packs ?? CreateInScopePackRepository();
+
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
-            Mock.Of<IPolicyPackRepository>(),
+            CreateTenantAdminCallerRoleAccessor(),
+            packRepository,
             Mock.Of<IPolicyPackAssignmentRepository>(),
             Mock.Of<IPolicyPackVersionRepository>(),
             catalogRepository,
@@ -771,6 +1038,16 @@ public sealed class PolicyPackWorkflowFacadeTests
             auditService);
     }
 
+    private static IPolicyPackRepository CreateInScopePackRepository()
+    {
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid packId, CancellationToken _) => CreateInScopePack(packId));
+
+        return packs.Object;
+    }
+
     private static PolicyPackWorkflowFacade CreateAssignmentToggleSut(
         IPolicyPackRepository packRepository,
         IPolicyPackAssignmentRepository assignmentRepository,
@@ -782,6 +1059,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            CreateTenantAdminCallerRoleAccessor(),
             packRepository,
             assignmentRepository,
             Mock.Of<IPolicyPackVersionRepository>(),
@@ -813,6 +1091,7 @@ public sealed class PolicyPackWorkflowFacadeTests
 
         return new PolicyPackWorkflowFacade(
             scopeProvider.Object,
+            CreateTenantAdminCallerRoleAccessor(),
             Mock.Of<IPolicyPackRepository>(),
             Mock.Of<IPolicyPackAssignmentRepository>(),
             Mock.Of<IPolicyPackVersionRepository>(),

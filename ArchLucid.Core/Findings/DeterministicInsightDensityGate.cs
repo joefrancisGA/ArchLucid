@@ -52,7 +52,7 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("no-architecture-anchor");
         }
 
-        if (GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message))
+        if (GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message) && hasConcreteEvidence)
         {
             score += 10;
             penaltyReasons.Add("falsifiability-signal");
@@ -87,13 +87,13 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("typed-engine-scored");
         }
 
-        bool demote = score < _options.DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence;
-
-        if (demote && !InsightDensityAgentCategoryRules.IsDemotionEligibleCategory(candidate.Category))
-        {
-            demote = false;
-            penaltyReasons.Add("category-protected");
-        }
+        bool hasFalsifiabilitySignal = GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message);
+        bool demote = InsightDensityDemotionPredicate.ShouldDemote(
+            score,
+            _options.DemotionThreshold,
+            isGenericAdvice,
+            hasFalsifiabilitySignal,
+            hasConcreteEvidence);
 
         return new InsightDensityGateResult
         {
