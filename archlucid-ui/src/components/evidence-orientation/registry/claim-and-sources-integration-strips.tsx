@@ -280,6 +280,18 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
+export function AzureCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections-azure"
+      sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+      sources={cloudProviderConnectionSources("azure")}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
 export function AwsCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
@@ -287,6 +299,18 @@ export function AwsCloudConnectionEvidenceOrientationStrip(): React.JSX.Element 
       sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
       sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
       sources={cloudProviderConnectionSources("aws")}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
+export function GcpCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections-gcp"
+      sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+      sources={cloudProviderConnectionSources("gcp")}
       sourcesHeadingId="where-to-go-next"
     />
   );
