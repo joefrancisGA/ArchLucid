@@ -14,6 +14,7 @@ import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import {
   parseRunPipelineTimelineOpenFromSearch,
   runPipelineTimelineDisclosureHrefFromSearch,
@@ -72,6 +73,7 @@ function buildAuditTrailSummaryLine(items: PipelineTimelineItem[] | null): strin
 
 function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): ReactElement {
   const { runId, buyerPolishedArtifactTable, pipelineTimelineFailure, pipelineTimelineForUi } = props;
+  const blockedReason = runPipelineTimelineBlockedReason(pipelineTimelineFailure);
   const totalCount = pipelineTimelineForUi?.length ?? 0;
   const showFullTrailLink =
     !buyerPolishedArtifactTable
@@ -84,10 +86,12 @@ function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): Rea
         <>
           <AuthorityPipelineTimeline
             items={null}
-            loadErrorMessage={pipelineTimelineFailure.message}
+            loadErrorMessage={blockedReason ?? pipelineTimelineFailure.message}
             omitEventTechnicalDetails={buyerPolishedArtifactTable}
           />
-          <OperatorSectionRetryButton label="Retry loading audit trail" />
+          {blockedReason === null ? (
+            <OperatorSectionRetryButton label="Retry loading audit trail" />
+          ) : null}
         </>
       ) : (
         <AuthorityPipelineTimeline

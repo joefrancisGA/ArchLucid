@@ -5,12 +5,15 @@ using ArchLucid.Api.Models.TechnologyLedger;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.ProblemDetails;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -34,14 +37,20 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class TechnologyLedgerController(
     ITechnologyLedgerRunCommandService technologyLedgerRunCommandService,
+    IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <summary>Returns all Technology Ledger entries for <paramref name="runId" />.</summary>
     [HttpGet("{runId:guid}/technology-ledger")]
     [ProducesResponseType(typeof(TechnologyLedgerListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetTechnologyLedger(
         [FromRoute] Guid runId,
         CancellationToken cancellationToken)
@@ -49,6 +58,13 @@ public sealed class TechnologyLedgerController(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             IReadOnlyList<TechnologyLedgerEntry> entries =
                 await technologyLedgerRunCommandService.GetByRunIdAsync(scope, runId, cancellationToken);
 
@@ -144,5 +160,31 @@ public sealed class TechnologyLedgerController(
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunDetailDto? detail =
+            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

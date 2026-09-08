@@ -20,7 +20,10 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { getTechnologyLedger, patchTechnologyLedgerEntry } from "@/lib/api/technology-ledger";
 import { isApiRequestError } from "@/lib/api-request-error";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { technologyLedgerBlockedReason } from "@/lib/runs/technology-ledger-blocked-reason";
 import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
   technologyLedgerProviderLabel,
@@ -57,7 +60,8 @@ export function TechnologyBaselinePanel({
   const urlTechEntryId = parseTechnologyBaselineEntryIdFromSearch(searchParams.get("techEntryId"));
   const [entries, setEntries] = useState<TechnologyLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
+  const loadError = technologyLedgerBlockedReason(loadFailure) ?? loadFailure?.message ?? null;
   const [actionEntryId, setActionEntryId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{
     message: string;
@@ -99,7 +103,7 @@ export function TechnologyBaselinePanel({
 
   const loadLedger = useCallback(async () => {
     setLoading(true);
-    setLoadError(null);
+    setLoadFailure(null);
 
     if (usedStaticDemoRun) {
       const seeded = tryStaticDemoTechnologyLedger(runId);
@@ -125,12 +129,7 @@ export function TechnologyBaselinePanel({
 
       setEntries(nextEntries);
     } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setLoadError(error.message);
-      } else {
-        setLoadError(error instanceof Error ? error.message : "Could not load technology baseline.");
-      }
-
+      setLoadFailure(toApiLoadFailure(error));
       setEntries([]);
     } finally {
       setLoading(false);

@@ -380,6 +380,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             clarificationQuestions={clarificationQuestionsQuery.data?.questions ?? []}
             clarificationRoundAvailable={clarificationQuestionsQuery.data?.clarificationRoundAvailable === true}
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
+            clarificationQuestionsBlockedReason={clarificationQuestionsQuery.blockedReason}
             priorRunId={props.baseline.clarificationPriorRunId ?? props.baseline.runId}
           />
       </div>

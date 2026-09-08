@@ -4,13 +4,14 @@ import type {
   TechnologyLedgerListResponse,
 } from "@/types/technology-ledger";
 
-import { apiGet, apiPatchJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPatchJson } from "./http";
 
 const ledgerBase = (runId: string): string =>
   `/v1/runs/${encodeURIComponent(runId)}/technology-ledger`;
 
 export async function getTechnologyLedger(runId: string): Promise<TechnologyLedgerListResponse> {
-  return apiGet<TechnologyLedgerListResponse>(ledgerBase(runId));
+  return apiGetSealedManifestAware<TechnologyLedgerListResponse>(ledgerBase(runId));
 }
 
 export async function patchTechnologyLedgerEntry(
