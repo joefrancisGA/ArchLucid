@@ -1,5 +1,6 @@
 "use client";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { ArchitectureIntelligenceClaimOrientationStrip } from "./ArchitectureIntelligenceClaimOrientationStrip";
@@ -7,10 +8,15 @@ import { ArchitectureIntelligenceClaimOrientationStrip } from "./ArchitectureInt
 /** Buyer default: mount claim discipline + Sources without editing the server page shell. */
 export function ArchitectureIntelligenceBuyerChrome(): React.JSX.Element | null {
   const evalChromeShell = useProductionEvalChrome();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
-  if (!evalChromeShell) {
+  if (!evalChromeShell && !buyerPolishedShell) {
     return null;
   }
 
-  return <ArchitectureIntelligenceClaimOrientationStrip />;
+  return (
+    <div data-testid="architecture-intelligence-orientation-top">
+      <ArchitectureIntelligenceClaimOrientationStrip />
+    </div>
+  );
 }
