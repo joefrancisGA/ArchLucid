@@ -205,6 +205,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        manifestVersion={props.manifestId}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}

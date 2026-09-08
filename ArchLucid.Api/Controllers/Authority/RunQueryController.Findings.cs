@@ -142,6 +142,7 @@ public sealed partial class RunQueryController
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<IActionResult> GetTraceabilityBundleZipLegacyAlias(
         [FromRoute] string runId,
         CancellationToken cancellationToken) =>

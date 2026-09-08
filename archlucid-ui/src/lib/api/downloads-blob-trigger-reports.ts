@@ -1,9 +1,11 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
-  throwApiRequestError,
 } from "./http";
 
 import type { ConsultingDocxExportBrandingPayload } from "./downloads-blob-urls";
@@ -70,7 +72,8 @@ export async function downloadConsultingArchitectureReportDocx(
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, [
@@ -109,7 +112,8 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
@@ -149,7 +153,8 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText, correlationId);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);

@@ -1,17 +1,23 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { Button } from "@/components/ui/button";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
+import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
+import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
 import {
   auditEvidenceLineageChainHrefFromSearch,
   parseAuditEvidenceLineageChainOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
+import { showError } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 import { AuditEvidenceLineageSpine } from "./AuditEvidenceLineageSpine";
 
@@ -27,8 +33,13 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const searchParams = useSearchParams();
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
+  const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
   const [chainExpanded, setChainExpandedState] = useState(() =>
     parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
+  );
+  const lineageBlockedReason = useMemo(
+    () => (lineageQuery.isError ? auditEvidenceLineageBlockedReason(toApiLoadFailure(lineageQuery.error)) : null),
+    [lineageQuery.error, lineageQuery.isError],
   );
 
   const syncChainExpandedToUrl = useCallback(
@@ -60,6 +71,21 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const lineage = lineageQuery.data;
   const checkboxPresentation = lineage ? deriveAuditLineageCheckboxPresentation(lineage) : null;
 
+  const onDownloadEvidencePackage = useCallback(async () => {
+    setPackageDownloadBusy(true);
+
+    try {
+      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
+    } catch (error: unknown) {
+      showError(
+        "Audit evidence package download failed",
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setPackageDownloadBusy(false);
+    }
+  }, [props.assessmentId, props.snapshotId]);
+
   return (
     <div className="space-y-6 p-4" data-testid="audit-evidence-control-lineage-page">
       <header className="space-y-2">
@@ -73,6 +99,20 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         <p className={cnMonoIds}>
           assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
         </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={packageDownloadBusy}
+            data-testid="audit-evidence-package-download"
+            onClick={() => {
+              void onDownloadEvidencePackage();
+            }}
+          >
+            {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
+          </Button>
+        </div>
       </header>
 
       {lineageQuery.isPending ? (
@@ -82,7 +122,9 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
       {lineageQuery.isError ? (
         <div data-testid="audit-evidence-lineage-error">
           <StatusTag kind="needs-attention" label="Lineage unavailable" />
-          <p className={OPERATOR_TYPOGRAPHY.helper}>Could not load chain of custody for this control.</p>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
+            {lineageBlockedReason ?? "Could not load chain of custody for this control."}
+          </p>
         </div>
       ) : null}
 

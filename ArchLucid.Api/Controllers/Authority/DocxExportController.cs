@@ -83,6 +83,7 @@ public sealed class DocxExportController(
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK,
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportRunDocx(
         Guid runId,
         [FromQuery] Guid? compareWithRunId,

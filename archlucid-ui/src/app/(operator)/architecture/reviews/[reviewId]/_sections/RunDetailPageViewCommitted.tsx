@@ -127,6 +127,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
         <RunDetailTrustEvidenceCardSectionDeferred
           card={m.resolvedDetail.trustEvidenceCard}
           runId={m.resolvedDetail.run.runId}
+          manifestVersion={m.manifestId}
           evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
         />
       ) : null}
