@@ -1535,3 +1535,4 @@
 {"at":"2026-09-08T20:27:43.680475Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-09-08T20:38:04.3498448Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-09-08T20:51:42.6747231Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
+{"at":"2026-09-08T20:56:59.3628860Z","zoneId":"tenant-settings-sql","outcome":"dry"}
