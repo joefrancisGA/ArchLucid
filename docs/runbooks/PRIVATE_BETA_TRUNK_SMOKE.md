@@ -71,6 +71,23 @@ bash scripts/ci/retrigger_private_beta_access_on_push.sh master
 
 Or **Actions → Private-beta access on push → Run workflow** (`workflow_dispatch`).
 
+### Smoke branch (merge-heavy trunk)
+
+When `master` merge churn keeps cancelling `private-beta-access-on-push` mid-Playwright, use the isolated lane:
+
+| Field | Value |
+| --- | --- |
+| Branch | `cursor/al-beta-private-beta-smoke-lane-7730` |
+| Workflow | `.github/workflows/private-beta-access-smoke-branch.yml` |
+| Concurrency | `cancel-in-progress: false` (runs finish even if the lane branch is pushed again) |
+
+```bash
+# After syncing the lane branch to the SHA you want to test:
+bash scripts/ci/retrigger_private_beta_smoke_branch.sh cursor/al-beta-private-beta-smoke-lane-7730
+```
+
+Artifact names use the `-smoke-branch` suffix (e.g. `ui-e2e-live-beta-access-smoke-branch-playwright-report`).
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):

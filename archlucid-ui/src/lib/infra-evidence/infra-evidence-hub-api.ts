@@ -1,5 +1,6 @@
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import { resourceExplorerWorkQueueApiValue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type {
@@ -297,9 +298,5 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
 }
 
 export function formatInfraEvidenceHubApiError(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return toApiLoadFailure(error).message;
+  return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

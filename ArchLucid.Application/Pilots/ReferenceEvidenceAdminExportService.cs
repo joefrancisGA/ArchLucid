@@ -2,15 +2,19 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
 
@@ -27,6 +31,8 @@ public sealed class ReferenceEvidenceAdminExportService(
     ValueReportBuilder valueReportBuilder,
     RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
     IPilotBaselineRepository pilotBaselineRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -54,6 +60,12 @@ public sealed class ReferenceEvidenceAdminExportService(
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
 
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <inheritdoc/>
     public async Task<Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
@@ -78,6 +90,19 @@ public sealed class ReferenceEvidenceAdminExportService(
             {
                 if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken) is not { } detail)
                     return null;
+
+                if (detail.IsCommitted && !detail.HasBrokenManifestReference)
+                {
+                    AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId);
+
+                    await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                        runId,
+                        scope,
+                        _authorityQueryService,
+                        _manifestHashService,
+                        cancellationToken);
+                }
+
                 PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
                 DateTimeOffset end = TimeProvider.System.GetUtcNow();
                 DateTimeOffset start = end.AddDays(-30);

@@ -198,58 +198,82 @@ export function EmailRunToSponsorExportActions({
 
       <ul className={cn("m-0 mt-3 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>
-          <a
-            className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={SponsorReviewPacketHref}
-            download={`archlucid-sponsor-review-packet-${runId}.md`}
-            data-testid="email-run-to-sponsor-sponsor-review-packet"
-          >
-            {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"}
-          </a>
+          {collateralExportBlockedReason !== null ? (
+            <span className="text-neutral-500 dark:text-neutral-400" data-testid="email-run-to-sponsor-secondary-link-blocked">
+              {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"} — blocked until sealed manifest verification passes
+            </span>
+          ) : (
+            <a
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={SponsorReviewPacketHref}
+              download={`archlucid-sponsor-review-packet-${runId}.md`}
+              data-testid="email-run-to-sponsor-sponsor-review-packet"
+            >
+              {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"}
+            </a>
+          )}
         </li>
         <li>
-          <a
-            className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={markdownHref}
-            download={`archlucid-first-value-report-${runId}.md`}
-          >
-            {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"}
-          </a>
+          {collateralExportBlockedReason !== null ? (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"} — blocked until sealed manifest verification passes
+            </span>
+          ) : (
+            <a
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={markdownHref}
+              download={`archlucid-first-value-report-${runId}.md`}
+            >
+              {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"}
+            </a>
+          )}
         </li>
         <li>
-          <a
-            className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={getArchitecturePackageDocxUrl(runId)}
-          >
-            Architecture decision package (DOCX)
-          </a>
+          {collateralExportBlockedReason !== null ? (
+            <span className="text-neutral-500 dark:text-neutral-400">Architecture decision package (DOCX) — blocked until sealed manifest verification passes</span>
+          ) : (
+            <a
+              className={OPERATOR_BODY_INLINE_LINK_CLASS}
+              href={getArchitecturePackageDocxUrl(runId)}
+            >
+              Architecture decision package (DOCX)
+            </a>
+          )}
         </li>
         <li>
-          <a
-            className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={getBundleDownloadUrl(manifestId)}
-          >
-            Review bundle (ZIP)
-          </a>
-          {" · "}
-          <a
-            className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            href={getRunExportDownloadUrl(runId)}
-          >
-            {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
-          </a>
-          {" · "}
-          {buyerPolishedShell ? null : (
+          {collateralExportBlockedReason !== null ? (
+            <span className="text-neutral-500 dark:text-neutral-400" data-testid="email-run-to-sponsor-secondary-bundle-links-blocked">
+              Review bundle and audit-ready exports — blocked until sealed manifest verification passes
+            </span>
+          ) : (
             <>
-              <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/insights/architecture-scorecard">
-                In-product pilot scorecard
-              </Link>
+              <a
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={getBundleDownloadUrl(manifestId)}
+              >
+                Review bundle (ZIP)
+              </a>
               {" · "}
+              <a
+                className={OPERATOR_BODY_INLINE_LINK_CLASS}
+                href={getRunExportDownloadUrl(runId)}
+              >
+                {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
+              </a>
+              {" · "}
+              {buyerPolishedShell ? null : (
+                <>
+                  <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/insights/architecture-scorecard">
+                    In-product pilot scorecard
+                  </Link>
+                  {" · "}
+                </>
+              )}
+              <a className={OPERATOR_BODY_INLINE_LINK_CLASS} href="#artifacts-exports">
+                {buyerPolishedShell ? "More export options on this review page" : "Artifacts &amp; exports on this page"}
+              </a>
             </>
           )}
-          <a className={OPERATOR_BODY_INLINE_LINK_CLASS} href="#artifacts-exports">
-            {buyerPolishedShell ? "More export options on this review page" : "Artifacts &amp; exports on this page"}
-          </a>
         </li>
       </ul>
     </>

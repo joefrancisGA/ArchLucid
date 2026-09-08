@@ -17,6 +17,8 @@ import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
   BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
 } from "@/lib/buyer/buyer-polish-copy";
+import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import {
   manifestDetailDecisionsDisclosureHrefFromSearch,
   parseManifestDetailDecisionsOpenFromSearch,
@@ -29,8 +31,6 @@ import {
   manifestSummaryBundleDownloadDisclosureHrefFromSearch,
   parseManifestSummaryBundleDownloadOpenFromSearch,
 } from "@/lib/governance/manifest-summary-bundle-download-disclosure-url";
-import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
-import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

@@ -17,6 +17,7 @@ import type { SponsorRoiSummary } from "@/lib/sponsor-report-markdown";
 export type SponsorRoiBoardPackEvidenceBannerProps = {
   readonly summary: SponsorRoiSummary;
   readonly includeNarrative: boolean;
+  readonly roiSourceFreshnessDisposition?: string | null;
 };
 
 function postureStatusKind(posture: BoardPackClusterEvidencePosture): "ready" | "needs-attention" | "neutral" {
@@ -40,6 +41,7 @@ export function SponsorRoiBoardPackEvidenceBanner(
   const clusterRows = buildBoardPackEvidenceClusterRows(props.summary);
   const illustrativeCount = clusterRows.filter((row) => row.posture === "illustrative").length;
   const extractorCount = clusterRows.filter((row) => row.posture === "extractor-backed").length;
+  const roiFreshness = props.roiSourceFreshnessDisposition?.trim().toUpperCase() ?? "";
 
   return (
     <aside
@@ -58,6 +60,9 @@ export function SponsorRoiBoardPackEvidenceBanner(
         illustrative for cost lines.
         {props.includeNarrative
           ? " The optional AI narrative is advisory and not part of the finalized review."
+          : ""}
+        {roiFreshness.length > 0
+          ? ` Scoped review ROI source freshness is ${roiFreshness}.`
           : ""}
       </p>
 

@@ -90,10 +90,12 @@ export function resolvePilotRoiValidationVerdict(
   const roi = describeRoiEvidenceConfidence(roiRaw);
   const executionMode = formatStructuralExecutionModeLabel(payload);
   const dollarSafe = isProjectedDollarClaimsSponsorSafe(payload);
+  const roiSourceFreshness = (payload?.roiSourceFreshnessDisposition ?? "").trim().toUpperCase();
 
   const holdWithoutCuratedOverride =
     readiness?.variant === "blocked"
     || roi.tier === "Low"
+    || roiSourceFreshness === "HOLD"
     || isExternalSponsorPdfBlockedForExecutionMode(payload)
     || !isAgentOutputPilotStrictSponsorSafe(payload)
     || !dollarSafe;
@@ -111,6 +113,8 @@ export function resolvePilotRoiValidationVerdict(
     roi.tier === "Strong"
     && dollarSafe
     && executionMode === "Real"
+    && roiSourceFreshness !== "WARN"
+    && roiSourceFreshness !== "HOLD"
     && (readiness?.variant === "ready" || readiness?.classification === "Sendable");
 
   if (sendable) {
@@ -139,6 +143,7 @@ export function buildPilotRoiValidationChecklistMarkdown(
   const roi = describeRoiEvidenceConfidence(payload?.proofPackageCompleteness?.roiEvidenceConfidence);
   const executionMode = formatStructuralExecutionModeLabel(payload);
   const dollarSafe = isProjectedDollarClaimsSponsorSafe(payload);
+  const roiSourceFreshness = (payload?.roiSourceFreshnessDisposition ?? "").trim().toUpperCase();
 
   const lines: string[] = [
     "# Pilot ROI validation session notes",
@@ -148,6 +153,7 @@ export function buildPilotRoiValidationChecklistMarkdown(
     "## Persisted signals (from pilot-run-deltas)",
     "",
     `- ROI evidence confidence: ${roi.tier} — ${roi.meaning}`,
+    `- ROI source freshness: ${roiSourceFreshness.length > 0 ? roiSourceFreshness : "unknown"}`,
     `- Projected dollar claims export-ready: ${dollarSafe ? "yes" : "no"}`,
     `- Structural execution mode: ${executionMode}`,
     `- Sponsor proof readiness: ${readiness?.classification ?? readiness?.title ?? "unknown"}`,
