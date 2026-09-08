@@ -36,12 +36,12 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
             {
                 foreach (string targetId in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 {
-                    if (!topologyById.ContainsKey(targetId))
+                    if (!topologyById.TryGetValue(targetId, out GraphNode? targetNode))
                         continue;
 
                     edges.Add(GraphEdgeInferenceHelpers.CreateEdge(
                         node.NodeId,
-                        targetId,
+                        targetNode.NodeId,
                         GraphEdgeTypes.ConnectsTo,
                         "connects to",
                         WeightTopologyRelationship,
@@ -67,12 +67,12 @@ internal sealed class TopologyRelationshipEdgeInferenceRule : IGraphEdgeInferenc
 
         foreach (string targetId in targeted)
         {
-            if (!topologyById.ContainsKey(targetId))
+            if (!topologyById.TryGetValue(targetId, out GraphNode? targetNode))
                 continue;
 
             edges.Add(GraphEdgeInferenceHelpers.CreateEdge(
                 fromNode.NodeId,
-                targetId,
+                targetNode.NodeId,
                 edgeType,
                 label,
                 WeightTopologyRelationship,

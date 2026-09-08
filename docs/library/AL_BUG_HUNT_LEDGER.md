@@ -7837,7 +7837,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) κ→Γ projector dropped RELATES edges when `RelatedElementIds` casing differed from canonical `ElementId` — **hit 2026-09-07 (#1180):** `ArchitectureKnowledgeModelGraphProjector` indexed node ids with `StringComparer.Ordinal` while `GraphValidator` and inferrers treat ids case-insensitively; `RelatedElementIds` with casing variants failed `nodeIds.Contains` and omitted edges; fixed with `OrdinalIgnoreCase` canonical id map; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_case`
 - [x] (valid-no-repro) `ArchitectureKnowledgeModelGraphDeltaExtractor` uses ordinal node-id sets — **2026-09-08 hunt #1289:** `ExtractGraphDelta` node sets use `StringComparer.Ordinal` while graph build treats ids case-insensitively; would emit spurious Added/Removed pairs on casing-only snapshot diffs; no production caller (`ExtractGraphDelta` unused repo-wide)
 - [x] (proven) `ExplicitParentChildContainmentEdgeInferenceRule` — `parentNodeId` property value casing emitted on `FromNodeId` instead of canonical parent `NodeId` — **hit 2026-09-08 hunt #1289:** `NodeById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `PARENT-1` vs canonical `parent-1` broke ordinal edge→node joins; fixed by resolving `context.NodeById[parentId].NodeId`; regression `InferEdges_explicit_parent_child_rule_uses_canonical_parent_node_id_when_property_value_differs_only_by_case`
-- [ ] (candidate) `TopologyRelationshipEdgeInferenceRule` — `dependsOnNodeIds` / `connectedToNodeIds` target property values may emit non-canonical `ToNodeId` casing (same pattern as explicit parent-child fix)
+- [x] (proven) `TopologyRelationshipEdgeInferenceRule` — `dependsOnNodeIds` / `connectedToNodeIds` target property values emitted non-canonical `ToNodeId` casing — **hit 2026-09-08 thorough hunt #1346:** `topologyById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `DS-1` vs canonical `ds-1` broke ordinal edge→node joins; fixed by resolving `topologyById[targetId].NodeId` for depends-on/exposes/connects paths; regressions `InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_depends_on_property_differs_only_by_case` and `..._connected_to_property_differs_only_by_case`
 
 2026-09-02 seed hunt #421 (hit): promoted graph→finding case-mismatch from `ProvenanceBuilder` vs `DefaultGraphEdgeInferer`/`GraphValidator` ordinal-ignore-case parity; proved with failing repro.
 
@@ -7846,6 +7846,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-07 seed hunt #1180 (hit): promoted κ→Γ projector `RelatedElementIds` case mismatch from parity with `GraphValidator`/`KnowledgeGraphService`; proved with failing repro; seeded delta-extractor ordinal parity as `(candidate)` (no caller).
 
 2026-09-08 thorough hunt #1289 (hit): cheap-disproof on delta extractor (valid-no-repro, no caller); proved explicit parent-child `FromNodeId` casing parity; 27 scoped edge-inferer + 38 Provenance tests passed.
+
+2026-09-08 thorough hunt #1346 (hit): proved topology relationship `ToNodeId` casing parity for depends-on and connects-to; 199 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 ---
 
