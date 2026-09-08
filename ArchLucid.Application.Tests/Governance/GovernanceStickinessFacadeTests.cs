@@ -3,6 +3,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
@@ -350,6 +351,7 @@ public sealed class GovernanceStickinessFacadeTests
             auditService ?? new Mock<IAuditService>().Object,
             new Mock<IFindingInspectReadRepository>().Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IRunDetailQueryService>());
     }
 }

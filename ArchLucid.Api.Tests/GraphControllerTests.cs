@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -63,7 +64,12 @@ public sealed class GraphControllerTests
             FullGraphResponseMaxNodes = 500
         });
 
-        return new GraphController(authorityService, runsService, scopeProvider.Object, options)
+        return new GraphController(
+            authorityService,
+            runsService,
+            scopeProvider.Object,
+            Mock.Of<IManifestHashService>(),
+            options)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
