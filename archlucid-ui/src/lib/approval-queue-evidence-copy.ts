@@ -27,4 +27,8 @@ export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
 
 export const APPROVAL_QUEUE_CANONICAL_PATH = GOVERNANCE_APPROVAL_QUEUE_PATH;
 
+export const GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID = "governance-approval-queue-primary-content" as const;
+
+export const GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL = "Skip to approval workflow" as const;
+
 export const APPROVAL_QUEUE_HELP_TOPIC_LABEL = "How the approval queue works";
