@@ -162,6 +162,37 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     }
 
     [Fact]
+    public async Task Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.AssignAsync(
+                packId,
+                It.Is<PolicyPackAssignBody>(body => body.ScopeLevel == GovernanceScopeLevel.Tenant),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        AssignPolicyPackRequest request = new()
+        {
+            Version = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Tenant,
+            IsPinned = false,
+            IsOrganizationRequired = false,
+        };
+
+        IActionResult result = await sut.Assign(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task PromoteCatalogEntry_returns_not_found_when_source_pack_is_out_of_scope()
     {
         Guid foreignSourcePackId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");

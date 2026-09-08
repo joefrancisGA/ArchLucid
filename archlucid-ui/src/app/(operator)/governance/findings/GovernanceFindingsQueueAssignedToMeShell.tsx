@@ -29,6 +29,7 @@ export type GovernanceFindingsQueueAssignedToMeShellProps = {
   readonly mode: GovernanceFindingsQueueMode;
   readonly buyerPolishedShell: boolean;
   readonly navHref: string;
+  readonly clearReviewScopeHref: string;
   readonly pageTitle: string;
   readonly scopedRunId: string | null;
   readonly scopedRunFilterActive: boolean;

@@ -14,6 +14,7 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData("  ", FindingSeverity.Info)]
     [InlineData("critical", FindingSeverity.Critical)]
     [InlineData("UNKNOWN", FindingSeverity.Info)]
+    [InlineData("999", FindingSeverity.Info)]
     public void ParseFindingSeverity_maps_or_defaults(string? raw, FindingSeverity expected)
     {
         FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity(raw);
@@ -25,11 +26,24 @@ public sealed class FindingInspectReadModelMapperTests
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
     [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("99", FindingHumanReviewStatus.NotRequired)]
+    [InlineData("999", FindingHumanReviewStatus.NotRequired)]
     public void ParseHumanReview_maps_or_defaults(string? raw, FindingHumanReviewStatus expected)
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview(raw);
 
         actual.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("999")]
+    [InlineData("-1")]
+    [InlineData("bogus")]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values(string raw)
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(raw);
+
+        actual.Should().BeNull();
     }
 
     [Theory]

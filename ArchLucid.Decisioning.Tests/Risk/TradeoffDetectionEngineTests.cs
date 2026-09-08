@@ -90,6 +90,38 @@ public sealed class TradeoffDetectionEngineTests
     }
 
     [Fact]
+    public async Task DetectAsync_does_not_acknowledge_tradeoff_when_l0_answer_is_unacceptable()
+    {
+        TradeoffDetectionEngine engine = CreateEngine();
+        ManifestDocument manifest = CreateScaleToZeroManifest();
+        TransparencyTrail trail = new()
+        {
+            Asserted =
+            [
+                new AssertedTrailEntry
+                {
+                    Key = "answer.l0.pillar.cost",
+                    Value = "This latency tradeoff is unacceptable",
+                },
+            ],
+        };
+
+        IReadOnlyList<ArchitectureTradeoff> tradeoffs = await engine.DetectAsync(
+            manifest,
+            trail,
+            [],
+            businessOutcome: null);
+
+        ArchitectureTradeoff tradeoff = tradeoffs
+            .Should()
+            .ContainSingle(t => t.Mechanism == "cost-performance/scale-to-zero")
+            .Subject;
+
+        tradeoff.Status.Should().Be(TradeoffStatus.Unacknowledged);
+        tradeoff.AcknowledgedByAnswerKey.Should().BeNull();
+    }
+
+    [Fact]
     public void Order_sorts_conflicting_before_unacknowledged_before_acknowledged()
     {
         List<ArchitectureTradeoff> tradeoffs =

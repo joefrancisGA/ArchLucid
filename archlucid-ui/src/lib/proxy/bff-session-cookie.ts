@@ -50,7 +50,13 @@ function signPayload(encodedPayload: string, secret: string): string {
   return createHmac("sha256", secret).update(encodedPayload).digest("base64url");
 }
 
-function normalizeLegacyPayload(parsed: BffSessionPayload): BffSessionPayload | null {
+function deriveLegacyV1MigrationCsrfToken(accessToken: string, expiresAtMs: number, secret: string): string {
+  return createHmac("sha256", secret)
+    .update(`bff-v1-csrf:${accessToken}:${expiresAtMs}`)
+    .digest("base64url");
+}
+
+function normalizeLegacyPayload(parsed: BffSessionPayload, secret: string): BffSessionPayload | null {
   if (parsed.v === BFF_SESSION_COOKIE_VERSION) {
     if (typeof parsed.la !== "number" || !Number.isFinite(parsed.la)) {
       return null;
@@ -69,7 +75,7 @@ function normalizeLegacyPayload(parsed: BffSessionPayload): BffSessionPayload | 
       at: parsed.at,
       exp: parsed.exp,
       la: Date.now(),
-      csrf: generateBffSessionCsrfToken(),
+      csrf: deriveLegacyV1MigrationCsrfToken(parsed.at, parsed.exp, secret),
       wm: 1,
       ...(parsed.rt !== undefined ? { rt: parsed.rt } : {}),
       ...(parsed.it !== undefined ? { it: parsed.it } : {}),
@@ -125,7 +131,7 @@ function parseSignedCookieValue(cookieValue: string, secret: string): BffSession
       return null;
     }
 
-    return normalizeLegacyPayload(parsed);
+    return normalizeLegacyPayload(parsed, secret);
   } catch {
     return null;
   }
