@@ -3,8 +3,8 @@ import {
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE,
-  ARCHITECTURE_INTELLIGENCE_HELP_SOURCES,
-  ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO,
+  ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES,
+  ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES_INTRO,
 } from "@/lib/architecture-intelligence-help-evidence-copy";
 
 /** Sources follow-ups for `/help/architecture-intelligence` (EAR). */
@@ -14,8 +14,10 @@ export function HelpArchitectureIntelligenceClaimOrientationStrip(): React.JSX.E
       slug="help-architecture-intelligence"
       sourcesTestId="help-architecture-intelligence-sources"
       sourcesTitle={ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES_INTRO}
-      sources={ARCHITECTURE_INTELLIGENCE_HELP_SOURCES}
+      sourcesIntro={ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES_INTRO}
+      sources={ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      hubSecondary
     />
   );
 }
