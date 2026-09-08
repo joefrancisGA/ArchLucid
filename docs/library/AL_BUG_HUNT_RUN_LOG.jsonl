@@ -1550,4 +1550,5 @@
 {"at":"2026-09-08T22:25:20.6936623Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-08T22:29:39.673428Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-08T22:37:53.4238907Z","zoneId":"host-core-coordination","outcome":"hit"}
-{"at":"2026-09-08T22:54:47.6462620Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
+{"at":"2026-09-08T22:54:47.646262Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
+{"at":"2026-09-08T23:00:07.0054841Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}

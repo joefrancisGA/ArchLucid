@@ -10323,11 +10323,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — clear all filters left bulk selection URL params
+- **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10344,6 +10344,11 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `GovernanceFindingsQueueScopeSection` — Clear review scope link used bare `navHref` and dropped register/facet/search params — **hit 2026-09-08 seed hunt #1336:** `#1280` preserved scope on clear-all-filters but clear review scope reset the entire query string; fixed with `governanceFindingsClearReviewScopeHref` and client wiring; regressions in `governance-findings-clear-review-scope-url.test.ts` and `GovernanceFindingsQueueScopeSection.test.tsx`
 - [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation preserved stale bulk selection and disposition-confirm params after register/facet clears — **hit 2026-09-08 seed hunt #1374:** `#1280` cleared register/facet/search/groupBy but `governanceFindingsClearAllFiltersHref` left `bulkFindings` / `bulkDispConfirm` on the URL so checkbox selection and confirm dialog state survived clear-all; fixed by deleting bulk params in the helper; regression in `governance-findings-clear-all-filters-url.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — non-architecture pick-review merge preserved stale `bulkFindings` / `bulkDispConfirm` tied to the prior review-less selection — **hit 2026-09-08 seed hunt #1375:** `#1374` cleared bulk on clear-all/clear-review-scope but `governanceFindingsPickReviewForTriageHref` merge path kept bulk params when setting `runId`; fixed by deleting bulk params on pick-review navigation; regression in `governance-findings-pick-review-url.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.showAllFilteredFindings` — `setHideGenericLowDensity(false)` then `clearAllFilters()` both rebuilt from render-scoped `searchParams`, so the second `router.replace` restored `hideGeneric=1` after filters cleared — **hit 2026-09-08 seed hunt #1375:** fixed with atomic `governanceFindingsShowAllFilteredFindingsHref`; regression in `governance-findings-clear-all-filters-url.test.ts`
+- [x] (valid-no-repro) `onLoadFindingsSavedView` workspace/run helpers carry stale bulk params — **cheap-disproof 2026-09-08 seed hunt #1375:** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild URL from saved-view filters only; never merge current query bulk state
+
+2026-09-08 seed hunt #1375 (hit): reseeded ui-governance-findings-queue; proved pick-review bulk URL carryover and show-all-filtered hideGeneric restore race; cheap-disproof closed saved-view bulk merge; 19 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
 2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
 
