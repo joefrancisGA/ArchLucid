@@ -9,10 +9,13 @@ public sealed partial class DifficultyBasedExtractionRouter
         "regulation",
         "compliance",
         "pii",
+        "personal data",
+        "phi",
         "gdpr",
         "hipaa",
         "ccpa",
         "soc 2",
+        "pci",
         "pci-dss",
     ];
 
