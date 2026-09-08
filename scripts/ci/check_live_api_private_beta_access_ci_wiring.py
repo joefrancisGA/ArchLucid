@@ -28,6 +28,7 @@ _MIN_TIMEOUT_MINUTES = 45
 _LOCKFILE_GUARD = "check_npm_overrides_lockfile_sync.py"
 _TYPECHECK_COMMAND = "npm run typecheck"
 _WAIT_FOR_API_READY = "wait-for-api-ready.sh"
+_JWT_REFRESH_SCRIPT = "refresh_private_beta_ci_jwt.sh"
 _TRIAGE_SCRIPT = "report_private_beta_playwright_failure_triage.py"
 _PUSH_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-on-push-failure-triage"
 _CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
@@ -235,6 +236,21 @@ def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) ->
         )
 
 
+def _require_jwt_refresh_before_playwright(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _JWT_REFRESH_SCRIPT not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must run {_JWT_REFRESH_SCRIPT} after shell warm "
+            "(re-mint JWT before Playwright so 1h exp does not 401 mid-suite)",
+        )
+
+
 def _require_private_beta_failure_triage_wiring(
     rel_path: str,
     text: str,
@@ -384,6 +400,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_live_e2e_build(_CI_REL, ci_text, errors)
         _require_private_beta_inline_pipeline_env(_CI_REL, ci_text, errors)
         _require_post_warm_api_ready(_CI_REL, ci_text, errors)
+        _require_jwt_refresh_before_playwright(_CI_REL, ci_text, errors)
         _require_private_beta_failure_triage_wiring(_CI_REL, ci_text, _CI_TRIAGE_ARTIFACT, errors)
 
     if not push_path.is_file():
@@ -406,6 +423,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
         _require_private_beta_inline_pipeline_env(_PUSH_REL, text, errors)
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
+        _require_jwt_refresh_before_playwright(_PUSH_REL, text, errors)
         _require_private_beta_failure_triage_wiring(_PUSH_REL, text, _PUSH_TRIAGE_ARTIFACT, errors)
 
         if "private-beta-access-on-push-${{ github.ref }}" not in text:

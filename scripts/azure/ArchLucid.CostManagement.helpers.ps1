@@ -78,6 +78,121 @@ function Resolve-ArchLucidCostQueryColumnIndexes([Parameter(Mandatory)][object]$
     }
 }
 
+function Get-AzureHttpStatusFromAzRestCaptured(
+    [Parameter(Mandatory)][int]$ExitCode,
+    [string]$Stdout = '',
+    [string]$Stderr = '') {
+
+    if ($ExitCode -eq 0) {
+
+        return 200
+    }
+
+    [string]$combined = "$( $Stderr ) $( $Stdout )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($combined)) {
+
+        return [int]::MinValue
+    }
+
+    if ($combined -match '(?i)"code"\s*:\s*"(\d{3})"') {
+
+        return [int]$Matches[1]
+    }
+
+    if ($combined -match '(?i)"code"\s*:\s*(\d{3})') {
+
+        return [int]$Matches[1]
+    }
+
+    if ($combined -match '(?i)Too Many Requests') {
+
+        return 429
+    }
+
+    if ($combined -match 'Forbidden\(403\)') {
+
+        return 403
+    }
+
+    if ($combined -match '\(401\)') {
+
+        return 401
+    }
+
+    if ($combined -match '(?i)Request Timeout') {
+
+        return 408
+    }
+
+    if ($combined -match '(?i)Internal Server Error') {
+
+        return 500
+    }
+
+    if ($combined -match '(?i)Bad Gateway') {
+
+        return 502
+    }
+
+    if ($combined -match '(?i)Service Unavailable') {
+
+        return 503
+    }
+
+    if ($combined -match '(?i)Gateway Timeout') {
+
+        return 504
+    }
+
+    return [int]::MinValue
+}
+
+function Test-ArchLucidAzRestTransientHttpStatus([Parameter(Mandatory)][int]$StatusCode) {
+
+    if (($StatusCode -eq 401) -or ($StatusCode -eq 403)) {
+
+        return $false
+    }
+
+    return (($StatusCode -eq ([int]::MinValue)) -or ($StatusCode -in @(408, 425, 429, 500, 502, 503, 504)))
+}
+
+function Invoke-ArchLucidAzureCliAzRestRetryable([Parameter(Mandatory)][string[]]$TailAfterRest) {
+
+    for ($attempt = 1; $attempt -le 12; $attempt++) {
+
+        [hashtable]$snippet = Invoke-ArchLucidAzureCliAzRestCaptured -TailAfterRest @($TailAfterRest)
+
+        if ($snippet.Exit -eq 0) {
+
+            return $snippet
+        }
+
+        [int]$code = Get-AzureHttpStatusFromAzRestCaptured `
+            -ExitCode $snippet.Exit `
+            -Stdout $snippet.Stdout `
+            -Stderr $snippet.Stderr
+
+        if (-not (Test-ArchLucidAzRestTransientHttpStatus -StatusCode $code)) {
+
+            return $snippet
+        }
+
+        if ($attempt -eq 12) {
+
+            return $snippet
+        }
+
+        [int]$sleepMs = [Math]::Min(90000, (900 + (($attempt - 1) * 2800)))
+        [int]$fuzz = Get-Random -Minimum 120 -Maximum 620
+
+        Start-Sleep -Milliseconds ($sleepMs + $fuzz)
+    }
+
+    throw 'ArchLucid az rest retry loop exited without returning a captured response.'
+}
+
 function Invoke-ArchLucidAzureCliAzRestCaptured([Parameter(Mandatory)][string[]]$TailAfterRest) {
 
     [string]$azExe = (Get-Command -Name az -ErrorAction Stop).Source
@@ -245,7 +360,7 @@ function Invoke-ArchLucidActualCostPagedQuery(
 
         try {
 
-            $snippet = Invoke-ArchLucidAzureCliAzRestCaptured -TailAfterRest @($tailArgs.ToArray())
+            $snippet = Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @($tailArgs.ToArray())
 
         }
 

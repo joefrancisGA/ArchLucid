@@ -124,6 +124,69 @@ Describe 'ArchLucid.CostManagement.helpers' {
         }
     }
 
+    It 'retries transient 429 az rest failures before succeeding' {
+
+        [int]$script:AzRestAttemptCount = 0
+
+        Mock Invoke-ArchLucidAzureCliAzRestCaptured {
+
+            $script:AzRestAttemptCount++
+
+            if ($script:AzRestAttemptCount -lt 3) {
+
+                return @{
+                    Exit = 1
+                    Stdout = ''
+                    Stderr = 'ERROR: Too Many Requests({"error":{"code":"429","message":"Too many requests. Please retry."}})'
+                }
+            }
+
+            return @{
+                Exit = 0
+                Stdout = '{"properties":{"columns":[{"name":"ServiceName"},{"name":"PreTaxCost"},{"name":"Currency"}],"rows":[]}}'
+                Stderr = ''
+            }
+        }
+
+        [hashtable]$result =
+            Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @('--method', 'POST', '--url', 'https://example.test/query')
+
+        $result.Exit | Should -Be 0
+        $script:AzRestAttemptCount | Should -Be 3
+    }
+
+    It 'does not retry 403 az rest failures' {
+
+        [int]$script:AzRestAttemptCount = 0
+
+        Mock Invoke-ArchLucidAzureCliAzRestCaptured {
+
+            $script:AzRestAttemptCount++
+
+            return @{
+                Exit = 1
+                Stdout = ''
+                Stderr = 'ERROR: Forbidden(403) Insufficient access.'
+            }
+        }
+
+        [hashtable]$result =
+            Invoke-ArchLucidAzureCliAzRestRetryable -TailAfterRest @('--method', 'POST', '--url', 'https://example.test/query')
+
+        $result.Exit | Should -Be 1
+        $script:AzRestAttemptCount | Should -Be 1
+    }
+
+    It 'parses 429 from az rest stderr payloads' {
+
+        [int]$parsed =
+            Get-AzureHttpStatusFromAzRestCaptured `
+                -ExitCode 1 `
+                -Stderr 'ERROR: Too Many Requests({"error":{"code":"429","message":"Too many requests. Please retry."}})'
+
+        $parsed | Should -Be 429
+    }
+
     It 'writes the POST body to a temp file and passes @path to az rest on Windows-safe invocation' {
 
         $script:CapturedAzRestTailArgs = @()
