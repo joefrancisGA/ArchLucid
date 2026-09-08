@@ -38,6 +38,7 @@ public sealed class ReferenceEvidenceAdminController(
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public Task<IActionResult> GetReferenceEvidenceZipAsync(
         [FromQuery] bool includeDemo = false,
         CancellationToken cancellationToken = default)

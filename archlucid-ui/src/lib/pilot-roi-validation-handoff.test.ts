@@ -81,6 +81,28 @@ describe("resolvePilotRoiValidationVerdict", () => {
     expect(result.verdict).toBe("internal-only");
   });
 
+  it("returns hold when ROI source freshness is HOLD", () => {
+    const result = resolvePilotRoiValidationVerdict(
+      payload({
+        structuralExecutionMode: "Real",
+        roiSourceFreshnessDisposition: "HOLD",
+      }),
+    );
+
+    expect(result.verdict).toBe("hold");
+  });
+
+  it("caps at internal-only when ROI source freshness is WARN", () => {
+    const result = resolvePilotRoiValidationVerdict(
+      payload({
+        structuralExecutionMode: "Real",
+        roiSourceFreshnessDisposition: "WARN",
+      }),
+    );
+
+    expect(result.verdict).toBe("internal-only");
+  });
+
   it("returns hold when sponsor proof readiness is Incomplete", () => {
     const result = resolvePilotRoiValidationVerdict(
       payload({
@@ -102,6 +124,7 @@ describe("buildPilotRoiValidationChecklistMarkdown", () => {
 
     expect(markdown).toContain("Run ID: run-abc");
     expect(markdown).toContain("ROI evidence confidence: Strong");
+    expect(markdown).toContain("ROI source freshness:");
     expect(markdown).toContain("Projected dollar claims export-ready: yes");
     expect(markdown).toContain("Did a decision change because of a finding?");
     expect(markdown).toContain("paid-pilot-evidence-ledger.template.json");
