@@ -209,6 +209,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 nextRetry,
                 row.MaxRetries);
 
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (current is not null
+                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
             await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken);
 
             int baseDelayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
@@ -233,6 +243,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 logger.LogError(
                     "Background job {JobId} could not be re-queued; non-terminal capacity exhausted.",
                     LogSanitizer.Sanitize(jobId));
+
+                current = await repository.GetAsync(jobId, stoppingToken);
+
+                if (current is not null
+                    && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+                {
+                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                    return;
+                }
 
                 await repository.MarkFailedTerminalAsync(
                     jobId,

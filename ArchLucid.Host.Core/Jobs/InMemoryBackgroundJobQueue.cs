@@ -164,7 +164,11 @@ public sealed class InMemoryBackgroundJobQueue(
                         nextRetry,
                         failed.MaxRetries);
 
-                    _info[item.JobId] = failed with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforePendingRetry) ||
+                        beforePendingRetry.State == BackgroundJobState.Canceled)
+                        continue;
+
+                    _info[item.JobId] = beforePendingRetry with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
@@ -179,7 +183,11 @@ public sealed class InMemoryBackgroundJobQueue(
                             "Background job {JobId} could not be re-queued; pending capacity exhausted.",
                             LogSanitizer.Sanitize(item.JobId));
 
-                        _info[item.JobId] = failed with
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeCapacityFailure) ||
+                            beforeCapacityFailure.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        _info[item.JobId] = beforeCapacityFailure with
                         {
                             State = BackgroundJobState.Failed,
                             CompletedUtc = TimeProvider.System.GetUtcNow(),
@@ -193,7 +201,11 @@ public sealed class InMemoryBackgroundJobQueue(
 
                         logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", LogSanitizer.Sanitize(item.JobId));
 
-                        _info[item.JobId] = failed with
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeWriterFailure) ||
+                            beforeWriterFailure.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        _info[item.JobId] = beforeWriterFailure with
                         {
                             State = BackgroundJobState.Failed,
                             CompletedUtc = TimeProvider.System.GetUtcNow(),
