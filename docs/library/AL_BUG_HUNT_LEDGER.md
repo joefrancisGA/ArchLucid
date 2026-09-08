@@ -1015,11 +1015,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — CCPA / SOC 2 / PCI-DSS regulatory markers skipped human review
+- **last-bug:** 2026-09-08 — PCI/PHI/personal-data shorthand skipped human review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1035,6 +1035,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequiresHumanReview` / `ContainsAny` — privacy/regulatory markers outside the fixed keyword list (`CCPA`, `SOC 2`, `PCI-DSS` without the word `compliance`) never trigger human review — **hit 2026-09-08 thorough hunt #1335:** `HumanReviewRegulatoryMarkers` omitted `ccpa`, `soc 2`, and `pci-dss`, so short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by centralizing markers and extending the set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
 
 2026-09-08 thorough hunt #1335 (hit): proved extended regulatory marker human-review bypass for CCPA/SOC 2/PCI-DSS; 20 scoped extraction-router tests passed.
+
+- [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — shorthand `PCI:`, standalone `PHI`, and `personal data` prose never trigger human review while `pci-dss`/`pii`/`hipaa` did — **hit 2026-09-08 seed hunt #1310:** inspect-classify gap after #1335; short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
+- [ ] (candidate) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers`; locus in `DifficultyBasedExtractionRouter.Classify.cs`; no failing repro yet
+
+2026-09-08 seed hunt #1310 (hit): reseeded extraction-router; proved PCI/PHI/personal-data shorthand human-review bypass; seeded ISO/FedRAMP/NIST framework marker candidate; 24 scoped extraction-router tests passed.
 2026-09-07 seed hunt #1296 (hit): reseeded extraction-router; proved short sensitive colon human-review bypass; seeded extended regulatory keyword candidate.
 2026-09-07 thorough hunt #1286 (hit): proved long sensitive prose human-review bypass; promoted ledger candidate to proven.
 
