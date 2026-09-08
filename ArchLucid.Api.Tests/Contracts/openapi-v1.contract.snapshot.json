@@ -18573,6 +18573,15 @@
             "format": "int32",
             "type": "integer"
           },
+          "proseAssumptionHeldCheckAsks": {
+            "items": {
+              "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "proseAssumptionRegisterEntries": {
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
@@ -25909,6 +25918,20 @@
           "NotVerifiable"
         ],
         "type": "string"
+      },
+      "ProseAssumptionHeldCheckAsk": {
+        "properties": {
+          "evidenceRef": {
+            "type": "string"
+          },
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "ProseAssumptionRegisterEntry": {
         "properties": {
@@ -92494,13 +92517,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -92720,13 +92758,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -96545,13 +96598,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -102055,13 +102123,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -104861,13 +104944,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -111913,13 +112011,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -112721,13 +112834,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -158285,13 +158413,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -158474,13 +158617,23 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -174567,13 +174720,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -174749,13 +174917,23 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -177941,13 +178119,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -178081,13 +178264,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -182189,13 +182377,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -182726,13 +182929,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
