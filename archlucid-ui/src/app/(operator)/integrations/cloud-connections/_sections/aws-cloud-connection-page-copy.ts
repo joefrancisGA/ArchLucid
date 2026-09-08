@@ -17,6 +17,9 @@ export const AWS_CLOUD_CONNECTION_START_HERE_CARD_TITLE = "Start here" as const;
 export const AWS_CLOUD_CONNECTION_START_HERE_LEAD =
   "Complete the security preflight checklist, copy the IAM trust policy starter into AWS, then enter your role ARN in Connection details and validate." as const;
 
+export const AWS_CLOUD_CONNECTION_PAGE_LEAD =
+  "Connect read-only AWS inventory through a federated IAM role — no long-lived access keys." as const;
+
 export function awsCloudConnectionPageOverview(
   buyerPolishedShell: boolean,
   operatorOverview: string,
