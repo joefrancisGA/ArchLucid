@@ -1466,3 +1466,5 @@
 {"at":"2026-09-08T00:53:23.1492992Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
 {"at":"2026-09-08T00:59:00.6381484Z","zoneId":"cloud-extractors","outcome":"hit"}
 {"at":"2026-09-08T01:10:29.0982286Z","zoneId":"tenant-data-export","outcome":"hit"}
+{"at":"2026-09-08T01:16:42.780765Z","zoneId":"tenant-settings-sql","outcome":"hit"}
+{"at":"2026-09-08T01:26:25.7160432Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}

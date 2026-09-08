@@ -7958,11 +7958,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 16
-- **bugs-found:** 25
+- **hunts:** 17
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — findings list/inspect whitespace runId returned 400 while export siblings returned 404
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — analysis-report routes whitespace runId returned 400 via RunDetailQueryService ThrowIfNullOrWhiteSpace while GetRun returned 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7999,7 +7999,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `RunQueryController.ListRunFindings` / `RunFindingsListStage` — whitespace `runId` returned HTTP 400 (`runId is required`) while sibling export/history reads return 404 via `AuthorityRunIdentifier.TryParse` — **hit 2026-09-07 hunt #1236 (seed→hit):** removed whitespace pre-check; invalid ids map to NotFound; regressions in `ListRunFindingsAsync_returns_not_found_for_whitespace_run_id_without_querying_repository` and `ListRunFindings_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`.
 - [x] (proven) `RunQueryController.GetFindingInspectForRun` / `RunFindingsInspectStage` — whitespace route `runId` returned HTTP 400 while lifecycle-guarded siblings return 404 — **hit 2026-09-07 hunt #1236 (seed→hit):** rely on `RunFindingsLifecycleGuard` + `AuthorityRunIdentifier.TryParse`; regressions in `GetFindingInspectForRunAsync_returns_not_found_for_whitespace_run_id_without_querying_repository` and `GetFindingInspectForRun_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`.
-- [ ] (candidate) `ListRunFindings` invalid cursor tuple returns BadRequest while invalid `runId` returns NotFound — distinct validation surface; confirm whether cursor errors should stay 400 when run id is malformed vs missing run.
+- [x] (invalid) `ListRunFindings` invalid cursor tuple returns BadRequest while invalid `runId` returns NotFound — intentional REST split: partial cursor `ArgumentException` maps to HTTP 400 via `ApiProblemDetailsExceptionFilter`; invalid/missing run id maps to 404; not a parity defect (2026-09-08 hunt).
+- [x] (proven) `AnalysisReportsController.AnalyzeRun` (and sibling analysis/export routes using `LoadRunDetailOrNotFoundAsync`) — whitespace `runId` returned HTTP 400 via `RunDetailQueryService` `ThrowIfNullOrWhiteSpace` while sibling `GetRun` returned 404 — **hit 2026-09-08:** rely on `AuthorityRunIdentifier.TryParse` in `RunDetailQueryService` detail/rollup loaders; regressions in `GetRunDetailAsync_returns_null_for_whitespace_run_id_without_querying_repository` and `AnalyzeRun_returns_not_found_for_whitespace_run_id_like_GetRun`.
+
+2026-09-08 thorough hunt: cheap-disproved cursor BadRequest vs NotFound candidate; proved analysis-report whitespace runId 404 parity via `RunDetailQueryService`.
 
 2026-09-07 seed hunt #1236 (hit): reseeded authority/admin controller zone; proved findings list + inspect whitespace runId 404 parity gaps; seeded cursor-validation candidate.
 
