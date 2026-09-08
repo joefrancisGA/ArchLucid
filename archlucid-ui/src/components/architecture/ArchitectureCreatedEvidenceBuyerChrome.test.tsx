@@ -17,6 +17,7 @@ describe("ArchitectureCreatedEvidenceBuyerChrome", () => {
 
     expect(screen.getByTestId("architecture-evidence-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-evidence-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-evidence-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("renders nothing outside eval chrome", () => {

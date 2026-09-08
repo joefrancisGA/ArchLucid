@@ -14,12 +14,17 @@ import {
   parseArchitectureCreatedOverflowOpenFromSearch,
 } from "@/lib/architecture/architecture-created-overflow-disclosure-url";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import {
+  ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/architecture/architecture-created-evidence-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
   readonly model: ArchitectureCreatedHomeModel;
   readonly activeTab: ArchitectureWorkspaceTabId;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ArchitectureCreatedWorkspaceHeader(
@@ -53,7 +58,8 @@ export function ArchitectureCreatedWorkspaceHeader(
       parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
     );
   }, [architectureCreatedOverflowParam]);
-  const { model, activeTab, onNavigateTab } = props;
+  const { model, activeTab, onNavigateTab, buyerPolishedShell = false } = props;
+  const showEvidenceClaimDiscipline = buyerPolishedShell && activeTab === "evidence";
 
   return (
     <header
@@ -61,9 +67,11 @@ export function ArchitectureCreatedWorkspaceHeader(
       data-testid="architecture-created-workspace-header"
     >
       <div className="min-w-0 space-y-2">
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ARCHITECTURE_CREATED_CONFIRMATION}
-        </p>
+        {!buyerPolishedShell ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_CREATED_CONFIRMATION}
+          </p>
+        ) : null}
         <h1
           className={cn(
             "m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl",
@@ -74,22 +82,33 @@ export function ArchitectureCreatedWorkspaceHeader(
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
-          {model.ownerLabel !== null ? (
+          {!buyerPolishedShell && model.ownerLabel !== null ? (
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Owner: {model.ownerLabel}
             </span>
           ) : null}
-          <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Updated {model.lastUpdatedLabel}
-          </span>
+          {!buyerPolishedShell ? (
+            <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Updated {model.lastUpdatedLabel}
+            </span>
+          ) : null}
         </div>
+        {showEvidenceClaimDiscipline ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
+          </p>
+        ) : null}
       </div>
 
-      <details
-        className="relative"
-        open={architectureCreatedOverflowOpen}
-        onToggle={(event) => setArchitectureCreatedOverflowOpen(event.currentTarget.open)}
-      >
+      {!buyerPolishedShell ? (
+        <details
+          className="relative"
+          open={architectureCreatedOverflowOpen}
+          onToggle={(event) => setArchitectureCreatedOverflowOpen(event.currentTarget.open)}
+        >
         <summary
           className={cn(
             "cursor-pointer list-none rounded-md border border-neutral-200 px-3 py-1.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-200",
@@ -146,6 +165,7 @@ export function ArchitectureCreatedWorkspaceHeader(
           </ul>
         </div>
       </details>
+      ) : null}
     </header>
   );
 }
