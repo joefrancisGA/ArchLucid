@@ -89,7 +89,11 @@ export function WizardStepAdvanced(): ReactElement {
 
         <WizardEngineAliasPicker />
 
-        <WizardAdvancedCollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="policy-references"
+          title="Policy references (Custom Policy Overrides)"
+          count={policyReferences.length}
+        >
           <WizardAdvancedChipList
             fieldName="policyReferences"
             title="Policy references"
@@ -98,7 +102,11 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title={ARCHITECTURE_HINTS_BUYER_LABEL} count={topologyHints.length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="topology-hints"
+          title={ARCHITECTURE_HINTS_BUYER_LABEL}
+          count={topologyHints.length}
+        >
           <WizardAdvancedChipList
             fieldName="topologyHints"
             title={ARCHITECTURE_HINTS_BUYER_LABEL}
@@ -107,7 +115,7 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title="Security baseline hints" count={securityBaselineHints.length}>
+        <WizardAdvancedCollapsibleSection sectionKey="security-baseline-hints" title="Security baseline hints" count={securityBaselineHints.length}>
           <WizardAdvancedChipList
             fieldName="securityBaselineHints"
             title="Security baseline hints"
@@ -116,7 +124,11 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title="Documents" count={documents.filter((d) => d.name.trim() || d.content.trim()).length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="documents"
+          title="Documents"
+          count={documents.filter((d) => d.name.trim() || d.content.trim()).length}
+        >
           <WizardFieldHint
             label="Documents"
             hint="Each row is a named UTF-8 attachment (name, content type, body) merged into agent context alongside the main brief."
@@ -204,6 +216,7 @@ export function WizardStepAdvanced(): ReactElement {
         </WizardAdvancedCollapsibleSection>
 
         <WizardAdvancedCollapsibleSection
+          sectionKey="infrastructure-declarations"
           title="Infrastructure declarations (Raw JSON Editors)"
           count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
         >
