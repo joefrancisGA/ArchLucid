@@ -186,6 +186,7 @@ describe("SessionExpiredClient", () => {
 
     expect(screen.getByRole("heading", { name: "Sign-in could not start" })).toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.queryByText("Access request")).toBeNull();
 
     fireEvent.click(screen.getByTestId("auth-error-try-again"));

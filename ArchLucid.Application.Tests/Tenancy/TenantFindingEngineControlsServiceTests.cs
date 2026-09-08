@@ -27,17 +27,43 @@ public sealed class TenantFindingEngineControlsServiceTests
       settings,
       tenantId,
       new InsightDensityGateOptions { EnableLlmJudge = false, EnableLlmJudgeForEngineFindings = false },
-      new PortfolioRecurrenceFindingOptions { Enabled = false },
+      new PortfolioRecurrenceFindingOptions(),
       executionMode: "Simulator");
 
     TenantFindingEngineControlsSnapshot snapshot = await service.GetAsync(CancellationToken.None);
 
     snapshot.EffectiveEnableLlmJudge.Should().BeFalse();
     snapshot.EffectiveEnableLlmJudgeForEngineFindings.Should().BeFalse();
-    snapshot.EffectivePortfolioRecurrenceEnabled.Should().BeFalse();
+    snapshot.EffectivePortfolioRecurrenceEnabled.Should().BeTrue();
+    snapshot.HostDefaultPortfolioRecurrenceEnabled.Should().BeTrue();
     snapshot.EnableLlmJudgeOverridden.Should().BeFalse();
     snapshot.EnableLlmJudgeForEngineFindingsOverridden.Should().BeFalse();
     snapshot.PortfolioRecurrenceEnabledOverridden.Should().BeFalse();
+  }
+
+  [Fact]
+  public async Task GetAsync_honors_tenant_portfolio_recurrence_override_false()
+  {
+    Guid tenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+    InMemoryTenantSettingsRepository settings = new();
+    await settings.UpsertAsync(
+      tenantId,
+      TenantSettingKeys.FindingsPortfolioRecurrenceEnabled,
+      "false",
+      CancellationToken.None);
+
+    TenantFindingEngineControlsService service = CreateService(
+      settings,
+      tenantId,
+      new InsightDensityGateOptions(),
+      new PortfolioRecurrenceFindingOptions(),
+      executionMode: "Simulator");
+
+    TenantFindingEngineControlsSnapshot snapshot = await service.GetAsync(CancellationToken.None);
+
+    snapshot.EffectivePortfolioRecurrenceEnabled.Should().BeFalse();
+    snapshot.HostDefaultPortfolioRecurrenceEnabled.Should().BeTrue();
+    snapshot.PortfolioRecurrenceEnabledOverridden.Should().BeTrue();
   }
 
   [Fact]
@@ -184,6 +210,8 @@ public sealed class TenantFindingEngineControlsServiceTests
 
     snapshot.EffectiveEnableLlmJudge.Should().BeFalse();
     snapshot.EnableLlmJudgeOverridden.Should().BeFalse();
+    snapshot.EffectivePortfolioRecurrenceEnabled.Should().BeTrue();
+    snapshot.PortfolioRecurrenceEnabledOverridden.Should().BeFalse();
   }
 
   [Fact]
@@ -235,6 +263,31 @@ public sealed class TenantFindingEngineControlsServiceTests
 
     effective.Enabled.Should().BeTrue();
     effective.MaxFindings.Should().Be(10);
+  }
+
+  [Fact]
+  public async Task PortfolioRecurrenceFindingOptionsResolver_honors_tenant_disabled_override()
+  {
+    Guid tenantId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+    InMemoryTenantSettingsRepository settings = new();
+    await settings.UpsertAsync(
+      tenantId,
+      TenantSettingKeys.FindingsPortfolioRecurrenceEnabled,
+      "false",
+      CancellationToken.None);
+
+    Mock<IScopeContextProvider> scope = new();
+    scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+    PortfolioRecurrenceFindingOptionsResolver resolver = new(
+      Options.Create(new PortfolioRecurrenceFindingOptions()),
+      scope.Object,
+      settings);
+
+    PortfolioRecurrenceFindingOptions effective = resolver.Resolve();
+
+    effective.Enabled.Should().BeFalse();
+    effective.MinSystemCountToReport.Should().Be(3);
   }
 
   private static TenantFindingEngineControlsService CreateService(

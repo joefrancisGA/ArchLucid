@@ -1,4 +1,5 @@
 import { HelpSlackIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpSlackIntegrationHeaderActions";
+import { HelpSlackIntegrationCredentialHandlingDisclosure } from "@/app/(operator)/help/_sections/HelpSlackIntegrationCredentialHandlingDisclosure";
 import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationSourcesOrientationStrip";
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -206,17 +207,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
                   </div>
                 ))}
               </dl>
-              <details
-                className={HELP_PAGE_LAYOUT.details}
-                data-testid="help-slack-integration-credential-handling-details"
-              >
-                <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                  {SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE}
-                </summary>
-                <div className={HELP_PAGE_LAYOUT.detailsBody}>
-                  <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY}</p>
-                </div>
-              </details>
+              <HelpSlackIntegrationCredentialHandlingDisclosure />
             </section>
 
             <section

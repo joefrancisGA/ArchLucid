@@ -7,7 +7,7 @@ import {
   ALERTS_INBOX_SOURCES_INTRO,
 } from "@/lib/alerts-inbox-evidence-copy";
 
-/** Claim discipline + Sources index for the governance alerts inbox (AL). */
+/** Claim discipline + Sources index for the approval alerts inbox (AL). */
 export function AlertsInboxClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip

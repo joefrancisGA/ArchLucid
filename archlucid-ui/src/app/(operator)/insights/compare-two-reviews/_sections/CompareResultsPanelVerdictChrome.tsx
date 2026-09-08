@@ -23,6 +23,7 @@ import {
 } from "@/lib/compare/compare-stale-inputs-technical-ids-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -96,6 +97,7 @@ export function CompareResultsPanelVerdictChrome({
   } = viewModel;
   const legacyCompareBlockedReason = compareRunPairBlockedReason(legacyFailure);
   const goldenCompareBlockedReason = compareRunPairBlockedReason(goldenFailure);
+  const aiCompareBlockedReason = compareRunPairBlockedReason(aiFailure);
 
   return (
     <>
@@ -143,6 +145,10 @@ export function CompareResultsPanelVerdictChrome({
           }
           newFindingTrustLanes={newFindingTrustLanes}
         />
+      ) : null}
+
+      {golden !== null ? (
+        <ComparePinToDeskActions baselineRunId={golden.baseRunId} updatedRunId={golden.targetRunId} />
       ) : null}
 
       {showStaleInputsWarning && (
@@ -285,13 +291,26 @@ export function CompareResultsPanelVerdictChrome({
       {aiFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            AI explanation request failed.
+            {aiCompareBlockedReason ?? "AI explanation request failed."}
           </p>
-          <OperatorApiProblem failure={aiFailure} variant="warning" />
+          {aiCompareBlockedReason === null ? (
+            <OperatorApiProblem failure={aiFailure} variant="warning" />
+          ) : (
+            <OperatorWarningCallout>{aiCompareBlockedReason}</OperatorWarningCallout>
+          )}
           <OperatorTryNext>
-            AI is optional — use the structured summary and supplementary tables above for the authoritative diff. If this
-            should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
-            <strong>{summarizeCue}</strong>.
+            {aiCompareBlockedReason === null ? (
+              <>
+                AI is optional — use the structured summary and supplementary tables above for the authoritative diff. If this
+                should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
+                <strong>{summarizeCue}</strong>.
+              </>
+            ) : (
+              <>
+                Resolve lifecycle or sealed-manifest gaps on the blocked review(s), then retry{" "}
+                <strong>{summarizeCue}</strong>.
+              </>
+            )}
           </OperatorTryNext>
         </>
       )}

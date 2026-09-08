@@ -1,19 +1,36 @@
 > **Scope:** Copy-paste Composer prompts that stop `/al-bug` from manufacturing synthetic defects (especially redaction, schema-version coercion, and English-negation phrase lists) and restore a hunt catalog that covers recent product surface. Internal engineering only — not buyer-facing copy.
-> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–10**)
+> **Paste-ready files:** [`.cursor/prompts/al-bug-quality-00-index.md`](../../.cursor/prompts/al-bug-quality-00-index.md) (**ABQ-01–35 shipped**; **ABQ-36–45 ready to run**)
 > **Workflow:** [`.cursor/commands/al-bug.md`](../../.cursor/commands/al-bug.md) · ledger [`../library/AL_BUG_HUNT_LEDGER.md`](../library/AL_BUG_HUNT_LEDGER.md)
 > **Do not fork:** GTM cohorts **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; `/al-defect` PD intake; a full `bugsmash` revert
 
-# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-10)
+# `/al-bug` quality — Composer prompts (ABQ-01–ABQ-45)
 
-**Created:** 2026-09-06 · **Status:** ready to run · **Audience:** Cursor Composer implementing the hunt-quality recommendations.
+**Created:** 2026-09-06 · **Status:** **01–35 shipped** (#1969) · **36–45 ready to run** · **Audience:** Cursor Composer implementing hunt-quality leftovers after wave 5.
 
-`/al-bug` is supposed to find real defects with a failing repro, then ship a minimal fix to `bugsmash`. By 2026-09-06 the loop had inverted: 1,236 logged hunts with a 95%+ hit rate, mega-zones (`archlucid-core`, `api-governance-tenancy-controllers`) locking the picker, and “fixes” that enumerate open-ended input spaces one instance per hunt.
+Wave 1 tables below are **historical** (ABQ-01–10). Paste **ABQ-36–45** from `.cursor/prompts/al-bug-quality-NN-*.md`. Do not re-implement 01–35. Do not implement from this document’s tables.
 
 Verified damage on `master` (scratch probe of current redactors, 2026-09-06): `adminPassword`, `storageAccountAccessKey`, `sshPrivateKey`, `sqlAdminPassword`, and `ArchLucid:OpenAiApiKey` were **not** redacted, while fictional treadmill keys such as `beefAccessKey` **were**. `IsEmbeddedSensitiveFragment` skips any sensitive fragment preceded by a letter, which describes nearly every real camelCase ARM / config key.
 
 Paste **one** `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session. Do not implement from this document’s tables.
 
-## Diagnosis → prompt
+## Wave 6 — ready to run (ABQ-36–45)
+
+| ID | Prompt file | Leftover / flaw |
+|----|-------------|-----------------|
+| **36** | `al-bug-quality-36-blocking-revert-ratchet.md` | ABQ-34 sample still `continue-on-error` |
+| **37** | `al-bug-quality-37-ci-escape-job-map.md` | Two-entry job map; artifact never pasted |
+| **38** | `al-bug-quality-38-flake-trx-ingest.md` | Empty flake log; no TRX parser |
+| **39** | `al-bug-quality-39-schema-authz-host-probe.md` | Catalog only; one known-route HTTP probe |
+| **40** | `al-bug-quality-40-high-impact-proven-lint.md` | 0% harm-named; new high `(proven)` unlinted |
+| **41** | `al-bug-quality-41-seed-only-explore.md` | Seed-only decays picker `explore` |
+| **42** | `al-bug-quality-42-commit-replay-no-reenter.md` | Replay still invokes `commitAsync` |
+| **43** | `al-bug-quality-43-seeder-spam-cap.md` | Three seeders × 15 with no merge |
+| **44** | `al-bug-quality-44-ghost-zone-paths.md` | Zone `paths` after file rename |
+| **45** | `al-bug-quality-45-uncheckable-proven-ratchet.md` | `no-test-cited` bypasses unguarded ratchet |
+
+Recommended order: **36, 37, 44**, then **38, 43, 41, 40**, then **45** (after 36), then **42**, then **39 last**.
+
+## Diagnosis → prompt (wave 1, historical)
 
 | Class | Prompt | Residual |
 |-------|--------|----------|
@@ -51,7 +68,7 @@ Paste **one** `.cursor/prompts/al-bug-quality-NN-*.md` file per Composer session
 - Do **not** add GTM cohort work (**M-90**, **M-44**, **M-91**, **M-92**) or reopen **TB-135** / **TB-136**.
 - Do **not** log `PD-###` unless the owner also asked for `/al-defect` intake.
 - Do **not** hide desktop review workspace tabs.
-- Do **not** run `/al-bug` itself as the implementation vehicle for this set.
+- Do **not** run `/al-bug` itself as the implementation vehicle for this set (including ABQ-36–45).
 
 ## Global constraints
 

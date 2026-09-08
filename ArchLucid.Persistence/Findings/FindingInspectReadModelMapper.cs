@@ -33,8 +33,9 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition)
-            ? disposition
-            : null;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition))
+            return null;
+
+        return Enum.IsDefined(disposition) ? disposition : null;
     }
 }

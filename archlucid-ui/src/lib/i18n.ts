@@ -29,7 +29,7 @@ export const DOMAIN_TERMS = {
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
   preCommitGate: "Approval check",
-  governanceApproval: "Governance approval",
+  governanceApproval: "Approval",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {
@@ -110,6 +110,8 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   analysis: "Insights",
   governance: "Approval",
   policy: "Policy",
+  compliance: "Compliance",
+  security: "Security",
   reports: "Reports",
   integrations: "Integrations",
   infrastructure: "Infrastructure",
@@ -147,7 +149,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   infrastructureDiagrams: "Inventory diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
-  infrastructureAsk: "Infrastructure Ask",
+  infrastructureAsk: "Ask",
   infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",
@@ -155,8 +157,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   sealedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
-  /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
-  baselineSettings: "Baseline settings",
+  /** ROI settings (`/administration/baseline`) — sidebar short form; the page H1 uses the full measurement title. */
+  baselineSettings: "ROI Settings",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",

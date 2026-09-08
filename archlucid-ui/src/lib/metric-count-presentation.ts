@@ -185,7 +185,7 @@ export function workspaceOpenFindingsPresentation(count: number): MetricCountPre
   return {
     count,
     noun: count === 1 ? "open finding" : "open findings",
-    dimensions: [{ kind: "workspace" }, { kind: "governance-filter", filter: "open" }],
+    dimensions: [{ kind: "governance-filter", filter: "open" }],
     href: buildGovernanceFindingsQueueHref({ filter: "open" }),
   };
 }
@@ -194,7 +194,7 @@ export function operatorHomeActiveReviewsPresentation(count: number): MetricCoun
   return {
     count,
     noun: count === 1 ? "active review" : "active reviews",
-    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "Active" }],
+    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "Active" }],
     href: reviewsHubInventoryFilterHref("Active"),
   };
 }
@@ -208,7 +208,7 @@ export function operatorHomeFinalizedPackagesPresentation(count: number): Metric
   return {
     count,
     noun,
-    dimensions: [{ kind: "workspace" }, { kind: "reviews-inventory", reviewsFilter: "finalized" }],
+    dimensions: [{ kind: "reviews-inventory", reviewsFilter: "finalized" }],
     href: reviewsHubInventoryFilterHref("finalized"),
   };
 }
@@ -220,8 +220,17 @@ export function operatorHomeGovernanceWarningsPresentation(
   return {
     count,
     noun,
-    dimensions: [{ kind: "workspace" }],
+    dimensions: [],
     href: OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
+  };
+}
+
+export function operatorHomeAwaitingApprovalPresentation(count: number): MetricCountPresentation {
+  return {
+    count,
+    noun: count === 1 ? "review awaiting approval" : "reviews awaiting approval",
+    dimensions: [],
+    href: "/?tab=awaiting-approval",
   };
 }
 

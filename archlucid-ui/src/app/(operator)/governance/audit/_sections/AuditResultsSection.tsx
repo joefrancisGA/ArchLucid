@@ -181,7 +181,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
         <p className={cn("mb-2 mt-1 max-w-2xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           All events in this view belong to{" "}
-          <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}>
+          <Link className={OPERATOR_LINK.nav} href={reviewPackageHref}>
             {buyerFacingReviewLinkLabelFromRunId(uniformRunIdForDisplay)}
           </Link>
           .

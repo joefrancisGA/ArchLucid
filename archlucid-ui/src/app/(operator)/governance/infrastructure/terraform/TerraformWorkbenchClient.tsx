@@ -1,29 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-import { InfraAuditLineageUnavailableBanner } from "@/components/infra-evidence/InfraAuditLineageUnavailableBanner";
+import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
+import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
 import { LayerHeader } from "@/components/LayerHeader";
-import { WorkbenchAuditProvenance } from "@/components/infra-evidence/WorkbenchAuditProvenance";
+import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
 import { downloadInfraEvidenceTerraformAdvisoryZip } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import {
-  fetchCloudResourceEvidenceHub,
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
+import { buildTerraformWorkbenchHref, INFRA_TERRAFORM_CLOUD_RESOURCE_ID_PARAM, INFRA_TERRAFORM_SNAPSHOT_ID_PARAM } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
 import {
-  INFRA_TERRAFORM_CLOUD_RESOURCE_ID_PARAM,
-  INFRA_TERRAFORM_SNAPSHOT_ID_PARAM,
-} from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
+  fetchCachedInfraEvidenceResourceHub,
+} from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
+import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
+import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
+  hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
@@ -38,6 +41,7 @@ import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-d
 import { cn } from "@/lib/utils";
 
 export function TerraformWorkbenchClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(INFRA_TERRAFORM_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
@@ -51,6 +55,10 @@ export function TerraformWorkbenchClient() {
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
+  const hasStaleAuditUrlParams = useMemo(
+    () => hasStaleInfraEvidenceAuditUrlParams(searchParams),
+    [searchParams],
+  );
   const resolvedSnapshotId = useMemo(() => {
     if (urlSnapshotId.length > 0) {
       return urlSnapshotId;
@@ -63,6 +71,33 @@ export function TerraformWorkbenchClient() {
     () => mergeWorkbenchHubScopePatch(resolvedSnapshotId, auditScope),
     [auditScope, resolvedSnapshotId],
   );
+  const auditControlOptions = useMemo(
+    () => buildInfraEvidenceAuditControlOptions(hub),
+    [hub],
+  );
+  const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
+    router.replace(buildTerraformWorkbenchHref({
+      cloudResourceId: urlCloudResourceId,
+      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : null,
+      ...buildInfraEvidenceAuditControlScopePatch(match),
+    }));
+  }, [resolvedSnapshotId, router, urlCloudResourceId]);
+  const deepLinkedSnapshotMissing = useMemo(() => {
+    if (urlSnapshotId.length === 0 || loading || hub == null) {
+      return false;
+    }
+
+    const hubSnapshotId = hub.currentConfiguration?.snapshotId?.trim() ?? "";
+
+    return hubSnapshotId.length > 0 && hubSnapshotId !== urlSnapshotId;
+  }, [hub, loading, urlSnapshotId]);
+  const selectionAnnouncement = useMemo(() => {
+    if (resolvedSnapshotId.length === 0) {
+      return null;
+    }
+
+    return `Terraform advisory scoped to snapshot ${resolvedSnapshotId}.`;
+  }, [resolvedSnapshotId]);
 
   useEffect(() => {
     if (urlCloudResourceId.length === 0) {
@@ -80,7 +115,7 @@ export function TerraformWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchCloudResourceEvidenceHub(urlCloudResourceId, {
+        const response = await fetchCachedInfraEvidenceResourceHub(urlCloudResourceId, {
           snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,
         });
 
@@ -161,10 +196,24 @@ export function TerraformWorkbenchClient() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6" data-testid="infra-terraform-workbench">
       <LayerHeader pageKey="infrastructure-terraform" />
-      <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Review advisory Terraform mapping reconstructed from inventory evidence. This is not original Terraform and must
-        not be applied without human review.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Review advisory Terraform mapping reconstructed from inventory evidence. This is not original Terraform and must
+          not be applied without human review.
+        </p>
+        <CopyScopedOperatorLinkButton testId="infra-terraform-copy-scoped-link" />
+      </div>
+      <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-terraform-selection-announcer" />
+
+      {deepLinkedSnapshotMissing ? (
+        <p
+          className={cn("m-0 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-terraform-snapshot-deep-link-missing"
+          role="status"
+        >
+          The linked snapshot is not available for this scoped resource.
+        </p>
+      ) : null}
 
       {loadError != null ? <StatusTag kind="needs-attention" label={loadError} /> : null}
 
@@ -177,22 +226,20 @@ export function TerraformWorkbenchClient() {
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Scoped to resource <span className="font-mono text-xs">{urlCloudResourceId}</span>.
           </p>
-          {auditScope != null ? (
-            <div className="mt-2">
-              <WorkbenchAuditProvenance
-                auditScope={auditScope}
-                controlNumber={hub?.auditLineageLink.controlNumber}
-                controlTitle={hub?.auditLineageLink.controlTitle}
-                testId="infra-terraform-audit-provenance"
-              />
-            </div>
-          ) : hub?.auditLineageLink.available === false ? (
-            <div className="mt-2">
-              <InfraAuditLineageUnavailableBanner
-                degradedReason={hub.auditLineageLink.degradedReason}
-                testId="infra-terraform-audit-unavailable"
-              />
-            </div>
+          {(auditScope != null || hub?.auditLineageLink.available === false || hasStaleAuditUrlParams) ? (
+            <WorkbenchAuditLineageStatus
+              auditScope={auditScope}
+              hub={hub}
+              cloudResourceId={urlCloudResourceId}
+              currentSearch={searchParams.toString()}
+              snapshotId={resolvedSnapshotId}
+              activeTab="terraform"
+              hasStaleAuditUrlParams={hasStaleAuditUrlParams}
+              auditControlOptions={auditControlOptions}
+              onAuditControlChange={onAuditControlChange}
+              provenanceTestId="infra-terraform-audit-provenance"
+              unavailableTestId="infra-terraform-audit-unavailable"
+            />
           ) : null}
           <WorkbenchHubScopeLinks
             cloudResourceId={urlCloudResourceId}

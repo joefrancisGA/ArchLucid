@@ -1,0 +1,19 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000049",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000049",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000049-0000-4000-8000-000000000049",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000049",
+    "runId": "20000000-0000-4000-8000-000000000049",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "azurePackageId": "30000000-0000-4000-8000-000000000049",
+    "resourcesJson": "[\n  {\n    \"resourceType\": \"Microsoft.Storage/storageAccounts\",\n    \"resourceId\": \"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/publicsa49\",\n    \"properties\": {\n      \"allowBlobPublicAccess\": true\n    }\n  }\n]"
+  }
+}

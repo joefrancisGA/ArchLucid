@@ -12,10 +12,11 @@ import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveSt
 import { useReviewsNewSuppressWizardResumePrompt } from "@/hooks/use-reviews-new-suppress-wizard-resume-prompt";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
-import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
+import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
@@ -37,6 +38,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
   const evalChrome = useProductionEvalChrome();
+  const { isWorkingMode } = useWorkspaceMode();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const { isSimulator } = useAgentExecutionMode();
   const {
@@ -211,7 +213,7 @@ export function SocraticIntakeWizard() {
           </span>{" "}
           This review evaluates{" "}
           <Link
-            href={architectureDraftPath(sourceArchitectureId)}
+            href={architectureIdentityPath(sourceArchitectureId)}
             className="font-medium underline"
             title={`Architecture id ${sourceArchitectureId}`}
           >
@@ -222,7 +224,11 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {isSubmitBlocked ? (
-        <GuidedIntakeAlreadySubmittedCallout linkedSpawnedRunId={linkedSpawnedRunId} />
+        <GuidedIntakeAlreadySubmittedCallout
+          linkedSpawnedRunId={linkedSpawnedRunId}
+          architectureId={sourceArchitectureId}
+          workingMode={isWorkingMode}
+        />
       ) : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}

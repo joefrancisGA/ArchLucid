@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **240** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **244** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:240 -->
+<!-- route-tier-policy-nav-registry-count:244 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -178,6 +178,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
 | `Authority/InternalArchitectureTraceForensicsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  |  |
 | `Authority/ReviewClarificationQuestionsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/ReviewStoredEvidenceFilesController.cs` | `/v1/architecture/review/{runId:guid}/evidence` | none | ReadAuthority |  |  |
 | `Authority/ReviewsDemoController.cs` | `/v1/reviews` | none | ExecuteAuthority |  |  |
 | `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | ReadAuthority |  | internal_architecture_diagnostics |
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /insights/compare-two-reviews |  |
@@ -205,9 +206,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `E2e/E2eHarnessController.cs` | `/v1/e2e` | none | AllowAnonymous |  | e2e_nonprod_harness |
 | `Evolution/EvolutionController.cs` | `/v1/evolution` | standard | ReadAuthority | /insights/impact-preview |  |
 | `Findings/ArchitectureFindingAskController.cs` | `/v1/architecture/finding` | standard | ReadAuthority |  |  |
+| `Findings/FindingInsightSignalController.cs` | `/v1/runs` | standard | ExecuteAuthority |  |  |
 | `Findings/FindingInspectController.cs` | `/v1/findings` | standard | ReadAuthority | /governance/findings |  |
 | `Findings/FindingMuteController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
+| `Findings/FindingVerificationController.cs` | `/v1/runs` | standard | ExecuteAuthority |  |  |
+| `Findings/InsightDensityNoveltyRatesController.cs` | `/v1/tenants/current/insight-density` | standard | ExecuteAuthority |  |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance/approval-queue |  |
 | `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/GovernanceEnvironmentCatalogController.cs` | `/v1/governance/environment-catalog` | standard | ReadAuthority |  |  |

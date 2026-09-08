@@ -108,6 +108,10 @@ public sealed class InsightDensityGateOptionsResolver(
             EnableLlmJudge = source.EnableLlmJudge,
             MaxJudgedFindingsPerSnapshot = source.MaxJudgedFindingsPerSnapshot,
             EnableLlmJudgeForEngineFindings = source.EnableLlmJudgeForEngineFindings,
+            EnableInsightGenerator = source.EnableInsightGenerator,
+            MaxGeneratedInsightFindingsPerSnapshot = source.MaxGeneratedInsightFindingsPerSnapshot,
+            PreferHighNoveltyEngines = source.PreferHighNoveltyEngines,
+            NoveltyRateWindowDays = source.NoveltyRateWindowDays,
         };
     }
 }

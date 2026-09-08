@@ -10,6 +10,9 @@ import { cn } from "@/lib/utils";
 
 export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly enginesSucceeded?: number | null;
+  readonly actorNodeCount?: number;
+  readonly analysisStagesComplete?: boolean;
+  readonly judgeSkippedByCap?: number | null;
   readonly className?: string;
   /** Hide engine-coverage copy when the review is in terminal failure (recovery owns the viewport). */
   readonly suppressOnTerminalFailure?: boolean;
@@ -25,7 +28,11 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
     return null;
   }
 
-  const { line, helpHref } = formatInsightDensityMeasurementFloorPresentation(props.enginesSucceeded ?? null);
+  const { line, helpHref } = formatInsightDensityMeasurementFloorPresentation(props.enginesSucceeded ?? null, {
+    actorNodeCount: props.actorNodeCount,
+    analysisStagesComplete: props.analysisStagesComplete,
+    judgeSkippedByCap: props.judgeSkippedByCap ?? null,
+  });
 
   return (
     <p

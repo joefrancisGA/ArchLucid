@@ -11,10 +11,16 @@ from pathlib import Path
 _CI_REL = ".github/workflows/ci.yml"
 _PUSH_REL = ".github/workflows/private-beta-access-on-push.yml"
 _SPEC = "live-api-private-beta-access.spec.ts"
+_WAVE3_SPEC = "live-api-private-beta-wave-3.spec.ts"
+_INVITE_FLOW_SPEC = "live-api-invite-flow.spec.ts"
 _CLIENT_REL = "archlucid-ui/e2e/helpers/live-api-client.ts"
 _PRIVATE_BETA_TIMEOUT_FN = "liveE2ePrivateBetaAccessPlaywrightTimeoutMs"
 _LEGACY_RUN_CYCLE_TIMEOUT_FN = "liveE2eArchitectureRunCyclePlaywrightTimeoutMs"
 _MIN_CI_PRIVATE_BETA_PLAYWRIGHT_TIMEOUT_MS = 2_700_000
+_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS = 420_000
+_ASYNC_AUTHORITY_PIPELINE_ENV = 'FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"'
+_CREATE_RUN_WARM_FN = "warmPrivateBetaCreateRunPipeline"
+_CREATE_RUN_HTTP_TIMEOUT_CONST = "LIVE_E2E_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS"
 _JOB_MARKER = "ui-e2e-live-beta-access"
 _JOB_NAME = "Operator UI: private-beta access-path (JwtBearer)"
 _FULL_REGRESSION_NEED = "dotnet-full-regression-core-complete"
@@ -28,8 +34,11 @@ _CI_TRIAGE_ARTIFACT = "ui-e2e-live-beta-access-failure-triage"
 _RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
 _DISPATCH_FULL_CI_SCRIPT = "scripts/ci/dispatch_full_ci_matrix.sh"
 _LOADER_SMOKE_REL = "archlucid-ui/e2e/live-api-private-beta-access.loader-smoke.test.ts"
+_PRIVATE_BETA_HELPER_REL = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
 _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
+_FETCH_AUTH_ME_WITH_BEARER = "fetchAuthMeWithBearer"
+_WRITE_JWT_BROWSER_SESSION = "writeJwtBrowserSession"
 
 
 def repo_root() -> Path:
@@ -156,6 +165,55 @@ def _require_private_beta_playwright_timeout_wiring(spec_text: str, client_text:
         )
 
 
+def _require_private_beta_create_run_wiring(spec_text: str, client_text: str, errors: list[str]) -> None:
+    if _CREATE_RUN_WARM_FN not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must call {_CREATE_RUN_WARM_FN} before browser journeys "
+            "(JIT inline pipeline warm on cold SQL when shell create-run warm is skipped)",
+        )
+
+    if _CREATE_RUN_HTTP_TIMEOUT_CONST not in client_text:
+        errors.append(f"{_CLIENT_REL}: missing {_CREATE_RUN_HTTP_TIMEOUT_CONST} export")
+
+        return
+
+    match = re.search(
+        rf"export const {_CREATE_RUN_HTTP_TIMEOUT_CONST} = ([\d_]+);",
+        client_text,
+    )
+
+    if match is None:
+        errors.append(
+            f"{_CLIENT_REL}: {_CREATE_RUN_HTTP_TIMEOUT_CONST} must be a numeric constant "
+            f">= {_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS}",
+        )
+
+        return
+
+    create_run_timeout_ms = int(match.group(1).replace("_", ""))
+
+    if create_run_timeout_ms < _MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS:
+        errors.append(
+            f"{_CLIENT_REL}: {_CREATE_RUN_HTTP_TIMEOUT_CONST} {create_run_timeout_ms}ms is below "
+            f"{_MIN_PRIVATE_BETA_CREATE_RUN_HTTP_TIMEOUT_MS}ms (must exceed AuthorityPipeline__PipelineTimeout)",
+        )
+
+
+def _require_private_beta_inline_pipeline_env(rel_path: str, text: str, errors: list[str]) -> None:
+    job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
+
+    if job_text is None:
+        errors.append(f"{rel_path}: missing job marker {_JOB_MARKER}")
+
+        return
+
+    if _ASYNC_AUTHORITY_PIPELINE_ENV not in job_text:
+        errors.append(
+            f"{rel_path}: {_JOB_NAME} must set {_ASYNC_AUTHORITY_PIPELINE_ENV} "
+            "(API-only CI host has no Worker; create-run must run inline authority pipeline)",
+        )
+
+
 def _require_post_warm_api_ready(rel_path: str, text: str, errors: list[str]) -> None:
     job_text = text if rel_path == _PUSH_REL else _extract_yaml_job_block(text, _JOB_MARKER)
 
@@ -231,6 +289,32 @@ def _require_private_beta_job_timeout(rel_path: str, text: str, errors: list[str
         )
 
 
+def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors: list[str]) -> None:
+    if _FETCH_AUTH_ME_WITH_BEARER not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: must export {_FETCH_AUTH_ME_WITH_BEARER} "
+            "(TB-927 invitee role claims via direct API /me)",
+        )
+
+    if _FETCH_AUTH_ME_WITH_BEARER not in spec_text:
+        errors.append(
+            f"archlucid-ui/e2e/{_SPEC}: must call {_FETCH_AUTH_ME_WITH_BEARER} "
+            "before proxy /me for invitee Operator role assertion (TB-927)",
+        )
+
+    if _WRITE_JWT_BROWSER_SESSION not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: must export {_WRITE_JWT_BROWSER_SESSION} "
+            "for explicit invitee JWT session seeding",
+        )
+
+    if "await writeJwtBrowserSession(page, trimmedToken)" not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: fetchAuthMeViaProxy must seed explicit accessToken "
+            f"via {_WRITE_JWT_BROWSER_SESSION} (stale BFF cookie from CI admin principal)",
+        )
+
+
 def _require_sandbox_mock_json_import_attribute(errors: list[str]) -> None:
     path = repo_root() / _SANDBOX_MOCKS_REL
 
@@ -260,14 +344,21 @@ def main(argv: list[str] | None = None) -> int:
 
     errors: list[str] = []
 
+    helper_path = root / _PRIVATE_BETA_HELPER_REL
+
     if not spec_path.is_file():
         errors.append(f"missing private-beta access spec: archlucid-ui/e2e/{_SPEC}")
     elif not client_path.is_file():
         errors.append(f"missing live API client helper: {_CLIENT_REL}")
+    elif not helper_path.is_file():
+        errors.append(f"missing private-beta access helper: {_PRIVATE_BETA_HELPER_REL}")
     else:
         spec_text = spec_path.read_text(encoding="utf-8", errors="replace")
         client_text = client_path.read_text(encoding="utf-8", errors="replace")
+        helper_text = helper_path.read_text(encoding="utf-8", errors="replace")
         _require_private_beta_playwright_timeout_wiring(spec_text, client_text, errors)
+        _require_private_beta_create_run_wiring(spec_text, client_text, errors)
+        _require_tb927_invitee_role_wiring(spec_text, helper_text, errors)
 
     if not ci_path.is_file():
         errors.append(f"missing {_CI_REL}")
@@ -276,6 +367,7 @@ def main(argv: list[str] | None = None) -> int:
         _require_jwt_bearer_and_spec(_CI_REL, ci_text, errors)
         _require_private_beta_job_timeout(_CI_REL, ci_text, errors)
         _require_live_e2e_build(_CI_REL, ci_text, errors)
+        _require_private_beta_inline_pipeline_env(_CI_REL, ci_text, errors)
         _require_post_warm_api_ready(_CI_REL, ci_text, errors)
         _require_private_beta_failure_triage_wiring(_CI_REL, ci_text, _CI_TRIAGE_ARTIFACT, errors)
 
@@ -297,25 +389,38 @@ def main(argv: list[str] | None = None) -> int:
         _require_private_beta_job_timeout(_PUSH_REL, text, errors)
         _require_live_e2e_build(_PUSH_REL, text, errors)
         _require_private_beta_install_and_typecheck(_PUSH_REL, text, errors)
+        _require_private_beta_inline_pipeline_env(_PUSH_REL, text, errors)
         _require_post_warm_api_ready(_PUSH_REL, text, errors)
         _require_private_beta_failure_triage_wiring(_PUSH_REL, text, _PUSH_TRIAGE_ARTIFACT, errors)
 
         if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
                 f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
-                "(one smoke per branch; cancel superseded trunk runs)",
+                "(one smoke per ref; cancel stale queued runs when a newer trunk push lands)",
             )
 
         if "cancel-in-progress: true" not in text:
             errors.append(
-                f"{_PUSH_REL}: must set cancel-in-progress: true so stale queued private-beta runs "
-                "do not block signal on the latest master SHA",
+                f"{_PUSH_REL}: must set cancel-in-progress: true so superseded trunk pushes "
+                "do not bury the first-green private-beta signal",
             )
 
         if _FULL_REGRESSION_NEED in text:
             errors.append(
                 f"{_PUSH_REL}: must not wait on {_FULL_REGRESSION_NEED} "
                 "(invite-wave path must start without full ci.yml regression)",
+            )
+
+        if _INVITE_FLOW_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_INVITE_FLOW_SPEC} on trunk push "
+                "(admin invite round-trip guards private-beta invite surfaces)",
+            )
+
+        if _WAVE3_SPEC not in text:
+            errors.append(
+                f"{_PUSH_REL}: must run {_WAVE3_SPEC} on trunk push "
+                "(diagnostics, sign-in recovery, deep-link returnUrl, duplicate-invite idempotency)",
             )
 
     retrigger_path = root / _RETRIGGER_SCRIPT

@@ -9,6 +9,7 @@ import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-hone
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,13 +30,15 @@ import {
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
+import { verifyBoardPackRunLineage } from "@/lib/exports/traceability-bundle-download";
+import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
+import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
@@ -51,8 +54,8 @@ import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboa
 
 const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
-function sponsorRoiSummaryCardTitle(): string {
-  if (isBuyerPolishedOperatorShellEnv()) {
+function sponsorRoiSummaryCardTitle(evalChromeShell: boolean): string {
+  if (evalChromeShell) {
     return BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle;
   }
 
@@ -76,6 +79,8 @@ export function SponsorRoiSummarySection({
   scopedReviewId = "",
 }: SponsorRoiSummarySectionProps = {}) {
   const executiveSurface = surface === "sponsor";
+  const workingDesk = useProductionDeskChrome();
+  const evalChromeShell = useProductionEvalChrome();
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
   const summaryQuery = useSponsorRoiSummaryQuery({ enabled: !usesExternalSummary });
   const scopedReviewTrimmed = scopedReviewId.trim();
@@ -103,6 +108,7 @@ export function SponsorRoiSummarySection({
   );
   const [boardPackBusy, setBoardPackBusy] = useState(false);
   const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
+  const [boardPackRecovery, setBoardPackRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
   const onDownloadSponsorSummary = useCallback(() => {
     const resolved = usesExternalSummary ? summaryProp : data;
 
@@ -128,9 +134,26 @@ export function SponsorRoiSummarySection({
   }, [coverageHonestyQuery.data, data, scopedReviewTrimmed, summaryProp, usesExternalSummary]);
 
   const onDownloadBoardPack = useCallback(async () => {
+    const resolved = usesExternalSummary ? summaryProp : data;
+
+    if (resolved === null || resolved === undefined) {
+      return;
+    }
+
     setBoardPackBusy(true);
+    setBoardPackRecovery(null);
 
     try {
+      const verify = await verifyBoardPackRunLineage(
+        resolved.systems.map((system) => system.runId),
+        { workingDesk, skipVerify: !workingDesk || executiveSurface },
+      );
+
+      if (!verify.ok) {
+        setBoardPackRecovery(verify.recovery);
+        return;
+      }
+
       await downloadSponsorRoiBoardPack({
         format: "md",
         generateNarrative: includeBoardPackNarrative,
@@ -140,7 +163,14 @@ export function SponsorRoiSummarySection({
     } finally {
       setBoardPackBusy(false);
     }
-  }, [includeBoardPackNarrative]);
+  }, [
+    data,
+    executiveSurface,
+    includeBoardPackNarrative,
+    summaryProp,
+    usesExternalSummary,
+    workingDesk,
+  ]);
 
   const onDownloadCsv = useCallback(async () => {
     if (scopedReviewExportBlockedReason !== null) {
@@ -215,7 +245,7 @@ export function SponsorRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle(evalChromeShell)}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
@@ -230,7 +260,7 @@ export function SponsorRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle(evalChromeShell)}</CardTitle>
         </CardHeader>
         <CardContent>
           <OperatorApiProblem failure={failure} />
@@ -246,7 +276,7 @@ export function SponsorRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle(evalChromeShell)}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="exec-roi-summary-loading">
@@ -274,7 +304,7 @@ export function SponsorRoiSummarySection({
         <div className="flex flex-wrap items-start justify-between gap-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
             <span className="inline-flex items-baseline gap-1.5">
-              {sponsorRoiSummaryCardTitle()}
+              {sponsorRoiSummaryCardTitle(evalChromeShell)}
               <RoiHeadlineMathTooltip />
             </span>
           </CardTitle>
@@ -316,14 +346,20 @@ export function SponsorRoiSummarySection({
             onChange={(e) => setIncludeBoardPackNarrative(e.target.checked)}
             data-testid="exec-roi-board-pack-narrative-toggle"
           />
-          {isBuyerPolishedOperatorShellEnv()
-            ? "Include an AI-generated sponsor report."
-            : "Include AI sponsor report (uses 1 fast LLM call when enabled in API config)"}
+          {evalChromeShell
+            ? "Include an AI-generated advisory narrative (off by default; not a sealed metric)."
+            : "Include AI advisory narrative (off by default; uses 1 fast LLM call when enabled in API config)"}
         </label>
         <SponsorRoiBoardPackEvidenceBanner
           summary={displayData}
           includeNarrative={includeBoardPackNarrative}
         />
+        {boardPackRecovery !== null ? (
+          <OperatorErrorRecoveryContract
+            presentation={boardPackRecovery}
+            testId="exec-roi-board-pack-verify-recovery"
+          />
+        ) : null}
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Latest finalized review per system in this workspace. {BUYER_SPONSOR_DATA_SOURCE_NOTE}
         </CardDescription>

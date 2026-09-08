@@ -15,10 +15,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
-import { DEV_CHROME_MARKER_CLASS, DEV_CHROME_SURFACE_CLASS } from "@/lib/dev-chrome-treatment";
 import {
   isDevTestingOverridesEnabled,
   readDevAgentExecutionModeOverrideFromDocument,
@@ -113,13 +113,18 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
 
   return (
     <>
+      <StatusTag
+        kind="neutral"
+        label="Dev"
+        className="shrink-0"
+        data-testid="dev-environment-top-bar-tag"
+      />
       <Button
         type="button"
         variant="outline"
         size="sm"
         className={cn(
-          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 px-2.5",
-          DEV_CHROME_SURFACE_CLASS,
+          "h-8 max-w-[min(100%,16rem)] shrink-0 gap-1 border border-neutral-300 bg-white px-2.5 dark:border-neutral-600 dark:bg-neutral-900",
           props.className,
         )}
         data-testid="simulator-mode-top-bar-chip-toggle"
@@ -128,7 +133,6 @@ export function SimulatorModeTopBarChip(props: SimulatorModeTopBarChipProps): Re
           setConfirmOpen(true);
         }}
       >
-        <span className={DEV_CHROME_MARKER_CLASS} aria-hidden="true">Dev</span>
         {buttonLabel}
         <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden />
       </Button>

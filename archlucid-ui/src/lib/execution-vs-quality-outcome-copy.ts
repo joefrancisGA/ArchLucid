@@ -138,13 +138,6 @@ export function plainLanguageFailureCauseSentence(args: {
 
   const failureClass = (args.failureClass ?? "").trim();
   const completedStages = args.completedStages ?? 0;
-  const likelyCause = resolveLikelyCauseFromArgs(args);
-
-  if (likelyCause !== null) {
-    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
-
-    return `${stagePrefix} ${likelyCause}`;
-  }
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
     const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
@@ -210,6 +203,10 @@ function resolveFailureResolutionHint(
     return "configuration issue — re-run after scheduling is restored, or contact support with the review ID";
   }
 
+  if (reason === "ExecuteOwnershipLeaseExpired") {
+    return "worker lost — reopen or retry execute; any unpersisted LLM spend may rebill on retry";
+  }
+
   if (CONFIGURATION_FAILURE_CLASSES.has(failureKey)) {
     return "configuration issue — your workspace administrator can adjust AI settings, then re-run";
   }
@@ -223,34 +220,6 @@ function resolveFailureResolutionHint(
   }
 
   return "";
-}
-
-function resolveLikelyCauseFromArgs(args: {
-  readonly failureClass?: string | null;
-  readonly reasonCode?: string | null;
-  readonly completedStages?: number;
-}): string | null {
-  const failureClass = (args.failureClass ?? "").trim();
-  const reasonCode = (args.reasonCode ?? "").trim();
-  const completedStages = args.completedStages ?? 0;
-
-  if (reasonCode === "NoScheduledAgentTasks") {
-    return "Execute ran before any agent tasks were scheduled — typical deferred scheduling miss. Re-run should resume the queued work on current builds.";
-  }
-
-  if (reasonCode === "MissingArchitectureRequest") {
-    return "Re-run could not load the architecture request needed to resume — data repair or support may be required.";
-  }
-
-  if (failureClass === "invalidOperation" && completedStages === 0) {
-    return "Pre-stage invalid operation — processing stopped before assessments began. Often the same deferred scheduling miss when reason codes are absent on older failure records.";
-  }
-
-  if (failureClass === "pipelineDeadLetter") {
-    return "Work dead-lettered after repeated failures — inspect worker health and outbox depth.";
-  }
-
-  return null;
 }
 
 export function plainLanguageTriageTitle(triageScenarioId: string | null | undefined): string | null {

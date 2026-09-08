@@ -5,10 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import {
-  CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS,
   CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT,
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
+  cloudConnectionsHelpPackagingScripts,
 } from "@/lib/cloud-connections-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   helpCloudConnectionsPackagingScriptsDisclosureHrefFromSearch,
@@ -21,6 +22,7 @@ export function HelpCloudConnectionsPackagingScriptsDisclosure(): ReactElement {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const packagingScripts = cloudConnectionsHelpPackagingScripts(resolveProductLineIdFromEnv());
   const helpCloudConnectionsPackagingScriptsOpenParam = searchParams.get("helpCloudConnectionsPackagingScriptsOpen");
   const [packagingScriptsOpen, setPackagingScriptsOpenState] = useState(() =>
     parseHelpCloudConnectionsPackagingScriptsOpenFromSearch(helpCloudConnectionsPackagingScriptsOpenParam),
@@ -62,7 +64,7 @@ export function HelpCloudConnectionsPackagingScriptsDisclosure(): ReactElement {
         Packaging scripts
       </summary>
       <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
-        {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS.map((script) => (
+        {packagingScripts.map((script) => (
           <li key={script}>
             <code>{script}</code>
           </li>

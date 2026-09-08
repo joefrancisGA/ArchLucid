@@ -158,7 +158,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves getting-started Category-1 help (HGX)", () => {
     expect(contextualHelpForPathname("/help/getting-started")?.whatIsThisPage).toContain("Getting started guide");
-    expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("Start a review");
+    expect(contextualHelpForPathname("/help/getting-started")?.whatToDoNext).toContain("architecture identity");
   });
 
   it("resolves users-and-roles settings Category-1 help (AUX)", () => {
@@ -270,9 +270,9 @@ describe("contextual-help-registry (TB-733)", () => {
     );
   });
 
-  it("resolves AI and model governance Category-1 help (AMO)", () => {
+  it("resolves AI and model policy Category-1 help (AMO)", () => {
     expect(contextualHelpForPathname("/administration/model-governance")?.whatIsThisPage).toContain(
-      "AI and model governance",
+      "AI and model policy",
     );
     expect(contextualHelpForPathname("/administration/model-governance")?.whatToDoNext).toContain(
       "AI usage",
@@ -407,8 +407,8 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/help/findings")?.whatToDoNext).toContain("findings queue");
   });
 
-  it("resolves governance approval help Category-1 help (GO)", () => {
-    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
+  it("resolves approval help Category-1 help (GO)", () => {
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Approval");
     expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
   });
 
@@ -498,6 +498,10 @@ describe("contextual-help-registry (TB-733)", () => {
   it("resolves teams integration Category-1 help (ITX)", () => {
     expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Teams integration");
     expect(contextualHelpForPathname("/integrations/teams")?.whatToDoNext).toContain("Teams connector");
+    expect(contextualHelpForPathname("/integrations/teams")?.whatIsThisPage).toContain("Microsoft Teams");
+    expect(
+      contextualHelpForPathname("/integrations/teams", { productLineId: "security" })?.whatIsThisPage,
+    ).not.toContain("Microsoft Teams");
   });
 
   it("resolves validate review Category-1 help (REP)", () => {

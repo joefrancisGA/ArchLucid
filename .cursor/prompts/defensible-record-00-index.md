@@ -83,6 +83,7 @@ This wave is **wave 16** — the Sept 2026 **career-defensibility** diagnosis: c
 | **PC-01–PC-13** | **Shipped.** Honesty + desk chrome. This set owns **fail-closed leftovers** |
 | **LK-05–07** | BFF shipped — DR-12 extends idle restore only |
 | **CA-01–50** | Customer identity — do not merge tables |
+| **AO-01–50** | Wave 17 Working locator — **do not paste from DR files**. DR-11/16 leftovers nest under AO-37/38 |
 | **TB-943 / TB-986 / TB-1196 / TB-2222** | Named contracts — implement leftovers, do not rewrite history |
 
 ## After each prompt

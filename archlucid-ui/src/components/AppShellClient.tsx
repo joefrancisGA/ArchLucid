@@ -5,6 +5,7 @@ import { CircleHelp } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { WorkspaceModeSealDefaultEffect } from "@/components/workspace-mode/WorkspaceModeSealDefaultEffect";
 import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellStatusQueryGate";
@@ -62,6 +63,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { productLineDisplayName, productLineWordmarkAriaLabel } from "@/lib/product-line/product-line-display-name";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
 import { useAppShellState } from "@/hooks/use-app-shell-state";
@@ -171,6 +173,9 @@ function AppShellInner({ children }: AppShellClientProps) {
   const chromeMode = useOperatorChromeMode();
   const deferChrome = useOperatorShellChromeDeferred();
   const evalChrome = useProductionEvalChrome();
+  const { productLine } = useProductLine();
+  const wordmarkAriaLabel = productLineWordmarkAriaLabel(productLine);
+  const displayName = productLineDisplayName(productLine);
   const {
     pathname,
     helpGuidesOpen,
@@ -213,7 +218,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           <div className="mb-6">
             <ArchLucidWordmarkLink
               href="/"
-              aria-label="ArchLucid"
+              aria-label={displayName}
               variant="operator"
               logoVariant="full"
             />
@@ -257,7 +262,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-wrap items-center justify-between gap-3 py-2.5")}>
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
-                        <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
+                        <ArchLucidWordmarkLink href="/" aria-label={wordmarkAriaLabel} variant="operator" />
                       </h1>
                       <Link
                         href="/architecture/reviews"

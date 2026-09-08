@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Copy } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperationalErrorsDetailPanel } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsDetailPanel";
 import { OperationalErrorsTable } from "@/app/(operator)/internal/operational-errors/_sections/OperationalErrorsTable";
 import {
+  buildOperationalErrorsTableClipboardText,
   rowMatchesOperationalErrorFilters,
   type OperationalErrorRow,
 } from "@/app/(operator)/internal/operational-errors/_sections/operational-errors-presentation";
@@ -15,6 +17,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { Input } from "@/components/ui/input";
@@ -38,6 +41,7 @@ import {
   parseOperationalErrorsDetailIdFromSearch,
 } from "@/lib/internal/operational-errors-detail-url";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { showError, showSuccess } from "@/lib/toast";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -196,13 +200,50 @@ export function OperationalErrorsPageClient() {
     [currentSearch, pathname, router],
   );
 
+  const onCopyTable = useCallback(async () => {
+    if (filteredRows.length === 0) {
+      return;
+    }
+
+    const clipboardText = buildOperationalErrorsTableClipboardText(filteredRows);
+
+    try {
+      await navigator.clipboard.writeText(clipboardText);
+      showSuccess(
+        filteredRows.length === 1
+          ? "Copied 1 operational error row to the clipboard."
+          : `Copied ${filteredRows.length} operational error rows to the clipboard.`,
+      );
+    } catch (error: unknown) {
+      const detail = error instanceof Error ? error.message : "Clipboard is unavailable in this browser.";
+      showError("Could not copy table", detail);
+    }
+  }, [filteredRows]);
+
   return (
     <OperatorPageContainer>
       <OperatorPageHeader
         title="Operational errors"
         subtitle="Review captured HTTP errors, database failures, and unhandled exceptions across the platform."
         navHref={INTERNAL_OPERATIONAL_ERRORS_PATH}
-        actions={<RefreshButton onClick={() => void load()} />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={state.status !== "ready" || filteredRows.length === 0}
+              data-testid="operational-errors-copy-table"
+              onClick={() => {
+                void onCopyTable();
+              }}
+            >
+              <Copy className="size-3.5 shrink-0" aria-hidden />
+              Copy table
+            </Button>
+            <RefreshButton onClick={() => void load()} busy={state.status === "loading"} />
+          </div>
+        }
       />
 
       <Card className={DESIGN_TOKENS.surface.card}>

@@ -68,6 +68,10 @@ function resolveLikelyCauseSentence(input: {
     return "Re-run could not load the architecture request needed to resume the deferred pipeline — data repair or support may be required.";
   }
 
+  if (input.reasonCode === "ExecuteOwnershipLeaseExpired") {
+    return "Execute worker lost its ownership lease before finishing — reopen or retry execute; retry skips persisted agents but may rebill unpersisted LLM spend.";
+  }
+
   if (input.failureClass === "invalidOperation" && input.completedStages === 0) {
     return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
   }

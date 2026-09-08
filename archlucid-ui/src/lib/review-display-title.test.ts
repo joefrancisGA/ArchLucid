@@ -94,7 +94,7 @@ describe("toReviewDisplayTitle", () => {
 
   it("strips synthetic sample package suffixes including truncated punctuation", () => {
     const title =
-      'Enterprise Copilot RAG platform — born-governed created architecture package (s…';
+      'Enterprise Copilot RAG platform — approval-ready created architecture package (s…';
 
     expect(toReviewDisplayTitle(title)).toBe("Enterprise Copilot RAG platform");
   });

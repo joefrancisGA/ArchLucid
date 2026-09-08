@@ -3,6 +3,7 @@ using ArchLucid.Application.Tests.Governance.FindingDisposition.Support;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 using FindingDispositionService = ArchLucid.Application.Governance.FindingDisposition.FindingDispositionService;
@@ -124,7 +125,10 @@ public sealed class FindingDispositionServiceNotesTests
 
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)
     {
+        IFindingDispositionConcurrencyRepository concurrencyRepository =
+            new InMemoryFindingDispositionConcurrencyRepository(trailRepository);
         FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
-        return new FindingDispositionService(appendService, trailRepository);
+
+        return new FindingDispositionService(concurrencyRepository, trailRepository, appendService);
     }
 }

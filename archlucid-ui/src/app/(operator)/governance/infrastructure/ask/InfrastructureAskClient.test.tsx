@@ -19,9 +19,20 @@ const mockAskResponse = {
 };
 
 let searchParams = new URLSearchParams("");
+const replace = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
+  usePathname: () => "/governance/infrastructure/ask",
+  useRouter: () => ({ replace }),
+}));
+
+vi.mock("@/hooks/use-infra-evidence-resource-hub-audit-lineage", () => ({
+  useInfraEvidenceResourceHubAuditLineage: () => ({
+    hub: null,
+    loading: false,
+    loadError: null,
+  }),
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-ask-api", () => ({
@@ -276,15 +287,15 @@ describe("InfrastructureAskClient", () => {
     );
     render(<InfrastructureAskClient />);
 
-    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("work queue Open findings");
+    expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("explorer Open findings");
     expect(screen.getByTestId("infra-ask-open-work-queue-hub-tab")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&workQueue=open-findings",
     );
     expect(screen.getByRole("link", { name: "View findings in hub" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-open-overview-hub")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?workQueue=open-findings",
     );
     expect(screen.getByTestId("infra-ask-explorer-back-link")).toHaveAttribute(
       "href",
@@ -300,7 +311,7 @@ describe("InfrastructureAskClient", () => {
 
     expect(screen.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=findings&snapshotId=22222222-2222-2222-2222-222222222222&workQueue=open-remediation",
     );
     expect(screen.getByRole("link", { name: "View findings in hub" })).toBeInTheDocument();
     expect(screen.queryByTestId("infra-ask-open-work-queue-hub-tab")).not.toBeInTheDocument();
@@ -317,6 +328,22 @@ describe("InfrastructureAskClient", () => {
     expect(screen.getByTestId("infra-ask-inventory-diagrams-back-link")).toHaveAttribute(
       "href",
       `/governance/infrastructure/diagrams?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
+    );
+  });
+
+  it("shows terraform workbench back link when opened from hub terraform tab", async () => {
+    searchParams = new URLSearchParams(
+      "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222&tab=terraform&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+    render(<InfrastructureAskClient />);
+
+    expect(screen.getByTestId("infra-ask-terraform-back-link")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/terraform?snapshotId=22222222-2222-2222-2222-222222222222&cloudResourceId=11111111-1111-1111-1111-111111111111&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+    expect(screen.getByTestId("infra-ask-open-scope-hub-tab")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/11111111-1111-1111-1111-111111111111?tab=terraform&snapshotId=22222222-2222-2222-2222-222222222222&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 

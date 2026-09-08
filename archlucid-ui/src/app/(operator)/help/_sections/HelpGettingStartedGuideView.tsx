@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GettingStartedHelpClaimDisciplineStrip } from "@/components/help/GettingStartedHelpClaimDisciplineStrip";
@@ -32,8 +34,19 @@ import {
   resolveGettingStartedHelpPrimaryActions,
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
+  resolveGettingStartedHelpWorkflowSteps,
 } from "@/lib/getting-started-help-guide-content";
-import { HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE } from "@/lib/help/help-workspace-mode-copy";
+import {
+  gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch,
+  parseGettingStartedEvaluatingArchitectureOpenFromSearch,
+} from "@/lib/help/getting-started-evaluating-architecture-disclosure-url";
+import {
+  gettingStartedTechnicalDetailsDisclosureHrefFromSearch,
+  parseGettingStartedTechnicalDetailsOpenFromSearch,
+} from "@/lib/help/getting-started-technical-details-disclosure-url";
+import { evaluatingProductHelpSectionTitle } from "@/lib/help/help-product-copy";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -136,21 +149,90 @@ function HowArchLucidWorksDiagram(): React.ReactElement {
 /** Buyer-safe onboarding guide for `/help/getting-started`. */
 export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const gettingStartedEvaluatingArchitectureOpenParam = searchParams.get("gettingStartedEvaluatingArchitectureOpen");
+  const gettingStartedTechnicalDetailsOpenParam = searchParams.get("gettingStartedTechnicalDetailsOpen");
+  const [evaluatingArchitectureOpen, setEvaluatingArchitectureOpenState] = useState(() =>
+    parseGettingStartedEvaluatingArchitectureOpenFromSearch(gettingStartedEvaluatingArchitectureOpenParam),
+  );
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseGettingStartedTechnicalDetailsOpenFromSearch(gettingStartedTechnicalDetailsOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { isWorkingMode } = useWorkspaceMode();
-  const quickStartTitle = resolveGettingStartedHelpQuickStartTitle(isWorkingMode);
-  const quickStartCopy = resolveGettingStartedHelpQuickStartCopy(isWorkingMode);
+
+  const syncEvaluatingArchitectureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        gettingStartedEvaluatingArchitectureDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setEvaluatingArchitectureOpen = useCallback(
+    (open: boolean) => {
+      setEvaluatingArchitectureOpenState(open);
+      syncEvaluatingArchitectureOpenToUrl(open);
+    },
+    [syncEvaluatingArchitectureOpenToUrl],
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        gettingStartedTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setEvaluatingArchitectureOpenState(
+      parseGettingStartedEvaluatingArchitectureOpenFromSearch(gettingStartedEvaluatingArchitectureOpenParam),
+    );
+  }, [gettingStartedEvaluatingArchitectureOpenParam]);
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseGettingStartedTechnicalDetailsOpenFromSearch(gettingStartedTechnicalDetailsOpenParam),
+    );
+  }, [gettingStartedTechnicalDetailsOpenParam]);
+  const { localize, productLine } = useLocalizedProductCopy();
+  const diagramTitle = howProductWorksTitle(productLine);
+  const guideHeadings = useMemo(
+    () =>
+      GETTING_STARTED_HELP_GUIDE_HEADINGS.map((heading) =>
+        heading.id === "how-archlucid-works" ? { ...heading, title: diagramTitle } : heading,
+      ),
+    [diagramTitle],
+  );
+  const quickStartTitle = localize(resolveGettingStartedHelpQuickStartTitle(isWorkingMode));
+  const quickStartCopy = localize(resolveGettingStartedHelpQuickStartCopy(isWorkingMode));
   const primaryActions = resolveGettingStartedHelpPrimaryActions(isWorkingMode);
   const nextActionCards = resolveGettingStartedHelpNextActionCards(isWorkingMode);
-  const contentGridClass = resolveHelpPageContentGridClass(GETTING_STARTED_HELP_GUIDE_HEADINGS.length);
-  const showSectionNav = GETTING_STARTED_HELP_GUIDE_HEADINGS.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const workflowSteps = resolveGettingStartedHelpWorkflowSteps(isWorkingMode);
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
 
   return (
     <article className={OPERATOR_LAYOUT.majorSectionGap} data-testid="help-getting-started-guide">
       <HelpTopicHashScroll />
       <HelpTopicMarkdownPageHeader
         entry={entry}
-        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={gettingStartedHelpPageSubtitle(buyerPolishedShell, productLine)}
         breadcrumb={
           buyerPolishedShell ? (
             <HelpTopicBreadcrumb topicTitle={GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE} />
@@ -200,13 +282,17 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             <details
               className={HELP_PAGE_LAYOUT.details}
               data-testid="getting-started-evaluating-architecture-section"
+              open={evaluatingArchitectureOpen}
+              onToggle={(event) => {
+                setEvaluatingArchitectureOpen((event.currentTarget as HTMLDetailsElement).open);
+              }}
             >
               <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE}
+                {evaluatingProductHelpSectionTitle(productLine)}
               </summary>
               <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  Use these paths when you are assessing ArchLucid before adopting it for daily review work.
+                  {localize("Use these paths when you are assessing ArchLucid before adopting it for daily review work.")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="outline">
@@ -243,8 +329,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </section>
 
           <section aria-labelledby="how-archlucid-works" className="space-y-3">
-            <HelpSectionHeading id="how-archlucid-works">{GETTING_STARTED_HELP_DIAGRAM_TITLE}</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_DIAGRAM_SUMMARY}</p>
+            <HelpSectionHeading id="how-archlucid-works">{diagramTitle}</HelpSectionHeading>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_DIAGRAM_SUMMARY)}</p>
             <HowArchLucidWorksDiagram />
             <div
               className={cn(
@@ -286,8 +372,8 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               Follow this path from evidence intake through shareable outputs.
             </p>
             <ol className="m-0 list-none space-y-0 p-0" data-testid="getting-started-workflow-stepper">
-              {GETTING_STARTED_HELP_WORKFLOW_STEPS.map((step, index) => {
-                const isLast = index === GETTING_STARTED_HELP_WORKFLOW_STEPS.length - 1;
+              {workflowSteps.map((step, index) => {
+                const isLast = index === workflowSteps.length - 1;
 
                 return (
                   <li key={step.stepNumber} className="relative flex gap-4 pb-6 last:pb-0">
@@ -328,8 +414,10 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
             summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
             summary={GETTING_STARTED_HELP_TECHNICAL_DETAILS_TITLE}
             bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
+            open={technicalDetailsOpen}
+            onOpenChange={setTechnicalDetailsOpen}
           >
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{localize(GETTING_STARTED_HELP_TECHNICAL_DETAILS_BODY)}</p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_TECHNICAL_TERMS} testId="getting-started-technical-terms-table" />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Deeper engineering references:{" "}
@@ -347,7 +435,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           </HelpLazyDetails>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={GETTING_STARTED_HELP_GUIDE_HEADINGS} /> : null}
+        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
       </div>
     </article>
   );

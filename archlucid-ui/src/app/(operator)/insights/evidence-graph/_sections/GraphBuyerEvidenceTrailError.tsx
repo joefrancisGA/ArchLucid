@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -19,6 +22,10 @@ import {
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  graphEvidenceTrailErrorTechnicalDetailsDisclosureHrefFromSearch,
+  parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch,
+} from "@/lib/insights/graph-evidence-trail-error-technical-details-disclosure-url";
 
 export type GraphBuyerEvidenceTrailErrorProps = {
   failure: ApiLoadFailureState;
@@ -33,6 +40,15 @@ export type GraphBuyerEvidenceTrailErrorProps = {
 /** Load failure — one primary surface with recovery actions; HTTP detail behind Technical details. */
 export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailErrorProps) {
   const { failure, runId, onRetry, loading, graphEndpointHint, operatorShell = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const graphEvidenceTrailErrorTechnicalDetailsOpenParam = searchParams.get(
+    "graphEvidenceTrailErrorTechnicalDetailsOpen",
+  );
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch(graphEvidenceTrailErrorTechnicalDetailsOpenParam),
+  );
   const correlationId = ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId);
   const httpStatus = failure.httpStatus ?? failure.problem?.status ?? null;
   const troubleshootingHref = resolveInAppDocHref("/docs/runbooks/TROUBLESHOOTING.md");
@@ -45,6 +61,30 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
   const heading = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_HEADING : BUYER_EVIDENCE_TRAIL_ERROR_HEADING;
   const body = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_BODY : BUYER_EVIDENCE_TRAIL_ERROR_BODY;
   const tryNext = operatorShell ? OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT : BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT;
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        graphEvidenceTrailErrorTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseGraphEvidenceTrailErrorTechnicalDetailsOpenFromSearch(graphEvidenceTrailErrorTechnicalDetailsOpenParam),
+    );
+  }, [graphEvidenceTrailErrorTechnicalDetailsOpenParam]);
 
   return (
     <OperatorErrorCallout>
@@ -65,7 +105,13 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
           <Link href="/administration/system-health">System health</Link>
         </Button>
       </div>
-      <details className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.micro)}>
+      <details
+        className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.micro)}
+        open={technicalDetailsOpen}
+        onToggle={(event) => {
+          setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
         <summary className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           Technical details
         </summary>

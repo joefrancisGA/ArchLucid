@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import type { ReactElement } from "react";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
@@ -157,7 +157,7 @@ export function FindingInspectEvidenceSection({
   evidence,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const policy = citationModel?.policy ?? null;
   const pack = citationModel?.pack ?? null;
   const hasPolicyContext = policy !== null;

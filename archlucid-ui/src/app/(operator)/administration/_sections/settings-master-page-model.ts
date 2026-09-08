@@ -1,5 +1,8 @@
 import { AUTHORITY_RANK, requiredAuthorityRank, type RequiredAuthority } from "@/lib/nav-authority";
 import { isApiKeysSettingsSurfaceEnabled } from "@/lib/api-keys-settings-access";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 
 import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import type { SettingsMasterDestination, SettingsMasterSection, SettingsMasterTier } from "./settings-master-types";
@@ -10,6 +13,8 @@ export type SettingsMasterPageModelInput = {
   readonly showInternalShell: boolean;
   readonly searchQuery: string;
   readonly showAdvanced: boolean;
+  readonly productLine?: ProductLineId;
+  readonly productLineAssignmentOverrides?: Readonly<Record<string, ProductLineAssignment>>;
 };
 
 export type SettingsMasterVisibleSection = SettingsMasterSection & {
@@ -31,18 +36,6 @@ function destinationMatchesQuery(destination: SettingsMasterDestination, normali
     destination.description,
     destination.keywords.join(" "),
   ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(normalizedQuery);
-}
-
-function sectionMatchesQuery(section: SettingsMasterSection, normalizedQuery: string): boolean {
-  if (normalizedQuery.length === 0) {
-    return true;
-  }
-
-  const haystack = [section.title, section.description, section.navLabel, section.keywords.join(" ")]
     .join(" ")
     .toLowerCase();
 
@@ -118,7 +111,15 @@ export function buildSettingsMasterVisibleSections(
           return false;
         }
 
-        if (!destinationMatchesQuery(destination, normalizedQuery) && !sectionMatchesQuery(section, normalizedQuery)) {
+        if (
+          !isPathAllowedForProductLine(destination.href, input.productLine ?? DEFAULT_PRODUCT_LINE_ID, {
+            assignmentOverrides: input.productLineAssignmentOverrides,
+          })
+        ) {
+          return false;
+        }
+
+        if (!destinationMatchesQuery(destination, normalizedQuery)) {
           return false;
         }
 
@@ -143,6 +144,16 @@ export function buildSettingsMasterVisibleSections(
 
       return section.showSupportBundle;
     });
+}
+
+export function countSettingsMasterMatchingDestinations(
+  sections: readonly SettingsMasterSection[],
+  input: SettingsMasterPageModelInput,
+): number {
+  return buildSettingsMasterVisibleSections(sections, input).reduce(
+    (total, section) => total + section.destinations.length + (section.showSupportBundle ? 1 : 0),
+    0,
+  );
 }
 
 export function formatSettingsAuthorityLabel(required: RequiredAuthority): string {

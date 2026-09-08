@@ -14,7 +14,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
@@ -215,13 +215,13 @@ export type RunDetailPageHeaderProps = {
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
   /**
-   * Buyer-polished: governance gate label mapped for display (for example Passed → Approved with monitoring).
+   * Buyer-polished: approval gate label mapped for display (for example Passed → Approved with monitoring).
    */
   buyerGovernanceApprovalLabel?: string | null;
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
   commitBlockedReason?: string | null;
-  /** Open governance alerts linked to this review (TB-107). */
+  /** Open approval alerts linked to this review (TB-107). */
   hasGovernanceWarnings?: boolean;
   /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
   usedStaticDemoRun?: boolean;
@@ -248,12 +248,12 @@ export function RunDetailPageHeader({
   demoteFinalizeButton = false,
   transparencyTrail = null,
 }: RunDetailPageHeaderProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
   const approvalStatusLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-    : "Governance approval";
+    : "Approval";
   const approvalCheckLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.approvalCheck
     : "Approval check";
@@ -281,7 +281,7 @@ export function RunDetailPageHeader({
                   ) : null}
                 </h1>
                 {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
-                  <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
                 ) : null}
               </div>
               {buyerPolishedShell === true && finalizedBuyerChrome === true && buyerHeaderStatusCaption ? (
@@ -322,7 +322,7 @@ export function RunDetailPageHeader({
           !(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
             <div className="flex flex-wrap items-center gap-2">
               {!(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
-                <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
               ) : null}
               {runSummary.runDegradedExecution === true ? (
                 <StatusTag

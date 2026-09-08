@@ -47,5 +47,15 @@ internal static class InsightDensityGateEffectiveOptionsMerger
             engineJudgeOverridden,
             engineJudgeTenantValue,
             isRealExecutionMode);
+
+        effective.EnableInsightGenerator = ResolveEnableLlmJudge(
+            isOverridden: false,
+            tenantValue: false,
+            isRealExecutionMode);
+
+        if (!isRealExecutionMode)
+        {
+            effective.PreferHighNoveltyEngines = false;
+        }
     }
 }

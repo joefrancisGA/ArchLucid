@@ -6,6 +6,8 @@ export const ARCHITECTURE_IDENTITY_DESK_UPDATED_LABEL = "Last updated" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL = "Current draft" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL = "Continue this architecture" as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT = "No open draft" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL = "New draft version" as const;
@@ -42,6 +44,8 @@ export const ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE =
 export const ARCHITECTURE_IDENTITY_DESK_REVIEWS_EMPTY = "No reviews yet" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL = "Start review" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_IN_FLIGHT_HEADING = "Review in progress" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE = "Architecture versions" as const;
 

@@ -36,7 +36,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/use-operator-attention-summary", () => ({
   useOperatorAttentionSummary: () => ({
-    summaries: [{ partition: "awaiting-approval", totalCount: 0 }],
+    summaries: [{ partition: "awaiting-approval", totalCount: 2 }],
     surfaceCounts: {},
   }),
 }));
@@ -58,7 +58,7 @@ function buildRunsDashboard(): OperatorHomeRunsDashboardModel {
 }
 
 describe("OperatorHomeWorkspaceMetricsStrip", () => {
-  it("renders four bordered metric cards with self-describing counts", () => {
+  it("renders self-describing metric tiles including awaiting approval", () => {
     useFinishSetupReadinessContext.mockReturnValue({
       phase: "ready",
       readyCount: 2,
@@ -88,8 +88,8 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
     const strip = screen.getByTestId("operator-home-workspace-metrics-strip");
-    expect(strip.querySelectorAll("li")).toHaveLength(4);
-    expect(strip.querySelectorAll(".rounded-md.border")).toHaveLength(4);
+    expect(strip.querySelectorAll("li")).toHaveLength(3);
+    expect(strip.querySelectorAll(".rounded-md.border")).toHaveLength(3);
 
     expect(screen.getByTestId("operator-home-metric-active-reviews-count")).toHaveAttribute(
       "href",
@@ -99,9 +99,13 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
       "href",
       OPERATOR_HOME_FINALIZED_PACKAGES_HREF,
     );
-    expect(screen.getByText(/^active reviews · this workspace$/i)).toBeInTheDocument();
-    expect(screen.getByText(/^sealed review record · this workspace · finalized$/i)).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-workspace-metrics-stack")).toHaveClass("space-y-4");
+    expect(screen.getByTestId("operator-home-metric-awaiting-approval-count")).toHaveAttribute(
+      "href",
+      "/?tab=awaiting-approval",
+    );
+    expect(screen.getByText(/^active reviews$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^sealed review record · finalized$/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-primary-attention-lead")).not.toBeInTheDocument();
   });
 
   it("shows active reviews even when only one in-progress review is surfaced in unfinished work", () => {
@@ -127,7 +131,7 @@ describe("OperatorHomeWorkspaceMetricsStrip", () => {
     render(<OperatorHomeWorkspaceMetricsStrip runsDashboard={runsDashboard} />);
 
     expect(screen.getByTestId("operator-home-metric-active-reviews-count-value")).toHaveTextContent("1");
-    expect(screen.getByTestId("operator-home-metric-open-findings-count-value")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-metric-open-findings-count-value")).not.toBeInTheDocument();
   });
 
   it("hides the strip when every pressure metric is zero", () => {

@@ -1,0 +1,79 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000043",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000043",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000043-0000-4000-8000-000000000043",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000043",
+    "runId": "20000000-0000-4000-8000-000000000043",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "actor-billing",
+        "nodeType": "Actor",
+        "label": "billing-func",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "Internal"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "role-contrib-sa",
+        "nodeType": "TopologyResource",
+        "label": "billing-contributor-sa",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "terraformType": "azurerm_role_assignment",
+          "roleName": "Contributor"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sa-audit-prod",
+        "nodeType": "TopologyResource",
+        "label": "sa-audit-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "storage",
+          "topologySensitivity": "data-bearing"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "actor-billing",
+        "toNodeId": "role-contrib-sa",
+        "edgeType": "RELATES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "role-contrib-sa",
+        "toNodeId": "sa-audit-prod",
+        "edgeType": "APPLIES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

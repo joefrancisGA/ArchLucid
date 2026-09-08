@@ -32,10 +32,14 @@ import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { useCompareForm } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form";
 
+export type CompareFormProps = {
+  readonly basePathname?: string;
+};
+
 /**
  * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
-export function CompareForm() {
+export function CompareForm(props: CompareFormProps = {}) {
   const evalChrome = useProductionEvalChrome();
   const {
     comparePagePath,
@@ -93,7 +97,7 @@ export function CompareForm() {
     loadBuyerSampleComparison,
     showRelatedReviewLinks,
     showContinueLastComparisonRow,
-  } = useCompareForm();
+  } = useCompareForm({ basePathname: props.basePathname });
 
   return (
     <OperatorPageContainer

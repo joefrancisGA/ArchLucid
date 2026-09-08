@@ -117,12 +117,16 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 
 ### Capture prerequisites
 
+- **Gate 5 (WK-16):** `cd archlucid-ui && npx tsc --noEmit -p tsconfig.build.json` must exit **0** before capture. If red, fix typecheck first (see assessment Gate 5).
 - Stack running with **demo seed** — use the [Start the demo](#start-the-demo-one-command) path above (`Demo:Enabled=true` / seed on startup).
 - Architect workspace at `http://localhost:3000`.
 - At least **two completed reviews** with finalized architecture packages (use `archlucid run --quick` twice or Swagger).
 - At least **one comparison** between those two reviews (`/compare` or API).
 - **One governance approval request** submitted and one approved (if governance is enabled).
-- Browser at **1440Ã—900** or **1920Ã—1080**; **light mode** for the primary set, plus **dark mode** variants. Disable extensions that alter page appearance.
+- Browser at **1440×900** or **1920×1080**; **light mode** for the primary set, plus **dark mode** variants. Disable extensions that alter page appearance.
+- **Simulator chip visible:** do not crop the execution-mode / Simulator notice when the shell shows it (WK-16 / M-07 honesty).
+- **Harness (optional):** `cd archlucid-ui && npx playwright test e2e/capture-all-screenshots.spec.ts` when API + UI are up with demo seed.
+- **Commit path:** save **6–8** PNGs under `docs/go-to-market/screenshots/` per naming below; owner marks **M-07** Done in GTM when satisfied.
 
 ### Screenshot 1: First-run wizard — Preset selection
 

@@ -198,6 +198,53 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Score_demotes_security_finding_with_only_label_shaped_graph_node_trace_evidence()
+    {
+        Finding finding = new()
+        {
+            FindingId = "engine-f8",
+            Title = "Machine actor reaches sensitive datastore",
+            Rationale = "Machine actor path to regulated datastore through allow-listed write/admin role.",
+            Severity = FindingSeverity.Error,
+            Category = "Security",
+            Trace = new ExplainabilityTrace { Notes = ["evidence:graph-node:sql-pay-prod"] },
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(candidate.EvidenceRefs).Should().BeFalse();
+        result.PenaltyReasons.Should().Contain("no-concrete-evidence");
+        result.PenaltyReasons.Should().NotContain("falsifiability-signal");
+    }
+
+    [Fact]
+    public void Score_promotes_security_finding_with_arm_evidence_ref()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
+        Finding finding = new()
+        {
+            FindingId = "engine-f9",
+            Title = "Machine actor reaches sensitive datastore",
+            Rationale = "Machine actor path to regulated datastore through allow-listed write/admin role.",
+            Severity = FindingSeverity.Error,
+            Category = "Security",
+            EvidenceRefs = [storageArmId],
+            Trace = new ExplainabilityTrace { Notes = ["evidence:graph-node:sql-pay-prod"] },
+        };
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(candidate.EvidenceRefs).Should().BeTrue();
+    }
+
+    [Fact]
     public void Score_detects_new_lexicon_phrases()
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice("Ensure scalability for all tiers.").Should().BeTrue();
@@ -250,5 +297,25 @@ public sealed class DeterministicInsightDensityGateTests
                 "Enable MFA for production accounts")
             .Should()
             .Be(1);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_hyphenated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod-sql-db storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_slash_separated_arm_path_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Public endpoint on /subscriptions/abc/resourceGroups/rg/providers/Microsoft.Sql/servers/prod-db",
+                "Public endpoint on subscriptions abc resourceGroups rg providers Microsoft Sql servers prod db")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
     }
 }

@@ -19,6 +19,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
 using ArchLucid.Application.Governance.FindingDisposition;
@@ -91,5 +92,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
+        services.AddScoped<IFindingVerificationScorer, FindingVerificationDeterministicScorer>();
+        services.AddScoped<IFindingVerificationService, FindingVerificationService>();
     }
 }

@@ -1,10 +1,18 @@
+"use client";
+
 import type { ReactElement } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { buildCompareComparisonTrustItems } from "@/lib/build-compare-comparison-trust-items";
 import type { CompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
+import {
+  compareTrustCaveatsDisclosureHrefFromSearch,
+  parseCompareTrustCaveatsOpenFromSearch,
+} from "@/lib/compare/compare-trust-caveats-disclosure-url";
 import type { FindingSeverityKind } from "@/lib/design-tokens";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -42,11 +50,39 @@ function renderTrustItem(item: { id: string; severity: FindingSeverityKind; head
 }
 
 export function CompareComparisonTrustBanner(props: CompareComparisonTrustBannerProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareTrustCaveatsOpenParam = searchParams.get("compareTrustCaveatsOpen");
+  const [caveatsOpen, setCaveatsOpenState] = useState(() =>
+    parseCompareTrustCaveatsOpenFromSearch(compareTrustCaveatsOpenParam),
+  );
   const items = buildCompareComparisonTrustItems({
     executionModeHonesty: props.executionModeHonesty,
     usesCurrentEffectiveOnly: props.usesCurrentEffectiveOnly,
     hasAiNarrative: props.hasAiNarrative,
   });
+
+  const syncCaveatsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(compareTrustCaveatsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCaveatsOpen = useCallback(
+    (open: boolean) => {
+      setCaveatsOpenState(open);
+      syncCaveatsOpenToUrl(open);
+    },
+    [syncCaveatsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCaveatsOpenState(parseCompareTrustCaveatsOpenFromSearch(compareTrustCaveatsOpenParam));
+  }, [compareTrustCaveatsOpenParam]);
 
   if (items.length === 0) {
     return null;
@@ -95,7 +131,13 @@ export function CompareComparisonTrustBanner(props: CompareComparisonTrustBanner
       ) : null}
 
       {collapsibleItems.length > 0 ? (
-        <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        <details
+          className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          open={caveatsOpen}
+          onToggle={(event) => {
+            setCaveatsOpen(event.currentTarget.open);
+          }}
+        >
           <summary className="cursor-pointer text-al-text-primary">
             {`Show ${collapsibleItems.length} additional comparison caveat${collapsibleItems.length === 1 ? "" : "s"}`}
           </summary>

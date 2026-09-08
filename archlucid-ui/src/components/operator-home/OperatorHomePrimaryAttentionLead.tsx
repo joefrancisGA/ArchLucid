@@ -13,9 +13,6 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-const AWAITING_APPROVAL_WARNINGS_CLARIFIER =
-  "Awaiting approval counts reviews in the approval queue. Approval warnings count governance checks that need a sign-off before finalization.";
-
 /** Prominent lead for the highest non-zero attention partition (P0 — awaiting approval first). */
 export function OperatorHomePrimaryAttentionLead(): React.JSX.Element | null {
   const { summaries } = useOperatorAttentionSummary();
@@ -37,10 +34,7 @@ export function OperatorHomePrimaryAttentionLead(): React.JSX.Element | null {
 
   const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[leadKind];
   const label = OPERATOR_ATTENTION_KIND_LABELS[leadKind];
-  const bodyCopy =
-    leadKind === "awaiting-approval"
-      ? `${destination.description} ${AWAITING_APPROVAL_WARNINGS_CLARIFIER}`
-      : destination.description;
+  const bodyCopy = destination.description;
 
   return (
     <div

@@ -12,6 +12,8 @@ public static class FindingPayloadRegistry
         [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload),
         [nameof(CostBreachFindingPayload)] = typeof(CostBreachFindingPayload),
         [nameof(InventoryReconciliationFindingPayload)] = typeof(InventoryReconciliationFindingPayload),
+        [nameof(DeclarationInventoryContradictionFindingPayload)] = typeof(DeclarationInventoryContradictionFindingPayload),
+        [nameof(PolicyDeclarationInventoryContradictionFindingPayload)] = typeof(PolicyDeclarationInventoryContradictionFindingPayload),
         [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload),
         [nameof(TopologyCoverageFindingPayload)] = typeof(TopologyCoverageFindingPayload),
         [nameof(SecurityCoverageFindingPayload)] = typeof(SecurityCoverageFindingPayload),
@@ -26,6 +28,8 @@ public static class FindingPayloadRegistry
         [nameof(OpenCommitmentFindingPayload)] = typeof(OpenCommitmentFindingPayload),
         [nameof(DeclarationPremiseConflictFindingPayload)] = typeof(DeclarationPremiseConflictFindingPayload),
         [nameof(PortfolioRecurrenceFindingPayload)] = typeof(PortfolioRecurrenceFindingPayload),
+        [nameof(SecretsLifecycleFindingPayload)] = typeof(SecretsLifecycleFindingPayload),
+        [nameof(ChecklistClusterSynthesisFindingPayload)] = typeof(ChecklistClusterSynthesisFindingPayload),
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

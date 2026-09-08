@@ -68,7 +68,7 @@ describe("GenerateAdrFromRunModal", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    render(<GenerateAdrFromRunModal input={minimalInput} />);
+    render(<GenerateAdrFromRunModal input={minimalInput} enginesSucceeded={16} />);
 
     fireEvent.click(screen.getByTestId("generate-adr-button"));
     fireEvent.click(await screen.findByRole("button", { name: /copy to clipboard/i }));
@@ -100,6 +100,29 @@ describe("GenerateAdrFromRunModal", () => {
 
     expect(ta.value.indexOf("Measurement floor")).toBeLessThan(ta.value.indexOf("# ADR:"));
     expect(screen.getByTestId("generate-adr-measurement-floor-line")).toBeInTheDocument();
+  });
+
+  it("DX-15: names skipped actor engines on IaC-only graphs in the measurement floor line", async () => {
+    render(
+      <GenerateAdrFromRunModal
+        input={minimalInput}
+        enginesSucceeded={12}
+        graphSnapshot={{ nodes: [] }}
+        progressSummary={{
+          runId: minimalInput.runId,
+          projectId: minimalInput.projectId,
+          createdUtc: minimalInput.createdUtc,
+          hasFindingsSnapshot: true,
+          hasGraphSnapshot: true,
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("external-exposure");
+    expect(screen.getByTestId("generate-adr-measurement-floor-line")).toHaveTextContent("no Actor nodes");
   });
 
   it("CA-41: Working blocks download until incomplete export is confirmed when only 20 of 25 are included", async () => {

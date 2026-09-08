@@ -32,6 +32,8 @@ import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { isArchLucidVendorStaffPrincipal } from "@/lib/vendor-staff-principal";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { productLineSkipsReviewLifecycleNavShaping } from "@/lib/product-line/filter-nav-groups-for-product-line";
 
 type UseOperatorShellNavRowsResult = {
   readonly allRows: NavGroupWithVisibleLinks[];
@@ -68,39 +70,57 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const omitAdminClusters = demoUi && !buyerPolishedShell && !devEmployeeOverride;
   const omitDuplicateReportingNav = isWorkingMode;
   const patternLibraryNavVisible = usePatternLibraryNavVisible();
+  const { productLine, assignmentOverrides } = useProductLine();
+  const skipReviewLifecycleNavShaping = productLineSkipsReviewLifecycleNavShaping(productLine);
 
   return useMemo(() => {
-    const navListOptions = { showVendorInternalNav };
+    const navListOptions = {
+      showVendorInternalNav,
+      productLine,
+      productLineAssignmentOverrides: assignmentOverrides,
+    };
+    const committedForNav = skipReviewLifecycleNavShaping || effectiveHasCommittedArchitectureReview;
 
     const reviewNavRows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       callerAuthorityRank,
       "review-workflow",
-      effectiveHasCommittedArchitectureReview,
+      committedForNav,
       hideGettingStartedFromMainNav,
       navListOptions,
     );
 
-    const adminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters
-        ? []
+    const adminNavRows: NavGroupWithVisibleLinks[] = omitAdminClusters
+      ? []
+      : productLine === "security"
+        ? listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            callerAuthorityRank,
+            "all",
+            committedForNav,
+            hideGettingStartedFromMainNav,
+            navListOptions,
+          ).filter((row) => row.group.id === "operator-admin")
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
             callerAuthorityRank,
             "platform-admin",
-            effectiveHasCommittedArchitectureReview,
+            committedForNav,
             hideGettingStartedFromMainNav,
             navListOptions,
           );
 
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || !showVendorInternalNav
+      omitAdminClusters
+        || !isShowSystemAdministrationNavEnabled()
+        || !showVendorInternalNav
+        || productLine === "security"
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
             callerAuthorityRank,
             "system-admin",
-            effectiveHasCommittedArchitectureReview,
+            committedForNav,
             hideGettingStartedFromMainNav,
             navListOptions,
           );
@@ -112,7 +132,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       ),
       patternLibraryNavVisible,
     );
-    const skipProgressiveNavDensity = isWorkingMode;
+    const skipProgressiveNavDensity = isWorkingMode || skipReviewLifecycleNavShaping;
     const effectiveShowFullNav = skipProgressiveNavDensity || effectiveRoleNavDensityShowFullNav;
     const firstSessionRows = filterNavGroupsForFirstSessionPilotMode(
       scopedRows,
@@ -156,6 +176,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     };
   }, [
     auditRunId,
+    assignmentOverrides,
     buyerPolishedShell,
     callerAuthorityRank,
     demoUi,
@@ -164,10 +185,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     effectiveRoleNavDensityShowFullNav,
     omitAdminClusters,
     patternLibraryNavVisible,
+    productLine,
     roleNavDensityPersona,
     hideGettingStartedFromMainNav,
     isWorkingMode,
     showVendorInternalNav,
+    skipReviewLifecycleNavShaping,
     omitDuplicateReportingNav,
   ]);
 }

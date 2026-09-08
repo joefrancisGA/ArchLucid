@@ -264,6 +264,7 @@ function OperatorHomePageBody(props: {
     metrics: workspaceMetrics,
     workingMode: props.workingMode,
     promotedAttentionKind,
+    attentionCountsByKind,
   });
 
   return (

@@ -81,6 +81,25 @@ public sealed class ManifestHashGuardTests
     }
 
     [Fact]
+    public void EnsureRunScopedPayloadIncludesManifestHashOrThrow_accepts_finding_verification_completed_payload()
+    {
+        byte[] payload = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(
+                new
+                {
+                    schemaVersion = 1,
+                    runId = "22222222-2222-2222-2222-222222222222",
+                    manifestHash = "deadbeef",
+                }));
+
+        Action act = () => IntegrationEventOutboxManifestHashGuard.EnsureRunScopedPayloadIncludesManifestHashOrThrow(
+            IntegrationEventTypes.FindingVerificationCompletedV1,
+            payload);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureRunScopedPayloadIncludesManifestHashOrThrow_blocks_uppercase_event_type_without_manifest_hash()
     {
         byte[] payload = Encoding.UTF8.GetBytes(

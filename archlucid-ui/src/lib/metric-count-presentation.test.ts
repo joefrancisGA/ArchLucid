@@ -31,22 +31,22 @@ function sampleRow(
 }
 
 describe("metric-count-presentation", () => {
-  it("formats operator home open findings with workspace and open scope", () => {
+  it("formats operator home open findings without workspace scope suffix", () => {
     const presentation = workspaceOpenFindingsPresentation(12);
 
-    expect(formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun })).toBe("this workspace");
-    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings · this workspace");
+    expect(formatMetricCountScopeLabel(presentation.dimensions, { noun: presentation.noun })).toBe("");
+    expect(formatMetricCountHeadline(presentation)).toBe("12 open findings");
     expect(presentation.href).toBe("/governance/findings?filter=open");
   });
 
-  it("formats operator home review inventory counts with reviews-list scope", () => {
+  it("formats operator home review inventory counts without workspace scope suffix", () => {
     const active = operatorHomeActiveReviewsPresentation(2);
     const finalized = operatorHomeFinalizedPackagesPresentation(3);
 
-    expect(formatMetricCountScopeLabel(active.dimensions, { noun: active.noun })).toBe("this workspace");
-    expect(formatMetricCountScopeLabel(finalized.dimensions, { noun: finalized.noun })).toBe("this workspace · finalized");
-    expect(formatMetricCountHeadline(active)).toBe("2 active reviews · this workspace");
-    expect(formatMetricCountHeadline(finalized)).toBe("3 sealed review records · this workspace · finalized");
+    expect(formatMetricCountScopeLabel(active.dimensions, { noun: active.noun })).toBe("");
+    expect(formatMetricCountScopeLabel(finalized.dimensions, { noun: finalized.noun })).toBe("finalized");
+    expect(formatMetricCountHeadline(active)).toBe("2 active reviews");
+    expect(formatMetricCountHeadline(finalized)).toBe("3 sealed review records · finalized");
     expect(active.href).toBe("/architecture/reviews?filter=Active");
     expect(finalized.href).toBe("/architecture/reviews?filter=finalized");
   });

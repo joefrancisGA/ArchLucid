@@ -21,6 +21,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
 import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
+import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
+
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
 import { RunDetailManifestSummaryHeading } from "./RunDetailManifestSummaryHeading";
 
@@ -28,12 +30,39 @@ type RunDetailManifestSummarySectionProps = {
   readonly manifestSummary: ManifestSummary;
   readonly runExecution?: OperatorEvidenceLimitsExecutionProps | null;
   readonly buyerPolishedShell: boolean;
+  readonly careerArtifactHonesty?: Omit<CareerArtifactHonestyInput, "artifactKind" | "runId" | "workingDesk">;
 };
+
+function resolveManifestJsonCareerArtifactHonesty(
+  manifestSummary: ManifestSummary,
+  careerArtifactHonesty?: Omit<CareerArtifactHonestyInput, "artifactKind" | "runId" | "workingDesk">,
+): Omit<CareerArtifactHonestyInput, "artifactKind" | "runId" | "workingDesk"> {
+  const manifestSummaryForHonesty = careerArtifactHonesty?.manifestSummary ?? manifestSummary;
+  const transparencyTrail =
+    careerArtifactHonesty?.transparencyTrail
+    ?? manifestSummaryForHonesty.feasibilityVerdict?.transparencyTrail
+    ?? manifestSummary.feasibilityVerdict?.transparencyTrail
+    ?? null;
+
+  return {
+    progressSummary: careerArtifactHonesty?.progressSummary ?? null,
+    manifestSummary: manifestSummaryForHonesty,
+    graphSnapshot: careerArtifactHonesty?.graphSnapshot ?? null,
+    enginesSucceeded: careerArtifactHonesty?.enginesSucceeded ?? null,
+    preCommitGateEnabled: careerArtifactHonesty?.preCommitGateEnabled,
+    isSample: careerArtifactHonesty?.isSample,
+    transparencyTrail,
+  };
+}
 
 export function RunDetailManifestSummarySection(
   props: RunDetailManifestSummarySectionProps,
 ): ReactElement {
-  const { manifestSummary, runExecution, buyerPolishedShell } = props;
+  const { manifestSummary, runExecution, buyerPolishedShell, careerArtifactHonesty } = props;
+  const manifestJsonCareerArtifactHonesty = resolveManifestJsonCareerArtifactHonesty(
+    manifestSummary,
+    careerArtifactHonesty,
+  );
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const evaluationStandardsLabel = isStreamlinedCorePilotPath(hasCommittedArchitectureReview)
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards
@@ -166,7 +195,11 @@ export function RunDetailManifestSummarySection(
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
-          <ManifestJsonActions runId={manifestSummary.runId} manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummary)} />
+          <ManifestJsonActions
+            runId={manifestSummary.runId}
+            manifestVersion={manifestSummarySealedVersionForCopyGuard(manifestSummary)}
+            careerArtifactHonesty={manifestJsonCareerArtifactHonesty}
+          />
         </CardContent>
       </Card>
 

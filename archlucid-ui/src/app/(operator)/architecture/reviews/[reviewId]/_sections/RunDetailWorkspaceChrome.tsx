@@ -13,6 +13,8 @@ import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureOb
 import { ReviewAskDock } from "@/components/reviews/ReviewAskDock";
 import { ReviewHeaderShareMenu } from "@/components/reviews/ReviewHeaderShareMenu";
 import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
+import { ReviewRoomHeaderButton } from "@/components/reviews/ReviewRoomHeaderButton";
+import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 import { ReviewWorkspaceStaleBanner } from "@/components/reviews/ReviewWorkspaceStaleBanner";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
@@ -20,7 +22,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
@@ -45,6 +48,7 @@ type ReviewMetadataField = {
 
 export type RunDetailWorkspaceHeaderProps = {
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   readonly h1Title: string;
   readonly eyebrowLabel: string;
   readonly reviewIdentifierLabel: string;
@@ -180,9 +184,15 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const runRecordMetaOpenParam = searchParams.get("runRecordMetaOpen");
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
+  const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const reviewsListNavHref = useReviewsListReturnNavHref(REVIEWS_LIST_PATH);
+  const navHref =
+    isWorkingMode && parentArchitectureId.length > 0
+      ? architectureIdentityPath(parentArchitectureId)
+      : reviewsListNavHref;
   const [recordMetadataOpen, setRecordMetadataOpenState] = useState(() =>
     parseRunDetailRecordMetadataOpenFromSearch(runRecordMetaOpenParam),
   );
@@ -219,15 +229,14 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     unrecordedFieldCount,
     metadataContext,
   );
-  const shareActionsDisabledHintId = "review-header-share-disabled-hint";
-  const askActionsDisabledHintId = "review-header-ask-disabled-hint";
+  const headerActionsDisabledHintId = "review-header-actions-disabled-hint";
 
   return (
     <div data-testid="run-detail-workspace-header">
       <SampleReviewDemoBanner runId={props.runId} />
       <ReviewWorkspaceStaleBanner runId={props.runId} />
       <OperatorPageHeader
-        navHref={reviewsListNavHref}
+        navHref={navHref}
         title={h1Title}
         headingLevel="h1"
         subtitle={props.eyebrowLabel}
@@ -244,23 +253,16 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 runId={props.runId}
                 isCommitted={props.signedReviewRecordId !== null}
                 manifestVersion={props.signedReviewRecordId}
+                parentArchitectureId={props.parentArchitectureId}
                 findingsQueueHref={`/governance/findings?runId=${encodeURIComponent(props.runId)}`}
                 disabled={reviewPipelineIncomplete}
                 disabledReason={headerActionDisabledReason}
                 disabledDescribedById={
                   reviewPipelineIncomplete && headerActionDisabledReason !== null
-                    ? shareActionsDisabledHintId
+                    ? headerActionsDisabledHintId
                     : undefined
                 }
               />
-              {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-                <WhyDisabledCtaHint
-                  id={shareActionsDisabledHintId}
-                  reason={headerActionDisabledReason}
-                  testId="review-header-share-disabled-hint"
-                  className="max-w-[14rem] text-right"
-                />
-              ) : null}
             </div>
             <div
               className={cn(
@@ -275,24 +277,30 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
                 disabledReason={headerActionDisabledReason}
                 disabledDescribedById={
                   reviewPipelineIncomplete && headerActionDisabledReason !== null
-                    ? askActionsDisabledHintId
+                    ? headerActionsDisabledHintId
                     : undefined
                 }
               />
-              {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
-                <WhyDisabledCtaHint
-                  id={askActionsDisabledHintId}
-                  reason={headerActionDisabledReason}
-                  testId="review-header-ask-disabled-hint"
-                  className="max-w-[14rem] text-right"
-                />
-              ) : null}
             </div>
+            {reviewPipelineIncomplete && headerActionDisabledReason !== null ? (
+              <WhyDisabledCtaHint
+                id={headerActionsDisabledHintId}
+                reason={headerActionDisabledReason}
+                testId="review-header-actions-disabled-hint"
+                className="max-w-[14rem] text-right"
+              />
+            ) : null}
+            <ReviewRoomHeaderButton
+              runId={props.runId}
+              reviewCompleted={!reviewPipelineIncomplete}
+              manifestVersion={props.signedReviewRecordId}
+            />
             <ReviewPresenterHeaderButton
               runId={props.runId}
               reviewCompleted={!reviewPipelineIncomplete}
               manifestVersion={props.signedReviewRecordId}
             />
+            <ReviewRoomElicitationShortcutHost />
             <FavoriteReviewToggle runId={props.runId} title={h1Title} size="sm" />
           </div>
         }

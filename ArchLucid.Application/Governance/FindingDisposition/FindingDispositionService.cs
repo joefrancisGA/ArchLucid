@@ -9,14 +9,18 @@ using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 namespace ArchLucid.Application.Governance.FindingDisposition;
 
 public sealed class FindingDispositionService(
-    IFindingReviewTrailAppendService trailAppendService,
-    IFindingReviewTrailRepository trailRepository) : IFindingDispositionService
+    IFindingDispositionConcurrencyRepository concurrencyRepository,
+    IFindingReviewTrailRepository trailRepository,
+    IFindingReviewTrailAppendService trailAppendService) : IFindingDispositionService
 {
-    private readonly IFindingReviewTrailAppendService _trailAppendService =
-        trailAppendService ?? throw new ArgumentNullException(nameof(trailAppendService));
+    private readonly IFindingDispositionConcurrencyRepository _concurrencyRepository =
+        concurrencyRepository ?? throw new ArgumentNullException(nameof(concurrencyRepository));
 
     private readonly IFindingReviewTrailRepository _trailRepository =
         trailRepository ?? throw new ArgumentNullException(nameof(trailRepository));
+
+    private readonly IFindingReviewTrailAppendService _trailAppendService =
+        trailAppendService ?? throw new ArgumentNullException(nameof(trailAppendService));
 
     public async Task<FindingDispositionEventDto> RecordAsync(
         RecordFindingDispositionRequest request,
@@ -32,7 +36,89 @@ public sealed class FindingDispositionService(
 
         FindingDispositionValidation.Validate(request);
 
-        FindingReviewEventRecord record = new()
+        FindingReviewEventRecord record = BuildReviewEventRecord(request, scope, reviewerUserId);
+
+        byte[]? expectedRowVersion = TryDecodeRowVersion(request.ExpectedCurrentDispositionRowVersionBase64);
+
+        FindingDispositionRecordResult recordResult = await _concurrencyRepository.RecordAsync(
+            record,
+            expectedRowVersion,
+            cancellationToken);
+
+        if (recordResult.Status == FindingDispositionRecordStatus.Conflict)
+        {
+            FindingDispositionConflictDetail conflict = recordResult.Conflict
+                ?? throw new InvalidOperationException("Disposition conflict result missing detail.");
+
+            throw new FindingDispositionConflictException(record.FindingId, conflict);
+        }
+
+        await _trailAppendService.LogAuditAsync(record, cancellationToken);
+
+        return ToDto(record, recordResult.NewCurrentRowVersion);
+    }
+
+    public async Task<IReadOnlyList<FindingDispositionEventDto>> RecordBulkAsync(
+        IReadOnlyList<RecordFindingDispositionRequest> requests,
+        ScopeContext scope,
+        string reviewerUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(requests);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (requests.Count == 0)
+            throw new ArgumentException("At least one disposition request is required.", nameof(requests));
+
+        if (string.IsNullOrWhiteSpace(reviewerUserId))
+            throw new ArgumentException("Reviewer user id is required.", nameof(reviewerUserId));
+
+        List<FindingReviewEventRecord> records = new(requests.Count);
+
+        foreach (RecordFindingDispositionRequest request in requests)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            FindingDispositionValidation.Validate(request);
+            records.Add(BuildReviewEventRecord(request, scope, reviewerUserId));
+        }
+
+        FindingDispositionBulkRecordResult bulkResult =
+            await _concurrencyRepository.RecordBulkAsync(records, cancellationToken).ConfigureAwait(false);
+
+        if (bulkResult.Status == FindingDispositionRecordStatus.Conflict)
+        {
+            FindingDispositionConflictDetail conflict = bulkResult.Conflict
+                ?? throw new InvalidOperationException("Disposition bulk conflict result missing detail.");
+
+            string findingId = conflict.FindingId;
+
+            throw new FindingDispositionConflictException(findingId, conflict);
+        }
+
+        IReadOnlyList<byte[]>? rowVersions = bulkResult.NewCurrentRowVersions
+            ?? throw new InvalidOperationException("Disposition bulk record result missing row versions.");
+
+        if (rowVersions.Count != records.Count)
+            throw new InvalidOperationException("Disposition bulk record row-version count mismatch.");
+
+        List<FindingDispositionEventDto> result = new(records.Count);
+
+        for (int index = 0; index < records.Count; index++)
+        {
+            FindingReviewEventRecord record = records[index];
+            await _trailAppendService.LogAuditAsync(record, cancellationToken).ConfigureAwait(false);
+            result.Add(ToDto(record, rowVersions[index]));
+        }
+
+        return result;
+    }
+
+    private static FindingReviewEventRecord BuildReviewEventRecord(
+        RecordFindingDispositionRequest request,
+        ScopeContext scope,
+        string reviewerUserId)
+    {
+        return new FindingReviewEventRecord
         {
             EventId = Guid.NewGuid(),
             TenantId = scope.TenantId,
@@ -51,10 +137,43 @@ public sealed class FindingDispositionService(
                 ? request.EvidenceRequestText.Trim()
                 : null,
         };
+    }
 
-        await _trailAppendService.AppendAsync(record, cancellationToken);
+    private static FindingDispositionEventDto ToDto(FindingReviewEventRecord record, byte[]? newCurrentRowVersion)
+    {
+        FindingDispositionEventDto dto = ToDto(record);
 
-        return ToDto(record);
+        if (newCurrentRowVersion is null || newCurrentRowVersion.Length == 0)
+            return dto;
+
+        return new FindingDispositionEventDto
+        {
+            EventId = dto.EventId,
+            FindingId = dto.FindingId,
+            Disposition = dto.Disposition,
+            ReviewerUserId = dto.ReviewerUserId,
+            Rationale = dto.Rationale,
+            RevisitDueUtc = dto.RevisitDueUtc,
+            EvidenceRequestText = dto.EvidenceRequestText,
+            OccurredAtUtc = dto.OccurredAtUtc,
+            RunId = dto.RunId,
+            CurrentDispositionRowVersionBase64 = Convert.ToBase64String(newCurrentRowVersion),
+        };
+    }
+
+    private static byte[]? TryDecodeRowVersion(string? rowVersionBase64)
+    {
+        if (string.IsNullOrWhiteSpace(rowVersionBase64))
+            return null;
+
+        try
+        {
+            return Convert.FromBase64String(rowVersionBase64.Trim());
+        }
+        catch (FormatException)
+        {
+            throw new ArgumentException("Expected current disposition row version is not valid base64.", nameof(rowVersionBase64));
+        }
     }
 
     public async Task<IReadOnlyList<FindingDispositionEventDto>> ListHistoryAsync(

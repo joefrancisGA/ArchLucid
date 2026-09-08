@@ -1,10 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/api-keys-settings-access", () => ({
+  isApiKeysSettingsSurfaceEnabled: () => true,
+}));
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { settingsMasterAudienceForScope } from "./settings-master-audience";
 import { SETTINGS_MASTER_SECTIONS } from "./settings-master-catalog";
-import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import { buildSettingsMasterVisibleSections, countSettingsMasterMatchingDestinations } from "./settings-master-page-model";
 import type { SettingsMasterDestination } from "./settings-master-types";
 
 /**
@@ -124,6 +128,54 @@ describe("settings-master-page-model", () => {
     expect(sections[0]?.id).toBe("billing");
   });
 
+  it("returns only matching destination cards for integration product queries", () => {
+    const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "jira",
+      showAdvanced: false,
+    });
+
+    const destinationIds = sections.flatMap((section) => section.destinations).map((destination) => destination.id);
+
+    expect(destinationIds).toEqual(["itsm-jira"]);
+    expect(countSettingsMasterMatchingDestinations(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "jira",
+      showAdvanced: false,
+    })).toBe(1);
+  });
+
+  it("finds health and access destinations by system health or api key search terms", () => {
+    const modelInput = {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "",
+      showAdvanced: false,
+    } as const;
+
+    const systemHealthIds = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      ...modelInput,
+      searchQuery: "system health",
+    })
+      .flatMap((section) => section.destinations)
+      .map((destination) => destination.id);
+
+    const apiKeyIds = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      ...modelInput,
+      searchQuery: "api key",
+    })
+      .flatMap((section) => section.destinations)
+      .map((destination) => destination.id);
+
+    expect(systemHealthIds).toContain("system-health");
+    expect(apiKeyIds).toContain("api-keys");
+  });
+
   it("reveals advanced destinations when advanced toggle is on", () => {
     const hidden = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
       callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
@@ -142,5 +194,46 @@ describe("settings-master-page-model", () => {
 
     expect(hidden.some((section) => section.id === "advanced")).toBe(false);
     expect(shown.some((section) => section.id === "advanced")).toBe(true);
+  });
+
+  it("counts the support bundle card in matching destination totals", () => {
+    const modelInput = {
+      callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: false,
+      searchQuery: "support",
+      showAdvanced: false,
+    } as const;
+
+    const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, modelInput);
+
+    expect(sections.some((section) => section.showSupportBundle)).toBe(true);
+    expect(countSettingsMasterMatchingDestinations(SETTINGS_MASTER_SECTIONS, modelInput)).toBe(1);
+  });
+
+  it("hides architecture-review destinations from the Security product settings hub", () => {
+    const sections = buildSettingsMasterVisibleSections(SETTINGS_MASTER_SECTIONS, {
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
+      isAuthorityLoading: false,
+      showInternalShell: true,
+      searchQuery: "",
+      showAdvanced: true,
+      productLine: "security",
+    });
+    const hrefs = sections.flatMap((section) => section.destinations).map((destination) => destination.href);
+    const sectionIds = sections.map((section) => section.id);
+
+    expect(hrefs).toContain("/integrations/cloud-connections");
+    expect(hrefs).toContain("/administration/users");
+    expect(hrefs).toContain("/administration/auth-domains");
+    expect(hrefs).toContain("/administration/extract-upload");
+    expect(hrefs).not.toContain("/administration/billing");
+    expect(hrefs).not.toContain("/governance/approval-queue");
+    expect(hrefs).not.toContain("/administration/ai-usage");
+    expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
+    expect(sectionIds).not.toContain("governance");
+    expect(sectionIds).not.toContain("ai-usage");
+    expect(sectionIds).toContain("integrations");
+    expect(sectionIds).toContain("health-and-access");
   });
 });

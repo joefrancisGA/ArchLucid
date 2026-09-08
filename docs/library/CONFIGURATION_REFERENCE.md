@@ -67,11 +67,11 @@ Surfaces overdue deferrals, unanswered evidence requests, and waiver expiry from
 
 ## Portfolio recurrence finding engine (ID-06)
 
-Cross-run portfolio scan on every review when enabled. **Default off** so tenants do not incur `IRunDetailQueryService` / `IFindingsSnapshotRepository` fan-out until operators opt in and measure cost.
+Cross-run portfolio scan on every review when enabled. **Default on** — disable per tenant when cross-review reads are undesirable. Claim boundary: scans other systems in the **same tenant catalog only** (ADR 0037).
 
 | Key | Default | Purpose |
 |-----|---------|---------|
-| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `false` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
+| `ArchLucid:Findings:PortfolioRecurrence:Enabled` | `true` | When `false`, `PortfolioRecurrenceFindingEngine` returns empty with **zero** repository calls. |
 | `ArchLucid:Findings:PortfolioRecurrence:MinSystemCountToReport` | `3` | Minimum distinct systems sharing a finding identity before emitting a portfolio recurrence finding. |
 | `ArchLucid:Findings:PortfolioRecurrence:MaxSystemsScanned` | `50` | Cap on distinct systems whose latest committed runs are scanned per review. |
 | `ArchLucid:Findings:PortfolioRecurrence:MaxFindings` | `10` | Maximum recurrence findings emitted per review (ordered by descending system count). |

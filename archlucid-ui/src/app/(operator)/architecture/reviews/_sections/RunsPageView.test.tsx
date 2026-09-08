@@ -12,6 +12,17 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+const workspaceModeMock = vi.hoisted(() => ({ isWorkingMode: false, mode: "guided" as const }));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => workspaceModeMock,
+  };
+});
+
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,

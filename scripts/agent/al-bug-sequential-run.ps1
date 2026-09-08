@@ -106,6 +106,30 @@ function Read-State {
     return (Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json)
 }
 
+function Get-HuntRunLogJsonlPath {
+    param([string] $Root)
+
+    return Join-Path $Root ('docs/library/AL_BUG_HUNT_RUN_LOG.jsonl' -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
+
+function Get-CurrentEscalatedFiles {
+    param([string] $Root)
+
+    # Hit counts come from per-hunt ledger entries; recent bugsmash commits add one more
+    # point per distinct file, so a file repeatedly patched by both signals crosses the threshold.
+    if (-not (Get-Command Get-EscalatedProductionFiles -ErrorAction SilentlyContinue)) {
+        return @()
+    }
+
+    $entries = Read-EscalationRunLogEntries -Path (Get-HuntRunLogJsonlPath -Root $Root)
+    $gitPaths = Get-GitBugsmashProductionPaths -GitRepoRoot $Root
+
+    return @(Get-EscalatedProductionFiles `
+            -RunLogEntries $entries `
+            -GitLogText ($gitPaths -join [Environment]::NewLine) `
+            -NowUtc ([datetime]::UtcNow))
+}
+
 function Write-State {
     param(
         [string] $Path,
@@ -155,7 +179,8 @@ if ($CompleteHunt) {
     $resolvedSeverity = $(if ([string]::IsNullOrWhiteSpace($Severity)) { 'medium' } else { $Severity })
 
     if ($HuntOutcome -eq 'hit' -and (Get-Command Test-AlBugShouldHoldHit -ErrorAction SilentlyContinue)) {
-        $shouldHold = Test-AlBugShouldHoldHit -Severity $resolvedSeverity -EscalatedFiles @() -ChangedPaths @($HuntPaths)
+        $escalatedFiles = Get-CurrentEscalatedFiles -Root $resolvedRoot
+        $shouldHold = Test-AlBugShouldHoldHit -Severity $resolvedSeverity -EscalatedFiles $escalatedFiles -ChangedPaths @($HuntPaths)
 
         if ($shouldHold) {
             $HuntOutcome = 'held-for-triage'

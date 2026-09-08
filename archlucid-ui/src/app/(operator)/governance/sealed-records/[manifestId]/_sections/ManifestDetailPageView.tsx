@@ -143,6 +143,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const deliverablesCard = (
     <ManifestDetailDeliverablesCard
       manifestId={manifestId}
+      runId={summary.runId}
       buyerPolishedLayout={buyerPolishedLayout}
       artifacts={artifacts}
       artifactsFailure={model.artifactsFailure}

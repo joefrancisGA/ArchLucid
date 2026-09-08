@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { SessionExpiredBuyerChrome } from "@/app/(operator)/auth/session-expired/SessionExpiredBuyerChrome";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
@@ -68,6 +69,7 @@ export function SessionExpiredClient() {
           errorTitle={SESSION_EXPIRED_SIGN_IN_ERROR_TITLE}
           errorCode="session-expired-sign-in-failure"
         />
+        <PostAuthBootstrapExitActions />
       </>,
     );
   }

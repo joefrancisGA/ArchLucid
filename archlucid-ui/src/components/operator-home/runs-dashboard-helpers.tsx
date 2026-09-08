@@ -248,7 +248,7 @@ export type ArchitecturePackageOriginProps = {
   readonly className?: string;
 };
 
-/** Compact origin pill for dense list rows, where no governance status tag sits directly above it. */
+/** Compact origin pill for dense list rows, where no approval status tag sits directly above it. */
 export function ArchitecturePackageOriginBadge(props: ArchitecturePackageOriginProps) {
   const resolved = resolveBuyerPackageOrigin(props.run, props.buyerPolishedShell);
 
@@ -267,7 +267,7 @@ export function ArchitecturePackageOriginBadge(props: ArchitecturePackageOriginP
 }
 
 /**
- * Labeled origin line for cards that also show a governance status tag. Provenance rendered as a
+ * Labeled origin line for cards that also show a approval status tag. Provenance rendered as a
  * bare pill next to a verdict pill reads as a competing outcome, so the axis has to be named.
  */
 export function ArchitecturePackageOriginMetadataLine(props: ArchitecturePackageOriginProps) {

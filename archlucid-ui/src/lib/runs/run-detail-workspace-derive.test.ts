@@ -81,6 +81,25 @@ describe("run-detail-workspace-derive", () => {
     expect(inProgress.label).toBe("Analysis in progress");
   });
 
+  it("labels completed pre-finalize runs as review complete even when showProgressTracker is true", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        completedUtc: "2026-01-02T00:00:00Z",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: true,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+    });
+
+    expect(status.label).toBe("Review complete");
+    expect(status.kind).toBe("review-complete");
+  });
+
   it("distinguishes quality-gate reject from execution failed (TB-965)", () => {
     const quality = deriveRunDetailWorkspaceStatus({
       run: {
@@ -119,7 +138,7 @@ describe("run-detail-workspace-derive", () => {
     expect(failed).toMatchObject({
       label: "Execution failed",
       kind: "execution-failed",
-      statusTagKind: "needs-attention",
+      statusTagKind: "blocked",
     });
     expect(isReviewPipelineIncomplete(failed)).toBe(true);
     expect(deriveDecisionSnapshotSuppressedReason(failed)).toMatch(/re-run the review/i);

@@ -29,4 +29,53 @@ describe("RunProgressTrackerStagesView (WA-22)", () => {
     expect(progressLine).not.toHaveClass("justify-between");
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
+
+  it("marks the first incomplete stage as the terminal failure boundary", () => {
+    render(
+      <RunProgressTrackerStagesView
+        buyerAssessmentCopy={true}
+        pipelineJobLabel={{
+          heading: "Assessment progress",
+          progressAriaLabel: "Assessment progress",
+          stageSummaryNoun: "assessment",
+        }}
+        completedStages={0}
+        totalProgressStages={3}
+        ctx={false}
+        graph={false}
+        findings={false}
+        manifest={false}
+        stageTimeline={[]}
+        activeSummary={null}
+        pipelineTerminalFailure={true}
+      />,
+    );
+
+    expect(screen.getAllByText("Stopped here")).toHaveLength(1);
+    expect(screen.getAllByText("Did not run")).toHaveLength(3);
+  });
+
+  it("can suppress the progress count line when live status already states stage progress", () => {
+    render(
+      <RunProgressTrackerStagesView
+        buyerAssessmentCopy={true}
+        pipelineJobLabel={{
+          heading: "Assessment progress",
+          progressAriaLabel: "Assessment progress",
+          stageSummaryNoun: "assessment",
+        }}
+        completedStages={0}
+        totalProgressStages={3}
+        ctx={false}
+        graph={false}
+        findings={false}
+        manifest={false}
+        stageTimeline={[]}
+        activeSummary={null}
+        suppressStageCountLine={true}
+      />,
+    );
+
+    expect(screen.queryByTestId("run-progress-stage-count")).toBeNull();
+  });
 });

@@ -9,6 +9,9 @@ import { useReviewClarificationQuestions } from "@/hooks/use-review-clarificatio
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
+import { ArchitectureCreatedEvidenceBuyerChrome } from "@/components/architecture/ArchitectureCreatedEvidenceBuyerChrome";
+import { ArchitectureCreatedFindingsBuyerChrome } from "@/components/architecture/ArchitectureCreatedFindingsBuyerChrome";
+import { ArchitectureCreatedGovernanceBuyerChrome } from "@/components/architecture/ArchitectureCreatedGovernanceBuyerChrome";
 import { ArchitectureCreatedOverviewBuyerChrome } from "@/components/architecture/ArchitectureCreatedOverviewBuyerChrome";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
 import { ArchitectureDiagramPanel } from "@/components/architecture/ArchitectureDiagramPanel";
@@ -245,7 +248,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     activeTab === "diagram" ||
     activeTab === "findings" ||
     activeTab === "governance" ||
-    (buyerPolishedShell && activeTab === "overview")
+    (buyerPolishedShell && (activeTab === "overview" || activeTab === "evidence"))
       ? "context-bar"
       : "full";
 
@@ -386,10 +389,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
       <div hidden={activeTab !== "findings"} data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
-            <ClarificationsFindingsVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="findings"
-            />
+            {buyerPolishedShell ? null : (
+              <ClarificationsFindingsVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="findings"
+              />
+            )}
             <ArchitectureCreatedFindingsNextAction
               runId={props.baseline.runId}
               findings={props.findings}
@@ -400,26 +405,33 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
             {props.panels.findings}
+            {buyerPolishedShell ? <ArchitectureCreatedFindingsBuyerChrome /> : null}
           </div>
       </div>
 
       <div hidden={activeTab !== "evidence"} data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
-            <PackageEvidenceEvidenceGraphVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="package-evidence"
-            />
+            {buyerPolishedShell ? null : (
+              <PackageEvidenceEvidenceGraphVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="package-evidence"
+              />
+            )}
             {props.panels.evidence}
+            {buyerPolishedShell ? <ArchitectureCreatedEvidenceBuyerChrome /> : null}
           </div>
       </div>
 
       <div hidden={activeTab !== "governance"} data-testid="architecture-workspace-panel-governance">
           <div className="space-y-4">
-            <PackageGovernanceApprovalQueueVocabularyRail
-              runId={props.baseline.runId}
-              currentSurfaceId="package-governance"
-            />
+            {buyerPolishedShell ? null : (
+              <PackageGovernanceApprovalQueueVocabularyRail
+                runId={props.baseline.runId}
+                currentSurfaceId="package-governance"
+              />
+            )}
             {props.panels.governance}
+            {buyerPolishedShell ? <ArchitectureCreatedGovernanceBuyerChrome /> : null}
           </div>
       </div>
 

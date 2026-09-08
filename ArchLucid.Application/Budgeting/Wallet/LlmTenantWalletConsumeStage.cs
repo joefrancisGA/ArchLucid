@@ -63,12 +63,14 @@ public sealed class LlmTenantWalletConsumeStage(
         if (tenantId == Guid.Empty || estimatedUsd <= 0m)
             return false;
 
+        decimal billedUsd = LlmTenantWalletDefaults.ApplyOverageMarkup(estimatedUsd);
+
         for (int attempt = 0; attempt < LlmTenantWalletConsumeRetry.MaxOptimisticRetries; attempt++)
         {
             LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
             LlmTenantWalletConsumeResult result = await _repository
-                .TryConsumeAsync(tenantId, estimatedUsd, Guid.NewGuid(), state.RowVersion, cancellationToken)
+                .TryConsumeAsync(tenantId, billedUsd, Guid.NewGuid(), state.RowVersion, cancellationToken)
                 .ConfigureAwait(false);
 
             if (result.InsufficientFunds)

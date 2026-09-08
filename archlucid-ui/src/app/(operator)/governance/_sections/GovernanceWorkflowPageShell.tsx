@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -26,6 +29,10 @@ import {
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL } from "@/lib/governance/governance-workflow-release-copy";
+import {
+  governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch,
+  parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch,
+} from "@/lib/governance/governance-workflow-environment-releases-disclosure-url";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS } from "@/lib/operator/operator-static-demo";
@@ -126,6 +133,38 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
     replaceApprovalQueueUrl,
   } = props.model;
 
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceWorkflowEnvironmentReleasesOpenParam = searchParams.get("governanceWorkflowEnvironmentReleasesOpen");
+  const [environmentReleasesOpen, setEnvironmentReleasesOpenState] = useState(() =>
+    parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch(governanceWorkflowEnvironmentReleasesOpenParam),
+  );
+
+  const syncEnvironmentReleasesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setEnvironmentReleasesOpen = useCallback(
+    (open: boolean) => {
+      setEnvironmentReleasesOpenState(open);
+      syncEnvironmentReleasesOpenToUrl(open);
+    },
+    [syncEnvironmentReleasesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setEnvironmentReleasesOpenState(
+      parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch(governanceWorkflowEnvironmentReleasesOpenParam),
+    );
+  }, [governanceWorkflowEnvironmentReleasesOpenParam]);
+
   const overviewHeaderActions = (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-overview-header-actions">
       <PageContextualHelpButton />
@@ -142,7 +181,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
   );
 
   return (
-    <MutationErrorBoundary title="Governance workflow failed to render">
+    <MutationErrorBoundary title="Approval workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <OperatorPageContainer variant="workflow">
       <OperatorPageHeader
@@ -373,7 +412,12 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
               <Separator className="mb-10" />
 
               <div data-testid="governance-workflow-advanced-options">
-                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
+                <AdvancedOptionsAccordionDeferred
+                  triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL}
+                  className="mb-10"
+                  open={environmentReleasesOpen}
+                  onOpenChange={setEnvironmentReleasesOpen}
+                >
                   <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}

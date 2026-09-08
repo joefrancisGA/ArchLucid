@@ -4,7 +4,7 @@
 
 # Finding engine output reference
 
-**Last reviewed:** 2026-08-17
+**Last reviewed:** 2026-09-07
 
 **Formal spec:** [`../architecture/architecture_handbook/75-architecture-and-review-engines.md`](../architecture/architecture_handbook/75-architecture-and-review-engines.md) §3.3.
 
@@ -25,6 +25,7 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `requirement-gap` | `RequirementGapFindingEngine` | Requirement | Missing requirements. |
 | `requirement-coverage` | `RequirementCoverageFindingEngine` | Requirement | Requirement coverage scoring. |
 | `requirement-cross-run-diff` | `RequirementCrossRunDiffFindingEngine` | Requirement | Name-level delta vs prior context encoded on the current graph. |
+| `dr-rpo-topology` | `DrRpoTopologyFindingEngine` | Requirement | Parsed RPO/RTO on linked requirements without replica, failover group, or geo-redundant properties on the scoped SQL/storage/cluster node. Skips when no objective is parsed or the datastore link is missing. |
 | `topology-coverage` | `TopologyCoverageFindingEngine` | Topology | Component/service coverage vs topology expectations. |
 | `topology-structure` | `TopologyStructureFindingEngine` | Topology | Structural topology properties. |
 | `topology-cross-run-diff` | `TopologyCrossRunDiffFindingEngine` | Topology | Topology delta vs prior snapshot metadata on the graph. |
@@ -37,9 +38,12 @@ Decisioning and Cost engines implement **`IFindingEngine`** (graph-pure). Applic
 | `policy-applicability` | `PolicyApplicabilityFindingEngine` | Policy | Which policies apply to the snapshot. |
 | `policy-coverage` | `PolicyCoverageFindingEngine` | Policy | Policy rule coverage results. |
 | `compliance` | `ComplianceFindingEngine` | Compliance | Rule-pack violations → `ComplianceFinding` payloads. |
-| `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). |
-| `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. |
-| `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). |
+| `external-exposure` | `ExternalExposureFindingEngine` | Security | External or anonymous **`Actor`** nodes without a matching **`TrustBoundary`** (`actorNodeId`). Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (`network-isolation` theme); fail-open for unmapped prefixes (cost-opt, ai-gov, dora, otel, …). |
+| `segmentation-semantics` | `SegmentationSemanticsFindingEngine` | Security | Parses declared NSG / security group / NetworkPolicy rules for internet-exposed admin inbound ports (22, 3389, 1433, 3306, 5432) when the control is within 3 hops of a datastore or jump box. Does not fire on control presence alone. |
+| `insight-generator` | `InsightGeneratorFindingEngine` (+ `PremiumInsightFindingGenerator`) | Security | No-op catalog engine; Real-mode Premium LLM pass proposes up to 8 package-grounded findings after typed engines. Output merged by orchestrator stage, then gated like agent findings. When `Retrieval:Advanced:EnableCommunitySummarization` is **true** (default **false**), bounded graph community summaries may appear in the evidence pack with allow-listed `community:{id}` refs — optional retrieval context, **not** buyer Graph-RAG proof. |
+| `trust-boundary` | `TrustBoundaryFindingEngine` | Security | Mixed internal/external actor origins with no **`TrustBoundary`** nodes on the graph. Same **`DeclarationSignalPolicyKeyMap`** gate as **`external-exposure`** (`network-isolation`). |
+| `privileged-access` | `PrivilegedAccessFindingEngine` | Security | Internal human **`Actor`** nodes (guided intake or declaration-seeded). Honors **`DeclarationSignalPolicyKeyMap`** (`workload-isolation` theme); fail-open outside the prefix family. |
+| `identity-blast-radius` | `IdentityBlastRadiusFindingEngine` | Security | Machine **`Actor`** paths to regulated datastores through allow-listed write/admin role assignments (Contributor, Owner, Key Vault Secrets Officer, AmazonS3FullAccess, `roles/secretmanager.admin`). Graph-pure; unknown roles skipped. |
 
 ## Cost (graph-pure)
 
@@ -60,16 +64,23 @@ These close over extractors, freshness options, or SQL. They do **not** implemen
 | `azure-inventory-reconciliation` | `GraphAzureInventoryReconciliationFindingEngine` | Graph vs Azure inventory. |
 | `aws-inventory-reconciliation` | `GraphAwsInventoryReconciliationFindingEngine` | Graph vs AWS inventory. |
 | `gcp-inventory-reconciliation` | `GraphGcpInventoryReconciliationFindingEngine` | Graph vs GCP inventory. |
-| `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. |
+| `declaration-inventory-contradiction` | `DeclarationInventoryContradictionFindingEngine` | One finding per resource where a security-relevant declaration property disagrees with scoped live inventory (requires customer-run extractor package; IaC-only reviews stay silent). |
+| `policy-declaration-inventory-contradiction` | `PolicyDeclarationInventoryContradictionFindingEngine` | Same mismatch as DX-04, but only when the assigned policy pack maps the security theme and the declaration asserts the secure posture (requires assigned pack + live inventory JSON). Covers all five **`DeclarationSignalPolicyKeyMap`** themes when matching declaration and inventory properties exist: **`data-protection`**, **`encryption`**, **`transport-security`**, **`network-isolation`**, **`workload-isolation`**. Still not identity/IAM blast-radius packaging; still not SOC 2 Type II attestation. |
+| `azure-inventory-security-baseline` | `AzureInventorySecurityBaselineFindingEngine` | Azure inventory vs security baseline. Classifier themes (public access → **`data-protection`**, encryption → **`encryption`**, TLS → **`transport-security`**, NSG/admin ports → **`network-isolation`**, privileged/hostPath → **`workload-isolation`**) honor **`DeclarationSignalPolicyKeyMap`** when the tenant pack uses declaration vocabulary; fail-open otherwise. Requires customer-run extractor package. |
 | `declaration-security-baseline` | `DeclarationSecurityBaselineFindingEngine` | Unsafe **`tf.*`**, ARM aliases, and **`k8s.*`** declaration properties on ingested topology rows. Honors tenant **`complianceRuleKeys`** via **`DeclarationSignalPolicyKeyMap`** (CIS Azure/AWS/GCP, SOC 2, GDPR, HIPAA, ISO 27001, PCI-DSS, Zero Trust, sec-base, AKS/EKS/GKE) when mapped keys survive filtering; fail-open for unmapped prefixes (cost-opt, ai-gov, dora, otel, sust-base, …). |
 | `declaration-premise-conflict` | `DeclarationPremiseConflictFindingEngine` | Declaration properties that contradict linked **`SecurityBaseline`** / **`PolicyControl`** intent. Uses the same **`DeclarationSignalPolicyKeyMap`** gate as declaration-security-baseline. |
-| `aws-inventory-security-baseline` | `AwsInventorySecurityBaselineFindingEngine` | AWS inventory vs security baseline. |
-| `gcp-inventory-security-baseline` | `GcpInventorySecurityBaselineFindingEngine` | GCP inventory vs security baseline. |
+| `aws-inventory-security-baseline` | `AwsInventorySecurityBaselineFindingEngine` | AWS inventory vs security baseline. Same classifier-theme → **`DeclarationSignalPolicyKeyMap`** gate as Azure; requires scoped AWS extractor package. |
+| `gcp-inventory-security-baseline` | `GcpInventorySecurityBaselineFindingEngine` | GCP inventory vs security baseline. Same classifier-theme → **`DeclarationSignalPolicyKeyMap`** gate as Azure; requires scoped GCP extractor package. |
 | `advisor-cost-recommendation` | `AdvisorCostRecommendationFindingEngine` | Cloud advisor cost recommendations. |
 | `aws-cost-recommendation` | `AwsCostRecommendationFindingEngine` | AWS cost recommendations from scoped inventory. |
 | `gcp-cost-recommendation` | `GcpCostRecommendationFindingEngine` | GCP cost recommendations from scoped inventory. |
 | `open-commitment` | `OpenCommitmentFindingEngine` | Overdue deferrals, unanswered evidence requests, expiring/expired waivers, and overdue remediations from governance trail. Joins source-finding text to current-graph topology nodes (`TopologyMatch`, `MatchedTopologyNodeId`); when a deferred public-network or HTTPS theme is still unsafe on the matched node, sets `StillOpenOnCurrentGraph` with `evidence:graph-node:` trace notes. |
+<<<<<<< HEAD
 | `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio. **Default off** — opt-in cross-run I/O per review. |
+=======
+| `secrets-lifecycle` | `SecretsLifecycleFindingEngine` | Security | Stale Key Vault / Secrets Manager inventory rows (90+ days since update or expiry within 14 days) when the graph references that vault or secret by name. Requires scoped extractor package; does not call live vault APIs. |
+| `portfolio-recurrence` | `PortfolioRecurrenceFindingEngine` | Cross-system recurrence of the same finding identity (ADR 0063 merge key) across the tenant portfolio (same tenant catalog only — ADR 0037). **Default on** — disable per tenant when cross-review reads are undesirable. |
+>>>>>>> origin/master
 
 `TechnologyConsistencyFindingEngine` implements **`ITechnologyConsistencyFindingEngine`**, not `IFindingEngine` or `IEffectfulFindingEngine`. It is not in the findings fold.
 
@@ -106,3 +117,13 @@ External **`IFindingEngine`** implementations can be dropped into **`ArchLucid:F
 - **[V1_SCOPE.md](V1_SCOPE.md)** — which engines and integrations are in headline scope vs deferred.
 - **[HOWTO_FINDING_ENGINE_PLUGINS.md](HOWTO_FINDING_ENGINE_PLUGINS.md)** — plugin contract.
 - **[ENGINE_KERNEL_REMEDIATION_PROMPTS.md](../architecture/ENGINE_KERNEL_REMEDIATION_PROMPTS.md)** — EK-02, EK-04, EK-05.
+
+## Operator measurement (internal)
+
+| Signal | API | Notes |
+|--------|-----|-------|
+| Insight desk signal (`DidNotThinkOfThat`, `Expected`, `DismissAsChecklist`) | `POST /v1/runs/{runId}/findings/{findingId}/insight-signal` | Append-only `dbo.FindingInsightSignals`; does **not** change finding classification or replace mute. Internal insight-density numerator — **not** buyer proof or cohort evidence. |
+
+**Insight-density advisory boundary:** `typed-engine-protected` rows demoted by `DeterministicInsightDensityGate` remain **advisory** checklist coverage — not G-REAL-06 procurement proof or buyer attestations.
+
+**EvidenceRefs claimBoundary (DX-45 / DX-47 / DX-50):** `Finding.EvidenceRefs` are package-resolvable citations copied from identifiers the engine already computed (ARM resource id, `aws:arn:`-prefixed ARN, GCP `projects/` path, `policy-rule:{id}`). DX-47 extends this to cost-recommendation engines (from advisor/cost JSON rows) and path engines (`identity-blast-radius`, `segmentation-semantics`, `dr-rpo-topology`, `data-flow-trust-boundary`) via graph node property bags — not synthetic `graph-node:` labels. They are not a new information source. **DX-50 (Workstream 2):** `HasConcreteEvidenceCitation` treats `graph-node:` as resolvable **only** when the remainder is product-shaped ARM/ARN/GCP via `FindingEvidenceRefs.TryFormatInventoryResourceId`; label-shaped ids such as `graph-node:storage-1` no longer count. Coverage engines (`topology-coverage`, `security-coverage`, `requirement-coverage`, `requirement-expectation`, `security-baseline-completeness`) stay evidence-less on empty graphs and do not synthesize `graph-node:` copies of bare `RelatedNodeIds`. **`topology-anti-pattern`**, **`security-baseline-expectation`**, and **`required-capability-coverage`** are harness-visible as of DX-49 (golden cases **case-61**–**case-63**); `required-capability-coverage` reads graph tokens only — not live inventory. Still not SOC 2 Type II attestation.

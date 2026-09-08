@@ -37,7 +37,7 @@ describe("operator-home-run-list-insight", () => {
     );
   });
 
-  it("mentions monitoring on finalized packages with governance warnings", () => {
+  it("mentions monitoring on finalized packages with approval warnings", () => {
     const run = stubRun({
       hasGoldenManifest: true,
       hasGovernanceWarnings: true,
@@ -46,7 +46,26 @@ describe("operator-home-run-list-insight", () => {
     expect(formatRunHomeListInsightLine(run)).toBe("Package finalized · monitoring active");
   });
 
-  it("formats relative updated labels from createdUtc", () => {
+  it("formats relative updated labels from lastModifiedUtc when present", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));
+
+    const run = stubRun({
+      createdUtc: "2026-06-10T12:00:00Z",
+      lastModifiedUtc: "2026-06-15T12:00:00Z",
+    });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toEqual({
+      isoUtc: "2026-06-15T12:00:00Z",
+      absoluteLabel: expect.any(String),
+      relativeLabel: expect.any(String),
+      usedCreatedFallback: false,
+    });
+
+    vi.useRealTimers();
+  });
+
+  it("falls back to createdUtc when lastModifiedUtc is absent", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));
 
@@ -56,10 +75,8 @@ describe("operator-home-run-list-insight", () => {
       isoUtc: "2026-06-15T12:00:00Z",
       absoluteLabel: expect.any(String),
       relativeLabel: expect.any(String),
-      zoneLabel: "Updated",
+      usedCreatedFallback: true,
     });
-
-    expect(formatRunHomeListUpdatedLabel(run, "home-recent-reviews").zoneLabel).toBe("Recent reviews");
 
     vi.useRealTimers();
   });

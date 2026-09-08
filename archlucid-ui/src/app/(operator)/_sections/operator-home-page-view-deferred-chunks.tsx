@@ -29,7 +29,10 @@ export const OperatorHomeSponsorRoiStripDeferred = createDeferredComponentFromMa
 
 export const OperatorHomeBelowFoldPanelsDeferred = createDeferredComponentFromManifest(
   "operator-home-below-fold",
-  { suppressLoading: true },
+  {
+    loadingClassName: cn(OPERATOR_SURFACE_CARD_CLASS, "h-32"),
+    loadingTestId: "operator-home-below-fold-deferred-skeleton",
+  },
 );
 
 /** TB-2191 — stickiness cockpit off home First Load JS (both cards hydrate after first paint). */

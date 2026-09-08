@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MessageCircleQuestion,
   Network,
+  SquareStack,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -54,7 +55,7 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/infrastructure/terraform" as typeof GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
           label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
           title: "Review advisory Terraform mapping reconstructed from inventory evidence",
-          icon: GitCompareArrows,
+          icon: SquareStack,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

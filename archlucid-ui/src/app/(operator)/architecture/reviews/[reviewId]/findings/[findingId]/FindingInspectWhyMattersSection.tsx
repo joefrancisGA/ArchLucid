@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { findingDetailHeadingTitle } from "@/lib/findings/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -71,7 +71,7 @@ export function FindingInspectWhyMattersSection({
               )}
             </dd>
           </div>
-        ) : isBuyerPolishedOperatorShellEnv() ? (
+        ) : resolveProductionEvalChromeFromStorage() ? (
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
             <dd className="m-0 mt-1">{BUYER_SHOWCASE_POLICY_PACK_LABEL} — PHI minimization at intake</dd>

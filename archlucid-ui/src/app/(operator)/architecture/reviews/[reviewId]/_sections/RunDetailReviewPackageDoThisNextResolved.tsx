@@ -47,6 +47,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly analysisStagesComplete?: boolean;
   readonly enginesSucceeded?: number | null;
   readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -159,6 +161,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
           usesCustomerAiConnection,
           effectiveSessionMode: sessionAiReadiness.sessionMode,
+          feasibilityVerdictKind: props.feasibilityVerdict?.kind ?? null,
         }),
       );
     });
@@ -214,6 +217,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
+        pipelineTerminalFailure={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}
@@ -222,6 +226,8 @@ export function RunDetailReviewPackageDoThisNextResolved(
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
         withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        judgeSkippedByCap={props.judgeSkippedByCap}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

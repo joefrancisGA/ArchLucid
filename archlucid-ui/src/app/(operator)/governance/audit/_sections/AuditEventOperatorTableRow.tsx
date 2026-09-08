@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
+import { useAuditTrailReviewHref } from "@/hooks/use-audit-trail-review-href";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -69,6 +70,7 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
   }, [auditOperatorTableEventJsonEventIdParam, ev.eventId]);
 
   const runId = ev.runId?.trim() ?? "";
+  const reviewHref = useAuditTrailReviewHref(runId);
 
   return (
     <EnterpriseTableRow style={style}>
@@ -86,7 +88,7 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         {runId.length > 0 ? (
-          <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${encodeURIComponent(runId)}`}>
+          <Link className={OPERATOR_LINK.nav} href={reviewHref}>
             {buyerFacingReviewLinkLabelFromRunId(runId)}
           </Link>
         ) : (

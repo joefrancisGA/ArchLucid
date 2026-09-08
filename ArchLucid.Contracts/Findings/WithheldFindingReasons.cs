@@ -6,4 +6,8 @@ public static class WithheldFindingReasons
     public const string ProseOnlyEmission = "prose-only-emission";
 
     public const string MergeConflictDropped = "merge-conflict-dropped";
+
+    public const string EngineFailureAdvisory = "engine-failure-advisory";
+
+    public const string ComplianceTagFromProse = "compliance-tag-from-prose";
 }

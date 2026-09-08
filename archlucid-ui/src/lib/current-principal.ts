@@ -25,7 +25,7 @@
  * **`LayerHeader`**
  * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
  * **`nav-shell-visibility.ts`**). Some routes also read **`useOperateCapability()`** for paragraphs that are not
- * the rank cue (e.g. governance resolution **Change related controls** supplement — same policies story, **second hook**;
+ * the rank cue (e.g. policy resolution **Change related controls** supplement — same policies story, **second hook**;
  * **`enterprise-authority-ui-shaping.test.tsx`**). Packaging enumeration: **docs/PRODUCT_PACKAGING.md** §3 *Two UI shaping surfaces*.
  * **`hasEnterpriseOperatorSurfaces`**
  * uses that **same Execute floor** as **`operateCapabilityFromRank(authorityRank)`** — do not diverge (guarded in

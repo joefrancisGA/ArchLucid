@@ -65,7 +65,7 @@ public sealed class ReviewModelAliasResolver(
                     allowedSet.DefaultAliasId,
                     allowedSet.DefaultAliasId,
                     trimmed,
-                    true,
+                    false,
                     true);
             }
         }

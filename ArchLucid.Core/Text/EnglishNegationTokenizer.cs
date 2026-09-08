@@ -7,61 +7,61 @@ public static class EnglishNegationTokenizer
 {
     private static readonly string[] MultiWordNegations =
     [
-        "no need to",
-        "no requirement to",
-        "not required to",
-        "not needed to",
-        "is not required to",
-        "is not needed to",
-        "is not necessary for",
-        "is not needed for",
-        "no need for",
-        "not needed for",
-        "not necessary for",
-        "must not",
-        "should not",
-        "shall not",
-        "will not",
-        "would not",
-        "ought not",
-        "do not",
-        "does not",
-        "did not",
+        // Modal / auxiliary + "not". Closed class: English has no productive rule for adding
+        // more, so this list is complete rather than a sample to be extended per finding.
+        "am not",
+        "are not",
         "can not",
         "cannot",
         "could not",
-        "need not",
-        "might not",
-        "have not",
-        "has not",
+        "dare not",
+        "did not",
+        "do not",
+        "does not",
         "had not",
+        "has not",
+        "have not",
         "is not",
-        "are not",
+        "may not",
+        "might not",
+        "must not",
+        "need not",
+        "ought not",
+        "shall not",
+        "should not",
         "was not",
         "were not",
+        "will not",
+        "would not",
     ];
 
+    // The complete set of English negative contractions. Adding a phrase here is only correct
+    // when the language gains a contraction; it is not the place to record a missed finding.
     private static readonly string[] ContractionNegations =
     [
-        "mustn't",
-        "shouldn't",
-        "shan't",
-        "won't",
-        "wouldn't",
-        "couldn't",
-        "mightn't",
-        "needn't",
-        "don't",
-        "doesn't",
-        "didn't",
-        "can't",
-        "isn't",
+        "ain't",
         "aren't",
-        "wasn't",
-        "weren't",
+        "can't",
+        "couldn't",
+        "daren't",
+        "didn't",
+        "doesn't",
+        "don't",
+        "hadn't",
         "hasn't",
         "haven't",
-        "hadn't",
+        "isn't",
+        "mayn't",
+        "mightn't",
+        "mustn't",
+        "needn't",
+        "oughtn't",
+        "shan't",
+        "shouldn't",
+        "wasn't",
+        "weren't",
+        "won't",
+        "wouldn't",
     ];
 
     private static readonly string[] SingleWordNegations =
@@ -77,6 +77,27 @@ public static class EnglishNegationTokenizer
         "without",
         "avoid",
         "avoids",
+    ];
+
+    // "no"/"not" carries the negation; the requirement head follows it. Enumerating the trailing
+    // preposition as well ("not required to" vs "not required for") multiplies out into a phrase
+    // list, so the negator and head are matched as a pair and anything after them is ignored.
+    private static readonly string[] RequirementNegators =
+    [
+        "not",
+        "no",
+    ];
+
+    private static readonly string[] RequirementHeads =
+    [
+        "mandatory",
+        "necessary",
+        "need",
+        "needed",
+        "obligatory",
+        "required",
+        "requirement",
+        "requirements",
     ];
 
     public static bool ContainsNegation(ReadOnlySpan<char> text)
@@ -113,6 +134,84 @@ public static class EnglishNegationTokenizer
         foreach (string suffix in SuffixNegations)
         {
             if (EndsWithWordToken(text, suffix))
+            {
+                return true;
+            }
+        }
+
+        return ContainsNegatedRequirement(text);
+    }
+
+    private static bool ContainsNegatedRequirement(ReadOnlySpan<char> text)
+    {
+        foreach (string negator in RequirementNegators)
+        {
+            if (IsNegatorFollowedByRequirementHead(text, negator))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsNegatorFollowedByRequirementHead(ReadOnlySpan<char> haystack, string negator)
+    {
+        int index = 0;
+
+        while (index < haystack.Length)
+        {
+            ReadOnlySpan<char> slice = haystack.Slice(index);
+            int relative = slice.IndexOf(negator.AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+            if (relative < 0)
+            {
+                return false;
+            }
+
+            int found = index + relative;
+
+            if (IsStandaloneWordToken(haystack, found, negator.Length)
+                && IsRequirementHead(NextWord(haystack, found + negator.Length)))
+            {
+                return true;
+            }
+
+            index = found + 1;
+        }
+
+        return false;
+    }
+
+    private static ReadOnlySpan<char> NextWord(ReadOnlySpan<char> haystack, int startIndex)
+    {
+        int start = startIndex;
+
+        while (start < haystack.Length && !char.IsLetter(haystack[start]))
+        {
+            start++;
+        }
+
+        int end = start;
+
+        while (end < haystack.Length && char.IsLetter(haystack[end]))
+        {
+            end++;
+        }
+
+        return haystack.Slice(start, end - start);
+    }
+
+    private static bool IsRequirementHead(ReadOnlySpan<char> word)
+    {
+        if (word.IsEmpty)
+        {
+            return false;
+        }
+
+        foreach (string head in RequirementHeads)
+        {
+            if (word.Equals(head.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -188,6 +287,13 @@ public static class EnglishNegationTokenizer
         }
 
         int start = trimmed.Length - token.Length;
+
+        // A word-boundary check alone accepts any trailing word of the same length, which read
+        // "might require NAT" as ending in "not", so compare the characters before trusting it.
+        if (!trimmed.Slice(start).Equals(token.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
         return IsStandaloneWordToken(trimmed, start, token.Length);
     }

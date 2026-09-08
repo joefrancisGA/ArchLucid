@@ -8,6 +8,7 @@ import { useCallback, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   CAREER_EXPORT_EVAL_SAMPLE_LABEL,
@@ -19,6 +20,7 @@ import {
   resolveCareerExportMaxFindings,
 } from "@/lib/career-export-finding-inventory";
 import { formatCareerExportHonestyMarkdown, resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +31,14 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
   parseReviewGenerateAdrOpenFromSearch,
   reviewGenerateAdrPanelsHrefFromSearch,
 } from "@/lib/reviews/review-generate-adr-panels-url";
+
+import type { RunSummary } from "@/types/authority";
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
@@ -41,6 +46,12 @@ export type GenerateAdrFromRunModalProps = {
   totalFindingCount?: number;
   /** Distinct engines that produced findings on this package snapshot (PC-01). */
   enginesSucceeded?: number | null;
+  /** Graph + snapshot context for measurement-floor skipped-actor honesty (DX-15). */
+  graphSnapshot?: unknown;
+  progressSummary?: RunSummary | null;
+  findingsSnapshot?: unknown;
+  /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
+  aggregateQualityGateOutcome?: number | null;
   /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
   buyerPolished?: boolean;
 };
@@ -52,9 +63,16 @@ export function GenerateAdrFromRunModal({
   input,
   totalFindingCount,
   enginesSucceeded = null,
+  graphSnapshot = null,
+  progressSummary = null,
+  findingsSnapshot = null,
   buyerPolished = false,
 }: GenerateAdrFromRunModalProps) {
   const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
+  const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled ?? null;
+  const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
+  const hostAgentExecutionMode = healthQuery.data?.agentExecutionMode ?? null;
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${input.runId}`;
   const searchParams = useSearchParams();
@@ -78,32 +96,68 @@ export function GenerateAdrFromRunModal({
   const exportInventoryLine = formatCareerExportFindingInventoryLine(exportInventory);
   const coverageHonesty = resolveCareerExportCoverageHonesty({
     runId: input.runId,
-    progressSummary: null,
+    progressSummary,
     manifestSummary: null,
-    graphSnapshot: null,
+    graphSnapshot,
+    findingsSnapshot,
     enginesSucceeded,
     workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+  });
+  const careerArtifactVerdict = evaluateCareerArtifactHonesty({
+    artifactKind: "export",
+    runId: input.runId,
+    progressSummary,
+    manifestSummary: null,
+    graphSnapshot,
+    findingsSnapshot,
+    enginesSucceeded,
+    workingDesk,
+    preCommitGateEnabled,
+    structuralExecutionMode: input.structuralExecutionMode ?? null,
+    isSample: input.isSample ?? null,
+    hostAgentExecutionMode,
+    hostQualityGateMode,
+    aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
   });
   const exportBlocked =
     (workingDesk && !exportInventory.isComplete && !incompleteExportConfirmed)
-    || (coverageHonesty.blockedForWorkingCareerExport && !incompleteExportConfirmed);
+    || (!careerArtifactVerdict.canRender && !incompleteExportConfirmed);
 
   const buildExportMarkdown = useCallback(
     (exportInput: AdrGeneratorRunInput): string => {
       const careerExportHonestyMarkdown = workingDesk
         ? formatCareerExportHonestyMarkdown({
             runId: input.runId,
-            progressSummary: null,
+            progressSummary,
             manifestSummary: null,
-            graphSnapshot: null,
+            graphSnapshot,
+            findingsSnapshot,
             enginesSucceeded,
             workingDesk: true,
+            preCommitGateEnabled,
+            structuralExecutionMode: input.structuralExecutionMode ?? null,
+            isSample: input.isSample ?? null,
+            hostAgentExecutionMode,
+            hostQualityGateMode,
+            aggregateQualityGateOutcome: input.aggregateQualityGateOutcome ?? null,
+            exportFindings: exportInput.findings.map((finding) => ({
+              findingId: finding.findingId,
+              title: finding.title,
+              trustLabel: finding.trustLabel ?? null,
+              trustLabelReason: finding.trustLabelReason ?? null,
+            })) as QuickDecisionFinding[],
           })
         : null;
 
       return buildMadrMarkdownFromRun(exportInput, { careerExportHonestyMarkdown });
     },
-    [enginesSucceeded, input.runId, workingDesk],
+    [enginesSucceeded, findingsSnapshot, graphSnapshot, hostAgentExecutionMode, hostQualityGateMode, input.aggregateQualityGateOutcome, input.isSample, input.runId, input.structuralExecutionMode, preCommitGateEnabled, progressSummary, workingDesk],
   );
 
   const seedFromInput = useCallback(() => {

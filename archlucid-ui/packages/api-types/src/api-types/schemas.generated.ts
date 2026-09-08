@@ -2235,6 +2235,13 @@ export interface components {
             sourceId?: string;
             sourceType?: string;
         };
+        /** @description RFC 9457 Problem Details for ADR 0078 career artifact export blocks (HTTP 409). */
+        CareerArtifactBlockedProblemDetails: {
+            /** @description User-safe ADR 0078 block sentence explaining why the career export cannot render. */
+            blockReason: string;
+            /** @description Machine-readable ADR 0078 block code (for example transparency_trail_incomplete, measurement_floor_incomplete). */
+            blockReasonCode?: string;
+        } & components["schemas"]["ProblemDetails"];
         CategoryBenchmarkScore: {
             category?: components["schemas"]["BenchmarkScoreCategory"];
             detail?: string;
@@ -3067,6 +3074,10 @@ export interface components {
             priorRunId?: null | string;
             workflowIntent?: null | string;
         };
+        CreateFindingVerificationReportRequest: {
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
         CreateGovernanceActivationRequest: {
             environment?: string;
             manifestVersion?: string;
@@ -3476,6 +3487,7 @@ export interface components {
             snapshotId?: string;
         };
         DeskContinuityDto: {
+            lastOpenArchitectureId?: null | string;
             lastOpenDraftId?: null | string;
             lastOpenReviewId?: null | string;
             lastVisitWatermarkUtc?: null | string;
@@ -3867,6 +3879,22 @@ export interface components {
             format?: string;
             summary?: string;
         };
+        EngineInsightNoveltyRateRow: {
+            /** Format: int32 */
+            decisionGradeCount?: number;
+            /** Format: int32 */
+            didNotThinkOfThatCount?: number;
+            engineType?: string;
+            /** Format: double */
+            rate?: null | number | string;
+        };
+        EngineInsightNoveltyRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineInsightNoveltyRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
         EntityTagHeaderValue: {
             isWeak?: boolean;
             tag?: components["schemas"]["StringSegment"];
@@ -4222,6 +4250,7 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             /** Format: uuid */
             evidencePackageId?: null | string;
+            evidenceRefs?: string[];
             findingId?: string;
             /** Format: int32 */
             findingSchemaVersion?: number;
@@ -4278,6 +4307,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
             eventId?: string;
@@ -4374,6 +4404,11 @@ export interface components {
         };
         /** @enum {string} */
         FindingHumanReviewStatus: "NotRequired" | "Pending" | "Approved" | "Rejected" | "Overridden";
+        /** @enum {string} */
+        FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
+        FindingInsightSignalStatusResponse: {
+            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+        };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
             excerpt?: null | string;
@@ -4400,8 +4435,12 @@ export interface components {
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            latestDispositionEventId?: null | string;
             /** Format: date-time */
             latestDispositionOccurredAtUtc?: null | string;
+            latestDispositionReviewerUserId?: null | string;
+            latestDispositionRowVersionBase64?: null | string;
             manifestVersion?: null | string;
             modelAlias?: null | string;
             modelDeploymentName?: null | string;
@@ -4497,6 +4536,26 @@ export interface components {
             traceConfidenceLabel: string;
         };
         FindingTreatment: number;
+        FindingVerificationReportResponse: {
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            results: components["schemas"]["FindingVerificationResultResponse"][];
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
+        FindingVerificationResultResponse: {
+            findingId: string;
+            status: components["schemas"]["FindingVerificationStatus"];
+            traceText: string;
+        };
+        /** @enum {string} */
+        FindingVerificationStatus: "Materialized" | "Mitigated" | "NotObserved" | "NotVerifiable";
         FindingsSnapshot: {
             checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */
@@ -4518,6 +4577,7 @@ export interface components {
             schemaVersion?: number;
             /** Format: double */
             totalEstimatedSavings?: number | string;
+            withheldFindings?: components["schemas"]["WithheldFindingSummary"][];
         };
         /** @enum {string} */
         FindingsSnapshotGenerationStatus: "Generating" | "Complete" | "PartiallyComplete" | "Failed";
@@ -5258,6 +5318,8 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            /** Format: int32 */
+            judgeSkippedByCap?: number;
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -7258,6 +7320,7 @@ export interface components {
             /** Format: int32 */
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
+            preCommitGateEnabled?: boolean;
             readyToFinalize?: boolean;
             runId?: string;
         };
@@ -7447,6 +7510,7 @@ export interface components {
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
             committedManifestTimestampResolved?: boolean;
+            deferredBuyerRequirementsPresent?: boolean;
             demoTenantWarningRequired?: boolean;
             evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;
@@ -7874,6 +7938,7 @@ export interface components {
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
             rationale?: null | string;
             /** Format: date-time */
@@ -7881,6 +7946,9 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordFindingInsightSignalRequest: {
+            kind?: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;
@@ -8847,6 +8915,7 @@ export interface components {
         };
         RunDetailWorkspaceContextBundleResponse: {
             priorCommittedRunComparison?: null | components["schemas"]["RunComparisonResponse"];
+            priorCommittedRunComparisonBlockedReason?: null | string;
             /** Format: date-time */
             priorCommittedRunCreatedUtc?: null | string;
             /** Format: uuid */
@@ -9267,6 +9336,15 @@ export interface components {
             manifestModeledElementApproxCount?: number;
             runId: string;
         };
+        RunStoredEvidenceFileDto: {
+            /** Format: int64 */
+            byteLength?: number;
+            contentType?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceItemId?: string;
+            originalFileName?: string;
+        };
         RunSummaryResponse: {
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
@@ -9288,6 +9366,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            legacyRunStatus?: null | string;
             packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;
@@ -11056,6 +11135,15 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WithheldFindingSummary: {
+            conflictFindingId?: null | string;
+            originAgentType?: null | string;
+            originEngineType?: string;
+            reason?: string;
+            title?: string;
+            traceTargetId?: null | string;
+            withheldFindingId?: string;
         };
         WizardIntakeDraftResponse: {
             stateJson?: string;

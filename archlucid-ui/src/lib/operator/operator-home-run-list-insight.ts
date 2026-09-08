@@ -45,33 +45,53 @@ export type RunHomeListUpdatedPresentation = {
   readonly relativeLabel: string;
   readonly absoluteLabel: string;
   readonly isoUtc: string;
-  readonly zoneLabel: string;
+  readonly usedCreatedFallback: boolean;
 };
 
-const ZONE_LABELS: Record<RunHomeListUpdatedZone, string> = {
-  "home-recent-reviews": "Recent reviews",
-  "home-unfinished-work": "Your work",
-  default: "Updated",
-};
+function resolveRunHomeListTimestampUtc(run: RunSummary): { readonly isoUtc: string; readonly usedCreatedFallback: boolean } | null {
+  const lastModifiedUtc = run.lastModifiedUtc?.trim() ?? "";
 
-export function formatRunHomeListUpdatedLabel(
-  run: RunSummary,
-  zone: RunHomeListUpdatedZone = "default",
-): RunHomeListUpdatedPresentation | null {
+  if (lastModifiedUtc.length > 0) {
+    return { isoUtc: lastModifiedUtc, usedCreatedFallback: false };
+  }
+
   const createdUtc = run.createdUtc?.trim() ?? "";
 
   if (createdUtc.length === 0) {
     return null;
   }
 
-  const zoneLabel = ZONE_LABELS[zone];
+  return { isoUtc: createdUtc, usedCreatedFallback: true };
+}
+
+export function formatRunHomeListUpdatedLabel(
+  run: RunSummary,
+  _zone: RunHomeListUpdatedZone = "default",
+): RunHomeListUpdatedPresentation | null {
+  const timestamp = resolveRunHomeListTimestampUtc(run);
+
+  if (timestamp === null) {
+    return null;
+  }
 
   return {
-    isoUtc: createdUtc,
-    relativeLabel: formatRelativeTime(createdUtc),
-    absoluteLabel: formatAbsoluteUpdatedAtTitle(createdUtc),
-    zoneLabel,
+    isoUtc: timestamp.isoUtc,
+    relativeLabel: formatRelativeTime(timestamp.isoUtc),
+    absoluteLabel: formatAbsoluteUpdatedAtTitle(timestamp.isoUtc),
+    usedCreatedFallback: timestamp.usedCreatedFallback,
   };
+}
+
+export function runHomeListUsesCreatedTimestampFallback(runs: readonly RunSummary[]): boolean {
+  if (runs.length === 0) {
+    return false;
+  }
+
+  return runs.every((run) => {
+    const lastModifiedUtc = run.lastModifiedUtc?.trim() ?? "";
+
+    return lastModifiedUtc.length === 0;
+  });
 }
 
 export function formatRunHomeListInsightLine(run: RunSummary): string | null {

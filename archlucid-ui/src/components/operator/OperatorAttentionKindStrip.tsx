@@ -3,6 +3,7 @@
 import { OperatorAttentionKindChip } from "@/components/operator/OperatorAttentionKindChip";
 import { useAttentionPartitionPreviews } from "@/hooks/use-attention-partition-previews";
 import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
+import { useReviewsHubUnfinishedWorkHref } from "@/hooks/use-reviews-hub-unfinished-work-href";
 import {
   OPERATOR_ATTENTION_KIND_DESTINATIONS,
 } from "@/lib/operator/operator-attention-kind-destinations";
@@ -34,6 +35,7 @@ export function OperatorAttentionKindStrip(
   const searchParams = useSearchParams();
   const { summaries } = useOperatorAttentionSummary();
   const partitionPreviews = useAttentionPartitionPreviews();
+  const unfinishedWorkHref = useReviewsHubUnfinishedWorkHref();
   const summaryByPartition = new Map(summaries.map((summary) => [summary.partition, summary]));
   const visibleKinds = OPERATOR_ATTENTION_KIND_IDS.filter((kind) => {
     if (suppressKinds.has(kind)) {
@@ -66,18 +68,19 @@ export function OperatorAttentionKindStrip(
       >
         {visibleKinds.map((kind: OperatorAttentionKindId) => {
           const destination = OPERATOR_ATTENTION_KIND_DESTINATIONS[kind];
+          const href = kind === "unfinished-work" ? unfinishedWorkHref : destination.href;
           const count = countsByKind[kind] ?? 0;
           const selected = isOperatorAttentionKindDestinationActive(
             pathname,
             searchParams,
-            destination.href,
+            href,
           );
 
           return (
             <li key={kind} className="flex items-center">
               <OperatorAttentionKindChip
                 kind={kind}
-                href={destination.href}
+                href={href}
                 count={count}
                 selected={selected}
               />

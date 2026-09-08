@@ -1,7 +1,6 @@
 import { loadRunDetailPipelineTimelineCached } from "./load-run-detail-pipeline-timeline-cached";
 import { loadRunDetailWorkspaceContextBundleCached } from "./load-run-detail-workspace-context-bundle-cached";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { coerceRunComparison } from "@/lib/operator/operator-response-guards";
 import { resolveArchitectureGraphTemporalMinUtc } from "@/lib/resolve-architecture-graph-temporal-min-utc";
@@ -97,10 +96,25 @@ async function loadChangesSinceLastReviewBanner(
     const workspaceContext = await loadRunDetailWorkspaceContextBundleCached(context.routeRunId);
 
     if (
-      workspaceContext.priorCommittedRunComparison === null
-      || workspaceContext.priorCommittedRunId === null
+      workspaceContext.priorCommittedRunId === null
       || workspaceContext.priorCommittedRunCreatedUtc === null
     ) {
+      return null;
+    }
+
+    const blockedReason = workspaceContext.priorCommittedRunComparisonBlockedReason?.trim() ?? "";
+
+    if (blockedReason.length > 0) {
+      return {
+        priorReviewDateLabel: formatInstantForLocale(workspaceContext.priorCommittedRunCreatedUtc),
+        priorRunId: workspaceContext.priorCommittedRunId,
+        currentRunId: context.resolvedDetail.run.runId,
+        copy: null,
+        blockedReason,
+      };
+    }
+
+    if (workspaceContext.priorCommittedRunComparison === null) {
       return null;
     }
 
@@ -121,6 +135,7 @@ async function loadChangesSinceLastReviewBanner(
       priorRunId: workspaceContext.priorCommittedRunId,
       currentRunId: context.resolvedDetail.run.runId,
       copy,
+      blockedReason: null,
     };
   } catch {
     return null;
@@ -139,7 +154,7 @@ async function loadProjectRunContext(
 
     canShowCompareReviewButton = projectRuns.length >= 2;
 
-    if (isBuyerPolishedOperatorShellEnv()) {
+    if (context.buyerPolishedArtifactTable) {
       canShowCompareReviewButton = false;
     }
 

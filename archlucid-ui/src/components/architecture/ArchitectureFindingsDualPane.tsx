@@ -21,7 +21,7 @@ import {
   architectureDiagramFindingHrefFromSearch,
   parseArchitectureDiagramFindingIdFromSearch,
 } from "@/lib/architecture/architecture-findings-dual-pane-url";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useReviewWorkbenchSelection } from "@/components/reviews/ReviewWorkbenchSelectionContext";
 import { REVIEW_DETAIL_FINDING_PARAM } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 
 export type ArchitectureFindingsDualPaneProps = {
   readonly runId: string;
+  readonly architectureId?: string | null;
   readonly findings: readonly QuickDecisionFinding[];
   /** Existing diagram island (ArchitectureDiagramPanel) rendered on the left. */
   readonly diagram: ReactNode;
@@ -56,7 +57,11 @@ function toFindingRef(finding: QuickDecisionFinding): ArchitectureFindingsDualPa
  */
 export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPaneProps): React.JSX.Element {
   const router = useRouter();
-  const pathname = usePathname() ?? reviewDetailPath(props.runId);
+  const workingBackLocator = useWorkingBackLocator({
+    reviewId: props.runId,
+    architectureId: props.architectureId,
+  });
+  const pathname = usePathname() ?? workingBackLocator.reviewJobHref;
   const searchParams = useSearchParams();
   const workbenchSelection = useReviewWorkbenchSelection();
   const urlFindingId = parseArchitectureDiagramFindingIdFromSearch(
