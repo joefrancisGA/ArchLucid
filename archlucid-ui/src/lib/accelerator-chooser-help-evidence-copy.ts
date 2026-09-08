@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ACCELERATOR_CHOOSER_HELP_CANONICAL_PATH = "/help/accelerator-chooser" as const;
@@ -15,6 +16,10 @@ export const ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE_SCOPE =
 
 export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO =
   "Use these follow-ups when accelerator packs turn into path selection, a first review, or home starting points.";
+
+export const ACCELERATOR_CHOOSER_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "accelerator packs turn into path selection, a first review, or home starting points",
+);
 
 /** Related next steps — no self-href to `/help/accelerator-chooser`. */
 export const ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly EvidenceSourceLink[] = [

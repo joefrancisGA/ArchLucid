@@ -160,6 +160,9 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
         remediationInlineSaveError={viewModel.remediationInlineSaveError}
         dispositionLastSavedUtc={viewModel.dispositionLastSavedUtc}
         dispositionInlineSaveError={viewModel.dispositionInlineSaveError}
+        dispositionConflict={viewModel.dispositionConflict}
+        reloadDispositionConflict={viewModel.reloadDispositionConflict}
+        dismissDispositionConflict={viewModel.dismissDispositionConflict}
       />
       <FindingInspectWaiverPanel
         canMutate={viewModel.canMutate}

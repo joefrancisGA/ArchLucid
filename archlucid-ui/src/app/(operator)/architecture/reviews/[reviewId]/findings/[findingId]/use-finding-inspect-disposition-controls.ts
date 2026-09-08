@@ -1,4 +1,5 @@
 import type { FindingDispositionKind, FindingDispositionEvent, RiskExceptionRecord } from "@/lib/api/governance-stickiness-api";
+import type { FindingDispositionConflictDetail } from "@/lib/findings/finding-disposition-conflict";
 import {
   resolveRiskExceptionCreateEmphasizedStepId,
   resolveRiskExceptionCreateSteps,
@@ -73,6 +74,9 @@ export type FindingInspectDispositionControlsProps = {
   readonly remediationInlineSaveError: string | null;
   readonly dispositionLastSavedUtc: string | null;
   readonly dispositionInlineSaveError: string | null;
+  readonly dispositionConflict: FindingDispositionConflictDetail | null;
+  readonly reloadDispositionConflict: () => void | Promise<void>;
+  readonly dismissDispositionConflict: () => void;
 };
 
 export function useFindingInspectDispositionControls(props: FindingInspectDispositionControlsProps) {

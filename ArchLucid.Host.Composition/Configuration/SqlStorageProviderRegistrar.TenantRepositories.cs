@@ -112,6 +112,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IFindingInsightSignalRepository, SqlFindingInsightSignalRepository>();
         services.AddScoped<IAppendOnlyFindingVerificationReportRepository, SqlFindingVerificationReportRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
+        // Working production CAS (ADR 0076) — not the in-memory NoOp demo repository.
         services.AddScoped<IFindingDispositionConcurrencyRepository, SqlFindingDispositionConcurrencyRepository>();
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
         services.AddScoped<IArchitectureReviewRecurrenceScheduleRepository, DapperArchitectureReviewRecurrenceScheduleRepository>();

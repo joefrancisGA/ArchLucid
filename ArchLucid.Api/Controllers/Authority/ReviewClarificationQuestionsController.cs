@@ -4,13 +4,16 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Clarifications;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.ProblemDetails;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -36,11 +39,17 @@ public sealed class ReviewClarificationQuestionsController(
     IClarificationAnswerReReviewCoordinator clarificationAnswerReReviewCoordinator,
     IClarificationResolvedFindingMuter clarificationResolvedFindingMuter,
     IAuditService auditService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     [HttpGet("review/{runId:guid}/clarification-questions")]
     [ProducesResponseType(typeof(ReviewClarificationQuestionsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetClarificationQuestions(
         [FromRoute] Guid runId,
         [FromQuery] Guid? priorRunId,
@@ -50,6 +59,12 @@ public sealed class ReviewClarificationQuestionsController(
 
         try
         {
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             ReviewClarificationQuestionsResponse response = await clarificationQuestionService.GetQuestionsAsync(
                 scope,
                 runId,
@@ -155,5 +170,31 @@ public sealed class ReviewClarificationQuestionsController(
             MergedFindingCount = mergedFindingCount,
             PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
         });
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunDetailDto? detail =
+            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

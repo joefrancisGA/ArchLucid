@@ -28,6 +28,7 @@ import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stal
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
@@ -56,6 +57,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -241,6 +243,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         heldCheckSecondPass={props.heldCheckSecondPass}
         proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

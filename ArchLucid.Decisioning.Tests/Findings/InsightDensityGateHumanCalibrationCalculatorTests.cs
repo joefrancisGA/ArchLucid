@@ -59,4 +59,96 @@ public sealed class InsightDensityGateHumanCalibrationCalculatorTests
 
         identity.Residual.Should().BeGreaterThan(coverage.Residual!.Value);
     }
+
+    [Fact]
+    public void TryBuildJudgeResidualMap_returns_engine_residuals_for_judge_candidates()
+    {
+        List<Finding> candidates =
+        [
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 60,
+            },
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 62,
+            },
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 58,
+            },
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 61,
+            },
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 59,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 85,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 84,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 86,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 83,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                Classification = FindingClassification.DecisionGradeFinding,
+                InsightDensityScore = 87,
+            },
+        ];
+
+        List<EngineInsightNoveltyRateRow> noveltyRates =
+        [
+            new()
+            {
+                EngineType = "identity-blast-radius",
+                DecisionGradeCount = 10,
+                DidNotThinkOfThatCount = 8,
+                Rate = 0.8,
+            },
+            new()
+            {
+                EngineType = "topology-coverage",
+                DecisionGradeCount = 10,
+                DidNotThinkOfThatCount = 1,
+                Rate = 0.1,
+            },
+        ];
+
+        IReadOnlyDictionary<string, double>? residuals =
+            InsightDensityGateHumanCalibrationCalculator.TryBuildJudgeResidualMap(candidates, noveltyRates);
+
+        residuals.Should().NotBeNull();
+        residuals!["identity-blast-radius"].Should().BeGreaterThan(residuals["topology-coverage"]);
+    }
 }

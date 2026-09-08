@@ -20,3 +20,6 @@ export const AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER =
 
 export const AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER =
   "Without SSO admin access, expand Common sign-in issues below or use Where to go next for users, roles, or SSO setup." as const;
+
+export const AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD =
+  "ArchLucid uses passwordless sign-in for workspace access. Pick the path that fits your organization, then use the sections below for common issues or SSO setup." as const;

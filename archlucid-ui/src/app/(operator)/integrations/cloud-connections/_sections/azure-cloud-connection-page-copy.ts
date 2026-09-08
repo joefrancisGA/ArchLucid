@@ -17,6 +17,9 @@ export const AZURE_CLOUD_CONNECTION_START_HERE_CARD_TITLE = "Start here" as cons
 export const AZURE_CLOUD_CONNECTION_START_HERE_LEAD =
   "Complete the security preflight checklist, provision federated credentials for your service principal, then configure subscriptions in Connection details and validate." as const;
 
+export const AZURE_CLOUD_CONNECTION_PAGE_LEAD =
+  "Connect read-only Azure inventory through a federated service principal — no client secrets stored." as const;
+
 export function azureCloudConnectionPageOverview(
   buyerPolishedShell: boolean,
   operatorOverview: string,

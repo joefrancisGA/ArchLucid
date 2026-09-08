@@ -44,4 +44,5 @@ export type GovernanceDecisionsNeededSummary = {
 export type RecordBulkFindingDispositionResponse = {
   processedCount: number;
   updatedFindingIds: string[];
+  currentDispositionRowVersionBase64ByFindingId?: Record<string, string> | null;
 };

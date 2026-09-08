@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpJiraIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpJiraIntegrationSourcesOrientationStrip";
 import { JiraIntegrationHelpClaimDisciplineStrip } from "@/components/help/JiraIntegrationHelpClaimDisciplineStrip";
 import { JiraIntegrationHelpEvidenceOrientationStrip } from "@/components/help/JiraIntegrationHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -43,6 +44,7 @@ import {
   JIRA_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   JIRA_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  JIRA_INTEGRATION_HELP_PAGE_LEAD,
   JIRA_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
   JIRA_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_HELP_SKIP_LINK_LABEL,
@@ -166,6 +168,11 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-jira-integration-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-jira-integration-intro">
+                {JIRA_INTEGRATION_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <JiraIntegrationStartHerePanel />
           </div>
         ) : null}
@@ -176,9 +183,11 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
               <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            <p className={readingBodyClass} data-testid="help-jira-integration-overview">
-              {JIRA_INTEGRATION_HELP_OVERVIEW}
-            </p>
+            {!buyerPolishedShell ? (
+              <p className={readingBodyClass} data-testid="help-jira-integration-overview">
+                {JIRA_INTEGRATION_HELP_OVERVIEW}
+              </p>
+            ) : null}
 
             {!buyerPolishedShell ? <JiraIntegrationStartHerePanel /> : null}
 
@@ -239,7 +248,7 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
 
         {buyerPolishedShell ? (
           <div data-testid={JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-            <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+            <HelpJiraIntegrationSourcesOrientationStrip />
           </div>
         ) : null}
       </div>

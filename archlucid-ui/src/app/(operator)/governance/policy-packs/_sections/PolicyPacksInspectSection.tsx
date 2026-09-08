@@ -1,6 +1,7 @@
 import { PolicyPacksBundledRuleKeysDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksBundledRuleKeysDisclosure";
+import { PolicyPacksEffectivePacksDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksEffectivePacksDisclosure";
+import { PolicyPacksResolvedContentDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksResolvedContentDisclosure";
 import { cn } from "@/lib/utils";
-import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { PolicyPackDiffView } from "@/components/policy/PolicyPackDiffView";
 import {
   policyPacksCompareVersionsIntroOperator,
@@ -74,7 +75,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
               {effective.packs?.length ?? 0} pack(s) resolved for this scope. Connect a live API to inspect raw configuration.
             </p>
           ) : (
-            <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
+            <PolicyPacksEffectivePacksDisclosure effective={effective} />
           )}
         </div>
       ) : (
@@ -89,10 +90,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
               Effective policy content is available with a live API connection.
             </p>
           ) : (
-            <CollapsibleJsonTree
-              value={effectiveContent}
-              className="max-h-[360px] border border-neutral-200 dark:border-neutral-600"
-            />
+            <PolicyPacksResolvedContentDisclosure effectiveContent={effectiveContent} />
           )}
         </div>
       ) : (

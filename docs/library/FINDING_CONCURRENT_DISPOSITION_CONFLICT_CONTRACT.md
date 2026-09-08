@@ -39,26 +39,31 @@
 ## Racing approve + reject on the same finding (PA answer)
 
 1. Two operators record opposing dispositions (e.g. Accept risk vs Remediate) through `POST /v1/governance/findings/{findingId}/dispositions` (or bulk disposition).
-2. **Both HTTP calls succeed** (no conflict status).
-3. **Both rows** appear in `dbo.FindingReviewEvents` and disposition history APIs.
-4. **Current disposition** in inspect / risk register = whichever event has the **later** `OccurredAtUtc` (clock-order; **no event-id tie-break** — see [`EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md`](EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md)).
-5. If an ITSM webhook races a human disposition, **mapped disposition** (**TB-396**) uses the same ADR 0076 CAS as the UI. On conflict, **`HumanReviewStatus` is not updated** and audit records `dispositionConflict`; inspect shows the human current disposition. Unmapped inbound status may still last-writer on the snapshot row — Working inspect + export suffix flag divergence when terminal queue state disagrees with the current disposition pointer.
+2. **Working:** the first writer that matches (or creates) the current pointer succeeds (**200**). The second writer that omits `expectedCurrentDispositionRowVersionBase64` or sends a stale token receives **409 Conflict** with the winner's `currentDisposition` payload. The loser reloads the current disposition, then amends or records a correction. History remains **append-only**; inspect **current** is the CAS pointer, not latest `OccurredAtUtc`.
+3. **V1 (superseded):** both HTTP calls succeeded and current = later `OccurredAtUtc`. Do not implement that behavior on Working.
+4. If an ITSM webhook races a human disposition, **mapped disposition** (**TB-396**) uses the same ADR 0076 CAS as the UI. On conflict, **`HumanReviewStatus` is not updated** and audit records `dispositionConflict`; inspect shows the human current disposition. Unmapped inbound status may still last-writer on the snapshot row — Working inspect + export suffix flag divergence when terminal queue state disagrees with the current disposition pointer.
 
 ---
 
 ## Engineering surfaces (verification anchors)
 
-| Surface | Path / symbol | TB-986 expectation |
+| Surface | Path / symbol | TB-986 / ADR 0076 expectation |
 | --- | --- | --- |
 | Disposition append | `ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs` | Append + CAS when current pointer exists; 409 on conflict |
+| Inspect save | `use-finding-inspect-governance-stickiness-dispositions.ts` | Sends `expectedCurrentDispositionRowVersionBase64`; 409 mounts `FindingDispositionConflictPanel`; retry adopts winner |
+| Keyboard apply / undo | `FindingKeyboardTriageHost.tsx` | Apply and undo both send the token |
+| Restore | `FindingDispositionRestoreButton.tsx` | Fetches history then sends the token; 409 keeps the snapshot |
+| Bulk queue | `GovernanceFindingsBulkActions.tsx` + `RecordBulkFindingDispositionRequest.ExpectedCurrentDispositionRowVersionBase64ByFindingId` | Per-finding map; missing key = null expected (first write OK; existing pointer 409s); batch rolls back |
+| Cluster strip | `RootCauseClusterDispositionStrip.tsx` | Same bulk map as queue actions |
 | ITSM inbound disposition CAS | `ItsmInboundDispositionSync` + `ItsmInboundWebhookProcessPipeline` | Mapped status uses inspect row version; conflict skips `HumanReviewStatus` update |
 | Working inspect divergence | `finding-human-review-disposition-divergence.ts` + `FindingInspectItsmWorkflowPanel` | Banner when CAS pointer exists and terminal ITSM queue state disagrees with current disposition |
 | Export honesty | `FindingHumanReviewDispositionDivergence` + `ArchitectureRunFindingsCsvFormatter` | Appends `(diverged from disposition trail)` to HumanReviewStatus column when diverged |
 | Trail repository | `SqlFindingReviewTrailRepository` | `ListByFindingAsync` ordered `OccurredAtUtc DESC` |
-| Inspect current | `DapperFindingInspectReadRepository` | `LatestDisposition` from latest disposition row |
+| Inspect current | `DapperFindingInspectReadRepository` | `LatestDisposition` from current pointer when present |
 | Approval CAS | `GovernanceApprovalRequestRepository.TryTransitionFromReviewableAsync` | Unchanged; loser 409 |
 | Concurrent transition tests | `GovernanceWorkflowTransitionConflictPropertyTests` | Approval-request CAS only |
-| Finding disposition race tests | `FindingDispositionConcurrentRaceTests` (**TB-988**) | Both opposing `RecordAsync` calls persist; `ListHistoryAsync` current = latest `OccurredAtUtc` |
+| Finding disposition race tests | `FindingDispositionConcurrentRaceTests` (**TB-988** / FP-21) | One `RecordAsync` succeeds; the other conflicts; matching version allows amend; null expected after pointer exists 409s |
+| Bulk CAS tests | `FindingDispositionServiceBulkAtomicityTests` (FP-20) | Null expected after pointer 409s; matching version records; stale version 409s; prior rows roll back |
 | ITSM `HumanReviewStatus` race tests | `SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSqlIntegrationTests` (**TB-988** traits) | Sequential and concurrent dual updates — last writer wins on correlated snapshot row |
 | ITSM inbound | `API_CONTRACTS.md` ITSM inbound row; **TB-390** / **TB-396** | `HumanReviewStatus` update + optional disposition append |
 
@@ -68,11 +73,12 @@
 
 | Too strong | Safe |
 | --- | --- |
-| “Finding approve/reject is mutually exclusive first-wins like the governance queue” | Dispositions are append-only history; current = latest by time |
+| “Finding approve/reject is mutually exclusive first-wins like the governance queue” | History is append-only; **current pointer** is CAS. The loser 409s and must reload. |
+| “Omitting the expected token on inspect is last-write-wins” | Omitting the token when a pointer exists is a **client bug** and the server **409s**. First disposition (no pointer) may omit the token. |
 | “Concurrent disposition returns 409 Conflict” | **409** on disposition when current pointer exists (UI + mapped ITSM inbound); approval-request CAS unchanged |
 | “ITSM status update is the durable approval trail” | ITSM updates queue state; disposition trail is separate unless mapped (**TB-396**) |
-| “Current disposition is immutable” | Later disposition events supersede for **current** view; history remains |
-| “Operators always see concurrent-update feedback” | **TB-987** **Done** — inspect stickiness surfaces concurrent-update notice after save |
+| “Current disposition is immutable” | Later disposition events supersede for **current** view after a successful CAS write; history remains |
+| “Operators always see concurrent-update feedback” | **TB-987** **Done** — inspect stickiness surfaces concurrent-update notice after save; inspect/bulk 409 also mounts `FindingDispositionConflictPanel` |
 
 ---
 

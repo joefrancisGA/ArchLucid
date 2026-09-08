@@ -47,6 +47,7 @@ import { AwsCloudConnectionDetailClient } from "./AwsCloudConnectionDetailClient
 import {
   AWS_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
   AWS_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AWS_CLOUD_CONNECTION_PAGE_LEAD,
   AWS_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER,
   AWS_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   AWS_CLOUD_CONNECTION_SKIP_LINK_LABEL,
@@ -61,7 +62,7 @@ import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/whe
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("AwsCloudConnectionDetailClient buyer-polished shell (INC)", () => {
-  it("renders skip link, start-here panel before follow-ups, header claim discipline, and hides contextual help", async () => {
+  it("renders skip link, intro lead, start-here panel before follow-ups, header claim discipline, and hides contextual help", async () => {
     render(<AwsCloudConnectionDetailClient />);
 
     await waitFor(() => {
@@ -88,6 +89,7 @@ describe("AwsCloudConnectionDetailClient buyer-polished shell (INC)", () => {
     const sourcesSection = screen.getByTestId("cloud-connections-aws-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("aws-cloud-connection-intro")).toHaveTextContent(AWS_CLOUD_CONNECTION_PAGE_LEAD);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);

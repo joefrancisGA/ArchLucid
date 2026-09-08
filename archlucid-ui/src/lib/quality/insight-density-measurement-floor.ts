@@ -4,6 +4,7 @@ import {
   type JudgeCapReductionFromFindingsSnapshot,
 } from "@/lib/findings/read-judge-skipped-by-cap";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import {
   formatProseAssumptionRegisterLabels,
@@ -11,6 +12,7 @@ import {
 import {
   formatHeldCheckInputCodeLabel,
   formatHeldCheckUnblockClause,
+  formatProseAssumptionHeldCheckAskClause,
 } from "@/lib/quality/held-check-input-code";
 import {
   INSIGHT_DENSITY_BUILT_IN_PRODUCT_ENGINE_COUNT,
@@ -19,6 +21,7 @@ import {
 } from "@/lib/quality/insight-density-measurement-denominator";
 
 export type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary };
+export type { ProseAssumptionHeldCheckAsk };
 export type { ProseAssumptionRegisterEntry };
 export { formatProseAssumptionRegisterLabels };
 
@@ -41,6 +44,7 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
 };
 
 export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasurementFloorCounts & {
@@ -54,6 +58,8 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
   readonly heldCheckSecondPassClause: string | null;
   readonly proseAssumptionRegisterEntries: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionRegisterLabels: readonly string[];
+  readonly proseAssumptionHeldCheckAsks: readonly ProseAssumptionHeldCheckAsk[];
+  readonly proseAssumptionHeldCheckClause: string | null;
 };
 
 /** Minimum measured engines before Working career exports proceed without explicit incomplete confirmation (PC-01). */
@@ -107,6 +113,16 @@ function resolveTopHeldCheckUnblockClause(entries: readonly HeldCheckLedgerRollu
   return formatHeldCheckUnblockClause(entries[0].engineCount, entries[0].inputCode);
 }
 
+function resolveProseAssumptionHeldCheckClause(
+  asks: readonly ProseAssumptionHeldCheckAsk[],
+): string | null {
+  if (asks.length === 0) {
+    return null;
+  }
+
+  return formatProseAssumptionHeldCheckAskClause(asks[0]);
+}
+
 function formatHeldCheckSecondPassClause(summary: HeldCheckSecondPassSummary | null | undefined): string | null {
   if (summary === null || summary === undefined) {
     return null;
@@ -155,6 +171,7 @@ function appendMeasurementFloorHonestySuffixes(
   judgeSkippedByCap: number | null,
   judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
+  proseAssumptionHeldCheckClause: string | null,
   heldCheckSecondPassClause: string | null,
 ): string {
   const suffixes: string[] = [];
@@ -181,6 +198,10 @@ function appendMeasurementFloorHonestySuffixes(
     suffixes.push(topHeldCheckUnblockClause);
   }
 
+  if (proseAssumptionHeldCheckClause !== null) {
+    suffixes.push(proseAssumptionHeldCheckClause);
+  }
+
   if (heldCheckSecondPassClause !== null) {
     suffixes.push(heldCheckSecondPassClause);
   }
@@ -198,6 +219,7 @@ function buildMeasurementFloorLine(
   judgeSkippedByCap: number | null,
   judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
+  proseAssumptionHeldCheckClause: string | null,
   heldCheckSecondPassClause: string | null,
 ): string {
   const measured = counts.measuredThisRunEngineCount;
@@ -217,6 +239,7 @@ function buildMeasurementFloorLine(
     judgeSkippedByCap,
     judgeCapReductionClause,
     topHeldCheckUnblockClause,
+    proseAssumptionHeldCheckClause,
     heldCheckSecondPassClause,
   );
 }
@@ -251,6 +274,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const heldCheckSecondPassClause = formatHeldCheckSecondPassClause(options.heldCheckSecondPass);
   const proseAssumptionRegisterEntries = options.proseAssumptionRegisterEntries ?? [];
   const proseAssumptionRegisterLabels = formatProseAssumptionRegisterLabels(proseAssumptionRegisterEntries);
+  const proseAssumptionHeldCheckAsks = options.proseAssumptionHeldCheckAsks ?? [];
+  const proseAssumptionHeldCheckClause = resolveProseAssumptionHeldCheckClause(proseAssumptionHeldCheckAsks);
 
   return {
     ...counts,
@@ -260,6 +285,7 @@ export function formatInsightDensityMeasurementFloorPresentation(
       judgeSkippedByCap,
       judgeCapReductionClause,
       topHeldCheckUnblockClause,
+      proseAssumptionHeldCheckClause,
       heldCheckSecondPassClause,
     ),
     helpHref: INSIGHT_DENSITY_MEASUREMENT_DENOMINATOR_HELP_HREF,
@@ -271,6 +297,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
     heldCheckSecondPassClause,
     proseAssumptionRegisterEntries,
     proseAssumptionRegisterLabels,
+    proseAssumptionHeldCheckAsks,
+    proseAssumptionHeldCheckClause,
   };
 }
 

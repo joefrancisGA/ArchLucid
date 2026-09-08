@@ -48,8 +48,12 @@ export function GovernanceResolutionOperatorDiagnostics(
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const governanceResolutionPackOrderingOpenParam = searchParams.get("governanceResolutionPackOrderingOpen");
+  const governanceResolutionRawOutputOpenParam = searchParams.get("governanceResolutionRawOutputOpen");
   const [packOrderingOpen, setPackOrderingOpenState] = useState(() =>
     parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
+  );
+  const [rawOutputOpen, setRawOutputOpenState] = useState(() =>
+    parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam),
   );
 
   const syncPackOrderingOpenToUrl = useCallback(
@@ -76,6 +80,28 @@ export function GovernanceResolutionOperatorDiagnostics(
     );
   }, [governanceResolutionPackOrderingOpenParam]);
 
+  const syncRawOutputOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceResolutionRawOutputDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRawOutputOpen = useCallback(
+    (open: boolean) => {
+      setRawOutputOpenState(open);
+      syncRawOutputOpenToUrl(open);
+    },
+    [syncRawOutputOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRawOutputOpenState(parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam));
+  }, [governanceResolutionRawOutputOpenParam]);
+
   const governanceResolutionCandidatesItemKeyParam = searchParams.get("governanceResolutionCandidatesItemKey");
   const [openCandidatesItemKey, setOpenCandidatesItemKeyState] = useState(() =>
     parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
@@ -101,31 +127,6 @@ export function GovernanceResolutionOperatorDiagnostics(
       parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
     );
   }, [governanceResolutionCandidatesItemKeyParam]);
-
-  const governanceResolutionRawOutputOpenParam = searchParams.get("governanceResolutionRawOutputOpen");
-  const [rawOutputOpen, setRawOutputOpenState] = useState(() =>
-    parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam),
-  );
-  const syncRawOutputOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        governanceResolutionRawOutputDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setRawOutputOpen = useCallback(
-    (open: boolean) => {
-      setRawOutputOpenState(open);
-      syncRawOutputOpenToUrl(open);
-    },
-    [syncRawOutputOpenToUrl],
-  );
-
-  useEffect(() => {
-    setRawOutputOpenState(parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam));
-  }, [governanceResolutionRawOutputOpenParam]);
 
   return (
     <>

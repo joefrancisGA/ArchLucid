@@ -11,6 +11,7 @@ import { ArchitectureStructuredSectionView } from "@/components/architecture/Arc
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { clarificationGapImpactCopy } from "@/lib/architecture/architecture-clarification-gap-present";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
@@ -44,6 +45,7 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
   readonly clarificationRoundAvailable?: boolean;
   readonly clarificationDelta?: ReviewClarificationDelta | null;
+  readonly clarificationQuestionsBlockedReason?: string | null;
   readonly priorRunId?: string;
 };
 
@@ -121,6 +123,18 @@ export function ArchitectureCreatedClarificationsPanel(
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
+
+      {props.clarificationQuestionsBlockedReason !== null
+      && props.clarificationQuestionsBlockedReason !== undefined
+      && props.clarificationQuestionsBlockedReason.trim().length > 0 ? (
+        <div data-testid="architecture-clarifications-blocked-reason">
+          <OperatorApiProblem
+            problem={null}
+            fallbackMessage={props.clarificationQuestionsBlockedReason}
+            variant="warning"
+          />
+        </div>
+      ) : null}
 
       {deltaPresentation.summary !== null ? (
         <p

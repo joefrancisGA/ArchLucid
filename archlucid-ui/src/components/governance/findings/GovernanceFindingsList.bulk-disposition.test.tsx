@@ -13,6 +13,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
+  listFindingDispositions: vi.fn(async () => []),
 }));
 
 vi.mock("@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable", () => ({
