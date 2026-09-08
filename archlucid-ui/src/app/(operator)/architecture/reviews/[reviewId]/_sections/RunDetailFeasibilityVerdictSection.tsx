@@ -17,6 +17,7 @@ import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 type RunDetailFeasibilityVerdictSectionProps = {
   readonly verdict: ManifestFeasibilityVerdict;
   readonly runId: string;
+  readonly manifestVersion?: string | null;
 };
 
 function toneClassName(tone: "success" | "warning" | "danger"): string {
@@ -94,6 +95,7 @@ export function RunDetailFeasibilityVerdictSection(
                 runId: props.runId,
                 verdict,
               }}
+              manifestVersion={props.manifestVersion}
             />
           </div>
         ) : null}
