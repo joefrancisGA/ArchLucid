@@ -9986,11 +9986,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 4
-- **bugs-found:** 5
+- **hunts:** 5
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — session restore allowed confirm submit before clarification selection hydrated; stale detailed wizard URL params survived path switches
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — invalid inventory slot blocked mixed document auto-upload; guided-intake template= re-prefill on path-switch remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10007,8 +10007,12 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `use-guided-intake-wizard` / `handleSessionRestore` — session restore at confirm without `refreshQuestions` leaves empty `pendingQuestions` and false `clarificationsPersistedForSubmit` — **hit 2026-09-07 (#1219):** empty `pendingQuestions` made `areGuidedIntakeClarificationsPersistedForSubmit` true before selection loaded; fixed with `clarificationSelectionHydrated`, confirm-restore clamp to clarifications + `hydrateClarificationsFromDraft`, and admission-time hydration (`blocks submit before clarification selection is hydrated`)
 - [x] (proven) `ReviewsNewPathSwitcher.selectPath` — stale `step`/`pilot`/`mode` query params survive path switches (only `intakeStep`/`scopeGate` cleared today) — **hit 2026-09-07 (#1219):** leaving `path=detailed` kept `step`/`mode`/`pilot`/`advancedConfig` on quick-review and guided-intake URLs; fixed symmetric param clearing when `path !== detailed` (`clears stale detailed wizard query params when returning to quick-review`)
 - [x] (valid-no-repro) `use-new-run-wizard-mode` — returning-tenant committed probe flips quick → full mid-session before explicit mode choice — **2026-09-07 (#1219):** embedded templates path calls `persistWizardMode("full")` on mount (`use-new-run-wizard-client.tsx`); standalone default to full after probe matches `resolveFirstRunWizardMode` for returning tenants without stored preference
+- [x] (proven) `use-new-run-wizard-pending-evidence` — non-inventory file in inventory slot with pending documents leaves auto-upload idle forever — **hit 2026-09-08 seed hunt #1305:** auto-upload effect treated `pendingInventoryPlatform === null` the same as detection-in-progress; invalid inventory ZIP blocked document upload after detection settled; fixed with `inventoryPlatformDetectionPending` gate (`auto-uploads pending documents when inventory file is not a tier-1 package`)
+- [x] (proven) `use-guided-intake-brief-form` — `template=` example prefill re-fires on guided-intake remount after path switch and resets operator edits — **hit 2026-09-08 seed hunt #1305:** component ref reset on unmount; `template=` survived switches to detailed/quick; fixed with session-scoped `guidedIntakeExampleTemplatePrefillAppliedIds` (`applies example template prefill only once across hook remounts`)
+- [ ] (candidate) `use-first-pilot-intake-wizard` / `handleSessionRestore` — quick-start session restore omits `scopeGateOpen` and `scopeBullets`; resume may block start or submit with empty scope merge when URL `scopeGate` and session diverge
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` + `use-guided-intake-wizard` — orphan `intakeStep` preserved on entry to guided intake (`?intakeStep=2&path=guided-intake`) may deep-link past clarifications until confirm clamps hydrate
 
-2026-09-07 seed hunt #1175 (hit): reseeded guided intake wizard submit/persistence paths; proved confirm submit allowed before clarification answers persisted to API.
+2026-09-08 seed hunt #1305 (hit): reseeded intake wizard URL/session paths; proved invalid-inventory mixed-evidence auto-upload stall and guided-intake template remount wipe; seeded quick-start scope restore and orphan intakeStep candidates.
 2026-09-07 thorough hunt #1212 (hit): proved pending-evidence auto-upload race skipped inventory ZIP when platform detection lagged; cheap-disproved path-switcher rerun/policyPack, scopeGate deeplink, and draft-submit session retention hypotheses.
 2026-09-07 seed hunt #1213 (hit): reseeded query-prefill and wizard lifecycle paths; proved accelerator/preset prefill re-fired on step URL sync; added session-restore, stale step param, and mode-probe candidates.
 2026-09-07 thorough hunt #1219 (hit): proved session-restore confirm could treat unloaded clarifications as persisted; proved stale detailed wizard URL params survived path switches; cheap-disproved mode-probe flip on embedded detailed path.
