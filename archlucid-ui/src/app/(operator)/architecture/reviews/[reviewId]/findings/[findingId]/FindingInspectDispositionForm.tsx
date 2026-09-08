@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useRef } from "react";
 
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
@@ -84,6 +85,9 @@ export type FindingInspectDispositionFormProps = Pick<
   | "remediationInlineSaveError"
   | "dispositionLastSavedUtc"
   | "dispositionInlineSaveError"
+  | "dispositionConflict"
+  | "reloadDispositionConflict"
+  | "dismissDispositionConflict"
 >;
 
 export function FindingInspectDispositionForm(props: FindingInspectDispositionFormProps) {
@@ -127,6 +131,9 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     remediationInlineSaveError,
     dispositionLastSavedUtc,
     dispositionInlineSaveError,
+    dispositionConflict,
+    reloadDispositionConflict,
+    dismissDispositionConflict,
   } = props;
   const rationaleRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -341,7 +348,17 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             {busyAction === "mark-remediated" ? "Marking finding as remediated…" : "Mark as remediated"}
           </Button>
         </div>
-        {dispositionInlineSaveError !== null ? (
+        {dispositionConflict !== null ? (
+          <FindingDispositionConflictPanel
+            conflict={dispositionConflict}
+            onReload={() => {
+              void reloadDispositionConflict();
+            }}
+            onDismiss={dismissDispositionConflict}
+            testId="finding-inspect-disposition-conflict"
+          />
+        ) : null}
+        {dispositionConflict === null && dispositionInlineSaveError !== null ? (
           <OperatorMutationInlineError
             message={dispositionInlineSaveError}
             testId="finding-disposition-inline-save-error"

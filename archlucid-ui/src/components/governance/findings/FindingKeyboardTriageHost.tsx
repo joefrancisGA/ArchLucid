@@ -30,8 +30,10 @@ import {
 import { recordFindingDisposition, listFindingDispositions } from "@/lib/api/governance-stickiness-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import { resolveExpectedCurrentDispositionRowVersion } from "@/lib/findings/finding-expected-current-disposition-row-version";
 import {
   readFindingDispositionConflictDetail,
+  readFindingDispositionConflictFromError,
   type FindingDispositionConflictDetail,
 } from "@/lib/findings/finding-disposition-conflict";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
@@ -158,10 +160,12 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     void (async () => {
       try {
         const history = await listFindingDispositions(pending.findingId);
-        const latest = history[0];
+        const expectedCurrentDispositionRowVersionBase64 = resolveExpectedCurrentDispositionRowVersion({
+          latestHistoryEvent: history[0] ?? null,
+        });
 
         if (!canceled) {
-          setExpectedRowVersion(latest?.currentDispositionRowVersionBase64 ?? null);
+          setExpectedRowVersion(expectedCurrentDispositionRowVersionBase64 ?? null);
         }
       } catch {
         if (!canceled) {
@@ -342,7 +346,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     const appliedDisposition = pending.disposition;
 
     try {
-      await recordFindingDisposition(
+      const saved = await recordFindingDisposition(
         appliedFindingId,
         {
           disposition: appliedDisposition,
@@ -352,6 +356,10 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         },
         { idempotencyKey: createGovernanceMutationIdempotencyKey() },
       );
+
+      const undoExpectedCurrentDispositionRowVersionBase64 = resolveExpectedCurrentDispositionRowVersion({
+        latestHistoryEvent: saved,
+      });
 
       if (appliedDisposition === "Accepted" || appliedDisposition === "RejectedAsNotApplicable") {
         const appliedAtUtc = new Date().toISOString();
@@ -382,6 +390,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
             rationale: undoRationale,
             runId: appliedRunId,
             revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
+            expectedCurrentDispositionRowVersionBase64: undoExpectedCurrentDispositionRowVersionBase64,
           },
           { idempotencyKey: createGovernanceMutationIdempotencyKey() },
         );
@@ -447,6 +456,15 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
                     setCorrectionTarget(null);
                     setCorrectionRecorded(false);
                   } catch (undoError) {
+                    const undoConflict = readFindingDispositionConflictFromError(undoError);
+
+                    if (undoConflict !== null) {
+                      setDispositionConflict(undoConflict);
+                      setSuccessMessage(null);
+                      setSuccessUndo(null);
+                      return;
+                    }
+
                     setSuccessMessage(
                       undoError instanceof Error
                         ? undoError.message
@@ -477,6 +495,20 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
           setCorrectionRecorded(true);
         }}
       />
+
+      {dispositionConflict !== null && pending === null ? (
+        <FindingDispositionConflictPanel
+          conflict={dispositionConflict}
+          onReload={() => {
+            setDispositionConflict(null);
+            props.onApplied?.();
+            router.refresh();
+          }}
+          onDismiss={() => {
+            setDispositionConflict(null);
+          }}
+        />
+      ) : null}
 
       {pending === null ? null : (
       <ConfirmationDialog
