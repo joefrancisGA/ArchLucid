@@ -9859,11 +9859,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — coordination outbox tests missing sealed-hash guard mocks
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — run export blob push outbox omitted ambient scope before audit enrichment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9880,6 +9880,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) Wave-33/34 sealed-manifest-hash guards on retrieval/post-commit/cosmos outbox processors broke composition tests that omitted `IManifestHashService` + `GetRunDetailForManifestCompareAsync` mocks — processors hit backoff/DLQ path instead of indexing/materialization/coverage under test (**hit 2026-09-07 hunt #1192**): shared `CoordinationOutboxSealedManifestHashGuardTestSupport`; restored 6 failing scoped tests including TB-993 replay idempotency
 - [x] (invalid) `RecoverableOutboxProcessorBase` parallel batch leaks `AmbientScopeContext` across entries — `BoundedBatchParallelism.ForEachAsync` isolates `AsyncLocal` per task; each `ProcessEntryAsync` pushes and disposes its own ambient scope (`RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_indexing`)
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` omits `OutboxProcessorOptionsVerifier` upper lease clamp — `DapperCosmosGraphSnapshotOutboxRepository.DequeuePendingAsync` clamps lease to 60–7200 seconds regardless of processor-passed value
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` skips sealed-manifest hash guard when `RunId == Guid.Empty` — **cheap-disproof 2026-09-08 seed hunt #1373:** `AuthorityPipelineStagePersistence.SaveGraphAsync` enqueues with `snapshot.RunId` from the committed graph row; SQL `RunId NOT NULL`; empty GUID not reachable on production enqueue path
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` omits `AmbientScopeContext.Push` while `AuditService.EnrichAuditEvent` and `RunExportBlobPushService` read `IScopeContextProvider.GetCurrentScope()` — worker dead-letter and push outcome audits inherit dev-default tenant triple instead of the outbox entry scope — **hit 2026-09-08 seed hunt #1373:** push ambient scope before guard/build/push/audit; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_dead_letter_audit`
+
+2026-09-08 seed hunt #1373 (hit): reseeded host-core-coordination; cheap-disproof closed cosmos empty-RunId hash bypass; proved run-export outbox ambient-scope gap for audit enrichment; 15 scoped coordination processor tests passed (Host.Composition + Host.Core retry calculator).
 
 2026-09-07 thorough hunt #1192 (hit): cheap-disproved enqueue-before-commit race on SQL (transactional outbox) and in-memory (immediate writes); proved wave-33/34 guard DI gap broke 6 coordination processor composition tests.
 
