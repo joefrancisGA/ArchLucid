@@ -17,6 +17,7 @@ describe("ArchitectureCreatedFindingsBuyerChrome", () => {
 
     expect(screen.getByTestId("architecture-findings-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-findings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-findings-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("renders nothing outside eval chrome", () => {
