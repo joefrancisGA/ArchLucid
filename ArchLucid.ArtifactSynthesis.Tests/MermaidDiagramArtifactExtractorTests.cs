@@ -39,6 +39,34 @@ public sealed class MermaidDiagramArtifactExtractorTests
     }
 
     [Fact]
+    public void TryGetDiagramSource_truncates_at_line_boundary_before_max_chars()
+    {
+        const string lineOne = "flowchart TD";
+        const string lineTwo = "    a --> b";
+        string content = $"{lineOne}\n{lineTwo}\n    c --> d";
+
+        List<SynthesizedArtifact> artifacts =
+        [
+            new()
+            {
+                Name = "architecture.mmd",
+                Content = content,
+                Format = "mermaid",
+                ContentHash = "",
+                ArtifactType = ArtifactType.MermaidDiagram,
+                ArtifactId = Guid.NewGuid(),
+            },
+        ];
+
+        int maxChars = lineOne.Length + 1 + 4;
+
+        string? truncated = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifacts, maxChars: maxChars);
+
+        truncated.Should().Be($"{lineOne}\n\n… (truncated)");
+        truncated.Should().NotContain("    a -->");
+    }
+
+    [Fact]
     public void TryGetDiagramSource_returns_null_when_bundle_has_no_candidates()
     {
         List<SynthesizedArtifact> artifacts =
