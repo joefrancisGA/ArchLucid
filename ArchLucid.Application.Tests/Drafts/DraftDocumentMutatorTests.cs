@@ -44,6 +44,22 @@ public sealed class DraftDocumentMutatorTests
     }
 
     [Fact]
+    public void ApplyPatch_UpdatesOpenQuestions_WithoutTransparencyTrail()
+    {
+        DraftRequestDocument document = new()
+        {
+            FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+        };
+
+        DraftDocumentMutator.ApplyPatch(
+            document,
+            new PatchDraftRequest { OpenQuestions = "  Who owns data retention policy?  " });
+
+        document.OpenQuestions.Should().Be("Who owns data retention policy?");
+        document.TransparencyTrail.Asserted.Should().BeEmpty();
+    }
+
+    [Fact]
     public void RecordAssertedAnswer_RecordsAssertedTrailEntry()
     {
         DraftRequestDocument document = new()
