@@ -39,4 +39,5 @@ export type PilotValueReportJson = Omit<
     findingsBySeverity: PilotValueReportSeverityJson;
     committedRunsTimeline: PilotValueReportTimelineRow[];
     averagePipelineCompletionSeconds: number | null;
+    roiSourceFreshnessDisposition?: string | null;
   };

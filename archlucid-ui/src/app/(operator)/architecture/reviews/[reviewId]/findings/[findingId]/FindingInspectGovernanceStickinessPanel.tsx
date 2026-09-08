@@ -172,6 +172,8 @@ export function FindingInspectGovernanceStickinessPanel(
         setApplyChangePreviewOverride={stickiness.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={stickiness.tradeOffAcknowledgment}
         setTradeOffAcknowledgment={stickiness.setTradeOffAcknowledgment}
+        architectRestatement={stickiness.architectRestatement}
+        setArchitectRestatement={stickiness.setArchitectRestatement}
         showIncrementalRereviewLink={stickiness.showIncrementalRereviewLink}
         submitRemediationAssignment={stickiness.submitRemediationAssignment}
         submitDisposition={stickiness.submitDisposition}

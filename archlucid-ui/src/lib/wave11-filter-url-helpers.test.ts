@@ -5578,9 +5578,10 @@ describe("wave70 filter url helpers", () => {
       "/help/azure-cloud-connection?helpAzureRoleDetailsKey=contributor",
     );
     expect(parseCaiqSigEvidenceSegmentKeyFromSearch("caiq-sig-evidence-gap-0")).toBe("caiq-sig-evidence-gap-0");
+    const caiqSigEvidenceSegmentKey = "caiq-sig-evidence-gap-0";
     expect(
-      caiqSigEvidenceSegmentDisclosureHrefFromSearch("tab=responses", "caiq-sig-evidence-gap-0", "/help/caiq-sig"),
-    ).toBe("/help/caiq-sig?tab=responses&caiqSigEvidenceSegmentKey=caiq-sig-evidence-gap-0");
+      caiqSigEvidenceSegmentDisclosureHrefFromSearch("tab=responses", caiqSigEvidenceSegmentKey, "/help/caiq-sig"),
+    ).toBe(`/help/caiq-sig?tab=responses&caiqSigEvidenceSegmentKey=${caiqSigEvidenceSegmentKey}`);
     expect(parseHelpMermaidDiagramSourceOpenFromSearch("1")).toBe(true);
     expect(helpMermaidDiagramSourceDisclosureHrefFromSearch("", true, "/help/topics/architecture")).toBe(
       "/help/topics/architecture?helpMermaidDiagramSourceOpen=1",

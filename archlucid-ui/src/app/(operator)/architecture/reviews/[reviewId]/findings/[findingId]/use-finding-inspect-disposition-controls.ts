@@ -56,6 +56,8 @@ export type FindingInspectDispositionControlsProps = {
   readonly setApplyChangePreviewOverride: (value: boolean) => void;
   readonly tradeOffAcknowledgment: string;
   readonly setTradeOffAcknowledgment: (value: string) => void;
+  readonly architectRestatement: string;
+  readonly setArchitectRestatement: (value: string) => void;
   readonly showIncrementalRereviewLink: boolean;
   readonly submitRemediationAssignment: () => void | Promise<void>;
   readonly submitDisposition: () => void | Promise<void>;
