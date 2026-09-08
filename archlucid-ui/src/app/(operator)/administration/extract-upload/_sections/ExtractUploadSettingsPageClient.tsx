@@ -367,6 +367,7 @@ export function ExtractUploadSettingsPageClient() {
             </p>
             <div className="mt-3 space-y-3">
               <AzureExtractorDemoScenarioPicker
+                layout="stack"
                 selectedScenarioId={demo.selectedDemoScenarioId}
                 onSelectScenario={demo.setSelectedDemoScenarioId}
                 testIdPrefix="extract-upload-demo"
