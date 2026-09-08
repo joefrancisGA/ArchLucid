@@ -709,11 +709,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 11
-- **bugs-found:** 11
+- **hunts:** 12
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — inspect `ParseHumanReview` accepted undefined numeric review-status strings
+- **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -743,6 +743,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-08 thorough hunt #1293 (hit): proved undefined numeric human-review status on inspect read; cheap-disproved golden-manifest projection gap as non-defect.
 2026-09-07 seed hunt #1243 (hit): reseeded after #1238; proved undefined numeric disposition on inspect read; seeded golden-manifest projection gap candidate.
+
+- [x] (proven) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` accepts undefined numeric `FindingRecords.EvaluationConfidenceLevel` strings — **hit 2026-09-08 seed hunt #1309:** `Enum.TryParse` without `Enum.IsDefined` parity to #1243/#1293; inspect surfaced `(FindingConfidenceLevel)999` instead of null; fixed in mapper; regressions in `TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values`
+- [x] (proven) `FindingInspectReadModelMapper.ParseFindingSeverity` accepts undefined numeric `FindingRecords.Severity` strings — **hit 2026-09-08 seed hunt #1309:** same `Enum.TryParse` gap; `"999"` mapped to `(FindingSeverity)999` instead of documented `Info` default; fixed with `Enum.IsDefined` guard; regression in `ParseFindingSeverity_maps_or_defaults` for `"999"`
+- [ ] (candidate) `ResolveRuleFields` when `AppliedRuleIdsJson` deserializes to a non-array JSON shape (object/scalar) — silently falls through to `firstRuleText`; locus in `FindingInspectReadRepositoryCore.cs`; no failing repro yet
+
+2026-09-08 seed hunt #1309 (hit): reseeded inspect mapper enum parity; proved undefined numeric evaluation-confidence and severity strings; seeded non-array `AppliedRuleIdsJson` fallback candidate.
 
 2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
 2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.

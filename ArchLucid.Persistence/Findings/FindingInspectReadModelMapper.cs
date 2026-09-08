@@ -9,7 +9,10 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity sev) ? sev : FindingSeverity.Info;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity sev))
+            return FindingSeverity.Info;
+
+        return Enum.IsDefined(sev) ? sev : FindingSeverity.Info;
     }
 
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
@@ -28,7 +31,10 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl))
+            return null;
+
+        return Enum.IsDefined(lvl) ? lvl : null;
     }
 
     public static FindingDisposition? ParseDisposition(string? raw)
