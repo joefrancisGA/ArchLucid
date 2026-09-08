@@ -1655,11 +1655,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — disposition sync infrastructure failure returned HTTP 500 after human-review update; replay released on retry
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — sealed manifest guard ran after human-review mutation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1691,6 +1691,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` returns HTTP 500 after human-review update when disposition sync throws a non-`ArgumentException` — **hit 2026-09-05 (#804):** human-review mutation preceded disposition; pipeline `catch` released replay and rethrew; fixed by catching non-validation disposition failures in `ItsmInboundDispositionSync` and returning `disposition_sync_failed` skip (`ItsmInboundWebhookSyncServiceTests.Jira_when_disposition_sync_fails_after_human_review_still_accepts_without_releasing_replay`).
 
 2026-09-05 thorough hunt #804: proved disposition sync infrastructure failure surfaced as HTTP 500 after human-review update; fixed skip handling and restored sealed-manifest test doubles in sync service tests.
+
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — sealed-manifest guard ran after human-review update and replay claim, so `sealed_manifest_unverified` rejected the webhook after mutating `FindingHumanReviewStatus` and consuming the replay slot — **hit 2026-09-08 seed hunt #1318:** Wave-23 fail-closed guard was ordered after `UpdateHumanReviewStatusForFindingAsync`; fixed by loading inspect + `ItsmInboundSealedManifestHashGuard` before replay claim and mutation; regression `Jira_when_sealed_manifest_unverified_does_not_mutate_human_review_or_claim_replay`.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` / `ItsmInboundExternalStatusMapper` — configured `ServiceNowStateDispositionMap` on `incident_state` is not consulted when primary `state` maps human review but disposition is unmapped (alternate path exists for human review since #717 but disposition still uses primary `effectivePayload.StatusValue` only).
+
+2026-09-08 seed hunt #1318 (hit): reseeded zone after hypothesis exhaustion; proved sealed-manifest ordering gap before replay claim/human-review mutation; seeded ServiceNow disposition alternate asymmetry candidate.
 
 ---
 
