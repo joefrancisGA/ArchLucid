@@ -112,10 +112,15 @@ warm_path "auth scope" "${API_URL}/v1/scope"
 warm_path "pending invitations" "${API_URL}/v1/admin/users/invitations"
 
 if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
-  # Invite-wave CI: Playwright stubs draft inventory in-browser and JIT-warms create-run with a
-  # 300s per-attempt HTTP budget. Shell warm for those paths ties up the API for minutes and can
-  # leave /health/ready at 503 before Playwright starts (see run 34003221895).
-  echo "Skipping draft inventory and create-run shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright handles both."
+  # Prime inline create-run on cold SQL before Playwright (best-effort; long per-attempt budget).
+  CREATE_BODY='{"requestId":"WARM-PRIVATE-BETA","description":"Private beta create-run pipeline warm-up.","systemName":"PrivateBetaPipelineWarm","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+  warm_path_post_optional \
+    "create architecture run" \
+    "${API_URL}/v1/architecture/request" \
+    "${CREATE_BODY}" \
+    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-540}" \
+    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+  echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else
   warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"
 fi

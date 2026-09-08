@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -63,7 +64,9 @@ public static class ArchitectureRunFindingsCsvFormatter
 
             foreach (ArchitectureFinding finding in result.Findings)
             {
-                if (finding is null || string.IsNullOrWhiteSpace(finding.FindingId))
+                if (finding is null
+                    || string.IsNullOrWhiteSpace(finding.FindingId)
+                    || !DecisionGradeFindingExportFilter.IsDecisionGradeForExport(finding))
                     continue;
 
                 ids.Add(finding.FindingId.Trim());
@@ -92,7 +95,7 @@ public static class ArchitectureRunFindingsCsvFormatter
 
             foreach (ArchitectureFinding finding in result.Findings)
             {
-                if (finding is not null)
+                if (finding is not null && DecisionGradeFindingExportFilter.IsDecisionGradeForExport(finding))
                     n++;
             }
         }
@@ -100,7 +103,37 @@ public static class ArchitectureRunFindingsCsvFormatter
         return n;
     }
 
-    internal static string FormatFindingStatus(bool isMuted)
+    /// <summary>Count of checklist-coverage rows excluded from CSV export.</summary>
+    public static int CountOmittedChecklistCoverageFindingsInDetail(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        if (detail.Results is null || detail.Results.Count == 0)
+            return 0;
+
+        int n = 0;
+
+        foreach (AgentResult result in detail.Results)
+        {
+            if (result?.Findings is null || result.Findings.Count == 0)
+            {
+                continue;
+            }
+
+            foreach (ArchitectureFinding finding in result.Findings)
+            {
+                if (finding is not null
+                    && DecisionGradeFindingExportFilter.IsChecklistCoverageForExport(finding.Classification))
+                {
+                    n++;
+                }
+            }
+        }
+
+        return n;
+    }
+
+    public static string FormatFindingStatus(bool isMuted)
     {
         return isMuted ? "muted" : "active";
     }
@@ -115,7 +148,7 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         foreach (ArchitectureFinding finding in result.Findings)
         {
-            if (finding is null)
+            if (finding is null || !DecisionGradeFindingExportFilter.IsDecisionGradeForExport(finding))
                 continue;
 
             AppendFindingRow(sb, result, finding, trackingByFindingId);

@@ -26,10 +26,10 @@ public sealed class FindingsMergeAndGateStage(
 
         FindingSnapshotMergeResult mergeResult = FindingSnapshotConfluentMerger.Merge(context.AllFindings, _clock);
 
-        foreach (FindingEngineFailure conflict in mergeResult.Conflicts)
+        foreach (FindingSnapshotMergeConflict conflict in mergeResult.Conflicts)
         {
-            context.EngineFailures.Add(conflict);
-            ArchLucidInstrumentation.RecordFindingEngineFailure(conflict.EngineType, conflict.Category);
+            context.EngineFailures.Add(conflict.Failure);
+            ArchLucidInstrumentation.RecordFindingEngineFailure(conflict.Failure.EngineType, conflict.Failure.Category);
         }
 
         List<Finding> dedupedFindings = [.. mergeResult.Findings];
@@ -83,6 +83,7 @@ public sealed class FindingsMergeAndGateStage(
             CreatedUtc = _clock.UtcNowDateTime(),
             Findings = dedupedFindings,
             EngineFailures = context.EngineFailures,
+            WithheldFindings = mergeResult.Conflicts.SelectMany(static conflict => conflict.Dropped).ToList(),
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
         };
 
@@ -94,6 +95,8 @@ public sealed class FindingsMergeAndGateStage(
         FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
+
+        FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);
 
         context.Snapshot = snapshot;
         return Task.CompletedTask;

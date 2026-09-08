@@ -4,6 +4,7 @@ import { AWS_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/aws-cloud-connection-cop
 import {
   AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS,
   AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT,
+  awsTrustStarterFederationIdentifiers,
   buildAwsTrustStarterPolicyTemplate,
 } from "@/lib/aws-cloud-connection-trust-policy-starter";
 
@@ -38,5 +39,13 @@ describe("aws-cloud-connection-trust-policy-starter", () => {
         expect(surface.toLowerCase()).not.toContain(banned.toLowerCase());
       }
     }
+  });
+
+  it("localizes consumer hints for the Security shell without changing template tokens", () => {
+    const issuer = awsTrustStarterFederationIdentifiers("security").find((row) => row.id === "issuer");
+
+    expect(issuer?.value).toContain("{ArchLucid tenant ID}");
+    expect(issuer?.hint).toContain("SecureNow's tenant");
+    expect(issuer?.hint).not.toMatch(/\bArchLucid\b/);
   });
 });

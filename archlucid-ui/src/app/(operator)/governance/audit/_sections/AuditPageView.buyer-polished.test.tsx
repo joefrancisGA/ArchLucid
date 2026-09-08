@@ -98,6 +98,8 @@ function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewP
     loadAuditSavedView: vi.fn(async () => undefined),
     ctoDemoAuditFilterActive: false,
     onClearCtoDemoAuditFilter: vi.fn(),
+    auditFiltersActive: false,
+    reviewPackageHref: "/architecture/reviews/sample-review",
     ...overrides,
   };
 }

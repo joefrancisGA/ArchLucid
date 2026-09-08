@@ -60,5 +60,7 @@ public sealed class AgentArchitectureFindingEmissionGateTests
 
         result.Findings.Should().ContainSingle();
         result.Findings[0].Message.Should().Be("Typed");
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
     }
 }

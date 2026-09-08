@@ -23,8 +23,19 @@ Adding engines that re-read `GraphSnapshot` grows the insight-density denominato
 - Declaration property → Actor materialization (WK-08) as an **information source**, not a new coverage engine
 - Policy-pack overlays and golden corpus expansion for **existing** engines
 
+## Exception — insight-density excellence set (2026-09-06)
+
+Owner strategy [`../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md) authorizes **path and contradiction** engines in [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) **DX-06–DX-09** (identity blast-radius, segmentation **rules**, DR/RPO vs replica, secrets lifecycle vs inventory), follow-on [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) **DX-22** (checklist-cluster synthesis), **DX-24** (dangling declaration refs), **DX-25** (requirement × SKU/tier), and [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) **DX-32** (data-flow vs trust-boundary **path**), **DX-33** (three-way pack × declaration × inventory **contradiction**). [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41**) adds **no** new `EngineType`. [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md) (**DX-51**, **DX-53**) authorizes **synthesis / contradiction** engines (`decision-grade-fusion`, `portfolio-shared-topology`) that join existing Decision-grade rows or shared product-shaped resource ids — they must **not** emit “node type X is absent.”
+
+Coverage-shaped engines (resilience/DR *presence*, IAM *depth as node-exists*, observability completeness, capacity planning) remain held.
+
 ## Related
 
 - [`INSIGHT_DENSITY_MISS_CLAUSE.md`](INSIGHT_DENSITY_MISS_CLAUSE.md)
-- [`../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md) — do not start table
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) — **DX-01–DX-16** shipped (path engines DX-06–DX-09 authorized)
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) — **DX-22 / DX-24 / DX-25** authorized as synthesis/contradiction, not coverage
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) — **DX-32 / DX-33** authorized as path/contradiction, not coverage
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) — **DX-36–DX-41** (no new EngineType)
+- [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md) — **DX-51** / **DX-53** authorized as synthesis/contradiction, not coverage
+- [`../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md) — ID-01–07 archive; do not re-run
 - [`../go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — **G-REAL-06**

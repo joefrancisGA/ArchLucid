@@ -1,5 +1,7 @@
 namespace ArchLucid.Decisioning.Findings;
 
+using ArchLucid.Contracts.Findings;
+
 /// <summary>Catalog vs run vs harness counts for stamp, finalize scorecard, and career exports (PC-01 / LK-14).</summary>
 public sealed class InsightDensityMeasurementFloorPresentation
 {
@@ -31,6 +33,34 @@ public sealed class InsightDensityMeasurementFloorPresentation
 
     /// <summary>False when measured engines are below the harness regression floor for career export.</summary>
     public bool MeetsCareerExportFloor
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Actor-dependent engine types that did not run because the graph has no Actor nodes (DX-15).</summary>
+    public IReadOnlyList<string> SkippedActorEngineTypes
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Premium insight-density judge findings skipped by per-snapshot cap when persisted on the snapshot.</summary>
+    public int? JudgeSkippedByCap
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Missing-input rollup ranked by how many engines each code would unblock (DX-52).</summary>
+    public IReadOnlyList<HeldCheckLedgerRollupEntry> HeldCheckLedgerEntries
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Advisory unblock clause when the top held-check code would unblock at least two engines.</summary>
+    public string? TopHeldCheckUnblockClause
     {
         get;
         init;

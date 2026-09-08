@@ -13,6 +13,7 @@ import { PersistentWorkspaceNextActionStrip } from "@/components/usability/Persi
 import { PageContextualHelpFab } from "@/components/usability/PageContextualHelpFab";
 import { CorePilotCompleteCelebrateStrip } from "@/components/usability/CorePilotCompleteCelebrateStrip";
 import { GlobalSearchShortcutCoach } from "@/components/usability/GlobalSearchShortcutCoach";
+import { GovernanceFindingsReturnStateTracker } from "@/components/usability/GovernanceFindingsReturnStateTracker";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { isPersistentWorkspaceNextActionStripPath } from "@/lib/persistent-workspace-next-action-strip-path";
@@ -55,6 +56,7 @@ export function AppShellMainAffordances() {
         <BuyerGoldenJourneyLayerContextStrip />
         <OperatorRecentViewsTracker />
         <ReviewsListReturnStateTracker />
+        <GovernanceFindingsReturnStateTracker />
         {staticDemoEnv ? (
           <DemoVsLiveChromeBanner isStaticDemoEnv showWatermark className="mb-3" />
         ) : null}
@@ -73,6 +75,7 @@ export function AppShellMainAffordances() {
       {hideShortcutCoaches ? null : <GlobalSearchShortcutCoach />}
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
+      <GovernanceFindingsReturnStateTracker />
       <FirstVisitHelpAutoOpen />
       {hideShortcutCoaches ? null : <KeyboardShortcutsDiscoverabilityCoach />}
       {staticDemoEnv ? (

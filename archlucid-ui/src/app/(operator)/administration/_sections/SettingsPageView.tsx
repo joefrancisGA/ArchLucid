@@ -17,15 +17,18 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
-import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import { buildSettingsMasterVisibleSections, countSettingsMasterMatchingDestinations, type SettingsMasterVisibleSection } from "./settings-master-page-model";
+import type { SettingsMasterDestination } from "./settings-master-types";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
-import { SETTINGS_MASTER_FIRST_VIEWPORT_ID,
+import { SETTINGS_MASTER_CATALOG_GRID_ID,
+  SETTINGS_MASTER_FIRST_VIEWPORT_ID,
   SETTINGS_MASTER_PRIMARY_CONTENT_ID,
   SETTINGS_MASTER_SKIP_LINK_LABEL,
   SETTINGS_MASTER_SKIP_TARGET_ID,
@@ -40,6 +43,16 @@ import {
   settingsMasterAdvancedHrefFromSearch,
 } from "@/lib/administration/settings-master-advanced-url";
 
+function shouldHideDestinationCardTitle(
+  section: SettingsMasterVisibleSection,
+  destination: SettingsMasterDestination,
+): boolean {
+  return (
+    section.destinations.length === 1
+    && destination.title.trim().toLowerCase() === section.title.trim().toLowerCase()
+  );
+}
+
 export function SettingsPageView() {
   const router = useRouter();
   const pathname = usePathname() ?? "/administration";
@@ -49,6 +62,7 @@ export function SettingsPageView() {
   const settingsMasterAdvancedOpenParam = searchParams.get("settingsMasterAdvancedOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { productLine, assignmentOverrides } = useProductLine();
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [showAdvanced, setShowAdvancedState] = useState(() =>
     parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam),
@@ -112,18 +126,38 @@ export function SettingsPageView() {
         showInternalShell: isArchLucidInternalOperatorShellEnv(),
         searchQuery,
         showAdvanced,
+        productLine,
+        productLineAssignmentOverrides: assignmentOverrides,
       }),
-    [callerAuthorityRank, isAuthorityLoading, searchQuery, showAdvanced],
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
+  );
+
+  const matchingDestinationCount = useMemo(
+    () =>
+      countSettingsMasterMatchingDestinations(SETTINGS_MASTER_SECTIONS, {
+        callerAuthorityRank,
+        isAuthorityLoading,
+        showInternalShell: isArchLucidInternalOperatorShellEnv(),
+        searchQuery,
+        showAdvanced,
+        productLine,
+        productLineAssignmentOverrides: assignmentOverrides,
+      }),
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
   );
 
   const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
   const showAdvancedToggle = hasAdvancedCatalog && searchQuery.trim().length === 0;
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const skipTargetId =
+    !isAuthorityLoading && visibleSections.length > 0
+      ? SETTINGS_MASTER_SKIP_TARGET_ID
+      : SETTINGS_MASTER_FIRST_VIEWPORT_ID;
 
   return (
-    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
       <a
-        href={`#${SETTINGS_MASTER_SKIP_TARGET_ID}`}
+        href={`#${skipTargetId}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {SETTINGS_MASTER_SKIP_LINK_LABEL}
@@ -153,7 +187,7 @@ export function SettingsPageView() {
             value={searchQuery}
             onChange={setSearchQuery}
             onClear={clearSearch}
-            resultCount={visibleSections.length}
+            resultCount={matchingDestinationCount}
           />
 
           {showAdvancedToggle ? (
@@ -163,6 +197,7 @@ export function SettingsPageView() {
                 variant="outline"
                 size="sm"
                 aria-expanded={showAdvanced}
+                aria-controls={SETTINGS_MASTER_CATALOG_GRID_ID}
                 data-testid="settings-advanced-toggle"
                 onClick={() => setShowAdvanced((current) => !current)}
               >
@@ -183,7 +218,11 @@ export function SettingsPageView() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+            <div
+              id={SETTINGS_MASTER_CATALOG_GRID_ID}
+              data-testid={SETTINGS_MASTER_CATALOG_GRID_ID}
+              className="scroll-mt-24 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]"
+            >
               <SettingsMasterSectionNav sections={visibleSections} />
 
               <div className={OPERATOR_LAYOUT.sectionStack}>
@@ -204,7 +243,7 @@ export function SettingsPageView() {
                       </p>
                     </div>
 
-                    <div className="grid gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {section.showSupportBundle ? (
                         <Card data-testid="settings-support-bundle-card">
                           <CardHeader>
@@ -224,7 +263,11 @@ export function SettingsPageView() {
                       ) : null}
 
                       {section.destinations.map((destination) => (
-                        <SettingsMasterDestinationCard key={destination.id} destination={destination} />
+                        <SettingsMasterDestinationCard
+                          key={destination.id}
+                          destination={destination}
+                          hideTitle={shouldHideDestinationCardTitle(section, destination)}
+                        />
                       ))}
                     </div>
                   </section>

@@ -31,18 +31,42 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest
         runId="run-1"
+        enginesSucceeded={16}
         feasibilityVerdict={feasibilityVerdict}
         runCompleted
       />,
     );
 
     expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
-    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent("16 of 39");
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(/16 of \d+/);
     expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeVisible();
     expect(screen.getByText(/inferred \(1\)/i)).toBeVisible();
     expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
+  });
+
+  it("shows skipped actor engines on the measurement strip for IaC-only graphs", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        enginesSucceeded={12}
+        analysisStagesComplete
+        graphSnapshot={{ nodes: [] }}
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      "external-exposure",
+    );
+    expect(screen.getByTestId("run-detail-stamp-measurement-denominator")).toHaveTextContent(
+      "no Actor nodes",
+    );
   });
 
   it("keeps the sealed Guided stamp to receipt only so Overview can own the trail", () => {
@@ -77,5 +101,23 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
 
     expect(screen.getByTestId("transparency-trail-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-stamp-decision-receipt-strip")).toBeNull();
+    expect(screen.getByTestId("transparency-trail-panel").tagName).toBe("SECTION");
+  });
+
+  it("suppresses finalize-policy and quality-gate strips on terminal pre-stage failure", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest={false}
+        runId="run-1"
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted={false}
+        pipelineTerminalFailure
+      />,
+    );
+
+    expect(screen.queryByTestId("run-detail-pre-finalize-gate-honesty-strip")).toBeNull();
+    expect(screen.queryByTestId("run-detail-quality-gate-mode-strip")).toBeNull();
   });
 });

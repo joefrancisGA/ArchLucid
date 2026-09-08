@@ -158,24 +158,23 @@ public static class GraphMaterializationStages
                 return Task.CompletedTask;
             }
 
-            if (context.Nodes.Any(static node =>
-                    string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase)))
-            {
-                context.MarkStageSkipped();
-                return Task.CompletedTask;
-            }
+            IReadOnlyList<GraphNode> existingActors = context.Nodes
+                .Where(static node => string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            IReadOnlyList<GraphNode> actors = DeclarationIdentityActorMaterializer.MaterializeFromNodes(
+            IReadOnlyList<GraphNode> materialized = DeclarationIdentityActorMaterializer.MaterializeFromNodes(
                 context.Nodes,
-                context.Snapshot.SnapshotId);
+                context.Snapshot.SnapshotId,
+                existingActors);
 
-            if (actors.Count == 0)
+            if (materialized.Count == 0)
             {
                 context.MarkStageSkipped();
                 return Task.CompletedTask;
             }
 
-            context.Nodes.AddRange(actors);
+            context.Nodes.AddRange(materialized);
+            context.Edges.AddRange(DeclarationIdentityEdgeMaterializer.MaterializeFromDeclarationActors(materialized));
 
             return Task.CompletedTask;
         }

@@ -1,5 +1,6 @@
 import { tryParseApiProblemDetails, type ApiProblemDetails } from "@/lib/api-problem";
-import { ACCOUNT_SECURITY_AUTH_GATE_MESSAGE } from "@/lib/account-security-page-copy";
+import { accountSecurityAuthGateMessage } from "@/lib/account-security-page-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
 /** Discriminated failure from sign-in-methods API calls — never carries raw JSON for UI. */
 export type SignInMethodsProblemKind =
@@ -78,7 +79,7 @@ function classifyProblem(problem: ApiProblemDetails | null, status: number, plai
       kind: "unauthorized-platform-user",
       message:
         detail === PLATFORM_USER_REQUIRED || detail.length > 0
-          ? ACCOUNT_SECURITY_AUTH_GATE_MESSAGE
+          ? accountSecurityAuthGateMessage(resolveProductLineIdFromEnv())
           : humanMessageFromProblem(problem, status),
     };
   }

@@ -57,6 +57,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     reviewPackageHref,
     reviewFindingsHref,
     severityHeadline,
+    transparencyTrail,
   } = presentation;
   const {
     runId,
@@ -170,6 +171,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               runId={runId}
               findingId={decodedFindingId}
               payload={inspectPayload}
+              transparencyTrail={transparencyTrail}
               graphEvidenceHref={graphEvidenceHref}
               linkedManifestHref={linkedManifestHref}
               inspectHref={inspectHref}
@@ -205,6 +207,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               findingIdRouteParam={findingIdRouteParam}
               decodedFindingId={decodedFindingId}
               inspectPayload={inspectPayload}
+              transparencyTrail={transparencyTrail}
               demoFillGaps={demoFillGaps}
               evidenceBasisSummary={evidenceBasisSummary}
               validationRequirementText={validationRequirement(inspectPayload, decodedFindingId)}

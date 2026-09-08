@@ -6,7 +6,7 @@
 import type { APIRequestContext, Page } from "@playwright/test";
 
 import {
-  OIDC_ACCESS_TOKEN_KEY,
+  OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
 } from "@/lib/oidc/storage-keys";
 
@@ -14,6 +14,7 @@ import {
   getLiveJwtTokenFromEnvSync,
   isLiveJwtTokenConfigured,
 } from "./jwt-token-provider";
+import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
@@ -91,50 +92,101 @@ export async function stubEmptyArchitectureDraftListRoute(page: Page): Promise<v
   });
 }
 
-/** Registers init script so the next navigation starts with a signed-in JWT browser session. */
+/** Registers init script so the next navigation starts with a signed-in BFF session (LK-06 P2). */
 export async function primeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
 
   await page.addInitScript(
-    ({ tokenKey, expiresKey, token, expiresAt }) => {
-      sessionStorage.setItem(tokenKey, token);
+    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
+      sessionStorage.setItem(displayKey, "e2e-user");
+      await fetch(bffPath, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
+      });
     },
     {
-      tokenKey: OIDC_ACCESS_TOKEN_KEY,
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
       token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
 }
 
-/** Writes JWT session material into the current document (post-navigation recovery). */
+export type PrimePrivateBetaBrowserPageOptions = {
+  /** When true (default), stub draft inventory before navigation. */
+  readonly stubDraftList?: boolean;
+};
+
+/** JwtBearer session priming plus the default private-beta page defaults (draft-list stub). */
+export async function primePrivateBetaBrowserPage(
+  page: Page,
+  accessToken: string,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (options?.stubDraftList !== false) {
+    await stubEmptyArchitectureDraftListRoute(page);
+  }
+
+  await primeJwtBrowserSession(page, accessToken);
+}
+
+/** Primes JwtBearer private-beta defaults when LIVE_JWT_TOKEN is configured; no-op in OIDC mode. */
+export async function primePrivateBetaBrowserSessionIfJwtMode(
+  page: Page,
+  options?: PrimePrivateBetaBrowserPageOptions,
+): Promise<void> {
+  if (!resolveLiveJwtMode()) {
+    return;
+  }
+
+  const { accessToken } = requireLivePrivateBetaJwtEnv();
+
+  await primePrivateBetaBrowserPage(page, accessToken, options);
+}
+
+/** Writes session hints and issues the BFF cookie on the current document (post-navigation recovery). */
 export async function writeJwtBrowserSession(page: Page, accessToken: string): Promise<void> {
   const expiresAtMs = Date.now() + 3_600_000;
 
   await page.evaluate(
-    ({ tokenKey, expiresKey, token, expiresAt }) => {
-      sessionStorage.setItem(tokenKey, token);
+    async ({ expiresKey, expiresAt, displayKey, bffPath, token }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));
+      sessionStorage.setItem(displayKey, "e2e-user");
+      await fetch(bffPath, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token, expires_in: 3600 }),
+      });
     },
     {
-      tokenKey: OIDC_ACCESS_TOKEN_KEY,
       expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
       token: accessToken,
       expiresAt: expiresAtMs,
     },
   );
 }
 
-/** Clears OIDC sessionStorage keys to simulate expiry / signed-out state. */
+/** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
   await page.evaluate(
-    ({ tokenKey, expiresKey }) => {
-      sessionStorage.removeItem(tokenKey);
+    async ({ expiresKey, displayKey, bffPath }) => {
       sessionStorage.removeItem(expiresKey);
+      sessionStorage.removeItem(displayKey);
+      await fetch(bffPath, { method: "DELETE", credentials: "same-origin" });
     },
-    { tokenKey: OIDC_ACCESS_TOKEN_KEY, expiresKey: OIDC_EXPIRES_AT_MS_KEY },
+    {
+      expiresKey: OIDC_EXPIRES_AT_MS_KEY,
+      displayKey: OIDC_DISPLAY_NAME_KEY,
+      bffPath: "/api/auth/bff-session",
+    },
   );
 }
 
@@ -172,32 +224,53 @@ export async function fetchAuthMeViaProxy(
   page: Page,
   accessToken?: string | null,
 ): Promise<LiveAuthMeProxyBody> {
-  const bearer = accessToken?.trim() ?? "";
+  const trimmedToken = accessToken?.trim() ?? "";
 
-  const result = await page.evaluate(async ({ token }) => {
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-    };
+  if (trimmedToken.length > 0) {
+    // TB-927 invitee flows pass the post-accept JWT explicitly; do not rely on a stale BFF cookie from the CI admin principal.
+    await writeJwtBrowserSession(page, trimmedToken);
+  }
 
-    if (token.length > 0) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
+  const result = await page.evaluate(async () => {
     const res = await fetch("/api/proxy/api/auth/me", {
       credentials: "same-origin",
       cache: "no-store",
-      headers,
+      headers: { Accept: "application/json" },
     });
     const text = await res.text();
 
     return { status: res.status, text };
-  }, { token: bearer });
+  });
 
   if (result.status < 200 || result.status >= 300) {
     throw new Error(`GET /api/proxy/api/auth/me failed ${result.status}: ${result.text.slice(0, 400)}`);
   }
 
   return JSON.parse(result.text) as LiveAuthMeProxyBody;
+}
+
+/** Direct API `GET /api/auth/me` — validates JWT role claims without the UI BFF proxy (TB-927). */
+export async function fetchAuthMeWithBearer(
+  request: APIRequestContext,
+  accessToken: string,
+): Promise<LiveAuthMeProxyBody> {
+  const trimmedToken = accessToken.trim();
+
+  if (trimmedToken.length === 0) {
+    throw new Error("fetchAuthMeWithBearer requires a non-empty access token.");
+  }
+
+  const res = await request.get(`${liveApiBase}/api/auth/me`, {
+    headers: liveJsonHeaders(null, trimmedToken),
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`GET /api/auth/me failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  return (await res.json()) as LiveAuthMeProxyBody;
 }
 
 export type LiveAdminInviteResult = {
@@ -364,21 +437,80 @@ export async function acceptInvitationAsPlatformUser(
 export function readRoleClaims(
   claims: ReadonlyArray<{ type: string; value: string }> | undefined,
 ): string[] {
-  if (claims === undefined) {
-    return [];
+  return collectArchLucidRoleClaimValues(claims ?? []);
+}
+
+/** Admin revokes a pending invitation (TB-797 revoked-invite recovery UI smoke). */
+export async function revokeAdminUserInvite(
+  request: APIRequestContext,
+  invitationId: string,
+): Promise<void> {
+  const trimmedId = invitationId.trim();
+
+  if (trimmedId.length === 0) {
+    throw new Error("revokeAdminUserInvite requires a non-empty invitation id.");
   }
 
-  const roles: string[] = [];
+  const res = await request.delete(`${liveApiBase}/v1/admin/users/invitations/${encodeURIComponent(trimmedId)}`, {
+    headers: liveJsonHeaders(),
+  });
 
-  for (const claim of claims) {
-    if (claim.type !== "roles" || claim.value.trim().length === 0) {
-      continue;
-    }
+  if (res.status() !== 204) {
+    const body = await res.text();
 
-    roles.push(claim.value.trim());
+    throw new Error(
+      `DELETE /v1/admin/users/invitations/${trimmedId} failed ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
+/** E2E harness — force invitation expiry for expired-invite recovery UI smoke (TB-797 wave 2). */
+export async function expireAdminUserInvitation(
+  request: APIRequestContext,
+  invitationId: string,
+  expiresUtc: Date = new Date(Date.now() - 60_000),
+): Promise<void> {
+  const trimmedId = invitationId.trim();
+
+  if (trimmedId.length === 0) {
+    throw new Error("expireAdminUserInvitation requires a non-empty invitation id.");
   }
 
-  return roles;
+  const res = await request.post(`${liveApiBase}/v1/e2e/invitations/set-expires`, {
+    headers: liveE2eHarnessHeaders(),
+    data: {
+      invitationId: trimmedId,
+      expiresUtc: expiresUtc.toISOString(),
+    },
+  });
+
+  if (res.status() !== 204) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/e2e/invitations/set-expires failed ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
+}
+
+/** Non-admin principals must not create invitations (TB-797 wave 2). */
+export async function assertNonAdminCannotInvite(
+  request: APIRequestContext,
+  bearerAccessToken: string,
+  email: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/v1/admin/users/invite`, {
+    headers: liveJsonHeaders(null, bearerAccessToken),
+    data: { email, appRole: "Reader", message: "TB-797 non-admin invite probe" },
+  });
+
+  if (res.status() !== 403) {
+    const body = await res.text();
+
+    throw new Error(
+      `POST /v1/admin/users/invite as non-admin expected 403, got ${res.status()}: ${body.slice(0, 400)}`,
+    );
+  }
 }
 
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {
@@ -463,4 +595,103 @@ export async function assertJwtScopeBindingRejectsForgedTenantHeader(
       `TB-925 scope binding: expected GET /v1/admin/users/invitations with forged x-tenant-id → 403, got ${invitationsRes.status()}: ${body.slice(0, 400)}`,
     );
   }
+}
+
+export type LiveScimAdminToken = {
+  id: string;
+  plaintextToken: string;
+};
+
+/** Mints a SCIM provisioning token for directory-user seeding in live E2E. */
+export async function createScimAdminToken(request: APIRequestContext): Promise<LiveScimAdminToken> {
+  const res = await request.post(`${liveApiBase}/v1/admin/scim/tokens`, {
+    headers: liveJsonHeaders(),
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /v1/admin/scim/tokens failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  const created = (await res.json()) as { id?: string; plaintextToken?: string };
+
+  if (!created.id || !created.plaintextToken) {
+    throw new Error("SCIM token response missing id or plaintextToken.");
+  }
+
+  return { id: created.id, plaintextToken: created.plaintextToken };
+}
+
+/** Provisions a directory user via SCIM so invite-to-existing-email returns 409. */
+export async function provisionScimDirectoryUser(
+  request: APIRequestContext,
+  email: string,
+  scimBearerToken: string,
+): Promise<void> {
+  const res = await request.post(`${liveApiBase}/scim/v2/Users`, {
+    headers: {
+      Authorization: `Bearer ${scimBearerToken}`,
+      "Content-Type": "application/scim+json",
+      Accept: "application/scim+json",
+    },
+    data: {
+      schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+      userName: email,
+      active: true,
+    },
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`POST /scim/v2/Users failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+}
+
+async function openInviteForm(page: import("@playwright/test").Page): Promise<void> {
+  const inviteForm = page.getByTestId("settings-roles-invite-form");
+
+  if (await inviteForm.isVisible().catch(() => false)) {
+    return;
+  }
+
+  const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
+  const inviteSection = page.getByTestId("settings-roles-invite-section");
+  const invitePrimaryAction = page.getByTestId("settings-roles-invite-primary-action");
+  const inviteStartHereAction = page.getByTestId("settings-roles-start-here-invite");
+
+  if (await invitePrimaryRegion.isVisible().catch(() => false)) {
+    await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
+  } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
+    await invitePrimaryAction.click();
+  } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
+    await inviteStartHereAction.click();
+  } else {
+    await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
+    await inviteSection.locator("summary").click();
+  }
+
+  await inviteForm.waitFor({ state: "visible", timeout: 60_000 });
+}
+
+/** Submits an admin invite from the Users settings UI. */
+export async function submitAdminInviteFromUsersUi(
+  page: import("@playwright/test").Page,
+  email: string,
+  roleLabel: string = "Reader",
+): Promise<void> {
+  await openInviteForm(page);
+  await page.getByTestId("settings-roles-invite-email").fill(email);
+  await page.getByTestId("settings-roles-invite-role").click();
+  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+
+  const inviteResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
+    { timeout: 60_000 },
+  );
+
+  await page.getByTestId("settings-roles-invite-submit").click();
+  await inviteResponse;
 }

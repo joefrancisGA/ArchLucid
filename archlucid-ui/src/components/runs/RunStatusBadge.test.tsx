@@ -46,6 +46,25 @@ describe("deriveRunListPipelineLabel", () => {
       }),
     ).toBe("Ready to finalize");
   });
+
+  it("suppresses Ready to finalize when transparency trail would block sealing (FC-70)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        },
+        {
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [{ questionKey: "drRpo", tier: "Must" }],
+          },
+        },
+      ),
+    ).toBe("In pipeline");
+  });
 });
 
 describe("RunStatusBadge", () => {

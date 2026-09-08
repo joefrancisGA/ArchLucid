@@ -66,7 +66,7 @@ export function WizardStepAdvanced(): ReactElement {
         <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
           <WizardFieldHint
             label="Model execution profile"
-            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model governance."
+            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model policy."
           />
           <Controller
             name="modelExecutionProfileOverride"

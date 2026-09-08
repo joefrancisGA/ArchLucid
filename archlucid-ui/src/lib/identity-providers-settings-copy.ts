@@ -126,6 +126,13 @@ export function identityProvidersOidcPageSubtitle(buyerPolishedShell: boolean): 
 }
 
 export const IDENTITY_PROVIDERS_OIDC_LOADING = "Loading OIDC/JWT status…";
+
+/** Branded document metadata for `/administration/identity-providers/oidc`. */
+export const IDENTITY_PROVIDERS_OIDC_PAGE_METADATA_TITLE = "OIDC/JWT status · ArchLucid";
+
+export const IDENTITY_PROVIDERS_OIDC_PAGE_METADATA_DESCRIPTION =
+  "Review OpenID Connect authority, audience, discovery health, and role-claim mapping for workspace SSO.";
+
 export const IDENTITY_PROVIDERS_OIDC_EMPTY =
   "OIDC/JWT discovery has not been run yet for this workspace.";
 export const IDENTITY_PROVIDERS_OIDC_ACTION_VALIDATE_DISCOVERY = "Validate discovery";
@@ -188,6 +195,12 @@ export function identityProvidersDiagnosticsPageSubtitle(buyerPolishedShell: boo
 }
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_LOADING = "Loading identity diagnostics…";
+
+/** Branded document metadata for `/administration/identity-providers/diagnostics`. */
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_METADATA_TITLE = "Identity diagnostics · ArchLucid";
+
+export const IDENTITY_PROVIDERS_DIAGNOSTICS_PAGE_METADATA_DESCRIPTION =
+  "Review identity provider configuration signals, OIDC discovery health, and beta-readiness checklist items.";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_PROTOCOL_DETAILS_TITLE = "Protocol diagnostics";
 

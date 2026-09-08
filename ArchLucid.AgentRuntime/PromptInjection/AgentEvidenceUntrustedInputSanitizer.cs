@@ -48,6 +48,7 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
         {
             PriorManifestEvidence prior = evidence.PriorManifest;
 
+            prior.ManifestVersion = AzureResourceTagPromptSanitizer.SanitizeScalar(prior.ManifestVersion);
             prior.Summary = AzureResourceTagPromptSanitizer.SanitizeScalar(prior.Summary);
             SanitizeStringList(prior.ExistingServices);
             SanitizeStringList(prior.ExistingDatastores);

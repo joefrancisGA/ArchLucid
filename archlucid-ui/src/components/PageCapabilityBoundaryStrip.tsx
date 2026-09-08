@@ -1,12 +1,19 @@
 "use client";
 
 import type { JSX } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   getPageCapabilityBoundary,
   type PageCapabilityBoundary,
   type PageCapabilityBoundarySurfaceId,
 } from "@/lib/page-capability-boundary";
+import {
+  PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM,
+  pageCapabilityBoundaryDisclosureHrefFromSearch,
+  parsePageCapabilityBoundaryOpenFromSearch,
+} from "@/lib/page-capability-boundary-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +31,32 @@ export type PageCapabilityBoundaryStripProps = {
 export function PageCapabilityBoundaryStrip(
   props: PageCapabilityBoundaryStripProps,
 ): JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const pageCapabilityBoundaryParam = searchParams.get(PAGE_CAPABILITY_BOUNDARY_OPEN_PARAM);
+  const [pageCapabilityBoundaryOpen, setPageCapabilityBoundaryOpenState] = useState(() =>
+    parsePageCapabilityBoundaryOpenFromSearch(pageCapabilityBoundaryParam),
+  );
+  const syncPageCapabilityBoundaryOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        pageCapabilityBoundaryDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setPageCapabilityBoundaryOpen = useCallback(
+    (open: boolean) => {
+      setPageCapabilityBoundaryOpenState(open);
+      syncPageCapabilityBoundaryOpenToUrl(open);
+    },
+    [syncPageCapabilityBoundaryOpenToUrl],
+  );
+  useEffect(() => {
+    setPageCapabilityBoundaryOpenState(parsePageCapabilityBoundaryOpenFromSearch(pageCapabilityBoundaryParam));
+  }, [pageCapabilityBoundaryParam]);
   const boundary = props.boundary ?? getPageCapabilityBoundary(props.surfaceId);
 
   return (
@@ -34,6 +67,8 @@ export function PageCapabilityBoundaryStrip(
       )}
       data-testid="page-capability-boundary"
       data-surface-id={props.surfaceId}
+      open={pageCapabilityBoundaryOpen}
+      onToggle={(event) => setPageCapabilityBoundaryOpen(event.currentTarget.open)}
     >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {boundary.heading}

@@ -26,6 +26,12 @@ public sealed class CommitRunIdempotencyCoordinator(ICommitRunIdempotencyReposit
         // second manifest for the same run.
         bool replayed = await WasAlreadyRecordedAsync(state, cancellationToken);
 
+        if (replayed)
+        {
+            // Outcome fields are not stored in the idempotency row; callers read persisted run state on replay.
+            return new CommitRunIdempotencyOutcome(new CommitRunResult(), true);
+        }
+
         CommitRunResult result = await commitAsync(cancellationToken);
 
         bool recorded = await _commitRunIdempotencyRepository.TryInsertAsync(

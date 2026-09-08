@@ -2,7 +2,9 @@ export const SETTINGS_MASTER_PRIMARY_CONTENT_ID = "settings-master-primary-conte
 
 export const SETTINGS_MASTER_FIRST_VIEWPORT_ID = "settings-master-first-viewport" as const;
 
-export const SETTINGS_MASTER_SKIP_TARGET_ID = SETTINGS_MASTER_FIRST_VIEWPORT_ID;
+export const SETTINGS_MASTER_CATALOG_GRID_ID = "settings-master-catalog" as const;
+
+export const SETTINGS_MASTER_SKIP_TARGET_ID = SETTINGS_MASTER_CATALOG_GRID_ID;
 
 export const SETTINGS_MASTER_SKIP_LINK_LABEL = "Skip to settings catalog" as const;
 

@@ -128,9 +128,12 @@ export function useTeamsNotificationsIntegrationPage(
     [syncRemoveConfirmToUrl],
   );
 
+  const teamsRemoveConfirmQuery = searchParams.get("teamsRemoveConfirm");
+
+  // Depend on the param string, not searchParams identity — unstable stub identities would reset the dialog.
   useEffect(() => {
-    setPendingRemoveConfirmState(parseTeamsRemoveConfirmOpenFromSearch(searchParams.get("teamsRemoveConfirm")));
-  }, [searchParams]);
+    setPendingRemoveConfirmState(parseTeamsRemoveConfirmOpenFromSearch(teamsRemoveConfirmQuery));
+  }, [teamsRemoveConfirmQuery]);
 
   const connectionStatus = useMemo(
     () =>

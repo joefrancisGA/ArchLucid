@@ -9,13 +9,13 @@ export const RISK_EXCEPTIONS_TERM_CLARIFIER =
 export const RISK_EXCEPTIONS_EMPTY_TITLE = "No active risk exceptions";
 
 export const RISK_EXCEPTIONS_EMPTY_BODY =
-  "Risk exceptions appear here when a finding is waived or deferred through governance.";
+  "Risk exceptions appear here when a finding is waived or deferred through approval.";
 
 export const RISK_EXCEPTIONS_VIEW_EXPLANATION_SUMMARY =
   "Track approved waivers and deferred findings that require ownership, expiration, evidence, or follow-up.";
 
 export const RISK_EXCEPTIONS_VIEW_EXPLANATION_NEXT_ACTION =
-  "Start with findings that were waived or deferred through governance.";
+  "Start with findings that were waived or deferred through approval.";
 
 export const RISK_EXCEPTIONS_EXPIRING_WARNING =
   "expire within 14 days — renew or revoke to avoid automatic reversion.";

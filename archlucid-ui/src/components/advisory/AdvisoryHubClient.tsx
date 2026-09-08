@@ -17,7 +17,7 @@ import {
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -45,7 +45,7 @@ export type AdvisoryHubClientProps = {
  * Tab state in `?tab=` for deep links. `initialTab` / `initialRunId` come from the server (no `useSearchParams` Suspense).
  */
 export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryHubClientProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const canMutate: boolean = useOperateCapability();

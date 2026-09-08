@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -9,6 +10,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
@@ -23,6 +25,7 @@ public sealed class ExecDigestComposer(
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     IManifestHashService manifestHashService,
+    IRunRepository runRepository,
     ILogger<ExecDigestComposer> logger) : IExecDigestComposer
 {
     private const int MaxListRuns = 200;
@@ -39,6 +42,7 @@ public sealed class ExecDigestComposer(
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc/>
     public async Task<ExecDigestComposition> ComposeAsync(Guid tenantId, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive,
@@ -56,7 +60,16 @@ public sealed class ExecDigestComposer(
         string dashboardUrl = $"{baseUrl}/runs";
         (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta) =
             await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
-        string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex) ? dashboardUrl : $"{baseUrl}/runs/{latestRunHex}";
+        Guid? latestArchitectureId = string.IsNullOrWhiteSpace(latestRunHex)
+            ? null
+            : await WorkingOperatorRunArchitectureIdResolver.TryResolveAsync(
+                _runRepository,
+                authorityScope,
+                latestRunHex,
+                cancellationToken);
+        string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex)
+            ? dashboardUrl
+            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(baseUrl, latestRunHex, latestArchitectureId);
         string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
             tenantId,
             authorityScope.WorkspaceId,

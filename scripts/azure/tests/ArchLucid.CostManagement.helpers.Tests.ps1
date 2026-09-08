@@ -1,12 +1,11 @@
-#Requires -Version 7.0
-# Run: Invoke-Pester -Strict 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
-# Requires: Install-Module Pester -Scope CurrentUser (Pester 3.4 or later).
+#Requires -Version 5.1
+# Run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/ArchLucid.CostManagement.helpers.Tests.ps1'
 Set-StrictMode -Version Latest
 
-[string]$helpersPath =
-    Join-Path (Split-Path -Parent $PSScriptRoot) 'ArchLucid.CostManagement.helpers.ps1'
-
-. $helpersPath
+BeforeAll {
+    [string]$helpersPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'ArchLucid.CostManagement.helpers.ps1'
+    . $helpersPath
+}
 
 Describe 'ArchLucid.CostManagement.helpers' {
 
@@ -25,29 +24,29 @@ Describe 'ArchLucid.CostManagement.helpers' {
                 -ResponseRoot $fixtureRoot -BillingPeriodLabel 'MonthToDate'
 
 
-        $mapped.BillingPeriod | Should Be 'MonthToDate'
+        $mapped.BillingPeriod | Should -Be 'MonthToDate'
 
 
-        (($mapped.CurrencyCode -like '*USD*') -and ($mapped.CurrencyCode -like '*EUR*')) | Should Be $true
+        (($mapped.CurrencyCode -like '*USD*') -and ($mapped.CurrencyCode -like '*EUR*')) | Should -Be $true
 
 
-        [double]::IsNaN([double]$mapped.TotalActualCostUsd) | Should Be $false
+        [double]::IsNaN([double]$mapped.TotalActualCostUsd) | Should -Be $false
 
 
-        ([Math]::Round([double]$mapped.TotalActualCostUsd, 6) -eq ([Math]::Round([double]'12.751', 6))) | Should Be $true
+        ([Math]::Round([double]$mapped.TotalActualCostUsd, 6) -eq ([Math]::Round([double]'12.751', 6))) | Should -Be $true
 
 
-        $mapped.BreakdownByServiceName.Count | Should Be 2
+        $mapped.BreakdownByServiceName.Count | Should -Be 2
 
 
         [object[]]$names =
             @( $mapped.BreakdownByServiceName | ForEach-Object { $_.ServiceName } )
 
 
-        ($names -contains 'Azure Storage') | Should Be $true
+        ($names -contains 'Azure Storage') | Should -Be $true
 
 
-        ($names -contains 'Virtual Machines') | Should Be $true
+        ($names -contains 'Virtual Machines') | Should -Be $true
 
     }
 
@@ -75,10 +74,10 @@ Describe 'ArchLucid.CostManagement.helpers' {
                 -Pages @( $wrap1, $wrap2 ) -BillingPeriodLabel 'BillingMonthToDate'
 
 
-        ([Math]::Round([double]$merged.TotalActualCostUsd, 6) -eq 6.0) | Should Be $true
+        ([Math]::Round([double]$merged.TotalActualCostUsd, 6) -eq 6.0) | Should -Be $true
 
 
-        $merged.BreakdownByServiceName.Count | Should Be 2
+        $merged.BreakdownByServiceName.Count | Should -Be 2
 
 
 
@@ -96,7 +95,7 @@ Describe 'ArchLucid.CostManagement.helpers' {
                     Select-Object -First 1 )
 
 
-        ([double]$storageEntry.PreTaxCost -eq 5.0) | Should Be $true
+        ([double]$storageEntry.PreTaxCost -eq 5.0) | Should -Be $true
 
     }
 

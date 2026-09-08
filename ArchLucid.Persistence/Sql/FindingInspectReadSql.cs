@@ -173,14 +173,19 @@ internal static class FindingInspectReadSql
                                          AND ae.EventType = @EventType
                                        ORDER BY ae.OccurredUtc DESC, ae.EventId DESC;
 
-                                       SELECT TOP 1 Disposition, OccurredAtUtc
-                                       FROM dbo.FindingReviewEvents
-                                       WHERE TenantId = @TenantId
-                                         AND WorkspaceId = @WorkspaceId
-                                         AND ProjectId = @ScopeProjectId
-                                         AND FindingId = @FindingId
-                                         AND Disposition IS NOT NULL
-                                       ORDER BY OccurredAtUtc DESC;
+                                       SELECT TOP 1 e.Disposition, e.OccurredAtUtc, e.RevisitDueUtc, e.EventId, e.ReviewerUserId, c.RowVersionStamp
+                                       FROM dbo.FindingCurrentDispositions AS c
+                                       INNER JOIN dbo.FindingReviewEvents AS e
+                                           ON c.TenantId = e.TenantId
+                                          AND c.WorkspaceId = e.WorkspaceId
+                                          AND c.ProjectId = e.ProjectId
+                                          AND c.FindingId = e.FindingId
+                                          AND c.CurrentEventId = e.EventId
+                                       WHERE c.TenantId = @TenantId
+                                         AND c.WorkspaceId = @WorkspaceId
+                                         AND c.ProjectId = @ScopeProjectId
+                                         AND c.FindingId = @FindingId
+                                         AND e.Disposition IS NOT NULL;
 
                                        SELECT COUNT_BIG(1)
                                        FROM dbo.RiskExceptions

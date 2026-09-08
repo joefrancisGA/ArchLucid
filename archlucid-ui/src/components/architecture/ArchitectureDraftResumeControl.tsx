@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import {
@@ -24,13 +25,15 @@ import {
   trackArchitectureDraftResumeClick,
   type ArchitectureDraftResumeSource,
 } from "@/lib/architecture/architecture-draft-resume-telemetry";
-import { architectureDraftPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { architectureDraftPath, startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftResumeControlProps = {
   readonly draftId: string;
   readonly label: string;
   readonly source: ArchitectureDraftResumeSource;
+  readonly parentArchitectureId?: string | null;
+  readonly draftArchitectureId?: string | null;
   readonly testId?: string;
   readonly ariaLabel?: string;
   readonly title?: string;
@@ -43,6 +46,7 @@ export function ArchitectureDraftResumeControl(
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const intakeModeConfirmParam = searchParams.get("intakeModeConfirm");
   const intakeModeDraftIdParam = searchParams.get("intakeModeDraftId");
   const [dialogOpen, setDialogOpenState] = useState(false);
@@ -139,6 +143,7 @@ export function ArchitectureDraftResumeControl(
           resolveGuidedIntakeBlockedRedirectHref(
             props.draftId,
             architectureDraftSpawnedRunId(draft),
+            { workingMode: isWorkingMode },
           ),
         );
 
@@ -164,8 +169,14 @@ export function ArchitectureDraftResumeControl(
 
   const handleContinueIntake = useCallback(() => {
     setDialogOpen(false);
-    router.push(startReviewFromArchitectureHref(props.draftId));
-  }, [props.draftId, router, setDialogOpen]);
+    router.push(
+      startReviewFromDraftContextHref({
+        parentArchitectureId: props.parentArchitectureId,
+        draftArchitectureId: props.draftArchitectureId,
+        legacyDraftId: props.draftId,
+      }),
+    );
+  }, [props.draftArchitectureId, props.draftId, props.parentArchitectureId, router, setDialogOpen]);
 
   const handleUnlock = useCallback(async () => {
     if (!architectureDraftAllowsBriefUnlock(status)) {
