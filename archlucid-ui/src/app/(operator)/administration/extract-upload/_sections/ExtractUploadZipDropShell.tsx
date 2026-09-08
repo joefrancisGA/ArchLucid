@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -83,11 +81,6 @@ export function ExtractUploadZipDropShell(props: ExtractUploadZipDropShellProps)
             Package accepted (<span className="font-mono">{packageId}</span>).
           </p>
         ) : null}
-        <Button asChild type="button" variant="outline" size="sm">
-          <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
-            Go to Reviews
-          </Link>
-        </Button>
       </CardContent>
     </Card>
   );
