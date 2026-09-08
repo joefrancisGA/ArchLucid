@@ -292,6 +292,18 @@ export function AzureCloudConnectionEvidenceOrientationStrip(): React.JSX.Elemen
   );
 }
 
+export function GcpCloudConnectionEvidenceOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="cloud-connections-gcp"
+      sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
+      sourcesIntro={CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO}
+      sources={cloudProviderConnectionSources("gcp")}
+      sourcesHeadingId="where-to-go-next"
+    />
+  );
+}
+
 export type JiraIntegrationHelpEvidenceOrientationStripProps = {
   readonly readingBodyClassName?: string;
 };
