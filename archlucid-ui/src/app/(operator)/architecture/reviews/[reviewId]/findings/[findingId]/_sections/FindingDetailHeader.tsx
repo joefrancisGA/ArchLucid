@@ -19,6 +19,7 @@ import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding
 import { FindingDerivationLine } from "@/components/usability/FindingDerivationLine";
 import { FindingCausalMiniChain } from "@/components/usability/FindingCausalMiniChain";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { parseCounterfactualFromPrefixedText } from "@/lib/findings/finding-counterfactual-line";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingJobView } from "@/lib/findings/finding-inspect-job-view";
@@ -26,8 +27,8 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingDetailWayfinding } from "./FindingDetailWayfinding";
 import {
-  FINDING_DETAIL_PRIMARY_CONTENT_ID,
   FINDING_DETAIL_SKIP_LINK_LABEL,
+  FINDING_DETAIL_SKIP_TARGET_ID,
 } from "./finding-detail-page-copy";
 import { findingStatusTagKind } from "./finding-detail-route-display";
 
@@ -96,10 +97,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
   return (
     <>
       {showBuyerPolishedBody ? (
-        <a
-          href={`#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`}
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:shadow focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-600 dark:focus:bg-neutral-900"
-        >
+        <a href={`#${FINDING_DETAIL_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
           {FINDING_DETAIL_SKIP_LINK_LABEL}
         </a>
       ) : null}

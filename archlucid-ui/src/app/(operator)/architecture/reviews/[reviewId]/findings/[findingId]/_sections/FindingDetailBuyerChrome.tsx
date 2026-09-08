@@ -1,6 +1,6 @@
 "use client";
 
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { FindingDetailClaimOrientationStrip } from "./FindingDetailClaimOrientationStrip";
 
@@ -9,13 +9,11 @@ export type FindingDetailBuyerChromeProps = {
   readonly findingId: string;
 };
 
-/** Buyer default: mount claim discipline + Sources above the finding summary body (RRF). */
+/** Buyer default: mount Sources orientation above finding summary inside first viewport (RRF). */
 export function FindingDetailBuyerChrome(
   props: FindingDetailBuyerChromeProps,
 ): React.JSX.Element | null {
-  const evalChromeShell = useProductionEvalChrome();
-
-  if (!evalChromeShell) {
+  if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 
