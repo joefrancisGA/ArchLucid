@@ -895,11 +895,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — case-differing duplicate mailboxes bypassed per-recipient ledger keys in multi-recipient weekly dispatch
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — whitespace-padded ISO week idempotency keys duplicated weekly Sponsor report sends
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -912,6 +912,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Template render failures after ledger reservation block weekly retry for the ISO week — fixed by rendering templates before `TryRecordSentAsync` while keeping ledger-before-send for outbound idempotency.
 - [x] (valid-no-repro) Partial multi-recipient send failure on weekly sponsor report permanently suppresses remaining recipients — shared `MultiRecipientEmailDispatch` skips ledger-recorded mailboxes on retry (`WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`).
 - [x] (proven) Case-differing duplicate mailboxes in multi-recipient weekly dispatch bypass per-recipient ledger keys and send duplicate emails — fixed by case-insensitive dedupe and lowercase mailbox suffixes in `MultiRecipientEmailDispatch`.
+- [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` used raw `isoWeekIdempotencyKey` in ledger prefix without trim/whitespace guard — **hit 2026-09-08 seed hunt #1338:** padded keys like `" 2026-W22 "` bypassed the same-week ledger scope and sent duplicate Sponsor reports; fixed by rejecting whitespace-only keys and trimming before `weekly-sponsor-report:{tenant}:{isoWeek}` idempotency; regression in `WeeklySponsorReportEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
+- [ ] (candidate) `WeeklySponsorReportEmailDispatcher` pre-renders templates before `MultiRecipientEmailDispatch` validates recipient mailboxes via `IdentityEmailNormalizer` — invalid-only recipient lists still pay render cost; no duplicate-send repro in zone yet
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` may share unpadded ISO-week idempotency behavior — sibling dispatcher outside zone path; verify parity separately
+
+2026-09-08 seed hunt #1338 (hit): reseeded weekly-digest-email zone; proved ISO week idempotency padding duplicate-send gap; seeded invalid-recipient pre-render and sibling-dispatcher parity candidates.
 
 ---
 
