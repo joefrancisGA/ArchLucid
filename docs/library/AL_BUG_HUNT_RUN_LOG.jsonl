@@ -1608,3 +1608,4 @@
 {"at":"2026-09-09T06:00:35Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-09T06:00:37.3442779Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-09-09T06:07:06.8151463Z","zoneId":"extraction-router","outcome":"hit"}
+{"at":"2026-09-09T06:14:52.8410059Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
