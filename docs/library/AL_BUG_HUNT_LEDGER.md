@@ -1353,6 +1353,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Deny matrix omits canonical `GET /v1/runs/{runId}` detail alias — **cheap-disproof 2026-09-09 seed hunt #1437:** `AuthorityReadsController.GetRunDetail` and `RunQueryController.GetRun` both require `ReadAuthority` with scope middleware; probe catalog targets architecture review/export surfaces without zone-file evidence of authz divergence between aliases.
 - [x] (invalid) Run-list exclude probe should scan `GET /v1/architecture/reviews` — **cheap-disproof 2026-09-09 seed hunt #1437:** product canonical list is `GET /v1/runs` (`AuthorityReadsController` remarks); architecture reviews list delegates through the same scoped query services — no alternate-tenant leak reachable on reviews-only in these files.
 
+- [x] (invalid) Cross-tenant probe should exercise `GET /v1/architecture/runs/{runId}` detail instead of list exclusion — **invalid 2026-09-09 seed hunt #1480:** deny matrix and exclude-run-id probes already target scoped read surfaces; detail route shares `ReadAuthority` gate with list paths per #1437 cheap-disproof
+
+2026-09-09 seed hunt #1480 (seed-only): reseeded cli-tenant-isolation; cheap-disproved architecture run detail probe candidate; 27 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-09-09 seed hunt #1437 (seed-only): reseeded cli-tenant-isolation after #1371 dry streak; cheap-disproof closed HTTP 429 list-throttle SKIP, dead pagination fallthrough, missing `/v1/runs/{runId}` deny alias, and architecture-reviews list scan candidates; 27 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
