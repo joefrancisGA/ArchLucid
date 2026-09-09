@@ -19,18 +19,18 @@ export function resolveRunDetailFindingsTabBadgeCount(
   return null;
 }
 
+/** Same fallback as tab badge counts for policy callout and review-package summary surfaces. */
+export function resolveRunDetailDeferredSurfaceFindingCount(
+  findingCountDisplay: number | null,
+  quickDecisionFindings: readonly QuickDecisionFinding[],
+): number | null {
+  return resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings);
+}
+
 /** True when explanation or detail snapshot exposes triage-visible findings for inspect/checklist gating. */
 export function resolveRunDetailFindingsReviewed(
   findingCountDisplay: number | null,
   quickDecisionFindings: readonly QuickDecisionFinding[],
 ): boolean {
   return (resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings) ?? 0) > 0;
-}
-
-/** Policy callout and review-package surfaces share tab-badge fallback when explanation is deferred. */
-export function resolveRunDetailDeferredSurfaceFindingCount(
-  findingCountDisplay: number | null,
-  quickDecisionFindings: readonly QuickDecisionFinding[],
-): number | null {
-  return resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings);
 }
