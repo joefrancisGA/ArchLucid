@@ -37,17 +37,10 @@ public sealed partial class GraphController
 
         if (detail.GoldenManifest is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
 
         KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
@@ -89,17 +82,10 @@ public sealed partial class GraphController
 
         if (detail.GoldenManifest is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
 
         GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
