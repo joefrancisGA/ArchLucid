@@ -24,6 +24,10 @@ import {
   downloadSponsorReviewPacketMarkdown,
 } from "@/lib/api/pilots-collateral-download-api";
 import { showError } from "@/lib/toast";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { pilotsCollateralMutationBlockedReason } from "@/lib/pilots/pilots-collateral-mutation-blocked-reason";
+import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 
 export type EmailRunToSponsorExportActionsProps = {
   readonly runId: string;
@@ -78,7 +82,15 @@ export function EmailRunToSponsorExportActions({
 
       void download()
         .catch((error: unknown) => {
-          showError(title, error instanceof Error ? error.message : "Download failed.");
+          const failure = toApiLoadFailure(error);
+          const blocked =
+            key === "architecture-docx"
+              ? architecturePackageDocxMutationBlockedReason(failure)
+              : key === "sponsor-docx"
+                ? runPackageExportMutationBlockedReason(failure)
+                : pilotsCollateralMutationBlockedReason(failure);
+
+          showError(title, blocked ?? failure.message);
         })
         .finally(() => {
           setCollateralBusy(null);

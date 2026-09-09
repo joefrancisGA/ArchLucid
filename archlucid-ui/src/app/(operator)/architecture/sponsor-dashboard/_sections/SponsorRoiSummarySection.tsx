@@ -32,6 +32,7 @@ import {
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
+import { sponsorRoiBoardPackMutationBlockedReason } from "@/lib/pilots/sponsor-roi-board-pack-mutation-blocked-reason";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
@@ -138,7 +139,10 @@ export function SponsorRoiSummarySection({
         generateNarrative: includeBoardPackNarrative,
       });
     } catch (e: unknown) {
-      showError("Board pack download failed", e instanceof Error ? e.message : String(e));
+      const failure = toApiLoadFailure(e);
+      const blocked = sponsorRoiBoardPackMutationBlockedReason(failure);
+
+      showError("Board pack download failed", blocked ?? failure.message);
     } finally {
       setBoardPackBusy(false);
     }

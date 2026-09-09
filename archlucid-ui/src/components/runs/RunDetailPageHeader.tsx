@@ -23,7 +23,10 @@ import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { downloadRunSummaryExport } from "@/lib/api/run-summary-export-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
+import { runSummaryExportMutationBlockedReason } from "@/lib/runs/run-summary-export-mutation-blocked-reason";
 import {
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api/downloads-api";
@@ -140,10 +143,10 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
 
       void downloadRunPackageExport(runId, format)
         .catch((error: unknown) => {
-          showError(
-            RUN_PACKAGE_EXPORT_LABELS[format],
-            error instanceof Error ? error.message : "Download failed.",
-          );
+          const failure = toApiLoadFailure(error);
+          const blocked = runPackageExportMutationBlockedReason(failure);
+
+          showError(RUN_PACKAGE_EXPORT_LABELS[format], blocked ?? failure.message);
         })
         .finally(() => {
           setBusyFormat(null);
@@ -157,10 +160,10 @@ function RunPackageExportButtonsLive({ runId }: { runId: string }) {
 
     void downloadRunSummaryExport(runId)
       .catch((error: unknown) => {
-        showError(
-          "Download Sponsor Report",
-          error instanceof Error ? error.message : "Download failed.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = runSummaryExportMutationBlockedReason(failure);
+
+        showError("Download Sponsor Report", blocked ?? failure.message);
       })
       .finally(() => {
         setBusyFormat(null);

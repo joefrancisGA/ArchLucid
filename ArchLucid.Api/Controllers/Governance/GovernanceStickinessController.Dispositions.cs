@@ -77,6 +77,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureGovernanceDispositionRunSealedManifestAllowedAsync(
+            body.RunId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RecordFindingDispositionRequest normalized = new()
         {
             FindingId = findingId,
@@ -250,6 +257,13 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureGovernanceDispositionRunSealedManifestAllowedAsync(
+            runId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
