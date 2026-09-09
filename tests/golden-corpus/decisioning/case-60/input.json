@@ -1,0 +1,79 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000060",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000060",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000060-0000-4000-8000-000000000060",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000060",
+    "runId": "20000000-0000-4000-8000-000000000060",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "actor-external-lb",
+        "nodeType": "Actor",
+        "label": "external-ingress-lb",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "trustOrigin": "External"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-f6ba12cdf26b4dcd808cd0fd9cd059b5",
+        "nodeType": "TopologyResource",
+        "label": "orders-api",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-cdk-golden-60",
+        "properties": {
+          "resourceType": "aws::lambda::function",
+          "tf.functionname": "orders-api",
+          "tf.runtime": "nodejs20.x",
+          "category": "compute"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-orders-prod",
+        "nodeType": "TopologyResource",
+        "label": "sql-orders-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "data"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "actor-external-lb",
+        "toNodeId": "obj-f6ba12cdf26b4dcd808cd0fd9cd059b5",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "obj-f6ba12cdf26b4dcd808cd0fd9cd059b5",
+        "toNodeId": "sql-orders-prod",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

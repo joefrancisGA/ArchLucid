@@ -448,6 +448,18 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.queryByRole("link", { name: "Explore the sample review" })).toBeNull();
   });
 
+  it("AO-26: Working empty inventory opens Architectures instead of orphan review intake", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
+
+    expect(screen.getByRole("link", { name: "Open architectures" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures",
+    );
+    expect(screen.queryByRole("link", { name: "Start an architecture review" })).toBeNull();
+  });
+
   it("shows the in-flight analysis desk above the table in Working mode", () => {
     workspaceModeMock.isWorkingMode = true;
     inFlightOperationsMock.push({

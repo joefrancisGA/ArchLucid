@@ -1,0 +1,33 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000037",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000037",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000037-0000-4000-8000-000000000037",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000037",
+    "runId": "20000000-0000-4000-8000-000000000037",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "storage-1",
+        "nodeType": "TopologyResource",
+        "label": "stpayprod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+          "tf.public_network_access": "Disabled"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "azurePackageId": "30000000-0000-4000-8000-000000000037",
+    "resourcesJson": "[\n  {\n    \u0022resourceType\u0022: \u0022Microsoft.Storage/storageAccounts\u0022,\n    \u0022resourceId\u0022: \u0022/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod\u0022,\n    \u0022properties\u0022: {\n      \u0022publicNetworkAccess\u0022: \u0022Enabled\u0022\n    }\n  }\n]"
+  }
+}

@@ -166,6 +166,54 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             effectivePayload.ExternalKey,
             effectivePayload.StatusValue);
 
+        ScopeContext correlationScope = new()
+        {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+        };
+
+        FindingInspectResponse? inspect = await _findingInspectReadRepository
+            .GetInspectAsync(correlationScope, row.FindingId, ct, FindingInspectReadOptions.MetadataOnly)
+            .ConfigureAwait(false);
+
+        if (inspect is null)
+        {
+            return new ItsmInboundWebhookProcessResult(
+                true,
+                ItsmInboundWebhookSyncSupport.RejectedAudit(
+                    descriptor.RejectedAuditEventType,
+                    descriptor.WebhookActorId,
+                    row.TenantId,
+                    row.WorkspaceId,
+                    row.ProjectId,
+                    "finding_not_found",
+                    CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
+        }
+
+        try
+        {
+            await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
+                inspect.RunId,
+                correlationScope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return new ItsmInboundWebhookProcessResult(
+                true,
+                ItsmInboundWebhookSyncSupport.RejectedAudit(
+                    descriptor.RejectedAuditEventType,
+                    descriptor.WebhookActorId,
+                    row.TenantId,
+                    row.WorkspaceId,
+                    row.ProjectId,
+                    "sealed_manifest_unverified",
+                    new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
+        }
+
         if (!await _support.TryClaimReplayAsync(row.TenantId, descriptor.ProviderName, replayEventId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
@@ -182,72 +230,45 @@ public sealed class ItsmInboundWebhookProcessPipeline(
 
         try
         {
-            int updated = await _support
-                .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
-                .ConfigureAwait(false);
-
-            if (updated == 0)
-
-                _logger.LogWarning(
-                    "ITSM {Provider} webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
-                    descriptor.ProviderName,
-                    row.TenantId,
-                    LogSanitizer.Sanitize(row.FindingId));
-
             FindingDisposition? mappedDisposition =
                 statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
-            ScopeContext correlationScope = new()
-            {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ProjectId,
-            };
-
-            FindingInspectResponse? inspect = await _findingInspectReadRepository
-                .GetInspectAsync(correlationScope, row.FindingId, ct, FindingInspectReadOptions.MetadataOnly)
-                .ConfigureAwait(false);
-
-            if (inspect is null)
-            {
-                return new ItsmInboundWebhookProcessResult(
-                    true,
-                    ItsmInboundWebhookSyncSupport.RejectedAudit(
-                        descriptor.RejectedAuditEventType,
-                        descriptor.WebhookActorId,
-                        row.TenantId,
-                        row.WorkspaceId,
-                        row.ProjectId,
-                        "finding_not_found",
-                        CreateFindingNotFoundPayload(descriptor.ProviderName, effectivePayload, row.FindingId)));
-            }
-
-            try
-            {
-                await ItsmInboundSealedManifestHashGuard.EnsureFindingRunSealedManifestHashOrThrowAsync(
-                    inspect.RunId,
-                    correlationScope,
-                    _authorityQueryService,
-                    _manifestHashService,
-                    ct).ConfigureAwait(false);
-            }
-            catch (ConflictException ex)
-            {
-                return new ItsmInboundWebhookProcessResult(
-                    true,
-                    ItsmInboundWebhookSyncSupport.RejectedAudit(
-                        descriptor.RejectedAuditEventType,
-                        descriptor.WebhookActorId,
-                        row.TenantId,
-                        row.WorkspaceId,
-                        row.ProjectId,
-                        "sealed_manifest_unverified",
-                        new { findingId = row.FindingId, status = CreateStatusPayload(descriptor.ProviderName, effectivePayload), detail = ex.Message }));
-            }
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
-                    .TryRecordFromWebhookAsync(row, mappedDisposition, effectivePayload.StatusValue, descriptor.WebhookActorId, ct)
+                    .TryRecordFromWebhookAsync(
+                        row,
+                        mappedDisposition,
+                        effectivePayload.StatusValue,
+                        descriptor.WebhookActorId,
+                        inspect.LatestDispositionRowVersionBase64,
+                        inspect.LatestDisposition,
+                        ct)
                     .ConfigureAwait(false);
+
+            int updated = 0;
+
+            if (!dispositionResult.IsDispositionConflict)
+            {
+                updated = await _support
+                    .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
+                    .ConfigureAwait(false);
+
+                if (updated == 0)
+
+                    _logger.LogWarning(
+                        "ITSM {Provider} webhook: correlation exists but no FindingRecords updated for tenant {TenantId} finding {FindingId}.",
+                        descriptor.ProviderName,
+                        row.TenantId,
+                        LogSanitizer.Sanitize(row.FindingId));
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "ITSM {Provider} webhook: disposition CAS conflict for tenant {TenantId} finding {FindingId}; HumanReviewStatus not updated.",
+                    descriptor.ProviderName,
+                    row.TenantId,
+                    LogSanitizer.Sanitize(row.FindingId));
+            }
 
             AuditEvent auditEvent = new()
             {
@@ -353,6 +374,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
                 disposition = dispositionResult.Disposition?.ToString(),
                 dispositionEventId = dispositionResult.DispositionEventId,
                 dispositionSkipReason = dispositionResult.SkipReason,
+                dispositionConflict = dispositionResult.IsDispositionConflict,
+                currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
+                currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
             };
         }
 
@@ -367,6 +391,9 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             disposition = dispositionResult.Disposition?.ToString(),
             dispositionEventId = dispositionResult.DispositionEventId,
             dispositionSkipReason = dispositionResult.SkipReason,
+            dispositionConflict = dispositionResult.IsDispositionConflict,
+            currentDisposition = dispositionResult.ConflictDetail?.Disposition.ToString(),
+            currentDispositionReviewerUserId = dispositionResult.ConflictDetail?.ReviewerUserId,
         };
     }
 }

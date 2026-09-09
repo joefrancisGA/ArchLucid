@@ -143,7 +143,7 @@ const failureRecoveryFixture = {
   },
   adminHandoff: {
     markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-    verificationLines: ["Connection probe passes on Administration → Model governance."],
+    verificationLines: ["Connection probe passes on Administration → Model policy."],
   },
   submittedIntakeRecap: {
     fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -218,7 +218,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -270,7 +270,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -295,7 +295,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-admin-handoff")).toHaveTextContent(
       "Share with your workspace administrator",
     );
-    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent("ArchLucid");
+    expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent("Review scope");
     expect(screen.getByTestId("review-package-submitted-intake-recap")).toHaveTextContent(
       "ARCHITECTURE_HANDBOOK.docx",
     );
@@ -304,6 +304,9 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
     expect(screen.queryByTestId("review-package-failure-support-hint")).toBeNull();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+    expect(screen.queryByTestId("review-package-failure-foot-action")).toBeNull();
+    expect(screen.getByTestId("review-package-failure-review-id")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-failure-review-id")).not.toHaveTextContent("run-1");
   });
 
   it("renders in-place rerun button when live AI is ready", () => {
@@ -336,7 +339,8 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(1);
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
@@ -375,7 +379,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
             },
             adminHandoff: {
               markdown: "Review ID: run-1\nFailure: Execution failed before the first pipeline stage",
-              verificationLines: ["Connection probe passes on Administration → Model governance."],
+              verificationLines: ["Connection probe passes on Administration → Model policy."],
             },
             submittedIntakeRecap: {
               fields: [{ label: "Review title", value: "ArchLucid" }],
@@ -386,7 +390,12 @@ describe("ReviewPackageDoThisNextStrip", () => {
       />,
     );
 
-    expect(screen.queryByTestId("review-package-re-run-review")).toBeNull();
+    expect(screen.getAllByTestId("review-package-do-this-next-disabled-action")).toHaveLength(1);
+    screen.getAllByTestId("review-package-do-this-next-disabled-action").forEach((button) => {
+      expect(button).toBeDisabled();
+    });
+    expect(screen.queryByTestId("review-package-re-run-review-foot")).toBeNull();
+    expect(screen.getByTestId("review-package-rerun-disabled-hint")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
   });
 
@@ -412,11 +421,11 @@ describe("ReviewPackageDoThisNextStrip", () => {
     expect(screen.getByTestId("review-package-do-this-next-sentence")).toHaveTextContent(
       "re-run the review to retry with the same intake",
     );
-    expect(screen.getByTestId("review-package-re-run-review")).toBeInTheDocument();
-    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("min-w-0");
-    expect(screen.getByTestId("review-package-do-this-next-strip").className).toContain("max-w-full");
-    expect(screen.getByTestId("review-package-re-run-review").parentElement?.className).toContain("flex-col");
-    expect(screen.queryByTestId("review-package-do-this-next-action")).toBeNull();
+    expect(screen.getAllByTestId("review-package-re-run-review")).toHaveLength(1);
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-do-this-next-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-failure-foot-action")).toHaveTextContent("Re-run review");
+    expect(screen.getByTestId("review-package-re-run-review-foot")).toBeInTheDocument();
   });
 
   it("hides stale failure recovery copy while a re-run attempt is in flight", () => {
@@ -526,7 +535,7 @@ describe("ReviewPackageDoThisNextStrip", () => {
     );
 
     expect(screen.getByTestId("review-package-failure-technical-metadata")).toBeInTheDocument();
-    expect(screen.getByText("Failure metadata")).toBeInTheDocument();
+    expect(screen.getByText("Technical failure detail")).toBeInTheDocument();
     expect(screen.getByText("Reason code")).toBeInTheDocument();
     expect(screen.getByText("NoScheduledAgentTasks")).toBeInTheDocument();
     expect(screen.getByText("Likely cause")).toBeInTheDocument();

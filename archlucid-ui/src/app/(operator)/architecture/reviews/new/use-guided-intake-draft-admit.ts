@@ -100,6 +100,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       core.setDraftStatus(admission.status);
       applyAdmittedRequiredMustQuestionKeysFromDocument(admission.draft.document);
       core.setSavedLocallyQuestionKeys(new Set());
+      core.setClarificationSelectionHydrated(true);
       await refreshQuestions(id);
       core.setViewAllClarifications(false);
       setStep(1);

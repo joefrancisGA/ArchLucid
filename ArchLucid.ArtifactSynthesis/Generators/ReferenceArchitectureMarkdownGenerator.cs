@@ -104,6 +104,10 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
             sb.AppendLine($"- Risk: {risk}");
 
+        foreach (string note in manifest.Cost.Notes)
+
+            sb.AppendLine($"- Note: {note}");
+
         sb.AppendLine();
 
         sb.AppendLine("## Objective");

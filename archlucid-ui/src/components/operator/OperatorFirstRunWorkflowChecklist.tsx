@@ -8,7 +8,8 @@ import {
 
 import { InlineGuidance } from "@/components/InlineGuidance";
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
@@ -23,6 +24,11 @@ import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator/operator-
 import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import {
+  OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM,
+  operatorFirstSessionCoachingDisclosureHrefFromSearch,
+  parseOperatorFirstSessionCoachingOpenFromSearch,
+} from "@/lib/operator/operator-first-session-coaching-disclosure-url";
 
 import type { OperatorFirstRunWorkflowPanelViewModel } from "./use-operator-first-run-workflow-panel";
 
@@ -32,6 +38,34 @@ export type OperatorFirstRunWorkflowChecklistProps = {
 
 export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflowChecklistProps): ReactElement {
   const { panel } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const operatorFirstSessionCoachingParam = searchParams.get(OPERATOR_FIRST_SESSION_COACHING_OPEN_PARAM);
+  const [operatorFirstSessionCoachingOpen, setOperatorFirstSessionCoachingOpenState] = useState(() =>
+    parseOperatorFirstSessionCoachingOpenFromSearch(operatorFirstSessionCoachingParam),
+  );
+  const syncOperatorFirstSessionCoachingOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        operatorFirstSessionCoachingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOperatorFirstSessionCoachingOpen = useCallback(
+    (open: boolean) => {
+      setOperatorFirstSessionCoachingOpenState(open);
+      syncOperatorFirstSessionCoachingOpenToUrl(open);
+    },
+    [syncOperatorFirstSessionCoachingOpenToUrl],
+  );
+  useEffect(() => {
+    setOperatorFirstSessionCoachingOpenState(
+      parseOperatorFirstSessionCoachingOpenFromSearch(operatorFirstSessionCoachingParam),
+    );
+  }, [operatorFirstSessionCoachingParam]);
 
   if (!panel.hydrated) {
     return <div className="min-h-[100px] w-full" aria-hidden />;
@@ -203,7 +237,11 @@ export function OperatorFirstRunWorkflowChecklist(props: OperatorFirstRunWorkflo
                   Your first architecture review
                 </Link>
               </p>
-              <details className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">
+              <details
+                className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55"
+                open={operatorFirstSessionCoachingOpen}
+                onToggle={(event) => setOperatorFirstSessionCoachingOpen(event.currentTarget.open)}
+              >
                 <summary className={cn("cursor-pointer font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   First session coaching
                 </summary>

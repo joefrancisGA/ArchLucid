@@ -6,11 +6,25 @@ import { useCallback } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { ProvenanceBuyerChrome } from "@/components/provenance/ProvenanceBuyerChrome";
 import { ProvenanceSectionNav } from "@/components/provenance/ProvenanceSectionNav";
 import { ProvenancePageWorkspaceFilters } from "@/components/provenance/ProvenancePageWorkspaceFilters";
 import { ProvenancePageWorkspaceHeader } from "@/components/provenance/ProvenancePageWorkspaceHeader";
 import { ProvenancePageWorkspaceTimeline } from "@/components/provenance/ProvenancePageWorkspaceTimeline";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  PROVENANCE_BUYER_OVERVIEW,
+  PROVENANCE_BUYER_START_HERE_HELPER,
+  PROVENANCE_FIRST_VIEWPORT_TEST_ID,
+  PROVENANCE_PAGE_LEAD,
+  PROVENANCE_PRIMARY_CONTENT_ID,
+  PROVENANCE_SKIP_LINK_LABEL,
+  PROVENANCE_SKIP_TARGET_ID,
+  PROVENANCE_START_HERE_CARD_TITLE,
+  PROVENANCE_WORKSPACE_TEST_ID,
+} from "@/lib/provenance-page-copy";
 import {
   resolveProvenanceInspectEmphasizedStepId,
   resolveProvenanceInspectSteps,
@@ -26,6 +40,7 @@ export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./pr
 
 export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): React.JSX.Element {
   const router = useRouter();
+  const buyerPolishedShell = useProductionEvalChrome();
   const {
     runId,
     provenanceTraceId,
@@ -68,7 +83,6 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     showGraph,
     showTimeline,
     showTables,
-    evidenceGraphHref,
     pathname,
     currentSearch,
   } = useProvenancePageWorkspace(props);
@@ -98,110 +112,192 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
     [router],
   );
 
+  const provenanceWorkspaceBody = hasScopedRun ? (
+    <>
+      {!buyerPolishedShell ? (
+        <IntegrationConnectChecklist
+          title="Inspect checklist"
+          steps={provenanceInspectSteps}
+          emphasizedStepId={provenanceInspectEmphasizedStepId}
+          testIdPrefix="provenance-inspect"
+        />
+      ) : null}
+
+      <ProvenancePageWorkspaceFilters
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        pathname={pathname}
+        currentSearch={currentSearch}
+        filterOptions={FILTER_OPTIONS}
+        activeFilters={activeFilters}
+        filterCounts={filterCounts}
+        onToggleFilter={(filterId) => {
+          toggleFilter(filterId as (typeof FILTER_OPTIONS)[number]["id"]);
+        }}
+        graphVisibleNodeCount={graphVisibleNodeCount}
+        totalNodeCount={graph.nodes.length}
+      />
+
+      {showGraph ? (
+        <ProvenancePageWorkspaceGraphSection
+          runId={runId}
+          graph={graph}
+          layoutSeed={layoutSeed}
+          selectedNodeId={selectedNodeId}
+          highlightedEdgeId={highlightedEdgeId}
+          activeFilters={activeFilters}
+          selectedNode={selectedNode}
+          nodeById={nodeById}
+          incomingEdges={incomingEdges}
+          outgoingEdges={outgoingEdges}
+          onSelectNode={onSelectNode}
+          setHighlightedEdgeId={setHighlightedEdgeId}
+          onGraphRenderFailed={onGraphRenderFailed}
+          retryGraphLayout={retryGraphLayout}
+          openTablesView={openTablesView}
+          onSelectEdge={onSelectEdge}
+          showInspectCoach={!buyerPolishedShell && provenanceInspectEmphasizedStepId === "inspect"}
+        />
+      ) : null}
+
+      {showTimeline ? (
+        <ProvenancePageWorkspaceTimeline
+          runId={runId}
+          graph={graph}
+          viewMode={viewMode}
+          onSelectNode={onSelectNode}
+        />
+      ) : null}
+
+      {showTables ? (
+        <ProvenancePageWorkspaceTablesSection
+          runId={runId}
+          graph={graph}
+          selectedNodeId={selectedNodeId}
+          highlightedEdgeId={highlightedEdgeId}
+          nodeSearch={nodeSearch}
+          setNodeSearch={setNodeSearch}
+          nodeTypeFilter={nodeTypeFilter}
+          setNodeTypeFilter={setNodeTypeFilter}
+          edgeSearch={edgeSearch}
+          setEdgeSearch={setEdgeSearch}
+          edgesExpanded={edgesExpanded}
+          setEdgesExpanded={setEdgesExpanded}
+          filteredNodesForTable={filteredNodesForTable}
+          filteredEdgesForTable={filteredEdgesForTable}
+          nodeTypes={nodeTypes}
+          nodeById={nodeById}
+          onSelectNode={onSelectNode}
+          onSelectEdge={onSelectEdge}
+        />
+      ) : null}
+    </>
+  ) : null;
+
   return (
     <OperatorPageContainer variant="dashboard" className="print:w-full" data-testid="provenance-page-workspace">
-      <div className={cn("flex flex-col xl:flex-row xl:items-start", OPERATOR_LAYOUT.unrelatedClusterGap, "xl:gap-6")}>
-        <article className={cn("min-w-0 flex-1 text-neutral-800 dark:text-neutral-200", OPERATOR_LAYOUT.sectionStack)}>
-          <ProvenanceSectionNav sections={sections} placement="inline-top" />
+      <a
+        href={`#${PROVENANCE_SKIP_TARGET_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {PROVENANCE_SKIP_LINK_LABEL}
+      </a>
 
-          <ProvenancePageWorkspaceHeader
-            dataOrigin={dataOrigin}
-            scopedRunId={scopedRunId}
-            onPickReviewForInspecting={onPickReviewForInspecting}
-            reviewHref={reviewHref}
-            reviewContext={reviewContext ?? null}
-            reviewTitle={reviewTitle}
-            graph={graph}
-            provenanceTraceId={provenanceTraceId}
-            evidenceGraphHref={evidenceGraphHref}
-          />
+      <div
+        id={PROVENANCE_PRIMARY_CONTENT_ID}
+        data-testid={PROVENANCE_PRIMARY_CONTENT_ID}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <div className={cn("flex flex-col xl:flex-row xl:items-start", OPERATOR_LAYOUT.unrelatedClusterGap, "xl:gap-6")}>
+          <article className={cn("min-w-0 flex-1 text-neutral-800 dark:text-neutral-200", OPERATOR_LAYOUT.sectionStack)}>
+            {!buyerPolishedShell ? <ProvenanceSectionNav sections={sections} placement="inline-top" /> : null}
 
-          {hasScopedRun ? (
-            <IntegrationConnectChecklist
-              title="Inspect checklist"
-              steps={provenanceInspectSteps}
-              emphasizedStepId={provenanceInspectEmphasizedStepId}
-              testIdPrefix="provenance-inspect"
+            <ProvenancePageWorkspaceHeader
+              dataOrigin={dataOrigin}
+              scopedRunId={scopedRunId}
+              onPickReviewForInspecting={onPickReviewForInspecting}
+              reviewHref={reviewHref}
+              reviewContext={reviewContext ?? null}
+              reviewTitle={reviewTitle}
+              graph={graph}
+              provenanceTraceId={provenanceTraceId}
+              buyerPolishedShell={buyerPolishedShell}
             />
-          ) : null}
 
-          {hasScopedRun ? (
-            <>
-              <ProvenancePageWorkspaceFilters
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                pathname={pathname}
-                currentSearch={currentSearch}
-                filterOptions={FILTER_OPTIONS}
-                activeFilters={activeFilters}
-                filterCounts={filterCounts}
-                onToggleFilter={(filterId) => {
-                  toggleFilter(filterId as (typeof FILTER_OPTIONS)[number]["id"]);
-                }}
-                graphVisibleNodeCount={graphVisibleNodeCount}
-                totalNodeCount={graph.nodes.length}
-              />
+            {buyerPolishedShell ? (
+              <>
+                <div
+                  id={PROVENANCE_SKIP_TARGET_ID}
+                  data-testid={PROVENANCE_FIRST_VIEWPORT_TEST_ID}
+                  className={cn(
+                    "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                    OPERATOR_LAYOUT.sectionStack,
+                  )}
+                >
+                  <div className="space-y-4" data-testid="provenance-buyer-first-viewport-intro">
+                    <p
+                      className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+                      data-testid="provenance-intro"
+                    >
+                      {PROVENANCE_PAGE_LEAD}
+                    </p>
+                    <section
+                      className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                      data-testid="provenance-start-here-panel"
+                      aria-labelledby="provenance-start-here-heading"
+                    >
+                      <h2
+                        id="provenance-start-here-heading"
+                        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                      >
+                        {PROVENANCE_START_HERE_CARD_TITLE}
+                      </h2>
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="provenance-buyer-start-here-helper"
+                      >
+                        {PROVENANCE_BUYER_START_HERE_HELPER}
+                      </p>
+                    </section>
+                  </div>
+                </div>
 
-              {showGraph ? (
-                <ProvenancePageWorkspaceGraphSection
-                  runId={runId}
-                  graph={graph}
-                  layoutSeed={layoutSeed}
-                  selectedNodeId={selectedNodeId}
-                  highlightedEdgeId={highlightedEdgeId}
-                  activeFilters={activeFilters}
-                  selectedNode={selectedNode}
-                  nodeById={nodeById}
-                  incomingEdges={incomingEdges}
-                  outgoingEdges={outgoingEdges}
-                  onSelectNode={onSelectNode}
-                  setHighlightedEdgeId={setHighlightedEdgeId}
-                  onGraphRenderFailed={onGraphRenderFailed}
-                  retryGraphLayout={retryGraphLayout}
-                  openTablesView={openTablesView}
-                  onSelectEdge={onSelectEdge}
-                />
-              ) : null}
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="provenance-overview"
+                >
+                  {PROVENANCE_BUYER_OVERVIEW}
+                </p>
 
-              {showTimeline ? (
-                <ProvenancePageWorkspaceTimeline
-                  runId={runId}
-                  graph={graph}
-                  viewMode={viewMode}
-                  onSelectNode={onSelectNode}
-                />
-              ) : null}
+                {provenanceWorkspaceBody !== null ? (
+                  <section
+                    className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+                    data-testid={PROVENANCE_WORKSPACE_TEST_ID}
+                  >
+                    {provenanceWorkspaceBody}
+                  </section>
+                ) : null}
+              </>
+            ) : (
+              <div
+                id={PROVENANCE_SKIP_TARGET_ID}
+                data-testid={PROVENANCE_FIRST_VIEWPORT_TEST_ID}
+                className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
+              >
+                {provenanceWorkspaceBody}
+              </div>
+            )}
 
-              {showTables ? (
-                <ProvenancePageWorkspaceTablesSection
-                  runId={runId}
-                  graph={graph}
-                  selectedNodeId={selectedNodeId}
-                  highlightedEdgeId={highlightedEdgeId}
-                  nodeSearch={nodeSearch}
-                  setNodeSearch={setNodeSearch}
-                  nodeTypeFilter={nodeTypeFilter}
-                  setNodeTypeFilter={setNodeTypeFilter}
-                  edgeSearch={edgeSearch}
-                  setEdgeSearch={setEdgeSearch}
-                  edgesExpanded={edgesExpanded}
-                  setEdgesExpanded={setEdgesExpanded}
-                  filteredNodesForTable={filteredNodesForTable}
-                  filteredEdgesForTable={filteredEdgesForTable}
-                  nodeTypes={nodeTypes}
-                  nodeById={nodeById}
-                  onSelectNode={onSelectNode}
-                  onSelectEdge={onSelectEdge}
-                />
-              ) : null}
-            </>
-          ) : null}
-        </article>
+            {buyerPolishedShell ? (
+              <ProvenanceBuyerChrome runId={scopedRunId} architectureId={null} />
+            ) : null}
+          </article>
 
-        <ProvenanceSectionNav sections={sections} placement="sidebar" />
+          {!buyerPolishedShell ? <ProvenanceSectionNav sections={sections} placement="sidebar" /> : null}
+        </div>
+
+        {hasScopedRun && !buyerPolishedShell ? <ProvenanceNextReviewFooterClient runId={runId} /> : null}
       </div>
-
-      {hasScopedRun ? <ProvenanceNextReviewFooterClient runId={runId} /> : null}
 
       <style>{`
         .prov-node-row--flash {

@@ -52,6 +52,18 @@ describe("resolve-visible-command-palette-actions (PT-06)", () => {
     expect(workingActions.some((action) => action.href === "/architecture/reviews")).toBe(true);
   });
 
+  it("AO-41: filters eval-admin palette rows in Working mode", () => {
+    const visible = new Set<string>(["/insights/sponsor-report", "/architecture/reviews"]);
+    const actions = resolveVisibleCommandPaletteHrefActions({
+      workingMode: true,
+      visibleNavHrefs: visible,
+      lastOpenArchitectureId: "architecture-identity-001",
+    });
+
+    expect(actions.some((action) => action.href === "/insights/sponsor-report")).toBe(false);
+    expect(actions.some((action) => action.href === "/architecture/reviews")).toBe(true);
+  });
+
   it("maps Working create action to a single New review draft-editor href (WA-02)", () => {
     const workingActions = resolveVisibleCommandPaletteHrefActions(true);
     const guidedActions = resolveVisibleCommandPaletteHrefActions(false);

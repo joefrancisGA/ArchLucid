@@ -30,7 +30,7 @@ export function getFindingDetailHref(
   return `${base}?runId=${encodeURIComponent(queueRunId)}`;
 }
 
-/** Back navigation from finding detail or evidence trace to the governance findings queue. */
+/** Back navigation from finding detail or evidence trace to the policy findings queue. */
 export function resolveFindingsQueueNavHref(findingsQueueRunId?: string | null): string {
   const queueRunId = (findingsQueueRunId ?? "").trim();
 

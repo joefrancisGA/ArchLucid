@@ -102,6 +102,7 @@ public sealed partial class PolicyPacksController
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentEnabledAsync logs PolicyPackAssignmentEnabledChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SetAssignmentEnabled(
         Guid assignmentId,
         [FromBody] SetPolicyPackAssignmentEnabledRequest? request,
@@ -133,12 +134,20 @@ public sealed partial class PolicyPacksController
                 $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.");
         }
 
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be disabled.",
+                ProblemTypes.Conflict);
+        }
+
         return NoContent();
     }
 
     /// <summary>Marks or clears organization-required lock on one policy pack assignment for the current scope.</summary>
     [HttpPut("assignments/{assignmentId:guid}/organization-required")]
-    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

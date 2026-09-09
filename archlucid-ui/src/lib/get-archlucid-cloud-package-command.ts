@@ -3,11 +3,13 @@ import {
   buildGetArchLucidAzurePackageCommandLine,
   type GetArchLucidAzurePackageCommandOptions,
 } from "@/lib/get-archlucid-azure-package-command";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type GetArchLucidCloudPackageCommandOptions = GetArchLucidAzurePackageCommandOptions & {
   platform: CloudInventoryPlatform;
   /** AWS account id or GCP project id when pinning scope; Azure uses subscriptionId. */
   scopeId?: string | null;
+  productLineId?: ProductLineId;
 };
 
 const AWS_SCRIPT = ".\\scripts\\Get-ArchLucidAwsPackage.ps1";
@@ -28,6 +30,7 @@ export function buildGetArchLucidCloudPackageCommandLine(
       subscriptionId: options.scopeId ?? options.subscriptionId,
       quickStart: options.quickStart,
       outputPath: options.outputPath,
+      productLineId: options.productLineId,
     });
   }
 

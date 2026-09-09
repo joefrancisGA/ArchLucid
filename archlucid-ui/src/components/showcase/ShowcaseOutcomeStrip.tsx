@@ -106,17 +106,17 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/governance/approval-queue?runId=${encRun}`}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Approval</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Approval</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Approval</span>
           <span className={outcomeCaptionClass}>Unavailable for this preview</span>
         </div>
       )}

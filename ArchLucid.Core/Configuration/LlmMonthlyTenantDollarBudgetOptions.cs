@@ -79,4 +79,48 @@ public sealed class LlmMonthlyTenantDollarBudgetOptions
         get;
         set;
     } = 60;
+
+    /// <summary>
+    ///     Optional per-plan overlays (keys: architect, team, professional). Host defaults above apply when a plan key is
+    ///     missing.
+    /// </summary>
+    public Dictionary<string, LlmMonthlyTenantPlanBudgetOptions> ByPlan
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
+
+    public decimal ResolveIncludedUsdPerUtcMonth(string? planId)
+    {
+        if (TryGetPlanBudget(planId, out LlmMonthlyTenantPlanBudgetOptions? plan)
+            && plan is not null
+            && plan.IncludedUsdPerUtcMonth > 0m)
+        {
+            return plan.IncludedUsdPerUtcMonth;
+        }
+
+        return IncludedUsdPerUtcMonth;
+    }
+
+    public decimal ResolveHardCutoffUsdPerUtcMonth(string? planId)
+    {
+        if (TryGetPlanBudget(planId, out LlmMonthlyTenantPlanBudgetOptions? plan)
+            && plan is not null
+            && plan.HardCutoffUsdPerUtcMonth > 0m)
+        {
+            return plan.HardCutoffUsdPerUtcMonth;
+        }
+
+        return HardCutoffUsdPerUtcMonth;
+    }
+
+    private bool TryGetPlanBudget(string? planId, out LlmMonthlyTenantPlanBudgetOptions? plan)
+    {
+        plan = null;
+
+        if (string.IsNullOrWhiteSpace(planId))
+            return false;
+
+        return ByPlan.TryGetValue(planId.Trim(), out plan);
+    }
 }
