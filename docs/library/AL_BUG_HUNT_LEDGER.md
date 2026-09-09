@@ -7376,11 +7376,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan
+- **last-bug:** 2026-09-09 — Enterprise 1-seat LLM plan shortcut; exclude/minus negation marketplace tier gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7398,13 +7398,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `no-enterprise-*` / `never-enterprise-*` / `sans-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 seed hunt #1320:** #1319 guarded `non`/`not`/`anti`/`without` only; `contoso-no-enterprise-standard`, `never-enterprise-plan`, and `sans-enterprise-plan` still matched delimiter-bounded `enterprise`; extended `IsEnterpriseNegationToken` with `no`, `never`, and `sans`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan`
 - [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — IPv4 literal domains (`127.0.0.1`, `8.8.8.8`) pass `IsValidDomain` and can be proposed into tenant sign-in domain registry despite lacking public DNS ownership semantics — **cheap-disproof 2026-09-08 (#1321):** `AuthSignInRoutingEvaluator` requires `VerificationStatus.Verified` and `IsEnforcementActive` before SSO enforcement; unverified proposed rows (including IPv4 literal shape) do not affect live sign-in routing (`EvaluateAsync_allows_email_code_for_unverified_ipv4_literal_domain_registry_row`, existing `EvaluateAsync_blocks_unverified_domain_enforcement`); DNS TXT verification gate prevents verified enforcement without zone control; normalizer acceptance documented (`TryNormalize_accepts_ipv4_literal_domain_shape`)
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`) delimited plan ids false-positive Enterprise tier — **hit 2026-09-09 seed hunt #1382:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud` stem guard plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan` and `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`
-- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunt #1381:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunts #1381/#1390:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
+- [ ] (candidate) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `bare-enterprise-*` / `free-enterprise-*` plan id may still false-positive Enterprise tier after minus/less/lacking sweep — **seeded 2026-09-09 seed hunt #1390**
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription may inherit Architect shortcut before Professional branch when callers pass mismatched resolver inputs — **seeded 2026-09-09 seed hunt #1390**
 
 2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate.
 
 2026-09-09 seed hunt #1381 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
 
 2026-09-09 seed hunt #1382 (hit): reseeded Identity/Billing/Budgeting; reproved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 52 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1390 (hit): reseeded Identity/Billing/Budgeting after dry #1321; reproved Enterprise LLM plan shortcut bleed and marketplace negation-token gaps; seeded devoid/bare/free negation and Professional-label shortcut pairing candidates; 47 scoped CommercialTenant-related unit tests passed.
 
 2026-09-08 thorough hunt #1321 (dry): cheap-disproved IPv4 literal domain candidate; added routing + normalizer regression tests; no open hypotheses remain — reseed on next seed hunt.
 
@@ -10147,11 +10151,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 7
-- **bugs-found:** 6
+- **hunts:** 8
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — selective execute acquired ownership after concurrent commit
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — full execute acquired ownership before run-not-found validation
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -10167,9 +10171,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — selective prep used the validation-time `ArchitectureRun` snapshot; if the run committed after validation but before delete, forced-task results were deleted before `ExecuteRunCoreAsync` reloaded and threw — **hit 2026-09-08 (#1326):** reload run + re-check committed/authority-pipeline gates before destructive prep; regression in `ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep`.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`) — **cheap-disproof 2026-09-08 (#1327):** in-flight execute may keep renewing until scope dispose; drain boundary is `ReleaseAllHeldByThisInstanceAsync` (TB-961), not blocking renew; regression in `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — validation and task planning finished before `AcquireAsync`; if the run committed in that window selective still claimed the SQL lease and only failed on the prep reload — **hit 2026-09-08 (#1327):** reload committed/authority gates before acquire via `EnsureSelectiveExecuteStillEligibleAsync`; regression in `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire`.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire precedes `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still holds the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943).
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1391):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed with `EnsureExecuteRunExistsAsync` before ownership acquire; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
 
-2026-09-08 thorough hunt #1327 (hit): cheap-disproved drain-time renewal block; proved selective must re-check eligibility before ownership acquire.
+2026-09-09 thorough hunt #1391 (hit): proved full execute must validate run existence before ownership acquire; mirrors selective eligibility guard.
 2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
 2026-09-08 thorough hunt #1325 (hit): proved selective execute prep ran before ownership acquire; fixed lease ordering to match full execute.
 2026-09-08 seed hunt #1324 (hit): reseeded renewal-scope failure modes; proved unexpected renewal errors must cancel linked execute.

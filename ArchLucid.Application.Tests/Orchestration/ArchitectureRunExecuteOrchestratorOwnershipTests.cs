@@ -43,6 +43,65 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
     };
 
     [Fact]
+    public async Task ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found()
+    {
+        Guid runGuid = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        string runId = runGuid.ToString("N");
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope(static () => { }));
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        Mock<IAgentTaskRepository> taskRepo = new();
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("ownership-test");
+
+        ArchitectureRunExecuteOrchestrator sut = ArchitectureRunExecuteOrchestratorTestFactory.Create(
+            runRepo.Object,
+            scopeProvider.Object,
+            requestRepo.Object,
+            taskRepo.Object,
+            Mock.Of<IAgentExecutor>(),
+            new ArchitectureRunExecuteOrchestratorCreateArgs
+            {
+                ActorContext = actor.Object,
+                BaselineMutationAuditService = Mock.Of<IBaselineMutationAuditService>(),
+                PostExecuteHooks = ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                    scopeContextProvider: scopeProvider.Object,
+                    runRepository: runRepo.Object),
+                AgentExecutionOptions = Options.Create(new AgentExecutionOptions()),
+                RunExecuteOwnershipLeaseService = ownership.Object,
+                Logger = NullLogger<ArchitectureRunExecuteOrchestrator>.Instance,
+            });
+
+        Func<Task> act = () => sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<RunNotFoundException>();
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never,
+            "execute ownership must not be acquired when the run id does not resolve to a persisted run");
+    }
+
+    [Fact]
     public async Task ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
