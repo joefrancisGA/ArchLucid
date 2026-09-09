@@ -5,9 +5,10 @@ import { AssuranceStatusBreadcrumb } from "@/components/marketing/assurance-stat
 import { Button } from "@/components/ui/button";
 import { MARKETING_SURFACES, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  ASSURANCE_STATUS_HERO_SUPPORTING,
   ASSURANCE_STATUS_PAGE_TITLE,
 } from "@/lib/marketing/assurance-status-page-copy";
+import { assuranceStatusHeroSupporting } from "@/lib/security-trust-product-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { SECURITY_TRUST_PAGE_PURPOSE } from "@/lib/trust-center-public-assurance";
@@ -22,6 +23,7 @@ type AssuranceStatusPageHeroProps = {
 /** Hero for `/assurance-status` — breadcrumb, title, diligence CTAs, and last-reviewed meta. */
 export function AssuranceStatusPageHero(props: AssuranceStatusPageHeroProps): ReactNode {
   const { reviewDate } = props;
+  const heroSupporting = assuranceStatusHeroSupporting(resolveProductLineIdFromEnv());
 
   return (
     <section
@@ -36,7 +38,7 @@ export function AssuranceStatusPageHero(props: AssuranceStatusPageHeroProps): Re
           {ASSURANCE_STATUS_PAGE_TITLE}
         </h1>
         <p className={cn("mt-3 text-lg leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-          {ASSURANCE_STATUS_HERO_SUPPORTING}
+          {heroSupporting}
         </p>
         <p
           className={cn("mt-2 max-w-prose leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}

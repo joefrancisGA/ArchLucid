@@ -8,7 +8,6 @@ import {
   homeGovernanceWarningsHrefFromSearch,
   runsDashboardTabHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
-import { OPERATOR_ATTENTION_KIND_DESTINATIONS } from "@/lib/operator/operator-attention-kind-destinations";
 import {
   buildOperatorHomeRecentReviewsOutcomeParts,
   type OperatorHomeRecentReviewsOutcomePart,
@@ -25,6 +24,7 @@ export type OperatorHomeRecentReviewsOutcomeLineProps = {
     readonly visibleCount?: number;
     readonly recentTotalCount?: number;
     readonly awaitingApprovalCount?: number;
+    readonly suppressAwaitingApprovalCount?: boolean;
   };
 };
 
@@ -45,7 +45,7 @@ function resolveOutcomePartHref(
     case "governance-warnings-filter":
       return homeGovernanceWarningsHrefFromSearch(currentSearch);
     case "awaiting-approval":
-      return OPERATOR_ATTENTION_KIND_DESTINATIONS["awaiting-approval"].href;
+      return runsDashboardTabHrefFromSearch(currentSearch, "awaiting-approval");
     default: {
       const _exhaustive: never = part.hrefKind;
 

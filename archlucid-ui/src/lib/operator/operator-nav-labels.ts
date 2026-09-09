@@ -17,6 +17,9 @@ import {
 import { applyBuyerDemoVocabulary } from "@/lib/vocabulary/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 
 /** Buyer-polished shell left-nav label for `/architecture/reviews/new`. */
 export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;
@@ -75,7 +78,11 @@ export function resolveNewReviewPrimaryNavTitle(): string {
   return resolveStartReviewPrimaryNavTitle();
 }
 
-/** Matches `/architecture/reviews` list routes (with optional query), not `/new` or `/{id}`. */
+/** Working sidebar label for `/architecture/reviews` — inbox, not Monday morning (AO-14 / SY-56). */
+export const WORKING_REVIEWS_INBOX_NAV_LABEL = "Inbox" as const;
+
+const WORKING_REVIEWS_INBOX_NAV_TITLE =
+  "Cross-architecture review inbox — all jobs in this workspace, not your architecture desk";
 export function isReviewsListNavHref(href: string): boolean {
   const path = href.split("?")[0] ?? href;
 
@@ -117,8 +124,19 @@ export function resolveNavLinkPresentation(
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
   workingMode = false,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): NavLinkPresentationSource {
   const vocabularyPassActive = isBuyerVocabularyPassActive();
+
+  if (link.href === INTEGRATIONS_TEAMS_PATH) {
+    const teamsLabel = productLineMicrosoftTeamsLabel(productLine);
+
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: teamsLabel,
+      title: link.title.replaceAll("Microsoft Teams", teamsLabel),
+    });
+  }
 
   if (link.href === ARCHITECTURES_LIST_PATH) {
     return applyBuyerNavVocabulary({
@@ -147,6 +165,14 @@ export function resolveNavLinkPresentation(
   }
 
   if (isReviewsListNavHref(link.href)) {
+    if (workingMode) {
+      return applyBuyerNavVocabulary({
+        href: link.href,
+        label: WORKING_REVIEWS_INBOX_NAV_LABEL,
+        title: WORKING_REVIEWS_INBOX_NAV_TITLE,
+      });
+    }
+
     return applyBuyerNavVocabulary({
       href: link.href,
       label: resolveReviewsListNavLinkLabel(isGovernanceModeEnabled),

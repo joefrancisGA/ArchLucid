@@ -36,7 +36,7 @@ import {
   SPONSOR_DASHBOARD_SKIP_TARGET_ID,
 } from "@/lib/sponsor/sponsor-dashboard-page-copy";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
-import { ArchitectureSponsorDashboardClaimOrientationStrip } from "./ArchitectureSponsorDashboardClaimOrientationStrip";
+import { SponsorDashboardBuyerChrome } from "./SponsorDashboardBuyerChrome";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
 import { SponsorDashboardReviewCoverageHonestyStrip } from "@/components/sponsor/SponsorDashboardReviewCoverageHonestyStrip";
@@ -139,6 +139,7 @@ function SponsorRoiDashboardPortfolioSections({
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <SponsorDashboardBuyerChrome />
       {showSampleBanner ? <SponsorDashboardSampleWorkspaceBanner /> : null}
 
       {!dashboardEmpty ? <OperatorWelcomeOnboardingDeferred /> : null}
@@ -255,10 +256,6 @@ function SponsorRoiDashboardPortfolioSections({
       {reviewPicked ? (
         <SponsorRoiDashboardNextReviewFooterClient runId={selectedReviewId.trim()} />
       ) : null}
-          </div>
-
-          <div data-testid="architecture-sponsor-dashboard-orientation-bottom">
-            <ArchitectureSponsorDashboardClaimOrientationStrip />
           </div>
         </div>
       </OperatorPageContainer>

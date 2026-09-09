@@ -1,4 +1,5 @@
 import { HelpSlackIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpSlackIntegrationHeaderActions";
+import { HelpSlackIntegrationCredentialHandlingDisclosure } from "@/app/(operator)/help/_sections/HelpSlackIntegrationCredentialHandlingDisclosure";
 import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationSourcesOrientationStrip";
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -40,6 +41,7 @@ import {
 import {
   SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SLACK_INTEGRATION_HELP_PAGE_LEAD,
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
@@ -167,24 +169,24 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-slack-integration-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-slack-integration-intro">
+                {SLACK_INTEGRATION_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-              {SLACK_INTEGRATION_HELP_OVERVIEW}
-            </p>
           </div>
         ) : null}
 
-        <div className={contentGridClass}>
+        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            {!buyerPolishedShell ? (
-              <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-                {SLACK_INTEGRATION_HELP_OVERVIEW}
-              </p>
-            ) : null}
+            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
+              {SLACK_INTEGRATION_HELP_OVERVIEW}
+            </p>
 
             {!buyerPolishedShell ? (
               <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
@@ -206,17 +208,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
                   </div>
                 ))}
               </dl>
-              <details
-                className={HELP_PAGE_LAYOUT.details}
-                data-testid="help-slack-integration-credential-handling-details"
-              >
-                <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                  {SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE}
-                </summary>
-                <div className={HELP_PAGE_LAYOUT.detailsBody}>
-                  <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY}</p>
-                </div>
-              </details>
+              <HelpSlackIntegrationCredentialHandlingDisclosure />
             </section>
 
             <section
@@ -250,14 +242,10 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-slack-integration-orientation-bottom">
-            <HelpSlackIntegrationSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpSlackIntegrationSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

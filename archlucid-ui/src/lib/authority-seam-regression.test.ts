@@ -168,7 +168,7 @@ describe("authority seam regression", () => {
 
   /**
    * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` omits the Operate governance
-   * cluster until progressive disclosure opts into advanced tiers (Alerts, Audit, and governance workflow hubs).
+   * cluster until progressive disclosure opts into advanced tiers (Alerts, Audit, and approval workflow hubs).
    * Findings lives in the Governance group at extended tier. System health stays under **`operator-admin`**
    * (`platform-admin` surface).
    */
@@ -250,7 +250,7 @@ describe("authority seam regression", () => {
     expect(visible.map((l) => l.href)).toEqual(analysis!.links.map((l) => l.href));
   });
 
-  it("surfaces governance workflow for Execute rank without advanced disclosure", () => {
+  it("surfaces approval workflow for Execute rank without advanced disclosure", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const gatedOff = filterNavLinksForOperatorShell(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority, true);
@@ -284,7 +284,7 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Default Operate governance strip: Alerts hub aligns with Audit and governance workflow under **`advanced`** tier.
+   * Default Operate governance strip: Alerts hub aligns with Audit and approval workflow under **`advanced`** tier.
    * Tier no longer gates visibility, but it still feeds packaging docs and navigation telemetry.
    */
   it("keeps Operate governance Alerts inbox on advanced tier in nav-config", () => {

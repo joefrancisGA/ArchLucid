@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   IntegrationConnectorInventoryTable,
   IntegrationReadinessSummaryStrip,
@@ -60,6 +61,7 @@ export type ConnectorOperationsDashboardProps = {
 
 export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboardProps = {}): ReactElement {
   const hideRecommendedSetupActions = props.hideRecommendedSetupActions === true;
+  const { productLine } = useProductLine();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
@@ -266,7 +268,7 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
 
                 return buildInventoryRow(
                   connector.connectorKey,
-                  connectorCardTitle(connector),
+                  connectorCardTitle(connector, productLine),
                   displayStatus,
                   resolveConnectorGuidance(connector, humanStatus),
                   connector.configurationHref ?? null,

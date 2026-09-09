@@ -86,7 +86,7 @@ function ModelGovernanceStartHereActionPanel(): React.ReactElement {
   );
 }
 
-/** Operator model governance orientation for `/help/model-governance`. */
+/** Operator model approval orientation for `/help/model-governance`. */
 export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -179,7 +179,7 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
               aria-labelledby="what-model-governance-controls"
               className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
             >
-              <HelpSectionHeading id="what-model-governance-controls">What model governance controls</HelpSectionHeading>
+              <HelpSectionHeading id="what-model-governance-controls">What model approval controls</HelpSectionHeading>
               <dl
                 className={cn("m-0 grid gap-3 sm:grid-cols-2", HELP_PAGE_LAYOUT.readingBody)}
                 data-testid="help-model-governance-feature-items"

@@ -9,6 +9,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecurrenceScheduleVocabularyRail";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
+import { LayerHeader } from "@/components/LayerHeader";
 import {
   GOVERNANCE_RECURRENCE_SCHEDULES_PATH,
   recurrenceSchedulesHref,
@@ -21,11 +22,15 @@ import { RecurrenceSchedulesPickReviewBeforeSchedulingStrip } from "@/components
 import { RecurrenceSchedulesNextReviewFooterClient } from "@/components/governance/RecurrenceSchedulesNextReviewFooterClient";
 import { RecurrenceSchedulesWorkflowHelperCard } from "@/components/governance/RecurrenceSchedulesWorkflowHelperCard";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE } from "@/lib/recurrence-schedules-evidence-copy";
 import {
+  RECURRENCE_SCHEDULES_BUYER_START_HERE_HELPER,
   RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID,
+  RECURRENCE_SCHEDULES_LOAD_ERROR,
+  RECURRENCE_SCHEDULES_PAGE_LEAD,
   RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID,
   RECURRENCE_SCHEDULES_SKIP_LINK_LABEL,
   RECURRENCE_SCHEDULES_SKIP_TARGET_ID,
@@ -33,10 +38,10 @@ import {
 import {
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
   RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE,
-  RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
+  recurrenceSchedulesPageSubtitle,
 } from "@/lib/recurrence-schedules-copy";
 import {
   parseRecurrenceSchedulesHowItWorksOpenFromSearch,
@@ -49,6 +54,7 @@ import { useRecurrenceSchedulesClient } from "./use-recurrence-schedules-client"
 
 /** TB-222 — governance workspace for architecture review recurrence schedules. */
 export default function RecurrenceSchedulesClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_RECURRENCE_SCHEDULES_PATH;
   const searchParams = useSearchParams();
@@ -158,8 +164,8 @@ export default function RecurrenceSchedulesClient() {
 
   return (
     <OperatorPageContainer
-      variant="dashboard"
-      className="space-y-4"
+      variant={buyerPolishedShell ? "workflow" : "dashboard"}
+      className={cn("space-y-4", buyerPolishedShell ? "p-4" : undefined, OPERATOR_LAYOUT.sectionStack)}
       data-testid="recurrence-schedules-page"
       data-empty-composition={isEmpty ? "true" : "false"}
     >
@@ -170,10 +176,14 @@ export default function RecurrenceSchedulesClient() {
         {RECURRENCE_SCHEDULES_SKIP_LINK_LABEL}
       </a>
 
+      {buyerPolishedShell ? (
+        <LayerHeader pageKey="recurrence-schedules" density="compact" className="mb-3" />
+      ) : null}
+
       <OperatorPageHeader
         navHref={GOVERNANCE_RECURRENCE_SCHEDULES_PATH}
         title="Recurrence schedules"
-        subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
+        subtitle={recurrenceSchedulesPageSubtitle(buyerPolishedShell)}
         claimDiscipline={RECURRENCE_SCHEDULES_CLAIM_DISCIPLINE}
         claimDisciplineTestId="recurrence-schedules-claim-discipline"
         actions={isEmpty ? null : <div className="flex flex-wrap items-center gap-2">{createScheduleButton}</div>}
@@ -182,16 +192,36 @@ export default function RecurrenceSchedulesClient() {
       <div
         id={RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID}
         data-testid={RECURRENCE_SCHEDULES_PRIMARY_CONTENT_ID}
-        className={cn("scroll-mt-24 space-y-4")}
+        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
       >
         <div
           id={RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID}
           data-testid={RECURRENCE_SCHEDULES_FIRST_VIEWPORT_ID}
           className="space-y-4"
         >
+          {buyerPolishedShell ? (
+            <div
+              className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+              data-testid="governance-recurrence-schedules-first-viewport"
+            >
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="governance-recurrence-schedules-intro"
+              >
+                {RECURRENCE_SCHEDULES_PAGE_LEAD}
+              </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="governance-recurrence-schedules-buyer-start-here-helper"
+              >
+                {RECURRENCE_SCHEDULES_BUYER_START_HERE_HELPER}
+              </p>
+            </div>
+          ) : null}
+
           {loadError ? (
             <OperatorSectionLoadFailure
-              message={loadError}
+              message={buyerPolishedShell ? RECURRENCE_SCHEDULES_LOAD_ERROR : loadError}
               retrying={retryingLoad}
               testId="recurrence-schedules-load-failure"
               onRetry={() => void retryLoad()}
@@ -288,8 +318,14 @@ export default function RecurrenceSchedulesClient() {
           ))}
         </nav>
 
-        <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
-        <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+        {buyerPolishedShell ? null : (
+          <>
+            <DigestRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+            <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="recurrence-schedules" />
+          </>
+        )}
+
+        {scopedRunFilterActive ? <RecurrenceSchedulesNextReviewFooterClient runId={scopedRunId} /> : null}
 
         <RecurrenceSchedulesBuyerChrome />
       </div>
@@ -325,8 +361,6 @@ export default function RecurrenceSchedulesClient() {
             });
         }}
       />
-
-      {scopedRunFilterActive ? <RecurrenceSchedulesNextReviewFooterClient runId={scopedRunId} /> : null}
     </OperatorPageContainer>
   );
 }

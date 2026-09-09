@@ -1,7 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -9,6 +12,10 @@ import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  changesSinceLastReviewDisclosureHrefFromSearch,
+  parseChangesSinceLastReviewOpenFromSearch,
+} from "@/lib/runs/changes-since-last-review-disclosure-url";
 
 export type ChangesSinceLastReviewBannerProps = {
   readonly priorReviewDateLabel: string;
@@ -20,11 +27,39 @@ export type ChangesSinceLastReviewBannerProps = {
 
 /** Collapsible read-only delta banner vs the prior committed review on the same project. */
 export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBannerProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const changesSinceLastReviewOpenParam = searchParams.get("changesSinceLastReviewOpen");
+  const [bannerOpen, setBannerOpenState] = useState(() =>
+    parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam),
+  );
   const compareHref = comparePageHrefAdaptive(props.priorRunId, props.currentRunId);
   const compareLinkLabel = isBuyerPolishedOperatorShellEnv()
     ? BUYER_COMPARE_OPEN_FULL_LINK_LABEL
     : "Open full comparison";
   const blockedReason = props.blockedReason?.trim() ?? "";
+
+  const syncBannerOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(changesSinceLastReviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setBannerOpen = useCallback(
+    (open: boolean) => {
+      setBannerOpenState(open);
+      syncBannerOpenToUrl(open);
+    },
+    [syncBannerOpenToUrl],
+  );
+
+  useEffect(() => {
+    setBannerOpenState(parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam));
+  }, [changesSinceLastReviewOpenParam]);
 
   if (blockedReason.length > 0) {
     return (
@@ -50,6 +85,10 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
     <details
       data-testid="changes-since-last-review-banner"
       className="group rounded-lg border border-neutral-200 bg-neutral-50/90 shadow-sm open:bg-white dark:border-neutral-800 dark:bg-neutral-950/40 dark:open:bg-neutral-950/30"
+      open={bannerOpen}
+      onToggle={(event) => {
+        setBannerOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("flex cursor-pointer list-none items-start gap-2 px-4 py-3 font-semibold text-neutral-900 outline-none marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.cardTitle)}>
         <DisclosureTriangleIndicator className="mt-0.5" />

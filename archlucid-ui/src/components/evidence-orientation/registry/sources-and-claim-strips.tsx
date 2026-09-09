@@ -9,10 +9,20 @@ import {
   ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-created-clarifications-sources";
 import {
+  ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_EVIDENCE_SOURCES,
+  ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO,
+} from "@/lib/architecture/architecture-created-evidence-sources";
+import {
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO,
 } from "@/lib/architecture/architecture-created-findings-sources";
+import {
+  ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_GOVERNANCE_SOURCES,
+  ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO,
+} from "@/lib/architecture/architecture-created-governance-sources";
 import {
   EVIDENCE_CLAIM_STYLE,
   EVIDENCE_SOURCES_STYLE,
@@ -52,7 +62,6 @@ import {
 } from "@/lib/quick-scan-evidence-copy";
 import {
   SECURITY_TRUST_CLAIM_DISCIPLINE,
-  SECURITY_TRUST_SOURCES,
   SECURITY_TRUST_SOURCES_INTRO,
 } from "@/lib/security-trust-evidence-copy";
 import { SEE_IT_SOURCES, SEE_IT_SOURCES_INTRO } from "@/lib/see-it-evidence-copy";
@@ -114,6 +123,38 @@ export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX
       sources={ARCHITECTURE_CREATED_FINDINGS_SOURCES}
       claimHeading="Before finalize — findings only"
       claim={ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="architecture-evidence"
+      part={props.part}
+      align="text-left"
+      sourcesIntro={ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO}
+      sources={ARCHITECTURE_CREATED_EVIDENCE_SOURCES}
+      claimHeading="Before finalize — evidence capture only"
+      claim={ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
+    />
+  );
+}
+
+export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationSourcesAndClaimStrip
+      slug="architecture-governance"
+      part={props.part}
+      align="text-left"
+      sourcesIntro={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO}
+      sources={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES}
+      claimHeading="Before finalize — governance orientation only"
+      claim={ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE}
     />
   );
 }
@@ -246,20 +287,6 @@ export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
-      claimHeading=""
-      claim=""
-    />
-  );
-}
-
-export function SecurityTrustEvidenceOrientationStrip(): React.JSX.Element {
-  return (
-    <EvidenceOrientationSourcesAndClaimStrip
-      slug="assurance-status"
-      part="sources"
-      margin="mt-8"
-      sourcesIntro={SECURITY_TRUST_SOURCES_INTRO}
-      sources={SECURITY_TRUST_SOURCES}
       claimHeading=""
       claim=""
     />

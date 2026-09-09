@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OPERATOR_BODY_INLINE_LINK_CLASS } from "@/lib/design-tokens";
 
@@ -44,6 +44,10 @@ import {
   parseHelpGlossaryCategoryFilter,
   parseHelpGlossarySearchQuery,
 } from "@/lib/help/help-glossary-filters";
+import {
+  helpGlossaryMoreDetailDisclosureHrefFromSearch,
+  parseHelpGlossaryMoreDetailTermFromSearch,
+} from "@/lib/help/help-glossary-more-detail-disclosure-url";
 import { cn } from "@/lib/utils";
 
 const CUSTOMER_TERMS = listCustomerFacingGlossaryTerms();
@@ -57,6 +61,8 @@ type GlossaryTermEntryProps = {
   readonly term: CustomerGlossaryTerm;
   readonly visibleTermIds: ReadonlySet<string>;
   readonly onRelatedTermNavigate: (relatedId: string) => void;
+  readonly moreDetailOpen: boolean;
+  readonly onMoreDetailOpenChange: (termId: string | null) => void;
 };
 
 function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
@@ -82,7 +88,14 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
         </p>
       ) : null}
       {props.term.detail !== undefined ? (
-        <details className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+        <details
+          className="mt-3 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+          open={props.moreDetailOpen}
+          onToggle={(event) => {
+            const nextOpen = event.currentTarget.open;
+            props.onMoreDetailOpenChange(nextOpen ? props.term.id : null);
+          }}
+        >
           <summary className="cursor-pointer font-medium">More detail</summary>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{props.term.detail}</p>
         </details>
@@ -121,11 +134,37 @@ function GlossaryTermEntry(props: GlossaryTermEntryProps): React.ReactElement {
 
 export function HelpGlossaryPageClient(): React.ReactElement {
   const router = useRouter();
+  const pathname = usePathname() ?? "/help/glossary";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlQuery = parseHelpGlossarySearchQuery(searchParams.get("q"));
   const category = parseHelpGlossaryCategoryFilter(searchParams.get("category"));
+  const helpGlossaryMoreDetailTermParam = searchParams.get("helpGlossaryMoreDetailTerm");
   const [query, setQuery] = useState(urlQuery);
+  const [moreDetailTermId, setMoreDetailTermIdState] = useState(() =>
+    parseHelpGlossaryMoreDetailTermFromSearch(helpGlossaryMoreDetailTermParam),
+  );
+
+  const syncMoreDetailTermToUrl = useCallback(
+    (termId: string | null) => {
+      router.replace(helpGlossaryMoreDetailDisclosureHrefFromSearch(searchParams.toString(), termId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setMoreDetailTermId = useCallback(
+    (termId: string | null) => {
+      setMoreDetailTermIdState(termId ?? "");
+      syncMoreDetailTermToUrl(termId);
+    },
+    [syncMoreDetailTermToUrl],
+  );
+
+  useEffect(() => {
+    setMoreDetailTermIdState(parseHelpGlossaryMoreDetailTermFromSearch(helpGlossaryMoreDetailTermParam));
+  }, [helpGlossaryMoreDetailTermParam]);
 
   useEffect(() => {
     setQuery(urlQuery);
@@ -322,6 +361,8 @@ export function HelpGlossaryPageClient(): React.ReactElement {
                     term={term}
                     visibleTermIds={visibleTermIds}
                     onRelatedTermNavigate={handleRelatedTermNavigate}
+                    moreDetailOpen={moreDetailTermId === term.id}
+                    onMoreDetailOpenChange={setMoreDetailTermId}
                   />
                 ))}
               </div>

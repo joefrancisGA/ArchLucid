@@ -5,11 +5,9 @@ import { useSearchParams } from "next/navigation";
 
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 
-import { OperatorHomePrimaryAttentionLead } from "@/components/operator-home/OperatorHomePrimaryAttentionLead";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
-import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
   formatOperatorHomeCompactMetricsLine,
   formatSetupReadinessLabel,
@@ -29,10 +27,12 @@ import {
 } from "@/lib/operator/operator-home-metric-hrefs";
 import {
   operatorHomeActiveReviewsPresentation,
+  operatorHomeAwaitingApprovalPresentation,
   operatorHomeFinalizedPackagesPresentation,
   operatorHomeGovernanceWarningsPresentation,
   workspaceOpenFindingsPresentation,
 } from "@/lib/metric-count-presentation";
+import { useOperatorAttentionSummary } from "@/hooks/use-operator-attention-summary";
 import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -41,13 +41,9 @@ type OperatorHomeWorkspaceMetricsStripProps = {
   readonly workingMode?: boolean;
 };
 
-const METRIC_CARD_CLASS =
-  "min-w-0 flex-1 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900";
+const METRIC_CARD_CLASS = "min-w-0 flex-1";
 
 const OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE = "Workspace summary";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL = "Scope:";
-const OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE =
-  "Each tile states its partition inline — reviews inventory, findings queue, or governance approval warnings.";
 
 /** Compact KPI strip for populated workspaces. */
 export function OperatorHomeWorkspaceMetricsStrip(
@@ -55,10 +51,13 @@ export function OperatorHomeWorkspaceMetricsStrip(
 ): React.JSX.Element | null {
   const readiness = useFinishSetupReadinessContext();
   const searchParams = useSearchParams();
-  const scope = useOperatorScopeRecord();
+  const { summaries } = useOperatorAttentionSummary();
+  const awaitingApprovalCount =
+    summaries.find((summary) => summary.partition === "awaiting-approval")?.totalCount ?? 0;
   const countingSnapshot = deriveOperatorHomeTenantCountingSnapshot({
     displayItems: props.runsDashboard.items,
     previewItems: props.runsDashboard.items,
+    awaitingApprovalCount,
   });
   const metrics = countingSnapshot.metrics;
 
@@ -67,7 +66,7 @@ export function OperatorHomeWorkspaceMetricsStrip(
   }
 
   const activeReviews = metrics.reviewPackagesActive;
-  const finalizedPackages = metrics.reviewPackagesCommitted;
+  const sealedRecords = metrics.reviewPackagesCommitted;
   const findingsCount = metrics.openFindings;
   const warningsCount = metrics.governanceWarnings;
   const warningsLabel =
@@ -75,7 +74,11 @@ export function OperatorHomeWorkspaceMetricsStrip(
       ? OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_SINGULAR
       : OPERATOR_HOME_GOVERNANCE_APPROVAL_WARNING_PLURAL;
   const hasPressureMetrics =
-    activeReviews > 0 || finalizedPackages > 0 || findingsCount > 0 || warningsCount > 0;
+    activeReviews > 0 ||
+    sealedRecords > 0 ||
+    findingsCount > 0 ||
+    warningsCount > 0 ||
+    awaitingApprovalCount > 0;
 
   if (!hasPressureMetrics) {
     return null;
@@ -97,46 +100,72 @@ export function OperatorHomeWorkspaceMetricsStrip(
     setupReadinessLoading: readiness.phase === "loading",
   });
 
-  const workspaceName = scope?.workspaceLabel?.trim() ?? "this workspace";
+  const metricTiles: React.JSX.Element[] = [];
+
+  if (activeReviews > 0) {
+    metricTiles.push(
+      <li key="active-reviews" className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
+        <SelfDescribingMetricCount
+          presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
+          testId="operator-home-metric-active-reviews-count"
+        />
+      </li>,
+    );
+  }
+
+  if (sealedRecords > 0) {
+    metricTiles.push(
+      <li key="finalized-packages" className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
+        <SelfDescribingMetricCount
+          presentation={operatorHomeFinalizedPackagesPresentation(sealedRecords)}
+          testId="operator-home-metric-finalized-packages-count"
+        />
+      </li>,
+    );
+  }
+
+  if (findingsCount > 0) {
+    metricTiles.push(
+      <li key="open-findings" className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
+        <SelfDescribingMetricCount
+          presentation={workspaceOpenFindingsPresentation(findingsCount)}
+          testId="operator-home-metric-open-findings-count"
+        />
+      </li>,
+    );
+  }
+
+  if (warningsCount > 0) {
+    metricTiles.push(
+      <li key="governance-warnings" className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
+        <SelfDescribingMetricCount
+          presentation={warningsPresentation}
+          testId="operator-home-governance-warnings-metric-count"
+        />
+      </li>,
+    );
+  }
+
+  if (awaitingApprovalCount > 0) {
+    metricTiles.push(
+      <li key="awaiting-approval" className={METRIC_CARD_CLASS} data-testid="operator-home-metric-awaiting-approval">
+        <SelfDescribingMetricCount
+          presentation={operatorHomeAwaitingApprovalPresentation(awaitingApprovalCount)}
+          testId="operator-home-metric-awaiting-approval-count"
+        />
+      </li>,
+    );
+  }
 
   return (
     <section aria-label={OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE} data-testid="operator-home-workspace-metrics-strip">
-      <div className="mb-3 space-y-1">
+      <div className="mb-3">
         <h2 className={OPERATOR_HOME_SECTION_HEADING}>{OPERATOR_HOME_WORKSPACE_METRICS_SECTION_TITLE}</h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className="font-medium text-al-text-primary">{OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_LABEL}</span>{" "}
-          {OPERATOR_HOME_WORKSPACE_METRICS_SCOPE_VALUE}
-          <span className="sr-only"> Workspace: {workspaceName}.</span>
-        </p>
       </div>
       <p className="sr-only">{compactLine}</p>
       <div className="space-y-4" data-testid="operator-home-workspace-metrics-stack">
-        <OperatorHomePrimaryAttentionLead />
-        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4">
-          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-active-reviews">
-            <SelfDescribingMetricCount
-              presentation={operatorHomeActiveReviewsPresentation(activeReviews)}
-              testId="operator-home-metric-active-reviews-count"
-            />
-          </li>
-          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-finalized-packages">
-            <SelfDescribingMetricCount
-              presentation={operatorHomeFinalizedPackagesPresentation(finalizedPackages)}
-              testId="operator-home-metric-finalized-packages-count"
-            />
-          </li>
-          <li className={METRIC_CARD_CLASS} data-testid="operator-home-metric-open-findings">
-            <SelfDescribingMetricCount
-              presentation={workspaceOpenFindingsPresentation(findingsCount)}
-              testId="operator-home-metric-open-findings-count"
-            />
-          </li>
-          <li className={METRIC_CARD_CLASS} data-testid="operator-home-governance-warnings-metric">
-            <SelfDescribingMetricCount
-              presentation={warningsPresentation}
-              testId="operator-home-governance-warnings-metric-count"
-            />
-          </li>
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5">
+          {metricTiles}
         </ul>
       </div>
       {warningsCount > 0 ? (

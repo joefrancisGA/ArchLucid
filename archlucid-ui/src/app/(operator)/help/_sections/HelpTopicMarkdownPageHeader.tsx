@@ -27,6 +27,8 @@ export type HelpTopicMarkdownPageHeaderProps = {
   readonly exportClaimDiscipline?: ReactNode;
   readonly titleBlockOrientation?: ReactNode;
   readonly signInFailureTriageLine?: ReactNode;
+  readonly claimDiscipline?: string;
+  readonly claimDisciplineTestId?: string;
 };
 
 function hasExportActions(props: HelpTopicMarkdownPageHeaderProps): boolean {
@@ -55,6 +57,8 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       titleTestId="help-topic-page-title"
       subtitle={props.subtitle ?? props.entry.summary}
       breadcrumb={props.breadcrumb}
+      claimDiscipline={props.claimDiscipline}
+      claimDisciplineTestId={props.claimDisciplineTestId}
       metadata={
         props.titleBlockOrientation !== undefined && props.titleBlockOrientation !== null ? (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="help-topic-header-metadata">

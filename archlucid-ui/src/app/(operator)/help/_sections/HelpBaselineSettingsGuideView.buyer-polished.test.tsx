@@ -78,6 +78,8 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-baseline-settings-header-actions")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc-mobile")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-baseline-settings-sources")).toBeInTheDocument();
 

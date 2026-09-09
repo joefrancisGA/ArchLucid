@@ -5,11 +5,17 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
+import {
+  productLineTransientFailureFooter,
+  productLineTransientFailureTimeoutTitle,
+  productLineTransientFailureUnavailableTitle,
+} from "@/lib/product-line/product-line-display-name";
 
 export type OperatorBrandedTransientFailureProps = {
   readonly failure?: ApiLoadFailureState | null;
@@ -43,8 +49,11 @@ export function OperatorBrandedTransientFailure({
   retryLabel = "Retry",
   reportProblemSurfaceId,
 }: OperatorBrandedTransientFailureProps) {
+  const { productLine } = useProductLine();
   const timedOut = isTimeoutFailure(failure);
-  const title = timedOut ? "ArchLucid is taking longer than expected" : "ArchLucid is temporarily unavailable";
+  const title = timedOut
+    ? productLineTransientFailureTimeoutTitle(productLine)
+    : productLineTransientFailureUnavailableTitle(productLine);
   const defaultBody = timedOut
     ? "The server did not respond in time. This is usually temporary — retry in a moment, or return to Reviews while processing continues."
     : "We could not reach the service just now. Confirm the API is running, wait a short time, then retry.";
@@ -91,7 +100,7 @@ export function OperatorBrandedTransientFailure({
         />
       ) : null}
       <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        ArchLucid · {footerLabel}
+        {productLineTransientFailureFooter(productLine, footerLabel)}
       </p>
       <span data-testid="branded-transient-failure" className="sr-only">
         {timedOut ? "Request timed out" : "Service temporarily unavailable"}

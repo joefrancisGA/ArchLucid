@@ -23,6 +23,18 @@ public sealed class ArchitecturePackageOriginResolverTests
     }
 
     [Fact]
+    public void Resolve_returns_Created_when_workflow_intent_casing_differs()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestSource = "draft-intake",
+            WorkflowIntent = "Create-Architecture",
+        };
+
+        ArchitecturePackageOriginResolver.Resolve(request).Should().Be(ArchitecturePackageOrigin.Created);
+    }
+
+    [Fact]
     public void Resolve_returns_Reviewed_for_wizard_and_legacy_draft_intake_without_intent()
     {
         ArchitecturePackageOriginResolver.Resolve(new ArchitectureRequest { RequestSource = "wizard" })

@@ -6,6 +6,7 @@ using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
@@ -17,9 +18,12 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
@@ -30,6 +34,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Authority;
@@ -58,15 +63,30 @@ public sealed class DocxExportController(
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
     IScopeContextProvider scopeProvider,
     IManifestHashService manifestHashService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
     IAuditService auditService,
     ILogger<DocxExportController> logger)
     : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
     private readonly ILogger<DocxExportController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
@@ -213,32 +233,56 @@ public sealed class DocxExportController(
             nameof(ExportRunDocx),
             docxFindingCount);
 
-        DocxExportResult result = await docxExportService.ExportAsync(
-            DocxExportRequest.ForArchitecturePackage(
-                runId,
-                manifest.ManifestId,
-                "ArchLucid Architecture Package",
-                $"Generated for Run {runId}",
-                manifestComparison,
-                comparisonNarrative,
-                runNarrative,
-                runDetail.FindingsSnapshot),
-            manifest,
-            artifacts,
-            ct);
+        try
+        {
+            CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+                architectureDetail,
+                _authorityQueryService,
+                _graphSnapshotRepository,
+                _agentExecutionTraceRepository,
+                scope,
+                workingDesk: true,
+                _configuration,
+                ct);
+            TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
+            CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
+                careerExportHonesty,
+                transparencyTrail);
+            CareerArtifactExportCompletenessGate.EnsureCanExport(careerExportHonesty, careerArtifactInput);
+            string careerExportHonestyPlainText = CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty);
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
-                RunId = runId,
-                ManifestId = manifest.ManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new { runId, compareWithRunId, byteCount = result.Content.Length },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
+            DocxExportResult result = await docxExportService.ExportAsync(
+                DocxExportRequest.ForArchitecturePackage(
+                    runId,
+                    manifest.ManifestId,
+                    "ArchLucid Architecture Package",
+                    $"Generated for Run {runId}",
+                    manifestComparison,
+                    comparisonNarrative,
+                    runNarrative,
+                    runDetail.FindingsSnapshot,
+                    careerExportHonestyPlainText),
+                manifest,
+                artifacts,
+                ct);
 
-        return File(result.Content, result.ContentType, result.FileName);
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                    RunId = runId,
+                    ManifestId = manifest.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { runId, compareWithRunId, byteCount = result.Content.Length },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                ct);
+
+            return File(result.Content, result.ContentType, result.FileName);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 }
