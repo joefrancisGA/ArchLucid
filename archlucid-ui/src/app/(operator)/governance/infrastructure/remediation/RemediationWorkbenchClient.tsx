@@ -109,6 +109,8 @@ import {
   REMEDIATION_WORKBENCH_RUN_ID_PARAM,
   REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
+import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +122,13 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
+
+function formatRemediationWorkbenchApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blocked = remediationInstanceMutationBlockedReason(failure);
+
+  return blocked ?? formatInfraEvidenceRemediationApiError(error);
+}
 
 function buildDiagramReconcileHref(context: {
   readonly correspondenceId: string | null;
@@ -407,7 +416,7 @@ export function RemediationWorkbenchClient() {
         setSelectedWaveId(waveRows[0].waveId);
       }
     } catch (error: unknown) {
-      setLoadError(formatInfraEvidenceRemediationApiError(error));
+      setLoadError(formatRemediationWorkbenchApiError(error));
     } finally {
       setLoading(false);
     }
@@ -425,7 +434,7 @@ export function RemediationWorkbenchClient() {
       const response = await fetchRemediationInstanceDetail(instanceId);
       setDetail(response);
     } catch (error: unknown) {
-      setLoadError(formatInfraEvidenceRemediationApiError(error));
+      setLoadError(formatRemediationWorkbenchApiError(error));
       setDetail(null);
     } finally {
       setDetailLoading(false);
@@ -498,7 +507,7 @@ export function RemediationWorkbenchClient() {
 
       await refreshAfterAction(result.instanceId);
     } catch (error: unknown) {
-      setActionMessage(formatInfraEvidenceRemediationApiError(error));
+      setActionMessage(formatRemediationWorkbenchApiError(error));
     } finally {
       setActionBusy(false);
     }
@@ -517,7 +526,7 @@ export function RemediationWorkbenchClient() {
 
       await refreshAfterAction(result.instanceId ?? selectedInstanceId);
     } catch (error: unknown) {
-      setActionMessage(formatInfraEvidenceRemediationApiError(error));
+      setActionMessage(formatRemediationWorkbenchApiError(error));
     } finally {
       setActionBusy(false);
     }
