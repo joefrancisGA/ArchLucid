@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class GoldenCorpusHarnessEngineRegistration
 {
-    public const int LatestGoldenCorpusCaseNumber = 70;
+    public const int LatestGoldenCorpusCaseNumber = 71;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
