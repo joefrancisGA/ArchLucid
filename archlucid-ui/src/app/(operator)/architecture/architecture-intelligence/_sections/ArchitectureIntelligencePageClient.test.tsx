@@ -2182,6 +2182,269 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
     expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
   });
+
+  it("ignores stale golden test results when operator scope switches before golden test completes", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    let resolveGoldenPost: (() => void) | null = null;
+    const goldenPostGate = new Promise<void>((resolve) => {
+      resolveGoldenPost = resolve;
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    searchParamsGet.mockImplementation(() => null);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          await goldenPostGate;
+
+          return okJsonFetchResponse({
+            passed: true,
+            plantedDefectRecall: 1,
+            falsePositiveCount: 0,
+            mutationChangedFindings: false,
+            beforeCounts: { High: 1 },
+            afterCounts: { High: 1 },
+            notes: "Stale golden test marker",
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Freeform architecture for workspace A." },
+    });
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
+    });
+
+    resolveGoldenPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale golden test marker")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-golden-results")).not.toBeInTheDocument();
+  });
+
+  it("clears publish-to-product toggle when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-toggle"));
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeChecked();
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-publish-toggle")).not.toBeChecked();
+    });
+  });
+
+  it("clears interview answers when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse({
+            runId: "freeform-run",
+            model: { elements: [] },
+            specialistReviews: [],
+            recommendations: [],
+            mustNotFailViolations: [],
+            interview: {
+              framingQuestions: [
+                {
+                  questionId: "scope-clarification",
+                  prompt: "What is the blast radius for this change?",
+                },
+              ],
+              evidenceDrivenQuestions: [],
+            },
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Freeform architecture for workspace A." },
+    });
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-interview-scope-clarification")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-interview-scope-clarification"), {
+      target: { value: "Single region only." },
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-interview-scope-clarification")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows findings-queue inbound context when deep-linked from findings", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "findings";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated findings-queue architecture description.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "findings queue",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+      "publish gated findings back to this review",
+    );
+  });
+
+  it("mentions attached documents when multiple source texts hydrate", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Primary architecture description.",
+              },
+              {
+                fileName: "threat-model.md",
+                contentType: "text/markdown",
+                content: "Threat model attachment.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "plus 1 attached document",
+      );
+    });
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {
