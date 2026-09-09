@@ -69,8 +69,7 @@ public sealed class GoldenCorpusRegressionTests
                 audit,
                 merge,
                 CancellationToken.None,
-                input.InventoryFixture,
-                input.PriorGraphFixture);
+                input.InventoryFixture);
 
             await AssertFileAsync(dir, "expected-findings.json", actual.FindingsJson);
             await AssertFileAsync(dir, "expected-decisions.json", actual.DecisionsJson);
