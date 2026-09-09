@@ -11,6 +11,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -52,7 +54,8 @@ public sealed partial class RunDetailQueryService(
     IFindingTrustLabelMapper findingTrustLabelMapper,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IRunStateTransitionService runStateTransitionService,
-    ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
+    ILogger<RunDetailQueryService> logger,
+    IFindingSemanticSupportBandOverlayRepository? semanticSupportBandOverlayRepository = null) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
@@ -70,6 +73,9 @@ public sealed partial class RunDetailQueryService(
 
     private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
         findingRecordMuteRepository ?? throw new ArgumentNullException(nameof(findingRecordMuteRepository));
+
+    private readonly IFindingSemanticSupportBandOverlayRepository? _semanticSupportBandOverlayRepository =
+        semanticSupportBandOverlayRepository;
 
     private readonly ILogger<RunDetailQueryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
