@@ -1496,4 +1496,70 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
 
         listed.Select(r => r.RunId).Should().Equal(runA, runB, runC);
     }
+
+    [Fact]
+    public void IsEligibleForStaleUncommittedPurge_excludes_sample_runs()
+    {
+        DateTime cutoff = new(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                IsSample = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            },
+            cutoff).Should().BeFalse("sample runs purge through SampleRunPurgeBatch, not stale-uncommitted hard delete.");
+    }
+
+    [Fact]
+    public void Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs()
+    {
+        string migrationSql = File.ReadAllText(
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "..", "..", "..", "..",
+                "ArchLucid.Persistence",
+                "Migrations",
+                "218_PurgeCascadeCore.sql"));
+
+        migrationSql.Should().Contain("AND r.IsSample = 0");
+        RunRepositorySql.ArchiveRunsCreatedBefore.Should().NotContain("IsSample");
+    }
+
+    [Fact]
+    public async Task InMemory_stale_uncommitted_purge_skips_sample_runs()
+    {
+        InMemoryRunRepository runs = new();
+        RunRecord sample = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ScopeProjectId = Guid.NewGuid(),
+            ProjectId = "trial-sample",
+            IsSample = true,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = new DateTime(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        await runs.SaveAsync(sample, CancellationToken.None);
+
+        RunStaleUncommittedPurgeBatchResult result = await runs.HardDeleteStaleUncommittedRunsBatchAsync(
+            new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero),
+            10,
+            CancellationToken.None);
+
+        result.Deleted.Should().BeEmpty();
+        (await runs.GetByIdAsync(
+            new ScopeContext
+            {
+                TenantId = sample.TenantId,
+                WorkspaceId = sample.WorkspaceId,
+                ProjectId = sample.ScopeProjectId,
+            },
+            sample.RunId,
+            CancellationToken.None)).Should().NotBeNull();
+    }
 }

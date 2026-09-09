@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 22
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
+- **last-bug:** 2026-09-09 — stale-uncommitted purge hard-deleted sample-marked trial runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -793,6 +793,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `HardDeleteStaleUncommittedRunsBatchAsync` / `Archival_PurgeStaleUncommittedRunsBatch` omitted `IsSample` and hard-deleted trial sample runs meant for `SampleRunPurgeBatch` — **hit 2026-09-09 seed hunt #1463 (seed→hit):** `IsEligibleForStaleUncommittedPurge` and migration `218_PurgeCascadeCore.sql` now exclude `IsSample`; regressions in `IsEligibleForStaleUncommittedPurge_excludes_sample_runs`, `Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs`, and `InMemory_stale_uncommitted_purge_skips_sample_runs`.
+- [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` hard-deletes soft-archived uncommitted runs because `ArchivedUtc` is omitted from purge eligibility — **cheap-disproof 2026-09-09 seed hunt #1463:** production `DataArchival:PurgeUncommittedRunsAfterDays` intentionally reclaims non-committed rows regardless of soft-archive; dedicated sample TTL remains on `SampleRunPurgeBatch`; regression `Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs` documents `IsSample` exclusion only.
+- [x] (candidate) Pipeline-dead-letter `Failed` / `ExecutionCompletedQualityRejected` rows with retained `GoldenManifestId` match committed-run lookups via `IsCommittedRun` / `OR r.GoldenManifestId IS NOT NULL` — locus in `RunRepositoryCore.Query.cs` and `RunRepositorySql.CommittedLookups.cs`; open on unmerged branches **#1459** / **#1460**; not reproved on this run.
+
+2026-09-09 seed hunt #1463 (seed→hit): reseeded sql-run-repository after #1451; proved stale-uncommitted purge deleted `IsSample` rows; cheap-disproof closed archived-uncommitted hard-delete as intentional retention overlap; seeded dead-letter committed-lookup candidate (tracked on open PRs); 93 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
