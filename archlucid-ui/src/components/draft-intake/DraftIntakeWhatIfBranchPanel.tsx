@@ -17,7 +17,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useDraftBranchQuotaQuery } from "@/hooks/use-draft-branch-quota-query";
 import { branchDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
 import {
   DRAFT_INTAKE_SELECT_UNSET_VALUE,
@@ -196,7 +198,16 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
       props.onBranched(response);
       setOverrideValue("");
     } catch (submitError: unknown) {
-      if (isApiRequestError(submitError)) {
+      const failure = toApiLoadFailure(submitError);
+      const blocked = architectureDraftIntakeMutationBlockedReason(failure);
+
+      if (blocked !== null) {
+        setError({
+          message: blocked,
+          problem: failure.problem,
+          correlationId: failure.correlationId,
+        });
+      } else if (isApiRequestError(submitError)) {
         setError({
           message: submitError.message,
           problem: submitError.problem,

@@ -25,6 +25,7 @@ import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synth
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
+import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -191,15 +192,18 @@ export function CommitRunButton({
       setSuccessModalOpen(true);
       syncFinalizeModalsToUrl(false, true);
     } catch (e: unknown) {
+      const failure = toApiLoadFailure(e);
+      const blocked = reviewFinalizeMutationBlockedReason(failure);
+
       if (isApiRequestError(e)) {
         setError({
-          message: e.message,
+          message: blocked ?? e.message,
           problem: e.problem,
           correlationId: e.correlationId,
         });
       } else {
         setError({
-          message: e instanceof Error ? e.message : "Finalization failed.",
+          message: blocked ?? (e instanceof Error ? e.message : "Finalization failed."),
           problem: null,
           correlationId: null,
         });

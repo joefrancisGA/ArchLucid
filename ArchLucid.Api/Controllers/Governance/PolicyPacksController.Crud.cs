@@ -2,6 +2,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
@@ -20,6 +21,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(
         [FromBody] CreatePolicyPackRequest? request,
         CancellationToken ct = default)
@@ -33,15 +35,24 @@ public sealed partial class PolicyPacksController
         if (validationProblem is not null)
             return validationProblem;
 
-        PolicyPackHttpResult<PolicyPack> result = await _httpFacade.CreatePackAsync(
-            new PolicyPackCreateBody
-            {
-                Name = request.Name,
-                Description = request.Description,
-                PackType = request.PackType,
-                InitialContentJson = request.InitialContentJson,
-            },
-            ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPack> result;
+
+        try
+        {
+            result = await _httpFacade.CreatePackAsync(
+                new PolicyPackCreateBody
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    PackType = request.PackType,
+                    InitialContentJson = request.InitialContentJson,
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -57,6 +68,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Publish(
         Guid policyPackId,
         [FromBody] PublishPolicyPackVersionRequest? request,
@@ -76,14 +88,23 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<PolicyPackVersion> result = await _httpFacade.PublishVersionAsync(
-            policyPackId,
-            new PolicyPackPublishBody
-            {
-                Version = request.Version,
-                ContentJson = request.ContentJson,
-            },
-            ct).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPackVersion> result;
+
+        try
+        {
+            result = await _httpFacade.PublishVersionAsync(
+                policyPackId,
+                new PolicyPackPublishBody
+                {
+                    Version = request.Version,
+                    ContentJson = request.ContentJson,
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -105,6 +126,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeletePack(Guid policyPackId, CancellationToken ct = default)
     {
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
@@ -112,8 +134,17 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.SoftDeletePackAsync(policyPackId, ct)
-            .ConfigureAwait(false);
+        PolicyPackHttpResult<bool> result;
+
+        try
+        {
+            result = await _httpFacade.SoftDeletePackAsync(policyPackId, ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -136,6 +167,7 @@ public sealed partial class PolicyPacksController
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DuplicatePack(Guid policyPackId, CancellationToken ct = default)
     {
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
@@ -143,8 +175,17 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<PolicyPack> result = await _httpFacade.DuplicatePackAsync(policyPackId, ct)
-            .ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPack> result;
+
+        try
+        {
+            result = await _httpFacade.DuplicatePackAsync(policyPackId, ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 

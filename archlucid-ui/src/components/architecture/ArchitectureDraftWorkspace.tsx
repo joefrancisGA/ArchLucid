@@ -30,6 +30,8 @@ import { retargetAdvisoryDraftInFlightArchitecture } from "@/lib/operations/advi
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import {
   architectureDraftAllowsBriefUnlock,
@@ -363,10 +365,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       const reopened = await reopenDraftRequest(draft.draftId);
       handleDraftLoaded(reopened);
     } catch (error) {
+      const failure = toApiLoadFailure(error);
       setUnlockError(
-        isApiRequestError(error)
-          ? error.message
-          : "Could not unlock this architecture. Try again.",
+        architectureDraftIntakeMutationBlockedReason(failure)
+          ?? (isApiRequestError(error)
+            ? error.message
+            : "Could not unlock this architecture. Try again."),
       );
     } finally {
       setUnlockBusy(false);

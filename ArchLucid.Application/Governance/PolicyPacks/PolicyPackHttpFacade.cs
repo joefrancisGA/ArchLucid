@@ -1,6 +1,9 @@
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance.PolicyPacks;
 
@@ -8,7 +11,10 @@ namespace ArchLucid.Application.Governance.PolicyPacks;
 public sealed partial class PolicyPackHttpFacade(
     IPolicyPackWorkflowFacade workflow,
     IScopeContextProvider scopeProvider,
-    ITenantRepository tenantRepository) : IPolicyPackHttpFacade
+    ITenantRepository tenantRepository,
+    IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : IPolicyPackHttpFacade
 {
     private readonly IPolicyPackWorkflowFacade _workflow =
         workflow ?? throw new ArgumentNullException(nameof(workflow));
@@ -18,6 +24,15 @@ public sealed partial class PolicyPackHttpFacade(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private async Task<bool> EnsureScopeAsync(CancellationToken cancellationToken)
     {
