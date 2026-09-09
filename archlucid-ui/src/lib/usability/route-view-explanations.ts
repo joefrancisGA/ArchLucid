@@ -31,7 +31,18 @@ import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-eviden
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,
@@ -46,6 +57,7 @@ import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
@@ -468,6 +480,100 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     },
   },
   {
+    prefix: GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Needs attention",
+      summary:
+        "One inbox for unfinished work, assigned findings, alerts, and approvals that need action in this workspace.",
+      nextAction: "Open the partition that matches your job, then follow the linked queue to clear or assign the work.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_APPROVAL_QUEUE_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Approval queue",
+      summary:
+        "Submit, approve, or reject architecture-review decisions for this workspace with audit-friendly comments.",
+      nextAction:
+        "Load a review context, submit an approval request when ready, then approve or reject with a documented comment.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_FINDINGS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Findings",
+      summary:
+        "Track architecture risks from accepted findings, waivers, exceptions, and approval decisions.",
+      nextAction: "Assign owners, review aging risks, and clear expiring exceptions.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Assigned to me",
+      summary: "Open findings assigned to you for triage, evidence review, or resolution in this workspace.",
+      nextAction: "Open each assigned finding, confirm evidence, then update status or route to the owning review.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_DECISION_REGISTER_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Decision register",
+      summary:
+        "Browse architecture decisions locked with finalized review records — category, confidence, findings, and lineage.",
+      nextAction: "Filter by date or category, open a decision card, then follow the linked review or findings when needed.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_POLICY_PACKS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Policy packs",
+      summary:
+        "Review policy pack rules, versions, and how packs apply to architecture reviews in this workspace.",
+      nextAction:
+        "Open a pack to inspect rules, compare packs in the library, or apply a pack when starting a review.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_STANDARDS_AND_RULES_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Standards & rules",
+      summary:
+        "Inspect standards and policy rules applied to a review, including enforcement mode, source pack, and linked evidence.",
+      nextAction:
+        "Open linked findings or the evidence trail for a rule, then export a resolution snapshot when you need a citeable record.",
+    },
+  },
+  {
+    prefix: SIGNED_RECORDS_LIST_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Finalized review records",
+      summary:
+        "Browse finalized packages of decisions, findings, and downloadable artifacts for architecture reviews in this workspace.",
+      nextAction:
+        "Open a finalized review record, review decisions and findings, then export the bundle when downloads are ready.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_AUDIT_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Audit trail",
+      summary:
+        "Search and export workspace audit events for reviews, approval actions, and integrity checks in this workspace.",
+      nextAction:
+        "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
+    },
+  },
+  {
     prefix: "/alerts",
     explanation: {
       title: "Alerts",
@@ -581,9 +687,23 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
   },
 ];
 
+/** Exact governance hub paths opted into explain-this-view (detail routes stay page-owned). */
+const GOVERNANCE_EXPLAIN_OPT_IN_EXACT_PATHS: ReadonlySet<string> = new Set([
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SIGNED_RECORDS_LIST_PATH,
+  GOVERNANCE_AUDIT_PATH,
+]);
+
 /**
- * Alerts inbox and alert-rules configuration are opted in. Risk exceptions keep their own layer
- * guidance and governance approval banner, so a shell banner there repeats guidance the page already owns.
+ * Alerts inbox, alert rules, and governance hub queues are opted in. Risk exceptions keep their own
+ * layer guidance and governance approval banner, so a shell banner there repeats guidance the page already owns.
  */
 function isGovernanceExplainOptIn(path: string): boolean {
   if (path === GOVERNANCE_ALERTS_PATH || path.startsWith(`${GOVERNANCE_ALERTS_PATH}/`)) {
@@ -594,7 +714,7 @@ function isGovernanceExplainOptIn(path: string): boolean {
     return true;
   }
 
-  return false;
+  return GOVERNANCE_EXPLAIN_OPT_IN_EXACT_PATHS.has(path);
 }
 
 /** Returns compact orientation copy only when the route does not already own header guidance. */
@@ -616,7 +736,7 @@ export function routeViewExplanationForPathname(
     }
   }
 
-  // Most approval surfaces own orientation via page headers; alerts inbox and alert rules are opted in.
+  // Most approval surfaces own orientation via page headers; selected governance hubs are opted in.
   if (path.startsWith("/governance")) {
     if (!isGovernanceExplainOptIn(path)) {
       return null;

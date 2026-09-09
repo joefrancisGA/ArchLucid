@@ -22,8 +22,16 @@ import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import {
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SLACK_PATH,
@@ -134,9 +142,10 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
     // Risk exceptions own layer guidance plus the approval banner — a shell banner would repeat it.
     expect(routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH)).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
+    expect(routeViewExplanationForPathname(GOVERNANCE_FINDINGS_PATH)?.title).toBe("Findings");
+    expect(routeViewExplanationForPathname(GOVERNANCE_AUDIT_PATH)?.title).toBe("Audit trail");
     expect(routeViewExplanationForPathname(GOVERNANCE_ALERT_RULES_PATH)?.title).toBe("Alert rules");
+    expect(routeViewExplanationForPathname(`${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`)).toBeNull();
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
@@ -205,6 +214,16 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(SETTINGS_SUPPORT_PATH)?.title).toBe("Support");
     expect(routeViewExplanationForPathname(AUTH_DOMAINS_SETTINGS_CANONICAL_PATH)?.title).toBe("Sign-in domains");
     expect(routeViewExplanationForPathname(EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH)?.title).toBe("Extract and upload");
+  });
+
+  it("covers instrument primer wave 9 — governance hub queues and registers", () => {
+    expect(routeViewExplanationForPathname(GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH)?.title).toBe("Needs attention");
+    expect(routeViewExplanationForPathname(GOVERNANCE_APPROVAL_QUEUE_PATH)?.title).toBe("Approval queue");
+    expect(routeViewExplanationForPathname(GOVERNANCE_DECISION_REGISTER_PATH)?.title).toBe("Decision register");
+    expect(routeViewExplanationForPathname(GOVERNANCE_POLICY_PACKS_PATH)?.title).toBe("Policy packs");
+    expect(routeViewExplanationForPathname(GOVERNANCE_STANDARDS_AND_RULES_PATH)?.title).toBe("Standards & rules");
+    expect(routeViewExplanationForPathname(SIGNED_RECORDS_LIST_PATH)?.title).toBe("Finalized review records");
+    expect(routeViewExplanationForPathname(`${SIGNED_RECORDS_LIST_PATH}/manifest-1`)).toBeNull();
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
