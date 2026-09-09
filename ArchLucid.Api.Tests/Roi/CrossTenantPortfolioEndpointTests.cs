@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
@@ -10,13 +11,19 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+<<<<<<< HEAD
 using ArchLucid.TestSupport.SealedManifest;
+=======
+>>>>>>> 26decd5da617371bc51b786898dd2661aeb472d7
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 26decd5da617371bc51b786898dd2661aeb472d7
 using Moq;
 
 namespace ArchLucid.Api.Tests.Roi;

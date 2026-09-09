@@ -200,7 +200,11 @@ public sealed class RoiControllerTests
                 SealedManifestHashTestSupport.CreateManifestHashService(),
                 Mock.Of<ITenantRepository>(),
                 Mock.Of<IScimUserRepository>(),
+<<<<<<< HEAD
                 Roi.RoiControllerTestSupport.CreateRunCollector(scopeProvider.Object))
+=======
+                RoiControllerTestSupport.CreateRunCollector(Scope))
+>>>>>>> 26decd5da617371bc51b786898dd2661aeb472d7
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
