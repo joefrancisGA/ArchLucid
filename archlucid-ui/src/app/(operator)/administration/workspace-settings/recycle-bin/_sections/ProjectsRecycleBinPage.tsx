@@ -78,6 +78,7 @@ import {
   PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
   PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW,
   PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD,
   PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL,
@@ -456,6 +457,12 @@ export function ProjectsRecycleBinPage() {
                   {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER}
                 </p>
               </section>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="projects-recycle-bin-overview"
+              >
+                {PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW}
+              </p>
             </div>
           ) : null}
 

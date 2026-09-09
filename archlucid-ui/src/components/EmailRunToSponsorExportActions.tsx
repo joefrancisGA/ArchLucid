@@ -40,9 +40,6 @@ export type EmailRunToSponsorExportActionsProps = {
   readonly blockSponsorPdfForAiGate: boolean;
   readonly blockSponsorPdfForProjectedDollar: boolean;
   readonly blockSponsorPdfForRoi: boolean;
-  readonly sponsorProofPackHref: string;
-  readonly SponsorReviewPacketHref: string;
-  readonly markdownHref: string;
   readonly onDownloadPdf: () => Promise<void>;
   readonly onMarkSentToSponsor: () => Promise<void>;
 };
@@ -62,9 +59,6 @@ export function EmailRunToSponsorExportActions({
   blockSponsorPdfForAiGate,
   blockSponsorPdfForProjectedDollar,
   blockSponsorPdfForRoi,
-  sponsorProofPackHref: _sponsorProofPackHref,
-  SponsorReviewPacketHref: _SponsorReviewPacketHref,
-  markdownHref: _markdownHref,
   onDownloadPdf,
   onMarkSentToSponsor,
 }: EmailRunToSponsorExportActionsProps) {

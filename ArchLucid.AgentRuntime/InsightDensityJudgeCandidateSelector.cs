@@ -26,6 +26,7 @@ internal static class InsightDensityJudgeCandidateSelector
     {
         IReadOnlyDictionary<string, double>? noveltyRatesByEngineType = null;
         IReadOnlyDictionary<string, double>? verificationPriorRatesByEngineType = null;
+        IReadOnlyDictionary<string, double>? humanAcceptResidualByEngineType = null;
 
         if (ShouldApplyNoveltySort(options)
             && insightSignalRepository is not null
@@ -53,11 +54,27 @@ internal static class InsightDensityJudgeCandidateSelector
                 cancellationToken);
         }
 
+        if (InsightDensityHumanAcceptResidualLookup.ShouldApplyHumanAcceptResidualSort(options)
+            && insightSignalRepository is not null
+            && scopeContextProvider is not null)
+        {
+            humanAcceptResidualByEngineType = await InsightDensityHumanAcceptResidualLookup.TryLoadResidualsAsync(
+                options,
+                candidates,
+                insightSignalRepository,
+                scopeContextProvider,
+                timeProvider,
+                logger,
+                cancellationToken);
+        }
+
         return SelectEngineJudgedCandidates(
             candidates,
             maxJudgedFindingsPerSnapshot,
             noveltyRatesByEngineType,
-            verificationPriorRatesByEngineType);
+            verificationPriorRatesByEngineType,
+            humanAcceptResidualByEngineType,
+            options.PreferHighHumanAcceptResidual);
     }
 
     internal static (IReadOnlyList<Finding> Judged, int SkippedByCap) SelectEngineJudgedCandidates(

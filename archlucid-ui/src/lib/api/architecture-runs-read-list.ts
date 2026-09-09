@@ -35,7 +35,7 @@ export async function getRunSummary(
     throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
   }
 
-  return apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+  return apiGetSealedManifestAware<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */

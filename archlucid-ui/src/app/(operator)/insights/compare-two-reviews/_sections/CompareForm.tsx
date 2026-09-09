@@ -79,6 +79,8 @@ export function CompareForm(props: CompareFormProps = {}) {
     lastComparedPair,
     leftPickedSummary,
     rightPickedSummary,
+    leftSummaryBlockedReason,
+    rightSummaryBlockedReason,
     continueLastPair,
     syncSelectionToUrl,
     handleLeftRunIdChange,
@@ -243,6 +245,8 @@ export function CompareForm(props: CompareFormProps = {}) {
           onSummarizeForSponsor={loadAiExplanation}
           onLeftRunPicked={setLeftPickedSummary}
           onRightRunPicked={setRightPickedSummary}
+          leftSummaryBlockedReason={leftSummaryBlockedReason}
+          rightSummaryBlockedReason={rightSummaryBlockedReason}
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}

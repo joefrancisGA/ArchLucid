@@ -27,6 +27,9 @@ import {
 } from "@/lib/help/help-topic-catchall-evidence-copy";
 import {
   HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER,
+  HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID,
+  HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID,
+  HELP_TOPIC_CATCHALL_OVERVIEW,
   HELP_TOPIC_CATCHALL_PAGE_LEAD,
   HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID,
   HELP_TOPIC_CATCHALL_SKIP_LINK_LABEL,
@@ -67,6 +70,15 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
       HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("help-topic-catchall-intro")).toHaveTextContent(HELP_TOPIC_CATCHALL_PAGE_LEAD);
+    expect(screen.getByTestId("help-topic-catchall-overview")).toHaveTextContent(HELP_TOPIC_CATCHALL_OVERVIEW);
+    expect(screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("help-topic-catchall-intro"),
+    );
+    expect(
+      screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("help-topic-catchall-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("help-topic-catchall-buyer-start-here-helper")).toHaveTextContent(
       HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER,
     );
@@ -77,7 +89,7 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
 
     const primary = screen.getByTestId(HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID);
     const content = screen.getByTestId("help-topic-content");
-    const orientation = screen.getByTestId("help-topic-catchall-orientation-bottom");
+    const orientation = screen.getByTestId(HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primary).toContainElement(content);
     expect(primary).toContainElement(orientation);

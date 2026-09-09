@@ -32,6 +32,10 @@ export function CompareProvenanceDeltaBand(props: CompareProvenanceDeltaBandProp
   const { isWorkingMode } = useWorkspaceMode();
   const query = useCompareProvenanceTrailsQuery(props.baselineRunId, props.targetRunId);
 
+  if (!isWorkingMode) {
+    return null;
+  }
+
   if (query.isError) {
     const failure = toApiLoadFailure(query.error);
     const blockedReason = compareRunPairBlockedReason(failure);

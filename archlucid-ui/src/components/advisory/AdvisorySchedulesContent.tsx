@@ -26,6 +26,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+  ADVISORY_SCHEDULES_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 
 /**
@@ -117,7 +118,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
               data-testid="advisory-schedules-intro"
             >
-              {ADVISORY_SCANS_SCHEDULES_INTRO}
+              {ADVISORY_SCHEDULES_PAGE_LEAD}
             </p>
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -133,6 +134,15 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
             currentSurfaceId="advisory-schedules"
             peerLinkLabel={ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL}
           />
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-schedules-overview"
+          >
+            {ADVISORY_SCANS_SCHEDULES_INTRO}
+          </p>
         ) : null}
 
         {!page.scopedRunFilterActive ? (

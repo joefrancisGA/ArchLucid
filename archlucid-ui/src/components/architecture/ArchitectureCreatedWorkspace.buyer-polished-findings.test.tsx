@@ -6,7 +6,10 @@ import {
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID,
+  ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
   ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
@@ -99,6 +102,17 @@ describe("ArchitectureCreatedWorkspace buyer-polished Findings tab (REF)", () =>
     expect(screen.getByTestId("architecture-created-findings-intro")).toHaveTextContent(
       ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
     );
+    expect(screen.getByTestId("architecture-created-findings-overview")).toHaveTextContent(
+      ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
+    );
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("architecture-created-findings-intro"),
+    );
+    expect(
+      screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("architecture-created-findings-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("architecture-created-findings-buyer-start-here-helper")).toHaveTextContent(
       ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
     );
@@ -120,7 +134,7 @@ describe("ArchitectureCreatedWorkspace buyer-polished Findings tab (REF)", () =>
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID);
-    const orientationBottom = within(findingsPanel).getByTestId("architecture-findings-orientation-bottom");
+    const orientationBottom = within(findingsPanel).getByTestId(ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("architecture-findings-sources");
 
     expect(findingsPanel).toContainElement(primaryContent);

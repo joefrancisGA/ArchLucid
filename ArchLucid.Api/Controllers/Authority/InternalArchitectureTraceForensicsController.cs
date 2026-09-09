@@ -1,11 +1,15 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -28,9 +32,13 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class InternalArchitectureTraceForensicsController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository authorityRunRepository,
-    IScopeContextProvider scopeContextProvider)
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     /// <summary>
     ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for operator forensics lists
     ///     (no prompts or raw model output — use <see cref="GetTraceForensicsByTraceId" /> for full TraceJson).
@@ -39,6 +47,7 @@ public sealed class InternalArchitectureTraceForensicsController(
     [HttpGet("review/{runId}/traces/forensics")]
     [ProducesResponseType(typeof(AgentExecutionTraceForensicsPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunTraceForensics(
         [FromRoute] string runId,
         [FromQuery] int pageNumber = 1,
@@ -53,6 +62,17 @@ public sealed class InternalArchitectureTraceForensicsController(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.BadRequestProblem("runId must be a GUID.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         if (!await RunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -62,8 +82,6 @@ public sealed class InternalArchitectureTraceForensicsController(
             PageSize = pageSize
         };
         (int skip, int take) = paging.Normalize();
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
             await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
@@ -119,4 +137,29 @@ public sealed class InternalArchitectureTraceForensicsController(
 
     private static bool TryParseRunId(string runId, out Guid runGuid) =>
         Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }
