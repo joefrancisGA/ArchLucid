@@ -13,13 +13,14 @@ import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import {
+  APPROVAL_LINEAGE_BUYER_OVERVIEW,
   APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
   APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
-  APPROVAL_LINEAGE_OVERVIEW,
   APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
   APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
+  APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-lineage-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -98,6 +99,15 @@ export function GovernanceApprovalLineagePageView({
             <Link href="/governance/findings">Findings</Link>
           </Button>
         </div>
+        {model.blockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-approval-lineage-blocked-reason"
+          >
+            {model.blockedReason}
+          </p>
+        ) : null}
         <OperatorApiProblem
           problem={failure.problem}
           fallbackMessage={failure.message}
@@ -113,6 +123,7 @@ export function GovernanceApprovalLineagePageView({
 
   const scopedRunId = data.approvalRequest.runId.trim();
   const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(scopedRunId)}`;
+  const WorkspaceShell = buyerPolishedShell ? "section" : "div";
 
   return (
     <>
@@ -155,21 +166,29 @@ export function GovernanceApprovalLineagePageView({
               >
                 {APPROVAL_LINEAGE_START_HERE_CARD_TITLE}
               </h2>
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                data-testid="approval-lineage-buyer-start-here-helper"
-              >
-                {APPROVAL_LINEAGE_BUYER_START_HERE_HELPER}
-              </p>
-            </section>
             <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="approval-lineage-overview"
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="approval-lineage-buyer-start-here-helper"
             >
-              {APPROVAL_LINEAGE_OVERVIEW}
+              {APPROVAL_LINEAGE_BUYER_START_HERE_HELPER}
             </p>
-          </div>
-        ) : null}
+          </section>
+        </div>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+          data-testid="approval-lineage-overview"
+        >
+          {APPROVAL_LINEAGE_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
+      <WorkspaceShell
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : "space-y-4"}
+        data-testid={buyerPolishedShell ? APPROVAL_LINEAGE_WORKSPACE_TEST_ID : undefined}
+      >
         {scopedRunId.length > 0 ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
@@ -200,6 +219,7 @@ export function GovernanceApprovalLineagePageView({
           runId={data.run?.runId ?? data.approvalRequest.runId}
         />
         {buyerPolishedShell ? <GovernanceApprovalLineageBuyerChrome /> : null}
+      </WorkspaceShell>
       </main>
     </>
   );

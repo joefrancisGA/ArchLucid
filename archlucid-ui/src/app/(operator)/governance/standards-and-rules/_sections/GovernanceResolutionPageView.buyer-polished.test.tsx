@@ -48,6 +48,10 @@ function buildModel(overrides: Partial<GovernanceResolutionPageViewModel> = {}):
     data: null,
     loading: false,
     failure: null,
+    blockedReason: null,
+
+    blockedReason: null,
+
     lastRefreshedAt: null,
     load: vi.fn(async () => undefined),
     ...overrides,

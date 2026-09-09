@@ -35,8 +35,11 @@ import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
+  BASELINE_SETTINGS_HELP_BUYER_OVERVIEW,
   BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
+  BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER,
   BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
@@ -103,6 +106,10 @@ function BaselineSettingsStartHerePanel(props: { readonly buyerPolishedShell: bo
   );
 }
 
+function baselineSettingsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER : BASELINE_SETTINGS_HELP_PAGE_SUBTITLE;
+}
+
 /** Operator baseline settings orientation for `/help/baseline-settings`. */
 export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
@@ -151,7 +158,8 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           <HelpTopicGuidePageHeader
             title={BASELINE_SETTINGS_HELP_PAGE_TITLE}
             titleTestId="help-baseline-settings-page-title"
-            subtitle={BASELINE_SETTINGS_HELP_PAGE_SUBTITLE}
+            subtitle={baselineSettingsHelpPageSubtitle(buyerPolishedShell)}
+            subtitleClassName="max-w-3xl"
             navHref={BASELINE_SETTINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
@@ -178,15 +186,23 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             id={BASELINE_SETTINGS_HELP_SKIP_TARGET_ID}
             data-testid={BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID}
             className={cn(
-              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-baseline-settings-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-baseline-settings-intro">
+                {BASELINE_SETTINGS_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
-              {BASELINE_SETTINGS_HELP_OVERVIEW}
-            </p>
           </div>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
+            {BASELINE_SETTINGS_HELP_BUYER_OVERVIEW}
+          </p>
         ) : null}
 
         <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
@@ -264,11 +280,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-baseline-settings-orientation-bottom">
-            <HelpBaselineSettingsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpBaselineSettingsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

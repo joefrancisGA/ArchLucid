@@ -118,6 +118,14 @@ export function RunsPageView(props: Props) {
         {loadFailure ? (
           <>
             <OperatorApiProblem failure={loadFailure} />
+            {m.listBlockedReason ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="runs-page-list-blocked-reason"
+              >
+                {m.listBlockedReason}
+              </p>
+            ) : null}
             <OperatorTryNext>
               {isApiNotFoundFailure(loadFailure)
                 ? REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT

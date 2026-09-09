@@ -334,6 +334,44 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queueRef.StopAsync(CancellationToken.None);
     }
 
+    [SkippableFact]
+    public async Task MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("scheduling retry", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                if (queueRef is not null && jobIdRef is not null)
+                    _ = queueRef.MarkCanceledAsync(jobIdRef);
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("retry failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("retry-cancel-reread"), maxRetries: 2);
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over pending retry assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
     private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
         TimeSpan timeout)
     {

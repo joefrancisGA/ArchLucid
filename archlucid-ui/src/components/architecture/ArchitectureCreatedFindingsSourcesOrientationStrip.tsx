@@ -1,6 +1,5 @@
-import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   ARCHITECTURE_CREATED_FINDINGS_FOLLOW_UPS_TITLE,
   ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID,
@@ -18,6 +17,7 @@ export function ArchitectureCreatedFindingsSourcesOrientationStrip(): React.JSX.
       sourcesTitle={ARCHITECTURE_CREATED_FINDINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_FINDINGS_SOURCES}
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

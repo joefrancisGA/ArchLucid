@@ -63,6 +63,7 @@ public sealed partial class GovernanceStickinessController
     [HttpGet("recurrence-schedules")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureReviewRecurrenceSchedule>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRecurrenceSchedules(CancellationToken cancellationToken = default)
     {
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
@@ -70,10 +71,17 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
-            await _facade.ListRecurrenceSchedulesAsync(cancellationToken);
+        try
+        {
+            IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
+                await _facade.ListRecurrenceSchedulesAsync(cancellationToken);
 
-        return Ok(schedules);
+            return Ok(schedules);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: dry-run-no-persist

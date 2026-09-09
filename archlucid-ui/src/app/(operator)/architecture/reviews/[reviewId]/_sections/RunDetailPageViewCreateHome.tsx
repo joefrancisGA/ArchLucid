@@ -135,6 +135,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
               <RunDetailCreateHomeFindingsPanel
                 runId={m.resolvedDetail.run.runId}
                 packageCommitted={Boolean(m.manifestId)}
+                buyerPolished={m.buyerPolishedArtifactTable ?? false}
               >
                 <RunDetailExplanationDeferred
                   runId={m.routeRunId}

@@ -22,6 +22,11 @@ export const PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD =
 export const PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW =
   "Workspace tables below list deleted project names, retention windows, and purge dates for the active tenant scope." as const;
 
+/** Buyer bridge between first-viewport lead and read-only recycle tables (STR). */
+export const PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW = PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW;
+
+export const PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID = "projects-recycle-bin-workspace" as const;
+
 export const PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER =

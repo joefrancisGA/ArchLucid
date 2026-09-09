@@ -54,10 +54,20 @@ import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlSc
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM,
+  infraDriftChangeIdentifiersDisclosureHrefFromSearch,
+  parseInfraDriftChangeIdentifiersOpenFromSearch,
+} from "@/lib/infra-evidence/infra-drift-change-identifiers-disclosure-url";
+import {
   INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDriftResourceIdDisclosureHrefFromSearch,
   parseInfraDriftResourceIdDisclosureOpenFromSearch,
 } from "@/lib/infra-evidence/infra-drift-resource-id-disclosure-url";
+import {
+  INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM,
+  infraDriftSnapshotIdentifiersDisclosureHrefFromSearch,
+  parseInfraDriftSnapshotIdentifiersOpenFromSearch,
+} from "@/lib/infra-evidence/infra-drift-snapshot-identifiers-disclosure-url";
 import {
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
@@ -152,8 +162,16 @@ export function DriftWorkbenchClient() {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
+  const driftChangeIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM);
+  const driftSnapshotIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_SNAPSHOT_IDENTIFIERS_OPEN_PARAM);
   const [driftResourceIdOpen, setDriftResourceIdOpenState] = useState(() =>
     parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam),
+  );
+  const [driftChangeIdentifiersOpen, setDriftChangeIdentifiersOpenState] = useState(() =>
+    parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam),
+  );
+  const [driftSnapshotIdentifiersOpen, setDriftSnapshotIdentifiersOpenState] = useState(() =>
+    parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
   );
 
   const syncDriftResourceIdOpenToUrl = useCallback(
@@ -173,9 +191,53 @@ export function DriftWorkbenchClient() {
     [syncDriftResourceIdOpenToUrl],
   );
 
+  const syncDriftChangeIdentifiersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(infraDriftChangeIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDriftChangeIdentifiersOpen = useCallback(
+    (open: boolean) => {
+      setDriftChangeIdentifiersOpenState(open);
+      syncDriftChangeIdentifiersOpenToUrl(open);
+    },
+    [syncDriftChangeIdentifiersOpenToUrl],
+  );
+
+  const syncDriftSnapshotIdentifiersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(infraDriftSnapshotIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDriftSnapshotIdentifiersOpen = useCallback(
+    (open: boolean) => {
+      setDriftSnapshotIdentifiersOpenState(open);
+      syncDriftSnapshotIdentifiersOpenToUrl(open);
+    },
+    [syncDriftSnapshotIdentifiersOpenToUrl],
+  );
+
   useEffect(() => {
     setDriftResourceIdOpenState(parseInfraDriftResourceIdDisclosureOpenFromSearch(driftResourceIdOpenParam));
   }, [driftResourceIdOpenParam]);
+
+  useEffect(() => {
+    setDriftChangeIdentifiersOpenState(parseInfraDriftChangeIdentifiersOpenFromSearch(driftChangeIdentifiersOpenParam));
+  }, [driftChangeIdentifiersOpenParam]);
+
+  useEffect(() => {
+    setDriftSnapshotIdentifiersOpenState(
+      parseInfraDriftSnapshotIdentifiersOpenFromSearch(driftSnapshotIdentifiersOpenParam),
+    );
+  }, [driftSnapshotIdentifiersOpenParam]);
 
   const changeDrawerRef = useRef<HTMLElement | null>(null);
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM));
@@ -873,7 +935,12 @@ export function DriftWorkbenchClient() {
           </p>
 
           {selectedSnapshotId.length > 0 ? (
-            <DriftSnapshotIdentifiers snapshotId={selectedSnapshotId} diffId={selectedDiffId} />
+            <DriftSnapshotIdentifiers
+              snapshotId={selectedSnapshotId}
+              diffId={selectedDiffId}
+              open={driftSnapshotIdentifiersOpen}
+              onToggle={setDriftSnapshotIdentifiersOpen}
+            />
           ) : null}
 
           {exportReceipt != null ? (
@@ -1055,6 +1122,8 @@ export function DriftWorkbenchClient() {
           <DriftChangeDetail
             selectedChange={selectedChange}
             changeDrawerRef={changeDrawerRef}
+            changeIdentifiersOpen={driftChangeIdentifiersOpen}
+            onChangeIdentifiersToggle={setDriftChangeIdentifiersOpen}
             hubHref={
               selectedChange.cloudResourceId != null
                 ? resourceHubFilterHrefFromSearch(selectedChange.cloudResourceId, "", {

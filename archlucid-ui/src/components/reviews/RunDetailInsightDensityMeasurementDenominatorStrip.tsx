@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -14,6 +13,7 @@ import {
   formatInsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly enginesSucceeded?: number | null;

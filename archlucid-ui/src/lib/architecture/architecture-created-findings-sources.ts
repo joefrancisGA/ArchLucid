@@ -50,6 +50,11 @@ export const ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD =
 export const ARCHITECTURE_CREATED_FINDINGS_OVERVIEW =
   "Findings panels below list surfaced assessment items, severity cues, and triage follow-ups for this draft scope.";
 
+/** Buyer bridge between first-viewport lead and findings workspace (REF). */
+export const ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW = ARCHITECTURE_CREATED_FINDINGS_OVERVIEW;
+
+export const ARCHITECTURE_CREATED_FINDINGS_WORKSPACE_TEST_ID = "architecture-created-findings-workspace" as const;
+
 export const ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER =

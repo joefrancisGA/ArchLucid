@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-58–DX-62)
 
-**Created:** 2026-09-08 · **Status:** **DX-58–DX-62 shipped on `master` (2026-09-08).** Do **not** re-run. **DX-63–DX-68 shipped.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) (**DX-69–DX-72**).
+**Created:** 2026-09-08 · **Status:** **DX-58–DX-62 shipped on `master` (2026-09-08).** Do **not** re-run. **DX-63–DX-72 shipped.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76**).
 
 DX-01–DX-50 closed engine, ingest, and citation holes. DX-51–DX-56 added fusion, the held-check ledger, portfolio shared-topology, the idle frontier harness, prose extraction, and verification priors. **DX-57** (`#2242`) turned `PreferHighNoveltyEngines` and `PreferHighVerificationEngines` on in Real mode with tenant opt-out, and gave `EnableInsightGenerator` the same opt-out the judge already had. Latest golden case is **`case-63`**. Harness registers **41** engines; catalog has **52**; **11** absent-with-reason.
 
@@ -411,6 +411,7 @@ Do not add a temporal-fusion engine: `open-commitment` already joins the governa
 - DX-51–DX-56: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md)
 - DX-63–DX-68: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
 - DX-69–DX-72: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md)
+- DX-73–DX-76: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - Miss clause: [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)

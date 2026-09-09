@@ -37,9 +37,9 @@ import {
   resolveNotificationPreferenceSaveChannelSteps,
 } from "@/lib/notification-preference-save-channel-checklist";
 import {
-  notificationPreferenceRelationsDisclosureHrefFromSearch,
-  parseNotificationPreferenceRelationsOpenFromSearch,
-} from "@/lib/administration/notification-preference-relations-disclosure-url";
+  notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
+  parseNotificationPreferenceCenterRelationsOpenFromSearch,
+} from "@/lib/administration/notification-preference-center-relations-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { NotificationPreferenceCenterBreadcrumb } from "./NotificationPreferenceCenterBreadcrumb";
@@ -61,9 +61,9 @@ export function NotificationPreferenceCenterPageView() {
   const { localize } = useLocalizedProductCopy();
   const notificationPreferenceChannels = resolveNotificationPreferenceChannels(productLine);
   const searchParams = useSearchParams();
-  const notificationPreferenceRelationsOpenParam = searchParams.get("notificationPreferenceRelationsOpen");
+  const notificationPreferenceCenterRelationsOpenParam = searchParams.get("notificationPreferenceCenterRelationsOpen");
   const [relationsOpen, setRelationsOpenState] = useState(() =>
-    parseNotificationPreferenceRelationsOpenFromSearch(notificationPreferenceRelationsOpenParam),
+    parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
   );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { statusByChannelId, loading, loadFailed, refresh } = useNotificationChannelDeliveryStatus();
@@ -80,7 +80,7 @@ export function NotificationPreferenceCenterPageView() {
   const syncRelationsOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
-        notificationPreferenceRelationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        notificationPreferenceCenterRelationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
@@ -97,9 +97,9 @@ export function NotificationPreferenceCenterPageView() {
 
   useEffect(() => {
     setRelationsOpenState(
-      parseNotificationPreferenceRelationsOpenFromSearch(notificationPreferenceRelationsOpenParam),
+      parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
     );
-  }, [notificationPreferenceRelationsOpenParam]);
+  }, [notificationPreferenceCenterRelationsOpenParam]);
 
   const notificationsWorkspaceBody = (
     <>

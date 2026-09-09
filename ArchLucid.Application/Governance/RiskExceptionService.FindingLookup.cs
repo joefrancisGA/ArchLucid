@@ -30,7 +30,7 @@ public sealed partial class RiskExceptionService
 
         await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
             findingReviewTrailRepository,
-            scope.TenantId,
+            scope,
             lookupFindingId,
             cancellationToken);
     }

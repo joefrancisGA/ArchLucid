@@ -485,6 +485,89 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_last_committed_value_when_delete_fails_after_generation_bump()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        ThrowingDeleteTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "committed", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+
+        inner.ThrowOnNextDelete = true;
+
+        Func<Task> act = () => repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_still_reads_committed_value_after_upsert_rejects_empty_tenant_id()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "committed", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+
+        Func<Task> act = () => repo.UpsertAsync(Guid.Empty, "feature.x", "rejected", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_still_reads_committed_value_after_delete_rejects_empty_tenant_id()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "committed", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+
+        Func<Task> act = () => repo.DeleteAsync(Guid.Empty, "feature.x", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("committed");
+    }
+
+    [Fact]
+    public async Task TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DirectMutatingTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "cached", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("cached");
+
+        await inner.Inner.UpsertAsync(tenantId, "feature.x", "mutated", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("cached");
+
+        await repo.UpsertAsync(tenantId, "feature.x", "mutated", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("mutated");
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -690,6 +773,24 @@ internal sealed class DelayedUpsertTenantSettingsRepository : ITenantSettingsRep
         _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
 }
 
+internal sealed class DirectMutatingTenantSettingsRepository : ITenantSettingsRepository
+{
+    public InMemoryTenantSettingsRepository Inner { get; } = new();
+
+    public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        Inner.TryGetAsync(tenantId, settingKey, cancellationToken);
+
+    public Task UpsertAsync(
+        Guid tenantId,
+        string settingKey,
+        string settingValue,
+        CancellationToken cancellationToken) =>
+        Inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
+
+    public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        Inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+}
+
 internal sealed class ThrowingUpsertTenantSettingsRepository : ITenantSettingsRepository
 {
     private readonly InMemoryTenantSettingsRepository _inner = new();
@@ -722,3 +823,38 @@ internal sealed class ThrowingUpsertTenantSettingsRepository : ITenantSettingsRe
     public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
         _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
 }
+}
+
+internal sealed class ThrowingDeleteTenantSettingsRepository : ITenantSettingsRepository
+{
+    private readonly InMemoryTenantSettingsRepository _inner = new();
+
+    public bool ThrowOnNextDelete
+    {
+        get;
+        set;
+    }
+
+    public Task<string?> TryGetAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
+        _inner.TryGetAsync(tenantId, settingKey, cancellationToken);
+
+    public Task UpsertAsync(
+        Guid tenantId,
+        string settingKey,
+        string settingValue,
+        CancellationToken cancellationToken) =>
+        _inner.UpsertAsync(tenantId, settingKey, settingValue, cancellationToken);
+
+    public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken)
+    {
+        if (ThrowOnNextDelete)
+        {
+            ThrowOnNextDelete = false;
+
+            throw new InvalidOperationException("Simulated delete failure.");
+        }
+
+        return _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
+    }
+}
+

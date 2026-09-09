@@ -135,6 +135,18 @@ public sealed partial class RunComparisonController
         if (error is not null)
             return (error, null);
 
+        IActionResult? leftGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(query.LeftRunId, cancellationToken);
+
+        if (leftGuardResult is not null)
+            return (leftGuardResult, null);
+
+        IActionResult? rightGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(query.RightRunId, cancellationToken);
+
+        if (rightGuardResult is not null)
+            return (rightGuardResult, null);
+
         try
         {
             EndToEndReplayComparisonReport report =

@@ -40,8 +40,11 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 
 import { ServiceNowIntegrationPageClient } from "./ServiceNowIntegrationPageClient";
 import {
+  SERVICENOW_INTEGRATION_BUYER_OVERVIEW,
   SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
   SERVICENOW_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SERVICENOW_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID,
+  SERVICENOW_INTEGRATION_PAGE_LEAD,
   SERVICENOW_INTEGRATION_PAGE_SUBTITLE_BUYER,
   SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID,
   SERVICENOW_INTEGRATION_SKIP_LINK_LABEL,
@@ -116,13 +119,17 @@ describe("ServiceNowIntegrationPageClient buyer-polished shell (ISX)", () => {
 
     const primaryContent = screen.getByTestId(SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("servicenow-integration-overview");
     const pageMain = screen.getByTestId("servicenow-page-main");
-    const orientationBottom = screen.getByTestId("servicenow-integration-orientation-bottom");
+    const orientationBottom = screen.getByTestId(SERVICENOW_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("servicenow-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("servicenow-integration-intro")).toHaveTextContent(SERVICENOW_INTEGRATION_PAGE_LEAD);
+    expect(screen.getByTestId("servicenow-integration-overview")).toHaveTextContent(SERVICENOW_INTEGRATION_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(pageMain);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(pageMain);
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(SERVICENOW_INTEGRATION_SOURCES)) {
@@ -130,6 +137,8 @@ describe("ServiceNowIntegrationPageClient buyer-polished shell (ISX)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(pageMain) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(pageMain.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

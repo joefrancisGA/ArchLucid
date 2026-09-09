@@ -166,7 +166,7 @@ public static partial class ServiceCollectionExtensions
         DataHealthJobsCompositionModule.Register(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(
             configuration.GetSection(SqlConnectionHealthCheckOptions.SectionName));
-        RegisterCosmosPolyglotPersistence(services, configuration);
+        RegisterCosmosPolyglotPersistence(services, configuration, hostingRole);
         RegisterArchLucidJobRunners(services, configuration);
         services.AddFirstTenantFunnelTelemetry(configuration);
         services.Configure<IntegrationsItsmInboundOptions>(

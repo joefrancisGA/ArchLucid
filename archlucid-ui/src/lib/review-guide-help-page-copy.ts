@@ -20,3 +20,6 @@ export const REVIEW_GUIDE_HELP_START_HERE_HELPER =
 
 export const REVIEW_GUIDE_HELP_PAGE_LEAD =
   "Field-level guidance for each wizard step while you create or finish an architecture review." as const;
+
+export const REVIEW_GUIDE_HELP_BUYER_OVERVIEW =
+  "The field reference sections below complement the first-review walkthrough with wizard-step detail for naming, evidence, scope, and finalize." as const;
