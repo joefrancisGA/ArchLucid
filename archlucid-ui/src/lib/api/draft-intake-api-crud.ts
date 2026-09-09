@@ -67,7 +67,7 @@ export async function listDraftRequests(params?: {
   const query = search.toString();
   const path = query.length > 0 ? `${DRAFT_BASE}?${query}` : DRAFT_BASE;
 
-  return apiGet<DraftRequestSummaryPage>(path);
+  return apiGetSealedManifestAware<DraftRequestSummaryPage>(path);
 }
 
 export async function getDraftRequest(

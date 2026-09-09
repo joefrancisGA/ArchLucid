@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
-  useArchitectureDraftRegistryEntries,
-  useArchitectureDraftRegistryHydrated,
-} from "@/hooks/use-architecture-draft-registry-entries";
+  selectArchitectureDraftRegistryEntries,
+  useArchitectureDraftListQuery,
+} from "@/hooks/use-architecture-draft-list-query";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   ARCHITECTURES_HUB_FILTER_OPTIONS,
@@ -84,8 +84,9 @@ export function useArchitectureDraftList() {
   const activeDomain = parseArchitecturesHubDomainFromSearch(searchParams.get("domain"));
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const isHydrated = useArchitectureDraftRegistryHydrated();
-  const entries = useArchitectureDraftRegistryEntries();
+  const draftListQuery = useArchitectureDraftListQuery();
+  const isHydrated = draftListQuery.isFetched;
+  const entries = selectArchitectureDraftRegistryEntries(draftListQuery);
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const scopeRecord = useOperatorScopeRecord();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
@@ -164,5 +165,7 @@ export function useArchitectureDraftList() {
     continueLastDraft,
     workspaceScopeTeaching,
     sortOptions: SORT_OPTIONS,
+    listBlockedReason: draftListQuery.blockedReason,
+    listFailure: draftListQuery.failure,
   };
 }

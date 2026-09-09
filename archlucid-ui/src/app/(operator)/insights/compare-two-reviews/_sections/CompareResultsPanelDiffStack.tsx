@@ -21,6 +21,7 @@ import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
 import { showError } from "@/lib/toast";
+import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
 
 export function CompareResultsPanelDiffStack({
@@ -52,6 +53,9 @@ export function CompareResultsPanelDiffStack({
     pdfError,
     handleDownloadPdf,
   } = viewModel;
+
+  const leftRunId = viewModel.leftTrim;
+  const rightRunId = viewModel.rightTrim;
 
   const [manifestExportBusy, setManifestExportBusy] = useState(false);
 
@@ -148,6 +152,8 @@ export function CompareResultsPanelDiffStack({
           </div>
         </div>
       ) : null}
+
+      <CompareAgentResultsBlockedCallout leftRunId={leftRunId} rightRunId={rightRunId} />
 
       {showPairCiteStrip ? (
         <ComparePairEvidenceCiteStrip baselineRunId={citeBaselineRunId} updatedRunId={citeUpdatedRunId} />
