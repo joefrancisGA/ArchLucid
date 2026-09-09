@@ -1,5 +1,7 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { infraEvidenceMermaidMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-mermaid-mutation-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
@@ -104,5 +106,12 @@ export async function downloadInfraEvidenceMermaidPng(
 }
 
 export function formatInfraEvidenceMermaidApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason = infraEvidenceMermaidMutationBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

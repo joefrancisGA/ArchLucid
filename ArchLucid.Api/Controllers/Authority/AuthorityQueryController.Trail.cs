@@ -106,24 +106,10 @@ public sealed partial class AuthorityQueryController
         RunDetailDto? manifestDetail =
             await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
 
-        try
-        {
-            if (manifestDetail?.GoldenManifest is null)
-            {
-                return this.ConflictProblem(
-                    $"Manifest '{manifestId}' sealed hash verification is unavailable because the committed golden manifest is missing.",
-                    ProblemTypes.Conflict);
-            }
+        IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
 
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                manifestDetail.GoldenManifest,
-                result.RunId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         return Ok(new ManifestSummaryResponse
         {
