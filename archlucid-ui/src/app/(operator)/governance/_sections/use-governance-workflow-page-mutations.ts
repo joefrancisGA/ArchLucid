@@ -333,6 +333,7 @@ export function useGovernanceWorkflowPageMutations() {
     activations,
     showingStaticDemoGovernanceRecords,
     listFailure,
+    runListsBlockedReason: runListsQuery.blockedReason,
     listsLoading,
     activeReviewDisplayTitle,
     mutations: mutationsWithUrl,

@@ -38,6 +38,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     enabled: summaryQuery.isSuccess,
   });
 
+  const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
+
   useOidcSessionKeepalive(true);
 
   const failure: ApiLoadFailureState | null = useMemo(
@@ -83,7 +85,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           workingDesk: true,
         })
       : null,
-    meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
+    meetingCaptureEntries:
+      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -113,6 +116,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
+      meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );
 }

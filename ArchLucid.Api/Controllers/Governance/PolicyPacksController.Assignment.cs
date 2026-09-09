@@ -23,6 +23,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Assign(
         Guid policyPackId,
         [FromBody] AssignPolicyPackRequest? request,

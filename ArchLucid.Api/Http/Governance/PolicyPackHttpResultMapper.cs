@@ -51,6 +51,9 @@ internal static class PolicyPackHttpResultMapper
             PolicyPackHttpOutcome.VersionNotFound => controller.ToVersionNotFoundProblem(
                 result.PolicyPackId!.Value,
                 result.VersionKey!),
+            PolicyPackHttpOutcome.Conflict => controller.ConflictProblem(
+                "Policy pack assignment conflicted with the current governance scope.",
+                ProblemTypes.Conflict),
             _ => throw new InvalidOperationException($"Unexpected assign outcome: {result.Outcome}."),
         };
     }

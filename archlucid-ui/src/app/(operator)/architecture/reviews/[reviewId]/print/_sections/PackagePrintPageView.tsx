@@ -43,11 +43,12 @@ import { PackagePrintNextReviewFooterClient } from "./PackagePrintNextReviewFoot
 export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
+  readonly meetingCaptureBlockedReason?: string | null;
 };
 
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
-  const { presentation, listScopedRunId = null } = props;
+  const { presentation, listScopedRunId = null, meetingCaptureBlockedReason = null } = props;
   const backHref = buildPackagePrintBackHref(presentation.runId);
   const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
@@ -219,6 +220,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
                 </li>
               ))}
             </ol>
+          </section>
+        ) : meetingCaptureBlockedReason !== null ? (
+          <section
+            className="space-y-2 print:hidden"
+            data-testid="package-print-meeting-capture-blocked"
+          >
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+              {meetingCaptureBlockedReason}
+            </p>
           </section>
         ) : null}
 

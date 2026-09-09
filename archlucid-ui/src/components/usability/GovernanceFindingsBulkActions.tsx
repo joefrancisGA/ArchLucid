@@ -36,6 +36,8 @@ import {
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 export type BulkDispositionSucceededPayload = {
   readonly message: string;
@@ -207,7 +209,11 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       setPendingDisposition(null);
       router.refresh();
     } catch (err) {
-      setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+      const failure = toApiLoadFailure(err);
+      const blockedReason = findingBulkDispositionBlockedReason(failure);
+      setInlineErrorMessage(
+        blockedReason ?? (err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE),
+      );
     } finally {
       setBusy(false);
     }
