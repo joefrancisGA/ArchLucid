@@ -40,8 +40,10 @@ import {
   ADMIN_DIAGNOSTICS_HELP_SOURCES,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
+  ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW,
   ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID,
@@ -89,16 +91,21 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
     const primaryContent = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
+    const overview = screen.getByTestId("help-admin-diagnostics-overview");
     const signalTable = screen.getByTestId("help-admin-diagnostics-signal-table");
-    const orientationBottom = screen.getByTestId("help-admin-diagnostics-orientation-bottom");
+    const orientationBottom = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-admin-diagnostics-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-admin-diagnostics-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(signalTable);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
+    expect(screen.getByTestId("help-admin-diagnostics-overview")).toHaveTextContent(
+      ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW,
+    );
     expect(
       screen.getByRole("heading", { level: 2, name: ADMIN_DIAGNOSTICS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
@@ -114,7 +121,8 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(signalTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(signalTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(signalTable.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
