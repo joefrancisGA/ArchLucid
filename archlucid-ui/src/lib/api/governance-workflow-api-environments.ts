@@ -6,7 +6,7 @@ import type {
 } from "@/types/governance-environment-catalog";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet, apiPostJson, apiPutJson } from "./http";
+import { apiPostJson, apiPutJson } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -42,7 +42,7 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
 
 /** Returns the administrator-defined governance environment catalog for the current scope. */
 export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnvironmentCatalog> {
-  return apiGet<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+  return apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
 }
 
 /** Replaces the governance environment catalog and allowed transitions for the current scope. */

@@ -26,6 +26,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+  ADVISORY_SCHEDULES_BUYER_OVERVIEW,
   ADVISORY_SCHEDULES_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 
@@ -102,12 +103,14 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
   return (
     <OperatorPageContainer variant="workflow" className="py-4" data-testid="advisory-schedules-content">
       <div className="min-w-0 space-y-4">
-        <div className="m-0 flex flex-wrap items-start justify-between gap-2">
-          <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
-          </h2>
-          {createScheduleButton}
-        </div>
+        {!buyerPolishedShell ? (
+          <div className="m-0 flex flex-wrap items-start justify-between gap-2">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
+            </h2>
+            {createScheduleButton}
+          </div>
+        ) : null}
 
         {buyerPolishedShell ? (
           <div
@@ -141,13 +144,22 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="advisory-schedules-overview"
           >
+            {ADVISORY_SCHEDULES_BUYER_OVERVIEW}
+          </p>
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-schedules-overview"
+          >
             {ADVISORY_SCANS_SCHEDULES_INTRO}
           </p>
+        )}
+
+        {!buyerPolishedShell && !page.scopedRunFilterActive ? (
+          <AdvisorySchedulesPickReviewBeforeSchedulingStrip selectedReviewId="" onSelectReview={page.onPickReview} />
         ) : null}
 
-        {!page.scopedRunFilterActive ? (
-          <AdvisorySchedulesPickReviewBeforeSchedulingStrip selectedReviewId="" onSelectReview={page.onPickReview} />
-        ) : (
+        {page.scopedRunFilterActive ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="advisory-schedules-run-scope-banner"
@@ -166,7 +178,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
               Open review
             </Link>
           </p>
-        )}
+        ) : null}
 
         {page.failure !== null ? (
           <div role="alert">

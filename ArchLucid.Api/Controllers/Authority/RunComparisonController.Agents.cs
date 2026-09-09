@@ -76,8 +76,21 @@ public sealed partial class RunComparisonController
             CancellationToken cancellationToken)
     {
         IActionResult? queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+
         if (queryError is not null)
             return (queryError, null, null, null);
+
+        IActionResult? leftGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(query.LeftRunId, cancellationToken);
+
+        if (leftGuardResult is not null)
+            return (leftGuardResult, null, null, null);
+
+        IActionResult? rightGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(query.RightRunId, cancellationToken);
+
+        if (rightGuardResult is not null)
+            return (rightGuardResult, null, null, null);
 
         ScopedRunPairLoadResult loadResult = await _compareRunsFacade.LoadScopedRunPairAsync(
             query.LeftRunId,

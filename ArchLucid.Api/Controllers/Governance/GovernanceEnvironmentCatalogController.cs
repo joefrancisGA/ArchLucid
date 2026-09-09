@@ -3,13 +3,17 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,12 +30,24 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/governance/environment-catalog")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class GovernanceEnvironmentCatalogController(
+public sealed partial class GovernanceEnvironmentCatalogController(
     IScopeContextProvider scopeProvider,
     IGovernanceEnvironmentCatalogService catalogService,
     IAuditService auditService,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
@@ -48,6 +64,7 @@ public sealed class GovernanceEnvironmentCatalogController(
     [HttpGet]
     [ProducesResponseType(typeof(GovernanceEnvironmentCatalog), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -59,6 +76,12 @@ public sealed class GovernanceEnvironmentCatalogController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         GovernanceEnvironmentCatalog catalog = await _catalogService
             .GetCatalogAsync(cancellationToken)

@@ -19,6 +19,11 @@ export const PROVENANCE_PAGE_LEAD =
 export const PROVENANCE_OVERVIEW =
   "Graph, timeline, and table views below summarize linkage points and trace events for the active review scope." as const;
 
+/** Buyer bridge between first-viewport lead and read-only provenance workspace (RRP). */
+export const PROVENANCE_BUYER_OVERVIEW = PROVENANCE_OVERVIEW;
+
+export const PROVENANCE_WORKSPACE_TEST_ID = "provenance-workspace" as const;
+
 export const PROVENANCE_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const PROVENANCE_BUYER_START_HERE_HELPER =

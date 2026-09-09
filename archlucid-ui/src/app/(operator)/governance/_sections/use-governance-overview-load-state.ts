@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { useGovernanceDashboardQuery } from "@/hooks/use-governance-dashboard-query";
 import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
+import { useRealizedValueAttestationQuery } from "@/hooks/use-realized-value-attestation-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
@@ -32,9 +33,10 @@ export type UseGovernanceOverviewLoadStateResult = {
 export function useGovernanceOverviewLoadState(): UseGovernanceOverviewLoadStateResult {
   const dashboardQuery = useGovernanceDashboardQuery();
   const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery();
+  const attestationQuery = useRealizedValueAttestationQuery();
 
   const loadState = useMemo((): GovernanceOverviewLoadState => {
-    if (dashboardQuery.isPending || decisionsQuery.isPending) {
+    if (dashboardQuery.isPending || decisionsQuery.isPending || attestationQuery.isPending) {
       return { status: "loading" };
     }
 
@@ -46,7 +48,11 @@ export function useGovernanceOverviewLoadState(): UseGovernanceOverviewLoadState
       return { status: "error", failure: toApiLoadFailure(decisionsQuery.error) };
     }
 
-    if (dashboardQuery.data === undefined || decisionsQuery.data === undefined) {
+    if (attestationQuery.isError) {
+      return { status: "error", failure: toApiLoadFailure(attestationQuery.error) };
+    }
+
+    if (dashboardQuery.data === undefined || decisionsQuery.data === undefined || attestationQuery.data === undefined) {
       return { status: "loading" };
     }
 
@@ -64,19 +70,25 @@ export function useGovernanceOverviewLoadState(): UseGovernanceOverviewLoadState
     decisionsQuery.error,
     decisionsQuery.isError,
     decisionsQuery.isPending,
+    attestationQuery.data,
+    attestationQuery.error,
+    attestationQuery.isError,
+    attestationQuery.isPending,
   ]);
 
   const lastRefreshedAt = useMemo((): Date | null => {
     const dashboardUpdatedAt = dashboardQuery.dataUpdatedAt;
     const decisionsUpdatedAt = decisionsQuery.dataUpdatedAt;
-    const timestamps = [dashboardUpdatedAt, decisionsUpdatedAt].filter((value) => value > 0);
+    const timestamps = [dashboardUpdatedAt, decisionsUpdatedAt, attestationQuery.dataUpdatedAt].filter(
+      (value) => value > 0,
+    );
 
     if (timestamps.length === 0) {
       return null;
     }
 
     return new Date(Math.max(...timestamps));
-  }, [dashboardQuery.dataUpdatedAt, decisionsQuery.dataUpdatedAt]);
+  }, [dashboardQuery.dataUpdatedAt, decisionsQuery.dataUpdatedAt, attestationQuery.dataUpdatedAt]);
 
   const summaryRefreshing = dashboardQuery.isFetching || decisionsQuery.isFetching;
 

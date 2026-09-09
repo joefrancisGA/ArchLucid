@@ -75,6 +75,12 @@ public sealed partial class ComparisonsController
         [FromBody] ApiReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
@@ -132,6 +138,12 @@ public sealed partial class ComparisonsController
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ValidationResult metadataReplayValidation =
             await _replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
@@ -211,6 +223,13 @@ public sealed partial class ComparisonsController
                 string.Join(" ", batchValidation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForComparisonRecordIdsAsync(
+            request.ComparisonRecordIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         Application.Analysis.ComparisonBatchReplay.ComparisonBatchReplayZipResult? zipResult;
 

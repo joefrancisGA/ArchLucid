@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { useGovernanceApprovalRationaleQuery } from "@/hooks/use-governance-approval-rationale-query";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ApprovalLineageQueueVocabularyRail } from "@/components/ApprovalLineageQueueVocabularyRail";
@@ -92,6 +95,7 @@ export function GovernanceApprovalLineageDetailContent({
   }, [approvalLineageRecordDigestOpenParam]);
 
   const a = data.approvalRequest;
+  const rationaleQuery = useGovernanceApprovalRationaleQuery({ approvalRequestId: a.approvalRequestId });
   const displayApprovalTitle = governanceLineageApprovalDisplayTitle(a.requestComment);
   const approvalStatus = governanceApprovalStatusTagPresentation(a.status);
   const riskPostureStatus = data.riskPosture
@@ -131,6 +135,16 @@ export function GovernanceApprovalLineageDetailContent({
       )}
 
       <GovernanceApprovalLineageSpine data={data} />
+
+      {rationaleQuery.blockedReason ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="approval-lineage-rationale-blocked-reason"
+        >
+          {rationaleQuery.blockedReason}
+        </p>
+      ) : null}
+      {rationaleQuery.failure ? <OperatorApiProblem failure={rationaleQuery.failure} /> : null}
 
       <Card>
         <CardHeader>

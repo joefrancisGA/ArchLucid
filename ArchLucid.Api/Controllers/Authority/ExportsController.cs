@@ -180,9 +180,18 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> ReplayExportRecord(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ExportReplayQueryResult result;
 
@@ -220,9 +229,18 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> ReplayExportRecordMetadata(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ExportReplayQueryResult result;
 

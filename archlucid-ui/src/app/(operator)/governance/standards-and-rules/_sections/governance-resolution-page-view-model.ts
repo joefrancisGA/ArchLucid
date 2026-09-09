@@ -8,6 +8,7 @@ export type GovernanceResolutionPageViewModel = {
   readonly data: EffectiveGovernanceResolutionResult | null;
   readonly loading: boolean;
   readonly failure: ApiLoadFailureState | null;
+  readonly blockedReason: string | null;
   readonly lastRefreshedAt: Date | null;
   readonly load: () => Promise<void>;
 };

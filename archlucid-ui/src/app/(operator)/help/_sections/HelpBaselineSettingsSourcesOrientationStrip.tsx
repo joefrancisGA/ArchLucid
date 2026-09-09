@@ -1,22 +1,24 @@
-import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
+  BASELINE_SETTINGS_HELP_ORIENTATION_SOURCES_INTRO,
   BASELINE_SETTINGS_HELP_SOURCES,
-  BASELINE_SETTINGS_HELP_SOURCES_INTRO,
 } from "@/lib/baseline-settings-help-evidence-copy";
+import { BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/baseline-settings-help-page-copy";
 
 /** Sources-only follow-ups for `/help/baseline-settings` buyer-polished shell (HEB). */
 export function HelpBaselineSettingsSourcesOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-baseline-settings"
+      stripTestId={BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID}
       sourcesTestId="help-baseline-settings-sources"
       sourcesTitle={BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={BASELINE_SETTINGS_HELP_SOURCES_INTRO}
+      sourcesIntro={BASELINE_SETTINGS_HELP_ORIENTATION_SOURCES_INTRO}
       sources={BASELINE_SETTINGS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );
