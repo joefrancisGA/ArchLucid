@@ -1,108 +1,78 @@
-import { formatInfraEvidenceSnapshotCapturedLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import type { ArchitectureInventoryBindingResponse } from "@/lib/api/architecture-inventory-binding-api";
 
-/**
- * AS-052: bound inventory snapshots older than this are labeled stale on the architecture desk.
- * Warn only — does not trigger collection (IE plane owns capture).
- */
-export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_HOURS = 24;
+/** AS-052 — bound snapshots this old (or older) are labeled stale. Warn only; never auto-collect. */
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_DAYS = 7 as const;
 
-export type ArchitectureInventorySnapshotFreshnessBand = "current" | "stale" | "unknown";
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS =
+  ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
 
-export function resolveArchitectureInventorySnapshotAgeHours(
-  capturedUtc: string | null | undefined,
-  now: Date = new Date(),
-): number | null {
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING =
+  "Inventory freshness" as const;
+
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_PREFIX = "Bound snapshot captured" as const;
+
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_SUFFIX =
+  "— may not reflect current estate." as const;
+
+export function isArchitectureInventorySnapshotStale(
+  capturedUtc: string | Date | null | undefined,
+  nowUtc: Date = new Date(),
+): boolean {
+  if (capturedUtc == null) {
+    return false;
+  }
+
+  const capturedMs =
+    typeof capturedUtc === "string" ? Date.parse(capturedUtc) : capturedUtc.getTime();
+
+  if (Number.isNaN(capturedMs)) {
+    return false;
+  }
+
+  return nowUtc.getTime() - capturedMs >= ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_MS;
+}
+
+export function formatArchitectureInventorySnapshotStaleLine(capturedUtc: string | Date): string {
+  const captured = typeof capturedUtc === "string" ? new Date(capturedUtc) : capturedUtc;
+  const year = captured.getUTCFullYear().toString().padStart(4, "0");
+  const month = (captured.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = captured.getUTCDate().toString().padStart(2, "0");
+
+  return `${ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_PREFIX} ${year}-${month}-${day} ${ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_SUFFIX}`;
+}
+
+export function formatArchitectureInventorySnapshotStaleLineIfStale(
+  binding: ArchitectureInventoryBindingResponse | null | undefined,
+  nowUtc: Date = new Date(),
+): string | null {
+  if (binding == null || binding.isBound !== true) {
+    return null;
+  }
+
+  const capturedUtc = binding.snapshotCapturedUtc;
+
   if (capturedUtc == null || capturedUtc.trim().length === 0) {
     return null;
   }
 
-  const capturedMs = Date.parse(capturedUtc);
-
-  if (!Number.isFinite(capturedMs)) {
+  if (!isArchitectureInventorySnapshotStale(capturedUtc, nowUtc)) {
     return null;
   }
 
-  const ageMs = now.getTime() - capturedMs;
-
-  if (ageMs < 0) {
-    return 0;
-  }
-
-  return ageMs / (60 * 60 * 1000);
+  return formatArchitectureInventorySnapshotStaleLine(capturedUtc);
 }
 
-export function resolveArchitectureInventorySnapshotFreshnessBand(
-  capturedUtc: string | null | undefined,
-  now: Date = new Date(),
-): ArchitectureInventorySnapshotFreshnessBand {
-  const ageHours = resolveArchitectureInventorySnapshotAgeHours(capturedUtc, now);
-
-  if (ageHours === null) {
-    return "unknown";
+export function formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
+  capturedUtc: string | Date | null | undefined,
+  nowUtc: Date = new Date(),
+): string {
+  if (capturedUtc == null) {
+    return "";
   }
 
-  if (ageHours > ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_HOURS) {
-    return "stale";
+  if (!isArchitectureInventorySnapshotStale(capturedUtc, nowUtc)) {
+    return "";
   }
 
-  return "current";
-}
-
-export function formatArchitectureInventorySnapshotAgeLabel(
-  capturedUtc: string | null | undefined,
-  now: Date = new Date(),
-): string | null {
-  const ageHours = resolveArchitectureInventorySnapshotAgeHours(capturedUtc, now);
-
-  if (ageHours === null) {
-    return null;
-  }
-
-  if (ageHours < 1) {
-    const ageMinutes = Math.max(1, Math.round(ageHours * 60));
-
-    return `${ageMinutes} minute${ageMinutes === 1 ? "" : "s"} ago`;
-  }
-
-  if (ageHours < 48) {
-    const roundedHours = Math.max(1, Math.round(ageHours));
-
-    return `${roundedHours} hour${roundedHours === 1 ? "" : "s"} ago`;
-  }
-
-  const roundedDays = Math.max(1, Math.round(ageHours / 24));
-
-  return `${roundedDays} day${roundedDays === 1 ? "" : "s"} ago`;
-}
-
-export function formatArchitectureInventoryBoundStaleWarning(
-  capturedUtc: string | null | undefined,
-  now: Date = new Date(),
-): string | null {
-  if (resolveArchitectureInventorySnapshotFreshnessBand(capturedUtc, now) !== "stale") {
-    return null;
-  }
-
-  const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(capturedUtc);
-
-  return `Bound snapshot captured ${capturedLabel} — may not reflect current estate.`;
-}
-
-export function formatArchitectureInventoryBoundFreshnessLine(
-  capturedUtc: string | null | undefined,
-  now: Date = new Date(),
-): string | null {
-  const band = resolveArchitectureInventorySnapshotFreshnessBand(capturedUtc, now);
-
-  if (band === "stale") {
-    return formatArchitectureInventoryBoundStaleWarning(capturedUtc, now);
-  }
-
-  const ageLabel = formatArchitectureInventorySnapshotAgeLabel(capturedUtc, now);
-
-  if (ageLabel === null) {
-    return null;
-  }
-
-  return `Snapshot age: ${ageLabel}`;
+  return `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\n${formatArchitectureInventorySnapshotStaleLine(capturedUtc)}\n`;
 }

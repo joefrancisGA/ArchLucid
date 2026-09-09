@@ -115,6 +115,22 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(markdown).toMatch(/Inventory estate/i);
   });
 
+  it("includes inventory freshness markdown when the bound snapshot is stale (AS-052)", () => {
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      architectureInventoryBound: true,
+      architectureInventorySnapshotCapturedUtc: "2026-07-18T12:00:00.000Z",
+    });
+
+    expect(markdown).toContain("Inventory freshness");
+    expect(markdown).toContain("Bound snapshot captured 2026-07-18");
+  });
+
   it("formats shared markdown with measurement floor and classification bands", () => {
     const markdown = formatCareerExportHonestyMarkdown({
       runId: "run-1",

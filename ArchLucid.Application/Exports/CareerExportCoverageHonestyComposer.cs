@@ -74,7 +74,7 @@ public static class CareerExportCoverageHonestyComposer
         return measurementFloorBlockedReason;
     }
 
-    public static string FormatMarkdown(CareerExportCoverageHonestyInput input)
+    public static string FormatMarkdown(CareerExportCoverageHonestyInput input, TimeProvider? timeProvider = null)
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -95,6 +95,19 @@ public static class CareerExportCoverageHonestyComposer
         if (estateGapMarkdown.Length > 0)
         {
             sections.Add(estateGapMarkdown);
+        }
+
+        // Production callers omit the clock; TimeProvider.System is the same pattern as other Application composers.
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
+        string freshnessMarkdown = ArchitectureInventorySnapshotFreshnessCopy
+            .FormatCareerExportMarkdown(
+                input.ArchitectureInventorySnapshotCapturedUtc,
+                clock.GetUtcNow().UtcDateTime)
+            .Trim();
+
+        if (freshnessMarkdown.Length > 0)
+        {
+            sections.Add(freshnessMarkdown);
         }
 
         if (honesty.SponsorHonestyMarkdown.Length > 0)

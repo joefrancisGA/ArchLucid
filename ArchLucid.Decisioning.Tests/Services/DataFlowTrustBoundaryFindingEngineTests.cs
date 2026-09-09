@@ -111,11 +111,29 @@ public sealed class DataFlowTrustBoundaryFindingEngineTests
             .Should().BeFalse();
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_sql_arm_property()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-pay-prod";
+
+        GraphSnapshot graph = BuildIngressToSqlFixture(sqlArmResourceId: armResourceId);
+
+        DataFlowTrustBoundaryFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().Contain(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
     private static GraphSnapshot BuildIngressToSqlFixture(
         bool includeEdges = true,
         bool includeTrustBoundaryOnPath = false,
         bool privateEndpointEnabled = false,
-        string trustOrigin = nameof(TrustOrigin.External))
+        string trustOrigin = nameof(TrustOrigin.External),
+        string? sqlArmResourceId = null)
     {
         GraphNode actor = new()
         {
@@ -147,6 +165,11 @@ public sealed class DataFlowTrustBoundaryFindingEngineTests
         if (privateEndpointEnabled)
         {
             sqlProperties["privateEndpointEnabled"] = "true";
+        }
+
+        if (!string.IsNullOrWhiteSpace(sqlArmResourceId))
+        {
+            sqlProperties["armResourceId"] = sqlArmResourceId;
         }
 
         GraphNode sql = new()

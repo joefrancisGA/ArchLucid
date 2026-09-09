@@ -40,10 +40,7 @@ import {
   ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER,
   formatArchitectureInventoryUnboundEstateGapLine,
 } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
-import {
-  formatArchitectureInventoryBoundFreshnessLine,
-  resolveArchitectureInventorySnapshotFreshnessBand,
-} from "@/lib/architecture/architecture-inventory-snapshot-freshness";
+import { formatArchitectureInventorySnapshotStaleLineIfStale } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { resolveArchitectureInventoryBindingSnapshotId } from "@/lib/architecture/architecture-inventory-binding-validation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -194,12 +191,7 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
   const binding = bindingQuery.data;
   const isBound = binding.isBound === true;
   const unboundEstateGapLine = formatArchitectureInventoryUnboundEstateGapLine(binding);
-  const boundFreshnessLine = isBound
-    ? formatArchitectureInventoryBoundFreshnessLine(binding.snapshotCapturedUtc)
-    : null;
-  const boundFreshnessBand = isBound
-    ? resolveArchitectureInventorySnapshotFreshnessBand(binding.snapshotCapturedUtc)
-    : null;
+  const staleSnapshotLine = formatArchitectureInventorySnapshotStaleLineIfStale(binding);
   const canAttach =
     selection.isValid
     && !attachMutation.isPending
@@ -235,18 +227,18 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
               ? ` · captured ${formatInfraEvidenceSnapshotCapturedLabel(binding.snapshotCapturedUtc)}`
               : null}
           </p>
-          {boundFreshnessLine !== null ? (
-            <p
-              className={cn(
-                "m-0",
-                OPERATOR_TYPOGRAPHY.helper,
-                boundFreshnessBand === "stale" ? "text-al-text-warning" : "text-al-text-secondary",
-              )}
-              data-testid="architecture-identity-desk-inventory-binding-freshness"
-              role={boundFreshnessBand === "stale" ? "alert" : undefined}
+          {staleSnapshotLine !== null ? (
+            <div
+              className="rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/30"
+              data-testid="architecture-identity-desk-inventory-binding-stale"
             >
-              {boundFreshnessLine}
-            </p>
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
+                {staleSnapshotLine}
+              </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                Re-collect a newer inventory snapshot in Infrastructure evidence, then bind that snapshot. ArchLucid does not auto-collect.
+              </p>
+            </div>
           ) : null}
           <Button
             type="button"

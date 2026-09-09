@@ -171,7 +171,7 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
     });
   });
 
-  it("shows snapshot freshness for a recently bound snapshot (AS-052)", async () => {
+  it("does not warn for a recently bound snapshot (AS-052)", async () => {
     useArchitectureInventoryBindingQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
@@ -188,9 +188,7 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
 
     renderPanel();
 
-    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-freshness")).toHaveTextContent(
-      "Snapshot age:",
-    );
+    expect(screen.queryByTestId("architecture-identity-desk-inventory-binding-stale")).not.toBeInTheDocument();
   });
 
   it("warns when the bound snapshot is stale (AS-052)", async () => {
@@ -210,7 +208,7 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
 
     renderPanel();
 
-    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-freshness")).toHaveTextContent(
+    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-stale")).toHaveTextContent(
       "may not reflect current estate",
     );
   });
@@ -235,5 +233,8 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
     expect(screen.getByTestId("architecture-identity-desk-inventory-binding-bound")).toHaveTextContent("Prod");
     expect(screen.getByTestId("architecture-identity-desk-inventory-binding-detach")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-identity-desk-inventory-binding-attach")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-stale")).toHaveTextContent(
+      "Bound snapshot captured 2026-07-18",
+    );
   });
 });

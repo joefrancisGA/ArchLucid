@@ -12,6 +12,8 @@ using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Time.Testing;
+
 namespace ArchLucid.Application.Tests.Exports;
 
 [Trait("Category", "Unit")]
@@ -193,6 +195,25 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void FormatMarkdown_includes_inventory_freshness_when_bound_snapshot_is_stale()
+    {
+        DateTime captured = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            architectureInventoryBound: true,
+            architectureInventorySnapshotCapturedUtc: captured);
+
+        FakeTimeProvider clock = new();
+        clock.SetUtcNow(new DateTimeOffset(2026, 1, 10, 0, 0, 0, TimeSpan.Zero));
+
+        string markdown = CareerExportCoverageHonestyComposer.FormatMarkdown(input, clock);
+
+        markdown.Should().Contain(ArchitectureInventorySnapshotFreshnessCopy.CareerExportHeading);
+        markdown.Should().Contain(ArchitectureInventorySnapshotFreshnessCopy.FormatStaleLine(captured));
+    }
+
+    [Fact]
     public void FormatPlainText_strips_markdown_headings()
     {
         CareerExportCoverageHonestyInput input = CreateInput(
@@ -238,7 +259,8 @@ public sealed class CareerExportCoverageHonestyComposerTests
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null,
         int actorNodeCount = 1,
         int? judgeSkippedByCap = null,
-        bool? architectureInventoryBound = null)
+        bool? architectureInventoryBound = null,
+        DateTime? architectureInventorySnapshotCapturedUtc = null)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -261,6 +283,7 @@ public sealed class CareerExportCoverageHonestyComposerTests
             aggregateQualityGateOutcome,
             judgeSkippedByCap,
             null,
-            architectureInventoryBound);
+            architectureInventoryBound,
+            architectureInventorySnapshotCapturedUtc);
     }
 }

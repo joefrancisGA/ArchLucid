@@ -202,10 +202,10 @@
     },
     {
       "id": "iso27001-010",
-      "title": "ISO/IEC 27001 ISMS (Architecture Slice) \u2014 control theme 10",
-      "description": "Architecture manifest and Azure extractor evidence should support: iso/iec 27001 isms (architecture slice) \u2014 control theme 10. Thematic mapping only \u2014 not certification.",
-      "severity": "Medium",
-      "priority": "P2",
+      "title": "Cryptographic controls for data at rest",
+      "description": "Datastores holding sensitive information must use approved cryptographic controls. Thematic mapping only \u2014 not ISO 27001 certification (QR-20 P1 architecture slice).",
+      "severity": "Critical",
+      "priority": "P1",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -217,7 +217,279 @@
       "frameworkMappings": [
         {
           "framework": "ISO/IEC 27001",
-          "theme": "A.8 Asset management"
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-011",
+      "title": "Sensitive storage public network access disabled",
+      "description": "Storage and data services holding sensitive information must disable public network access. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Disable public network access on storage and data services; document exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "datastores[]",
+        "services[].Tags",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-012",
+      "title": "Datastore encryption and TLS posture",
+      "description": "SQL and datastore endpoints must enforce encryption and restrict weak TLS posture. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Require TDE and modern TLS on datastores; align services[].Tags with encryption controls.",
+      "evidenceHints": [
+        "datastores[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-013",
+      "title": "Public load balancer exposure restricted",
+      "description": "LoadBalancer services exposing sensitive systems must be justified and network-restricted. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Prefer internal load balancers; document public exposure in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-014",
+      "title": "NSG least privilege for sensitive workloads",
+      "description": "Network security groups for sensitive systems must follow least-privilege ingress and egress. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tighten NSG rules to required CIDR ranges; record exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "services[].Tags",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-015",
+      "title": "Administrative ingress restricted",
+      "description": "Management ports on sensitive workloads must not allow unrestricted internet ingress. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Restrict SSH/RDP to trusted CIDR or just-in-time access.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-016",
+      "title": "Privileged containers restricted",
+      "description": "Workloads processing sensitive information must not declare privileged containers without isolation compensations. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Remove privileged: true unless an approved exception is documented.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.12 Operations security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-017",
+      "title": "Cryptographic protection of information at rest",
+      "description": "Sensitive information at rest must use approved encryption. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Enable encryption at rest on every data store in the architecture.",
+      "evidenceHints": [
+        "datastores[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-018",
+      "title": "Micro-segmentation for sensitive workloads",
+      "description": "Sensitive workloads must run on segmented networks with restricted east-west paths. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Place data-bearing services on isolated subnets with NSG or NetworkPolicy controls.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-019",
+      "title": "hostNetwork workloads restricted",
+      "description": "Workloads with sensitive data must not enable host network access without documented isolation. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Disable hostNetwork unless an approved exception is documented.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.12 Operations security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-020",
+      "title": "Container privilege escalation restricted",
+      "description": "Containers processing sensitive information must disallow privilege escalation. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Set allowPrivilegeEscalation: false on containers handling sensitive data.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.12 Operations security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-021",
+      "title": "App Service HTTPS only",
+      "description": "App services transmitting sensitive information must require HTTPS only. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Enable HTTPS-only on application endpoints.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-022",
+      "title": "Transmission security",
+      "description": "Electronic transmission of sensitive information must use TLS 1.2+ and HTTPS-only endpoints. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Require TLS 1.2 or higher on every internet-facing endpoint.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-023",
+      "title": "TLS minimum for application endpoints",
+      "description": "Application endpoints handling sensitive information must enforce a modern TLS minimum. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Set minimum TLS 1.2 on App Service, API Management, and load balancer listeners.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-024",
+      "title": "Encryption in transit",
+      "description": "All network paths carrying sensitive information must encrypt data in transit. Thematic mapping only \u2014 not certification (QR-20).",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Require HTTPS-only for app tiers and encrypted SQL connections.",
+      "evidenceHints": [
+        "services[]",
+        "datastores[]",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.10 Cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-025",
+      "title": "Network security perimeter documented",
+      "description": "Network security perimeter must be documented and enforced. Thematic mapping only \u2014 not certification (PP-01 Option B / QR-20).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document the trust boundary and private-endpoint posture for data-bearing services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.13 Communications security"
         }
       ]
     }

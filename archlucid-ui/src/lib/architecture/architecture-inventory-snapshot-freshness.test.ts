@@ -1,37 +1,55 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_HOURS,
-  formatArchitectureInventoryBoundFreshnessLine,
-  formatArchitectureInventoryBoundStaleWarning,
-  resolveArchitectureInventorySnapshotFreshnessBand,
+  ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_DAYS,
+  formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown,
+  formatArchitectureInventorySnapshotStaleLineIfStale,
+  isArchitectureInventorySnapshotStale,
 } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 
 describe("architecture-inventory-snapshot-freshness (AS-052)", () => {
-  const now = new Date("2026-07-19T12:00:00.000Z");
+  const now = new Date("2026-09-09T12:00:00.000Z");
 
-  it("documents a stale threshold constant", () => {
-    expect(ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_HOURS).toBe(24);
+  it("treats snapshots seven days old or older as stale", () => {
+    expect(ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_AFTER_DAYS).toBe(7);
+    expect(isArchitectureInventorySnapshotStale("2026-09-02T12:00:00.000Z", now)).toBe(true);
+    expect(isArchitectureInventorySnapshotStale("2026-09-03T12:00:00.000Z", now)).toBe(false);
+    expect(isArchitectureInventorySnapshotStale(null, now)).toBe(false);
   });
 
-  it("labels snapshots within the threshold as current", () => {
-    expect(
-      resolveArchitectureInventorySnapshotFreshnessBand("2026-07-19T08:00:00.000Z", now),
-    ).toBe("current");
-    expect(
-      formatArchitectureInventoryBoundFreshnessLine("2026-07-19T08:00:00.000Z", now),
-    ).toBe("Snapshot age: 4 hours ago");
+  it("formats the bound-stale honesty line for the desk and career export", () => {
+    const line = formatArchitectureInventorySnapshotStaleLineIfStale(
+      {
+        architectureId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+        isBound: true,
+        snapshotCapturedUtc: "2026-07-18T12:00:00.000Z",
+      },
+      now,
+    );
+
+    expect(line).toBe("Bound snapshot captured 2026-07-18 — may not reflect current estate.");
+
+    const markdown = formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
+      "2026-07-18T12:00:00.000Z",
+      now,
+    );
+
+    expect(markdown).toContain("## Inventory freshness");
+    expect(markdown).toContain("2026-07-18");
   });
 
-  it("warns when the bound snapshot is older than the threshold", () => {
-    const capturedUtc = "2026-07-17T12:00:00.000Z";
-
-    expect(resolveArchitectureInventorySnapshotFreshnessBand(capturedUtc, now)).toBe("stale");
-    expect(formatArchitectureInventoryBoundStaleWarning(capturedUtc, now)).toContain(
-      "may not reflect current estate",
-    );
-    expect(formatArchitectureInventoryBoundFreshnessLine(capturedUtc, now)).toContain(
-      "Bound snapshot captured",
-    );
+  it("does not warn when unbound or fresh", () => {
+    expect(
+      formatArchitectureInventorySnapshotStaleLineIfStale({ isBound: false }, now),
+    ).toBeNull();
+    expect(
+      formatArchitectureInventorySnapshotStaleLineIfStale(
+        {
+          isBound: true,
+          snapshotCapturedUtc: "2026-09-08T12:00:00.000Z",
+        },
+        now,
+      ),
+    ).toBeNull();
   });
 });

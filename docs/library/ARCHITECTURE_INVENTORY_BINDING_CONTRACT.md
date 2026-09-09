@@ -33,7 +33,7 @@ Binding is **optional**. Unbound architectures show a labeled **estate gap** —
 | **Detach** | Same authz as attach | Clears active binding; does **not** delete the snapshot row or extractor ZIP |
 | **Re-attach** | Same as attach | May point at a newer snapshot id; prior seals are unchanged (ADR 0039) |
 
-**Freshness (AS-052):** desk and career export must show `CapturedUtc`, `CaptureStatus`, and collector version when bound. Stale snapshots are labeled — never silently treated as current estate.
+**Freshness (AS-052):** desk and career export must show `CapturedUtc` when bound. Snapshots whose `CapturedUtc` is **7 days** old or older are labeled stale (`ArchitectureInventorySnapshotFreshness.StaleAfterDays`). Warn only — never auto-collect a replacement snapshot. `CaptureStatus` and collector version remain IE-plane metadata; the architecture desk does not invent a second collector.
 
 **Audit (AS-055):** attach/detach are **Required** durable audit events co-committed with the binding row mutation.
 

@@ -34,6 +34,8 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
 
         resourceNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+        resourceNode.Properties["armResourceId"]
+            .Should().Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod");
         resourceNode.SourceType.Should().Be(ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot);
         resourceNode.NodeId.Should().Be(CloudResourceId.ToString("D"));
     }
