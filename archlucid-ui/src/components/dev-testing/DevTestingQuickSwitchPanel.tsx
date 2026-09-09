@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
 import { DevTestingResetDatabaseButton } from "@/components/dev-testing/DevTestingResetDatabaseButton";
@@ -32,6 +33,10 @@ import {
   type DevRoleOverride,
   type DevShellExperienceOverride,
 } from "@/lib/dev-testing-overrides";
+import {
+  devTestingQuickSwitchDisclosureHrefFromSearch,
+  parseDevTestingQuickSwitchOpenFromSearch,
+} from "@/lib/dev-testing/dev-testing-quick-switch-disclosure-url";
 import {
   isOperatorExperienceFullShellEnv,
   isBuyerPolishedOperatorShellEnv,
@@ -115,6 +120,11 @@ type DevTestingQuickSwitchPanelProps = {
 
 /** Local-dev keyboard drawer — shell density, role override, quick-jump links, and database reset. */
 export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProps): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const devTestingQuickSwitchOpenParam = searchParams.get("devTestingQuickSwitchOpen");
   const { recentRunIds: liveRecentRunIds } = useOperatorHomeWorkspaceActivity();
   const runIds = liveRecentRunIds.length > 0 ? liveRecentRunIds : (props.runIds ?? []);
   const { hidden: panelHidden } = useDevQuickSwitchPanelVisibility();
@@ -123,6 +133,19 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   const [roleOverride, setRoleOverride] = useState<DevRoleOverride | null>(null);
   const [agentExecutionOverride, setAgentExecutionOverride] = useState<DevAgentExecutionModeOverride | null>(null);
   const { snapshot: quickJumpSnapshot, loading: quickJumpLoading } = useDevTestingQuickJumpSnapshot(runIds);
+
+  const syncQuickSwitchOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(devTestingQuickSwitchDisclosureHrefFromSearch(currentSearch, open, pathname), { scroll: false });
+    },
+    [currentSearch, pathname, router],
+  );
+
+  useEffect(() => {
+    if (parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam)) {
+      setDevQuickSwitchPanelVisibility(false);
+    }
+  }, [devTestingQuickSwitchOpenParam]);
 
   useEffect(() => {
     setShellOverride(readDevShellExperienceOverrideFromDocument());
@@ -159,6 +182,7 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
       open={!panelHidden}
       onOpenChange={(open) => {
         setDevQuickSwitchPanelVisibility(!open);
+        syncQuickSwitchOpenToUrl(open);
       }}
     >
       <DialogContent
