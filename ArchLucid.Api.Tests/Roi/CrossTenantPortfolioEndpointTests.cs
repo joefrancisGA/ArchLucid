@@ -5,7 +5,6 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;

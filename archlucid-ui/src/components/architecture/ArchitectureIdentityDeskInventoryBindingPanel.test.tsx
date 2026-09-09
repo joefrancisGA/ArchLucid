@@ -28,6 +28,7 @@ vi.mock("@/lib/api/architecture-inventory-binding-api", () => ({
     detachArchitectureInventoryBindingMock(...args),
 }));
 
+import { ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
 import { ArchitectureIdentityDeskInventoryBindingPanel } from "@/components/architecture/ArchitectureIdentityDeskInventoryBindingPanel";
 
 const architectureId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
@@ -92,6 +93,22 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
 
     expect(container).toBeEmptyDOMElement();
     expect(useArchitectureInventoryBindingQueryMock).toHaveBeenCalledWith(architectureId, false);
+  });
+
+  it("shows the unbound estate gap honesty line (AS-051)", async () => {
+    useArchitectureInventoryBindingQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { architectureId, isBound: false },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByTestId("architecture-identity-desk-inventory-binding-estate-gap"),
+    ).toHaveTextContent(ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE);
   });
 
   it("keeps attach disabled until a snapshot is selected (TB-2005)", async () => {

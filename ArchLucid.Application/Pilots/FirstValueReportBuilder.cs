@@ -16,6 +16,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
@@ -61,6 +62,7 @@ public sealed class FirstValueReportBuilder(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -96,6 +98,9 @@ public sealed class FirstValueReportBuilder(
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
@@ -192,7 +197,9 @@ public sealed class FirstValueReportBuilder(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
         TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
         CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
             careerExportHonesty,
