@@ -232,6 +232,7 @@ describe("settings-master-page-model", () => {
     expect(hrefs).not.toContain("/governance/approval-queue");
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
+    expect(hrefs).not.toContain("/administration/branding");
     expect(sectionIds).not.toContain("governance");
     expect(sectionIds).not.toContain("ai-usage");
     expect(sectionIds).toContain("integrations");

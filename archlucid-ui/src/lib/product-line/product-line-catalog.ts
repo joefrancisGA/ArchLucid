@@ -9,9 +9,8 @@ import type { ProductLineAssignment } from "@/lib/product-line/product-line-assi
  * 2. Else longest {@link PRODUCT_LINE_NESTED_PREFIXES} match inherits the parent assignment.
  * 3. Else **architecture** ({@link DEFAULT_PRODUCT_LINE_ASSIGNMENT}).
  *
- * Use `both` for shared Administration/Internal. Use `security` for SecureNow-only Infrastructure
- * workbenches. Use explicit `architecture` when a path must stay off Security even under a shared prefix
- * (recycle bin under workspace-settings).
+ * Use `both` for Infrastructure + shared Administration/Internal. Use explicit `architecture` when a
+ * path must stay off Security even under a shared prefix (recycle bin under workspace-settings).
  *
  * ## Shuffle workflow
  *
@@ -30,20 +29,20 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/governance/standards-and-rules": "both",
   "/governance/findings": "both",
 
-  // Infrastructure evidence workbenches (operate-infrastructure) — SecureNow only.
-  "/governance/infrastructure": "security",
-  "/governance/infrastructure/drift": "security",
-  "/governance/infrastructure/terraform": "security",
-  "/governance/infrastructure/diagrams": "security",
-  "/governance/infrastructure/diagram-reconcile": "security",
-  "/governance/infrastructure/resources": "security",
-  "/governance/infrastructure/ask": "security",
-  "/governance/infrastructure/remediation": "security",
+  // Infrastructure evidence workbenches (operate-infrastructure).
+  "/governance/infrastructure": "both",
+  "/governance/infrastructure/drift": "both",
+  "/governance/infrastructure/terraform": "both",
+  "/governance/infrastructure/diagrams": "both",
+  "/governance/infrastructure/diagram-reconcile": "both",
+  "/governance/infrastructure/resources": "both",
+  "/governance/infrastructure/ask": "both",
+  "/governance/infrastructure/remediation": "both",
   "/governance/infrastructure/extract-upload": "security",
 
   // Operational-security factory (still parked under Approval nav today).
-  "/governance/remediation-factory": "security",
-  "/governance/remediation-patterns": "security",
+  "/governance/remediation-factory": "both",
+  "/governance/remediation-patterns": "both",
   "/governance/audit-evidence": "both",
 
   // Inventory collection and outbound remediation bridges.
@@ -59,7 +58,8 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration": "both",
   "/administration/notifications": "both",
   "/administration/workspace-settings": "both",
-  "/administration/branding": "both",
+  // White-label branding is an Architecture tenant-admin surface — SecureNow uses fixed consumer chrome (SN).
+  "/administration/branding": "architecture",
   "/administration/users": "both",
   "/administration/identity-providers": "both",
   "/administration/scim-provisioning": "both",
