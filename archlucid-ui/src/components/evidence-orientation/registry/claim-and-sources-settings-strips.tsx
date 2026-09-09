@@ -486,6 +486,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
