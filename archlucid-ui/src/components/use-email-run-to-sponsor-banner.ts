@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "@/hooks/use-pilot-run-deltas-query";
 import { useTenantBaselineRoiQuery } from "@/hooks/use-tenant-baseline-roi-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
@@ -36,7 +36,7 @@ import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
 type ProofGateState =
   | { status: "skipped" }
   | { status: "loading" }
-  | { status: "error" }
+  | { status: "error"; message: string }
   | { status: "ok"; payload: PilotRunDeltasProofSummaryJson };
 
 function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
@@ -81,7 +81,12 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: sidecarFetchesEnabled });
-  const { data: deltasPayload, isPending: deltasPending, isError: deltasError } = usePilotRunDeltasQuery(runId, {
+  const {
+    data: deltasPayload,
+    isPending: deltasPending,
+    isError: deltasError,
+    error: deltasQueryError,
+  } = usePilotRunDeltasQuery(runId, {
     enabled: sidecarFetchesEnabled,
   });
 
@@ -95,11 +100,17 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     }
 
     if (deltasError || deltasPayload === undefined) {
-      return { status: "error" };
+      return {
+        status: "error",
+        message:
+          deltasQueryError !== undefined && deltasQueryError !== null
+            ? resolvePilotRunDeltasQueryErrorMessage(deltasQueryError)
+            : "Could not load sponsor readiness signals for this review.",
+      };
     }
 
     return { status: "ok", payload: deltasPayload };
-  }, [skipSidecarFetches, deltasPending, deltasError, deltasPayload]);
+  }, [skipSidecarFetches, deltasPending, deltasError, deltasPayload, deltasQueryError]);
 
   const estimatedUsdSavings = useMemo((): number | null => {
     if (proofGate.status !== "ok") {

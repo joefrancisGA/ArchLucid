@@ -45,6 +45,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
+            request!.SourceRunId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureReviewRecurrenceSchedule schedule =
@@ -151,6 +158,13 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureRecurrenceScheduleUpdateSealedManifestAllowedAsync(
+            scheduleId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

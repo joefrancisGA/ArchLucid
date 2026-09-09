@@ -4,7 +4,9 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { showError } from "@/lib/toast";
 
 type ManifestDetailBundleExportButtonProps = {
@@ -33,7 +35,10 @@ export function ManifestDetailBundleExportButton(props: ManifestDetailBundleExpo
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError("Bundle download", error instanceof Error ? error.message : "Could not download artifact bundle.");
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Bundle download", blocked ?? failure.message);
       })
       .finally(() => {
         setBusy(false);
