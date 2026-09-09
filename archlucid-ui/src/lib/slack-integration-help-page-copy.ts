@@ -14,3 +14,9 @@ export const SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID =
 
 export const SLACK_INTEGRATION_HELP_PAGE_LEAD =
   "Configure Slack incoming-webhook destinations for ArchLucid alert notifications." as const;
+
+export const SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER =
+  "Learn how Slack incoming-webhook destinations route alert notifications, then open Slack notifications when integration admins are ready to configure delivery." as const;
+
+export const SLACK_INTEGRATION_HELP_BUYER_OVERVIEW =
+  "Feature summaries, setup steps, and credential handling below explain webhook routing and test delivery before you open Slack notifications to add destinations." as const;
