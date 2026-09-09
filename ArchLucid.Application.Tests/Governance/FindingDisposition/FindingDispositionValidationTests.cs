@@ -233,6 +233,34 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_rejects_zero_width_space_only_finding_id()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "\u200B",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Finding id*");
+    }
+
+    [Fact]
+    public void Validate_rejects_finding_id_with_embedded_format_character()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = $"finding-\u200B-001",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Finding id*");
+    }
+
+    [Fact]
     public void Validate_rejects_undefined_disposition_enum_value()
     {
         RecordFindingDispositionRequest request = new()
