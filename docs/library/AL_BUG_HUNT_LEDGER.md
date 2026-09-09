@@ -7255,11 +7255,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 3
-- **bugs-found:** 5
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — past-tense conflict falsifiability missed; slash-separated ARM path tokens under-penalized duplication
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — present-tense conflict falsifiability missed; underscore-delimited resource tokens under-penalized duplication
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -7272,10 +7272,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — hyphenated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-07 hunt #1276:** `prod-sql-db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `-`; regression in `Jaccard_similarity_treats_hyphenated_resource_tokens_as_space_separated_peers`
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — past-tense `violated the constraint` missed falsifiability — **hit 2026-09-08 hunt #1288:** regex used `violates?` only; LLM retrospective conflict titles with `violated the constraint` skipped `HasFalsifiabilitySignal`; fixed with `violate[ds]?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — slash-separated ARM path segments stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-08 hunt #1288:** `/subscriptions/.../prod-db` vs space-separated peer Jaccard 0.167 missed 0.85 high-duplication threshold; fixed by splitting on `/`; regression in `Jaccard_similarity_treats_slash_separated_arm_path_tokens_as_space_separated_peers`
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — present-tense `violating the constraint` missed falsifiability — **hit 2026-09-09 seed hunt #1398 (seed→hit):** regex used `violate[ds]?` only; LLM progressive conflict titles with `is violating the constraint` skipped `HasFalsifiabilitySignal`; fixed with `violat(?:e[ds]?|ing)`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — underscore-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-09 seed hunt #1398 (seed→hit):** `prod_sql_db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `_`; regression in `Jaccard_similarity_treats_underscore_separated_resource_tokens_as_space_separated_peers`
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — backslash-separated Windows path segments may under-penalize duplication parity with `/` and `_` fixes — seeded 2026-09-09 seed hunt #1398; not cheap-disproof'd this run
 
-2026-09-07 seed hunt #1184 (hit): seeded zone from split catalog; proved plural constraint conflict wording missed falsifiability signal.
-
-2026-09-07 thorough hunt #1276 (hit): proved determiner-gap conflict phrasing and hyphenated-token duplication parity; 1673 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+2026-09-09 seed hunt #1398 (seed→hit): reseeded after #1288; proved present-tense conflict falsifiability and underscore-token duplication parity; seeded backslash path delimiter candidate; 1704 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-09-08 thorough hunt #1288 (hit): proved past-tense conflict falsifiability and slash-separated ARM path duplication parity; 1675 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
