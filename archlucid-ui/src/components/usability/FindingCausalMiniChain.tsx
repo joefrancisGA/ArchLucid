@@ -1,5 +1,14 @@
-import { cn } from "@/lib/utils";
+"use client";
 
+import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import {
+  FINDING_CAUSAL_CHAIN_OPEN_PARAM,
+  findingCausalChainDisclosureHrefFromSearch,
+  parseFindingCausalChainOpenFromSearch,
+} from "@/lib/findings/finding-causal-chain-disclosure-url";
 import {
   FINDING_CAUSAL_STEP_MISSING,
   type FindingCausalMiniChainResult,
@@ -14,7 +23,41 @@ export type FindingCausalMiniChainProps = {
 
 /** Expandable rule → evidence → recommendation disclosure beside finding derivation (TB-2217). */
 export function FindingCausalMiniChain(props: FindingCausalMiniChainProps): React.JSX.Element {
-  const { chain, className, defaultOpen = false } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingCausalChainParam = searchParams.get(FINDING_CAUSAL_CHAIN_OPEN_PARAM);
+  const [findingCausalChainOpen, setFindingCausalChainOpenState] = useState(() => {
+    const fromUrl = parseFindingCausalChainOpenFromSearch(findingCausalChainParam);
+
+    if (findingCausalChainParam !== null) {
+      return fromUrl;
+    }
+
+    return props.defaultOpen === true;
+  });
+  const syncFindingCausalChainOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(findingCausalChainDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setFindingCausalChainOpen = useCallback(
+    (open: boolean) => {
+      setFindingCausalChainOpenState(open);
+      syncFindingCausalChainOpenToUrl(open);
+    },
+    [syncFindingCausalChainOpenToUrl],
+  );
+  const { chain, className } = props;
+
+  useEffect(() => {
+    if (findingCausalChainParam !== null) {
+      setFindingCausalChainOpenState(parseFindingCausalChainOpenFromSearch(findingCausalChainParam));
+    }
+  }, [findingCausalChainParam]);
 
   return (
     <details
@@ -23,7 +66,8 @@ export function FindingCausalMiniChain(props: FindingCausalMiniChainProps): Reac
         className,
       )}
       data-testid="finding-causal-mini-chain"
-      open={defaultOpen ? true : undefined}
+      open={findingCausalChainOpen}
+      onToggle={(event) => setFindingCausalChainOpen(event.currentTarget.open)}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Causal chain

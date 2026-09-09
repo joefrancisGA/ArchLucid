@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import { RISK_EXCEPTIONS_LOAD_RETRY_LABEL } from "../risk-exceptions-page-copy";
+import { GOVERNANCE_RISK_EXCEPTIONS_LOAD_ERROR_RETRY_LABEL } from "@/lib/governance-risk-exceptions-page-copy";
 
 export type RiskExceptionsLoadFailureProps = {
   readonly message: string;
@@ -25,7 +25,7 @@ export function RiskExceptionsLoadFailure(props: RiskExceptionsLoadFailureProps)
         data-testid="risk-exceptions-load-retry"
         onClick={props.onRetry}
       >
-        {RISK_EXCEPTIONS_LOAD_RETRY_LABEL}
+        {GOVERNANCE_RISK_EXCEPTIONS_LOAD_ERROR_RETRY_LABEL}
       </Button>
     </div>
   );

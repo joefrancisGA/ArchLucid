@@ -343,6 +343,270 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
   });
 
+  it("clears reasoning results when golden fixture replaces hydrated intake", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "finding-before-fixture",
+                      title: "Finding before fixture load",
+                      severity: "High",
+                      conclusion: "Must clear when intake is replaced by golden fixture",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          return {
+            ok: true,
+            json: async () => ({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Finding before fixture load")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Golden fixture architecture description.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Finding before fixture load")).not.toBeInTheDocument();
+  });
+
+  it("clears declared priorities when deep-linked review switches to one without priorities", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          if (currentRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") {
+            return {
+              ok: true,
+              json: async () => ({
+                runId: currentRunId,
+                sourceTexts: [
+                  {
+                    fileName: "architecture-description.txt",
+                    contentType: "text/plain",
+                    content: "Architecture for review A.",
+                  },
+                ],
+                declaredPriorities: ["security", "reliability"],
+              }),
+              text: async () => "",
+            };
+          }
+
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review B.",
+                },
+              ],
+              declaredPriorities: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, reliability");
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
+  });
+
+  it("clears hydrated intake and review scope when deep-linked runId is removed from the URL", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+              declaredPriorities: ["security"],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
+
+    searchParamsGet.mockImplementation(() => null);
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-run-scope-banner")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
+    expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-review")).toHaveAttribute(
+      "data-emphasized",
+      "true",
+    );
+  });
+
   it("clears reasoning results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
@@ -389,6 +653,179 @@ describe("ArchitectureIntelligencePageClient", () => {
 
     expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
     expect(screen.queryByText("Stale finding from previous review")).not.toBeInTheDocument();
+  });
+
+  it("ignores stale reasoning results when inbound runId switches before run completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveRunPost: (() => void) | null = null;
+    const runPostGate = new Promise<void>((resolve) => {
+      resolveRunPost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          await runPostGate;
+
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "stale-in-flight",
+                      title: "Stale in-flight finding",
+                      severity: "High",
+                      conclusion: "Must not appear after run switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolveRunPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale in-flight finding")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+  });
+
+  it("clears publish-to-product toggle when deep-linked review switches to another review", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: `Architecture for review ${currentRunId.slice(0, 1).toUpperCase()}.`,
+                },
+              ],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-toggle"));
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeChecked();
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).not.toBeChecked();
   });
 
   it("clears reasoning results when operator scope switches workspaces", async () => {

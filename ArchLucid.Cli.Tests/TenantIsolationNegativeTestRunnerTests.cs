@@ -99,6 +99,108 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void TryFindRunIdInRunList_IgnoresPascalCaseRunIdProperty()
+    {
+        string json = """
+                      {
+                        "items": [
+                          { "RunId": "aaaaaaaa-1111-1111-1111-111111111111" }
+                        ]
+                      }
+                      """;
+
+        TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, RunId)
+            .Should()
+            .BeFalse("product API serializes run list items with camelCase runId via ArchLucidApiJsonSerializerOptions");
+    }
+
+    [Fact]
+    public void TryParseRunListContinuation_ReturnsCursorWhenHasMore()
+    {
+        string json = """
+                      {
+                        "items": [],
+                        "hasMore": true,
+                        "nextCursor": "opaque-cursor-token"
+                      }
+                      """;
+
+        TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(json, out string? nextCursor)
+            .Should()
+            .BeTrue();
+        nextCursor.Should().Be("opaque-cursor-token");
+    }
+
+    [Fact]
+    public void RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing()
+    {
+        string json = """
+                      {
+                        "items": [],
+                        "hasMore": true
+                      }
+                      """;
+
+        TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(json).Should().BeTrue();
+        TenantIsolationNegativeTestAggregator.TryParseRunListContinuation(json, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_SkipsRunListProbeWhenHasMoreTrueWithoutNextCursor()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = new[] { new { runId = "bbbbbbbb-2222-2222-2222-222222222222" } },
+                            hasMore = true,
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list"
+            && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip
+            && probe.ObservedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase));
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
     public async Task RunLiveAsync_FailsRunListProbeWhenForeignRunIdOnlyVisibleWithFullTakePage()
     {
         StubHandler handler = new()
@@ -115,21 +217,88 @@ public sealed class TenantIsolationNegativeTestRunnerTests
                 {
                     if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
                     {
-                        int take = ParseTakeQueryValue(query) ?? RunPagination.DefaultTake;
-
-                        if (take >= 200)
+                        if (query.Contains("cursor=page-2", StringComparison.OrdinalIgnoreCase))
                         {
                             return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                             {
                                 items = new[] { new { runId = "aaaaaaaa111111111111111111111111" } },
+                                hasMore = false,
                             }));
                         }
 
                         return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
                         {
-                            items = Enumerable.Range(0, take)
+                            items = Enumerable.Range(0, RunPagination.MaxTake)
                                 .Select(static i => new { runId = $"bbbbbbbb2222222222222222222222{i:00}" })
                                 .ToArray(),
+                            hasMore = true,
+                            nextCursor = "page-2",
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Fail);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_FailsRunListProbeWhenForeignRunIdAppearsOnSecondCursorPage()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string query = req.RequestUri.Query;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        if (query.Contains("cursor=older-page", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                            {
+                                items = new[] { new { runId = "aaaaaaaa111111111111111111111111" } },
+                                hasMore = false,
+                            }));
+                        }
+
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = Enumerable.Range(0, RunPagination.MaxTake)
+                                .Select(static i => new { runId = $"cccccccc3333333333333333333333{i:00}" })
+                                .ToArray(),
+                            hasMore = true,
+                            nextCursor = "older-page",
                         }));
                     }
 
@@ -287,6 +456,115 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public async Task RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList()
+    {
+        int runListCalls = 0;
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        runListCalls += 1;
+
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = Enumerable.Range(0, RunPagination.MaxTake)
+                                .Select(static i => new { runId = $"dddddddd4444444444444444444444{i:00}" })
+                                .ToArray(),
+                            hasMore = true,
+                            nextCursor = $"page-{runListCalls}",
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        runListCalls.Should().Be(50);
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list"
+            && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip
+            && probe.ObservedOutcome.Contains("scan incomplete", StringComparison.OrdinalIgnoreCase));
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceivesUnauthorized()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (path.StartsWith("/v1/runs", StringComparison.Ordinal))
+                        return Task.FromResult(JsonResponse(HttpStatusCode.Unauthorized, new { items = Array.Empty<object>() }));
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
     public async Task RunLiveAsync_SkipsCrossTenantRunListProbeOnServerError()
     {
         StubHandler handler = new()
@@ -378,6 +656,56 @@ public sealed class TenantIsolationNegativeTestRunnerTests
             probe.Name == "primary-scope-run-visible" && probe.Verdict == TenantIsolationNegativeTestVerdict.Pass);
         report.Probes.Should().Contain(probe =>
             probe.Verdict == TenantIsolationNegativeTestVerdict.Skip && probe.Name != "primary-scope-run-visible");
+    }
+
+    [Fact]
+    public void RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksSkipForScanTruncation()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        string manifestPath = Path.Combine(Path.GetTempPath(), $"tenant-isolation-manifest-{Guid.NewGuid():N}.json");
+        string manifestJson = """
+                              {
+                                "schemaVersion": 1,
+                                "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+                                "scenarios": [
+                                  {
+                                    "name": "list-scan-truncated",
+                                    "probes": [
+                                      {
+                                        "name": "cross-tenant-run-list",
+                                        "path": "/v1/runs",
+                                        "expectedOutcome": "exclude-run-id",
+                                        "observedOutcome": "HTTP 200; scan incomplete before run list exhausted",
+                                        "observedStatusCode": 200,
+                                        "evidence": "pagination cap reached before foreign runId could be excluded",
+                                        "foreignRunIdVisible": false,
+                                        "verdict": "skip"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                              """;
+
+        File.WriteAllText(manifestPath, manifestJson);
+
+        try
+        {
+            TenantIsolationNegativeTestRunner runner = new();
+            TenantIsolationNegativeTestReport report = runner.RunOffline(
+                repositoryRoot!,
+                new TenantIsolationNegativeTestOptions { ManifestPath = manifestPath });
+
+            report.Probes.Should().ContainSingle();
+            report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
     }
 
     [Fact]

@@ -52,11 +52,16 @@ public sealed partial class RunDetailPageBundleController
             ? _artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId.Value, cancellationToken)
             : Task.FromResult<IReadOnlyList<ArtifactDescriptor>>([]);
 
-        await Task.WhenAll(progressTask, manifestTask, artifactsTask).ConfigureAwait(false);
+        Task<IReadOnlyList<ArtifactDescriptor>> verificationArtifactsTask =
+            _findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(scope, runId, cancellationToken);
+
+        await Task.WhenAll(progressTask, manifestTask, artifactsTask, verificationArtifactsTask).ConfigureAwait(false);
 
         RunSummaryDto? progress = await progressTask.ConfigureAwait(false);
         ManifestSummaryDto? manifest = await manifestTask.ConfigureAwait(false);
         IReadOnlyList<ArtifactDescriptor> artifacts = await artifactsTask.ConfigureAwait(false);
+        IReadOnlyList<ArtifactDescriptor> verificationArtifacts =
+            await verificationArtifactsTask.ConfigureAwait(false);
 
         RunDetailCriticalPageBundleResponse body = new()
         {
@@ -64,7 +69,11 @@ public sealed partial class RunDetailPageBundleController
             ProgressSummary = progress is null ? null : ToRunSummaryResponse(progress),
             ManifestSummary = manifest is null ? null : ToManifestSummaryResponse(manifest),
             Artifacts = manifestId.HasValue
-                ? artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId.Value)).ToList()
+                ? RunArtifactDescriptorResponses.MergeForRun(
+                    manifestId.Value,
+                    runId,
+                    artifacts,
+                    verificationArtifacts)
                 : [],
         };
 

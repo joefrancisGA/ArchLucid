@@ -20,7 +20,7 @@ export type ModelGovernanceAiUsageVocabularyRailProps = {
 };
 
 /**
- * TB-2286 — Compact vocabulary rail between model governance and AI usage.
+ * TB-2286 — Compact vocabulary rail between model policy and AI usage.
  * Mount on both hubs so operators do not conflate execution profiles with cost estimates.
  * Distinct from AI usage ≠ Billing (TB-2253).
  */

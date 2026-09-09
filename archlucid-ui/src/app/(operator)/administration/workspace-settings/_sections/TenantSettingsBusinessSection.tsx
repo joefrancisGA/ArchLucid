@@ -8,7 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/settings-admin-route-paths";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
@@ -16,13 +16,17 @@ import { TenantFindingEngineControlsCard } from "./TenantFindingEngineControlsCa
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
 import { TenantWorkOwnershipDeletePolicyCard } from "./TenantWorkOwnershipDeletePolicyCard";
 
-type SectionHeadingProps = { readonly children: ReactNode };
+type SectionHeadingProps = {
+  readonly id: string;
+  readonly children: ReactNode;
+};
 
-function SectionHeading({ children }: SectionHeadingProps) {
+function SectionHeading({ id, children }: SectionHeadingProps) {
   return (
     <h2
+      id={id}
       className={cn(
-        "m-0 border-b border-neutral-200 pb-1 dark:border-neutral-800",
+        "m-0 scroll-mt-24 border-b border-neutral-200 pb-1 dark:border-neutral-800",
         OPERATOR_TYPOGRAPHY.sectionTitle,
       )}
     >
@@ -33,6 +37,7 @@ function SectionHeading({ children }: SectionHeadingProps) {
 
 type Props = {
   readonly canEdit: boolean;
+  readonly tenantDisplayName: string;
   readonly buyerPolishedShell?: boolean;
   readonly advancedQualityOpen: boolean;
   readonly onAdvancedQualityToggle: (open: boolean) => void;
@@ -40,15 +45,16 @@ type Props = {
 
 export function TenantSettingsBusinessSection({
   canEdit,
+  tenantDisplayName,
   buyerPolishedShell = false,
   advancedQualityOpen,
   onAdvancedQualityToggle,
 }: Props) {
   return (
     <>
-      <SectionHeading>Business settings</SectionHeading>
+      <SectionHeading id="tenant-settings-section-business">Business settings</SectionHeading>
 
-      <TenantCostSettingsCard canEdit={canEdit} />
+      <TenantCostSettingsCard canEdit={canEdit} tenantDisplayName={tenantDisplayName} />
 
       <Card>
         <CardHeader>
@@ -67,7 +73,7 @@ export function TenantSettingsBusinessSection({
         </CardContent>
       </Card>
 
-      <SectionHeading>Support &amp; diagnostics</SectionHeading>
+      <SectionHeading id="tenant-settings-section-support">Support &amp; diagnostics</SectionHeading>
 
       {buyerPolishedShell ? null : (
         <Card>
@@ -85,7 +91,7 @@ export function TenantSettingsBusinessSection({
         </Card>
       )}
 
-      <SectionHeading>Governance</SectionHeading>
+      <SectionHeading id="tenant-settings-section-governance">Governance</SectionHeading>
 
       {buyerPolishedShell ? null : (
         <Card>
@@ -101,11 +107,10 @@ export function TenantSettingsBusinessSection({
       )}
 
       {buyerPolishedShell ? null : (
-        <>
-          <SectionHeading>Advanced — AI quality controls</SectionHeading>
-
+        <div id="tenant-settings-section-advanced" className="scroll-mt-24">
           <CollapsibleSection
-            title="Quality control settings"
+            title="Advanced — AI quality controls"
+            headingLevel={3}
             defaultOpen={false}
             open={advancedQualityOpen}
             onToggle={onAdvancedQualityToggle}
@@ -120,7 +125,7 @@ export function TenantSettingsBusinessSection({
               {advancedQualityOpen ? <TenantQualityGatesCard /> : null}
             </div>
           </CollapsibleSection>
-        </>
+        </div>
       )}
     </>
   );

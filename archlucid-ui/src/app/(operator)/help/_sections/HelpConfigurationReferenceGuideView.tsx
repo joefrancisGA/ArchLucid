@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpConfigurationReferenceCatalogDisclosure } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceCatalogDisclosure";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
@@ -167,9 +167,8 @@ export function HelpConfigurationReferenceGuideView(
           </ol>
         </section>
 
-        <HelpLazyDetails
+        <HelpConfigurationReferenceCatalogDisclosure
           className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
-          data-testid="help-configuration-reference-catalog-appendix"
           summaryClassName={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
           summary="Full key catalog (Admin technical appendix)"
           preface={
@@ -179,7 +178,6 @@ export function HelpConfigurationReferenceGuideView(
             </p>
           }
           bodyClassName={cn(HELP_PAGE_LAYOUT.contentColumn, "mt-4")}
-          bodyTestId="help-configuration-reference-content"
         >
           <MarketingAccessibilityMarkdownFragment
             markdownBody={markdown}
@@ -188,7 +186,7 @@ export function HelpConfigurationReferenceGuideView(
             sourceDocPath={sourceDocPath}
             helpTopicSlug={entry.slug}
           />
-        </HelpLazyDetails>
+        </HelpConfigurationReferenceCatalogDisclosure>
 
         <section
           aria-labelledby="help-configuration-reference-related-heading"

@@ -1,4 +1,5 @@
 import { HelpSlackIntegrationHeaderActions } from "@/app/(operator)/help/_sections/HelpSlackIntegrationHeaderActions";
+import { HelpSlackIntegrationCredentialHandlingDisclosure } from "@/app/(operator)/help/_sections/HelpSlackIntegrationCredentialHandlingDisclosure";
 import { HelpSlackIntegrationSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationSourcesOrientationStrip";
 import { HelpSlackIntegrationWorkspaceReadinessStrip } from "@/app/(operator)/help/_sections/HelpSlackIntegrationWorkspaceReadinessStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
@@ -38,8 +39,11 @@ import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/slack-integration-help-evidence-copy";
 import {
+  SLACK_INTEGRATION_HELP_BUYER_OVERVIEW,
   SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SLACK_INTEGRATION_HELP_PAGE_LEAD,
+  SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
@@ -86,6 +90,10 @@ function SlackIntegrationStartHerePanel(props: { readonly buyerPolishedShell: bo
       ) : null}
     </section>
   );
+}
+
+function slackIntegrationHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER : SLACK_INTEGRATION_HELP_PAGE_SUBTITLE;
 }
 
 /** Operator Slack integration orientation for `/help/slack-integration`. */
@@ -136,7 +144,8 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           <HelpTopicGuidePageHeader
             title={SLACK_INTEGRATION_HELP_PAGE_TITLE}
             titleTestId="help-slack-integration-page-title"
-            subtitle={SLACK_INTEGRATION_HELP_PAGE_SUBTITLE}
+            subtitle={slackIntegrationHelpPageSubtitle(buyerPolishedShell)}
+            subtitleClassName="max-w-3xl"
             navHref={SLACK_INTEGRATION_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
@@ -167,14 +176,22 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-slack-integration-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-slack-integration-intro">
+                {SLACK_INTEGRATION_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-              {SLACK_INTEGRATION_HELP_OVERVIEW}
-            </p>
           </div>
         ) : null}
 
-        <div className={contentGridClass}>
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-slack-integration-overview">
+            {SLACK_INTEGRATION_HELP_BUYER_OVERVIEW}
+          </p>
+        ) : null}
+
+        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
@@ -206,17 +223,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
                   </div>
                 ))}
               </dl>
-              <details
-                className={HELP_PAGE_LAYOUT.details}
-                data-testid="help-slack-integration-credential-handling-details"
-              >
-                <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-                  {SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_TITLE}
-                </summary>
-                <div className={HELP_PAGE_LAYOUT.detailsBody}>
-                  <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{SLACK_INTEGRATION_HELP_CREDENTIAL_DISCLOSURE_BODY}</p>
-                </div>
-              </details>
+              <HelpSlackIntegrationCredentialHandlingDisclosure />
             </section>
 
             <section
@@ -250,14 +257,10 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-slack-integration-orientation-bottom">
-            <HelpSlackIntegrationSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpSlackIntegrationSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

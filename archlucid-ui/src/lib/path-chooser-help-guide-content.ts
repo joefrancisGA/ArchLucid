@@ -22,7 +22,16 @@ export const PATH_CHOOSER_HELP_PAGE_SUBTITLE_BUYER =
 
 export const PATH_CHOOSER_HELP_PRIMARY_CONTENT_ID = "help-path-chooser-primary-content" as const;
 
+export const PATH_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID = "help-path-chooser-first-viewport" as const;
+
+export const PATH_CHOOSER_HELP_SKIP_TARGET_ID = PATH_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID;
+
 export const PATH_CHOOSER_HELP_SKIP_LINK_LABEL = "Skip to path chooser guide" as const;
+
+export const PATH_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "help-path-chooser-header-claim-discipline" as const;
+
+export const PATH_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-path-chooser-orientation-bottom" as const;
 
 export function pathChooserHelpPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? PATH_CHOOSER_HELP_PAGE_SUBTITLE_BUYER : PATH_CHOOSER_HELP_PAGE_SUBTITLE;
@@ -30,6 +39,11 @@ export function pathChooserHelpPageSubtitle(buyerPolishedShell: boolean): string
 
 export const PATH_CHOOSER_HELP_OVERVIEW =
   "Pick the branch that matches your goal, open the primary product or help surface, and use Trust Center or Assurance status before treating orientation copy as diligence evidence.";
+
+export const PATH_CHOOSER_HELP_PAGE_LEAD = PATH_CHOOSER_HELP_OVERVIEW;
+
+export const PATH_CHOOSER_HELP_START_HERE_HELPER =
+  "Pick a goal branch or common next step below, then follow the evaluator session flow when you need an ordered walkthrough before procurement handoff.";
 
 export const PATH_CHOOSER_HELP_ACTION_PANEL_TITLE = "Common next steps";
 

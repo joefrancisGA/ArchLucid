@@ -1,7 +1,16 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import type { AuditEvent } from "@/lib/api";
 import { buyerSafeTechnicalIdLabel } from "@/lib/buyer/buyer-demo-persona-labels";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  auditBuyerVerificationAppendixDisclosureHrefFromSearch,
+  parseAuditBuyerVerificationAppendixOpenFromSearch,
+} from "@/lib/governance/audit-buyer-verification-appendix-disclosure-url";
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
@@ -11,9 +20,44 @@ type BuyerAuditEventsTechnicalAppendixProps = {
 
 export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnicalAppendixProps) {
   const { events } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/audit";
+  const searchParams = useSearchParams();
+  const auditBuyerVerificationAppendixOpenParam = searchParams.get("auditBuyerVerificationAppendixOpen");
+  const [open, setOpenState] = useState(() =>
+    parseAuditBuyerVerificationAppendixOpenFromSearch(auditBuyerVerificationAppendixOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        auditBuyerVerificationAppendixDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseAuditBuyerVerificationAppendixOpenFromSearch(auditBuyerVerificationAppendixOpenParam));
+  }, [auditBuyerVerificationAppendixOpenParam]);
 
   return (
-    <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+    <details
+      className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      open={open}
+      onToggle={(event) => {
+        setOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
       <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         Audit verification appendix
       </summary>

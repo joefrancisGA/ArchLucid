@@ -4,7 +4,7 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCaiqSigResponseHeaderActions } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseHeaderActions";
 import { HelpCaiqSigResponseSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseSourcesOrientationStrip";
 import { CaiqSigResponseHelpClaimDisciplineStrip } from "@/components/help/CaiqSigResponseHelpClaimDisciplineStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpCaiqSigResponseSigDeferredDisclosure } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseSigDeferredDisclosure";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
@@ -243,7 +243,7 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
               />
 
               {sigMarkdown.length > 0 ? (
-                <HelpLazyDetails
+                <HelpCaiqSigResponseSigDeferredDisclosure
                   className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
                   summaryClassName={cn(
                     "cursor-pointer select-none font-medium text-al-text-primary",
@@ -251,18 +251,14 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
                   )}
                   bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
                   summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
-                  data-testid={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
+                  detailsTestId={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
                   bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpLazyDetails>
+                  markdownBody={markdown}
+                  tableCaption={`${entry.title} SIG reference table`}
+                  sourceDocPath={sourceDocPath}
+                  helpTopicSlug={entry.slug}
+                  preparedMarkdownOverride={sigMarkdown}
+                />
               ) : null}
             </div>
 
@@ -304,7 +300,7 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
               />
 
               {sigMarkdown.length > 0 ? (
-                <HelpLazyDetails
+                <HelpCaiqSigResponseSigDeferredDisclosure
                   className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
                   summaryClassName={cn(
                     "cursor-pointer select-none font-medium text-al-text-primary",
@@ -312,18 +308,14 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
                   )}
                   bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
                   summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
-                  data-testid={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
+                  detailsTestId={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
                   bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpLazyDetails>
+                  markdownBody={markdown}
+                  tableCaption={`${entry.title} SIG reference table`}
+                  sourceDocPath={sourceDocPath}
+                  helpTopicSlug={entry.slug}
+                  preparedMarkdownOverride={sigMarkdown}
+                />
               ) : null}
             </div>
 

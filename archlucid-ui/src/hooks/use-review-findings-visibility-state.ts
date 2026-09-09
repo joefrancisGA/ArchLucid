@@ -3,6 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+
 import {
   persistFindingsVisibilityPreferences,
   readFindingsVisibilityFromStorage,
@@ -33,6 +35,7 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const { mode: workspaceMode } = useWorkspaceMode();
   const urlShowLow = parseReviewFindingsShowLowFromSearch(searchParams?.get(REVIEW_FINDINGS_SHOW_LOW_PARAM));
   const urlShowAdvisory = parseReviewFindingsShowAdvisoryFromSearch(
     searchParams?.get(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM),
@@ -43,7 +46,7 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
   const hasUrlShowLow = searchParams?.has(REVIEW_FINDINGS_SHOW_LOW_PARAM) ?? false;
   const hasUrlShowAdvisory = searchParams?.has(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM) ?? false;
   const hasUrlHideGeneric = searchParams?.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM) ?? false;
-  const [accountPrefs] = useState(readFindingsVisibilityFromStorage);
+  const [accountPrefs] = useState(() => readFindingsVisibilityFromStorage(workspaceMode));
   const [showLowConfidence, setShowLowConfidenceState] = useState(() =>
     resolveFindingsVisibilityFlag(hasUrlShowLow, urlShowLow, accountPrefs.showLowConfidenceEnabled),
   );
@@ -60,7 +63,7 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
 
   useEffect(() => {
     return subscribeFindingsVisibilityChanges(() => {
-      const nextPrefs = readFindingsVisibilityFromStorage();
+      const nextPrefs = readFindingsVisibilityFromStorage(workspaceMode);
 
       if (!hasUrlShowLow) {
         setShowLowConfidenceState(nextPrefs.showLowConfidenceEnabled);
@@ -74,7 +77,7 @@ export function useReviewFindingsVisibilityState(): ReviewFindingsVisibilityStat
         setHideGenericLowDensityState(nextPrefs.hideGenericEnabled);
       }
     });
-  }, [hasUrlHideGeneric, hasUrlShowAdvisory, hasUrlShowLow]);
+  }, [hasUrlHideGeneric, hasUrlShowAdvisory, hasUrlShowLow, workspaceMode]);
 
   useEffect(() => {
     if (hasUrlShowLow) {

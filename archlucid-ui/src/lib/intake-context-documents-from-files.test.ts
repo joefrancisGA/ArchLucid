@@ -71,19 +71,23 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     ]);
   });
 
-  it("skips images and failed extracts", async () => {
+  it("emits a NotVerifiable diagram stub for PNG and skips failed docx extract", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,
       message: "Could not extract text from the uploaded document.",
     });
 
     const documents = await buildIntakeContextDocumentsFromEvidenceFiles([
-      new File(["x"], "photo.png", { type: "image/png" }),
+      new File([new Uint8Array([1, 2, 3])], "photo.png", { type: "image/png" }),
       new File(["binary"], "empty.docx", {
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       }),
     ]);
 
-    expect(documents).toEqual([]);
+    expect(documents).toHaveLength(1);
+    expect(documents[0]?.name).toBe("photo.png");
+    expect(documents[0]?.contentType).toBe("application/vnd.archlucid.diagram+json");
+    expect(documents[0]?.content).toMatch(/"verificationStatus":"NotVerifiable"/);
+    expect(mockedExtract).toHaveBeenCalledTimes(1);
   });
 });

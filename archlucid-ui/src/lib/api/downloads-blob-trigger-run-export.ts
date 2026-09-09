@@ -5,7 +5,6 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { pulseOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
 } from "./http";
 import { getRunExportDownloadUrl } from "./downloads-blob-urls";
@@ -29,11 +28,6 @@ export async function downloadRunExportZip(runId: string): Promise<void> {
   const url = getRunExportDownloadUrl(runId);
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

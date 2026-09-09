@@ -3,11 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 
 import {
-
   buildTier2AzureSetupScript,
-
+  tier2AzureFederationIdentifiers,
   TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT,
-
 } from "./tier2-connection-wizard-content";
 
 import { AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE } from "@/lib/azure-cloud-connection-copy";
@@ -86,6 +84,18 @@ describe("buildTier2AzureSetupScript", () => {
 
   });
 
+  it("labels federation identifiers SecureNow in the Security shell", () => {
+    const identifiers = tier2AzureFederationIdentifiers(
+      {
+        tenantId: TENANT_ID,
+        managedIdentityObjectId: MANAGED_IDENTITY_ID,
+      },
+      "security",
+    );
+
+    expect(identifiers[0]?.label).toBe("SecureNow tenant ID");
+    expect(identifiers[1]?.label).toBe("SecureNow managed identity object ID");
+  });
 });
 
 

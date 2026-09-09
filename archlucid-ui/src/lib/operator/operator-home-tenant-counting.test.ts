@@ -44,4 +44,66 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.previewTabCounts.all).toBe(2);
     expect(snapshot.previewTabCounts.attention).toBe(snapshot.metrics.reviewPackagesActive > 0 ? 2 : 0);
   });
+
+  it("excludes archived runs from home preview tab counts", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-active",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "tenant-archived-sealed",
+        projectId: "default",
+        hasGoldenManifest: true,
+        isArchived: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+    });
+
+    expect(snapshot.metrics.reviewPackagesCommitted).toBe(0);
+    expect(snapshot.previewTabCounts.approved).toBe(0);
+    expect(snapshot.previewTabCounts.attention).toBe(1);
+  });
+
+  it("falls back to workspace awaiting-approval count when preview rows lack queue membership", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-1",
+        projectId: "default",
+        hasGoldenManifest: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      awaitingApprovalCount: 3,
+      awaitingApprovalRunIds: ["other-run"],
+    });
+
+    expect(snapshot.previewTabCounts["awaiting-approval"]).toBe(3);
+  });
+
+  it("does not fall back to workspace awaiting-approval count while queue ids are still loading", () => {
+    const items: RunSummary[] = [
+      {
+        runId: "tenant-1",
+        projectId: "default",
+        hasGoldenManifest: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems: items,
+      previewItems: items,
+      awaitingApprovalCount: 3,
+    });
+
+    expect(snapshot.previewTabCounts["awaiting-approval"]).toBe(0);
+  });
 });

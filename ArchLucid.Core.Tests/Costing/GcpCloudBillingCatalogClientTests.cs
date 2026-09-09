@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Costing;
 
@@ -261,7 +262,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_boolean_unit_price_tokens()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_boolean_unit_price_tokens()
     {
         const string catalogJson = """
             {
@@ -292,7 +293,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(0m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
@@ -331,7 +332,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_boolean_nanos()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_string_encoded_boolean_nanos()
     {
         const string catalogJson = """
             {
@@ -362,7 +363,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(0m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
@@ -436,7 +437,7 @@ public sealed class GcpCloudBillingCatalogClientTests
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_boolean_hourly_usage_unit_token()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_boolean_hourly_usage_unit_token()
     {
         const string catalogJson = """
             {
@@ -467,11 +468,11 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(7.59m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
-    public async Task TryGetComputeEngineMonthlyUsdAsync_parses_string_encoded_on_synonym_hourly_usage_unit()
+    public async Task TryGetComputeEngineMonthlyUsdAsync_rejects_string_encoded_on_synonym_hourly_usage_unit()
     {
         const string catalogJson = """
             {
@@ -502,7 +503,7 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
 
-        monthly.Should().Be(7.59m);
+        monthly.Should().BeNull();
     }
 
     [Fact]
@@ -960,13 +961,209 @@ public sealed class GcpCloudBillingCatalogClientTests
         monthly.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token()
+    {
+        const string pageOneJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n2-standard-4 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "200000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "nextPageToken": "page-2"
+            }
+            """;
+
+        const string pageTwoJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(request =>
+        {
+            string query = request.RequestUri?.Query ?? string.Empty;
+
+            if (query.Contains("pageToken=page-2", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(pageTwoJson),
+                };
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(pageOneJson),
+            };
+        });
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
+    [Fact]
+    public async Task TryGetCatalogMonthlyUsdAsync_prefers_matching_region_over_first_catalog_sku()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "description": "Compute Engine n1-standard-1 in europe-west1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "20000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        InfrastructureCostQueryNode node = new(
+            "Service",
+            "api",
+            RuntimePlatform.ComputeEngine,
+            "europe-west1",
+            "n1-standard-1",
+            1);
+
+        decimal? monthly = await client.TryGetCatalogMonthlyUsdAsync(node, CancellationToken.None);
+
+        monthly.Should().Be(14.60m);
+    }
+
+    [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later()
+    {
+        const string catalogJson = """
+            {
+              "skus": [
+                {
+                  "description": "Preemptible Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "5000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "description": "Compute Engine n1-standard-1 in us-central1",
+                  "pricingInfo": [
+                    {
+                      "pricingExpression": {
+                        "usageUnit": "h",
+                        "tieredRates": [
+                          {
+                            "unitPrice": {
+                              "units": "0",
+                              "nanos": "10400000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
     private static GcpCloudBillingCatalogClient CreateClient(string catalogJson)
     {
-        HttpClient httpClient = new(new StubHttpMessageHandler(_ =>
+        return CreateClient(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(catalogJson),
-            }));
+            });
+    }
+
+    private static GcpCloudBillingCatalogClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> responder)
+    {
+        HttpClient httpClient = new(new StubHttpMessageHandler(responder));
 
         return new GcpCloudBillingCatalogClient(
             () => httpClient,

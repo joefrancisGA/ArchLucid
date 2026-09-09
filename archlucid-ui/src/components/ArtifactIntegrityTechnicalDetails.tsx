@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,10 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
+import {
+  artifactIntegrityFingerprintsDisclosureHrefFromSearch,
+  parseArtifactIntegrityFingerprintsOpenFromSearch,
+} from "@/lib/governance/artifact-integrity-fingerprints-disclosure-url";
 import type { ArtifactDescriptor } from "@/types/authority";
 
 const CONTENT_FINGERPRINT_ALGORITHM = "SHA-256";
@@ -30,7 +35,36 @@ const VERIFICATION_GUIDANCE =
  * Sponsor/buyer appendix: compact fingerprint table with copy affordances — kept out of primary deliverable tables.
  */
 export function ArtifactIntegrityTechnicalDetails(props: ArtifactIntegrityTechnicalDetailsProps): ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const artifactIntegrityFingerprintsOpenParam = searchParams.get("artifactIntegrityFingerprintsOpen");
+  const [fingerprintsOpen, setFingerprintsOpenState] = useState(() =>
+    parseArtifactIntegrityFingerprintsOpenFromSearch(artifactIntegrityFingerprintsOpenParam),
+  );
   const { artifacts } = props;
+
+  const syncFingerprintsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        artifactIntegrityFingerprintsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFingerprintsOpen = useCallback(
+    (open: boolean) => {
+      setFingerprintsOpenState(open);
+      syncFingerprintsOpenToUrl(open);
+    },
+    [syncFingerprintsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFingerprintsOpenState(parseArtifactIntegrityFingerprintsOpenFromSearch(artifactIntegrityFingerprintsOpenParam));
+  }, [artifactIntegrityFingerprintsOpenParam]);
 
   if (artifacts.length === 0) {
     return null;
@@ -56,6 +90,10 @@ export function ArtifactIntegrityTechnicalDetails(props: ArtifactIntegrityTechni
     <details
       className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="artifact-integrity-technical-details"
+      open={fingerprintsOpen}
+      onToggle={(event) => {
+        setFingerprintsOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Integrity fingerprints

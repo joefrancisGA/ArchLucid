@@ -39,6 +39,7 @@ public sealed class TopologyCoverageFindingEngineTests
         Finding finding = findings[0];
         finding.FindingType.Should().Be(FindingTypes.TopologyCoverageFinding);
         finding.Title.Should().Contain("No topology");
+        finding.EvidenceRefs.Should().BeEmpty();
         finding.Trace.DecisionsTaken.Should().NotBeEmpty();
         finding.Trace.RulesApplied.Should().Contain("topology-coverage-presence");
         finding.Trace.Notes.Should().NotBeEmpty();
@@ -71,6 +72,7 @@ public sealed class TopologyCoverageFindingEngineTests
         findings[0].Trace.RulesApplied.Should().Contain("topology-coverage-categories");
         findings[0].Trace.GraphNodeIdsExamined.Should().Equal("topo-a", "topo-b", "topo-c");
         findings[0].RelatedNodeIds.Should().Equal("topo-a", "topo-b", "topo-c");
+        findings[0].EvidenceRefs.Should().BeEmpty();
         findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Present:", StringComparison.Ordinal));
         findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Missing:", StringComparison.Ordinal));
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);

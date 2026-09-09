@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { AskPageContent } from "@/app/(operator)/insights/ask-review-questions/_sections/AskPageContent";
 import { AskSuspenseFallback } from "@/app/(operator)/insights/ask-review-questions/_sections/AskSuspenseFallback";
+import { WorkingPeerAskRedirect } from "@/components/insights/WorkingPeerAskRedirect";
 import { listConversationThreads } from "@/lib/conversation-api";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator/operator-run-picker-client";
 import { createOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -25,6 +26,7 @@ export default async function AskPage() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AskSuspenseFallback />}>
+        <WorkingPeerAskRedirect />
         <AskPageContent />
       </Suspense>
     </HydrationBoundary>

@@ -1,8 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
+import {
+  ARTIFACT_REVIEW_RAW_CONTENT_OPEN_PARAM,
+  artifactReviewRawContentDisclosureHrefFromSearch,
+  parseArtifactReviewRawContentOpenFromSearch,
+} from "@/lib/artifacts/artifact-review-raw-content-disclosure-url";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
@@ -27,7 +36,34 @@ export function ArtifactReviewContent(props: {
   /** When the artifact is cited as evidence for a policy-backed finding, surface the pack + rule above the preview. */
   policyCitation?: ArtifactReviewPolicyCitation | null;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const artifactReviewRawContentParam = searchParams.get(ARTIFACT_REVIEW_RAW_CONTENT_OPEN_PARAM);
+  const [artifactReviewRawContentOpen, setArtifactReviewRawContentOpenState] = useState(() =>
+    parseArtifactReviewRawContentOpenFromSearch(artifactReviewRawContentParam),
+  );
+  const syncArtifactReviewRawContentOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        artifactReviewRawContentDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArtifactReviewRawContentOpen = useCallback(
+    (open: boolean) => {
+      setArtifactReviewRawContentOpenState(open);
+      syncArtifactReviewRawContentOpenToUrl(open);
+    },
+    [syncArtifactReviewRawContentOpenToUrl],
+  );
   const { prepared, contentType, byteLength, truncated, contentError, policyCitation = null } = props;
+
+  useEffect(() => {
+    setArtifactReviewRawContentOpenState(parseArtifactReviewRawContentOpenFromSearch(artifactReviewRawContentParam));
+  }, [artifactReviewRawContentParam]);
 
   if (contentError) {
     return (
@@ -82,7 +118,11 @@ export function ArtifactReviewContent(props: {
 
       <pre className={preBoxCls}>{prepared.readableText}</pre>
 
-      <details className="mt-4">
+      <details
+        className="mt-4"
+        open={artifactReviewRawContentOpen}
+        onToggle={(event) => setArtifactReviewRawContentOpen(event.currentTarget.open)}
+      >
         <summary className="cursor-pointer font-semibold text-neutral-700 dark:text-neutral-300">
           Raw UTF-8 content
           {rawIsDistinct ? " (exact, unmodified from API)" : " (same as readable above)"}

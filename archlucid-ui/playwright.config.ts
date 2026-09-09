@@ -46,6 +46,8 @@ export default defineConfig({
       ARCHLUCID_API_KEY: process.env.ARCHLUCID_API_KEY ?? process.env.LIVE_API_KEY ?? "",
       ARCHLUCID_PROXY_BEARER_TOKEN:
         process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? process.env.LIVE_JWT_TOKEN ?? "",
+      ARCHLUCID_BFF_SESSION_SIGNING_SECRET:
+        process.env.ARCHLUCID_BFF_SESSION_SIGNING_SECRET ?? "",
       ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS: "true",
       NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
     },

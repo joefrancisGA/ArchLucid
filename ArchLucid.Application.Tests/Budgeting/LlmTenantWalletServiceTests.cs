@@ -42,6 +42,25 @@ public sealed class LlmTenantWalletServiceTests
         bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 25m, CancellationToken.None);
 
         authorized.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(15m);
+    }
+
+    [SkippableFact]
+    public async Task TryAuthorizeOverageSpendAsync_applies_overage_markup_so_estimate_near_balance_is_rejected()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+
+        LlmTenantWalletService service = CreateService(repository);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 40m, CancellationToken.None);
+
+        authorized.Should().BeFalse();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(50m);
     }
 
     [SkippableFact]
@@ -258,14 +277,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(
-            tenantId,
-            50m,
-            Guid.NewGuid(),
-            null,
-            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
-            [],
-            CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 70m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
@@ -277,7 +289,7 @@ public sealed class LlmTenantWalletServiceTests
 
         results.Count(static authorized => authorized).Should().Be(1);
         LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
-        view.BalanceUsd.Should().Be(10m);
+        view.BalanceUsd.Should().Be(14m);
     }
 
     [SkippableFact]
@@ -322,7 +334,7 @@ public sealed class LlmTenantWalletServiceTests
 
         await repository.TryCreditRefillAsync(
             tenantId,
-            50m,
+            70m,
             Guid.NewGuid(),
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
@@ -356,12 +368,19 @@ public sealed class LlmTenantWalletServiceTests
             RowVersion = rowVersion,
         };
 
+        decimal creditUsd =
+            LlmTenantWalletDefaults.ApplyOverageMarkup(40m) - LlmTenantWalletDefaults.ApplyOverageMarkup(25m);
         Mock<ILlmTenantWalletRepository> repository = new();
         repository
             .Setup(r => r.GetOrCreateAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(state);
         repository
-            .Setup(r => r.TryCreditAdjustmentAsync(tenantId, 15m, It.IsAny<Guid>(), rowVersion, It.IsAny<CancellationToken>()))
+            .Setup(r => r.TryCreditAdjustmentAsync(
+                tenantId,
+                creditUsd,
+                It.IsAny<Guid>(),
+                rowVersion,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(LlmTenantWalletCreditResult.Conflict());
 
         LlmWalletSettlementQueue queue = new();
@@ -386,7 +405,7 @@ public sealed class LlmTenantWalletServiceTests
 
         await repository.TryCreditRefillAsync(
             tenantId,
-            50m,
+            70m,
             Guid.NewGuid(),
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
@@ -416,7 +435,7 @@ public sealed class LlmTenantWalletServiceTests
 
         await repository.TryCreditRefillAsync(
             tenantId,
-            50m,
+            70m,
             Guid.NewGuid(),
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
@@ -431,7 +450,7 @@ public sealed class LlmTenantWalletServiceTests
         await service.ReconcileOverageInternalAsync(tenantId, 25m, 40m, Guid.NewGuid(), CancellationToken.None);
 
         LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
-        view.BalanceUsd.Should().Be(25m);
+        view.BalanceUsd.Should().Be(35m);
     }
 
     private static LlmTenantWalletService CreateService(

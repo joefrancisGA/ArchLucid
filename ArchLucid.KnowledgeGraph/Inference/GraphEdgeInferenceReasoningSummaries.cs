@@ -59,6 +59,17 @@ public static class GraphEdgeInferenceReasoningSummaries
                 return "Baseline did not advertise explicit targets yet exactly one topology node existed; ArchLucid "
                        + "assumed protections apply there.";
 
+            case GraphEdgeInferenceSources.DeclarationIdentityActorLink:
+                return "ArchLucid linked a declaration-seeded Actor to the topology node that declared it.";
+
+            case GraphEdgeInferenceSources.DeclarationIdentityIamPath:
+                return "ArchLucid linked a machine Actor to a declared role assignment and the assignment's "
+                       + "declared scope when principalId and target resource both already exist on the snapshot.";
+
+            case GraphEdgeInferenceSources.DeclarationIdentityDataFlowPath:
+                return "ArchLucid linked an external declaration Actor to a declared backend compute node and, "
+                       + "when present, that compute node to a declared datastore — only when both ends already exist.";
+
             default:
                 return $"ArchLucid inferred this edge via rule `{inferenceSource.Trim()}` "
                        + "(deterministic heuristic or connector hint).";
