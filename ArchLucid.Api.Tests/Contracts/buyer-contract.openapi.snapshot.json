@@ -27270,7 +27270,6 @@
             "additionalProperties": {
               "type": "string"
             },
-            "nullable": true,
             "type": [
               "null",
               "object"
@@ -27312,7 +27311,6 @@
             "additionalProperties": {
               "type": "string"
             },
-            "nullable": true,
             "type": [
               "null",
               "object"
@@ -39546,13 +39544,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -41855,13 +41868,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {

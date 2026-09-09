@@ -1102,6 +1102,7 @@ export interface components {
         ArchitectureDiagramSubgraphRecord: {
             id?: string;
             label?: string;
+            /** Format: int32 */
             orderKey?: number;
             parentSubgraphId?: null | string;
         };
@@ -8013,9 +8014,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
-            expectedCurrentDispositionRowVersionBase64ByFindingId?: {
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: null | {
                 [key: string]: string;
-            } | null;
+            };
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -8023,9 +8024,9 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
-            currentDispositionRowVersionBase64ByFindingId?: {
+            currentDispositionRowVersionBase64ByFindingId?: null | {
                 [key: string]: string;
-            } | null;
+            };
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];
