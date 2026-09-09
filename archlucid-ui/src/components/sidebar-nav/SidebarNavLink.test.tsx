@@ -65,6 +65,31 @@ describe("SidebarNavLink", () => {
     expect(link.className).not.toContain("text-neutral-600");
   });
 
+  it("AO-40: exposes disabled reason via screen reader only, not visible sub-label copy (ADR 0081)", () => {
+    render(
+      <SidebarNavLink
+        presented={{
+          ...newReviewLink,
+          href: "/insights/evidence-graph",
+          label: "Evidence graph",
+          navLinkDisabled: true,
+          navLinkDisabledTitle: "Open an architecture identity desk first.",
+        }}
+        active={false}
+        advancedDemo={false}
+        buyerPolishedShell
+      />,
+    );
+
+    expect(screen.queryByTitle("Open an architecture identity desk first.")).toBeNull();
+    expect(document.getElementById("sidebar-nav-link-disabled-reason--insights-evidence-graph")).toBeNull();
+    expect(screen.getByText("Open an architecture identity desk first.")).toHaveClass("sr-only");
+    expect(document.getElementById("sidebar-nav-link-hint--insights-evidence-graph")).toHaveTextContent(
+      "Open an architecture identity desk first.",
+    );
+    expect(document.getElementById("sidebar-nav-link-hint--insights-evidence-graph")).toHaveClass("sr-only");
+  });
+
   it("exposes supplemental nav hint via aria-describedby instead of title", () => {
     render(
       <SidebarNavLink

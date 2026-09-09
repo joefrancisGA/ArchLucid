@@ -36,6 +36,7 @@ type Tier2ConnectionValidateStepProps = Pick<
   | "validationSucceeded"
   | "verifiedTopics"
   | "canMutate"
+  | "productLine"
 >;
 
 export function Tier2ConnectionValidateStep({
@@ -52,6 +53,7 @@ export function Tier2ConnectionValidateStep({
   validationSucceeded,
   verifiedTopics,
   canMutate,
+  productLine,
 }: Tier2ConnectionValidateStepProps): React.ReactElement {
   return (
     <section className="space-y-4" aria-labelledby="tier2-wizard-save-heading">
@@ -127,7 +129,7 @@ export function Tier2ConnectionValidateStep({
           ) : null}
           {validationSucceeded ? (
             <CloudSecurityPreflightPanel
-              topics={cloudSecurityPreflightTopics("azure")}
+              topics={cloudSecurityPreflightTopics("azure", productLine)}
               providerLabel="Azure"
               collapsedByDefault={false}
               verifiedTopics={verifiedTopics}

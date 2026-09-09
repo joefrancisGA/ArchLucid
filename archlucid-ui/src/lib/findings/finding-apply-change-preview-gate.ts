@@ -9,6 +9,11 @@ export const FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE =
 export const FINDING_APPLY_CHANGE_PREVIEW_OVERRIDE_LABEL =
   "Record an override and continue without a completed impact preview";
 
+export type FindingApplyChangeDispositionAttestation = {
+  readonly impactPreviewCompleted?: boolean;
+  readonly previewOverrideReason?: string;
+};
+
 function storageKey(runId: string, findingId: string): string {
   return `${STORAGE_KEY_PREFIX}${runId.trim().toLowerCase()}:${findingId.trim().toLowerCase()}`;
 }
@@ -25,6 +30,7 @@ export function findingApplyChangePreviewHref(runId: string, findingId: string):
   });
 }
 
+/** UX cache only — not authoritative for Working Remediated (LP-14 server attestation). */
 export function hasCompletedFindingApplyChangePreview(runId: string, findingId: string): boolean {
   if (typeof window === "undefined") {
     return false;
@@ -32,7 +38,8 @@ export function hasCompletedFindingApplyChangePreview(runId: string, findingId: 
 
   try {
     return window.sessionStorage.getItem(storageKey(runId, findingId)) === "completed";
-  } catch {
+  }
+  catch {
     return false;
   }
 }
@@ -44,7 +51,8 @@ export function recordFindingApplyChangePreviewCompleted(runId: string, findingI
 
   try {
     window.sessionStorage.setItem(storageKey(runId, findingId), "completed");
-  } catch {
+  }
+  catch {
     // Session storage can be blocked; the confirm dialog still requires an explicit override.
   }
 }
@@ -62,10 +70,37 @@ export function readFindingApplyChangePreviewQuery(search: URLSearchParams): {
   };
 }
 
+/** Builds server-attested fields for Working Remediated dispositions (LP-14). */
+export function buildFindingApplyChangeDispositionAttestation(input: {
+  readonly isWorkingDesk: boolean;
+  readonly runId: string;
+  readonly findingId: string;
+  readonly overrideRecorded: boolean;
+}): FindingApplyChangeDispositionAttestation | null {
+  if (!input.isWorkingDesk) {
+    return null;
+  }
+
+  if (input.overrideRecorded) {
+    return { previewOverrideReason: FINDING_APPLY_CHANGE_PREVIEW_OVERRIDE_LABEL };
+  }
+
+  if (hasCompletedFindingApplyChangePreview(input.runId, input.findingId)) {
+    return { impactPreviewCompleted: true };
+  }
+
+  return null;
+}
+
 export function canConfirmFindingApplyChange(input: {
+  readonly isWorkingDesk: boolean;
   readonly runId: string;
   readonly findingId: string;
   readonly overrideRecorded: boolean;
 }): boolean {
-  return input.overrideRecorded || hasCompletedFindingApplyChangePreview(input.runId, input.findingId);
+  if (!input.isWorkingDesk) {
+    return input.overrideRecorded || hasCompletedFindingApplyChangePreview(input.runId, input.findingId);
+  }
+
+  return buildFindingApplyChangeDispositionAttestation(input) !== null;
 }

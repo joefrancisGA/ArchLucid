@@ -17,6 +17,8 @@ import {
   type FindingsSnapshotInsightDensityView,
 } from "@/lib/findings/findings-snapshot-insight-density";
 import { hasFindingsWhatIfAnalysisContent } from "@/lib/findings/findings-what-if-analysis";
+import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/runs/RunDecisionExplainabilitySection";
@@ -52,6 +54,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly buyerPolishedArtifactTable: boolean;
   readonly quickDecisionFindings: QuickDecisionFinding[];
   readonly quickDecisionFromExplanationFallback: boolean;
+  readonly buyerSummaryOmitsAgentFindings?: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
@@ -75,6 +78,8 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
+  readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 function buildFindingTitlesById(findings: readonly QuickDecisionFinding[]): Record<string, string> {
@@ -89,6 +94,7 @@ export function RunDetailRunExplanationCollapsible(
     buyerPolishedArtifactTable,
     quickDecisionFindings,
     quickDecisionFromExplanationFallback,
+    buyerSummaryOmitsAgentFindings,
     findingWireSnapshots,
     findingCountDisplay,
     warningCountDisplay,
@@ -106,6 +112,7 @@ export function RunDetailRunExplanationCollapsible(
     analysisStagesComplete,
     triageVisibleCount,
     graphSnapshot,
+    structuralExecutionMode,
   } = props;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -228,6 +235,7 @@ export function RunDetailRunExplanationCollapsible(
           headlineFindingCount={findingCountDisplay}
           headlineWarningCount={warningCountDisplay}
           usingExplanationFallback={quickDecisionFromExplanationFallback}
+          buyerSummaryOmitsAgentFindings={buyerSummaryOmitsAgentFindings}
           manifestRuleSetId={manifestRuleSetId}
           manifestRuleSetVersion={manifestRuleSetVersion}
           providerNeutralWorkItems={providerNeutralWorkItems}
@@ -238,6 +246,8 @@ export function RunDetailRunExplanationCollapsible(
           triageVisibleCount={triageVisibleCount}
           graphSnapshot={graphSnapshot}
           requestAssumptionTexts={props.requestAssumptionTexts}
+          withheldFindings={props.withheldFindings}
+          structuralExecutionMode={structuralExecutionMode}
         />
 
         {showCoverageAndCuration ? (

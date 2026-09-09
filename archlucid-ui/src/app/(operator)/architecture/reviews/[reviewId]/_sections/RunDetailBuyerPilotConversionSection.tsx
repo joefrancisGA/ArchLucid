@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 
 import { PilotConversionCta } from "./PilotConversionCta";
@@ -14,14 +15,14 @@ type RunDetailBuyerPilotConversionSectionProps = {
 /**
  * Buyer-shell-only section that surfaces a conversion CTA when trial execution is blocked by LLM budget limits.
  */
-export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotConversionSectionProps) {
-  const { buyerPolishedArtifactTable } = props;
-  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery({ enabled: buyerPolishedArtifactTable });
-  const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: buyerPolishedArtifactTable });
+export function RunDetailBuyerPilotConversionSection(_props: RunDetailBuyerPilotConversionSectionProps) {
+  const evalChromeShell = useProductionEvalChrome();
+  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery({ enabled: evalChromeShell });
+  const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: evalChromeShell });
   const [trialStatus, setTrialStatus] = useState<"unknown" | "active" | "inactive">("unknown");
 
   useEffect(() => {
-    if (!buyerPolishedArtifactTable) {
+    if (!evalChromeShell) {
       return;
     }
 
@@ -50,13 +51,13 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
     }
 
     setTrialStatus("unknown");
-  }, [buyerPolishedArtifactTable, trialPayload]);
+  }, [evalChromeShell, trialPayload]);
 
   const blocksAdditionalLlmExecution = useMemo(() => {
     return budgetStatus?.blocksAdditionalLlmExecution === true;
   }, [budgetStatus]);
 
-  if (!buyerPolishedArtifactTable) {
+  if (!evalChromeShell) {
     return null;
   }
 

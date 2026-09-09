@@ -22,7 +22,7 @@ export const GLOSSARY_TERMS = {
   },
   review_package: {
     term: "Architecture package",
-    definition: "A governed architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    definition: "A formal architecture review with sealed review record, evidence trail, findings, approval records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -51,13 +51,13 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-evidence-trail",
   },
   effective_governance: {
-    term: "Effective governance",
+    term: "Effective policy",
     definition: "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
     docLink: "/docs/library/GLOSSARY.md#effective-governance",
   },
   policy_pack: {
     term: "Policy pack",
-    definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
+    definition: "A versioned bundle of rules, thresholds, and policy mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
     docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {
@@ -100,12 +100,12 @@ export const GLOSSARY_TERMS = {
     definition: "The persisted, replayable ledger of authenticated actions across reviews, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific.",
   },
   governance_workflow: {
-    term: "Governance workflow",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    term: "Approval workflow",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
   },
   architecture_manifest: {
     term: "Sealed review record",
-    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
+    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for approval review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

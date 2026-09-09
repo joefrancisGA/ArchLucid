@@ -7,6 +7,8 @@ import { useCallback, useState, type ReactElement, type SetStateAction } from "r
 
 import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
+import { WorkingReviewCopyLinkButton } from "@/components/reviews/WorkingReviewCopyLinkButton";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
@@ -26,6 +28,7 @@ export type ReviewHeaderShareMenuProps = {
   readonly isCommitted: boolean;
   readonly findingsQueueHref: string;
   readonly manifestVersion?: string | null;
+  readonly parentArchitectureId?: string | null;
   readonly canInviteReviewer?: boolean;
   readonly disabled?: boolean;
   readonly disabledReason?: WhyDisabledCtaReason | null;
@@ -61,7 +64,7 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
     },
     [syncShareMenuOpenToUrl],
   );
-  const inviteHref = buildInviteReviewerHref(props.runId);
+  const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,
     findingsQueueHref: props.findingsQueueHref,
@@ -152,6 +155,10 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
             runId={props.runId}
             isCommitted={props.isCommitted}
             manifestVersion={props.manifestVersion}
+          />
+          <WorkingReviewCopyLinkButton
+            runId={props.runId}
+            parentArchitectureId={props.parentArchitectureId}
           />
         </div>
         <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800" data-testid="review-header-share-menu-exports">

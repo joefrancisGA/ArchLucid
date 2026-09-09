@@ -47,4 +47,10 @@ internal sealed class FindingsCoverageFindingRow
         get;
         init;
     }
+
+    public bool IsMuted
+    {
+        get;
+        init;
+    }
 }

@@ -38,9 +38,9 @@ import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_SKIP_LINK_LABEL,
   PRIOR_MANIFEST_RETRIEVAL_HELP_SKIP_TARGET_ID,
 } from "@/lib/prior-manifest-retrieval-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_PRIMARY_ACTIONS } from "@/lib/prior-manifest-retrieval-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpPriorManifestRetrievalGuideView buyer-polished shell (HPR)", () => {
   const loaded = tryLoadProductDocumentation("prior-manifest-retrieval");
@@ -81,10 +81,7 @@ describe("HelpPriorManifestRetrievalGuideView buyer-polished shell (HPR)", () =>
       PRIOR_MANIFEST_RETRIEVAL_HELP_PRIMARY_ACTIONS.openAsk.href,
     );
 
-    for (const source of PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

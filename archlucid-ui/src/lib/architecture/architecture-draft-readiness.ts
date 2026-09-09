@@ -28,6 +28,7 @@ export type ArchitectureDraftFieldState = {
   readonly businessOutcome: string;
   readonly systemName: string;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
+  readonly openQuestions: string;
 };
 
 export type ArchitectureDraftValidationResult = {
@@ -74,6 +75,7 @@ export type ArchitectureDraftPatchPayload = {
   readonly actorSet: ActorSet;
   readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
   readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
+  readonly openQuestions?: string;
   readonly expectedUpdatedUtc?: string;
   readonly forceOverwrite?: boolean;
 };
@@ -101,6 +103,7 @@ export function buildArchitectureDraftPatchPayload(
       : {}),
     businessOutcome: trimmedOutcome,
     ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
+    ...(fields.openQuestions.trim().length > 0 ? { openQuestions: fields.openQuestions.trim() } : { openQuestions: "" }),
     actorSet: normalizeActorSetForAdmission(
       actorSet.actors.length > 0 ? actorSet : buildDefaultActorSet(),
     ),
@@ -121,6 +124,7 @@ export function architectureDraftFieldsFromDocument(draft: DraftRequestResponse)
     businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome ?? ""),
     systemName: draft.document.systemName ?? "",
     structuredBrief: structuredBriefFromDocument(draft.document),
+    openQuestions: draft.document.openQuestions?.trim() ?? "",
   };
 }
 

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Common;
@@ -30,6 +31,8 @@ public sealed class AskService(
     AskComparisonNarrativeBuilder comparisonNarrativeBuilder,
     AskResponseComposer responseComposer,
     AskConversationHistoryBuilder conversationHistoryBuilder,
+    FindingInstrumentationAuditSupport findingInstrumentationAudit,
+    IActorContext actorContext,
     ILogger<AskService> logger) : IAskService
 {
     private const int HistoryTake = 40;
@@ -79,6 +82,12 @@ public sealed class AskService(
 
     private readonly AskConversationHistoryBuilder _conversationHistoryBuilder =
         conversationHistoryBuilder ?? throw new ArgumentNullException(nameof(conversationHistoryBuilder));
+
+    private readonly FindingInstrumentationAuditSupport _findingInstrumentationAudit =
+        findingInstrumentationAudit ?? throw new ArgumentNullException(nameof(findingInstrumentationAudit));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ILogger<AskService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -258,15 +267,31 @@ public sealed class AskService(
 
             AskResponse fallback = _responseComposer.BuildFindingFallbackResponse(thread.ThreadId);
             await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, fallback, ct);
+            await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
             return fallback;
         }
 
         AskResponse response = _responseComposer.Parse(thread.ThreadId, raw);
         await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, response, ct);
+        await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
         return response;
     }
+
+    private Task LogFindingAskConversationPersistedAsync(
+        ScopeContext scope,
+        string findingId,
+        Guid runId,
+        Guid threadId,
+        CancellationToken cancellationToken) =>
+        _findingInstrumentationAudit.LogAskConversationPersistedAsync(
+            scope,
+            _actorContext.GetActor(),
+            findingId,
+            runId,
+            threadId,
+            cancellationToken);
 
     private static string BuildUserPrompt(AskPreparedContext prepared) =>
         AskUserPromptComposer.BuildUserPrompt(

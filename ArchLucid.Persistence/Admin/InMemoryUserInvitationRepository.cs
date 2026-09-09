@@ -258,6 +258,37 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         return diff == 0;
     }
 
+    public Task E2eHarnessSetExpiresUtcAsync(
+        Guid invitationId,
+        DateTimeOffset expiresUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row))
+        {
+            return Task.CompletedTask;
+        }
+
+        _byId[invitationId] = new UserInvitationRecord
+        {
+            Id = row.Id,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            Email = row.Email,
+            AppRole = row.AppRole,
+            InvitedByActorId = row.InvitedByActorId,
+            Message = row.Message,
+            Status = row.Status,
+            CreatedUtc = row.CreatedUtc,
+            ExpiresUtc = expiresUtc,
+            RevokedUtc = row.RevokedUtc,
+            AcceptedUtc = row.AcceptedUtc,
+        };
+
+        return Task.CompletedTask;
+    }
+
     /// <summary>Seeds a pending invitation row for tests (allows non-normalized display emails).</summary>
     public Task SeedPendingForTestsAsync(UserInvitationRecord row, byte[] tokenHash)
     {

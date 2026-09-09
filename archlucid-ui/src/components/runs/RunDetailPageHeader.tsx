@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -13,7 +15,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { RunStatusBadge } from "@/components/runs/RunStatusBadge";
@@ -36,6 +38,10 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import {
+  parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
+  runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -49,8 +55,46 @@ function BuyerSponsorBriefExports({
   usedStaticDemoRun: boolean;
   manifestVersionForGuard?: string | null;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailBuyerSponsorBriefExportsOpenParam = searchParams.get("runDetailBuyerSponsorBriefExportsOpen");
+  const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
+    parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+  );
+
+  const syncSponsorBriefExportsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSponsorBriefExportsOpen = useCallback(
+    (open: boolean) => {
+      setSponsorBriefExportsOpenState(open);
+      syncSponsorBriefExportsOpenToUrl(open);
+    },
+    [syncSponsorBriefExportsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSponsorBriefExportsOpenState(
+      parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(runDetailBuyerSponsorBriefExportsOpenParam),
+    );
+  }, [runDetailBuyerSponsorBriefExportsOpenParam]);
+
   return (
-    <details className="text-right">
+    <details
+      className="text-right"
+      open={sponsorBriefExportsOpen}
+      onToggle={(event) => {
+        setSponsorBriefExportsOpen((event.currentTarget as HTMLDetailsElement).open);
+      }}
+    >
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
         Download sponsor brief
       </summary>
@@ -230,13 +274,13 @@ export type RunDetailPageHeaderProps = {
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
   /**
-   * Buyer-polished: governance gate label mapped for display (for example Passed → Approved with monitoring).
+   * Buyer-polished: approval gate label mapped for display (for example Passed → Approved with monitoring).
    */
   buyerGovernanceApprovalLabel?: string | null;
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
   commitBlockedReason?: string | null;
-  /** Open governance alerts linked to this review (TB-107). */
+  /** Open approval alerts linked to this review (TB-107). */
   hasGovernanceWarnings?: boolean;
   /** True when this page rendered curated sample data instead of a backend-persisted review (no exportable run). */
   usedStaticDemoRun?: boolean;
@@ -263,12 +307,12 @@ export function RunDetailPageHeader({
   demoteFinalizeButton = false,
   transparencyTrail = null,
 }: RunDetailPageHeaderProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
   const approvalStatusLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-    : "Governance approval";
+    : "Approval";
   const approvalCheckLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.approvalCheck
     : "Approval check";
@@ -296,7 +340,7 @@ export function RunDetailPageHeader({
                   ) : null}
                 </h1>
                 {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
-                  <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
                 ) : null}
               </div>
               {buyerPolishedShell === true && finalizedBuyerChrome === true && buyerHeaderStatusCaption ? (
@@ -337,7 +381,7 @@ export function RunDetailPageHeader({
           !(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
             <div className="flex flex-wrap items-center gap-2">
               {!(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
-                <RunStatusBadge run={runSummary} />
+                <RunStatusBadge run={runSummary} finalizeHonesty={{ transparencyTrail }} />
               ) : null}
               {runSummary.runDegradedExecution === true ? (
                 <StatusTag

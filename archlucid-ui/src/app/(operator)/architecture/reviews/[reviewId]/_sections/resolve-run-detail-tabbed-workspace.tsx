@@ -12,6 +12,10 @@ import { RunDetailInFlightDeskChrome } from "@/components/reviews/RunDetailInFli
 import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
+import {
+  resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsTabBadgeCount,
+} from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
 import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
@@ -97,6 +101,11 @@ export function resolveRunDetailTabbedWorkspace(
     return null;
   }
 
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
+
   const overviewPanelEl = composeRunDetailTabbedWorkspaceOverviewShell({ model: m, presentation: p });
   const evidenceTabPanelEl = composeRunDetailTabbedWorkspaceEvidenceShell({ model: m, presentation: p });
   const governanceTabPanelEl = composeRunDetailTabbedWorkspaceGovernanceShell({ model: m, presentation: p });
@@ -147,13 +156,14 @@ export function resolveRunDetailTabbedWorkspace(
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         artifactCount={m.artifacts.length}
-        findingCount={m.findingCountDisplay}
+        findingCount={deferredSurfaceFindingCount}
       />
     ) : null;
 
   const inPipelineBannerEl = m.showProgressTracker ? (
     <RunDetailInFlightDeskChrome
       runId={m.resolvedDetail.run.runId}
+      architectureId={m.resolvedDetail.run.architectureId ?? null}
       pipelineBanner={
         <ReviewInPipelineBanner
           runId={m.resolvedDetail.run.runId}
@@ -187,7 +197,7 @@ export function resolveRunDetailTabbedWorkspace(
       operatorGovernanceDecisionUtc: m.resolvedDetail.run.operatorGovernanceDecisionUtc,
     }),
     tabCounts: {
-      findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
+      findings: resolveRunDetailFindingsTabBadgeCount(m.findingCountDisplay, quickDecisionFindings),
       evidence: evidenceInventoryCount > 0 ? evidenceInventoryCount : null,
       decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
     },
@@ -213,7 +223,7 @@ export function resolveRunDetailTabbedWorkspace(
               ruleSetId={reviewPolicyPackCallout.ruleSetId}
               ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
               runId={m.resolvedDetail.run.runId}
-              totalFindingCount={m.findingCountDisplay}
+              totalFindingCount={deferredSurfaceFindingCount}
               architectureRequestId={m.resolvedDetail.run.architectureRequestId}
               effectiveGovernanceAtCommit={reviewPolicyPackCallout.effectiveGovernanceAtCommit}
             />
@@ -225,6 +235,13 @@ export function resolveRunDetailTabbedWorkspace(
               runExecution={{
                 realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
                 pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+              }}
+              careerArtifactHonesty={{
+                progressSummary: m.progressForPipelineUi,
+                manifestSummary: m.manifestSummaryForUi,
+                graphSnapshot: m.resolvedDetail.graphSnapshot,
+                enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+                isSample: m.usedStaticDemoRun,
               }}
             />
           ) : null}
@@ -258,13 +275,17 @@ export function resolveRunDetailTabbedWorkspace(
               usedStaticDemoRun={m.usedStaticDemoRun}
               showExtendedSponsorBriefing={m.showPilotScorecardPackageCta}
               lowExtractionConfidenceCount={lowExtractionConfidenceCount}
+              enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+              progressSummary={m.resolvedDetail.run}
+              graphSnapshot={m.resolvedDetail.graphSnapshot}
+              findingsSnapshot={m.resolvedDetail.findingsSnapshot}
             />
           ) : null}
           <RunDetailReviewPackageSectionDeferred
             manifestId={m.manifestId}
             runId={m.resolvedDetail.run.runId}
             artifactCount={m.artifacts.length}
-            findingCount={m.findingCountDisplay}
+            findingCount={deferredSurfaceFindingCount}
             showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
           />
           {m.manifestId ? (
@@ -293,6 +314,9 @@ export function resolveRunDetailTabbedWorkspace(
                 input={m.adrGeneratorInput}
                 totalFindingCount={m.careerExportEligibleFindingCount}
                 enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+                graphSnapshot={m.resolvedDetail.graphSnapshot}
+                progressSummary={m.progressForPipelineUi}
+                findingsSnapshot={m.resolvedDetail.findingsSnapshot}
                 buyerPolished={false}
               />
             </div>

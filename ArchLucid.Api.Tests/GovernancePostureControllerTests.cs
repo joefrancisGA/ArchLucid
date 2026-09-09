@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Api.Tests;
 
@@ -68,7 +72,10 @@ public sealed class GovernancePostureControllerTests
         GovernancePostureController controller = new(
             postureService.Object,
             scopeProvider.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -112,7 +119,10 @@ public sealed class GovernancePostureControllerTests
         GovernancePostureController controller = new(
             postureService.Object,
             scopeProvider.Object,
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -137,7 +147,10 @@ public sealed class GovernancePostureControllerTests
         GovernancePostureController controller = new(
             postureService.Object,
             scopeProvider.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -160,7 +173,10 @@ public sealed class GovernancePostureControllerTests
         GovernancePostureController controller = new(
             postureService.Object,
             scopeProvider.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -183,7 +199,10 @@ public sealed class GovernancePostureControllerTests
         GovernancePostureController controller = new(
             postureService.Object,
             scopeProvider.Object,
-            TenantMissingRepository())
+            TenantMissingRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -208,7 +227,10 @@ public sealed class GovernancePostureControllerTests
             .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
 
-        GovernancePostureController controller = new(postureService.Object, scopeProvider.Object, tenants.Object)
+        GovernancePostureController controller = new(postureService.Object, scopeProvider.Object, tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

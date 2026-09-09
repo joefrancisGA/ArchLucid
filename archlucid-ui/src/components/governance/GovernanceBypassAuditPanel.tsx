@@ -34,7 +34,7 @@ function resolveAuditActorLabel(event: AuditEvent): string {
   return event.actorUserId?.trim() || "Unknown actor";
 }
 
-/** Governance dashboard panel surfacing recent pre-commit break-glass bypass audit events. */
+/** Approval dashboard panel surfacing recent pre-commit break-glass bypass audit events. */
 export function GovernanceBypassAuditPanel(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const workspaceRun = useWorkspaceActiveRun();

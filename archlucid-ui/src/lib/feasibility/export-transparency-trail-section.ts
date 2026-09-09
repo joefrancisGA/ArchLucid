@@ -1,3 +1,8 @@
+import {
+  formatOpenQuestionsWorkingDocumentMarkdownSection,
+  sanitizeTransparencyTrailForCareerExport,
+  type OpenQuestionsWorkingDocumentExportEntry,
+} from "@/lib/architecture/architecture-open-questions-export-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
@@ -9,19 +14,23 @@ export type TransparencyTrailExportSection = {
   readonly asserted: TransparencyTrail["asserted"];
   readonly inferred: TransparencyTrail["inferred"];
   readonly skipped: TransparencyTrail["skipped"];
+  readonly workingDocumentOpenQuestions: readonly OpenQuestionsWorkingDocumentExportEntry[];
 };
 
 export function buildTransparencyTrailExportSection(
   trail: TransparencyTrail | null | undefined,
 ): TransparencyTrailExportSection | null {
-  if (trail === null || trail === undefined) {
+  const sanitized = sanitizeTransparencyTrailForCareerExport(trail);
+
+  if (sanitized === null) {
     return null;
   }
 
   return {
-    asserted: trail.asserted,
-    inferred: trail.inferred,
-    skipped: trail.skipped,
+    asserted: sanitized.asserted,
+    inferred: sanitized.inferred,
+    skipped: sanitized.skipped,
+    workingDocumentOpenQuestions: sanitized.workingDocumentOpenQuestions,
   };
 }
 
@@ -89,6 +98,15 @@ export function formatTransparencyTrailMarkdownSection(
     for (const entry of shouldSkipped) {
       lines.push(`- ${entry.questionKey}`);
     }
+  }
+
+  const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(
+    section.workingDocumentOpenQuestions,
+  );
+
+  if (workingDocumentMarkdown.length > 0) {
+    lines.push("");
+    lines.push(workingDocumentMarkdown.trimEnd());
   }
 
   lines.push("");

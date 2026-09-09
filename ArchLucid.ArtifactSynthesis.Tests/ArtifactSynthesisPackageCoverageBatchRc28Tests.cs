@@ -73,6 +73,35 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_escapes_pipes_in_edge_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Alpha", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "Beta", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    Label = "opt A | opt B",
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("a -->|\"opt A #124; opt B\"| b");
+        mermaid.Should().NotContain("-->|\"opt A | opt B\"|");
+    }
+
+    [Fact]
     public async Task DiagramAstGenerator_GenerateAsync_builds_decision_and_issue_graph()
     {
         DiagramAstGenerator generator = new();

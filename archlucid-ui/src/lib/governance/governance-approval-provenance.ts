@@ -1,7 +1,7 @@
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatActionActorName } from "@/lib/action-actor-display";
 
-/** Sourced governance approval fields required before the status banner may render. */
+/** Sourced approval fields required before the status banner may render. */
 export type GovernanceApprovalProvenance = {
   readonly approverLabel: string;
   readonly approvedAtUtc: string;

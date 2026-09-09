@@ -71,4 +71,37 @@ describe("AdminPrerequisitesReadinessBoard (TB-2156)", () => {
       "/administration/identity/sso-wizard",
     );
   });
+
+  it("renders optional cloud connection outside the blocking prerequisites table", () => {
+    useAdminPrerequisitesReadiness.mockReturnValue({
+      phase: "ready",
+      allReady: false,
+      rows: [
+        {
+          id: "corporate-sign-in",
+          label: "Corporate sign-in (OIDC / SAML)",
+          status: "attention",
+          summary: "Configure production sign-in",
+          href: "/administration/identity/sso-wizard",
+          cta: "Open SSO wizard",
+          sortOrder: 40,
+        },
+        {
+          id: "cloud-connection",
+          label: "Cloud evidence connection",
+          status: "attention",
+          summary: "Optional for core reviews — connect Azure, AWS, or GCP when you need inventory-backed evidence.",
+          href: "/integrations/cloud-connections",
+          cta: "Open cloud connections",
+          sortOrder: 30,
+        },
+      ],
+    });
+
+    render(<AdminPrerequisitesReadinessBoard enabled />);
+
+    expect(screen.getByTestId("admin-prerequisites-optional-group")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-prerequisite-row-cloud-connection")).toBeInTheDocument();
+    expect(screen.getByText("Not configured")).toBeInTheDocument();
+  });
 });

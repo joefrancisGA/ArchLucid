@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { NotificationPreferenceCenterEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
@@ -8,6 +10,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +18,7 @@ import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { useNotificationChannelDeliveryStatus } from "@/hooks/use-notification-channel-delivery-status";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -26,108 +30,124 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY,
   NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS,
   notificationPreferenceCenterPageSubtitle,
+  resolveNotificationPreferenceChannels,
 } from "@/lib/notification-preference-center";
 import {
   resolveNotificationPreferenceSaveChannelEmphasizedStepId,
   resolveNotificationPreferenceSaveChannelSteps,
 } from "@/lib/notification-preference-save-channel-checklist";
+import {
+  notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
+  parseNotificationPreferenceCenterRelationsOpenFromSearch,
+} from "@/lib/administration/notification-preference-center-relations-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import { NotificationPreferenceCenterBreadcrumb } from "./NotificationPreferenceCenterBreadcrumb";
 import { NotificationPreferenceCenterBuyerChrome } from "./NotificationPreferenceCenterBuyerChrome";
 import { NotificationPreferenceCenterLoadingSkeleton } from "./NotificationPreferenceCenterLoadingSkeleton";
 import {
+  NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_TEST_ID,
   NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR,
   NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR_RETRY_LABEL,
   NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID,
   NOTIFICATION_PREFERENCE_CENTER_SKIP_LINK_LABEL,
+  NOTIFICATION_PREFERENCE_CENTER_SKIP_TARGET_ID,
 } from "./notification-preference-center-page-copy";
 
 export function NotificationPreferenceCenterPageView() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const { productLine } = useProductLine();
+  const { localize } = useLocalizedProductCopy();
+  const notificationPreferenceChannels = resolveNotificationPreferenceChannels(productLine);
+  const searchParams = useSearchParams();
+  const notificationPreferenceCenterRelationsOpenParam = searchParams.get("notificationPreferenceCenterRelationsOpen");
+  const [relationsOpen, setRelationsOpenState] = useState(() =>
+    parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
+  );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { statusByChannelId, loading, loadFailed, refresh } = useNotificationChannelDeliveryStatus();
   const channelReady = (channelId: string): boolean => statusByChannelId[channelId]?.kind === "ready";
   const saveChannelChecklistInput = {
     channelsReviewed: !loading && !loadFailed,
     primaryChannelsReady: channelReady("digests") && channelReady("alerts-inbox"),
-    allChannelsReady: NOTIFICATION_PREFERENCE_CHANNELS.every((channel) => channelReady(channel.id)),
+    allChannelsReady: notificationPreferenceChannels.every((channel) => channelReady(channel.id)),
   };
   const saveChannelSteps = resolveNotificationPreferenceSaveChannelSteps(saveChannelChecklistInput);
   const saveChannelEmphasizedStepId =
     resolveNotificationPreferenceSaveChannelEmphasizedStepId(saveChannelChecklistInput);
 
-  return (
-    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">
-      {buyerPolishedShell ? (
-        <a
-          href={`#${NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID}`}
-          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-        >
-          {NOTIFICATION_PREFERENCE_CENTER_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+  const syncRelationsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        notificationPreferenceCenterRelationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
-      <div
-        id={buyerPolishedShell ? NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID : undefined}
-        data-testid={
-          buyerPolishedShell ? "notification-preference-center-primary-content" : undefined
-        }
-        className={cn(buyerPolishedShell ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
+  const setRelationsOpen = useCallback(
+    (open: boolean) => {
+      setRelationsOpenState(open);
+      syncRelationsOpenToUrl(open);
+    },
+    [syncRelationsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRelationsOpenState(
+      parseNotificationPreferenceCenterRelationsOpenFromSearch(notificationPreferenceCenterRelationsOpenParam),
+    );
+  }, [notificationPreferenceCenterRelationsOpenParam]);
+
+  const notificationsWorkspaceBody = (
+    <>
+      {buyerPolishedShell ? <NotificationPreferenceCenterBuyerChrome /> : (
+        <NotificationPreferenceCenterEvidenceOrientationStrip />
+      )}
+
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="notification-preference-center-orientation-line"
       >
-        <OperatorPageHeader
-          navHref={SETTINGS_NOTIFICATIONS_PATH}
-          title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
-          subtitle={notificationPreferenceCenterPageSubtitle(buyerPolishedShell)}
-          titleTestId="notification-preference-center-page-title"
-          breadcrumb={buyerPolishedShell ? <NotificationPreferenceCenterBreadcrumb /> : undefined}
-          actions={<PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
-        />
+        {NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE}
+      </p>
 
-        {buyerPolishedShell ? <NotificationPreferenceCenterBuyerChrome /> : (
-          <NotificationPreferenceCenterEvidenceOrientationStrip />
-        )}
-
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="notification-preference-center-orientation-line"
+      {loadFailed ? (
+        <div
+          className="space-y-2 rounded-md border border-neutral-200 px-3 py-3 dark:border-neutral-800"
+          data-testid="notification-preference-center-load-error"
         >
-          {NOTIFICATION_PREFERENCE_CENTER_ORIENTATION_LINE}
-        </p>
-
-        {loadFailed ? (
-          <div
-            className="space-y-2 rounded-md border border-neutral-200 px-3 py-3 dark:border-neutral-800"
-            data-testid="notification-preference-center-load-error"
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="notification-preference-center-load-retry"
+            onClick={refresh}
           >
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              {NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              data-testid="notification-preference-center-load-retry"
-              onClick={refresh}
-            >
-              {NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR_RETRY_LABEL}
-            </Button>
-          </div>
-        ) : loading ? (
-          <NotificationPreferenceCenterLoadingSkeleton />
-        ) : (
-          <>
-            <IntegrationConnectChecklist
-              title="Save channel checklist"
-              steps={saveChannelSteps}
-              emphasizedStepId={saveChannelEmphasizedStepId}
-              testIdPrefix="notification-preference-save-channel"
-            />
+            {NOTIFICATION_PREFERENCE_CENTER_LOAD_ERROR_RETRY_LABEL}
+          </Button>
+        </div>
+      ) : loading ? (
+        <NotificationPreferenceCenterLoadingSkeleton />
+      ) : (
+        <>
+          <IntegrationConnectChecklist
+            title="Save channel checklist"
+            steps={saveChannelSteps}
+            emphasizedStepId={saveChannelEmphasizedStepId}
+            testIdPrefix="notification-preference-save-channel"
+          />
           <div
             className="grid gap-4 md:grid-cols-2"
             data-testid="notification-preference-channel-grid"
             role="list"
           >
-            {NOTIFICATION_PREFERENCE_CHANNELS.map((channel) => {
+            {notificationPreferenceChannels.map((channel) => {
               const deliveryStatus = statusByChannelId[channel.id];
 
               return (
@@ -165,7 +185,7 @@ export function NotificationPreferenceCenterPageView() {
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`notification-preference-status-hint-${channel.id}`}
                     >
-                      {deliveryStatus.configureHint}
+                      {localize(deliveryStatus.configureHint)}
                     </p>
                     <Button asChild variant="outline" size="sm">
                       <Link href={channel.href}>{channel.ctaLabel}</Link>
@@ -175,42 +195,94 @@ export function NotificationPreferenceCenterPageView() {
               );
             })}
           </div>
-          </>
-        )}
+        </>
+      )}
 
-        <details
-          className="group rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-          data-testid="notification-preference-center-relations-disclosure"
+      <details
+        className="group rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="notification-preference-center-relations-disclosure"
+        open={relationsOpen}
+        onToggle={(event) => {
+          setRelationsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
+      >
+        <summary
+          className={cn(
+            "flex cursor-pointer list-none items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
         >
-          <summary
+          <DisclosureTriangleIndicator />
+          {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY}
+        </summary>
+        <div className="mt-4 space-y-4">
+          {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS.map((section) => (
+            <section key={section.id} className="space-y-2" data-testid={`notification-preference-relations-${section.id}`}>
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.heading}</h3>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(section.body)}</p>
+              <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {section.links.map((link) => (
+                  <li key={link.id}>
+                    <Link href={link.href} className="font-medium text-al-link hover:underline">
+                      {localize(link.label)}
+                    </Link>
+                    {" — "}
+                    {link.whenToUse}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </details>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="notification-preference-center-page">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${NOTIFICATION_PREFERENCE_CENTER_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {NOTIFICATION_PREFERENCE_CENTER_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID : undefined}
+        data-testid={
+          buyerPolishedShell ? "notification-preference-center-primary-content" : undefined
+        }
+        className={cn(buyerPolishedShell ? "scroll-mt-24" : undefined, OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref={SETTINGS_NOTIFICATIONS_PATH}
+          title={NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE}
+          subtitle={notificationPreferenceCenterPageSubtitle(buyerPolishedShell)}
+          titleTestId="notification-preference-center-page-title"
+          breadcrumb={buyerPolishedShell ? <NotificationPreferenceCenterBreadcrumb /> : undefined}
+          actions={
+            buyerPolishedShell ? null : (
+              <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+            )
+          }
+        />
+
+        {buyerPolishedShell ? (
+          <div
+            id={NOTIFICATION_PREFERENCE_CENTER_SKIP_TARGET_ID}
+            data-testid={NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_TEST_ID}
             className={cn(
-              "flex cursor-pointer list-none items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
-              OPERATOR_TYPOGRAPHY.body,
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
             )}
           >
-            <DisclosureTriangleIndicator />
-            {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_DISCLOSURE_SUMMARY}
-          </summary>
-          <div className="mt-4 space-y-4">
-            {NOTIFICATION_PREFERENCE_CENTER_RELATIONS_SECTIONS.map((section) => (
-              <section key={section.id} className="space-y-2" data-testid={`notification-preference-relations-${section.id}`}>
-                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.heading}</h3>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{section.body}</p>
-                <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {section.links.map((link) => (
-                    <li key={link.id}>
-                      <Link href={link.href} className="font-medium text-al-link hover:underline">
-                        {link.label}
-                      </Link>
-                      {" — "}
-                      {link.whenToUse}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
+            {notificationsWorkspaceBody}
           </div>
-        </details>
+        ) : (
+          notificationsWorkspaceBody
+        )}
       </div>
     </OperatorPageContainer>
   );

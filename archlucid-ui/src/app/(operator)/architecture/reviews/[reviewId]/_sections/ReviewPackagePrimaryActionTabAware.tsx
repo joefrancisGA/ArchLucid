@@ -1,11 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-
-import {
-  REVIEW_DETAIL_TAB_PARAM,
-  resolveReviewDetailTab,
-} from "@/lib/review-detail-workspace-tabs";
+import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
 
 import { contextualizeReviewPackagePrimaryActionForActiveTab } from "./contextualize-review-package-primary-action";
 import { ReviewPackagePrimaryAction, type ReviewPackagePrimaryActionProps } from "./ReviewPackagePrimaryAction";
@@ -22,8 +17,13 @@ export type ReviewPackagePrimaryActionTabAwareProps = Omit<ReviewPackagePrimaryA
 export function ReviewPackagePrimaryActionTabAware(
   props: ReviewPackagePrimaryActionTabAwareProps,
 ): React.JSX.Element {
-  const searchParams = useSearchParams();
-  const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const activeTab = useResolvedReviewDetailActiveTab({
+    tabLifecycle: {
+      manifestId: props.primaryActionContext.manifestId,
+      showProgressTracker: false,
+      runCompleted: props.primaryActionContext.runCompleted,
+    },
+  });
   const contextualAction = contextualizeReviewPackagePrimaryActionForActiveTab(
     props.action,
     activeTab,

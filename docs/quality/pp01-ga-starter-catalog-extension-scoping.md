@@ -86,4 +86,5 @@ HIPAA, ISO 27001, and Zero Trust stay declaration-silent at **any** floor until 
 
 - [`policy-filter-golden-delta.md`](policy-filter-golden-delta.md) § Bundled-pack declaration coverage (PP-01)
 - [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](../architecture/WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) PP-01 follow-up
+- [`V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) **QR-12** — next Option B framework slice
 - [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) — `-DeclarationPriorityFloor P1` for SOC 2 vs CIS Azure

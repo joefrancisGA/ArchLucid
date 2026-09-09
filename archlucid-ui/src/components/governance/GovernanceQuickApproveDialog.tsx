@@ -56,7 +56,7 @@ export function GovernanceQuickApproveDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent data-testid="governance-quick-approve-dialog">
         <DialogHeader>
-          <DialogTitle>Confirm governance approval</DialogTitle>
+          <DialogTitle>Confirm approval</DialogTitle>
           <DialogDescription>
             Review the approval subject and confirm that no critical or high findings block this decision.
           </DialogDescription>

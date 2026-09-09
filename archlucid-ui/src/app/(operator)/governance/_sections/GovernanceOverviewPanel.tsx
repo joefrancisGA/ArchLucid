@@ -87,7 +87,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
         />
       ) : null}
 
-      {reviewSelected ? <GovernanceOverviewWorkflowStrip /> : null}
+      {reviewSelected && !buyerPolishedShell ? <GovernanceOverviewWorkflowStrip /> : null}
 
       {reviewSelected && loadState.status === "ready" ? (
         <GovernanceOverviewListsPanelShell pendingSectionRef={pendingSectionRef} loadState={loadState} />

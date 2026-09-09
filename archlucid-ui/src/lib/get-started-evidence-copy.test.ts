@@ -4,6 +4,7 @@ import { GET_STARTED_HELP_GETTING_STARTED_HREF } from "@/app/(marketing)/get-sta
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   GET_STARTED_ORIENTATION_SOURCES,
+  GET_STARTED_SCOPE_DISCLOSURE_BODY,
   GET_STARTED_SOURCES,
 } from "@/lib/get-started-evidence-copy";
 
@@ -18,5 +19,10 @@ describe("get-started-evidence-copy", () => {
     expect(
       GET_STARTED_ORIENTATION_SOURCES.some((source) => source.href === inAppHelpHref("getting-started")),
     ).toBe(false);
+  });
+
+  it("states first-run orientation scope in claim discipline copy", () => {
+    expect(GET_STARTED_SCOPE_DISCLOSURE_BODY).toContain("first-run orientation only");
+    expect(GET_STARTED_SCOPE_DISCLOSURE_BODY).toContain("audit export");
   });
 });

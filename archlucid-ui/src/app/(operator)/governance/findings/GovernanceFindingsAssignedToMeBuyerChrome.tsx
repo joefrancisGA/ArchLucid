@@ -12,7 +12,7 @@ export function GovernanceFindingsAssignedToMeBuyerChrome(): React.JSX.Element |
   }
 
   return (
-    <div data-testid="governance-assigned-to-me-orientation-top">
+    <div data-testid="governance-assigned-to-me-orientation-bottom">
       <GovernanceAssignedToMeEvidenceOrientationStrip
         readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
         sources={GOVERNANCE_ASSIGNED_TO_ME_ORIENTATION_SOURCES}

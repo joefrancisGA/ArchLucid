@@ -37,7 +37,7 @@ describe("help-page-layout", () => {
   });
 
   it("defines TOC link hover, focus, and active states", () => {
-    expect(HELP_PAGE_TOC.link).toContain("hover:underline");
+    expect(HELP_PAGE_TOC.link).toContain("hover:text-[var(--al-accent-link)]");
     expect(HELP_PAGE_TOC.link).toContain("focus-visible:outline");
     expect(HELP_PAGE_TOC.linkActive).toContain("font-semibold");
     expect(HELP_PAGE_TOC.linkActive).not.toMatch(/teal/);

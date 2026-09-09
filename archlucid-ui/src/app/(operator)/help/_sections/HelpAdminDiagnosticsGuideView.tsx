@@ -23,14 +23,17 @@ import {
   splitAdminDiagnosticsHelpMarkdown,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
+  ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW,
   ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID,
   ADMIN_DIAGNOSTICS_HELP_SKIP_LINK_LABEL,
   ADMIN_DIAGNOSTICS_HELP_SKIP_TARGET_ID,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_CARD_TITLE,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_HELPER,
+  ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -142,7 +145,9 @@ export function HelpAdminDiagnosticsGuideView(
               </>
             )
           }
-          subtitleClassName="max-w-3xl"
+          subtitleClassName={
+            buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+          }
           navHref={ADMIN_DIAGNOSTICS_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={buyerPolishedShell ? ADMIN_DIAGNOSTICS_HELP_CLAIM_DISCIPLINE : undefined}
@@ -182,10 +187,31 @@ export function HelpAdminDiagnosticsGuideView(
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-admin-diagnostics-buyer-intro">
+              <p
+                className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-admin-diagnostics-intro"
+              >
+                {ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <AdminDiagnosticsStartHerePanel />
           </div>
         ) : null}
 
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid="help-admin-diagnostics-overview"
+          >
+            {ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW}
+          </p>
+        ) : null}
+
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID : undefined}
+        >
         <div className={contentGridClass}>
           <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
             <div
@@ -209,12 +235,9 @@ export function HelpAdminDiagnosticsGuideView(
 
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
+        </section>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-admin-diagnostics-orientation-bottom">
-            <HelpAdminDiagnosticsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAdminDiagnosticsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

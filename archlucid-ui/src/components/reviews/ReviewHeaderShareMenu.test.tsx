@@ -23,6 +23,10 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: false, mode: "guided" }),
+}));
+
 vi.mock("@/components/usability/ShareableReviewLinkButton", () => ({
   ShareableReviewLinkButton: () => <div data-testid="shareable-review-link-button" />,
 }));

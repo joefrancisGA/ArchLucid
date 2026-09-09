@@ -89,4 +89,41 @@ public sealed class TenantAdjustedFindingsSavingsCalculatorTests
 
         total.Should().Be(50_000m);
     }
+
+    [Fact]
+    public void ComputeTotal_excludes_operator_muted_findings_when_scaling_tenant_rates()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            TotalEstimatedSavings = 100m,
+            Findings =
+            [
+                new Finding
+                {
+                    Category = "Cost",
+                    HumanReviewStatus = FindingHumanReviewStatus.Approved,
+                    ProjectedImpactUsd = 100m,
+                },
+                new Finding
+                {
+                    Category = "Cost",
+                    HumanReviewStatus = FindingHumanReviewStatus.Approved,
+                    ProjectedImpactUsd = 50_000m,
+                    IsMuted = true,
+                },
+            ],
+        };
+
+        TenantCostSettingsRecord settings = new()
+        {
+            TenantId = Guid.NewGuid(),
+            ArchitectHourlyRateUsd = 300m,
+            AverageIncidentCostUsd = 25_000m,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
+
+        decimal total = TenantAdjustedFindingsSavingsCalculator.ComputeTotal(snapshot, settings, Defaults);
+
+        total.Should().Be(200m);
+    }
 }

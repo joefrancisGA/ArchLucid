@@ -18,3 +18,28 @@ export function governanceInfrastructureResourceHubPath(cloudResourceId: string)
 export const GOVERNANCE_INFRASTRUCTURE_ASK_PATH = "/governance/infrastructure/ask";
 
 export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH = "/governance/infrastructure/remediation";
+
+export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH = "/governance/infrastructure/terraform";
+
+export const GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH =
+  "/governance/infrastructure/extract-upload";
+
+export function isGovernanceInfrastructureRoutePath(pathname: string | null | undefined): boolean {
+  if (pathname === null || pathname === undefined) {
+    return false;
+  }
+
+  const bare = pathname.split("?", 1)[0] ?? pathname;
+
+  return bare === GOVERNANCE_INFRASTRUCTURE_PATH || bare.startsWith(`${GOVERNANCE_INFRASTRUCTURE_PATH}/`);
+}
+
+export function isGovernanceInfrastructureAskRoutePath(pathname: string | null | undefined): boolean {
+  if (pathname === null || pathname === undefined) {
+    return false;
+  }
+
+  const bare = pathname.split("?", 1)[0] ?? pathname;
+
+  return bare === GOVERNANCE_INFRASTRUCTURE_ASK_PATH || bare.startsWith(`${GOVERNANCE_INFRASTRUCTURE_ASK_PATH}/`);
+}
