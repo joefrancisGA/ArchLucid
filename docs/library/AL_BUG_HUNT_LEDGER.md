@@ -9964,11 +9964,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 8
-- **bugs-found:** 6
+- **hunts:** 9
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — cosmos graph snapshot outbox skipped shared max-attempts ceiling in VerifyOptions
+- **last-bug:** 2026-09-09 — run export blob push outbox retried empty ZIP packaging failures instead of immediate dead-letter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9993,6 +9993,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `RetrievalIndexingOutboxProcessor` null-ref when `GetRunDetailForRetrievalIndexingAsync` returns snapshots without `Run` — **cheap-disproof 2026-09-09 seed hunt #1425:** `DapperAuthorityQueryService.GetRunDetailForRetrievalIndexingAsync` returns `null` when `runRepository.GetByIdAsync` misses; non-null DTO always sets `Run = run` (lines 198–231)
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit `OnRetryScheduledAsync` instrumentation counters that post-commit/run-export processors increment — **cheap-disproof 2026-09-09 seed hunt #1425:** no `IAuditService` or tenant-scope reader on retry scheduling path; observability-only gap
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` increments `RecordPostCommitProjectionOutboxProcessedSuccess` when `ProvenanceSnapshotMaterialization` benign-skips missing run detail — **cheap-disproof 2026-09-09 seed hunt #1425:** metrics treat skip-as-processed by design; row is marked processed and does not retry
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` throws `InvalidOperationException` for empty export ZIP outside the push `catch` that dead-letters other non-retryable packaging failures — worker retries until max attempts instead of immediate DLQ — **hit 2026-09-09 seed hunt #1434:** dead-letter empty ZIP immediately with audit/instrumentation; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_immediately_when_export_zip_is_empty`
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor` throws when `sqlLoader.LoadAsync` returns null instead of marking processed or dead-lettering immediately — needs cheap-disproof on enqueue transactional guarantees
+- [ ] (candidate) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — duplicate processing possible if work exceeds lease TTL
+
+2026-09-09 seed hunt #1434 (hit): reseeded host-core-coordination; proved empty export ZIP bypassed immediate dead-letter path and retried until exhaustion; seeded cosmos null SQL snapshot and lease-expiry overlap candidates; 39 scoped coordination processor tests passed.
 
 2026-09-09 seed hunt #1425 (seed-only): re-read coordination processors after #1424; cheap-disproof closed retrieval null-`Run` NRE, retry instrumentation, and benign-skip metrics candidates; no new hunt-ready row; 29 scoped coordination processor tests passed.
 

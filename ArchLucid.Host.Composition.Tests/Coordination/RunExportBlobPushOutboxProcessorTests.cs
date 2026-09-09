@@ -337,6 +337,76 @@ public sealed class RunExportBlobPushOutboxProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_dead_letters_immediately_when_export_zip_is_empty()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExportBlobPushOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunExportBlobPushOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunExportPackageBuilder> builder = new();
+        builder
+            .Setup(b => b.BuildAsync(It.IsAny<ScopeContext>(), runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunExportPackageResult.Success(
+                [],
+                "application/zip",
+                "export.zip",
+                Guid.NewGuid()));
+
+        Mock<IRunExportBlobPushService> pushService = new();
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => builder.Object);
+        services.AddScoped(_ => pushService.Object);
+        services.AddScoped(_ => audit.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RunExportBlobPushOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RunExportBlobPushOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RunExportBlobPushOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        pushService.Verify(
+            p => p.PushAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RunExportBlobPushDeadLettered && e.RunId == runId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_sets_tenant_and_workspace_activity_tags()
     {
         List<Activity> stopped = [];

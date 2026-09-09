@@ -195,7 +195,23 @@ public sealed class RunExportBlobPushOutboxProcessor(
         }
 
         if (packageResult.ZipContent is null || packageResult.ZipContent.Length == 0)
-            throw new InvalidOperationException($"Run export ZIP for run '{entry.RunId:D}' was empty.");
+        {
+            string deadLetterReason = FormattableString.Invariant(
+                $"Run export ZIP for run '{entry.RunId:D}' was empty.");
+            await outbox.RecordDeadLetterAsync(entry.OutboxId, deadLetterReason, cancellationToken);
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
+
+            if (Logger.IsEnabled(LogLevel.Error))
+            {
+                Logger.LogError(
+                    "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: empty export ZIP.",
+                    entry.OutboxId,
+                    entry.RunId);
+            }
+
+            return;
+        }
 
         try
         {
