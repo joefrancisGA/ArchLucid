@@ -246,7 +246,9 @@ public sealed class DeclarationIdentityPathGraphBuilderIntegrationTests
             CanonicalObjects = objects,
         };
 
-        DefaultGraphBuilder builder = new(new GraphNodeFactory(), new DefaultGraphEdgeInferer());
+        DefaultGraphBuilder builder = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new GraphNodeFactory(),
+            new DefaultGraphEdgeInferer());
         GraphBuildResult build = await builder.BuildAsync(snapshot, CancellationToken.None);
 
         return new GraphSnapshot
