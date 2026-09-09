@@ -55,6 +55,7 @@ import {
   AZURE_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   AZURE_CLOUD_CONNECTION_SKIP_LINK_LABEL,
   AZURE_CLOUD_CONNECTION_SKIP_TARGET_ID,
+  AZURE_CLOUD_CONNECTION_WORKSPACE_TEST_ID,
 } from "./azure-cloud-connection-page-copy";
 import {
   CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -89,17 +90,20 @@ describe("AzureCloudConnectionDetailClient buyer-polished shell (IAZ)", () => {
     const firstViewport = screen.getByTestId(AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("azure-cloud-connection-action-panel");
     const overview = screen.getByTestId("azure-cloud-connection-overview");
-    const workspace = screen.getByTestId("cloud-provider-detail-azure");
+    const workspace = screen.getByTestId(AZURE_CLOUD_CONNECTION_WORKSPACE_TEST_ID);
+    const providerDetail = screen.getByTestId("cloud-provider-detail-azure");
     const orientationBottom = screen.getByTestId(AZURE_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("cloud-connections-azure-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("azure-cloud-connection-intro")).toHaveTextContent(AZURE_CLOUD_CONNECTION_PAGE_LEAD);
+    expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(screen.getByTestId("azure-cloud-connection-overview")).toHaveTextContent(AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW);
     expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(providerDetail);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 

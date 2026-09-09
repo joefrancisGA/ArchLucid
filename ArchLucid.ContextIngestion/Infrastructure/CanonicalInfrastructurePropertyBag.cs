@@ -93,7 +93,7 @@ public static class CanonicalInfrastructurePropertyBag
         return rawKey.Trim().ToLowerInvariant().Replace("_", string.Empty, StringComparison.Ordinal);
     }
 
-    private static bool IsRedactionToken(string rawValue)
+    internal static bool IsRedactionToken(string rawValue)
     {
         return string.Equals(rawValue, "[REDACTED]", StringComparison.OrdinalIgnoreCase);
     }

@@ -12,6 +12,8 @@ export const COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID = "compare-two-reviews-orientation-bottom" as const;
 
+export const COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID = "compare-workspace" as const;
+
 export const COMPARE_PAGE_SUBTITLE_BUYER =
   "See what changed in scope, findings, decisions, and evidence between two finalized reviews." as const;
 

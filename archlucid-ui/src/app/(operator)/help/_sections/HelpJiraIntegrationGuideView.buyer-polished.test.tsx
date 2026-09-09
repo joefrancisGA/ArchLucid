@@ -44,6 +44,7 @@ import {
   JIRA_INTEGRATION_HELP_SKIP_LINK_LABEL,
   JIRA_INTEGRATION_HELP_SKIP_TARGET_ID,
   JIRA_INTEGRATION_HELP_START_HERE_HELPER,
+  JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/jira-integration-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -82,6 +83,7 @@ describe("HelpJiraIntegrationGuideView buyer-polished shell (HEJ)", () => {
     const firstViewport = screen.getByTestId(JIRA_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-jira-integration-action-panel");
     const overview = screen.getByTestId("help-jira-integration-overview");
+    const workspace = screen.getByTestId(JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID);
     const featureItems = screen.getByTestId("help-jira-integration-feature-items");
     const orientationBottom = screen.getByTestId(JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-jira-integration-sources");
@@ -89,13 +91,15 @@ describe("HelpJiraIntegrationGuideView buyer-polished shell (HEJ)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-jira-integration-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(featureItems);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(featureItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(featureItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(featureItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("help-jira-integration-start-here-helper")).toHaveTextContent(
       JIRA_INTEGRATION_HELP_START_HERE_HELPER,
     );
