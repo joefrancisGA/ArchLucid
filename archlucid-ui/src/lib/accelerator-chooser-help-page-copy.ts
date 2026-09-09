@@ -16,6 +16,9 @@ export const ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE = "Start here" as co
 export const ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER =
   "Pick a starter pack below when you know the stakeholder scenario, or open review intake when you need baseline ZIP or greenfield presets first." as const;
 
+export const ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW =
+  "Pack cards and workflow steps below map stakeholder scenarios to in-product accelerator presets for this tenant." as const;
+
 export const ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL = "Skip to starter packs guide" as const;
 
 export const ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
