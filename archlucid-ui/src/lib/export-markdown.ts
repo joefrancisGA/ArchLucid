@@ -92,6 +92,7 @@ function resolveCareerExportHonestyInput(
     hostQualityGateMode: honestyOptions?.hostQualityGateMode ?? null,
     aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
     catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
+    contextSnapshot: honestyOptions?.contextSnapshot ?? null,
   };
 }
 
@@ -215,6 +216,7 @@ function formatManifestSummaryFallback(
       progressSummary: options?.careerExportHonesty?.progressSummary ?? null,
       findingsSnapshot: options?.careerExportHonesty?.findingsSnapshot ?? null,
       judgeSkippedByCap: options?.careerExportHonesty?.judgeSkippedByCap ?? null,
+      contextSnapshot: options?.careerExportHonesty?.contextSnapshot ?? null,
     });
 
     lines.push("## Measurement floor");

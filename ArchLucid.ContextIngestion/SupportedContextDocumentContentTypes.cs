@@ -29,6 +29,18 @@ public static class SupportedContextDocumentContentTypes
                && All.Contains(contentType.Trim(), StringComparer.OrdinalIgnoreCase);
     }
 
+    public static bool IsPlainTextContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), "text/plain", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsMarkdownContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), "text/markdown", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>
     ///     Fail-closed guard: raster and other image MIME types must never be posted as context documents.
     /// </summary>
