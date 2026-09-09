@@ -281,7 +281,9 @@ export function NotificationPreferenceCenterEvidenceOrientationStrip(): React.JS
   );
 }
 
-export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function RoleMappingSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
@@ -289,6 +291,8 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -368,7 +372,7 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
 }
 
 export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
-  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_OIDC_SOURCES;
 
@@ -380,6 +384,8 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
