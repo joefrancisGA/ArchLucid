@@ -1,10 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import {
+  parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
+  runDetailWorkspaceDisclosuresExpandedHrefFromSearch,
+} from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
 
 export type RunDetailWorkspaceLayoutProps = {
   readonly main: React.ReactNode;
@@ -48,7 +53,21 @@ const RunDetailWorkspaceDisclosureContext = createContext<RunDetailWorkspaceDisc
 export function RunDetailWorkspaceDisclosureProvider(props: {
   readonly children: React.ReactNode;
 }): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailWorkspaceDisclosuresExpandedParam = searchParams.get("runDetailWorkspaceDisclosuresExpanded");
   const [revision, setRevision] = useState(0);
+
+  const syncDisclosuresExpandedToUrl = useCallback(
+    (expanded: boolean) => {
+      router.replace(
+        runDetailWorkspaceDisclosuresExpandedHrefFromSearch(searchParams.toString(), expanded, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
   const expandAll = useCallback(() => {
     const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
@@ -58,7 +77,8 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
     }
 
     setRevision((value) => value + 1);
-  }, []);
+    syncDisclosuresExpandedToUrl(true);
+  }, [syncDisclosuresExpandedToUrl]);
 
   const collapseAll = useCallback(() => {
     const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
@@ -68,7 +88,26 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
     }
 
     setRevision((value) => value + 1);
-  }, []);
+    syncDisclosuresExpandedToUrl(false);
+  }, [syncDisclosuresExpandedToUrl]);
+
+  useEffect(() => {
+    const expandedFromUrl = parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
+      runDetailWorkspaceDisclosuresExpandedParam,
+    );
+
+    if (expandedFromUrl === null) {
+      return;
+    }
+
+    const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
+
+    for (const node of nodes) {
+      node.open = expandedFromUrl;
+    }
+
+    setRevision((value) => value + 1);
+  }, [runDetailWorkspaceDisclosuresExpandedParam]);
 
   const contextValue = useMemo(
     () => ({

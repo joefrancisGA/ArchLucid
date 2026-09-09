@@ -21,6 +21,9 @@ import {
   parseDraftIntakeReasonOpenFromSearch,
 } from "@/lib/draft-intake/draft-intake-reasoning-panel-url";
 import {
+  parseDraftIntakeReasonDefaultOpenFromSearch,
+} from "@/lib/draft-intake/draft-intake-reason-default-open-disclosure-url";
+import {
   draftIntakeReasonFollowUpDisclosureHrefFromSearch,
   parseDraftIntakeReasonFollowUpOpenFromSearch,
 } from "@/lib/draft-intake/draft-intake-reason-follow-up-disclosure-url";
@@ -66,9 +69,14 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const draftIntakeReasonOpenParam = searchParams.get("draftIntakeReasonOpen");
+  const draftIntakeReasonDefaultOpenParam = searchParams.get("draftIntakeReasonDefaultOpen");
   const draftIntakeReasonFollowUpOpenParam = searchParams.get("draftIntakeReasonFollowUpOpen");
   const [panelOpen, setPanelOpenState] = useState(() => {
     if (parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam)) {
+      return true;
+    }
+
+    if (parseDraftIntakeReasonDefaultOpenFromSearch(draftIntakeReasonDefaultOpenParam)) {
       return true;
     }
 
@@ -134,12 +142,18 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
       return;
     }
 
-    if (draftIntakeReasonOpenParam === null) {
+    if (draftIntakeReasonOpenParam !== null) {
+      setPanelOpenState(parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam));
+
       return;
     }
 
-    setPanelOpenState(parseDraftIntakeReasonOpenFromSearch(draftIntakeReasonOpenParam));
-  }, [draftIntakeReasonOpenParam, props.embedded]);
+    if (draftIntakeReasonDefaultOpenParam !== null) {
+      setPanelOpenState(parseDraftIntakeReasonDefaultOpenFromSearch(draftIntakeReasonDefaultOpenParam));
+
+      return;
+    }
+  }, [draftIntakeReasonDefaultOpenParam, draftIntakeReasonOpenParam, props.embedded]);
 
   const panelDisabled = props.disabled === true || busy;
   const summaryStatus = useMemo(() => summarizeLatestTurn(turns), [turns]);
