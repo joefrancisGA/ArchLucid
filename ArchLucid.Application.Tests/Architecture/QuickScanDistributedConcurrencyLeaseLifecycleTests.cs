@@ -235,6 +235,85 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             "orchestrator must dispose the admitted lease when operational emergency flips after concurrency admission");
     }
 
+    [Fact]
+    public async Task DisposeAsync_releases_lease_when_renewal_loop_faults()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        ThrowingRenewLeaseStore store = new(inner);
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 1,
+            },
+        });
+
+        QuickScanGuardContext guardContext = new()
+        {
+            ClientIp = "203.0.113.10",
+            SessionId = "session",
+            PayloadFingerprint = "trace",
+            UseDistributedConcurrencyLimit = true,
+        };
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            guardContext,
+            safetyOptions.Object,
+            TimeProvider.System,
+            CancellationToken.None);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.5));
+
+        Func<Task> dispose = async () => await admission.DisposeAsync();
+
+        await dispose.Should().NotThrowAsync("renewal store failures must not skip lease release on dispose");
+
+        QuickScanConcurrencyAdmitResult followUp = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "follow-up", maxConcurrent: 1, maxQueued: 0));
+
+        followUp.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "dispose must release the slot when renewal fails instead of pinning until lease TTL expiry");
+    }
+
+    [Fact]
+    public async Task WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        Guid activeLeaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 1));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        ThrowingAdmitStore store = new(inner);
+        QuickScanDistributedConcurrencyService service = CreateService(store);
+
+        QuickScanDistributedConcurrencyAdmissionResult result =
+            await service.WaitForAdmissionAsync("queued-after-admit-error", CancellationToken.None);
+
+        result.Allowed.Should().BeFalse();
+        result.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.StoreUnavailable);
+
+        QuickScanConcurrencyAdmitResult followUpQueue = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "after-admit-error", maxConcurrent: 1, maxQueued: 1));
+
+        followUpQueue.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.Queued,
+            "atomic admit must not leave a queue row when TryAdmitAsync throws before returning Queued");
+    }
+
     private static QuickScanDistributedConcurrencyService CreateService(
         IQuickScanDistributedConcurrencyStore store)
     {
@@ -328,6 +407,60 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 
             return QuickScanConcurrencyPromoteResult.NotYet();
         }
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
+    }
+
+    private sealed class ThrowingRenewLeaseStore(InMemoryQuickScanDistributedConcurrencyStore inner)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryAdmitAsync(request, cancellationToken);
+
+        public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryPromoteAsync(request, cancellationToken);
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
+            inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Simulated renewal store failure.");
+    }
+
+    private sealed class ThrowingAdmitStore(InMemoryQuickScanDistributedConcurrencyStore inner)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Simulated admit store failure.");
+
+        public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default) =>
+            inner.TryPromoteAsync(request, cancellationToken);
 
         public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
             inner.ReleaseLeaseAsync(leaseId, cancellationToken);

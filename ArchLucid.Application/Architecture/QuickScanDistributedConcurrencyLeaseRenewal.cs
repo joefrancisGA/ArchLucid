@@ -25,11 +25,19 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
         {
             while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
             {
-                await store.RenewLeaseAsync(
-                    leaseId,
-                    timeProvider.GetUtcNow(),
-                    leaseDuration,
-                    cancellationToken).ConfigureAwait(false);
+
+                try
+                {
+                    await store.RenewLeaseAsync(
+                        leaseId,
+                        timeProvider.GetUtcNow(),
+                        leaseDuration,
+                        cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception) when (cancellationToken.IsCancellationRequested is false)
+                {
+                    break;
+                }
             }
         }
         catch (OperationCanceledException)

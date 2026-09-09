@@ -94,6 +94,10 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
                 catch (OperationCanceledException)
                 {
                 }
+                catch (Exception)
+                {
+                    // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
+                }
             }
 
             _renewalCancellation.Dispose();

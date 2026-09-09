@@ -10149,13 +10149,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 3
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — promote cancellation swallowed by store-error handler, skipping cancel abandon path
+- **hunts:** 4
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — renewal store failure skipped lease release on dispose
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -10163,9 +10163,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (#1193): `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`; `DisposeAsync` still uses default non-cancellable release for intentional cleanup
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `catch (Exception)` on `TryPromoteAsync` swallowed `OperationCanceledException` and returned `StoreUnavailable` instead of abandoning via the cancel path and rethrowing; store-error abandon used caller token — **hit 2026-09-07 (#1209):** exclude `OperationCanceledException` from promote store-error handler; abandon promote failures and queue timeouts with `CancellationToken.None` (`WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled`)
 - [x] (valid-no-repro) `QuickScanExecutionBudgetAndConcurrencyStage` — post-admission operational emergency re-check sets `TerminalResult` while admitted lease stays active until orchestrator `finally` dispose — brief slot pin only; `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_operational_emergency_flips_after_admission` proves orchestrator `finally` releases lease on budget-stage emergency return (same pattern as #1193 budget rejection)
-- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal` — `RenewLeaseAsync` failure terminates renewal loop without release; slot may remain until lease TTL expiry
-- [ ] (candidate) `QuickScanDistributedConcurrencyService` — `TryAdmitAsync` store exception returns `StoreUnavailable` without abandoning a queue row when admit partially queued (SQL/in-memory admit is atomic today; parity gap if proc semantics change)
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — `RenewLeaseAsync` failure faulted the renewal task so `DisposeAsync` rethrew and skipped `ReleaseLeaseAsync`, pinning the slot until lease TTL expiry — **hit 2026-09-09 (#1402):** stop the renewal loop on store renewal errors and swallow faulted renewal tasks during dispose so release always runs; regression `DisposeAsync_releases_lease_when_renewal_loop_faults`
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` — `TryAdmitAsync` store exception returns `StoreUnavailable` without abandoning a queue row when admit partially queued — **cheap-disproof 2026-09-09 thorough hunt #1402:** SQL/in-memory admit is atomic before returning `Queued`; regression `WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity`
 
+2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.
 2026-09-07 thorough hunt #1210 (dry): cheap-disproved post-admission emergency flip concurrency leak; added lease-release regression test; reseeded renewal-failure and admit-store-error candidates.
 2026-09-07 seed hunt #1209 (hit): reseeded distributed concurrency service/store paths; proved promote cancellation swallowed by promote store-error handler.
 2026-09-07 thorough hunt #1193 (hit): cheap-disproved cancel+abandon token hypothesis; proved orchestrator finally scope omitted budget-stage early returns and leaked anonymous concurrency slots.
