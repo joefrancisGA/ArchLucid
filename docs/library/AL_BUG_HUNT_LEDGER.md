@@ -2152,11 +2152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — TB-930 coverage projection omitted `IsMuted`, so muted snapshot findings inflated buyer-proof delta severity/governed coverage
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — equal-count snapshot severity tie kept agent buckets; muted cost findings inflated estimated USD savings rollups
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2189,8 +2189,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #802: reseeded buyer-proof cross-surface freshness after Wave-22 guards; proved 30-day vs 90-day sponsor badge parity gap; reseeded muted-finding and evidence-pack freshness candidates.
 
 - [x] (proven) `PilotRunDeltaComputer` TB-930 coverage projection omitted `IsMuted` from `FindingsSnapshotCoverageSql` / `FindingsCoverageProjectionMapper` — **hit 2026-09-08 seed hunt #1332:** operator-muted snapshot rows defaulted to active in `GetCoverageProjectionByIdAsync`, defeating `.Where(!IsMuted)` in severity/governed/top-finding paths; fixed by projecting `IsMuted` from `dbo.FindingRecords`; regression in `FindingsCoverageProjectionMapperTests.Map_preserves_is_muted_from_coverage_projection`.
-- [ ] (candidate) `PilotRunDeltaComputer` equal-count agent/snapshot tie keeps agent severity when snapshot has equal count but higher severities — needs repro when `SumFindingCounts` matches but snapshot severity mix is worse (`PilotRunDeltaComputer.Compute.cs` L44–48).
-- [ ] (candidate) `FindingsSnapshotEstimatedSavingsCalculator` / `TenantEstimatedUsdSavingsResolver` rollup ignores operator-muted cost findings — needs repro pairing muted high-`ProjectedImpactUsd` snapshot row with non-zero `EstimatedUsdSavings` in deltas JSON.
+- [x] (proven) `PilotRunDeltaComputer` equal-count agent/snapshot tie keeps agent severity when snapshot has equal count but higher severities — **hit 2026-09-09 hunt #1417:** `SumFindingCounts` tie left sparse agent Warning buckets over persisted snapshot Error rows; fixed by preferring snapshot when equal counts and snapshot max severity rank is higher; regression `ComputeAsync_WhenAgentAndSnapshotHaveEqualCounts_PrefersSnapshotWhenSeverityIsHigher`.
+- [x] (proven) `FindingsSnapshotEstimatedSavingsCalculator` / `TenantEstimatedUsdSavingsResolver` rollup ignores operator-muted cost findings — **hit 2026-09-09 hunt #1417:** operator-muted Cost rows with high `ProjectedImpactUsd` still rolled into savings totals while delta severity paths exclude `IsMuted`; fixed with mute filter in `FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal` and `TenantAdjustedFindingsSavingsCalculator.ComputeTotal`; regressions `ComputeTotal_excludes_operator_muted_cost_findings` and `ComputeTotal_excludes_operator_muted_findings_when_scaling_tenant_rates`.
+
+2026-09-09 thorough hunt #1417 (hit): proved equal-count snapshot severity tie and muted cost savings rollup gaps; 30 scoped pilot/ROI/savings unit tests passed (pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unchanged on bugsmash).
 
 2026-09-08 seed hunt #1332 (hit): reseeded after Wave-22 mute guards; proved TB-930 coverage projection dropped `IsMuted`; seeded equal-count snapshot tie and muted-savings rollup candidates.
 
