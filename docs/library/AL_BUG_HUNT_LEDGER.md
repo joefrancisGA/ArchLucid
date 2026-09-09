@@ -1663,11 +1663,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 15
-- **bugs-found:** 22
+- **hunts:** 16
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — board/one-pager exports bypassed ADR 0078 career completeness gate
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — export guard parity gaps (manifest hash, metadata lifecycle, replay career gate)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1709,10 +1709,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1228: cheap-disproved three stale seed candidates; proved export unit-test harness gap after career honesty loader integration.
 
 - [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` / `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — loaded career honesty for embedding but omitted `CareerArtifactExportCompletenessGate.EnsureCanExport` used by `DocxExportController`; sample-workspace runs returned distributable PDF/HTML/one-pager bytes — **hit 2026-09-08:** added `EnsureCanExportFromHonestyMaterial` before analysis/LLM work; regressions in `GenerateReportAsync_throws_career_blocked_for_sample_workspace_run`, `GenerateMarkdownAsync_throws_career_blocked_for_sample_workspace_run`.
-- [ ] (candidate) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — sealed receipt guard only; omits `RunExportSealedManifestHashGuard` present on board export sibling path.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — lifecycle + sealed manifest hash guards but no `CareerArtifactExportCompletenessGate` before regenerating analysis DOCX.
-- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — lineage + sealed hash only; compare/replay siblings also enforce `AuthorityLifecycleCompareExportGuard`.
-- [ ] (candidate) `SponsorReviewPacketBuilder` — sealed receipt guard only; omits `RunExportSealedManifestHashGuard` present on `FirstValueReportBuilder` sibling.
+- [x] (proven) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — sealed receipt guard only; omitted `RunExportSealedManifestHashGuard` present on board export sibling path — **hit 2026-09-09 (#1396):** tampered `ManifestHash` passed receipt verification but exported one-pager markdown; aligned with `ArchitectureReviewExportService` / `FirstValueReportBuilder`; regression `GenerateMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches`.
+- [x] (proven) `ExportReplayService.ReplayAsync` — lifecycle + sealed manifest hash guards but no `CareerArtifactExportCompletenessGate` before regenerating analysis DOCX — **hit 2026-09-09 (#1396):** sample-workspace runs replayed analysis DOCX while `DocxExportController` rejects; added career gate before `BuildAsync`; regression `ExportReplayServiceCareerGateTests.ReplayAsync_sample_workspace_run_throws_career_blocked_before_regenerating_docx`.
+- [x] (proven) `RunExportQueryFacade.GetExportRecordAsync` — lineage + sealed hash only; compare/replay siblings also enforce `AuthorityLifecycleCompareExportGuard` — **hit 2026-09-09 (#1396):** lifecycle-incomplete runs returned export metadata while compare paths returned `LineageUnverified`; added `TryEnsureExportRunLifecycleCompleteAsync` to get path; regression `GetExportRecordAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
+- [x] (proven) `SponsorReviewPacketBuilder` — sealed receipt guard only; omitted `RunExportSealedManifestHashGuard` present on `FirstValueReportBuilder` sibling — **hit 2026-09-09 (#1396):** tampered manifest hash exported sponsor packet markdown; aligned guard chain with first-value report builder; regression `BuildMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches`.
+
+2026-09-09 thorough hunt #1396: proved four seed-hunt #1307 export guard parity gaps (manifest hash on one-pager/sponsor packet, lifecycle on export-record get, career gate on replay).
 
 2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
 

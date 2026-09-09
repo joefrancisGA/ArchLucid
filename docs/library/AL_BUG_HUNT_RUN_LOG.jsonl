@@ -1578,3 +1578,5 @@
 {"at":"2026-09-09T01:48:32.1115003Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-09T02:30:03.7979463Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-09T02:41:39.2611889Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-09T03:20:00Z","zoneId":"tenant-data-export","outcome":"hit"}
+{"at":"2026-09-09T03:00:32.2719585Z","zoneId":"tenant-data-export","outcome":"hit"}
