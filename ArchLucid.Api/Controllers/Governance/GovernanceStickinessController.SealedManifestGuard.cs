@@ -40,6 +40,7 @@ public sealed partial class GovernanceStickinessController
 
         return null;
     }
+
     private async Task<IActionResult?> EnsureRiskExceptionRunSealedManifestAllowedAsync(
         Guid riskExceptionId,
         CancellationToken cancellationToken)

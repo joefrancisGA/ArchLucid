@@ -10,7 +10,6 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Authorization;

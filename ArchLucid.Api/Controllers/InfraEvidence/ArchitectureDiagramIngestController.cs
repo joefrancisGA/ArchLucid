@@ -7,6 +7,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -22,16 +24,24 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/architecture/runs/{runId:guid}/diagrams")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitectureDiagramIngestController(
+public sealed partial class ArchitectureDiagramIngestController(
     IStructuredDiagramIngestService ingestService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IStructuredDiagramIngestService _ingestService =
+        ingestService ?? throw new ArgumentNullException(nameof(ingestService));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("ingest")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Structured diagram ingest persists ArchitectureDiagramModel per run; mutation is the persisted model row.")]
     [ProducesResponseType(typeof(StructuredDiagramIngestResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Ingest(
         Guid runId,
         [FromBody] StructuredDiagramIngestRequest? request,
@@ -47,15 +57,27 @@ public sealed class ArchitectureDiagramIngestController(
             return this.BadRequestProblem("At least one diagram source is required.", ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
 
-        StructuredDiagramIngestResult result = await ingestService.IngestAsync(
-            scope,
-            runId,
-            request,
-            cancellationToken);
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
-        return Ok(result);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            StructuredDiagramIngestResult result = await _ingestService.IngestAsync(
+                scope,
+                runId,
+                request,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("model")]
@@ -69,11 +91,11 @@ public sealed class ArchitectureDiagramIngestController(
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {
-            ArchitectureDiagramModelRecord? model = await ingestService.TryGetModelAsync(scope, runId, cancellationToken);
+            ArchitectureDiagramModelRecord? model = await _ingestService.TryGetModelAsync(scope, runId, cancellationToken);
 
             if (model is null)
             {

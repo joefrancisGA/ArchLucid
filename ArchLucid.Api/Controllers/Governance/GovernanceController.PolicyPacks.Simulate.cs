@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
@@ -24,6 +25,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Simulate(
         [FromBody] PolicyPackSimulateRequest? request,
         CancellationToken cancellationToken)
@@ -54,13 +56,29 @@ public sealed partial class GovernanceController
         if (validationProblem is not null)
             return validationProblem;
 
-        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _policyPackHttpFacade.SimulateAsync(
-            request.Content,
-            request.RunId,
-            request.BlockCommitOnCritical,
-            request.BlockCommitMinimumSeverity,
-            request.ProposedPolicyPackId,
-            cancellationToken).ConfigureAwait(false);
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
+            request.RunId.Trim(),
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result;
+
+        try
+        {
+            result = await _policyPackHttpFacade.SimulateAsync(
+                request.Content,
+                request.RunId,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                request.ProposedPolicyPackId,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
