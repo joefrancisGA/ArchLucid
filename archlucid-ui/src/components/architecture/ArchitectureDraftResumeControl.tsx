@@ -7,6 +7,8 @@ import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/Arc
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import {
   architectureDraftIntakeModeConfirmHrefFromSearch,
@@ -181,8 +183,10 @@ export function ArchitectureDraftResumeControl(
       openDraft();
     } catch (error) {
       setDialogOpen(false);
+      const failure = toApiLoadFailure(error);
       setInlineError(
-        formatVerboseApiFailureMessage(error, "Could not unlock this architecture."),
+        architectureDraftIntakeMutationBlockedReason(failure)
+          ?? formatVerboseApiFailureMessage(error, "Could not unlock this architecture."),
       );
     } finally {
       setBusy(false);

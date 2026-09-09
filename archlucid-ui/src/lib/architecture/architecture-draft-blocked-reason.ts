@@ -15,3 +15,8 @@ export function architectureDraftAutosavePatchBlockedReason(failure: ApiLoadFail
 export function architectureDraftIntakeMutationBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
+
+/** Wave-67 suggestion 800: surface lifecycle/sealed-hash draft create POST 409 copy. */
+export function architectureDraftCreateMutationBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}

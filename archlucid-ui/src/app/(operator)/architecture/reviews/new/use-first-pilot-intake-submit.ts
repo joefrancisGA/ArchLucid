@@ -18,7 +18,7 @@ import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progres
 import { recheckUnresolvedArchitectureReviewCreate } from "@/lib/review-start-unresolved-recheck";
 import { PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { buildIntakeContextDocumentsFromEvidenceFiles } from "@/lib/intake-context-documents-from-files";
-import { describeCoveragePackOverrideBlocker } from "@/lib/wizard-form-create-run-submit";
+import { describeCoveragePackOverrideBlocker, resolveCreateRunFailureMessage } from "@/lib/wizard-form-create-run-submit";
 import { persistSessionRunCoverageAcknowledgement } from "@/lib/persist-run-coverage-acknowledgement";
 import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
 
@@ -126,11 +126,7 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
       try {
         await persistSessionRunCoverageAcknowledgement(id);
       } catch (error) {
-        const message =
-          isApiRequestError(error) && error.message.trim().length > 0
-            ? error.message
-            : REVIEW_START_CREATION_FAILED_MESSAGE;
-        creationProgress.fail(message);
+        creationProgress.fail(resolveCreateRunFailureMessage(error));
 
         return;
       }
@@ -170,10 +166,7 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
         return;
       }
 
-      const message =
-        isApiRequestError(error) && error.message.trim().length > 0
-          ? error.message
-          : REVIEW_START_CREATION_FAILED_MESSAGE;
+      const message = resolveCreateRunFailureMessage(error);
       creationProgress.fail(message);
     }
   };
@@ -214,11 +207,7 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
       try {
         await persistSessionRunCoverageAcknowledgement(id);
       } catch (error) {
-        const message =
-          isApiRequestError(error) && error.message.trim().length > 0
-            ? error.message
-            : REVIEW_START_CREATION_FAILED_MESSAGE;
-        creationProgress.fail(message);
+        creationProgress.fail(resolveCreateRunFailureMessage(error));
         creationProgress.endRecheck();
 
         return;

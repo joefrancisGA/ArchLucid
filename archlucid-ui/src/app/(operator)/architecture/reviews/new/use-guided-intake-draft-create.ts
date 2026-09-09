@@ -14,6 +14,8 @@ import {
   initializeArchitectureCreation,
 } from "@/lib/architecture/architecture-creation-init";
 import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
+import { architectureDraftCreateMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
   CREATE_ARCHITECTURE_INTENT,
@@ -230,7 +232,9 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setViewAllClarifications(false);
       setStep(1);
     } catch (error) {
-      core.setSubmitError(error);
+      const failure = toApiLoadFailure(error);
+      const blocked = architectureDraftCreateMutationBlockedReason(failure);
+      core.setSubmitError(blocked !== null ? new Error(blocked) : error);
     } finally {
       core.setBusy(false);
     }

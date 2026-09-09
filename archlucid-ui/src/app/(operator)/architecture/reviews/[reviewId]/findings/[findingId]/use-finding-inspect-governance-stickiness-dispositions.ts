@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -197,7 +198,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
       setDispositionBaseline(captureDispositionBaseline());
       setStatusMessage(concurrentNotice ?? "Disposition recorded.");
     } catch (error: unknown) {
-      const message = resolveMutationError(error);
+      const failure = toApiLoadFailure(error);
+      const message =
+        findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {
@@ -230,7 +233,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
       setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
-      const message = resolveMutationError(error);
+      const failure = toApiLoadFailure(error);
+      const message =
+        findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {

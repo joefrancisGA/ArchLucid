@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import {
   GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
   GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED,
@@ -71,7 +72,12 @@ export function GovernanceRecordCorrectionDialog(
       props.onOpenChange(false);
       props.onRecorded?.();
     } catch (error) {
-      setErrorMessage(toApiLoadFailure(error).message ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE);
+      const failure = toApiLoadFailure(error);
+      setErrorMessage(
+        governanceMutationCorrectionBlockedReason(failure)
+          ?? failure.message
+          ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
+      );
     } finally {
       setSubmitBusy(false);
     }

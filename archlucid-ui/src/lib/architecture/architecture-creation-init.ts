@@ -25,6 +25,8 @@ import {
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftCreateMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import { CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
@@ -88,9 +90,13 @@ async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): P
 
     return { draft: created, failureDetail: null };
   } catch (error) {
+    const failure = toApiLoadFailure(error);
+
     return {
       draft: null,
-      failureDetail: formatVerboseApiFailureMessage(error, CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE),
+      failureDetail:
+        architectureDraftCreateMutationBlockedReason(failure)
+          ?? formatVerboseApiFailureMessage(error, CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE),
     };
   }
 }
