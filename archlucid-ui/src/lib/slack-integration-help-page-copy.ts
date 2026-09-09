@@ -12,6 +12,8 @@ export const SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 export const SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID =
   "help-slack-integration-orientation-bottom" as const;
 
+export const SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID = "help-slack-integration-workspace" as const;
+
 export const SLACK_INTEGRATION_HELP_PAGE_LEAD =
   "Configure Slack incoming-webhook destinations for ArchLucid alert notifications." as const;
 

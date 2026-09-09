@@ -22,9 +22,9 @@ export function SlackIntegrationSourcesOrientationStrip(): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const slackIntegrationSourcesOpenParam = searchParams.get("slackIntegrationSourcesOpen");
+  const sourcesOpenParam = searchParams.get("slackIntegrationSourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseSlackIntegrationSourcesOpenFromSearch(slackIntegrationSourcesOpenParam),
+    parseSlackIntegrationSourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
@@ -45,8 +45,8 @@ export function SlackIntegrationSourcesOrientationStrip(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseSlackIntegrationSourcesOpenFromSearch(slackIntegrationSourcesOpenParam));
-  }, [slackIntegrationSourcesOpenParam]);
+    setSourcesOpenState(parseSlackIntegrationSourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection

@@ -18,6 +18,8 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IGovernanceStickinessFacade.CreateRecurrenceScheduleAsync logs ArchitectureReviewRecurrenceScheduleCreated.")]
     public async Task<IActionResult> CreateRecurrenceSchedule(
         [FromBody] CreateArchitectureReviewRecurrenceScheduleRequest? request,
@@ -53,6 +55,10 @@ public sealed partial class GovernanceStickinessController
         catch (RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (ArgumentException ex)
         {
@@ -113,6 +119,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IGovernanceStickinessFacade.UpdateRecurrenceScheduleAsync logs ArchitectureReviewRecurrenceScheduleUpdated.")]
     public async Task<IActionResult> UpdateRecurrenceSchedule(
         Guid scheduleId,
@@ -165,6 +172,10 @@ public sealed partial class GovernanceStickinessController
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }
 }

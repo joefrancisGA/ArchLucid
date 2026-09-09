@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { ADVISORY_SCHEDULES_WORKSPACE_TEST_ID } from "@/lib/advisory-schedules-evidence-copy";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -41,6 +43,7 @@ export type AdvisorySchedulesContentProps = {
 export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = {}): ReactElement {
   const page = useAdvisorySchedulesPage(props.initialRunId);
   const buyerPolishedShell = useProductionEvalChrome();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   const createScheduleButton =
     page.showHeaderCreate && !buyerPolishedShell ? (
@@ -117,10 +120,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
             className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
             data-testid="advisory-schedules-first-viewport"
           >
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="advisory-schedules-intro"
-            >
+            <p className={readingBodyClass} data-testid="advisory-schedules-intro">
               {ADVISORY_SCHEDULES_PAGE_LEAD}
             </p>
             <p
@@ -140,10 +140,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
         ) : null}
 
         {buyerPolishedShell ? (
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="advisory-schedules-overview"
-          >
+          <p className={readingBodyClass} data-testid="advisory-schedules-overview">
             {ADVISORY_SCHEDULES_BUYER_OVERVIEW}
           </p>
         ) : (
@@ -155,6 +152,10 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
           </p>
         )}
 
+        <section
+          className={buyerPolishedShell ? cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack) : "min-w-0 space-y-4"}
+          data-testid={buyerPolishedShell ? ADVISORY_SCHEDULES_WORKSPACE_TEST_ID : undefined}
+        >
         {!buyerPolishedShell && !page.scopedRunFilterActive ? (
           <AdvisorySchedulesPickReviewBeforeSchedulingStrip selectedReviewId="" onSelectReview={page.onPickReview} />
         ) : null}
@@ -228,6 +229,8 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
           <AdvisorySchedulesTable page={page} emptyStateFooter={emptyStateFooter} />
         </section>
         {page.scopedRunFilterActive ? <AdvisorySchedulesNextReviewFooterClient runId={page.scopedRunId} /> : null}
+        </section>
+
         <AdvisorySchedulesBuyerChrome />
       </div>
     </OperatorPageContainer>

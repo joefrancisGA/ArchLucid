@@ -275,7 +275,7 @@ export function PreferencesSettingsPageView() {
         </div>
 
         <div data-testid="preferences-settings-orientation-bottom">
-          <PreferencesSettingsEvidenceOrientationStrip />
+          <PreferencesSettingsEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
       </div>
     </OperatorPageContainer>

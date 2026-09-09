@@ -9,6 +9,8 @@ import { RecurrenceScheduleFormFields } from "@/components/governance/Recurrence
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createArchitectureReviewRecurrenceSchedule } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   resolveRecurrenceScheduleCreateEmphasizedStepId,
@@ -88,7 +90,11 @@ export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePan
       setScheduleSaved(true);
       await onCreated();
     } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to create recurrence schedule.");
+      const failure = toApiLoadFailure(error);
+      setErrorMessage(
+        recurrenceScheduleMutationBlockedReason(failure)
+          ?? (error instanceof Error ? error.message : "Failed to create recurrence schedule."),
+      );
     } finally {
       setBusy(false);
     }

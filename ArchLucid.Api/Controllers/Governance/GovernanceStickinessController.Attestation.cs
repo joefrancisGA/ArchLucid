@@ -40,6 +40,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: attestation is stored in TenantSettings; no separate durable audit row in V1.")]
     public async Task<IActionResult> UpsertRealizedValueAttestation(
         [FromBody] UpsertRealizedValueAttestationRequest? request,
@@ -68,6 +69,10 @@ public sealed partial class GovernanceStickinessController
             await _facade.UpsertRealizedValueAttestationAsync(request!, cancellationToken);
 
             return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (ArgumentException ex)
         {

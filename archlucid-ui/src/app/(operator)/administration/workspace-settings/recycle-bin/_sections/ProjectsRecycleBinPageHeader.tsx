@@ -7,6 +7,7 @@ import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
 import { PROJECTS_RECYCLE_BIN_PAGE_TITLE } from "@/lib/projects-recycle-bin-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH } from "@/lib/settings-admin-route-paths";
 
 export type ProjectsRecycleBinPageHeaderProps = {
@@ -27,6 +28,7 @@ export function ProjectsRecycleBinPageHeader(props: ProjectsRecycleBinPageHeader
       navHref={SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH}
       title={PROJECTS_RECYCLE_BIN_PAGE_TITLE}
       subtitle={props.subtitle}
+      subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       titleTestId="projects-recycle-bin-page-title"
       claimDiscipline={buyerPolishedShell ? props.claimDiscipline : undefined}
       claimDisciplineTestId={props.claimDisciplineTestId}

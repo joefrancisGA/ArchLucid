@@ -2,9 +2,12 @@
 
 import type { ReactElement } from "react";
 
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type AskRunCoverageHonestyStripProps = {
   readonly runId: string;
@@ -17,7 +20,22 @@ export function AskRunCoverageHonestyStrip(props: AskRunCoverageHonestyStripProp
     enabled: trimmedRunId.length > 0,
   });
 
-  if (trimmedRunId.length === 0 || query.data === undefined) {
+  if (trimmedRunId.length === 0) {
+    return null;
+  }
+
+  if (query.isError) {
+    return (
+      <div className="mb-4 space-y-2" data-testid="ask-run-coverage-honesty-blocked">
+        {query.failure ? <OperatorApiProblem failure={query.failure} variant="warning" /> : null}
+        {query.blockedReason ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{query.blockedReason}</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (query.data === undefined) {
     return null;
   }
 

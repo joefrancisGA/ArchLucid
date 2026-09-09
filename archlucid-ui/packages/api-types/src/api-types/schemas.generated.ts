@@ -2895,10 +2895,14 @@ export interface components {
             resolvedProfileDisplayName?: string;
             wasAutoSelected?: boolean;
         };
-        /** @description When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request). */
+        /** @description When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request). Structured diagram documents use application/vnd.archlucid.diagram+json (ArchitectureDiagramModelRecord JSON), text/vnd.mermaid, application/vnd.archlucid.diagram+svg, or application/vnd.jgraph.mxfile. Raster image/* MIME types are forbidden. */
         ContextDocumentRequest: {
             content: string;
-            contentType: string;
+            /**
+             * @description Supported inline context document MIME type. See docs/library/ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md.
+             * @enum {string}
+             */
+            contentType: "text/plain" | "text/markdown" | "application/vnd.archlucid.diagram+json" | "text/vnd.mermaid" | "application/vnd.archlucid.diagram+svg" | "application/vnd.jgraph.mxfile";
             name: string;
             sourceDocumentUrl?: null | string;
         };
@@ -8014,9 +8018,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
-            expectedCurrentDispositionRowVersionBase64ByFindingId?: null | {
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: (null | ({
                 [key: string]: string;
-            };
+            } | null)) | null;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -8024,9 +8028,9 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
-            currentDispositionRowVersionBase64ByFindingId?: null | {
+            currentDispositionRowVersionBase64ByFindingId?: (null | ({
                 [key: string]: string;
-            };
+            } | null)) | null;
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];

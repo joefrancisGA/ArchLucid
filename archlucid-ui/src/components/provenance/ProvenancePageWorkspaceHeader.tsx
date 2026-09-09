@@ -12,6 +12,7 @@ import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
 import { truncateMiddle } from "@/lib/truncate-middle";
 import {
@@ -128,7 +129,10 @@ export function ProvenancePageWorkspaceHeader({
           <ProvenanceWayfinding reviewPackageHref={reviewHref} hideContextualHelp={buyerPolishedShell} />
         ) : null}
         {buyerPolishedShell ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-buyer-subtitle">
+          <p
+            className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid="provenance-buyer-subtitle"
+          >
             {PROVENANCE_PAGE_SUBTITLE_BUYER}
           </p>
         ) : null}

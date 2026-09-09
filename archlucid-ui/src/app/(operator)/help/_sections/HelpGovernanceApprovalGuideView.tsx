@@ -402,11 +402,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
         ) : null}
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-governance-approval-orientation-bottom">
-            <HelpGovernanceApprovalSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpGovernanceApprovalSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { GovernanceWorkflowRunListsBlockedCallout } from "@/components/governance/GovernanceWorkflowRunListsBlockedCallout";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
@@ -212,6 +212,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
         title={pageTitle}
         titleTestId="governance-overview-page-title"
         subtitle={pageLead}
+        subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
         claimDiscipline={buyerPolishedShell ? APPROVAL_QUEUE_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="approval-queue-header-claim-discipline"
         metadata={
@@ -374,11 +375,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
 
           {listFailure !== null ? (
             <div className="mb-6" role="alert">
-              <OperatorApiProblem
-                problem={listFailure.problem}
-                fallbackMessage={listFailure.message}
-                correlationId={listFailure.correlationId}
-              />
+              <GovernanceWorkflowRunListsBlockedCallout failure={listFailure} />
             </div>
           ) : null}
 

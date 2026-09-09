@@ -141,6 +141,19 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         pilotDeltasSchema.Should().NotBeNull();
         JsonObject pilotDeltasProperties = pilotDeltasSchema!["properties"]!.AsObject();
         pilotDeltasProperties.ContainsKey("roiSourceFreshnessDisposition").Should().BeTrue();
+
+        JsonObject? contextDocumentSchema = schemas["ContextDocumentRequest"]?.AsObject();
+        contextDocumentSchema.Should().NotBeNull();
+        JsonObject contextDocumentProperties = contextDocumentSchema!["properties"]!.AsObject();
+        JsonArray? contentTypeEnum = contextDocumentProperties["contentType"]?["enum"]?.AsArray();
+        contentTypeEnum.Should().NotBeNull();
+        contentTypeEnum!
+            .Select(node => node?.GetValue<string>())
+            .Should()
+            .Contain("application/vnd.archlucid.diagram+json")
+            .And.Contain("text/vnd.mermaid")
+            .And.Contain("application/vnd.archlucid.diagram+svg")
+            .And.Contain("application/vnd.jgraph.mxfile");
     }
 
     private static void AssertRequiredProperties(JsonObject schemas, string schemaName, params string[] expected)

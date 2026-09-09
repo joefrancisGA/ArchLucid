@@ -22,9 +22,9 @@ export function ServiceNowIntegrationSourcesOrientationStrip(): React.JSX.Elemen
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const servicenowIntegrationSourcesOpenParam = searchParams.get("servicenowIntegrationSourcesOpen");
+  const sourcesOpenParam = searchParams.get("servicenowIntegrationSourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseServicenowIntegrationSourcesOpenFromSearch(servicenowIntegrationSourcesOpenParam),
+    parseServicenowIntegrationSourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
@@ -45,8 +45,8 @@ export function ServiceNowIntegrationSourcesOrientationStrip(): React.JSX.Elemen
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseServicenowIntegrationSourcesOpenFromSearch(servicenowIntegrationSourcesOpenParam));
-  }, [servicenowIntegrationSourcesOpenParam]);
+    setSourcesOpenState(parseServicenowIntegrationSourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection

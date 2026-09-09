@@ -7,6 +7,7 @@ import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-te
 import { simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
 import type { components } from "@/lib/openapi-schemas";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -210,7 +211,14 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
       setSimulateResult(result);
       presentPolicyPackSimulateToast(result);
     } catch (error: unknown) {
-      setSimulateFailure(toApiLoadFailure(error));
+      const loadFailure = toApiLoadFailure(error);
+      const blockedReason = policyPackSimulateBlockedReason(loadFailure);
+
+      setSimulateFailure(
+        blockedReason !== null
+          ? { ...loadFailure, message: blockedReason }
+          : loadFailure,
+      );
     } finally {
       setSimulateBusy(false);
     }

@@ -30,6 +30,7 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
     setMutationCorrectionMutationId,
     mutationErrorMessage,
     mutationErrorIsConcurrencyConflict,
+    mutationBlockedReason,
     pendingPromote,
     setPendingPromote,
     pendingPromoteRequestRef,
@@ -90,7 +91,11 @@ export function GovernanceWorkflowMutationHost(props: GovernanceWorkflowMutation
       {showInlineFeedback && mutationErrorMessage !== null ? (
         <OperatorMutationInlineError
           message={mutationErrorMessage}
-          testId="governance-workflow-mutation-error"
+          testId={
+            mutationBlockedReason !== null
+              ? "governance-workflow-mutation-blocked"
+              : "governance-workflow-mutation-error"
+          }
           className="mb-4"
           recoveryPresentation={
             mutationErrorIsConcurrencyConflict ? GOVERNANCE_CONCURRENCY_CONFLICT_RECOVERY : undefined

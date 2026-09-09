@@ -220,11 +220,7 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={guideHeadings} />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-model-governance-orientation-bottom">
-            <HelpModelGovernanceSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpModelGovernanceSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

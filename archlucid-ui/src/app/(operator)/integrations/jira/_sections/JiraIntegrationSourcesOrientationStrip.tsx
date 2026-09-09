@@ -22,9 +22,9 @@ export function JiraIntegrationSourcesOrientationStrip(): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const jiraIntegrationSourcesOpenParam = searchParams.get("jiraIntegrationSourcesOpen");
+  const sourcesOpenParam = searchParams.get("jiraIntegrationSourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseJiraIntegrationSourcesOpenFromSearch(jiraIntegrationSourcesOpenParam),
+    parseJiraIntegrationSourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
@@ -45,8 +45,8 @@ export function JiraIntegrationSourcesOrientationStrip(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseJiraIntegrationSourcesOpenFromSearch(jiraIntegrationSourcesOpenParam));
-  }, [jiraIntegrationSourcesOpenParam]);
+    setSourcesOpenState(parseJiraIntegrationSourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection

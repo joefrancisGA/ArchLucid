@@ -33,6 +33,7 @@ import {
   ACCESS_DENIED_SKIP_TARGET_ID,
 } from "@/lib/access-denied-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { clearOidcSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
@@ -139,7 +140,7 @@ export function OperatorAccessDeniedPageClient() {
                 {accessDeniedHeading}
               </h1>
 
-              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{accessDeniedBody}</p>
+              <p className={cn("text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{accessDeniedBody}</p>
 
               <PageHeaderClaimDiscipline
                 text={ACCESS_DENIED_CLAIM_DISCIPLINE}

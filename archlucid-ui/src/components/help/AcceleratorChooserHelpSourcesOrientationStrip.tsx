@@ -1,6 +1,4 @@
-import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE,
   ACCELERATOR_CHOOSER_HELP_ORIENTATION_SOURCES_INTRO,
@@ -15,12 +13,13 @@ export function AcceleratorChooserHelpSourcesOrientationStrip(): React.JSX.Eleme
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-accelerator-chooser"
       stripTestId={ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      sourcesTestId="help-accelerator-chooser-sources"
       sourcesTitle={ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ACCELERATOR_CHOOSER_HELP_ORIENTATION_SOURCES_INTRO}
       sources={ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS}
-      sourcesTestId="help-accelerator-chooser-sources"
-      hubSecondary
+      sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+      hubSecondary
     />
   );
 }

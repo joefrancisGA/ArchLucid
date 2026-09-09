@@ -16,6 +16,10 @@ public static class StructuredDiagramGraphPropertyKeys
     public const string SourceEvidenceItemId = "structuredDiagram.sourceEvidenceItemId";
 
     public const string DiagramSubgraphId = "structuredDiagram.subgraphId";
+
+    public const string BoundDiagramNodeId = "structuredDiagram.boundDiagramNodeId";
+
+    public const string BoundDiagramGraphNodeId = "structuredDiagram.boundDiagramGraphNodeId";
 }
 
 /// <summary>
@@ -36,4 +40,7 @@ public static class StructuredDiagramGraphSourceTypes
 public static class StructuredDiagramGraphProvenanceKinds
 {
     public const string DeterministicInference = "DeterministicInference";
+
+    /// <summary>Reserved for inventory-bound diagram nodes (AS-018); never used for label-only hints.</summary>
+    public const string ObservedFact = "ObservedFact";
 }

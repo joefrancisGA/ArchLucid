@@ -8,12 +8,15 @@ import {
   ARCHITECTURE_REVIEW_DIAGRAM_INPUT_FALSE_ANALYZED_CLAIMS,
   findArchitectureReviewDiagramInputHonestyViolations,
 } from "@/lib/architecture-spine/architecture-review-diagram-input-honesty";
+import type { components } from "@/lib/api-types/schemas.generated";
 import {
   FORBIDDEN_CONTEXT_DOCUMENT_IMAGE_CONTENT_TYPE_PREFIX,
   SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES,
   STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
   isForbiddenContextDocumentImageContentType,
 } from "@/lib/architecture-spine/supported-context-document-content-types";
+
+type ContextDocumentContentType = components["schemas"]["ContextDocumentRequest"]["contentType"];
 
 const REPO_ROOT = join(process.cwd(), "..");
 
@@ -38,6 +41,13 @@ describe("architecture review diagram input contract (AS-003)", () => {
     expect(SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES).not.toContain(
       `${FORBIDDEN_CONTEXT_DOCUMENT_IMAGE_CONTENT_TYPE_PREFIX}png`,
     );
+  });
+
+  it("generated OpenAPI types expose structured diagram MIME on ContextDocumentRequest.contentType (AS-013)", () => {
+    const diagramJson: ContextDocumentContentType = STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE;
+
+    expect(diagramJson).toBe("application/vnd.archlucid.diagram+json");
+    expect(SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES).toContain(diagramJson);
   });
 
   it("registers false analyzed-claim phrases for honesty CI", () => {

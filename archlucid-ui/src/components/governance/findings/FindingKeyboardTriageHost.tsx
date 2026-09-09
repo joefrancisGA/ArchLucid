@@ -27,16 +27,10 @@ import {
   COMMAND_PALETTE_FINDING_REJECT_EVENT,
   COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
 } from "@/lib/command-palette-handler-actions";
-import { recordFindingDisposition, listFindingDispositions } from "@/lib/api/governance-stickiness-api";
-import { isApiRequestError } from "@/lib/api-request-error";
-import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
-import { resolveExpectedCurrentDispositionRowVersion } from "@/lib/findings/finding-expected-current-disposition-row-version";
-import {
-  readFindingDispositionConflictDetail,
-  readFindingDispositionConflictFromError,
-  type FindingDispositionConflictDetail,
-} from "@/lib/findings/finding-disposition-conflict";
+import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
+import { findingKeyboardDispositionBlockedReason } from "@/lib/findings/finding-keyboard-disposition-blocked-reason";
 import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
 import {
   buildDispositionRestoreRevisitDueUtc,
@@ -109,8 +103,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     correctionTarget,
   });
   const [correctionRecorded, setCorrectionRecorded] = useState(false);
-  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(null);
-  const [expectedRowVersion, setExpectedRowVersion] = useState<string | null>(null);
 
   const syncKeyboardTriageConfirmToUrl = useCallback(
     (state: PendingKeyboardDisposition | null) => {
@@ -146,38 +138,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     },
     [syncKeyboardTriageConfirmToUrl],
   );
-
-  useEffect(() => {
-    if (pending === null) {
-      setExpectedRowVersion(null);
-      setDispositionConflict(null);
-
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const history = await listFindingDispositions(pending.findingId);
-        const expectedCurrentDispositionRowVersionBase64 = resolveExpectedCurrentDispositionRowVersion({
-          latestHistoryEvent: history[0] ?? null,
-        });
-
-        if (!canceled) {
-          setExpectedRowVersion(expectedCurrentDispositionRowVersionBase64 ?? null);
-        }
-      } catch {
-        if (!canceled) {
-          setExpectedRowVersion(null);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [pending]);
 
   useEffect(() => {
     const findingId = parseFindingKeyboardTriageFindingIdFromSearch(kbDispFindingIdParam);
@@ -339,27 +299,21 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
 
     setBusy(true);
     setInlineErrorMessage(null);
-    setDispositionConflict(null);
 
     const appliedFindingId = pending.findingId;
     const appliedRunId = pending.runId;
     const appliedDisposition = pending.disposition;
 
     try {
-      const saved = await recordFindingDisposition(
+      await recordFindingDisposition(
         appliedFindingId,
         {
           disposition: appliedDisposition,
           rationale: trimmedReason,
           runId: appliedRunId,
-          expectedCurrentDispositionRowVersionBase64: expectedRowVersion ?? undefined,
         },
         { idempotencyKey: createGovernanceMutationIdempotencyKey() },
       );
-
-      const undoExpectedCurrentDispositionRowVersionBase64 = resolveExpectedCurrentDispositionRowVersion({
-        latestHistoryEvent: saved,
-      });
 
       if (appliedDisposition === "Accepted" || appliedDisposition === "RejectedAsNotApplicable") {
         const appliedAtUtc = new Date().toISOString();
@@ -390,7 +344,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
             rationale: undoRationale,
             runId: appliedRunId,
             revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
-            expectedCurrentDispositionRowVersionBase64: undoExpectedCurrentDispositionRowVersionBase64,
           },
           { idempotencyKey: createGovernanceMutationIdempotencyKey() },
         );
@@ -402,18 +355,11 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
       props.onApplied?.();
       router.refresh();
     } catch (err) {
-      if (isApiRequestError(err) && err.httpStatus === 409) {
-        const conflict = readFindingDispositionConflictDetail(err.problem);
-
-        if (conflict !== null) {
-          setDispositionConflict(conflict);
-          setInlineErrorMessage(null);
-
-          return;
-        }
-      }
-
-      setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+      const failure = toApiLoadFailure(err);
+      setInlineErrorMessage(
+        findingKeyboardDispositionBlockedReason(failure)
+          ?? (err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE),
+      );
     } finally {
       setBusy(false);
     }
@@ -456,15 +402,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
                     setCorrectionTarget(null);
                     setCorrectionRecorded(false);
                   } catch (undoError) {
-                    const undoConflict = readFindingDispositionConflictFromError(undoError);
-
-                    if (undoConflict !== null) {
-                      setDispositionConflict(undoConflict);
-                      setSuccessMessage(null);
-                      setSuccessUndo(null);
-                      return;
-                    }
-
                     setSuccessMessage(
                       undoError instanceof Error
                         ? undoError.message
@@ -496,20 +433,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         }}
       />
 
-      {dispositionConflict !== null && pending === null ? (
-        <FindingDispositionConflictPanel
-          conflict={dispositionConflict}
-          onReload={() => {
-            setDispositionConflict(null);
-            props.onApplied?.();
-            router.refresh();
-          }}
-          onDismiss={() => {
-            setDispositionConflict(null);
-          }}
-        />
-      ) : null}
-
       {pending === null ? null : (
       <ConfirmationDialog
         open
@@ -527,21 +450,6 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         busy={busy}
         extraContent={
           <div className="mt-2 space-y-3">
-            {dispositionConflict !== null ? (
-              <FindingDispositionConflictPanel
-                conflict={dispositionConflict}
-                onReload={() => {
-                  setDispositionConflict(null);
-                  setPending(null);
-                  setRationale("");
-                  props.onApplied?.();
-                  router.refresh();
-                }}
-                onDismiss={() => {
-                  setDispositionConflict(null);
-                }}
-              />
-            ) : null}
             {inlineErrorMessage !== null ? (
               <OperatorMutationInlineError
                 message={inlineErrorMessage}

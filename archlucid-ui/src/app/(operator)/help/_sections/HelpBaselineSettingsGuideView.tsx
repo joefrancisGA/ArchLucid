@@ -160,7 +160,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             title={BASELINE_SETTINGS_HELP_PAGE_TITLE}
             titleTestId="help-baseline-settings-page-title"
             subtitle={baselineSettingsHelpPageSubtitle(buyerPolishedShell)}
-            subtitleClassName="max-w-3xl"
+            subtitleClassName={cn("max-w-3xl", HELP_PAGE_LAYOUT.readingBody)}
             navHref={BASELINE_SETTINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Http.Governance;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -25,6 +26,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Simulate(
         [FromBody] PolicyPackSimulateRequest? request,
         CancellationToken cancellationToken)
@@ -54,13 +56,22 @@ public sealed partial class PolicyPacksController
         if (validationProblem is not null)
             return validationProblem;
 
-        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result = await _httpFacade.SimulateAsync(
-            request.Content,
-            request.RunId,
-            request.BlockCommitOnCritical,
-            request.BlockCommitMinimumSeverity,
-            request.ProposedPolicyPackId,
-            cancellationToken).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result;
+
+        try
+        {
+            result = await _httpFacade.SimulateAsync(
+                request.Content,
+                request.RunId,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                request.ProposedPolicyPackId,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -84,6 +95,7 @@ public sealed partial class PolicyPacksController
     [ProducesResponseType(typeof(PolicyPackSimulateBulkSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SimulateBulk(
         Guid policyPackId,
         [FromBody] PolicyPackSimulateBulkRequest? request,
@@ -138,12 +150,21 @@ public sealed partial class PolicyPacksController
         if (validationProblem is not null)
             return validationProblem;
 
-        PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result = await _httpFacade.SimulateBulkAsync(
-            policyPackId,
-            runIds,
-            request.BlockCommitOnCritical,
-            request.BlockCommitMinimumSeverity,
-            cancellationToken).ConfigureAwait(false);
+        PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result;
+
+        try
+        {
+            result = await _httpFacade.SimulateBulkAsync(
+                policyPackId,
+                runIds,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 

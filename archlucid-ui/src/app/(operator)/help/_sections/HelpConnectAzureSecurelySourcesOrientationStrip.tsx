@@ -22,19 +22,16 @@ export function HelpConnectAzureSecurelySourcesOrientationStrip(): React.JSX.Ele
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const helpConnectAzureSecurelySourcesOpenParam = searchParams.get("helpConnectAzureSecurelySourcesOpen");
+  const sourcesOpenParam = searchParams.get("helpConnectAzureSecurelySourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseHelpConnectAzureSecurelySourcesOpenFromSearch(helpConnectAzureSecurelySourcesOpenParam),
+    parseHelpConnectAzureSecurelySourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        helpConnectAzureSecurelySourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        {
-          scroll: false,
-        },
-      );
+      router.replace(helpConnectAzureSecurelySourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
     },
     [pathname, router, searchParams],
   );
@@ -48,8 +45,8 @@ export function HelpConnectAzureSecurelySourcesOrientationStrip(): React.JSX.Ele
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseHelpConnectAzureSecurelySourcesOpenFromSearch(helpConnectAzureSecurelySourcesOpenParam));
-  }, [helpConnectAzureSecurelySourcesOpenParam]);
+    setSourcesOpenState(parseHelpConnectAzureSecurelySourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection

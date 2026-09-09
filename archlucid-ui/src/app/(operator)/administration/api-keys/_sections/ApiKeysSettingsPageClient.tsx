@@ -83,7 +83,7 @@ export function ApiKeysSettingsPageClient() {
               </>
             )
           }
-          subtitleClassName="max-w-prose"
+          subtitleClassName={cn("max-w-prose", buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined)}
           actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
         >
           {buyerPolishedShell ? null : (

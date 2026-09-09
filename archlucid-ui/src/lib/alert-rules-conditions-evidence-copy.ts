@@ -15,6 +15,8 @@ export const ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE = ALERT_RULES_FOLLOW_UPS_TI
 export const ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID =
   "alert-rules-conditions-orientation-bottom" as const;
 
+export const ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID = "alert-rules-conditions-workspace" as const;
+
 export const ALERT_RULES_CONDITIONS_SOURCES_INTRO = ALERT_RULES_SOURCES_INTRO;
 
 export const ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
