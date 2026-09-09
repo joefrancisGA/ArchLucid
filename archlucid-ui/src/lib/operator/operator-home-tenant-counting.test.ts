@@ -89,6 +89,42 @@ describe("deriveOperatorHomeTenantCountingSnapshot", () => {
     expect(snapshot.previewTabCounts["awaiting-approval"]).toBe(3);
   });
 
+  it("uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool", () => {
+    const displayItems: RunSummary[] = [
+      {
+        runId: "run-1",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "run-2",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+      {
+        runId: "run-3",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+    const previewItems: RunSummary[] = [
+      {
+        runId: "run-3",
+        projectId: "default",
+        hasFindingsSnapshot: true,
+      },
+    ];
+
+    const snapshot = deriveOperatorHomeTenantCountingSnapshot({
+      displayItems,
+      previewItems,
+    });
+
+    expect(snapshot.previewTabCounts.attention).toBe(1);
+    expect(snapshot.previewTabCounts.recentTotalCount).toBe(1);
+    expect(snapshot.metrics.reviewPackagesActive).toBe(3);
+  });
+
   it("does not fall back to workspace awaiting-approval count while queue ids are still loading", () => {
     const items: RunSummary[] = [
       {
