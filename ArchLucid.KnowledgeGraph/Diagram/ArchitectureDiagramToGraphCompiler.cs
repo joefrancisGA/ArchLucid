@@ -111,7 +111,10 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
                     continue;
                 }
 
-                snapshot.Edges.Add(BuildContainsEdge(subgraphNodeId, memberNodeId, options.LabelOnlyInferenceConfidence));
+                snapshot.Edges.Add(BuildContainsEdge(
+                    subgraphNodeId,
+                    memberNodeId,
+                    ClampLabelOnlyConfidence(options.LabelOnlyInferenceConfidence)));
             }
         }
 
@@ -176,7 +179,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             return 1d;
         }
 
-        return labelOnlyInferenceConfidence;
+        return ClampLabelOnlyConfidence(labelOnlyInferenceConfidence);
     }
 
     private static double ResolveEdgeInferenceConfidence(
@@ -188,7 +191,19 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             return 1d;
         }
 
-        return labelOnlyInferenceConfidence;
+        return ClampLabelOnlyConfidence(labelOnlyInferenceConfidence);
+    }
+
+    private static double ClampLabelOnlyConfidence(double labelOnlyInferenceConfidence)
+    {
+        if (labelOnlyInferenceConfidence >= 1d)
+        {
+            return StructuredDiagramLabelOnlyInferenceDefaults.StandardConfidence;
+        }
+
+        return Math.Min(
+            labelOnlyInferenceConfidence,
+            StructuredDiagramLabelOnlyInferenceDefaults.MaxLabelOnlyConfidence);
     }
 
     private static Dictionary<string, string> BuildNodeProperties(
@@ -199,7 +214,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
-            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
+            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = ResolveNodeProvenanceKind(node),
             [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = confidence.ToString("0.###"),
             [StructuredDiagramGraphPropertyKeys.DiagramNodeKind] = node.Kind,
         };
@@ -225,7 +240,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
-            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
+            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = ResolveEdgeProvenanceKind(edge),
             [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = confidence.ToString("0.###"),
         };
 
@@ -293,6 +308,17 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
                 [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
             },
         };
+    }
+
+    private static string ResolveNodeProvenanceKind(ArchitectureDiagramNodeRecord node)
+    {
+        // AS-017: label-only hints are never inventory ObservedFact; binding is AS-018.
+        return StructuredDiagramGraphProvenanceKinds.DeterministicInference;
+    }
+
+    private static string ResolveEdgeProvenanceKind(ArchitectureDiagramEdgeRecord edge)
+    {
+        return StructuredDiagramGraphProvenanceKinds.DeterministicInference;
     }
 
     private static string BuildNodeReasoningTrace(ArchitectureDiagramNodeRecord node, double confidence)

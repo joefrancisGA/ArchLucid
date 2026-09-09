@@ -30,5 +30,5 @@ public sealed class StructuredDiagramGraphCompileOptions
     {
         get;
         init;
-    } = 0.7d;
+    } = StructuredDiagramLabelOnlyInferenceDefaults.StandardConfidence;
 }

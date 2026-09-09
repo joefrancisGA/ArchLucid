@@ -3,6 +3,7 @@ using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Builders;
+using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Materialization;
@@ -74,6 +75,13 @@ public sealed class StructuredDiagramAuthorityPipelineGraphTests
         result.Edges.Should().NotContain(edge =>
             edge.InferenceSource == GraphEdgeInferenceSources.TopologyConnectsTo
             && edge.FromNodeId.StartsWith("diagram-node:", StringComparison.Ordinal));
+
+        GraphNode apiNode = result.Nodes.Single(node => node.NodeId == "diagram-node:api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should().Be(StructuredDiagramGraphProvenanceKinds.DeterministicInference);
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should().NotBe(StructuredDiagramGraphProvenanceKinds.ObservedFact);
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("0.7");
     }
 
     [Fact]

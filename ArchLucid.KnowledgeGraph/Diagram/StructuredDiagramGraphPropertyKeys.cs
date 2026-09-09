@@ -36,4 +36,7 @@ public static class StructuredDiagramGraphSourceTypes
 public static class StructuredDiagramGraphProvenanceKinds
 {
     public const string DeterministicInference = "DeterministicInference";
+
+    /// <summary>Reserved for inventory-bound diagram nodes (AS-018); never used for label-only hints.</summary>
+    public const string ObservedFact = "ObservedFact";
 }

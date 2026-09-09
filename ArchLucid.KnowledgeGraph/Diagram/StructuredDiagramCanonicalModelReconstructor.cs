@@ -9,7 +9,7 @@ namespace ArchLucid.KnowledgeGraph.Diagram;
 /// </summary>
 public static class StructuredDiagramCanonicalModelReconstructor
 {
-    public static IReadOnlyList<ArchitectureDiagramModelRecord> ReconstructModels(
+    public static IReadOnlyList<StructuredDiagramReconstructedDocument> ReconstructDocuments(
         IReadOnlyList<CanonicalObject> canonicalObjects)
     {
         ArgumentNullException.ThrowIfNull(canonicalObjects);
@@ -18,19 +18,19 @@ public static class StructuredDiagramCanonicalModelReconstructor
             .Where(IsStructuredDiagramCanonicalObject)
             .GroupBy(obj => obj.SourceId.Trim(), StringComparer.Ordinal);
 
-        List<ArchitectureDiagramModelRecord> models = [];
+        List<StructuredDiagramReconstructedDocument> documents = [];
 
         foreach (IGrouping<string, CanonicalObject> group in diagramGroups)
         {
-            ArchitectureDiagramModelRecord? model = ReconstructSingleDocumentModel(group);
+            StructuredDiagramReconstructedDocument? document = ReconstructSingleDocument(group);
 
-            if (model is not null)
+            if (document is not null)
             {
-                models.Add(model);
+                documents.Add(document);
             }
         }
 
-        return models;
+        return documents;
     }
 
     private static bool IsStructuredDiagramCanonicalObject(CanonicalObject canonicalObject)
@@ -41,7 +41,7 @@ public static class StructuredDiagramCanonicalModelReconstructor
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static ArchitectureDiagramModelRecord? ReconstructSingleDocumentModel(
+    private static StructuredDiagramReconstructedDocument? ReconstructSingleDocument(
         IGrouping<string, CanonicalObject> group)
     {
         List<CanonicalObject> nodes = group.ToList();
@@ -86,12 +86,42 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         List<ArchitectureDiagramEdgeRecord> edges = ReconstructEdges(nodes, diagramNodeIdByObjectId);
 
-        return new ArchitectureDiagramModelRecord
+        return new StructuredDiagramReconstructedDocument
         {
-            Nodes = diagramNodes,
-            Edges = edges,
-            ExtractionMethod = extractionMethod,
+            Model = new ArchitectureDiagramModelRecord
+            {
+                Nodes = diagramNodes,
+                Edges = edges,
+                ExtractionMethod = extractionMethod,
+            },
+            LabelOnlyInferenceConfidence = ResolveLabelOnlyInferenceConfidence(nodes),
         };
+    }
+
+    public static double ResolveLabelOnlyInferenceConfidence(IReadOnlyList<CanonicalObject> nodes)
+    {
+        double? labelOnlyConfidence = null;
+
+        foreach (CanonicalObject canonicalObject in nodes)
+        {
+            if (!canonicalObject.Properties.TryGetValue("inferenceConfidence", out string? raw)
+                || string.IsNullOrWhiteSpace(raw)
+                || !double.TryParse(raw.Trim(), out double confidence))
+            {
+                continue;
+            }
+
+            if (confidence >= 1d)
+            {
+                continue;
+            }
+
+            labelOnlyConfidence = labelOnlyConfidence.HasValue
+                ? Math.Min(labelOnlyConfidence.Value, confidence)
+                : confidence;
+        }
+
+        return labelOnlyConfidence ?? StructuredDiagramLabelOnlyInferenceDefaults.StandardConfidence;
     }
 
     private static List<ArchitectureDiagramEdgeRecord> ReconstructEdges(
