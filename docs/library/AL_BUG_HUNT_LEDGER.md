@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -784,6 +784,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` / `SampleRunPurgeBatch` purge batches need `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1450:** batch workers delete oldest eligible rows by `CreatedUtc` only; ties are arbitrary within a batch but bounded by `BatchSize`; regressions `InMemory_stale_uncommitted_purge_deletes_oldest_eligible_runs_first` and `SampleRunPurgeBatch_orders_oldest_sample_runs_first_by_created_utc`.
 
 2026-09-09 seed hunt #1450 (seed-only): reseeded sql-run-repository after #1448; cheap-disproof closed manifest CreatedUtc tie-break, InMemory manifest-archival parity, and purge-batch CreatedUtc ordering; 84 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` / prior-committed shapes omit `gm.TenantId = r.TenantId` on the GoldenManifests join while nav EXISTS includes it — **cheap-disproof 2026-09-09 seed hunt #1451:** `ManifestId` is the GoldenManifests primary key; tenant scope is enforced on `dbo.Runs` predicates; nav EXISTS adds tenant guard for defense-in-depth only; regression `Committed_manifest_joins_omit_tenant_id_because_manifest_id_is_globally_unique`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` OR predicate accepts manifest-version-only rows without `GoldenManifestId` — **cheap-disproof 2026-09-09 seed hunt #1451:** INNER JOIN on `r.GoldenManifestId` excludes manifest-version-only rows; InMemory `IsActiveCommittedRunInProject` also requires `GoldenManifestId`; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_requires_golden_manifest_join`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByArchitectureVersionId` treats manifest-version or golden-manifest rows as committed without strict `LegacyRunStatus` — **cheap-disproof 2026-09-09 seed hunt #1451:** shared `IsCommittedRun` semantics for version-scoped prior-resolve lookups (`FindingAnalysisContextBuilder.TryResolvePriorAsync`); regression `SelectLatestCommittedRunIdByArchitectureVersionId_uses_shared_committed_predicate`.
+- [x] (valid-no-repro) `RunRepositorySql.Update` allows unconditional writes when `@RowVersion` is null — **cheap-disproof 2026-09-09 seed hunt #1451:** optimistic concurrency is optional for callers without a stamp; regression `Update_allows_null_row_version_for_unconditional_write`.
+- [x] (valid-no-repro) `SelectLatestRunIdForArchitecture` returns in-flight runs because committed filter is omitted — **cheap-disproof 2026-09-09 seed hunt #1451:** architecture-head semantics for knowledge-model access (`ArchitectureKnowledgeModelAccess`); regression `SelectLatestRunIdForArchitecture_omits_committed_filter_for_architecture_head`.
+- [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
+
+2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

@@ -1408,4 +1408,92 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         sql.Should().Contain("ORDER BY r.CreatedUtc ASC");
         sql.Should().Contain("r.IsSample = 1");
     }
+
+    [Fact]
+    public void Committed_manifest_joins_omit_tenant_id_because_manifest_id_is_globally_unique()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("INNER JOIN dbo.GoldenManifests gm");
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .NotContain("gm.TenantId = r.TenantId",
+                "ManifestId is the GoldenManifests primary key; tenant scope is enforced on dbo.Runs predicates.");
+
+        HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock.Should()
+            .Contain("gm.TenantId = r.TenantId",
+                "nav EXISTS adds tenant guard on the join for defense-in-depth even though ManifestId is globally unique.");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_requires_golden_manifest_join()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("ON gm.ManifestId = r.GoldenManifestId");
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL",
+                "manifest-version-only rows still require GoldenManifestId for the INNER JOIN to match.");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByArchitectureVersionId_uses_shared_committed_predicate()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should()
+            .Contain("r.LegacyRunStatus = @CommittedStatus");
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should()
+            .Contain("NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL");
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should()
+            .Contain("r.GoldenManifestId IS NOT NULL");
+    }
+
+    [Fact]
+    public void Update_allows_null_row_version_for_unconditional_write()
+    {
+        RunRepositorySql.Update.Should().Contain("@RowVersion IS NULL OR RowVersionStamp = @RowVersion");
+    }
+
+    [Fact]
+    public void SelectLatestRunIdForArchitecture_omits_committed_filter_for_architecture_head()
+    {
+        RunRepositorySql.SelectLatestRunIdForArchitecture.Should().Contain("r.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectLatestRunIdForArchitecture.Should().NotContain("LegacyRunStatus");
+        RunRepositorySql.SelectLatestRunIdForArchitecture.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public async Task InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime sharedCreatedUtc = new(2026, 9, 9, 8, 0, 0, DateTimeKind.Utc);
+        Guid runA = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000001");
+        Guid runB = Guid.Parse("bbbbbbbb-0000-0000-0000-000000000002");
+        Guid runC = Guid.Parse("cccccccc-0000-0000-0000-000000000003");
+
+        InMemoryRunRepository runs = new();
+
+        foreach (Guid runId in new[] { runC, runA, runB })
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                    CreatedUtc = sharedCreatedUtc,
+                },
+                CancellationToken.None);
+        }
+
+        IReadOnlyList<RunRecord> listed = await runs.ListWithNullArchitectureIdAsync(scope, 10, CancellationToken.None);
+
+        listed.Select(r => r.RunId).Should().Equal(runA, runB, runC);
+    }
 }
