@@ -14,6 +14,7 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -39,6 +40,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
+  readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -108,6 +110,7 @@ export function RunDetailReviewPackageStampViewport(
           heldCheckSecondPass={props.heldCheckSecondPass}
           proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
           proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+          pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -168,6 +171,7 @@ export function RunDetailReviewPackageStampViewport(
         heldCheckSecondPass={props.heldCheckSecondPass}
         proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
         proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+        pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail
