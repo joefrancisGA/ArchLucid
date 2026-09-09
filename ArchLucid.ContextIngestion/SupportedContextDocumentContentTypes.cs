@@ -26,6 +26,11 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public const string StructuredDiagramSvg = "application/vnd.archlucid.diagram+svg";
 
+    /// <summary>
+    ///     Uncompressed draw.io / diagrams.net <c>mxfile</c> XML (AS-009).
+    /// </summary>
+    public const string DrawIoXml = "application/vnd.jgraph.mxfile";
+
     public static readonly IReadOnlyList<string> All =
     [
         "text/plain",
@@ -33,6 +38,7 @@ public static class SupportedContextDocumentContentTypes
         StructuredDiagramJson,
         Mermaid,
         StructuredDiagramSvg,
+        DrawIoXml,
     ];
 
     public static bool IsSupported(string? contentType)
@@ -63,6 +69,12 @@ public static class SupportedContextDocumentContentTypes
     {
         return !string.IsNullOrWhiteSpace(contentType)
                && string.Equals(contentType.Trim(), StructuredDiagramSvg, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsDrawIoXmlContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), DrawIoXml, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

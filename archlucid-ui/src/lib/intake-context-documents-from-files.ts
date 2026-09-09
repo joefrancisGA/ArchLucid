@@ -13,6 +13,10 @@ import {
   STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE,
 } from "@/lib/architecture-spine/intake-svg-context-document";
 import {
+  isDrawIoIntakeFileName,
+  DRAW_IO_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-drawio-context-document";
+import {
   isBinaryArchitectureDocumentFileName,
   isReadableEvidenceTextFileName,
   peekBinaryArchitectureDocumentText,
@@ -79,6 +83,10 @@ async function toIntakeContextDocument(
     return readSvgDocument(name, file);
   }
 
+  if (isDrawIoIntakeFileName(trimmedName)) {
+    return readDrawIoDocument(name, file);
+  }
+
   return null;
 }
 
@@ -131,6 +139,34 @@ async function readSvgSourceDocument(
     return {
       name,
       contentType: STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readDrawIoDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readDrawIoSourceDocument(name, file);
+}
+
+async function readDrawIoSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: DRAW_IO_CONTEXT_DOCUMENT_CONTENT_TYPE,
       content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
     };
   } catch {
