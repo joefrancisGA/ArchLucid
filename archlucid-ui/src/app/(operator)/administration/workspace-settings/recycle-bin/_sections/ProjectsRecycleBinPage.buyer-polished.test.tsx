@@ -9,16 +9,17 @@ import {
 } from "@/lib/projects-recycle-bin-evidence-copy";
 import {
   PROJECTS_RECYCLE_BIN_PAGE_SUBTITLE_BUYER,
+  PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW,
   PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
   PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID,
-  PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW,
   PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD,
   PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL,
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE,
+  PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID,
 } from "@/lib/projects-recycle-bin-settings-page-copy";
 import { recycleBinPageDescription } from "@/lib/projects-recycle-bin-payload";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
@@ -99,15 +100,13 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
     expect(screen.getByText(PROJECTS_RECYCLE_BIN_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(recycleBinPageDescription(30))).not.toBeInTheDocument();
     expect(screen.getByTestId("projects-recycle-bin-intro")).toHaveTextContent(PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD);
-    expect(screen.getByTestId("projects-recycle-bin-overview")).toHaveTextContent(PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW);
+    expect(screen.getByTestId("projects-recycle-bin-overview")).toHaveTextContent(PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW);
     expect(screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("projects-recycle-bin-intro"),
     );
     expect(
-      screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
-        screen.getByTestId("projects-recycle-bin-overview"),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("projects-recycle-bin-overview"));
     expect(screen.getByTestId("projects-recycle-bin-buyer-start-here-helper")).toHaveTextContent(
       PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
     );
@@ -131,11 +130,16 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
 
     const primaryContent = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("projects-recycle-bin-overview");
+    const workspace = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID);
     const orientationBottom = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("projects-recycle-bin-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(screen.getByTestId("projects-recycle-bin-row-proj-1"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(PROJECTS_RECYCLE_BIN_SOURCES)) {
@@ -143,6 +147,8 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

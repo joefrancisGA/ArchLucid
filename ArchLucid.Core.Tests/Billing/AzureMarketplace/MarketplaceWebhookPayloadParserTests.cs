@@ -250,6 +250,55 @@ public sealed class MarketplaceWebhookPayloadParserTests
     }
 
     [Theory]
+    [InlineData("excluding-enterprise-plan")]
+    [InlineData("exclude-enterprise-plan")]
+    [InlineData("excluded-enterprise-plan")]
+    [InlineData("contoso-excluding-enterprise-standard")]
+    [InlineData("contoso-exclude-enterprise-standard")]
+    [InlineData("excluding-enterprise-standard")]
+    [InlineData("except-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
+    }
+
+    [Theory]
+    [InlineData("minus-enterprise-plan")]
+    [InlineData("un-enterprise-plan")]
+    [InlineData("de-enterprise-plan")]
+    [InlineData("ex-enterprise-plan")]
+    [InlineData("pseudo-enterprise-plan")]
+    [InlineData("semi-enterprise-plan")]
+    [InlineData("sub-enterprise-plan")]
+    [InlineData("micro-enterprise-plan")]
+    [InlineData("less-enterprise-plan")]
+    [InlineData("lacking-enterprise-plan")]
+    [InlineData("omit-enterprise-plan")]
+    [InlineData("outside-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
+    }
+
+    [Theory]
+    [InlineData("except-enterprise-plan")]
+    [InlineData("pre-enterprise-plan")]
+    [InlineData("below-enterprise-plan")]
+    [InlineData("neither-enterprise-plan")]
+    [InlineData("bare-enterprise-plan")]
+    [InlineData("negate-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs(string planId)
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
+    }
+
+    [Theory]
     [InlineData("contoso/enterprise/monthly")]
     [InlineData("contoso:enterprise:annual")]
     public void TierStorageCodeFromPlanId_maps_slash_or_colon_delimited_enterprise_token(string planId)

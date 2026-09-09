@@ -9,6 +9,8 @@ export const AZURE_CLOUD_CONNECTION_SKIP_LINK_LABEL = "Skip to Azure connection 
 export const AZURE_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "azure-cloud-connection-header-claim-discipline" as const;
 
+export const AZURE_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID = "azure-cloud-connection-orientation-bottom" as const;
+
 export const AZURE_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER =
   "Configure read-only Azure inventory through a federated service principal — review the security preflight, provision identity access, then save and validate your connection." as const;
 
@@ -19,6 +21,9 @@ export const AZURE_CLOUD_CONNECTION_START_HERE_LEAD =
 
 export const AZURE_CLOUD_CONNECTION_PAGE_LEAD =
   "Connect read-only Azure inventory through a federated service principal — no client secrets stored." as const;
+
+export const AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW =
+  "Use the start-here checklist above for security preflight and federated credential setup, then complete connection details and validation below before treating inventory as authoritative." as const;
 
 export function azureCloudConnectionPageOverview(
   buyerPolishedShell: boolean,

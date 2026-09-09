@@ -11,6 +11,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -41,6 +43,8 @@ public sealed partial class RunComparisonController(
     IComparisonAuditService comparisonAuditService,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IValidator<RunPairQuery> runPairQueryValidator)
     : ControllerBase
 {
@@ -69,6 +73,12 @@ public sealed partial class RunComparisonController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IValidator<RunPairQuery> _runPairQueryValidator =
         runPairQueryValidator ?? throw new ArgumentNullException(nameof(runPairQueryValidator));

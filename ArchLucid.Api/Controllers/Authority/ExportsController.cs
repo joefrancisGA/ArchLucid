@@ -10,6 +10,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -74,8 +75,19 @@ public sealed partial class ExportsController(
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> GetExportRecord([FromRoute] string exportRecordId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetExportRecord(
+        [FromRoute] string exportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
         return result.Outcome switch
         {
@@ -95,8 +107,28 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> CompareExportRecords(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
-        CancellationToken cancellationToken) =>
-        MapExportRecordDiffResult(await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
+        return MapExportRecordDiffResult(
+            await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+    }
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/compare/summary")]
@@ -109,8 +141,25 @@ public sealed partial class ExportsController(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
         [FromBody] PersistComparisonRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
         request ??= new PersistComparisonRequest();
         ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
             leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
@@ -131,9 +180,18 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> ReplayExportRecord(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ExportReplayQueryResult result;
 
@@ -171,9 +229,18 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> ReplayExportRecordMetadata(
         [FromRoute] string exportRecordId,
         [FromBody] ApiReplayExportRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayExportRequest();
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ExportReplayQueryResult result;
 

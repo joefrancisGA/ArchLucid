@@ -46,8 +46,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { AzureCloudConnectionDetailClient } from "./AzureCloudConnectionDetailClient";
 import {
+  AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW,
   AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
   AZURE_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AZURE_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID,
   AZURE_CLOUD_CONNECTION_PAGE_LEAD,
   AZURE_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER,
   AZURE_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
@@ -86,20 +88,28 @@ describe("AzureCloudConnectionDetailClient buyer-polished shell (IAZ)", () => {
     const primaryContent = screen.getByTestId(AZURE_CLOUD_CONNECTION_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("azure-cloud-connection-action-panel");
-    const orientationBottom = screen.getByTestId("azure-cloud-connection-orientation-bottom");
+    const overview = screen.getByTestId("azure-cloud-connection-overview");
+    const workspace = screen.getByTestId("cloud-provider-detail-azure");
+    const orientationBottom = screen.getByTestId(AZURE_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("cloud-connections-azure-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("azure-cloud-connection-intro")).toHaveTextContent(AZURE_CLOUD_CONNECTION_PAGE_LEAD);
+    expect(screen.getByTestId("azure-cloud-connection-overview")).toHaveTextContent(AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
+    expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 
     for (const source of filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("azure"))) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

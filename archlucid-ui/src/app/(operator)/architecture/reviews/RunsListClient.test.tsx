@@ -34,6 +34,10 @@ const runsListSearchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const runsListWorkspaceModeHarness = vi.hoisted(() => ({
+  mode: "working" as "working" | "guided",
+}));
+
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -49,6 +53,21 @@ vi.mock("next/navigation", async (importOriginal) => {
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
+  };
+});
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceMode: () => ({
+      mode: runsListWorkspaceModeHarness.mode,
+      mounted: true,
+      accountSyncState: "synced",
+      isWorkingMode: runsListWorkspaceModeHarness.mode === "working",
+      setAndPersist: vi.fn(),
+    }),
   };
 });
 
@@ -69,6 +88,7 @@ import type { RunSummary } from "@/types/authority";
 
 beforeEach(() => {
   buyerPolishedShellVitestOverride.value = false;
+  runsListWorkspaceModeHarness.mode = "working";
   runsListSearchParamsHarness.reset();
 });
 
@@ -247,6 +267,7 @@ describe("RunsListClient inspector", () => {
 
   it("buyer-polished: uses finalized section heading and scope chips", () => {
     buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
 
     const committed: RunSummary = {
       ...sampleRun,
@@ -272,6 +293,7 @@ describe("RunsListClient inspector", () => {
 
   it("buyer-polished: hides list filters when exactly one review exists", () => {
     buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
 
     const committed: RunSummary = {
       ...sampleRun,
@@ -287,6 +309,7 @@ describe("RunsListClient inspector", () => {
 
   it("buyer-polished: finalized scope hides in-flight runs", () => {
     buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
 
     const inFlight: RunSummary = {
       ...sampleRun,
@@ -306,5 +329,45 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
     expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+  });
+
+  it("buyer-polished: card layout opens inspector preview when the card shell is activated", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    render(<RunsListClient runs={[committed]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+
+    fireEvent.click(screen.getByTestId(`runs-row-${committed.runId}`));
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+  });
+
+  it("Escape in the filter field clears the query without closing an open inspector", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Demo" } });
+    fireEvent.keyDown(filterInput, { key: "Escape", code: "Escape" });
+
+    expect(filterInput).toHaveValue("");
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 });

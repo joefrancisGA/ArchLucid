@@ -229,9 +229,78 @@ public sealed class DecisionGradeFusionApplicatorTests
         context.Snapshot!.Findings.Should().HaveCount(3);
         context.Snapshot.Findings.Should().Contain(static finding => finding.FindingId == "seg-1");
         context.Snapshot.Findings.Should().Contain(static finding => finding.FindingId == "df-1");
-        context.Snapshot.Findings.Should().ContainSingle(finding =>
-            finding.EngineType == DecisionGradeFusionApplicator.EngineType);
+        Finding fusion = context.Snapshot.Findings.Should().ContainSingle(finding =>
+            finding.EngineType == DecisionGradeFusionApplicator.EngineType).Subject;
+        fusion.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        string fusionFindingId = fusion.FindingId;
+        context.Snapshot.Findings.Where(static finding =>
+                finding.FindingId is "seg-1" or "df-1")
+            .Should()
+            .OnlyContain(finding =>
+                finding.Classification == FindingClassification.ChecklistCoverage
+                && finding.Treatment == FindingTreatment.DemoteToChecklist
+                && finding.Trace.Notes.Any(note =>
+                    note.StartsWith("evidence:fused-into:", StringComparison.OrdinalIgnoreCase)
+                    && note.Contains(fusionFindingId, StringComparison.Ordinal)));
         context.SuccessfulEngineTypes.Should().Contain(DecisionGradeFusionApplicator.EngineType);
+    }
+
+    [Fact]
+    public async Task DecisionGradeFusionStage_leaves_unfused_decision_grade_row_unchanged()
+    {
+        Finding fusedA = CreateDecisionGradeFinding(
+            "seg-1",
+            "segmentation-semantics",
+            "NSG 3389",
+            ["nsg-1"],
+            ["doc:a#L1"],
+            insightDensityScore: 82);
+        Finding fusedB = CreateDecisionGradeFinding(
+            "df-1",
+            "data-flow-trust-boundary",
+            "Path to PCI",
+            ["nsg-1"],
+            ["doc:b#L2"],
+            insightDensityScore: 91);
+        Finding unfused = CreateDecisionGradeFinding(
+            "oc-solo",
+            "open-commitment",
+            "Waiver on another node",
+            ["sql-other"],
+            ["doc:c#L3"],
+            insightDensityScore: 77);
+
+        FindingsStageContext context = new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = Guid.NewGuid(),
+                RunId = Guid.NewGuid(),
+            },
+            Snapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = Guid.NewGuid(),
+                RunId = Guid.NewGuid(),
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                Findings = [fusedA, fusedB, unfused],
+            },
+        };
+
+        FindingsDecisionGradeFusionStage stage = new();
+        await stage.ExecuteAsync(context, CancellationToken.None);
+
+        Finding fusion = context.Snapshot!.Findings.Should().ContainSingle(finding =>
+            finding.EngineType == DecisionGradeFusionApplicator.EngineType).Subject;
+        fusion.InsightDensityScore.Should().Be(91);
+        fusion.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        unfused.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        unfused.Treatment.Should().Be(FindingTreatment.Promote);
+        fusedA.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        fusedB.Classification.Should().Be(FindingClassification.ChecklistCoverage);
     }
 
     [Fact]
@@ -255,7 +324,8 @@ public sealed class DecisionGradeFusionApplicatorTests
         string engineType,
         string title,
         IReadOnlyList<string> relatedNodeIds,
-        IReadOnlyList<string>? evidenceRefs = null)
+        IReadOnlyList<string>? evidenceRefs = null,
+        int? insightDensityScore = null)
     {
         return new Finding
         {
@@ -268,6 +338,7 @@ public sealed class DecisionGradeFusionApplicatorTests
             Rationale = title,
             Classification = FindingClassification.DecisionGradeFinding,
             Treatment = FindingTreatment.Promote,
+            InsightDensityScore = insightDensityScore,
             RelatedNodeIds = relatedNodeIds.ToList(),
             EvidenceRefs = (evidenceRefs ?? []).ToList(),
             Trace = new ExplainabilityTrace(),

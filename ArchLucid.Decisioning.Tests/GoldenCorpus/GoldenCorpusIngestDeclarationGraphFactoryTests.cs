@@ -47,4 +47,18 @@ public sealed class GoldenCorpusIngestDeclarationGraphFactoryTests
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("data-flow-trust-boundary");
     }
+
+    [Fact]
+    public async Task CreateCase65TerraformIdentityPathGraphAsync_emits_identity_blast_radius_finding()
+    {
+        GraphSnapshot graph = await GoldenCorpusIngestDeclarationGraphFactory
+            .CreateCase65TerraformIdentityPathGraphAsync();
+
+        IdentityBlastRadiusFindingEngine engine = new();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        findings.Should().OnlyContain(finding => finding.EngineType == "identity-blast-radius");
+    }
 }

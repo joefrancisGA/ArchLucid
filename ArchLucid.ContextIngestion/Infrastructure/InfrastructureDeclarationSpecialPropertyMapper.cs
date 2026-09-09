@@ -1,7 +1,8 @@
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
-///     Promotes federated-identity and DNS / Front Door properties to stable graph keys (DX-31).
+///     Promotes federated-identity, DNS / Front Door, and IAM / data-flow path properties to stable graph keys
+///     (DX-31, DX-69).
 /// </summary>
 internal static class InfrastructureDeclarationSpecialPropertyMapper
 {
@@ -17,6 +18,7 @@ internal static class InfrastructureDeclarationSpecialPropertyMapper
 
         MapFederatedIdentityProperties(properties, typeDiscriminator, resourceName);
         MapDnsTopologyProperties(properties, typeDiscriminator, resourceName);
+        MapIamAndDataFlowPathProperties(properties);
     }
 
     private static void MapFederatedIdentityProperties(
@@ -69,6 +71,49 @@ internal static class InfrastructureDeclarationSpecialPropertyMapper
         }
     }
 
+    private static void MapIamAndDataFlowPathProperties(Dictionary<string, string> properties)
+    {
+        TryPromoteStableProperty(
+            properties,
+            "principalId",
+            "principalId",
+            "principal_id",
+            "identity.principalId",
+            "identity_principalId",
+            "identity_principal_id");
+        TryPromoteStableProperty(
+            properties,
+            "roleName",
+            "roleName",
+            "role_name",
+            "roleDefinitionName",
+            "role_definition_name");
+        TryPromoteStableProperty(
+            properties,
+            "declarationTargetResourceId",
+            "scope",
+            "targetResourceId",
+            "target_resource_id");
+        TryPromoteStableProperty(
+            properties,
+            "declarationBackendNodeId",
+            "backend",
+            "backend_service",
+            "backendAddressPool",
+            "backend_address_pool",
+            "targetCompute",
+            "target_compute");
+
+        if (ContainsNonEmpty(properties, "connectedToNodeIds"))
+            return;
+
+        if (!TryGetIgnoreCase(properties, "declarationBackendNodeId", out string? backend)
+            || string.IsNullOrWhiteSpace(backend))
+            return;
+
+        properties["connectedToNodeIds"] = backend.Trim();
+    }
+
     private static bool IsFederatedIdentityType(string typeDiscriminator)
     {
         string normalized = typeDiscriminator.Trim().ToLowerInvariant();
@@ -90,7 +135,7 @@ internal static class InfrastructureDeclarationSpecialPropertyMapper
         string stableKey,
         params string[] tfKeyCandidates)
     {
-        if (properties.ContainsKey(stableKey))
+        if (ContainsNonEmpty(properties, stableKey))
             return;
 
         foreach (string candidate in tfKeyCandidates)
@@ -98,12 +143,40 @@ internal static class InfrastructureDeclarationSpecialPropertyMapper
             string sanitized = CanonicalInfrastructurePropertyBag.SanitizePropertyKey(candidate).ToLowerInvariant();
             string tfKey = $"tf.{sanitized}";
 
-            if (!properties.TryGetValue(tfKey, out string? tfValue) || string.IsNullOrWhiteSpace(tfValue))
-                continue;
-
-            properties[stableKey] = tfValue;
-
-            return;
+            if (TryGetIgnoreCase(properties, tfKey, out string? value)
+                || TryGetIgnoreCase(properties, candidate, out value)
+                || TryGetIgnoreCase(properties, sanitized, out value))
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    properties[stableKey] = value.Trim();
+                    return;
+                }
+            }
         }
+    }
+
+    private static bool ContainsNonEmpty(Dictionary<string, string> properties, string key)
+    {
+        return TryGetIgnoreCase(properties, key, out string? value) && !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static bool TryGetIgnoreCase(
+        Dictionary<string, string> properties,
+        string key,
+        out string? value)
+    {
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(entry.Value))
+            {
+                value = entry.Value;
+                return true;
+            }
+        }
+
+        value = null;
+        return false;
     }
 }

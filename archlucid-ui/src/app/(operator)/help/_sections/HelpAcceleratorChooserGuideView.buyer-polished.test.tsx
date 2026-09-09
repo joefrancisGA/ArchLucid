@@ -50,6 +50,7 @@ import {
   ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
   ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
   ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID,
+  ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/accelerator-chooser-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -98,6 +99,9 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
       screen.getByTestId("help-accelerator-chooser-intro"),
     );
     expect(
+      screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("help-accelerator-chooser-overview"));
+    expect(
       screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
         screen.getByTestId("help-accelerator-chooser-overview"),
       ) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -108,6 +112,8 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
 
     const primary = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("help-accelerator-chooser-overview");
+    const workspace = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID);
     const packs = screen.getByTestId("help-accelerator-chooser-packs");
     const orientation = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-accelerator-chooser-sources");
@@ -115,11 +121,11 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
     expect(primary).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-accelerator-chooser-start-here-panel"));
     expect(screen.queryByTestId("help-accelerator-chooser-action-panel")).not.toBeInTheDocument();
-    expect(primary).toContainElement(packs);
+    expect(primary).toContainElement(overview);
+    expect(primary).toContainElement(workspace);
     expect(primary).toContainElement(orientation);
+    expect(workspace).toContainElement(packs);
     expect(orientation).toContainElement(sourcesSection);
-    expect(firstViewport.compareDocumentPosition(packs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packs.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(screen.getByRole("heading", { level: 2, name: ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
@@ -129,5 +135,9 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

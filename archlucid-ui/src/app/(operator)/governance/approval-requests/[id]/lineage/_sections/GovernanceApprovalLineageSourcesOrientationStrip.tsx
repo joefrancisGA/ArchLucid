@@ -7,6 +7,7 @@ import {
   APPROVAL_LINEAGE_SOURCES,
   APPROVAL_LINEAGE_SOURCES_INTRO,
 } from "@/lib/approval-lineage-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/governance/approval-requests/[id]/lineage` buyer-polished shell (GAI). */
 export function GovernanceApprovalLineageSourcesOrientationStrip(): React.JSX.Element {
@@ -19,6 +20,7 @@ export function GovernanceApprovalLineageSourcesOrientationStrip(): React.JSX.El
       sources={APPROVAL_LINEAGE_SOURCES}
       sourcesTestId="approval-lineage-sources"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

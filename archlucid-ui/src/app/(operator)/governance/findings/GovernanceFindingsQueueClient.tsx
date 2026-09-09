@@ -35,7 +35,7 @@ import {
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
-import { governanceFindingsClearAllFiltersHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
+import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
 import { governanceFindingsClearReviewScopeHref } from "@/lib/governance/governance-findings-clear-review-scope-url";
 import { governanceFindingsPickReviewForTriageHref } from "@/lib/governance/governance-findings-pick-review-url";
 import { parseGovernanceFindingsSearchQuery } from "@/lib/governance/governance-findings-queue-search";
@@ -167,9 +167,13 @@ export default function GovernanceFindingsQueueClient({
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const showAllFilteredFindings = useCallback((): void => {
-    setHideGenericLowDensity(false);
-    clearAllFilters();
-  }, [clearAllFilters, setHideGenericLowDensity]);
+    setRegisterFilter("all");
+    clearFacetFilters();
+    router.replace(
+      governanceFindingsShowAllFilteredFindingsHref(searchParams.toString(), navHref),
+      { scroll: false },
+    );
+  }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const onPickReviewForTriage = useCallback(
     (reviewId: string) => {

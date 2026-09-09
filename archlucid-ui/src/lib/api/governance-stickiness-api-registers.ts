@@ -1,5 +1,4 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet } from "./http";
 import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,
@@ -45,7 +44,7 @@ export async function getGovernanceAssignedToMeFindingsCount(
   }
 
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet<GovernanceAssignedToMeFindingsCountResponse>(
+  return apiGetSealedManifestAware<GovernanceAssignedToMeFindingsCountResponse>(
     `${governanceStickinessBase()}/risk-register/assigned-to-me-count${suffix}`,
   );
 }

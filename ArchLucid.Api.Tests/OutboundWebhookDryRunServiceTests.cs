@@ -1,8 +1,10 @@
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Security;
 using ArchLucid.Host.Composition.Services;
 using ArchLucid.Host.Core.Services.Delivery;
 
@@ -142,6 +144,54 @@ public sealed class OutboundWebhookDryRunServiceTests
 
         handler.LastRequest.Should().NotBeNull();
         handler.LastRequest!.Headers.Contains(WebhookSignature.HeaderName).Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect()
+    {
+        using HttpClient http = CreateWebhookProbeHttpClientWithConnectGuard();
+        OutboundWebhookDryRunService service = new(http);
+
+        OutboundWebhookDryRunResult result = await service.ProbeWithBodyAsync(
+            new Uri("https://127.0.0.1/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            CancellationToken.None);
+
+        result.TransportSucceeded.Should().BeFalse();
+        result.StatusCode.Should().Be(0);
+        result.Error.Should().Contain("private network");
+    }
+
+    [SkippableFact]
+    public async Task ProbeWithBodyAsync_succeeds_against_loopback_without_connect_guard()
+    {
+        CapturingHandler handler = new();
+        using HttpClient http = new(handler);
+        OutboundWebhookDryRunService service = new(http);
+
+        OutboundWebhookDryRunResult result = await service.ProbeWithBodyAsync(
+            new Uri("https://127.0.0.1/webhook"),
+            sharedSecret: null,
+            OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8(),
+            CancellationToken.None);
+
+        result.TransportSucceeded.Should().BeTrue(
+            "HttpMessageHandler-based tests bypass socket connect and document the rebind gap closed by ConnectCallback.");
+    }
+
+    private static HttpClient CreateWebhookProbeHttpClientWithConnectGuard()
+    {
+        SocketsHttpHandler handler = new()
+        {
+            AllowAutoRedirect = false,
+            ConnectCallback = OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync
+        };
+
+        return new HttpClient(handler, disposeHandler: true)
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
     }
 
     private sealed class OversizedResponseHandler(int totalChars) : HttpMessageHandler

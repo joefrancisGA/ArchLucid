@@ -44,6 +44,7 @@ import {
   AI_USAGE_HELP_SKIP_LINK_LABEL,
   AI_USAGE_HELP_SKIP_TARGET_ID,
   AI_USAGE_HELP_START_HERE_HELPER,
+  AI_USAGE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/ai-usage-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -87,13 +88,16 @@ describe("HelpAiUsageGuideView buyer-polished shell (HAI)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-ai-usage-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(tileItems);
+    const workspace = screen.getByTestId(AI_USAGE_HELP_WORKSPACE_TEST_ID);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(tileItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(tileItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(tileItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("help-ai-usage-start-here-helper")).toHaveTextContent(AI_USAGE_HELP_START_HERE_HELPER);
     expect(
       within(actionPanel).getByRole("link", { name: AI_USAGE_HELP_PRIMARY_ACTION.label }),

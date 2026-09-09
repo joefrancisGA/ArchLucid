@@ -167,7 +167,7 @@ export function HelpDocsClient() {
     return mergedEntries.filter((e) => {
       const localizedTitle = localize(e.title);
       const localizedSummary = localize(e.summary);
-      const hay = `${e.title} ${e.summary} ${localizedTitle} ${localizedSummary}`.toLowerCase();
+      const hay = `${e.category} ${e.title} ${e.summary} ${e.url} ${localizedTitle} ${localizedSummary}`.toLowerCase();
 
       return hay.includes(q);
     });
@@ -225,7 +225,7 @@ export function HelpDocsClient() {
             clearSearch();
           }
         }}
-        placeholder="Filter by title or summary"
+        placeholder="Filter by title, summary, category, or URL"
         className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
         autoComplete="off"
       />

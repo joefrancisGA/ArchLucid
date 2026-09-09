@@ -15,6 +15,7 @@ export const DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM = "snapshotId";
 export const DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const DRIFT_WORKBENCH_CHANGE_ID_PARAM = "changeId";
 export const DRIFT_WORKBENCH_DIFF_ID_PARAM = "diffId";
+export const DRIFT_WORKBENCH_RUN_ID_PARAM = "runId";
 export const REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const REMEDIATION_WORKBENCH_FINDING_ID_PARAM = "findingId";
 export const REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM = "instanceId";
@@ -61,6 +62,10 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
 
   if (context.diffId != null && context.diffId.trim().length > 0) {
     params.set(DRIFT_WORKBENCH_DIFF_ID_PARAM, context.diffId.trim());
+  }
+
+  if (context.runId != null && context.runId.trim().length > 0) {
+    params.set(DRIFT_WORKBENCH_RUN_ID_PARAM, context.runId.trim());
   }
 
   if (context.assessmentId != null && context.assessmentId.trim().length > 0) {

@@ -4,7 +4,9 @@ using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
@@ -12,6 +14,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -32,13 +36,25 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public sealed class GovernanceCoverageController(
+public sealed partial class GovernanceCoverageController(
     ICoverageQueryService coverageQueryService,
     ICoveragePreviewService coveragePreviewService,
     IPolicyPackRepository policyPackRepository,
     IScopeContextProvider scopeContextProvider,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -50,6 +66,7 @@ public sealed class GovernanceCoverageController(
     [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PreviewCoverage(
         [FromBody] CoveragePreviewRequest? request,
         CancellationToken cancellationToken)
@@ -71,6 +88,12 @@ public sealed class GovernanceCoverageController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
         CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
         CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
@@ -81,6 +104,7 @@ public sealed class GovernanceCoverageController(
     [HttpGet("coverage")]
     [ProducesResponseType(typeof(CoverageSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)
     {
         (IActionResult? scopeProblem, ScopeContext scope) = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
@@ -91,6 +115,12 @@ public sealed class GovernanceCoverageController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
 

@@ -60,26 +60,10 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-            if (detail?.GoldenManifest is not null)
-            {
-                try
-                {
-                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                        detail.GoldenManifest,
-                        runGuid.ToString("D"),
-                        manifestHashService);
-                }
-                catch (ConflictException ex)
-                {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-                }
-            }
-        }
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ArchitectureRunProvenanceGraph? graph =
             await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
@@ -101,6 +85,7 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/provenance/{nodeId}/explanation")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetProvenanceNodeExplanation(
         [FromRoute] string runId,
         [FromRoute] string nodeId,
@@ -108,6 +93,11 @@ public sealed partial class RunQueryController
     {
         if (string.IsNullOrWhiteSpace(nodeId))
             return this.BadRequestProblem("Node id is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);

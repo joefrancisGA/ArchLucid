@@ -10,6 +10,8 @@ import {
 export function DriftSnapshotIdentifiers(props: {
   readonly snapshotId: string;
   readonly diffId: string;
+  readonly open: boolean;
+  readonly onToggle: (open: boolean) => void;
 }): React.JSX.Element {
   return (
     <CollapsibleSection
@@ -17,6 +19,8 @@ export function DriftSnapshotIdentifiers(props: {
       summaryLine={GOVERNANCE_INFRASTRUCTURE_DRIFT_IDENTIFIERS_SUMMARY}
       sectionTestId="infra-drift-snapshot-identifiers"
       className="mb-0"
+      open={props.open}
+      onToggle={props.onToggle}
     >
       <div className="grid gap-2">
         <DriftIdentifierRow

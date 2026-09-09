@@ -106,6 +106,7 @@ public sealed class InternalArchitectureTraceForensicsController(
     [HttpGet("traces/forensics/{traceId}")]
     [ProducesResponseType(typeof(AgentExecutionTrace), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetTraceForensicsByTraceId(
         [FromRoute] string traceId,
         CancellationToken cancellationToken = default)
@@ -121,6 +122,17 @@ public sealed class InternalArchitectureTraceForensicsController(
 
         if (!await RunExistsInScopeAsync(trace.RunId, cancellationToken))
             return this.NotFoundProblem($"Trace '{traceId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        if (!TryParseRunId(trace.RunId, out Guid runGuid))
+            return Ok(trace);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         return Ok(trace);
     }

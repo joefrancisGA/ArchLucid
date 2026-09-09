@@ -80,6 +80,45 @@ public static class FindingEvidenceRefs
         }
     }
 
+    /// <summary>
+    ///     DX-70: <c>doc:</c> citations are concrete for demotion only when they include a
+    ///     <c>#L</c> line anchor plus at least one digit (for example <c>doc:architecture.md#L12</c>
+    ///     or <c>doc:architecture.md#L12-18</c>). Heading fragments such as <c>#services</c> are not line anchors.
+    /// </summary>
+    public static bool HasLineAnchoredDocRef(string? evidenceRef)
+    {
+        if (string.IsNullOrWhiteSpace(evidenceRef))
+            return false;
+
+        string trimmed = evidenceRef.Trim();
+
+        if (!trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        int hashIndex = trimmed.IndexOf('#');
+
+        if (hashIndex < 0 || hashIndex + 2 >= trimmed.Length)
+            return false;
+
+        if (trimmed[hashIndex + 1] is not ('L' or 'l'))
+            return false;
+
+        ReadOnlySpan<char> afterL = trimmed.AsSpan(hashIndex + 2);
+
+        foreach (char character in afterL)
+        {
+            if (char.IsAsciiDigit(character))
+                return true;
+
+            if (character == '-')
+                continue;
+
+            break;
+        }
+
+        return false;
+    }
+
     internal static string? TryFormatInventoryResourceId(string? resourceId)
     {
         if (string.IsNullOrWhiteSpace(resourceId))

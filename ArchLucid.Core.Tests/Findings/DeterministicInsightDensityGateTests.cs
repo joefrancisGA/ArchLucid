@@ -38,7 +38,7 @@ public sealed class DeterministicInsightDensityGateTests
         InsightDensityGateCandidate candidate = new(
             "engine-f2",
             "SecretManagementUnderSpecified",
-            ["doc:manifest.json#services"],
+            ["doc:manifest.json#L10"],
             FindingSeverity.Warning,
             category: "Security",
             isAgentArchitectureFinding: false);
@@ -48,6 +48,24 @@ public sealed class DeterministicInsightDensityGateTests
         result.Treatment.Should().Be(FindingTreatment.Promote);
         result.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
         result.PenaltyReasons.Should().Contain("typed-engine-scored");
+    }
+
+    [Fact]
+    public void Score_demotes_under_specified_title_when_doc_ref_has_no_line_anchor()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-f2-heading",
+            "SecretManagementUnderSpecified",
+            ["doc:manifest.json#services"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(candidate.EvidenceRefs).Should().BeFalse();
     }
 
     [Fact]
@@ -111,7 +129,7 @@ public sealed class DeterministicInsightDensityGateTests
         InsightDensityGateCandidate candidate = new(
             "f2",
             "SecretManagementUnderSpecified",
-            ["doc:manifest.json#services"],
+            ["doc:manifest.json#L10"],
             FindingSeverity.Warning);
 
         InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
@@ -560,7 +578,7 @@ public sealed class DeterministicInsightDensityGateTests
         {
             FindingId = "agent-f2",
             Message = "SecretManagementUnderSpecified",
-            EvidenceRefs = ["doc:manifest.json#services"],
+            EvidenceRefs = ["doc:manifest.json#L10"],
             Severity = FindingSeverity.Warning,
             Category = "Security",
         };
@@ -569,5 +587,145 @@ public sealed class DeterministicInsightDensityGateTests
 
         candidate.EngineType.Should().BeEmpty();
         candidate.RelatedNodeIds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Score_no_refs_stays_sixty_and_demotes_at_threshold_sixty_five()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-dx72-none",
+            "No topology resources were found",
+            [],
+            FindingSeverity.Warning,
+            category: "Topology",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.InsightDensityScore.Should().Be(60);
+        result.PenaltyReasons.Should().Contain("no-concrete-evidence");
+        result.PenaltyReasons.Should().Contain("no-architecture-anchor");
+        result.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
+
+    [Fact]
+    public void Score_policy_rule_only_does_not_add_inventory_or_line_bonus()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-dx72-policy",
+            "SecretManagementUnderSpecified",
+            ["policy-rule:cis-az-006"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.PenaltyReasons.Should().NotContain("inventory-shaped-evidence");
+        result.PenaltyReasons.Should().NotContain("line-anchored-doc");
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(candidate.EvidenceRefs).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Score_inventory_shaped_arm_adds_ten_versus_policy_rule_sibling()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
+        InsightDensityGateCandidate policyOnly = new(
+            "engine-dx72-policy-sib",
+            "SecretManagementUnderSpecified",
+            ["policy-rule:cis-az-006"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+        InsightDensityGateCandidate inventory = new(
+            "engine-dx72-arm-sib",
+            "SecretManagementUnderSpecified",
+            [$"graph-node:{storageArmId}"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult policyResult = Gate.Score(policyOnly, [policyOnly]);
+        InsightDensityGateResult inventoryResult = Gate.Score(inventory, [inventory]);
+
+        inventoryResult.PenaltyReasons.Should().Contain("inventory-shaped-evidence");
+        policyResult.PenaltyReasons.Should().NotContain("inventory-shaped-evidence");
+        policyResult.PenaltyReasons.Should().Contain("weak-architecture-anchor");
+        inventoryResult.PenaltyReasons.Should().NotContain("weak-architecture-anchor");
+        inventoryResult.PenaltyReasons.Should().NotContain("no-architecture-anchor");
+    }
+
+    [Fact]
+    public void Score_line_anchored_doc_adds_five_not_ten()
+    {
+        InsightDensityGateCandidate candidate = new(
+            "engine-dx72-doc",
+            "SecretManagementUnderSpecified",
+            ["doc:architecture.md#L12"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.PenaltyReasons.Should().Contain("line-anchored-doc");
+        result.PenaltyReasons.Should().NotContain("inventory-shaped-evidence");
+        result.Treatment.Should().Be(FindingTreatment.Promote);
+    }
+
+    [Fact]
+    public void Score_inventory_and_line_anchored_doc_stack_inventory_bonus_once()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
+        InsightDensityGateCandidate inventoryOnly = new(
+            "engine-dx72-inv",
+            "SecretManagementUnderSpecified",
+            [storageArmId],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+        InsightDensityGateCandidate both = new(
+            "engine-dx72-both",
+            "SecretManagementUnderSpecified",
+            [storageArmId, "doc:architecture.md#L12"],
+            FindingSeverity.Warning,
+            category: "Security",
+            isAgentArchitectureFinding: false);
+
+        InsightDensityGateResult inventoryResult = Gate.Score(inventoryOnly, [inventoryOnly]);
+        InsightDensityGateResult bothResult = Gate.Score(both, [both]);
+
+        bothResult.PenaltyReasons.Should().Contain("inventory-shaped-evidence");
+        bothResult.PenaltyReasons.Should().NotContain("line-anchored-doc");
+        bothResult.InsightDensityScore.Should().Be(inventoryResult.InsightDensityScore);
+    }
+
+    [Fact]
+    public void Score_impact_witness_stacks_with_inventory_and_clamps_at_one_hundred()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
+        InsightDensityGateCandidate candidate = new(
+            "engine-dx72-hops",
+            "Machine actor reaches regulated datastore through Contributor role assignment.",
+            [storageArmId],
+            FindingSeverity.Error,
+            category: "Security",
+            isAgentArchitectureFinding: false,
+            engineType: "identity-blast-radius",
+            relatedNodeIds: ["sql-prod"],
+            impactHopCount: 4);
+
+        InsightDensityGateResult result = Gate.Score(candidate, [candidate]);
+
+        result.PenaltyReasons.Should().Contain("inventory-shaped-evidence");
+        result.PenaltyReasons.Should().Contain("impact-witness");
+        result.InsightDensityScore.Should().BeLessThanOrEqualTo(100);
+        result.Treatment.Should().Be(FindingTreatment.Promote);
     }
 }

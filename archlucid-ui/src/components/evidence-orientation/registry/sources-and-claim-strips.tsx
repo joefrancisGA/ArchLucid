@@ -57,6 +57,7 @@ import {
   PRIVACY_SOURCES_INTRO,
 } from "@/lib/privacy-evidence-copy";
 import {
+  QUICK_SCAN_FOLLOW_UPS_TITLE,
   QUICK_SCAN_SOURCES,
   QUICK_SCAN_SOURCES_INTRO,
 } from "@/lib/quick-scan-evidence-copy";
@@ -286,6 +287,7 @@ export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
       align="text-left"
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
+      sourcesTitle={QUICK_SCAN_FOLLOW_UPS_TITLE}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading=""
       claim=""

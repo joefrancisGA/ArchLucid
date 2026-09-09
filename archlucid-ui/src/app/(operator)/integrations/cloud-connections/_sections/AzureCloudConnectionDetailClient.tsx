@@ -27,6 +27,7 @@ import { AzureConnectionRecentActivityPanel } from "./AzureConnectionRecentActiv
 import { AzureConnectionValidatePanel } from "./AzureConnectionValidatePanel";
 import {
   AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
+  AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW,
   AZURE_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AZURE_CLOUD_CONNECTION_PAGE_LEAD,
   AZURE_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
@@ -113,11 +114,13 @@ function AzureConnectionDetailBody(): React.ReactElement {
     <CloudProviderDetailLayout
       providerLabel="Azure"
       overview={
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          {localize(
-            "Connect selected Azure subscriptions for scheduled read-only evidence collection. ArchLucid stores connection metadata only — no client secrets.",
-          )}
-        </p>
+        buyerPolishedShell ? undefined : (
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            {localize(
+              "Connect selected Azure subscriptions for scheduled read-only evidence collection. ArchLucid stores connection metadata only — no client secrets.",
+            )}
+          </p>
+        )
       }
       securityPreflight={
         <CloudSecurityPreflightPanel
@@ -204,25 +207,32 @@ export function AzureCloudConnectionDetailClient() {
           <AzureCloudConnectionPageHeader />
 
           {buyerPolishedShell ? (
-            <div
-              id={AZURE_CLOUD_CONNECTION_SKIP_TARGET_ID}
-              data-testid={AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
-              className={cn(
-                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                OPERATOR_LAYOUT.sectionStack,
-              )}
-            >
-              <div className="space-y-4" data-testid="azure-cloud-connection-buyer-intro">
-                <p className={readingBodyClass} data-testid="azure-cloud-connection-intro">
-                  {AZURE_CLOUD_CONNECTION_PAGE_LEAD}
-                </p>
+            <>
+              <div
+                id={AZURE_CLOUD_CONNECTION_SKIP_TARGET_ID}
+                data-testid={AZURE_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
+              >
+                <div className="space-y-4" data-testid="azure-cloud-connection-buyer-intro">
+                  <p className={readingBodyClass} data-testid="azure-cloud-connection-intro">
+                    {AZURE_CLOUD_CONNECTION_PAGE_LEAD}
+                  </p>
+                </div>
+                <AzureCloudConnectionStartHerePanel />
               </div>
-              <AzureCloudConnectionStartHerePanel />
-              <AzureConnectionDetailBody />
-            </div>
-          ) : (
-            <AzureConnectionDetailBody />
-          )}
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="azure-cloud-connection-overview"
+              >
+                {AZURE_CLOUD_CONNECTION_BUYER_OVERVIEW}
+              </p>
+            </>
+          ) : null}
+
+          <AzureConnectionDetailBody />
 
           {buyerPolishedShell ? <AzureCloudConnectionSourcesOrientationStrip /> : null}
         </div>
