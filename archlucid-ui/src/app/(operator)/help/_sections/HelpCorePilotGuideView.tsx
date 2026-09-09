@@ -34,9 +34,9 @@ import {
   CORE_PILOT_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/core-pilot-help-evidence-copy";
 import {
+  CORE_PILOT_HELP_BUYER_OVERVIEW,
   CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID,
   CORE_PILOT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID,
   CORE_PILOT_HELP_PAGE_LEAD,
   CORE_PILOT_HELP_PAGE_SUBTITLE_BUYER,
   CORE_PILOT_HELP_PRIMARY_CONTENT_ID,
@@ -375,6 +375,15 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             </div>
           )}
 
+          {buyerPolishedShell ? (
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-core-pilot-overview"
+            >
+              {CORE_PILOT_HELP_BUYER_OVERVIEW}
+            </p>
+          ) : null}
+
           <section aria-labelledby="run-the-first-review" className="space-y-3">
             <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
@@ -413,11 +422,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
       </div>
 
-      {buyerPolishedShell ? (
-        <div data-testid={CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-          <HelpCorePilotSourcesOrientationStrip />
-        </div>
-      ) : null}
+      {buyerPolishedShell ? <HelpCorePilotSourcesOrientationStrip /> : null}
     </>
   );
 
