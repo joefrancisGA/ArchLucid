@@ -16,6 +16,12 @@ export const HELP_TOPIC_CATCHALL_PAGE_LEAD =
 export const HELP_TOPIC_CATCHALL_OVERVIEW =
   "The topic body below renders registry markdown for this slug until a specialty guide owns the route.";
 
+/** Buyer bridge between first-viewport lead and residual markdown workspace (HE.). */
+export const HELP_TOPIC_CATCHALL_BUYER_OVERVIEW =
+  "The topic body and table of contents below render registry markdown for this slug until a specialty guide owns the route.";
+
+export const HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID = "help-topic-catchall-workspace" as const;
+
 export const HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER =

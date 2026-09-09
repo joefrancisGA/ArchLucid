@@ -53,6 +53,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_SKIP_LINK_LABEL,
   AUTHENTICATION_SIGN_IN_HELP_SKIP_TARGET_ID,
   AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER,
+  AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/authentication-sign-in-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -108,12 +109,15 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     expect(screen.getByTestId("help-authentication-sign-in-start-here-helper")).toHaveTextContent(
       AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER,
     );
+    expect(buyerFirstViewport).not.toContainElement(overview);
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(markdownFirstViewport);
+    const workspace = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(markdownFirstViewport);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(markdownFirstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(markdownFirstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("authentication-sign-in-help-sources");
 

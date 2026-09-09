@@ -141,8 +141,6 @@ public partial class ArtifactPackagingService
         using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, true))
         {
             StringBuilder readme = new StringBuilder()
-                .AppendLine(TerraformAdvisoryExportCopy.DisclaimerLine)
-                .AppendLine()
                 .AppendLine("ArchLucid Terraform advisory export (placeholder)")
                 .AppendLine("==========================================")
                 .AppendLine()

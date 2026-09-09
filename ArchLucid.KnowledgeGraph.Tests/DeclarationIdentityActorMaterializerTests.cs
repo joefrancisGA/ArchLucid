@@ -197,6 +197,32 @@ public sealed class DeclarationIdentityActorMaterializerTests
     }
 
     [Fact]
+    public void MaterializeFromNodes_emits_actor_for_google_service_account_terraform_type()
+    {
+        Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        GraphNode serviceAccount = new()
+        {
+            NodeId = "obj-sa-gcp",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "pay_runner",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-gcp-sa",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "google_service_account",
+            },
+        };
+
+        IReadOnlyList<GraphNode> actors =
+            DeclarationIdentityActorMaterializer.MaterializeFromNodes([serviceAccount], snapshotId);
+
+        actors.Should().ContainSingle();
+        actors[0].Properties["trustOrigin"].Should().Be(nameof(TrustOrigin.Internal));
+        actors[0].Properties["declarationSourceNodeId"].Should().Be("obj-sa-gcp");
+    }
+
+    [Fact]
     public void MaterializeFromNodes_maps_anonymous_property_to_public_anonymous_trust()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

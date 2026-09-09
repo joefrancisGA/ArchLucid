@@ -3,19 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 import {
+  ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_GOVERNANCE_FOLLOW_UPS_TITLE,
   ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID,
-  ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_SOURCES,
   ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE,
+  ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-governance-sources";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -103,16 +104,14 @@ describe("ArchitectureCreatedWorkspace buyer-polished Governance tab (REG)", () 
       ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
     );
     expect(screen.getByTestId("architecture-created-governance-overview")).toHaveTextContent(
-      ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
+      ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW,
     );
     expect(screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("architecture-created-governance-intro"),
     );
     expect(
-      screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
-        screen.getByTestId("architecture-created-governance-overview"),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("architecture-created-governance-overview"));
     expect(screen.getByTestId("architecture-created-governance-buyer-start-here-helper")).toHaveTextContent(
       ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
     );
@@ -133,16 +132,27 @@ describe("ArchitectureCreatedWorkspace buyer-polished Governance tab (REG)", () 
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("architecture-created-governance-overview");
+    const workspace = screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID);
     const orientationBottom = within(governancePanel).getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("architecture-governance-sources");
 
     expect(governancePanel).toContainElement(primaryContent);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(screen.getByTestId("governance-panel-slot"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_GOVERNANCE_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

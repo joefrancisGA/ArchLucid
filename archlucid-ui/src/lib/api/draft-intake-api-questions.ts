@@ -1,11 +1,12 @@
 import type { DraftQuestionsResponse, DraftRequestResponse } from "@/types/draft-intake";
 
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function getDraftQuestions(draftId: string): Promise<DraftQuestionsResponse> {
-  return apiGet<DraftQuestionsResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/questions`);
+  return apiGetSealedManifestAware<DraftQuestionsResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/questions`);
 }
 
 export type AnswerDraftQuestionOptions = {

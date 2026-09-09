@@ -58,7 +58,8 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph.ContextSnapshotId,
                 graph,
                 CancellationToken.None,
-                input!.InventoryFixture);
+                input!.InventoryFixture,
+                input.PriorGraphFixture);
 
             InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
                 snapshot,
@@ -128,7 +129,8 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph.ContextSnapshotId,
                 graph,
                 CancellationToken.None,
-                input!.InventoryFixture);
+                input!.InventoryFixture,
+                input.PriorGraphFixture);
 
             List<InsightDensityGateCandidate> candidates = snapshot.Findings
                 .Select(InsightDensityGateCandidate.FromFinding)

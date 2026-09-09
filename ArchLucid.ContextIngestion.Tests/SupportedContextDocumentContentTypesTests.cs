@@ -17,6 +17,12 @@ public sealed class SupportedContextDocumentContentTypesTests
     [InlineData("APPLICATION/VND.ARCHLUCID.DIAGRAM+JSON", true)]
     [InlineData("text/vnd.mermaid", true)]
     [InlineData("TEXT/VND.MERMAID", true)]
+    [InlineData("application/vnd.archlucid.diagram+svg", true)]
+    [InlineData("APPLICATION/VND.ARCHLUCID.DIAGRAM+SVG", true)]
+    [InlineData("application/vnd.jgraph.mxfile", true)]
+    [InlineData("APPLICATION/VND.JGRAPH.MXFILE", true)]
+    [InlineData("application/vnd.ms-visio.drawing.main+xml", true)]
+    [InlineData("APPLICATION/VND.MS-VISIO.DRAWING.MAIN+XML", true)]
     [InlineData("image/png", false)]
     [InlineData("application/pdf", false)]
     [InlineData("", false)]
@@ -34,6 +40,9 @@ public sealed class SupportedContextDocumentContentTypesTests
             "text/markdown",
             SupportedContextDocumentContentTypes.StructuredDiagramJson,
             SupportedContextDocumentContentTypes.Mermaid,
+            SupportedContextDocumentContentTypes.StructuredDiagramSvg,
+            SupportedContextDocumentContentTypes.DrawIoXml,
+            SupportedContextDocumentContentTypes.VisioVsdx,
         ]);
     }
 
