@@ -1615,3 +1615,5 @@
 {"at":"2026-09-09T06:40:16.8520959Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-09-09T06:44:50.1984945Z","zoneId":"ui-runs-list","outcome":"hit"}
 {"at":"2026-09-09T06:52:57.4341759Z","zoneId":"email-otp-auth","outcome":"hit"}
+{"at":"2026-09-09T07:01:55.1474999Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-09-09T07:11:42.6975181Z","zoneId":"host-composition","outcome":"dry"}
