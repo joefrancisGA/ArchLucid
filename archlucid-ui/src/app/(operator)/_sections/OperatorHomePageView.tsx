@@ -315,7 +315,7 @@ function OperatorHomePageBody(props: {
             </div>
           </div>
           <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="operator-home-overview"
           >
             {OPERATOR_HOME_BUYER_OVERVIEW}
