@@ -27,6 +27,19 @@ internal static partial class RunRepositoryCore
         return architectureRequestId.Trim();
     }
 
+    /// <summary>
+    ///     Normalizes architecture request ids for scope seeks: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeArchitectureRequestId(string architectureRequestId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(architectureRequestId);
+
+        return string.Join(
+            ' ',
+            architectureRequestId.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
+    }
+
     public static string RequireSystemName(string systemName)
     {
         if (string.IsNullOrWhiteSpace(systemName))

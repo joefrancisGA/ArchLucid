@@ -84,7 +84,7 @@ internal static class RunListWarningFlagSql
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.
     /// </summary>
-    public const string LeftJoinAggregates = """
+    public const string LeftJoinAggregates = $"""
                                              LEFT JOIN (
                                                  SELECT
                                                      fs.RunId,
@@ -102,6 +102,6 @@ internal static class RunListWarningFlagSql
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
                                              LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
-                                                 ON UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))
+                                                 ON {RunRepositorySql.CollapsedUpperArchitectureRequestsRequestId} = {RunRepositorySql.CollapsedUpperRunsArchitectureRequestId}
                                              """;
 }

@@ -301,5 +301,5 @@ internal static class RunListQueryParameters
         projectSlug.Trim().ToUpperInvariant();
 
     private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
-        architectureRequestId.Trim().ToUpperInvariant();
+        RunRepositoryCore.NormalizeArchitectureRequestId(architectureRequestId);
 }
