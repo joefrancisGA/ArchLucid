@@ -26,6 +26,8 @@ namespace ArchLucid.Decisioning.Tests;
 [Trait("Suite", "Core")]
 public sealed class FindingsOrchestratorTests
 {
+    private const string LineAnchoredDocEvidenceRef = "doc:fixture.md#L12";
+
     private static readonly IInsightDensityGate InsightDensityGate = DeterministicInsightDensityGate.CreateDefault();
 
     private static GraphSnapshot EmptyGraph() => new()
@@ -110,6 +112,7 @@ public sealed class FindingsOrchestratorTests
             Severity = FindingSeverity.Info,
             RelatedNodeIds = ["ok-title"],
             Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
         };
 
         Mock<IFindingEngine> bad = new(MockBehavior.Strict);
@@ -151,6 +154,7 @@ public sealed class FindingsOrchestratorTests
             Severity = FindingSeverity.Info,
             RelatedNodeIds = ["ok-title"],
             Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
         };
 
         Mock<IFindingEngine> badCost = new(MockBehavior.Strict);
@@ -308,6 +312,7 @@ public sealed class FindingsOrchestratorTests
             Rationale = "CheckoutApiUnderSpecified",
             Severity = FindingSeverity.Warning,
             RelatedNodeIds = ["anchored"],
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
             Trace = new ExplainabilityTrace
             {
                 RulesApplied = ["test-rule"],
@@ -395,6 +400,7 @@ public sealed class FindingsOrchestratorTests
             Rationale = "r1",
             Severity = FindingSeverity.Warning,
             RelatedNodeIds = ["same-a"],
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
             Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
         Finding b = new()
@@ -406,6 +412,7 @@ public sealed class FindingsOrchestratorTests
             Rationale = "r1",
             Severity = FindingSeverity.Warning,
             RelatedNodeIds = ["same-b"],
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
             Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
@@ -438,6 +445,7 @@ public sealed class FindingsOrchestratorTests
             Rationale = "r",
             Severity = FindingSeverity.Info,
             RelatedNodeIds = ["t"],
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
             Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] },
         };
 
@@ -528,6 +536,7 @@ public sealed class FindingsOrchestratorTests
                 Notes = ["evidence:doc:manifest.json#services"],
             },
             RelatedNodeIds = ["good-payload"],
+            EvidenceRefs = [LineAnchoredDocEvidenceRef],
         };
 
         Mock<IFindingEngine> e1 = CreateEngine("e1", "Requirement", [invalid, valid]);
@@ -689,7 +698,7 @@ public sealed class FindingsOrchestratorTests
     public async Task GenerateFindingsSnapshotAsync_effectful_only_engines_still_return_snapshot()
     {
         GraphSnapshot graph = EmptyGraph();
-        Finding finding = CreateFinding("effectful-1", "effectful", "From effectful");
+        Finding finding = CreateFinding("effectful-1", "effectful", "From effectful", retainDecisionGrade: true);
         Mock<IEffectfulFindingEngine> effectful = CreateEffectfulEngine("effectful", "Security", [finding]);
         FindingsOrchestrator sut = CreateSut([], [effectful.Object]);
 
@@ -706,8 +715,20 @@ public sealed class FindingsOrchestratorTests
     private static async Task<FindingsSnapshot> RunPayloadConflictAsync()
     {
         GraphSnapshot graph = EmptyGraph();
-        Finding fromZulu = CreateFinding("finding-zulu", "zulu", "Same", FindingSeverity.Warning, "rationale-zulu");
-        Finding fromAlpha = CreateFinding("finding-alpha", "alpha", "Same", FindingSeverity.Info, "rationale-alpha");
+        Finding fromZulu = CreateFinding(
+            "finding-zulu",
+            "zulu",
+            "Same",
+            FindingSeverity.Warning,
+            "rationale-zulu",
+            retainDecisionGrade: true);
+        Finding fromAlpha = CreateFinding(
+            "finding-alpha",
+            "alpha",
+            "Same",
+            FindingSeverity.Info,
+            "rationale-alpha",
+            retainDecisionGrade: true);
 
         Mock<IFindingEngine> zulu = CreateEngine("zulu", "Security", [fromZulu]);
         Mock<IFindingEngine> alpha = CreateEngine("alpha", "Security", [fromAlpha]);
@@ -725,7 +746,8 @@ public sealed class FindingsOrchestratorTests
         string engineType,
         string title,
         FindingSeverity severity = FindingSeverity.Info,
-        string rationale = "r")
+        string rationale = "r",
+        bool retainDecisionGrade = false)
     {
         Finding finding = new()
         {
@@ -739,6 +761,10 @@ public sealed class FindingsOrchestratorTests
         };
 
         ApplyKindAProvenance(finding);
+
+        if (retainDecisionGrade)
+            ApplyConcreteEvidenceCitation(finding);
+
         return finding;
     }
 
@@ -746,6 +772,12 @@ public sealed class FindingsOrchestratorTests
     {
         finding.RelatedNodeIds = [finding.FindingId ?? "node-1"];
         finding.Trace = new ExplainabilityTrace { RulesApplied = ["test-rule"] };
+    }
+
+    private static void ApplyConcreteEvidenceCitation(Finding finding)
+    {
+        finding.EvidenceRefs ??= [];
+        FindingEvidenceRefs.TryAppendDistinct(finding.EvidenceRefs, LineAnchoredDocEvidenceRef);
     }
 
     private static FindingsOrchestrator CreateSut(
