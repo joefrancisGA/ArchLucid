@@ -99,6 +99,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const scope = useOperatorScopeQueryKey();
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
+  const previousInboundRunIdRef = useRef(inboundRunId);
   const actionGenerationRef = useRef(0);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
@@ -188,6 +189,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     invalidateInFlightActions();
+    previousInboundRunIdRef.current = "";
     setActiveRunId(null);
     setRunState(null);
     setInterviewAnswers({});
@@ -250,9 +252,23 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
+    const previousInboundRunId = previousInboundRunIdRef.current;
+    previousInboundRunIdRef.current = inboundRunId;
+
     const sources = sourceContextQuery.data.sourceTexts;
     setHydratedSourceTexts([...sources]);
-    setArchitectureDescription(hydratedDescriptionFromQuery);
+    setArchitectureDescription((currentDescription) => {
+      if (hydratedDescriptionFromQuery.trim().length > 0) {
+        return hydratedDescriptionFromQuery;
+      }
+
+      // Preserve freeform intake when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentDescription.trim().length > 0) {
+        return currentDescription;
+      }
+
+      return hydratedDescriptionFromQuery;
+    });
     setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
     setPrioritiesRaw(hydratedPrioritiesFromQuery);
 

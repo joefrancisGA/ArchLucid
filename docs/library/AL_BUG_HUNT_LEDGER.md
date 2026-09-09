@@ -1493,11 +1493,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 11
-- **bugs-found:** 11
+- **hunts:** 12
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — load golden fixture left publish-to-product toggle checked after replacing hydrated intake
+- **last-bug:** 2026-09-09 — empty product-context hydration cleared freeform architecture description on first deep-link
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1517,6 +1517,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `loadGoldenFixture` leaves stale reasoning results after replacing hydrated intake — **hit 2026-09-08 seed hunt #1344 (seed→hit):** fixture load updated description/priorities but not `runState`; fixed by invalidating in-flight actions and clearing reasoning/interview state on successful fixture hydration; regression in `clears reasoning results when golden fixture replaces hydrated intake`
 - [x] (proven) `loadGoldenFixture` leaves publish-to-product toggle checked after replacing hydrated intake — **hit 2026-09-09 seed hunt #1397 (seed→hit):** fixture load reset reasoning and intake but not `publishToProduct` while run switch and scope reset already cleared the toggle; fixed by calling `setPublishToProduct(false)` on successful fixture hydration; regression in `clears publish-to-product toggle when golden fixture replaces hydrated intake`
 - [x] (valid-no-repro) In-flight `runGoldenTest` applies stale golden results after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1397:** `actionGenerationRef` invalidation on inbound run change plus stale guards in `runGoldenTest` mirror proven reasoning stale fix #1342
+- [x] (proven) First deep-link to a review with empty product source context clears freeform `architectureDescription` typed before `runId` appears — **hit 2026-09-09 seed hunt #1449:** hydration effect unconditionally assigned `hydratedDescriptionFromQuery` even when prior `inboundRunId` was empty and the operator had pasted intake; fixed by preserving non-empty freeform text on the first empty hydration; regression in `preserves freeform architecture description when workspace auto-pick deep-links to empty intake`
+
+2026-09-09 seed hunt #1449 (seed→hit): reseeded first deep-link hydration paths; proved freeform description wipe on empty product context; 15 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 

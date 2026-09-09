@@ -203,6 +203,57 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
   });
 
+  it("preserves freeform architecture description when workspace auto-pick deep-links to empty intake", async () => {
+    let currentRunId: string | null = null;
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Operator pasted architecture before picking a review." },
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+      "Operator pasted architecture before picking a review.",
+    );
+
+    currentRunId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "no architecture intake",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+      "Operator pasted architecture before picking a review.",
+    );
+  });
+
   it("shows empty-intake notice when deep-linked run has no source texts", async () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "runId") {
