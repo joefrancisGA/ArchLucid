@@ -1622,3 +1622,4 @@
 {"at":"2026-09-09T07:34:13.5214536Z","zoneId":"api-policy-packs","outcome":"hit"}
 {"at":"2026-09-09T07:43:42.9362199Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-09T07:49:49.2057916Z","zoneId":"host-core-coordination","outcome":"hit"}
+{"at":"2026-09-09T14:00:05.5327661Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
