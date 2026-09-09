@@ -8,6 +8,7 @@ import { GovernanceModePresentationGate } from "@/components/governance/Governan
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
+import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
@@ -72,11 +73,17 @@ export function resolveRunDetailPageViewChrome(
   const {
     evidenceCoverageSummary,
     findingCoverageSummary,
+    quickDecisionFindings,
     showArchitectureCreatedHome,
     showGovernanceCta,
     showcasePolicyPackStrip,
     commitBlockedReason,
   } = presentation;
+
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
 
   const sampleReviewPackageSummaryEl =
     m.usedStaticDemoRun ? (
@@ -84,7 +91,7 @@ export function resolveRunDetailPageViewChrome(
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         artifactCount={m.artifacts.length}
-        findingCount={m.findingCountDisplay}
+        findingCount={deferredSurfaceFindingCount}
       />
     ) : null;
 

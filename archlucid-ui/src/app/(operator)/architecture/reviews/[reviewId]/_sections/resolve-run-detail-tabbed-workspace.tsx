@@ -12,7 +12,7 @@ import { RunDetailInFlightDeskChrome } from "@/components/reviews/RunDetailInFli
 import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
-import { resolveRunDetailFindingsTabBadgeCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
+import { resolveRunDetailDeferredSurfaceFindingCount, resolveRunDetailFindingsTabBadgeCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
 import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
@@ -98,6 +98,11 @@ export function resolveRunDetailTabbedWorkspace(
     return null;
   }
 
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
+
   const overviewPanelEl = composeRunDetailTabbedWorkspaceOverviewShell({ model: m, presentation: p });
   const evidenceTabPanelEl = composeRunDetailTabbedWorkspaceEvidenceShell({ model: m, presentation: p });
   const governanceTabPanelEl = composeRunDetailTabbedWorkspaceGovernanceShell({ model: m, presentation: p });
@@ -148,7 +153,7 @@ export function resolveRunDetailTabbedWorkspace(
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         artifactCount={m.artifacts.length}
-        findingCount={m.findingCountDisplay}
+        findingCount={deferredSurfaceFindingCount}
       />
     ) : null;
 
@@ -215,7 +220,7 @@ export function resolveRunDetailTabbedWorkspace(
               ruleSetId={reviewPolicyPackCallout.ruleSetId}
               ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
               runId={m.resolvedDetail.run.runId}
-              totalFindingCount={m.findingCountDisplay}
+              totalFindingCount={deferredSurfaceFindingCount}
               architectureRequestId={m.resolvedDetail.run.architectureRequestId}
               effectiveGovernanceAtCommit={reviewPolicyPackCallout.effectiveGovernanceAtCommit}
             />
@@ -277,7 +282,7 @@ export function resolveRunDetailTabbedWorkspace(
             manifestId={m.manifestId}
             runId={m.resolvedDetail.run.runId}
             artifactCount={m.artifacts.length}
-            findingCount={m.findingCountDisplay}
+            findingCount={deferredSurfaceFindingCount}
             showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
           />
           {m.manifestId ? (
