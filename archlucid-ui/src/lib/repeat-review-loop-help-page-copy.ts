@@ -13,6 +13,8 @@ export const REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 export const REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID =
   "help-repeat-review-loop-orientation-bottom" as const;
 
+export const REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID = "help-repeat-review-loop-workspace" as const;
+
 export const REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER =
   "Use the start-loop actions below to compare packages or open your next review, then follow the recommended loop steps and reference sections." as const;
 

@@ -51,6 +51,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_SKIP_TARGET_ID,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_CARD_TITLE,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_HELPER,
+  ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
@@ -99,8 +100,13 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-admin-diagnostics-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(
+      firstViewport,
+    ).not.toContainElement(screen.getByTestId("help-admin-diagnostics-overview"));
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(signalTable);
+    const workspace = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(signalTable);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-admin-diagnostics-overview")).toHaveTextContent(
@@ -122,7 +128,7 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
     }
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(signalTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(signalTable.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

@@ -88,9 +88,17 @@ internal static class ContextIngestionCompositionRegistrar
             return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
+        services.AddSingleton<ArchLucidDiagramJsonContextDocumentParser>();
         services.AddSingleton<MermaidContextDocumentParser>();
+        services.AddSingleton<SvgContextDocumentParser>();
+        services.AddSingleton<DrawIoContextDocumentParser>();
+        services.AddSingleton<VsdxContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<ArchLucidDiagramJsonContextDocumentParser>());
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<MermaidContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<SvgContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<DrawIoContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<VsdxContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>
             ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers(sp));
 
@@ -110,6 +118,7 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IDiagramSourceParser, MermaidDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();
         services.AddSingleton<IDiagramSourceParser, DrawIoXmlDiagramSourceParser>();
+        services.AddSingleton<IDiagramSourceParser, VsdxDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, SvgDiagramSourceParser>();
         services.AddSingleton<SimulatorVisionDiagramInterpreter>();
         services.AddSingleton<StructuredDiagramParseRouter>();

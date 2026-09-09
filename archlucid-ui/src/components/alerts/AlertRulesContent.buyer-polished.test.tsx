@@ -13,6 +13,7 @@ import {
   ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE,
   ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID,
   ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES,
+  ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID,
 } from "@/lib/alert-rules-conditions-evidence-copy";
 import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
@@ -75,6 +76,7 @@ describe("AlertRulesContent buyer-polished shell (GLR)", () => {
     const content = screen.getByTestId("alert-rules-conditions-content");
     const firstViewport = screen.getByTestId("alert-rules-conditions-first-viewport");
     const overview = screen.getByTestId("alert-rules-conditions-overview");
+    const workspace = screen.getByTestId(ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID);
     const existingSection = screen.getByTestId("alert-rules-conditions-existing");
     const orientationBottom = screen.getByTestId(ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("alert-rules-conditions-sources");
@@ -85,8 +87,12 @@ describe("AlertRulesContent buyer-polished shell (GLR)", () => {
     expect(overview).toHaveTextContent(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW);
     expect(content).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("alert-rules-conditions-intro"));
+    expect(firstViewport).not.toContainElement(overview);
     expect(content).toContainElement(overview);
+    expect(content).toContainElement(workspace);
+    expect(workspace).toContainElement(existingSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("alert-rules-conditions-buyer-start-here-helper")).toHaveTextContent(
       ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
     );
@@ -98,11 +104,9 @@ describe("AlertRulesContent buyer-polished shell (GLR)", () => {
     );
     expect(screen.getByRole("heading", { level: 2, name: ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    expect(content).toContainElement(existingSection);
     expect(content).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
-    expect(overview.compareDocumentPosition(existingSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(existingSection.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

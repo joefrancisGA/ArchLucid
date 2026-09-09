@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { GovernanceWorkflowRunListsBlockedCallout } from "@/components/governance/GovernanceWorkflowRunListsBlockedCallout";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
@@ -29,13 +29,14 @@ import {
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
   GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
-  GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
   GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
   GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
   GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
+  GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-queue-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD } from "@/lib/buyer/buyer-polish-copy";
@@ -192,6 +193,8 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
     </div>
   );
 
+  const WorkspaceShell = buyerPolishedShell ? "section" : "div";
+
   return (
     <MutationErrorBoundary title="Approval workflow failed to render">
     <TooltipProvider delayDuration={300}>
@@ -252,7 +255,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
           )}
         >
           <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="governance-approval-queue-intro"
           >
             {GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD}
@@ -275,14 +278,22 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
               {GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER}
             </p>
           </section>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="governance-approval-queue-overview"
-          >
-            {GOVERNANCE_APPROVAL_QUEUE_OVERVIEW}
-          </p>
         </div>
       ) : null}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+          data-testid="governance-approval-queue-overview"
+        >
+          {GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
+      <WorkspaceShell
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID : undefined}
+      >
 
       {showGovernanceSampleOverviewBanner ? (
         <p
@@ -309,7 +320,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
       <GovernanceWorkflowMutationHost mutations={mutations} />
 
       {!isReviewContext ? (
-        urlScopedRunId.length === 0 && !showGovernanceSampleOverviewBanner ? (
+        urlScopedRunId.length === 0 && !showGovernanceSampleOverviewBanner && !buyerPolishedShell ? (
           <GovernanceApprovalQueuePickReviewBeforeSubmittingStrip
             selectedReviewId=""
             onSelectReview={(reviewId) => {
@@ -363,11 +374,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
 
           {listFailure !== null ? (
             <div className="mb-6" role="alert">
-              <OperatorApiProblem
-                problem={listFailure.problem}
-                fallbackMessage={listFailure.message}
-                correlationId={listFailure.correlationId}
-              />
+              <GovernanceWorkflowRunListsBlockedCallout failure={listFailure} />
             </div>
           ) : null}
 
@@ -513,9 +520,10 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
           ) : null}
         </>
       ) : null}
-      </main>
 
       {buyerPolishedShell ? <GovernanceApprovalQueueBuyerChrome /> : null}
+      </WorkspaceShell>
+      </main>
     </OperatorPageContainer>
     </TooltipProvider>
     </MutationErrorBoundary>

@@ -4,10 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
+import { governanceFindingsQueueQuietEnginesBlockedReason } from "@/lib/governance/governance-findings-queue-quiet-engines-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getArchitectureGraphPage } from "@/lib/graph-api";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsQueueQuietEnginesHintProps = {
   readonly scopedRunId: string | null;
@@ -40,7 +45,25 @@ export function GovernanceFindingsQueueQuietEnginesHint(
     },
   });
 
-  if (!enabled || query.data === undefined) {
+  if (!enabled) {
+    return null;
+  }
+
+  if (query.isError) {
+    const failure = toApiLoadFailure(query.error);
+    const blockedReason = governanceFindingsQueueQuietEnginesBlockedReason(failure);
+
+    return (
+      <div className="space-y-2" data-testid="governance-findings-queue-quiet-engines-blocked">
+        <OperatorApiProblem failure={failure} variant="warning" />
+        {blockedReason ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{blockedReason}</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (query.data === undefined) {
     return null;
   }
 

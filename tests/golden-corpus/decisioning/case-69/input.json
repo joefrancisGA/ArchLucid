@@ -1,0 +1,146 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000069",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000069",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000069-0000-4000-8000-000000000069",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000069",
+    "runId": "20000000-0000-4000-8000-000000000069",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-6deef8614600f56c8b7c64be621bcc14",
+        "nodeType": "SecurityBaseline",
+        "label": "edge",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-69",
+        "properties": {
+          "terraformType": "azurerm_network_security_group",
+          "tf.name": "edge-nsg",
+          "tf.security_rule": "name                       = \u0022ssh\u0022\n    priority                   = 100\n    direction                  = \u0022inbound\u0022\n    access                     = \u0022allow\u0022\n    protocol                   = \u0022tcp\u0022\n    source_port_range          = \u0022*\u0022\n    destination_port_range     = \u002222\u0022\n    source_address_prefix      = \u0022*\u0022\n    destination_address_prefix = \u0022*\u0022",
+          "declarationSegmentationRule": "name                       = \u0022ssh\u0022\n    priority                   = 100\n    direction                  = \u0022inbound\u0022\n    access                     = \u0022allow\u0022\n    protocol                   = \u0022tcp\u0022\n    source_port_range          = \u0022*\u0022\n    destination_port_range     = \u002222\u0022\n    source_address_prefix      = \u0022*\u0022\n    destination_address_prefix = \u0022*\u0022"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-d7bbd5ebf745629313801bad7815b25c",
+        "nodeType": "TopologyResource",
+        "label": "app",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-69",
+        "properties": {
+          "terraformType": "azurerm_subnet",
+          "tf.name": "app-subnet",
+          "tf.connected_to": "pay_sql",
+          "connectedToNodeIds": "pay_sql"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-350decae2f9c9041b824975c6dd1c88b",
+        "nodeType": "SecurityBaseline",
+        "label": "edge_app",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-69",
+        "properties": {
+          "terraformType": "azurerm_subnet_network_security_group_association",
+          "tf.subnet_id": "app",
+          "tf.network_security_group_id": "edge",
+          "declarationSegmentationControlId": "edge",
+          "declarationAssociatedNodeId": "app"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-fc7e759de5a33de7ab94b1fc5e7e254d",
+        "nodeType": "TopologyResource",
+        "label": "pay_sql",
+        "category": "data",
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-69",
+        "properties": {
+          "terraformType": "azurerm_mssql_server",
+          "tf.name": "pay-sql-prod",
+          "category": "data",
+          "topologySensitivity": "data-bearing"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "d995a4154ac6443caa98bb34264c9e4f",
+        "fromNodeId": "context-10000000000040008000000000000069",
+        "toNodeId": "obj-6deef8614600f56c8b7c64be621bcc14",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "65944aea28b94de7bb77ac9696ef1d6e",
+        "fromNodeId": "context-10000000000040008000000000000069",
+        "toNodeId": "obj-d7bbd5ebf745629313801bad7815b25c",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "cbc848e94a3e493d8a4852c4b68fb63a",
+        "fromNodeId": "context-10000000000040008000000000000069",
+        "toNodeId": "obj-350decae2f9c9041b824975c6dd1c88b",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "fbf9c237c0704f00b25587946af0db8d",
+        "fromNodeId": "context-10000000000040008000000000000069",
+        "toNodeId": "obj-fc7e759de5a33de7ab94b1fc5e7e254d",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "fc4e1ec8152345de91ad6540474dc9d9",
+        "fromNodeId": "obj-6deef8614600f56c8b7c64be621bcc14",
+        "toNodeId": "obj-d7bbd5ebf745629313801bad7815b25c",
+        "edgeType": "APPLIES_TO",
+        "label": "Segmentation control applies to declared subnet or nic",
+        "weight": 1,
+        "inferenceSource": "declaration-segmentation-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a declared NSG/SG/firewall to its associated subnet or NIC and, when present, that network node to a declared datastore \u2014 only when both ends already exist."
+      },
+      {
+        "edgeId": "2950902878cc45e1961d583e7b9c3c5b",
+        "fromNodeId": "obj-d7bbd5ebf745629313801bad7815b25c",
+        "toNodeId": "obj-fc7e759de5a33de7ab94b1fc5e7e254d",
+        "edgeType": "CONNECTS_TO",
+        "label": "Associated network node connects to declared datastore",
+        "weight": 1,
+        "inferenceSource": "declaration-segmentation-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a declared NSG/SG/firewall to its associated subnet or NIC and, when present, that network node to a declared datastore \u2014 only when both ends already exist."
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

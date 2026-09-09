@@ -436,7 +436,7 @@ export function ProjectsRecycleBinPage() {
             >
               <div className="space-y-4" data-testid="projects-recycle-bin-buyer-first-viewport-intro">
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="projects-recycle-bin-intro"
                 >
                   {PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD}
@@ -463,7 +463,7 @@ export function ProjectsRecycleBinPage() {
             </div>
 
             <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="projects-recycle-bin-overview"
             >
               {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW}

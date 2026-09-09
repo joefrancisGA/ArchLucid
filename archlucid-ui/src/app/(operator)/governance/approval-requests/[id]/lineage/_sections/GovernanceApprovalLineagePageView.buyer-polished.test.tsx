@@ -52,17 +52,18 @@ vi.mock("@/app/(operator)/governance/_sections/GovernanceApprovalQueueNextReview
 }));
 
 import {
+  APPROVAL_LINEAGE_BUYER_OVERVIEW,
   APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
   APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
   APPROVAL_LINEAGE_FOLLOW_UPS_TITLE,
   APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
   APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID,
-  APPROVAL_LINEAGE_OVERVIEW,
   APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
   APPROVAL_LINEAGE_SOURCES,
   APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
+  APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-lineage-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -128,10 +129,13 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
       APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("approval-lineage-intro")).toHaveTextContent(APPROVAL_LINEAGE_PAGE_LEAD);
-    expect(screen.getByTestId("approval-lineage-overview")).toHaveTextContent(APPROVAL_LINEAGE_OVERVIEW);
+    expect(screen.getByTestId("approval-lineage-overview")).toHaveTextContent(APPROVAL_LINEAGE_BUYER_OVERVIEW);
     expect(screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("approval-lineage-intro"),
     );
+    expect(
+      screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("approval-lineage-overview"));
     expect(
       screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
         screen.getByTestId("approval-lineage-overview"),
@@ -146,20 +150,29 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
     expect(screen.queryByTestId("approval-lineage-queue-vocabulary")).not.toBeInTheDocument();
 
     const primary = screen.getByTestId("approval-lineage-primary-content");
+    const firstViewport = screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("approval-lineage-overview");
+    const workspace = screen.getByTestId(APPROVAL_LINEAGE_WORKSPACE_TEST_ID);
     const spine = screen.getByTestId("approval-lineage-spine");
     const orientation = screen.getByTestId(APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("approval-lineage-sources");
 
-    expect(primary).toContainElement(spine);
+    expect(primary).toContainElement(firstViewport);
+    expect(primary).toContainElement(overview);
+    expect(primary).toContainElement(workspace);
     expect(primary).toContainElement(orientation);
-    expect(spine.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace).toContainElement(spine);
+    expect(orientation).toContainElement(sourcesSection);
 
     expect(screen.getByRole("heading", { level: 2, name: APPROVAL_LINEAGE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-
-    const sourcesSection = screen.getByTestId("approval-lineage-sources");
 
     for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_LINEAGE_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

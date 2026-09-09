@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 
+import { FindingCrossReviewCompareBlockedCallout } from "@/components/findings/FindingCrossReviewCompareBlockedCallout";
 import {
   buildCompareFindingLifecycleStatusSentence,
   coerceCompareFindingLifecycleRecords,
@@ -109,6 +110,10 @@ export function FindingCrossReviewLifecycleHint(props: FindingCrossReviewLifecyc
       compareHref: comparePageHrefWithLifecycleAnchor(comparePair.baselineRunId, comparePair.targetRunId),
     };
   }, [comparePair, compareQuery.data, compareQuery.isSuccess]);
+
+  if (comparePair.enabled && compareQuery.isError) {
+    return <FindingCrossReviewCompareBlockedCallout error={compareQuery.error} />;
+  }
 
   if (statusSentence === null) {
     return null;

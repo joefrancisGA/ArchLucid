@@ -8,6 +8,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -25,12 +26,13 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/explain")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingFeedbackController(
+public sealed partial class FindingFeedbackController(
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     FindingInstrumentationAuditSupport findingInstrumentationAudit,
+    IManifestHashService manifestHashService,
     ILogger<FindingFeedbackController> logger) : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQuery =
@@ -57,6 +59,7 @@ public sealed class FindingFeedbackController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostFindingFeedbackAsync(
         Guid runId,
         string findingId,
@@ -86,6 +89,12 @@ public sealed class FindingFeedbackController(
             return this.NotFoundProblem(
                 $"Finding '{findingId}' was not found on run '{runId}'.",
                 ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult =
+            await EnsureRunScopedFindingFeedbackSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string trimmedFindingId = findingId.Trim();
         Finding? matchedFinding = list.FirstOrDefault(

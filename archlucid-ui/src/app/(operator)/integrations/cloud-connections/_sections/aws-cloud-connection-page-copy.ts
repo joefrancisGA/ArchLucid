@@ -11,6 +11,8 @@ export const AWS_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const AWS_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID = "aws-cloud-connection-orientation-bottom" as const;
 
+export const AWS_CLOUD_CONNECTION_WORKSPACE_TEST_ID = "aws-cloud-connection-workspace" as const;
+
 export const AWS_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER =
   "Configure read-only AWS inventory through a federated IAM role — review the security preflight, copy the trust policy, then save and validate your connection." as const;
 

@@ -12,6 +12,8 @@ export const REVIEW_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-review-guide-orientation-bottom" as const;
 
+export const REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID = "help-review-guide-workspace" as const;
+
 export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE_BUYER =
   "Start or finish an architecture review with field-level guidance for each wizard step." as const;
 

@@ -66,6 +66,7 @@ import {
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
+  SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/slack-integration-help-page-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
@@ -111,6 +112,7 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     const firstViewport = screen.getByTestId(SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-slack-integration-action-panel");
     const overview = screen.getByTestId("help-slack-integration-overview");
+    const workspace = screen.getByTestId(SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID);
     const featureItems = screen.getByTestId("help-slack-integration-feature-items");
     const orientationBottom = screen.getByTestId(SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-slack-integration-sources");
@@ -118,8 +120,10 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(actionPanel);
     expect(firstViewport).toContainElement(screen.getByTestId("help-slack-integration-intro"));
+    expect(firstViewport).not.toContainElement(overview);
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(featureItems);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(featureItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-slack-integration-workspace-readiness")).toBeInTheDocument();
@@ -139,7 +143,7 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     }
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(featureItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(featureItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

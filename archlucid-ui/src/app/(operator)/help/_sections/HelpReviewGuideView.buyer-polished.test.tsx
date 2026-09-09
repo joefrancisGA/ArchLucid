@@ -41,6 +41,7 @@ import {
   REVIEW_GUIDE_HELP_SKIP_LINK_LABEL,
   REVIEW_GUIDE_HELP_SKIP_TARGET_ID,
   REVIEW_GUIDE_HELP_START_HERE_HELPER,
+  REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/review-guide-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -85,12 +86,15 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
     const firstViewport = screen.getByTestId(REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-review-guide-action-panel");
     const overview = screen.getByTestId("help-review-guide-overview");
+    const workspace = screen.getByTestId(REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID);
     const content = screen.getByTestId("help-review-guide-content");
     const orientationBottom = screen.getByTestId(REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("help-review-guide-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("help-review-guide-intro")).toHaveTextContent(REVIEW_GUIDE_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(
       within(actionPanel).getByRole("link", { name: REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.label }),
     ).toHaveAttribute("href", REVIEW_GUIDE_HELP_PRIMARY_ACTIONS.startReview.href);
@@ -98,13 +102,13 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
       REVIEW_GUIDE_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(content);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(content);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(content.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("help-review-guide-sources");
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(REVIEW_GUIDE_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

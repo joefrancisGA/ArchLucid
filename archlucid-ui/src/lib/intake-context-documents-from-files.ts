@@ -9,6 +9,24 @@ import {
   MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
 } from "@/lib/architecture-spine/intake-mermaid-context-document";
 import {
+  isSvgIntakeFileName,
+  STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-svg-context-document";
+import {
+  isDrawIoIntakeFileName,
+  DRAW_IO_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-drawio-context-document";
+import {
+  isArchLucidDiagramJsonIntakeFileName,
+  looksLikeArchLucidDiagramJson,
+  STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-archlucid-diagram-json-context-document";
+import {
+  encodeVsdxPackageAsBase64,
+  isVsdxIntakeFileName,
+  VISIO_VSDX_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-vsdx-context-document";
+import {
   isBinaryArchitectureDocumentFileName,
   isReadableEvidenceTextFileName,
   peekBinaryArchitectureDocumentText,
@@ -71,6 +89,22 @@ async function toIntakeContextDocument(
     return readMermaidDocument(name, file);
   }
 
+  if (isSvgIntakeFileName(trimmedName)) {
+    return readSvgDocument(name, file);
+  }
+
+  if (isDrawIoIntakeFileName(trimmedName)) {
+    return readDrawIoDocument(name, file);
+  }
+
+  if (isArchLucidDiagramJsonIntakeFileName(trimmedName)) {
+    return readArchLucidDiagramJsonDocument(name, file);
+  }
+
+  if (isVsdxIntakeFileName(trimmedName)) {
+    return readVsdxDocument(name, file);
+  }
+
   return null;
 }
 
@@ -96,6 +130,122 @@ async function readMermaidSourceDocument(
       name,
       contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
       content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readSvgDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readSvgSourceDocument(name, file);
+}
+
+async function readSvgSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readDrawIoDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readDrawIoSourceDocument(name, file);
+}
+
+async function readDrawIoSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: DRAW_IO_CONTEXT_DOCUMENT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readArchLucidDiagramJsonDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readArchLucidDiagramJsonSourceDocument(name, file);
+}
+
+async function readArchLucidDiagramJsonSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (!looksLikeArchLucidDiagramJson(text)) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readVsdxDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readVsdxSourceDocument(name, file);
+}
+
+async function readVsdxSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    if (file.size <= 0) {
+      return null;
+    }
+
+    const base64 = await encodeVsdxPackageAsBase64(file);
+
+    if (base64.length === 0 || base64.length > INTAKE_CONTEXT_DOCUMENT_MAX_CHARS) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: VISIO_VSDX_CONTEXT_DOCUMENT_CONTENT_TYPE,
+      content: base64,
     };
   } catch {
     return null;
@@ -133,6 +283,14 @@ async function readReadableTextDocument(
       return {
         name,
         contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+        content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
+    }
+
+    if (looksLikeArchLucidDiagramJson(text)) {
+      return {
+        name,
+        contentType: STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
         content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
       };
     }

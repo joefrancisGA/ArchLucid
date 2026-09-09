@@ -12,6 +12,8 @@ export const JIRA_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-jira-integration-orientation-bottom" as const;
 
+export const JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID = "help-jira-integration-workspace" as const;
+
 export const JIRA_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER =
   "Learn how Jira outbound routing, connection health, and workspace mappings work, then open Jira integration to configure routing." as const;
 

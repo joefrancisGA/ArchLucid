@@ -55,6 +55,7 @@ import {
   CORE_PILOT_HELP_SKIP_LINK_LABEL,
   CORE_PILOT_HELP_SKIP_TARGET_ID,
   CORE_PILOT_HELP_START_HERE_HELPER,
+  CORE_PILOT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/core-pilot-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -108,12 +109,15 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     const buyerFirstViewport = screen.getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID);
     const summaryCard = screen.getByTestId("core-pilot-summary-card");
     const overview = screen.getByTestId("help-core-pilot-overview");
+    const workspace = screen.getByTestId(CORE_PILOT_HELP_WORKSPACE_TEST_ID);
     const stepper = screen.getByTestId("core-pilot-workflow-stepper");
     const orientationBottom = screen.getByTestId(CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("core-pilot-help-sources");
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
     expect(buyerFirstViewport).toContainElement(screen.getByTestId("help-core-pilot-intro"));
     expect(buyerFirstViewport).toContainElement(summaryCard);
+    expect(buyerFirstViewport).not.toContainElement(overview);
     expect(
       within(summaryCard).getByRole("link", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }),
     ).toHaveAttribute("href", "/architecture/reviews/new");
@@ -121,13 +125,13 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
       CORE_PILOT_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(stepper);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(stepper);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(stepper.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("core-pilot-help-sources");
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(CORE_PILOT_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

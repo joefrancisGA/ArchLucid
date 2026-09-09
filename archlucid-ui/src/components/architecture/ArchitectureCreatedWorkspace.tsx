@@ -75,24 +75,26 @@ import {
   ARCHITECTURE_CREATED_EVIDENCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-evidence-sources";
 import {
+  ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
-  ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
   ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE,
+  ARCHITECTURE_CREATED_FINDINGS_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-findings-sources";
 import {
+  ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID,
-  ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE,
+  ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-governance-sources";
 
 export type ArchitectureCreatedWorkspacePanels = {
@@ -459,64 +461,73 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             className={cn("space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
           >
             {buyerPolishedShell ? (
-              <div
-                id={ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID}
-                data-testid={ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID}
-                className={cn(
-                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                  OPERATOR_LAYOUT.sectionStack,
-                )}
-              >
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="architecture-created-findings-intro"
+              <>
+                <div
+                  id={ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID}
+                  data-testid={ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID}
+                  className={cn(
+                    "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                    OPERATOR_LAYOUT.sectionStack,
+                  )}
                 >
-                  {ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD}
-                </p>
-                <section
-                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                  data-testid="architecture-created-findings-start-here-panel"
-                  aria-labelledby="architecture-created-findings-start-here-heading"
-                >
-                  <h2
-                    id="architecture-created-findings-start-here-heading"
-                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                  >
-                    {ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE}
-                  </h2>
                   <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="architecture-created-findings-buyer-start-here-helper"
+                    className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+                    data-testid="architecture-created-findings-intro"
                   >
-                    {ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER}
+                    {ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD}
                   </p>
-                </section>
+                  <section
+                    className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="architecture-created-findings-start-here-panel"
+                    aria-labelledby="architecture-created-findings-start-here-heading"
+                  >
+                    <h2
+                      id="architecture-created-findings-start-here-heading"
+                      className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                    >
+                      {ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE}
+                    </h2>
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="architecture-created-findings-buyer-start-here-helper"
+                    >
+                      {ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER}
+                    </p>
+                  </section>
+                </div>
+
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="architecture-created-findings-overview"
                 >
-                  {ARCHITECTURE_CREATED_FINDINGS_OVERVIEW}
+                  {ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW}
                 </p>
-              </div>
-            ) : null}
-            {buyerPolishedShell ? null : (
-              <ClarificationsFindingsVocabularyRail
-                runId={props.baseline.runId}
-                currentSurfaceId="findings"
-              />
+
+                <section
+                  className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+                  data-testid={ARCHITECTURE_CREATED_FINDINGS_WORKSPACE_TEST_ID}
+                >
+                  {props.panels.findings}
+                </section>
+              </>
+            ) : (
+              <>
+                <ClarificationsFindingsVocabularyRail
+                  runId={props.baseline.runId}
+                  currentSurfaceId="findings"
+                />
+                <ArchitectureCreatedFindingsNextAction
+                  runId={props.baseline.runId}
+                  findings={props.findings}
+                  analysisStagesComplete={props.analysisStagesComplete === true}
+                  onNavigateActivity={() => {
+                    navigateTab("activity");
+                  }}
+                  pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+                />
+                {props.panels.findings}
+              </>
             )}
-            {!buyerPolishedShell ? (
-              <ArchitectureCreatedFindingsNextAction
-                runId={props.baseline.runId}
-                findings={props.findings}
-                analysisStagesComplete={props.analysisStagesComplete === true}
-                onNavigateActivity={() => {
-                  navigateTab("activity");
-                }}
-                pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
-              />
-            ) : null}
-            {props.panels.findings}
             {buyerPolishedShell ? <ArchitectureCreatedFindingsBuyerChrome /> : null}
           </div>
       </div>
@@ -564,7 +575,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 </div>
 
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="architecture-created-evidence-overview"
                 >
                   {ARCHITECTURE_CREATED_EVIDENCE_BUYER_OVERVIEW}
@@ -597,53 +608,64 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             className={cn("space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
           >
             {buyerPolishedShell ? (
-              <div
-                id={ARCHITECTURE_CREATED_GOVERNANCE_SKIP_TARGET_ID}
-                data-testid={ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID}
-                className={cn(
-                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                  OPERATOR_LAYOUT.sectionStack,
-                )}
-              >
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="architecture-created-governance-intro"
+              <>
+                <div
+                  id={ARCHITECTURE_CREATED_GOVERNANCE_SKIP_TARGET_ID}
+                  data-testid={ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID}
+                  className={cn(
+                    "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                    OPERATOR_LAYOUT.sectionStack,
+                  )}
                 >
-                  {ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD}
-                </p>
-                <section
-                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                  data-testid="architecture-created-governance-start-here-panel"
-                  aria-labelledby="architecture-created-governance-start-here-heading"
-                >
-                  <h2
-                    id="architecture-created-governance-start-here-heading"
-                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                  >
-                    {ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE}
-                  </h2>
                   <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="architecture-created-governance-buyer-start-here-helper"
+                    className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+                    data-testid="architecture-created-governance-intro"
                   >
-                    {ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER}
+                    {ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD}
                   </p>
-                </section>
+                  <section
+                    className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="architecture-created-governance-start-here-panel"
+                    aria-labelledby="architecture-created-governance-start-here-heading"
+                  >
+                    <h2
+                      id="architecture-created-governance-start-here-heading"
+                      className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                    >
+                      {ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE}
+                    </h2>
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="architecture-created-governance-buyer-start-here-helper"
+                    >
+                      {ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER}
+                    </p>
+                  </section>
+                </div>
+
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="architecture-created-governance-overview"
                 >
-                  {ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW}
+                  {ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW}
                 </p>
-              </div>
-            ) : null}
-            {buyerPolishedShell ? null : (
-              <PackageGovernanceApprovalQueueVocabularyRail
-                runId={props.baseline.runId}
-                currentSurfaceId="package-governance"
-              />
+
+                <section
+                  className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+                  data-testid={ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID}
+                >
+                  {props.panels.governance}
+                </section>
+              </>
+            ) : (
+              <>
+                <PackageGovernanceApprovalQueueVocabularyRail
+                  runId={props.baseline.runId}
+                  currentSurfaceId="package-governance"
+                />
+                {props.panels.governance}
+              </>
             )}
-            {props.panels.governance}
             {buyerPolishedShell ? <ArchitectureCreatedGovernanceBuyerChrome /> : null}
           </div>
       </div>

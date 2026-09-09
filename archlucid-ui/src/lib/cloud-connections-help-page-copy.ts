@@ -9,4 +9,5 @@ export const CLOUD_CONNECTIONS_HELP_SKIP_LINK_LABEL = "Skip to cloud connections
 export const CLOUD_CONNECTIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-cloud-connections-header-claim-discipline" as const;
 
-export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-cloud-connections-orientation-bottom" as const;
+export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-cloud-connections-orientation-bottom" as const;

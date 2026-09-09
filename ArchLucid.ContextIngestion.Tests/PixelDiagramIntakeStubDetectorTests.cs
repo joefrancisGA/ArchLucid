@@ -44,6 +44,45 @@ public sealed class PixelDiagramIntakeStubDetectorTests
     }
 
     [Fact]
+    public async Task DocumentConnector_NormalizeAsync_MintsCanonicalObjects_ForNativeDiagramJson()
+    {
+        DocumentConnectorPayloadNormalizer normalizer = new(
+        [
+            new ArchLucidDiagramJsonContextDocumentParser(),
+            new PlainTextContextDocumentParser(),
+        ]);
+
+        DocumentConnectorPayload payload = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-native-json",
+                    Name = "topology.diagram.json",
+                    ContentType = SupportedContextDocumentContentTypes.StructuredDiagramJson,
+                    Content =
+                        """
+                        {
+                          "nodes": [
+                            { "id": "api", "label": "API Gateway", "kind": "system" }
+                          ],
+                          "edges": [],
+                          "trustBoundaryLabels": []
+                        }
+                        """,
+                },
+            ],
+        };
+
+        NormalizedContextBatch batch = await normalizer.NormalizeAsync(payload, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Properties["inferenceConfidence"].Should().Be("1");
+        batch.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub()
     {
         DocumentConnectorPayloadNormalizer normalizer = new(

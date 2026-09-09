@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { GraphStaticFallback } from "@/components/GraphStaticFallback";
+import { ArchitectureGraphTemporalSnapshotGuardCallout } from "@/components/graph/ArchitectureGraphTemporalSnapshotGuardCallout";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import {
   OperatorLoadingNotice,
@@ -18,6 +19,7 @@ import {
   loadArchitectureGraphViewModel,
   loadArchitectureGraphViewModelAtAsOf,
 } from "@/lib/load-architecture-graph-view-model";
+import { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
 import type { GraphViewModel } from "@/types/graph";
 import { Button } from "@/components/ui/button";
 
@@ -221,9 +223,16 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
   }
 
   if (failure !== null) {
+    const temporalBlockedReason =
+      useTemporal ? architectureGraphTemporalSnapshotBlockedReason(failure) : null;
+
     return (
       <>
-        <OperatorApiProblem failure={failure} variant="warning" />
+        {useTemporal && temporalBlockedReason !== null ? (
+          <ArchitectureGraphTemporalSnapshotGuardCallout failure={failure} />
+        ) : (
+          <OperatorApiProblem failure={failure} variant="warning" />
+        )}
         <div className="mt-3">
           <OperatorTryNext>
             Confirm the review exists and you have access. You can still open the full{" "}

@@ -59,6 +59,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_SKIP_LINK_LABEL,
   REPEAT_REVIEW_LOOP_HELP_SKIP_TARGET_ID,
   REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER,
+  REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/repeat-review-loop-help-page-copy";
 import { cn } from "@/lib/utils";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
@@ -235,18 +236,19 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
       )}
 
       {buyerPolishedShell ? (
-        <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="help-repeat-review-loop-overview"
-        >
+        <p className={readingBodyClass} data-testid="help-repeat-review-loop-overview">
           {REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW}
         </p>
       ) : null}
 
-      <HelpRepeatReviewLoopWorkflowStepper />
+      <section
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID : undefined}
+      >
+        <HelpRepeatReviewLoopWorkflowStepper />
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           {buyerPolishedShell ? null : <RepeatReviewLoopHelpEvidenceOrientationStrip />}
 
           {!buyerPolishedShell ? (
@@ -311,8 +313,9 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           )}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
-      </div>
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+        </div>
+      </section>
 
       {buyerPolishedShell ? <HelpRepeatReviewLoopSourcesOrientationStrip /> : null}
     </>
