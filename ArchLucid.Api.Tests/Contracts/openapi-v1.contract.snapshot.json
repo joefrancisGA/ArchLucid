@@ -3763,9 +3763,24 @@
             },
             "type": "array"
           },
+          "extractionMethod": {
+            "type": "string"
+          },
           "nodes": {
             "items": {
               "$ref": "#/components/schemas/ArchitectureDiagramNodeRecord"
+            },
+            "type": "array"
+          },
+          "sourceEvidenceItemId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subgraphs": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramSubgraphRecord"
             },
             "type": "array"
           },
@@ -3797,6 +3812,33 @@
           },
           "removed": {
             "type": "boolean"
+          },
+          "subgraphId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramSubgraphRecord": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "orderKey": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "parentSubgraphId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"

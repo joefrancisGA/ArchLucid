@@ -4,6 +4,11 @@ import {
   isPixelDiagramIntakeFileName,
 } from "@/lib/architecture-spine/intake-pixel-diagram-context-document";
 import {
+  isMermaidIntakeFileName,
+  looksLikeMermaidSource,
+  MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-mermaid-context-document";
+import {
   isBinaryArchitectureDocumentFileName,
   isReadableEvidenceTextFileName,
   peekBinaryArchitectureDocumentText,
@@ -62,7 +67,39 @@ async function toIntakeContextDocument(
     return readPixelDiagramDocument(name, trimmedName, file, options);
   }
 
+  if (isMermaidIntakeFileName(trimmedName)) {
+    return readMermaidDocument(name, file);
+  }
+
   return null;
+}
+
+function readMermaidDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readMermaidSourceDocument(name, file);
+}
+
+async function readMermaidSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
 }
 
 function readPixelDiagramDocument(
@@ -90,6 +127,14 @@ async function readReadableTextDocument(
 
     if (text.length === 0) {
       return null;
+    }
+
+    if (!trimmedName.toLowerCase().endsWith(".md") && looksLikeMermaidSource(text)) {
+      return {
+        name,
+        contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+        content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
     }
 
     return {

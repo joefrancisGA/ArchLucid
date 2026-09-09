@@ -26,6 +26,7 @@ public static class ContextDocumentParserPipeline
 
         return
         [
+            services.GetRequiredService<MermaidContextDocumentParser>(),
             services.GetRequiredService<PlainTextContextDocumentParser>()
             // Future specialized parsers: insert here in explicit precedence order.
         ];

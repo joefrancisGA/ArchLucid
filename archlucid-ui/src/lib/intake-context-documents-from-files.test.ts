@@ -71,6 +71,37 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     ]);
   });
 
+  it("includes mermaid .mmd attachments as text/vnd.mermaid", async () => {
+    const file = new File(
+      [
+        'flowchart LR\n  api["API Gateway"]\n  db["SQL Database"]\n  api -->|"queries"| db',
+      ],
+      "topology.mmd",
+      { type: "text/plain" },
+    );
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "topology.mmd",
+        contentType: "text/vnd.mermaid",
+        content: 'flowchart LR\n  api["API Gateway"]\n  db["SQL Database"]\n  api -->|"queries"| db',
+      },
+    ]);
+  });
+
+  it("classifies mermaid-looking plain text as text/vnd.mermaid", async () => {
+    const file = new File(
+      ['flowchart TB\n  web["Web app"]\n  sql["Database"]\n  web --> sql'],
+      "diagram.txt",
+      { type: "text/plain" },
+    );
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents[0]?.contentType).toBe("text/vnd.mermaid");
+    expect(documents[0]?.name).toBe("diagram.txt");
+  });
+
   it("emits a NotVerifiable diagram stub for PNG and skips failed docx extract", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,
