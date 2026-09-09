@@ -99,7 +99,9 @@ public sealed class TopologySecurityDriftFindingEngine(
         Guid priorGraphSnapshotId)
     {
         List<string> relatedNodeIds = [delta.NodeId];
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(currentGraph, relatedNodeIds);
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            currentGraph,
+            relatedNodeIds);
         TopologySecurityDriftFindingPayloadKind payloadKind = MapPayloadKind(delta.Kind);
 
         return new Finding
