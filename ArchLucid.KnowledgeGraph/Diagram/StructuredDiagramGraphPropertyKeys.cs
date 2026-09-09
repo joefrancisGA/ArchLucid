@@ -16,6 +16,10 @@ public static class StructuredDiagramGraphPropertyKeys
     public const string SourceEvidenceItemId = "structuredDiagram.sourceEvidenceItemId";
 
     public const string DiagramSubgraphId = "structuredDiagram.subgraphId";
+
+    public const string BoundDiagramNodeId = "structuredDiagram.boundDiagramNodeId";
+
+    public const string BoundDiagramGraphNodeId = "structuredDiagram.boundDiagramGraphNodeId";
 }
 
 /// <summary>
