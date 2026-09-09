@@ -166,6 +166,7 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }

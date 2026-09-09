@@ -10,6 +10,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 describe("extract-upload-settings-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,7 +25,7 @@ describe("extract-upload-settings-evidence-copy", () => {
 
     const sources = screen.getByTestId("extract-upload-settings-sources");
 
-    for (const link of EXTRACT_UPLOAD_SETTINGS_SOURCES) {
+    for (const link of filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_SOURCES)) {
       expectFollowUpLink(within(sources), link);
     }
 

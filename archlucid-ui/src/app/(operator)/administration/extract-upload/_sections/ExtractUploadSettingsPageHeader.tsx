@@ -9,6 +9,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
@@ -61,6 +62,7 @@ export function ExtractUploadSettingsPageHeader(
       headingLevel="h1"
       breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
       subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
+      subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (
           <StatusTag
