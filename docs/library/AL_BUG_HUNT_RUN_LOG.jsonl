@@ -1675,3 +1675,4 @@
 {"at":"2026-09-09T21:14:32.8088919Z","zoneId":"ui-host-gate","outcome":"seed-only"}
 {"at":"2026-09-09T21:14:34.880294Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-09T21:16:08.6893042Z","zoneId":"commit-output-integrity","outcome":"hit"}
+{"at":"2026-09-09T21:16:10.7344493Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
