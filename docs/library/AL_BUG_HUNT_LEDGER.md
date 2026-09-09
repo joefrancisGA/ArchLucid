@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 23
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
+- **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -793,6 +793,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `IsCommittedRun` / committed-run SQL shapes treat pipeline-dead-letter `Failed` and `ExecutionCompletedQualityRejected` rows with retained `GoldenManifestId` or `CurrentManifestVersion` as committed — **hit 2026-09-09 seed hunt #1464 (seed→hit):** terminal statuses now short-circuit `IsCommittedRun`; shared `CommittedRunLookupStatusFilter` excludes `@FailedStatus` / `@QualityRejectedStatus` across manifest, prior-committed, and seal-delta lookups; regressions in `IsCommittedRun_recognizes_manifest_and_status_signals`, `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, and `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`.
+- [x] (candidate) `ExistsActiveRunWithSystemNameInWorkspace` / project-list SQL compare stored `ProjectId` without collapsing internal whitespace — locus in `RunRepositorySql.ArchiveAndExistence.cs` and `RunListWarningFlagSql.ProjectWherePrefix`; open on unmerged branch **#1460** / **#1462**; not reproved on this run.
+- [x] (candidate) `CountActiveRunsForArchitectureRequest` / representative request-run lookups compare `ArchitectureRequestId` without collapsing internal whitespace — locus in `RunRepositorySql.ArchiveAndExistence.cs` and `RunListWarningFlagSql.LeftJoinAggregates`; open on unmerged branch **#1461**; not reproved on this run.
+- [x] (candidate) `HardDeleteStaleUncommittedRunsBatchAsync` omits `IsSample` and hard-deletes trial sample runs — open on unmerged branch **#1463**; not reproved on this run.
+
+2026-09-09 seed hunt #1464 (seed→hit): reseeded sql-run-repository after #1451; proved dead-letter committed lookup gap; seeded internal-whitespace and sample-purge candidates tracked on open PRs; 94 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
