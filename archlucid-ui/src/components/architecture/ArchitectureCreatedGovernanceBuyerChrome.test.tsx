@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { ArchitectureCreatedGovernanceBuyerChrome } from "@/components/architecture/ArchitectureCreatedGovernanceBuyerChrome";
+import { ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/architecture/architecture-created-governance-sources";
+
+import { ArchitectureCreatedGovernanceBuyerChrome } from "./ArchitectureCreatedGovernanceBuyerChrome";
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => demoEnvMock.evalChrome,
@@ -17,7 +19,7 @@ describe("ArchitectureCreatedGovernanceBuyerChrome", () => {
 
     render(<ArchitectureCreatedGovernanceBuyerChrome />);
 
-    expect(screen.getByTestId("architecture-governance-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-governance-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-governance-claim-discipline")).not.toBeInTheDocument();
   });
