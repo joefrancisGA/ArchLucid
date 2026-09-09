@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Builders;
+using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Models;
@@ -327,7 +328,10 @@ internal static class GoldenCorpusIngestDeclarationGraphFactory
             CanonicalObjects = objects,
         };
 
-        DefaultGraphBuilder builder = new(NodeFactory, new DefaultGraphEdgeInferer());
+        DefaultGraphBuilder builder = new(
+            NodeFactory,
+            new DefaultGraphEdgeInferer(),
+            new StructuredDiagramGraphMerger(new ArchitectureDiagramToGraphCompiler()));
         GraphBuildResult build = await builder.BuildAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
 
         List<GraphNode> nodes = build.Nodes

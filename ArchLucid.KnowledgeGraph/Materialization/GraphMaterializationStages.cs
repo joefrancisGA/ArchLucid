@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Models;
@@ -18,6 +19,7 @@ public static class GraphMaterializationStages
     public static readonly IReadOnlyList<string> DefaultStageOrder =
     [
         "canonical-objects",
+        "structured-diagram-graph-compile",
         "request-cost-constraints",
         "request-actors",
         "declaration-identity-actors",
@@ -29,12 +31,16 @@ public static class GraphMaterializationStages
         "cost-projected-spend-enrichment",
     ];
 
-    public static GraphMaterializationPipeline CreateDefaultPipeline(IGraphNodeFactory nodeFactory)
+    public static GraphMaterializationPipeline CreateDefaultPipeline(
+        IGraphNodeFactory nodeFactory,
+        StructuredDiagramGraphMerger structuredDiagramGraphMerger)
     {
         ArgumentNullException.ThrowIfNull(nodeFactory);
+        ArgumentNullException.ThrowIfNull(structuredDiagramGraphMerger);
 
         return new GraphMaterializationPipeline([
             new CanonicalObjectMaterializationStage(nodeFactory),
+            new StructuredDiagramGraphCompileMaterializationStage(structuredDiagramGraphMerger),
             new RequestCostConstraintMaterializationStage(),
             new RequestActorMaterializationStage(),
             new DeclarationIdentityActorMaterializationStage(),
@@ -61,6 +67,11 @@ public static class GraphMaterializationStages
 
             foreach (CanonicalObject item in context.Snapshot.CanonicalObjects)
             {
+                if (IsStructuredDiagramCanonicalObject(item))
+                {
+                    continue;
+                }
+
                 GraphNode node = nodeFactory.CreateNode(item);
 
                 if (string.Equals(item.ObjectType, GraphNodeTypes.CostConstraint, StringComparison.OrdinalIgnoreCase))
@@ -94,6 +105,35 @@ public static class GraphMaterializationStages
                 context.Nodes.Add(node);
             }
 
+            return Task.CompletedTask;
+        }
+
+        private static bool IsStructuredDiagramCanonicalObject(CanonicalObject canonicalObject)
+        {
+            return string.Equals(
+                canonicalObject.SourceType,
+                StructuredDiagramCanonicalSourceTypes.StructuredDiagram,
+                StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private sealed class StructuredDiagramGraphCompileMaterializationStage(StructuredDiagramGraphMerger merger)
+        : IGraphMaterializationStage
+    {
+        public string Name => "structured-diagram-graph-compile";
+
+        public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
+        {
+            StructuredDiagramGraphMergeResult mergeResult = merger.Merge(context.Snapshot);
+
+            if (mergeResult.Nodes.Count == 0 && mergeResult.Edges.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            context.Nodes.AddRange(mergeResult.Nodes);
+            context.Edges.AddRange(mergeResult.Edges);
             return Task.CompletedTask;
         }
     }
