@@ -7,7 +7,10 @@ import {
   resolveRunDetailReviewPackageInspectEmphasizedStepId,
   resolveRunDetailReviewPackageInspectSteps,
 } from "@/lib/run-detail-review-package-inspect-checklist";
-import { resolveRunDetailDeferredSurfaceFindingCount, resolveRunDetailFindingsReviewed } from "@/lib/runs/run-detail-findings-tab-badge-count";
+import {
+  resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsReviewed,
+} from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -60,11 +63,11 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     showGovernanceCtaCard,
   } = presentation;
   const runId = m.resolvedDetail.run.runId.trim();
-  const findingsReviewed = resolveRunDetailFindingsReviewed(
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
     m.findingCountDisplay,
     presentation.quickDecisionFindings,
   );
-  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+  const findingsReviewed = resolveRunDetailFindingsReviewed(
     m.findingCountDisplay,
     presentation.quickDecisionFindings,
   );

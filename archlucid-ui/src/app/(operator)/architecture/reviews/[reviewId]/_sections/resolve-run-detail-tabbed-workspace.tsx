@@ -12,7 +12,10 @@ import { RunDetailInFlightDeskChrome } from "@/components/reviews/RunDetailInFli
 import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibilityStrip";
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
-import { resolveRunDetailDeferredSurfaceFindingCount, resolveRunDetailFindingsTabBadgeCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
+import {
+  resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsTabBadgeCount,
+} from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
 import { composeRunDetailTabbedWorkspaceGovernanceShell } from "./RunDetailTabbedWorkspaceGovernanceShell";
