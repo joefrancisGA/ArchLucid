@@ -119,7 +119,7 @@ jobs:
           Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
-          # appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI (env beats Pilot overlay).
+          # Empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI.
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
           AzureOpenAI__DeploymentName: ""

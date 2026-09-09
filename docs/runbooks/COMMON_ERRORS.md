@@ -58,15 +58,15 @@ See **[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**.
 
 ---
 
-## 5. **Real-mode agent** timeouts / breaker open — **missing Azure OpenAI**
+## 5. **Real-mode agent** startup fail-fast / timeouts — **missing Azure OpenAI**
 
-**Symptom:** Alerts citing **`AzureOpenAI`**, breaker **Open**, or agent execution timeouts.
+**Symptom:** API exits at startup with **`AgentExecution:Mode is 'Real' but Azure OpenAI is not fully configured`**, or later alerts citing **`AzureOpenAI`**, breaker **Open**, or agent execution timeouts.
 
-**Cause:** **`AgentExecution:Mode=Real`** requires endpoint + key/model deployment reachable.
+**Cause:** **`AgentExecution:Mode=Real`** requires endpoint + deployment name + API key (or **ManagedIdentity**). A leftover Real overlay, user secret, or **`AgentExecution__Mode`** environment variable will fail **`dotnet run`** even when **DevelopmentBypass** is active.
 
-**Resolution:** Prefer **Simulator** for dry runs; configure **`AzureOpenAI`** section (`Endpoint`, **`ApiKey`**/managed identity) or fix network egress / private endpoints. Production outage: [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) (retry → circuit → optional same-family FallbackLlm; never Simulator-fail-over for buyer Real runs).
+**Resolution:** For local simulator development, set **`AgentExecution:Mode=Simulator`** (or **`AgentExecution__Mode=Simulator`**) and restart. For Real mode, configure **`AzureOpenAI:Endpoint`**, **`DeploymentName`**, and **`ApiKey`** (user secrets / **`AZURE_OPENAI_*`**) or use **`dotnet run --launch-profile http-real`** after those secrets are set. See [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) and **`appsettings.Real.sample.json`**. Production outage: [`AI_PROVIDER_OFFLINE.md`](AI_PROVIDER_OFFLINE.md) (retry → circuit → optional same-family FallbackLlm; never Simulator-fail-over for buyer Real runs).
 
-**Prevention:** Maintain **[RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)** non-default tuned profile per environment.
+**Prevention:** Do not put Real mode or partial Azure OpenAI into the always-loaded **`appsettings.Pilot.json`**. Maintain **[RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md)** non-default tuned profile per environment.
 
 ---
 

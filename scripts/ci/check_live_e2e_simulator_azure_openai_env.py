@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live-e2e API start steps in Simulator mode must clear AzureOpenAI__* (Pilot overlay)."""
+"""Live-e2e API start steps in Simulator mode must clear AzureOpenAI__* (defense-in-depth)."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def _check_workflow(rel_path: str, text: str, errors: list[str]) -> None:
                 errors.append(
                     f"{rel_path}: Start ArchLucid.Api Simulator step must set "
                     f"{required.split(':')[0]} to empty string "
-                    "(appsettings.Pilot.json partial AzureOpenAI must not fail Simulator CI)",
+                    "(empty AzureOpenAI__* is defense-in-depth so a JSON overlay cannot fail Simulator CI)",
                 )
 
 

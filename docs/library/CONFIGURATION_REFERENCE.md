@@ -30,6 +30,8 @@ Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/
 | `CosmosDb:*` enabled flags | `false` / empty connection |
 | `IntegrationEvents:ServiceBusConnectionString` | empty |
 | `SqlServer:ReadReplica:*` | null / unset |
+| `AgentExecution:Mode` | **Not** set by this overlay (stays **Simulator** from base / `appsettings.Development.json`). Real mode belongs in [`appsettings.Real.sample.json`](../../ArchLucid.Api/appsettings.Real.sample.json), environment variables, or user secrets. |
+| `AzureOpenAI:*` | **Not** set by this overlay. A partial endpoint/deployment without an API key fails local `dotnet run` (`AgentExecutionRules` when Mode is Real; `AzureOpenAiOptionsValidator` even in Simulator). |
 
 Scale switches (Redis cache, read replicas, Cosmos polyglot, Service Bus) belong in **`appsettings.Advanced.json`** or environment variables — not the pilot overlay. Full key encyclopedia remains in the table below; deprecated binding paths are tagged **Deprecated** with a canonical replacement.
 

@@ -71,7 +71,10 @@ internal static class AgentExecutionRules
                 "AgentExecution:Mode is 'Real' but Azure OpenAI is not fully configured. Set environment variables " +
                 "AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_DEPLOYMENT_NAME with AZURE_OPENAI_API_KEY or " +
                 "AzureOpenAI:AuthenticationMode=ManagedIdentity (or the matching AzureOpenAI:Endpoint, " +
-                "AzureOpenAI:DeploymentName, and AzureOpenAI:ApiKey / AuthenticationMode configuration keys).");
+                "AzureOpenAI:DeploymentName, and AzureOpenAI:ApiKey / AuthenticationMode configuration keys). " +
+                "For local Development without Azure OpenAI, set AgentExecution:Mode=Simulator " +
+                "(or AgentExecution__Mode=Simulator). Opt into Real with AZURE_OPENAI_* / user secrets; " +
+                "see appsettings.Real.sample.json and docs/library/FIRST_REAL_VALUE.md.");
 
     }
 }

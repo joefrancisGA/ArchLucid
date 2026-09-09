@@ -78,6 +78,8 @@ public sealed partial class ArchLucidConfigurationRulesTests
         msg.Should().NotBeNull();
         msg.Should().Contain("AZURE_OPENAI_API_KEY");
         msg.Should().Contain("AZURE_OPENAI_DEPLOYMENT_NAME");
+        msg.Should().Contain("AgentExecution:Mode=Simulator");
+        msg.Should().Contain("appsettings.Real.sample.json");
     }
 
     [SkippableFact]
