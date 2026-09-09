@@ -66,6 +66,29 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_object_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """{"ruleIds":["cost-guardrail"]}""",
+            firstRuleText: "Encrypt data at rest");
+
+        // DecisionTraceRepositoryCore serializes AppliedRuleIds as a JSON array only; object roots fail deserialize and fall back.
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_scalar_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """"cost-guardrail"""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();

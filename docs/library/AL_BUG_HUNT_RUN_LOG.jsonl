@@ -1662,4 +1662,5 @@
 {"at":"2026-09-09T20:53:19.4386878Z","zoneId":"core-authority-runs","outcome":"seed-only"}
 {"at":"2026-09-09T20:54:20.1637353Z","zoneId":"content-safety-admission","outcome":"hit"}
 {"at":"2026-09-09T20:55:35.2197235Z","zoneId":"ui-help-docs","outcome":"seed-only"}
-{"at":"2026-09-09T20:57:45.7335570Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-09T20:57:45.733557Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-09T21:00:17.6118873Z","zoneId":"finding-inspect-sql","outcome":"dry"}

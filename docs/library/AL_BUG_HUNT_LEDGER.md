@@ -414,10 +414,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-07
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-09-09
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -432,8 +432,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — **disproved 2026-09-07 (#1274):** undeclared `svc-{datastoreName}` endpoints defer via `!sourceDeclared || !targetDeclared`; declared `svc-api`/`svc-sql` pairs remain when both keys are indexed (`ApplyToProposal_preserves_relationship_when_target_uses_svc_prefix_for_declared_datastore`)
 - [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — **disproved 2026-09-07 (#1274):** mixed-case ARM relationship ids survive via claimed-key normalization union in `validationEndpointKeys` (`ApplyToResults_preserves_relationship_only_proposal_when_arm_endpoint_uses_different_casing_than_batch_declaration`)
 - [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — **disproved 2026-09-07 (#1274):** compliance rename aliases register on `declaredBatchEndpointKeys` during pre-claim batch collection and cost relationship-only rows referencing renamed labels are retained (`ApplyToResults_preserves_cost_relationship_only_proposal_after_compliance_rename_alias_without_prior_batch_declaration`)
-- [ ] (candidate) `AgentProposalStructuralPostProcessor` — compliance agents placing storage synthetic `ds-{label}` on `AddedServices.ServiceId` while relationships target manifest service names; post-processor indexes `svc-{name}` for services only and may defer edges merge gate must alias (see graph merge `storage_synthetic_datastore_id` regression family)
-- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — relationship-only rows whose endpoints match only via `EndpointKeyIsKnownViaArmNormalization` while `declaredBatchEndpointKeys.Contains` is false defer to merge gate by design; confirm merge gate does not silently drop deferred ARM-keyed edges
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor` — compliance agents placing storage synthetic `ds-{label}` on `AddedServices.ServiceId` while relationships target manifest service names; post-processor indexes `svc-{name}` for services only and may defer edges merge gate must alias — **cheap-disproof 2026-09-09 thorough hunt #1476:** graph merge regression `WithMergedTopologyProposals_adds_edges_when_compliance_service_rename_uses_storage_synthetic_datastore_id` covers deferred alias handoff.
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — relationship-only rows whose endpoints match only via `EndpointKeyIsKnownViaArmNormalization` while `declaredBatchEndpointKeys.Contains` is false defer to merge gate by design — **cheap-disproof 2026-09-09 thorough hunt #1476:** intentional defer path; merge gate retains ARM-normalized endpoints (`ApplyToResults_preserves_relationship_only_proposal_when_arm_endpoint_uses_different_casing_than_batch_declaration`).
+
+2026-09-09 thorough hunt #1476 (dry): cheap-disproof closed storage-synthetic-on-service and deferred-ARM merge-handoff candidates; 30 scoped post-processor/consistency-gate tests passed.
 
 2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
 
@@ -870,10 +872,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -907,7 +909,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` accepts undefined numeric `FindingRecords.EvaluationConfidenceLevel` strings — **hit 2026-09-08 seed hunt #1309:** `Enum.TryParse` without `Enum.IsDefined` parity to #1243/#1293; inspect surfaced `(FindingConfidenceLevel)999` instead of null; fixed in mapper; regressions in `TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values`
 - [x] (proven) `FindingInspectReadModelMapper.ParseFindingSeverity` accepts undefined numeric `FindingRecords.Severity` strings — **hit 2026-09-08 seed hunt #1309:** same `Enum.TryParse` gap; `"999"` mapped to `(FindingSeverity)999` instead of documented `Info` default; fixed with `Enum.IsDefined` guard; regression in `ParseFindingSeverity_maps_or_defaults` for `"999"`
-- [ ] (candidate) `ResolveRuleFields` when `AppliedRuleIdsJson` deserializes to a non-array JSON shape (object/scalar) — silently falls through to `firstRuleText`; locus in `FindingInspectReadRepositoryCore.cs`; no failing repro yet
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` deserializes to a non-array JSON shape (object/scalar) — silently falls through to `firstRuleText` — **cheap-disproof 2026-09-09 thorough hunt #1476:** `DecisionTraceRepositoryCore` serializes `AppliedRuleIds` as a JSON array and `CK_DecisioningTraces_AppliedRuleIdsJson_IsJson` blocks non-JSON payloads; object/scalar roots fail deserialize and intentionally fall back to trace text; regressions `ResolveRuleFields_when_applied_rule_ids_json_is_object_falls_back_to_trace_text` and `ResolveRuleFields_when_applied_rule_ids_json_is_scalar_falls_back_to_trace_text`.
+
+2026-09-09 thorough hunt #1476 (dry): cheap-disproof closed non-array `AppliedRuleIdsJson` fallback candidate; 12 scoped FindingInspectReadRepositoryCore tests passed.
 
 2026-09-08 seed hunt #1309 (hit): reseeded inspect mapper enum parity; proved undefined numeric evaluation-confidence and severity strings; seeded non-array `AppliedRuleIdsJson` fallback candidate.
 
