@@ -1508,7 +1508,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -1544,6 +1544,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Deep-linked review switch to empty intake should preserve operator-edited description from prior review — **cheap-disproof 2026-09-09 seed hunt #1452:** new review scope intentionally hydrates empty intake (distinct from first empty deep-link preserve in #1449); regression `clears hydrated description when deep-linked review switches to empty intake`.
 
 2026-09-09 seed hunt #1452 (seed-only): reseeded ui-architecture-intelligence after #1449; cheap-disproof closed golden-result carryover, interview-answer carryover, continue/publish stale races, and cross-review empty-intake description preserve; 21 scoped `ArchitectureIntelligencePageClient` tests passed (1 pre-existing buyer-polished retry test still failing).
+
+- [x] (valid-no-repro) Operator scope switch leaves stale golden-test results — **cheap-disproof 2026-09-09 seed hunt #1453:** scope reset clears `runState`; regression `clears golden test results when operator scope switches workspaces`.
+- [x] (valid-no-repro) `loadGoldenFixture` leaves stale interview answers after replacing hydrated intake — **cheap-disproof 2026-09-09 seed hunt #1453:** fixture load calls `setInterviewAnswers({})` with `setRunState(null)`; regression `clears interview answers when golden fixture replaces hydrated intake`.
+- [x] (valid-no-repro) `loadGoldenFixture` leaves prior `declaredPriorities` when fixture omits the field — **cheap-disproof 2026-09-09 seed hunt #1453:** fixture load assigns `(fixture.declaredPriorities ?? []).join(", ")`; regression `clears declared priorities when golden fixture omits declaredPriorities`.
+- [x] (valid-no-repro) Product-context retry after HTTP failure does not hydrate intake or clear error alert — **cheap-disproof 2026-09-09 seed hunt #1453:** `productContextReloadNonce` bump clears `error` and successful refetch hydrates description; regressions `hydrates intake after successful product context retry` and `clears stale error alert after successful product context retry` (buyer-polished fetch mocks aligned to `Response` / `apiGetSealedManifestAware`).
+- [x] (valid-no-repro) `contextRunId` without inbound `runId` clears freeform intake — **cheap-disproof 2026-09-09 seed hunt #1453:** URL-scope reset effect requires both params absent; `contextRunId` alone sets `activeRunId` without wiping intake; regression `keeps freeform intake when only contextRunId scopes the page`.
+
+2026-09-09 seed hunt #1453 (seed-only): reseeded ui-architecture-intelligence after #1452; cheap-disproof closed scope-switch golden carryover, fixture interview/priority reset, product-context retry hydration, and contextRunId-only intake preserve; aligned buyer-polished retry fetch mocks; 29 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 

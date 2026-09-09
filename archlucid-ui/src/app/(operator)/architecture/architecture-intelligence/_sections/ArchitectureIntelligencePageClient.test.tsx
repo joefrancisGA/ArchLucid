@@ -1579,6 +1579,331 @@ describe("ArchitectureIntelligencePageClient", () => {
 
     expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
   });
+
+  it("clears golden test results when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture intake for tenant A.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          return okJsonFetchResponse(({
+              passed: true,
+              plantedDefectRecall: 1,
+              falsePositiveCount: 0,
+              mutationChangedFindings: false,
+              beforeCounts: { High: 1 },
+              afterCounts: { High: 1 },
+              notes: "Golden test marker before scope switch",
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture intake for tenant A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-golden-results")).toBeInTheDocument();
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-golden-results")).not.toBeInTheDocument();
+    });
+  });
+
+  it("clears interview answers when golden fixture replaces hydrated intake", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [],
+              recommendations: [],
+              mustNotFailViolations: [],
+              interview: {
+                framingQuestions: [
+                  {
+                    questionId: "scope-clarification",
+                    prompt: "What is the blast radius for this change?",
+                  },
+                ],
+                evidenceDrivenQuestions: [],
+              },
+            }));
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          return okJsonFetchResponse(({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-interview-scope-clarification")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-interview-scope-clarification"), {
+      target: { value: "Single region only." },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Golden fixture architecture description.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-interview-scope-clarification")).not.toBeInTheDocument();
+  });
+
+  it("clears declared priorities when golden fixture omits declaredPriorities", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+              declaredPriorities: ["security", "reliability"],
+            }));
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          return okJsonFetchResponse(({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, reliability");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("");
+    });
+  });
+
+  it("hydrates intake after successful product context retry", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    let sourceContextAttempt = 0;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          sourceContextAttempt += 1;
+
+          if (sourceContextAttempt === 1) {
+            return new Response("Unable to load product context", { status: 503 });
+          }
+
+          return okJsonFetchResponse(({
+              runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Hydrated after retry.",
+                },
+              ],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-product-context-load-failure")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-product-context-load-retry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("Hydrated after retry.");
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-product-context-load-failure")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-error")).not.toBeInTheDocument();
+  });
+
+  it("keeps freeform intake when only contextRunId scopes the page", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return "cccccccc-cccc-cccc-cccc-cccccccccccc";
+      }
+
+      return null;
+    });
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Freeform intake before picking a review from the strip." },
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+      "Freeform intake before picking a review from the strip.",
+    );
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+      "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {
