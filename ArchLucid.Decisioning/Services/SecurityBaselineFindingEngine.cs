@@ -1,8 +1,10 @@
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -41,6 +43,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 relatedNodeIds.Add(id);
 
             List<string> examined = [.. relatedNodeIds];
+            List<string> evidenceRefs = CollectEvidenceRefs(graphSnapshot, relatedNodeIds);
 
             findings.Add(new Finding
             {
@@ -56,6 +59,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                     ? "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope."
                     : "A security baseline node was found in the graph and should influence resolved architecture decisions.",
                 RelatedNodeIds = relatedNodeIds,
+                EvidenceRefs = evidenceRefs,
                 PayloadType = nameof(SecurityControlFindingPayload),
                 Payload = new SecurityControlFindingPayload
                 {
@@ -93,5 +97,23 @@ public class SecurityBaselineFindingEngine : IFindingEngine
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
+    }
+
+    private static List<string> CollectEvidenceRefs(GraphSnapshot graphSnapshot, IReadOnlyList<string> relatedNodeIds)
+    {
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+
+        foreach (string nodeId in relatedNodeIds)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId))
+                continue;
+
+            string graphNodeRef = $"graph-node:{nodeId.Trim()}";
+
+            if (GenericArchitectureAdvicePatterns.HasProductShapedInventoryEvidence([graphNodeRef]))
+                FindingEvidenceRefs.TryAppendDistinct(evidenceRefs, graphNodeRef);
+        }
+
+        return evidenceRefs;
     }
 }

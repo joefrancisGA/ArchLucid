@@ -10,6 +10,7 @@ The golden corpus harness registers **42** engines; **23** appear in this table 
 Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
 Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
 Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory and line-anchored doc bonuses apply only where those anchors exist.
+QR-05 (2026-09-09): `security-baseline` now emits `EvidenceRefs` from resolvable node properties; this corpus slice still has no inventory-shaped citations on those nodes, so the row stays median 65 with `No evidence = 10` (fail closed — no invented ARM ids).
 
 | Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
