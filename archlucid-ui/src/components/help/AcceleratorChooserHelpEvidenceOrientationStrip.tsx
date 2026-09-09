@@ -1,0 +1,1 @@
+export { AcceleratorChooserHelpSourcesOrientationStrip as AcceleratorChooserHelpEvidenceOrientationStrip } from "./AcceleratorChooserHelpSourcesOrientationStrip";
