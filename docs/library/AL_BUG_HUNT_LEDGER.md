@@ -1508,11 +1508,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 14
-- **bugs-found:** 12
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — empty product-context hydration cleared freeform architecture description on first deep-link
+- **last-bug:** 2026-09-09 — contextRunId switch left stale reasoning and publish toggle from prior scoped review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1552,6 +1552,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `contextRunId` without inbound `runId` clears freeform intake — **cheap-disproof 2026-09-09 seed hunt #1453:** URL-scope reset effect requires both params absent; `contextRunId` alone sets `activeRunId` without wiping intake; regression `keeps freeform intake when only contextRunId scopes the page`.
 
 2026-09-09 seed hunt #1453 (seed-only): reseeded ui-architecture-intelligence after #1452; cheap-disproof closed scope-switch golden carryover, fixture interview/priority reset, product-context retry hydration, and contextRunId-only intake preserve; aligned buyer-polished retry fetch mocks; 29 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (proven) `contextRunId` switch leaves stale reasoning results and publish toggle — **hit 2026-09-09 seed hunt #1458 (seed→hit):** `urlContextRunId` effect only called `setActiveRunId` without mirroring inbound-run reset (`invalidateInFlightActions`, `setRunState(null)`, `setPublishToProduct(false)`); fixed by aligning context-run reset with inbound-run reset; regressions `clears reasoning results when contextRunId switches to another review`, `ignores stale reasoning results when contextRunId switches before run completes`, and `clears publish-to-product toggle when contextRunId switches to another review`.
+- [x] (proven) First deep-link to empty product context clears freeform `prioritiesRaw` typed before `runId` appears — **hit 2026-09-09 seed hunt #1458 (seed→hit):** hydration effect unconditionally assigned `hydratedPrioritiesFromQuery` without the freeform preserve branch used for description in #1449; fixed by preserving non-empty freeform priorities on first empty hydration; regression `preserves freeform declared priorities when workspace auto-pick deep-links to empty intake`.
+
+2026-09-09 seed hunt #1458 (seed→hit): reseeded ui-architecture-intelligence after #1453; proved contextRunId switch stale reasoning/publish carryover and freeform priorities wipe on first empty deep-link; 33 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 

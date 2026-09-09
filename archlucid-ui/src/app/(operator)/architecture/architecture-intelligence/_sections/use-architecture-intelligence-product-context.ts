@@ -180,8 +180,14 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
+    invalidateInFlightActions();
+    setRunState(null);
+    setInterviewAnswers({});
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId]);
+    setError(null);
+    setPublishToProduct(false);
+    setHydratedSourceTexts([]);
+  }, [urlContextRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
@@ -270,7 +276,18 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return hydratedDescriptionFromQuery;
     });
     setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
-    setPrioritiesRaw(hydratedPrioritiesFromQuery);
+    setPrioritiesRaw((currentPriorities) => {
+      if (hydratedPrioritiesFromQuery.trim().length > 0) {
+        return hydratedPrioritiesFromQuery;
+      }
+
+      // Preserve freeform priorities when the first deep-link resolves to an empty product context.
+      if (previousInboundRunId.length === 0 && currentPriorities.trim().length > 0) {
+        return currentPriorities;
+      }
+
+      return hydratedPrioritiesFromQuery;
+    });
 
     setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
     setLoadingAction(null);
