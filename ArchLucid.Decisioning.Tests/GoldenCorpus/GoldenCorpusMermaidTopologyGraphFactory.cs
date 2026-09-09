@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Builders;
 using ArchLucid.KnowledgeGraph.Diagram;
@@ -68,7 +69,92 @@ internal static class GoldenCorpusMermaidTopologyGraphFactory
             .Where(static node => !string.Equals(node.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        return WrapCaseGraph(70, nodes, build.Edges);
+        GraphSnapshot graph = WrapCaseGraph(70, nodes, build.Edges);
+        ApplyCase70DiagramEvidenceBindings(graph);
+
+        return graph;
+    }
+
+    internal static void ApplyCase70DiagramEvidenceBindings(GraphSnapshot graph)
+    {
+        ArgumentNullException.ThrowIfNull(graph);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            if (IsDiagramBackedNode(node))
+            {
+                node.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = Case70DocumentId;
+            }
+        }
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.Properties is null)
+            {
+                continue;
+            }
+
+            if (!edge.Properties.ContainsKey(StructuredDiagramGraphPropertyKeys.DiagramEdgeId))
+            {
+                continue;
+            }
+
+            edge.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = Case70DocumentId;
+        }
+
+        GraphNode? userNode = graph.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeId, "diagram-node:user", StringComparison.OrdinalIgnoreCase));
+
+        if (userNode is not null)
+        {
+            userNode.Properties["trustOrigin"] = nameof(TrustOrigin.External);
+        }
+
+        GraphNode? dbNode = graph.Nodes.FirstOrDefault(node =>
+            string.Equals(node.NodeId, "diagram-node:db", StringComparison.OrdinalIgnoreCase));
+
+        if (dbNode is not null)
+        {
+            dbNode.Properties["category"] = GraphTopologyCategories.Data;
+        }
+
+        EnsureUserToApiEdge(graph);
+    }
+
+    private static bool IsDiagramBackedNode(GraphNode node)
+    {
+        return string.Equals(node.SourceType, StructuredDiagramGraphSourceTypes.StructuredDiagram, StringComparison.Ordinal)
+            || node.NodeId.StartsWith("diagram-node:", StringComparison.Ordinal);
+    }
+
+    private static void EnsureUserToApiEdge(GraphSnapshot graph)
+    {
+        const string userNodeId = "diagram-node:user";
+        const string apiNodeId = "diagram-node:api";
+
+        if (graph.Edges.Any(edge =>
+                string.Equals(edge.FromNodeId, userNodeId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(edge.ToNodeId, apiNodeId, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "diagram-edge:user-api-golden-70",
+            FromNodeId = userNodeId,
+            ToNodeId = apiNodeId,
+            EdgeType = GraphEdgeTypes.ConnectsTo,
+            Weight = 0.7,
+            InferenceSource = "structured-parse",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = "StructuredParse",
+                [StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
+                    StructuredDiagramGraphProvenanceKinds.DeterministicInference,
+                [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = Case70DocumentId,
+            },
+        });
     }
 
     private static GraphSnapshot WrapCaseGraph(

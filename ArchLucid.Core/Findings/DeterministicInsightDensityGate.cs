@@ -28,7 +28,9 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
         List<string> penaltyReasons = [];
         int score = 100;
 
-        bool hasConcreteEvidence = GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(candidate.EvidenceRefs);
+        bool hasConcreteEvidence = GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(
+            candidate.EvidenceRefs,
+            _options.PackageDiagramCitationIndex);
         bool hasArchitectureAnchor = GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(
             candidate.Message,
             candidate.EvidenceRefs);

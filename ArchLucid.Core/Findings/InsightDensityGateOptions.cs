@@ -162,4 +162,14 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = false;
+
+    /// <summary>
+    ///     Package-scoped diagram shape index for resolving <c>diagram:</c> citations during scoring (AS-022).
+    ///     Set per findings snapshot in merge stage; not bound from host configuration JSON.
+    /// </summary>
+    public DiagramPackageCitationIndex? PackageDiagramCitationIndex
+    {
+        get;
+        set;
+    }
 }

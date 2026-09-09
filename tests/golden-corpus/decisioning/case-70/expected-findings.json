@@ -1,5 +1,43 @@
 [
   {
+    "findingId": "1a17a755-0f30-3175-13a6-8bac3b4cbd8a",
+    "findingType": "DataFlowTrustBoundaryFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "External actor \u0027Internet user\u0027 reaches sensitive datastore \u0027SQL Database\u0027 in 2 hop(s) without crossing a trust boundary",
+    "rationale": "An external-facing actor can reach datastore \u0027SQL Database\u0027 in 2 graph hop(s) without traversing a TrustBoundary node or private-endpoint hop.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "diagram-node:user"
+    ],
+    "payloadType": "DataFlowTrustBoundaryFindingPayload",
+    "rulesApplied": [
+      "data-flow-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External actor path to sensitive datastore without trust-boundary or private-endpoint hop."
+    ]
+  },
+  {
+    "findingId": "89fc08dd-7bd0-8a8b-4ce8-d569d56070ec",
+    "findingType": "ExternalExposureFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "External actor \u0027Internet user\u0027 lacks an explicit trust boundary",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "relatedNodeIds": [
+      "diagram-node:user"
+    ],
+    "payloadType": "ExternalExposureFindingPayload",
+    "rulesApplied": [
+      "external-exposure-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External-facing actor present without matching TrustBoundary node."
+    ]
+  },
+  {
     "findingId": "e34386c7-6476-49bf-c59d-254e07c05787",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
