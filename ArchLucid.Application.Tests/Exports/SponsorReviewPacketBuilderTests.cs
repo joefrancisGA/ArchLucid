@@ -358,7 +358,9 @@ public sealed class SponsorReviewPacketBuilderTests
             Mock.Of<IGraphSnapshotRepository>(),
             SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
-            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration());
+            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateEmptyFindingReviewTrailRepository()

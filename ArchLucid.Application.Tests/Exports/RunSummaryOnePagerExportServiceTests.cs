@@ -92,7 +92,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IGraphSnapshotRepository>(),
             agentTraces.Object,
             CreateEmptyFindingReviewTrailRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
@@ -154,7 +156,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IGraphSnapshotRepository>(),
             agentTraces.Object,
             CreateEmptyFindingReviewTrailRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 
@@ -202,7 +206,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             CreateEmptyFindingReviewTrailRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 
@@ -243,7 +249,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
-            Mock.Of<IConfiguration>());
+            Mock.Of<IConfiguration>(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 

@@ -37,7 +37,9 @@ public sealed class RunSummaryOnePagerExportServiceFeatureFlagTests
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
-            Mock.Of<IConfiguration>());
+            Mock.Of<IConfiguration>(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         Func<Task> act = () => sut.GenerateMarkdownAsync("run-1", CancellationToken.None);
 

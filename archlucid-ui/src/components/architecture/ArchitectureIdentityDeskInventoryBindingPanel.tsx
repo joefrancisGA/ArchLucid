@@ -36,6 +36,10 @@ import {
   ARCHITECTURE_IDENTITY_DESK_INVENTORY_BINDING_SELECT_SNAPSHOT_REASON,
   ARCHITECTURE_IDENTITY_DESK_INVENTORY_BINDING_TITLE,
 } from "@/lib/architecture/architecture-inventory-binding-copy";
+import {
+  ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER,
+  formatArchitectureInventoryUnboundEstateGapLine,
+} from "@/lib/architecture/architecture-inventory-estate-gap-copy";
 import { resolveArchitectureInventoryBindingSnapshotId } from "@/lib/architecture/architecture-inventory-binding-validation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -185,6 +189,7 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
 
   const binding = bindingQuery.data;
   const isBound = binding.isBound === true;
+  const unboundEstateGapLine = formatArchitectureInventoryUnboundEstateGapLine(binding);
   const canAttach =
     selection.isValid
     && !attachMutation.isPending
@@ -234,6 +239,19 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
         </div>
       ) : (
         <div className="mt-3 space-y-3" data-testid="architecture-identity-desk-inventory-binding-unbound">
+          {unboundEstateGapLine !== null ? (
+            <div
+              className="rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/30"
+              data-testid="architecture-identity-desk-inventory-binding-estate-gap"
+            >
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="alert">
+                {unboundEstateGapLine}
+              </p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                {ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER}
+              </p>
+            </div>
+          ) : null}
           <div className="grid gap-2">
             <Label htmlFor="architecture-identity-inventory-binding-picker">
               {ARCHITECTURE_IDENTITY_DESK_INVENTORY_BINDING_PICKER_LABEL}

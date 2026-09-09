@@ -21,4 +21,5 @@ public sealed record CareerExportCoverageHonestyInput(
     AgentOutputQualityGateMode? RecordedQualityGateMode = null,
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
     int? JudgeSkippedByCap = null,
-    FindingsSnapshot? FindingsSnapshot = null);
+    FindingsSnapshot? FindingsSnapshot = null,
+    bool? ArchitectureInventoryBound = null);

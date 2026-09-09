@@ -93,6 +93,7 @@ function resolveCareerExportHonestyInput(
     aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
     catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
     contextSnapshot: honestyOptions?.contextSnapshot ?? null,
+    architectureInventoryBound: honestyOptions?.architectureInventoryBound ?? null,
   };
 }
 

@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -47,6 +48,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository,
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
@@ -65,6 +67,10 @@ public sealed class SponsorOnePagerPdfBuilder(
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -116,7 +122,9 @@ public sealed class SponsorOnePagerPdfBuilder(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
         IReadOnlyList<string> coverageHonestyLines =
             CareerExportCoverageHonestyComposer.RenderPlainTextLines(careerExportHonesty);
         DateTimeOffset end = TimeProvider.System.GetUtcNow();

@@ -118,7 +118,9 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             tenantReviewBoardCoverLogoStore: null,
             Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+            new ArchitectureReviewPdfBuilder(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         ExportResult result =
             await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,

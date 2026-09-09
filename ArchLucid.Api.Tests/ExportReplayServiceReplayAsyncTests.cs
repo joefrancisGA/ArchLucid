@@ -379,7 +379,9 @@ public sealed class ExportReplayServiceReplayAsyncTests
             runDetails.Object,
             Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
             ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     private static ExportReplayService CreateSut(
@@ -426,7 +428,9 @@ public sealed class ExportReplayServiceReplayAsyncTests
             runDetails.Object,
             Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
             ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     private static RunExportRecord BaseRecord(string exportType)

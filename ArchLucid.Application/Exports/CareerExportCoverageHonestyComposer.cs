@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Decisioning.Findings;
@@ -85,6 +86,15 @@ public static class CareerExportCoverageHonestyComposer
         if (classificationMarkdown.Length > 0)
         {
             sections.Add(classificationMarkdown);
+        }
+
+        string estateGapMarkdown = ArchitectureInventoryEstateGapCopy
+            .FormatCareerExportMarkdown(input.ArchitectureInventoryBound)
+            .Trim();
+
+        if (estateGapMarkdown.Length > 0)
+        {
+            sections.Add(estateGapMarkdown);
         }
 
         if (honesty.SponsorHonestyMarkdown.Length > 0)
