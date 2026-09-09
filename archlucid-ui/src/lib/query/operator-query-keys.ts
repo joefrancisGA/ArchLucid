@@ -104,6 +104,10 @@ export const operatorQueryKeys = {
     ["operator", "architecture", "seal-delta", architectureId] as const,
   architectureDeskDiagramSources: (latestReviewId: string) =>
     ["operator", "architecture", "desk-diagram-sources", latestReviewId] as const,
+  architectureInventoryBinding: (architectureId: string) =>
+    ["operator", "architecture", "inventory-binding", architectureId] as const,
+  infraEvidenceSnapshotsList: (page: number, pageSize: number) =>
+    ["operator", "infra-evidence", "snapshots", { page, pageSize }] as const,
   architectureIdentityList: (
     scope: OperatorScopeQueryKey,
     page: number,
