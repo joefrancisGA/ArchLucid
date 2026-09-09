@@ -5,8 +5,12 @@ import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_LIST_PATH,
+  REVIEWS_NEW_PATH,
   architectureDraftPath,
 } from "@/lib/architecture/architecture-routes";
+import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
+import { CLOUD_PROVIDER_CONNECTION_PATHS } from "@/lib/cloud-provider-connection-evidence-copy";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -15,7 +19,26 @@ import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-eviden
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_STANDARDS_AND_RULES_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import {
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_SLACK_PATH,
+  INTEGRATIONS_WEBHOOKS_PATH,
+} from "@/lib/integrations-nav-paths";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
@@ -24,6 +47,7 @@ import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route"
 import {
   SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
+  SETTINGS_SUPPORT_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
@@ -118,8 +142,10 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
     // Risk exceptions own layer guidance plus the approval banner — a shell banner would repeat it.
     expect(routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH)).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
+    expect(routeViewExplanationForPathname(GOVERNANCE_FINDINGS_PATH)?.title).toBe("Findings");
+    expect(routeViewExplanationForPathname(GOVERNANCE_AUDIT_PATH)?.title).toBe("Audit trail");
+    expect(routeViewExplanationForPathname(GOVERNANCE_ALERT_RULES_PATH)?.title).toBe("Alert rules");
+    expect(routeViewExplanationForPathname(`${GOVERNANCE_POLICY_PACKS_PATH}/pack-1`)).toBeNull();
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
@@ -158,7 +184,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(CONNECTION_STATUS_CANONICAL_PATH)?.title).toBe("Connection status");
 
     expect(routeViewExplanationForPathname(CLOUD_CONNECTIONS_CANONICAL_PATH)?.title).toBe("Cloud connections");
-    expect(routeViewExplanationForPathname(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/azure`)).toBeNull();
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.azure)?.title).toBe("Azure cloud connection");
 
     expect(routeViewExplanationForPathname(FIRST_REVIEW_GUIDE_PATH)?.title).toBe("First review guide");
 
@@ -168,6 +194,36 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
     expect(routeViewExplanationForPathname(SPONSOR_REPORT_PATH)?.title).toBe("Sponsor report");
     expect(routeViewExplanationForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.title).toBe("ROI summary");
+  });
+
+  it("covers instrument primer wave 7 — ITSM, notification channels, baseline, and system health", () => {
+    expect(routeViewExplanationForPathname(INTEGRATIONS_JIRA_PATH)?.title).toBe("Jira integration");
+    expect(routeViewExplanationForPathname(INTEGRATIONS_SLACK_PATH)?.title).toBe("Slack integration");
+    expect(routeViewExplanationForPathname(INTEGRATIONS_WEBHOOKS_PATH)?.title).toBe("Webhooks");
+
+    expect(routeViewExplanationForPathname(BASELINE_SETTINGS_CANONICAL_PATH)?.title).toBe("Baseline settings");
+    expect(routeViewExplanationForPathname(ADMINISTRATION_SYSTEM_HEALTH_PATH)?.title).toBe("System health");
+  });
+
+  it("covers instrument primer wave 8 — cloud provider wizards, review intake, and admin utilities", () => {
+    expect(routeViewExplanationForPathname(REVIEWS_NEW_PATH)?.title).toBe("Start a review");
+
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.aws)?.title).toBe("AWS cloud connection");
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.gcp)?.title).toBe("GCP cloud connection");
+
+    expect(routeViewExplanationForPathname(SETTINGS_SUPPORT_PATH)?.title).toBe("Support");
+    expect(routeViewExplanationForPathname(AUTH_DOMAINS_SETTINGS_CANONICAL_PATH)?.title).toBe("Sign-in domains");
+    expect(routeViewExplanationForPathname(EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH)?.title).toBe("Extract and upload");
+  });
+
+  it("covers instrument primer wave 9 — governance hub queues and registers", () => {
+    expect(routeViewExplanationForPathname(GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH)?.title).toBe("Needs attention");
+    expect(routeViewExplanationForPathname(GOVERNANCE_APPROVAL_QUEUE_PATH)?.title).toBe("Approval queue");
+    expect(routeViewExplanationForPathname(GOVERNANCE_DECISION_REGISTER_PATH)?.title).toBe("Decision register");
+    expect(routeViewExplanationForPathname(GOVERNANCE_POLICY_PACKS_PATH)?.title).toBe("Policy packs");
+    expect(routeViewExplanationForPathname(GOVERNANCE_STANDARDS_AND_RULES_PATH)?.title).toBe("Standards & rules");
+    expect(routeViewExplanationForPathname(SIGNED_RECORDS_LIST_PATH)?.title).toBe("Finalized review records");
+    expect(routeViewExplanationForPathname(`${SIGNED_RECORDS_LIST_PATH}/manifest-1`)).toBeNull();
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
